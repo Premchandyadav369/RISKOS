@@ -5,59 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Intelligence For Modern Finance</title>
 
-  <!-- Google Fonts: Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
-
-  <!-- Display Font: BubbledotICG-FinePos via OnlineWebFonts CDN -->
-  <link
-    href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos"
-    rel="stylesheet"
-  />
-
-  <!-- Font Awesome 6.5.2 -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Full-Viewport Background Video (Hero Only) -->
+
+  <!-- Background Video -->
   <div class="bg" aria-hidden="true">
     <video class="bg-video" autoplay muted loop playsinline>
-      <source
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4"
-        type="video/mp4"
-      />
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
     </video>
   </div>
 
-  <!-- ═══════════════════ STICKY HEADER ═══════════════════ -->
+  <!-- ═══════════ HEADER ═══════════ -->
   <header class="header" id="siteHeader">
     <div class="header-inner">
       <a href="#" class="logo-btn" aria-label="Home">
         <img src="assets/logo.webp" alt="" width="52" height="52" class="logo-img" />
       </a>
-
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="#home" class="nav-link active">Home</a>
         <a href="#platform" class="nav-link">Platform</a>
-        <a href="#how-it-works" class="nav-link">How It Works</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
-
-      <a href="#signin" class="signin-btn">Sign in</a>
-
-      <button class="burger-btn" id="burgerBtn" aria-label="Toggle navigation menu" aria-expanded="false">
+      <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">
         <span class="burger-bar"></span>
         <span class="burger-bar"></span>
         <span class="burger-bar"></span>
@@ -67,377 +42,183 @@
 
   <!-- Mobile Menu -->
   <div class="mobile-overlay" id="mobileOverlay" hidden></div>
-  <div class="mobile-menu" id="mobileMenu" hidden aria-label="Mobile Navigation">
+  <div class="mobile-menu" id="mobileMenu" hidden>
     <a href="#home" class="mobile-link active">Home</a>
     <a href="#platform" class="mobile-link">Platform</a>
-    <a href="#how-it-works" class="mobile-link">How It Works</a>
     <a href="#contact" class="mobile-link">Contact</a>
-    <a href="#signin" class="mobile-signin-btn">Sign in</a>
   </div>
 
-  <!-- ═══════════════════ HERO SECTION ═══════════════════ -->
+  <!-- ═══════════ HERO ═══════════ -->
   <section class="hero-section" id="home">
     <div class="hero">
-      <!-- Trust Row -->
-      <div class="trust-row anim" style="--d: 0.05s;">
-        <div class="trust-avatars">
-          <div class="avatar-ring avatar-1">
-            <div class="avatar-inner"><i class="fa-brands fa-microsoft"></i></div>
-          </div>
-          <div class="avatar-ring avatar-2">
-            <div class="avatar-inner"><i class="fa-solid fa-chart-line"></i></div>
-          </div>
-          <div class="avatar-ring avatar-3">
-            <div class="avatar-inner"><i class="fa-brands fa-google"></i></div>
-          </div>
-        </div>
-        <div class="trust-pill">
-          <span>Trusted by 2000+ Financial Teams</span>
-        </div>
-      </div>
-
-      <!-- Headline -->
       <h1 class="headline">
         <span class="headline-line line-1">Intelligence</span>
         <span class="headline-line line-2">For Modern Finance</span>
       </h1>
 
-      <!-- Subhead -->
       <p class="subhead anim" style="--d: 0.28s;">
         Turn market data into decisions with an intelligent financial platform built for analysis, risk and execution.
       </p>
 
-      <!-- CTA -->
       <div class="cta-wrapper anim" style="--d: 0.4s;">
-        <a href="#platform" class="cta-btn">Get Started</a>
-      </div>
-
-      <!-- Scroll Indicator -->
-      <div class="scroll-hint anim" style="--d: 0.6s;" aria-hidden="true">
-        <div class="scroll-arrow"></div>
+        <a href="#platform" class="cta-btn">Explore Platform</a>
       </div>
     </div>
 
-    <!-- Stats Row (Bottom of Hero) -->
-    <footer class="stats-footer">
+    <!-- Stats -->
+    <div class="stats-footer">
       <div class="stat-card anim" style="--d: 0.5s;" data-target="24" data-suffix="/7" data-decimals="0">
         <div class="stat-top">
-          <span class="stat-icon">$</span>
-          <span class="stat-value" id="stat-val-0">0</span>
+          <span class="stat-icon"><i class="fa-solid fa-satellite-dish"></i></span>
+          <span class="stat-value">0</span>
           <span class="stat-suffix">/7</span>
         </div>
         <div class="stat-label">Market Monitoring</div>
       </div>
       <div class="stat-card anim" style="--d: 0.58s;" data-target="99.9" data-suffix="%" data-decimals="1">
         <div class="stat-top">
-          <span class="stat-icon">&#x2197;</span>
-          <span class="stat-value" id="stat-val-1">0</span>
+          <span class="stat-icon"><i class="fa-solid fa-bullseye"></i></span>
+          <span class="stat-value">0</span>
           <span class="stat-suffix">%</span>
         </div>
         <div class="stat-label">Signal Accuracy</div>
       </div>
       <div class="stat-card anim" style="--d: 0.66s;" data-target="2.4" data-suffix="M" data-decimals="1">
         <div class="stat-top">
-          <span class="stat-icon">#</span>
-          <span class="stat-value" id="stat-val-2">0</span>
+          <span class="stat-icon"><i class="fa-solid fa-database"></i></span>
+          <span class="stat-value">0</span>
           <span class="stat-suffix">M</span>
         </div>
-        <div class="stat-label">Data Points Analyzed</div>
+        <div class="stat-label">Data Points / Day</div>
       </div>
       <div class="stat-card anim" style="--d: 0.74s;" data-target="120" data-suffix="ms" data-decimals="0">
         <div class="stat-top">
-          <span class="stat-icon">&#x20B9;</span>
-          <span class="stat-value" id="stat-val-3">0</span>
+          <span class="stat-icon"><i class="fa-solid fa-bolt"></i></span>
+          <span class="stat-value">0</span>
           <span class="stat-suffix">ms</span>
         </div>
         <div class="stat-label">Decision Latency</div>
       </div>
-    </footer>
+    </div>
   </section>
 
-  <!-- ═══════════════════ PLATFORM FEATURES ═══════════════════ -->
-  <section class="features-section" id="platform">
+  <!-- ═══════════ PLATFORM — 3 CORE CAPABILITIES ═══════════ -->
+  <section class="platform-section" id="platform">
     <div class="section-container">
+
       <div class="section-header fade-up">
         <span class="section-tag">Platform</span>
-        <h2 class="section-title">Everything You Need.<br/>Nothing You Don't.</h2>
-        <p class="section-subtitle">Six core capabilities engineered for institutional-grade financial intelligence. Each one built to solve a real problem.</p>
+        <h2 class="section-title">Three Engines.<br/>One Pipeline.</h2>
+        <p class="section-subtitle">Every decision flows through three stages: observe the market, measure the risk, then act. Nothing else.</p>
       </div>
 
-      <div class="features-grid">
-        <!-- Feature 1 -->
-        <div class="feature-card fade-up" style="--delay: 0s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-radar feature-icon"></i>
-          </div>
+      <!-- ──────── FEATURE 1: MARKET INTELLIGENCE ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">01</div>
+        <div class="feature-content">
           <h3 class="feature-title">Real-Time Market Intelligence</h3>
-          <p class="feature-desc">
-            Continuously monitors global equity, forex, commodity, and fixed-income markets across every timezone. Raw price feeds are processed through statistical filters to surface regime changes, volatility shifts, and cross-asset divergences — not news headlines, but the structural movements beneath them.
+          <p class="feature-lead">
+            Continuously monitors global equity, forex, commodity, and fixed-income markets across every timezone. Surfaces structural movements — not headlines.
           </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              Live market data streams through a pipeline of EWMA volatility estimators, Bollinger regime classifiers, and cross-correlation monitors. When a statistically significant deviation is detected — for example, a 2σ move in implied volatility while realized volatility stays flat — the system flags it as an actionable signal. Think of it as a radar that watches every market simultaneously and only alerts you when something genuinely unusual happens.
-            </p>
-          </div>
-        </div>
 
-        <!-- Feature 2 -->
-        <div class="feature-card fade-up" style="--delay: 0.08s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-shield-halved feature-icon"></i>
-          </div>
-          <h3 class="feature-title">Portfolio Risk Engine</h3>
-          <p class="feature-desc">
-            Measures how much your portfolio can lose under adverse conditions using three independent methods: Historical simulation, parametric estimation, and Monte Carlo. Goes beyond basic VaR to calculate Expected Shortfall (CVaR) — the average loss in the worst-case scenarios, which is what regulators and serious risk desks actually care about.
-          </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              Your portfolio returns are modelled using a GARCH(1,1) volatility process that captures volatility clustering — the fact that large moves tend to follow large moves. The covariance matrix between assets is estimated using the Ledoit-Wolf shrinkage method, which prevents estimation errors from blowing up in large portfolios. Monte Carlo then simulates 10,000+ future scenarios. The result: a daily number that says "with 99% confidence, your maximum loss won't exceed ₹X" — and a CVaR number that says "but if it does exceed that, expect it to be around ₹Y."
-              </p>
-          </div>
-        </div>
+          <div class="feature-detail">
+            <div class="detail-section">
+              <h4 class="detail-heading">What it does</h4>
+              <p>Raw price feeds are processed through statistical filters to detect regime changes, volatility shifts, and cross-asset divergences in real time. When a 2σ move in implied volatility occurs while realized volatility stays flat, the system flags it as actionable. Think of it as a radar that watches every market simultaneously and only alerts you when something genuinely unusual happens.</p>
+            </div>
 
-        <!-- Feature 3 -->
-        <div class="feature-card fade-up" style="--delay: 0.16s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-brain feature-icon"></i>
-          </div>
-          <h3 class="feature-title">Adaptive Signal Generation</h3>
-          <p class="feature-desc">
-            Detects whether the market is in a trending, mean-reverting, or high-volatility regime and automatically adjusts the trading strategy. Instead of using one fixed model, the system switches between multiple quantitative strategies depending on what the data says right now.
-          </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              A Hidden Markov Model (HMM) runs continuously on price data, identifying the current market "state" — bull trend, bear trend, or sideways chop. Each state has its own optimal strategy: momentum in trending markets, mean-reversion in range-bound markets, and reduced exposure in high-volatility states. When the HMM detects a regime transition (e.g., from trending to choppy), the system rebalances automatically. In simple terms: it knows when to push and when to pull back, without you having to guess.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="feature-card fade-up" style="--delay: 0.24s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-chart-pie feature-icon"></i>
-          </div>
-          <h3 class="feature-title">Optimal Portfolio Construction</h3>
-          <p class="feature-desc">
-            Builds portfolios that maximize return for a given risk budget using CVaR optimization — not the traditional mean-variance approach that breaks down in real markets. Handles constraints like maximum position sizes, sector limits, and turnover caps that institutional mandates require.
-          </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              Classical Markowitz optimization minimizes variance, but variance treats upside and downside equally — which makes no sense. CVaR optimization instead minimizes your expected loss in the worst 5% of scenarios, which is what you actually want to protect against. The optimizer takes your universe of assets, the current covariance structure, return forecasts from the factor model, and your constraints (e.g., "no more than 15% in any single name, at least 20% in fixed income") and finds the allocation that gives you the best risk-adjusted return. In plain language: it tells you exactly how much to put where, and why.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="feature-card fade-up" style="--delay: 0.32s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-fire feature-icon"></i>
-          </div>
-          <h3 class="feature-title">Stress Testing & Backtesting</h3>
-          <p class="feature-desc">
-            Replays your strategy against years of historical data to see how it would have performed — including during major crises. Then applies hypothetical extreme scenarios (rate spikes, credit contagion, flash crashes) to see how your current portfolio would survive conditions that haven't happened yet.
-          </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              The backtester runs your strategy day-by-day through historical data with realistic transaction costs, slippage, and liquidity constraints — no hindsight bias. It produces Sharpe ratios, maximum drawdown, Calmar ratios, and rolling performance metrics. The stress tester then takes your current portfolio and applies scenarios like "what if interest rates jump 300bps overnight" or "what if equity markets drop 40% over 3 months." Each scenario produces a concrete P&L impact. Think of backtesting as checking your strategy's resume, and stress testing as its fire drill.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 6 -->
-        <div class="feature-card fade-up" style="--delay: 0.40s;">
-          <div class="feature-icon-wrap">
-            <i class="fa-solid fa-bolt feature-icon"></i>
-          </div>
-          <h3 class="feature-title">Low-Latency Execution Pipeline</h3>
-          <p class="feature-desc">
-            When a signal fires, every millisecond matters. The execution layer turns decisions into orders with sub-120ms latency, using smart order routing, VWAP/TWAP algorithms, and real-time slippage monitoring to ensure you get the price the model intended, not the price you settle for.
-          </p>
-          <div class="feature-how">
-            <span class="how-label">How it works</span>
-            <p class="how-text">
-              The pipeline is event-driven: when the signal engine emits a trade recommendation, it passes through a pre-trade risk check (position limits, concentration limits, margin requirements) in under 5ms. If it clears, the order is routed to the optimal venue using a smart order router that considers spread, depth, and recent fill rates. Large orders are split using VWAP or TWAP algorithms to minimize market impact. Post-trade, the system records the execution quality — comparing the actual fill price against the signal price — so you always know exactly how much implementation cost you. In simple terms: it makes sure the gap between "what the model wanted" and "what actually happened" is as small as physically possible.
-            </p>
+            <div class="detail-section">
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>EWMA Volatility Estimators</strong> — Exponentially weighted moving averages that give more importance to recent price movements, so the volatility estimate reacts quickly to market shocks instead of being anchored to stale data.</li>
+                <li><strong>Hidden Markov Model (HMM)</strong> — A probabilistic model that identifies invisible market "states" (bull trend, bear trend, sideways). Transition probabilities are fitted via the Baum-Welch algorithm. In plain terms: it figures out which phase the market is in — even though the phase itself is never directly observable — like detecting the season by looking at the weather.</li>
+                <li><strong>Cross-Correlation Monitors</strong> — Tracks how assets move relative to each other in real time. When correlations break from their historical pattern (e.g., stocks and bonds suddenly moving together instead of apart), the system identifies it as a regime shift.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- ──────── FEATURE 2: RISK & PORTFOLIO ENGINE ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">02</div>
+        <div class="feature-content">
+          <h3 class="feature-title">Risk & Portfolio Engine</h3>
+          <p class="feature-lead">
+            Measures how much your portfolio can lose, builds the optimal allocation to minimize that loss, then validates the model against reality. One unified pipeline: measure → optimize → stress-test → validate.
+          </p>
+
+          <div class="feature-detail">
+            <div class="detail-section">
+              <h4 class="detail-heading">What it does</h4>
+              <p>Calculates Value at Risk (VaR) and Expected Shortfall (CVaR) using three independent methods — historical simulation, parametric estimation, and Monte Carlo. Then uses CVaR optimization to build portfolios that maximize return for a given risk budget. Finally, replays the strategy against years of historical data (including major crises) and applies hypothetical extreme scenarios to verify everything holds up.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>GARCH(1,1) Volatility</strong> — Models volatility as a time-varying process: σ²ₜ = ω + α·ε²ₜ₋₁ + β·σ²ₜ₋₁. Captures the empirical fact that large returns tend to follow large returns. In plain terms: after a big market move, the next few days tend to be more volatile too. GARCH measures this "momentum of risk" so the system knows when to tighten position sizes.</li>
+                <li><strong>Monte Carlo VaR & CVaR</strong> — Generates 10,000+ correlated random scenarios from the estimated return distribution. VaR tells you the boundary of normal bad days ("with 99% confidence, your maximum loss won't exceed ₹X"). CVaR tells you how bad it gets when things go really wrong — the average loss in the worst 1% of scenarios.</li>
+                <li><strong>Ledoit-Wolf Shrinkage</strong> — When you have many assets, raw correlation estimates are noisy. Ledoit-Wolf optimally blends the sample covariance matrix with a structured target to reduce estimation error. In plain terms: it "calms down" the noisy correlations so the optimizer doesn't make absurd bets based on statistical noise.</li>
+                <li><strong>CVaR Portfolio Optimization</strong> — Traditional Markowitz optimization treats upside and downside equally. CVaR optimization only penalizes the downside — specifically, the expected loss in the worst 5% of scenarios. It takes your assets, the current covariance structure, return forecasts, and your constraints (e.g., "no more than 15% in any single name") and finds the best risk-adjusted allocation.</li>
+                <li><strong>Backtesting</strong> — Runs your strategy day-by-day through historical data with realistic transaction costs, slippage, and liquidity constraints. Produces Sharpe ratios, maximum drawdown, and Calmar ratios. Think of it as checking your strategy's resume.</li>
+                <li><strong>Stress Testing</strong> — Takes your current portfolio and applies scenarios like "interest rates jump 300bps overnight" or "equity markets drop 40% over 3 months." Each scenario produces a concrete P&L impact. Think of it as the fire drill.</li>
+                <li><strong>Kupiec & Christoffersen Tests</strong> — A risk model is useless if it's wrong. Kupiec tests whether the model's VaR breaches match the predicted frequency. Christoffersen additionally checks that breaches aren't clustering together. If your model says "1% of the time" — these tests verify it really is 1%.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────── FEATURE 3: SIGNAL & EXECUTION ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">03</div>
+        <div class="feature-content">
+          <h3 class="feature-title">Signal & Execution</h3>
+          <p class="feature-lead">
+            When the market regime shifts and the optimizer generates a new target allocation, the execution layer turns that decision into filled orders — with sub-120ms latency and full post-trade analytics.
+          </p>
+
+          <div class="feature-detail">
+            <div class="detail-section">
+              <h4 class="detail-heading">What it does</h4>
+              <p>Detects the current market regime via the HMM, selects the appropriate strategy (momentum in trends, mean-reversion in ranges, reduced exposure in high-volatility states), and routes orders through a low-latency pipeline. Every order passes through pre-trade risk checks, smart order routing, and algorithmic execution (VWAP/TWAP). Post-trade, the system records fill quality — comparing the actual price against the signal price — so you always know exactly how much implementation cost you.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>Regime-Adaptive Strategy Selection</strong> — The HMM identifies bull, bear, or sideways states. Each state maps to a different strategy. When the model detects a transition (e.g., trending → choppy), the system rebalances automatically. In plain terms: it knows when to push and when to pull back, without you having to guess.</li>
+                <li><strong>Pre-Trade Risk Gate</strong> — Every order passes through position limits, concentration limits, and margin checks in under 5ms. If it fails, the order is rejected before reaching the market.</li>
+                <li><strong>Smart Order Routing</strong> — Routes to the optimal venue based on spread, depth, and recent fill rates.</li>
+                <li><strong>VWAP / TWAP Execution</strong> — Large orders are split across time to minimize market impact. VWAP targets the volume-weighted average price; TWAP spreads evenly across a time window.</li>
+                <li><strong>Post-Trade Analytics</strong> — Compares the fill price against the signal price to measure implementation shortfall. In plain terms: it makes sure the gap between "what the model wanted" and "what actually happened" is as small as physically possible.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </section>
 
-  <!-- ═══════════════════ HOW IT WORKS ═══════════════════ -->
-  <section class="how-section" id="how-it-works">
-    <div class="section-container">
-      <div class="section-header fade-up">
-        <span class="section-tag">How It Works</span>
-        <h2 class="section-title">From Data to Decision<br/>in Four Steps</h2>
-        <p class="section-subtitle">The entire pipeline — from raw market data to executed trade — runs autonomously. Here's what happens under the hood.</p>
-      </div>
-
-      <div class="steps-grid">
-        <div class="step-card fade-up" style="--delay: 0s;">
-          <div class="step-number">01</div>
-          <h3 class="step-title">Ingest</h3>
-          <p class="step-desc">
-            Market data from exchanges, economic calendars, and alternative sources streams into the platform. Every tick, every announcement, every macro print is captured, normalized, and stored. The system processes 2.4 million data points daily across 50+ global markets.
-          </p>
-        </div>
-
-        <div class="step-card fade-up" style="--delay: 0.1s;">
-          <div class="step-number">02</div>
-          <h3 class="step-title">Analyze</h3>
-          <p class="step-desc">
-            The risk engine and factor models run continuously. GARCH estimates current volatility. The HMM identifies the market regime. Cross-asset correlations are updated in real time. The system doesn't wait for you to ask — it's always computing, always watching.
-          </p>
-        </div>
-
-        <div class="step-card fade-up" style="--delay: 0.2s;">
-          <div class="step-number">03</div>
-          <h3 class="step-title">Decide</h3>
-          <p class="step-desc">
-            Signals are generated when statistical conditions align. The CVaR optimizer proposes new target allocations. Every recommendation comes with a confidence interval, expected return, and worst-case scenario — so you know exactly what you're signing up for before a single order is placed.
-          </p>
-        </div>
-
-        <div class="step-card fade-up" style="--delay: 0.3s;">
-          <div class="step-number">04</div>
-          <h3 class="step-title">Execute</h3>
-          <p class="step-desc">
-            Orders are routed through the low-latency pipeline with pre-trade risk checks, smart order routing, and algorithmic execution. Post-trade analytics confirm fill quality. The portfolio updates in real time, and the cycle begins again.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════ ALGORITHMS DEEP DIVE ═══════════════════ -->
-  <section class="algo-section" id="algorithms">
-    <div class="section-container">
-      <div class="section-header fade-up">
-        <span class="section-tag">Under the Hood</span>
-        <h2 class="section-title">The Mathematics<br/>Behind Every Decision</h2>
-        <p class="section-subtitle">Each algorithm is chosen for a specific reason. No filler, no buzzwords — just the methods that institutional risk desks actually use.</p>
-      </div>
-
-      <div class="algo-grid">
-        <!-- Algo 1 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Risk</span>
-            <h4 class="algo-name">GARCH(1,1) Volatility</h4>
-          </div>
-          <p class="algo-technical">
-            Models volatility as a time-varying process: σ²ₜ = ω + α·ε²ₜ₋₁ + β·σ²ₜ₋₁. Captures volatility clustering — the empirical fact that large returns tend to follow large returns.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> Markets don't have constant risk. After a big move, the next few days tend to be more volatile too. GARCH measures this "momentum of risk" so the system knows when to tighten position sizes.
-          </p>
-        </div>
-
-        <!-- Algo 2 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Risk</span>
-            <h4 class="algo-name">Monte Carlo VaR & CVaR</h4>
-          </div>
-          <p class="algo-technical">
-            Generates thousands of correlated random scenarios from the estimated return distribution. VaR = quantile at confidence level α. CVaR = E[Loss | Loss > VaR], the conditional expectation in the tail.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> Instead of guessing the worst case, the system simulates 10,000 possible tomorrows and measures how bad the worst ones get. VaR tells you the boundary of normal bad days. CVaR tells you how bad it gets when things go really wrong.
-          </p>
-        </div>
-
-        <!-- Algo 3 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Covariance</span>
-            <h4 class="algo-name">Ledoit-Wolf Shrinkage</h4>
-          </div>
-          <p class="algo-technical">
-            Optimally blends the sample covariance matrix with a structured target (e.g., constant correlation) to minimize estimation error. Shrinkage intensity is computed analytically, not tuned.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> When you have many assets, the raw correlation estimates are noisy and unreliable. Ledoit-Wolf "calms them down" by blending them with a simpler model, producing a covariance matrix that doesn't cause the optimizer to make absurd bets on estimation noise.
-          </p>
-        </div>
-
-        <!-- Algo 4 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Signal</span>
-            <h4 class="algo-name">Hidden Markov Model</h4>
-          </div>
-          <p class="algo-technical">
-            A probabilistic model with latent states (Bull / Bear / Sideways). Transition probabilities and emission distributions are fitted via the Baum-Welch algorithm. Viterbi decoding identifies the most likely current state.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> Markets cycle through phases — trending up, trending down, or going nowhere. The HMM figures out which phase we're in right now, even though the phase itself is invisible. It's like detecting the season by looking at the weather.
-          </p>
-        </div>
-
-        <!-- Algo 5 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Optimization</span>
-            <h4 class="algo-name">CVaR Portfolio Optimization</h4>
-          </div>
-          <p class="algo-technical">
-            Minimizes Conditional Value at Risk subject to return targets and position constraints. Formulated as a linear program via the Rockafellar-Uryasev transformation. Coherent risk measure.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> Traditional portfolio optimization treats good surprises and bad surprises the same. CVaR optimization only cares about the bad ones. It builds a portfolio that specifically protects against the worst-case scenarios while still targeting your return goal.
-          </p>
-        </div>
-
-        <!-- Algo 6 -->
-        <div class="algo-card fade-up">
-          <div class="algo-header">
-            <span class="algo-badge">Validation</span>
-            <h4 class="algo-name">Kupiec & Christoffersen Tests</h4>
-          </div>
-          <p class="algo-technical">
-            Kupiec: likelihood-ratio test of unconditional VaR coverage. Christoffersen: tests both coverage and independence of exceptions. Rejects models that produce clustered breaches.
-          </p>
-          <p class="algo-simple">
-            <strong>In plain English:</strong> A risk model is useless if it's wrong. These tests check whether the model's predictions actually match reality. If the model says "you'll lose more than ₹X only 1% of the time" — these tests verify that it really is 1%, and that the bad days aren't clumping together.
-          </p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════ CONTACT / CTA ═══════════════════ -->
-  <section class="cta-section" id="contact">
-    <div class="section-container">
-      <div class="cta-block fade-up">
-        <h2 class="cta-title">Ready to See It Live?</h2>
-        <p class="cta-subtitle">Request a demo and see how institutional-grade financial intelligence works on your data.</p>
-        <a href="mailto:premchand.23bce7167@vitapstudent.ac.in" class="cta-btn cta-btn-large">Request Demo</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════ FOOTER ═══════════════════ -->
-  <footer class="site-footer">
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer class="site-footer" id="contact">
     <div class="section-container footer-inner">
       <div class="footer-left">
         <a href="#" class="footer-logo">
           <img src="assets/logo.webp" alt="" width="28" height="28" />
-          <span>Intelligence For Modern Finance</span>
+          <span>RISKOS</span>
         </a>
         <p class="footer-copy">&copy; 2025 RISKOS. All rights reserved.</p>
+      </div>
+      <div class="footer-center">
+        <a href="mailto:premchand.23bce7167@vitapstudent.ac.in" class="footer-contact">premchand.23bce7167@vitapstudent.ac.in</a>
       </div>
       <div class="footer-links">
         <a href="#home">Home</a>
         <a href="#platform">Platform</a>
-        <a href="#how-it-works">How It Works</a>
-        <a href="#contact">Contact</a>
+        <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
   </footer>
