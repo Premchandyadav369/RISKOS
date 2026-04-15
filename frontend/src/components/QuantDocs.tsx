@@ -6,7 +6,6 @@ import { BookOpen, BrainCircuit, ShieldAlert, Cpu, Sparkles, CheckCircle2, Chevr
 export function QuantDocs() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedAlgo, setSelectedAlgo] = useState<any>(null);
 
   const algorithms = [
     {
@@ -15,14 +14,14 @@ export function QuantDocs() {
       category: "core",
       math: "VaR_\\alpha = -Q_{1-\\alpha}(L)",
       institutional: "Calculates the maximum expected loss over a specific timeframe (e.g. 1-day or 10-day) at a 95% or 99% confidence level by empirically ranking actual historical returns.",
-      layman: "Imagine looking at the last 1,000 trading days for your portfolio. Historical VaR line up all 1,000 daily gains and losses from best to worst. If the 10th worst day was a -$38,000 loss, then your 99% 1-day VaR is $38,000. It simple means: 'On 99 out of 100 days, you won't lose more than $38,000.'",
+      layman: "Imagine looking at the last 1,000 trading days for your portfolio. Historical VaR lines up all 1,000 daily gains and losses from best to worst. If the 10th worst day was a -$38,000 loss, then your 99% 1-day VaR is $38,000. It simply means: 'On 99 out of 100 days, you won't lose more than $38,000.'",
       keyMetrics: ["95% & 99% 1-Day VaR", "10-Day Horizon Scaling", "Empirical Quantiles"]
     },
     {
       id: "param-var",
       title: "2. Parametric & Cornish-Fisher VaR",
       category: "core",
-      math: "VaR_\\alpha = z_{cf} \\sigma_p V - \\mu_p V, \\quad z_{cf} = z_\\alpha + \\frac{S}{6}(z^2-1) + \\frac{K}{24}(z^3-3z)",
+      math: "VaR_\\alpha = z_{cf} \\sigma_p V - \\mu_p V, \\quad z_{cf} = z_\\alpha + \\frac{S}{6}(z^2-1) + \\frac{K}{24}(z^3-3z) - \\frac{S^2}{36}(2z^3-5z)",
       institutional: "Estimates risk using mean, volatility, skewness (S), and excess kurtosis (K) via Cornish-Fisher expansion to correct for non-Gaussian fat tails in market returns.",
       layman: "Standard formulas assume stock market returns follow a smooth bell curve. But in real life, market crashes happen much more often than a bell curve predicts ('fat tails'). Cornish-Fisher VaR adjusts the standard bell curve formula by taking asymmetry (skewness) and extreme jumpiness (kurtosis) into account.",
       keyMetrics: ["Cornish-Fisher Quantile", "Skewness & Excess Kurtosis", "Fat-Tail Adjusted VaR"]
@@ -31,7 +30,7 @@ export function QuantDocs() {
       id: "mc-var",
       title: "3. Monte Carlo VaR (100,000 Scenarios)",
       category: "simulation",
-      math: "L \\cdot L^T = \\Sigma, \\quad Z \\sim \\mathcal{N}(0, I), \\quad R_{sim} = \\mu + L Z",
+      math: "L \\cdot L^T = \\Sigma, \\quad Z \\sim \\mathcal{N}(0, I), \\quad R_{sim} = \\mu \\Delta t + L Z \\sqrt{\\Delta t}",
       institutional: "Flagship simulation engine generating 100,000 correlated portfolio return vectors using Cholesky Decomposition of the Ledoit-Wolf covariance matrix across multi-day horizons.",
       layman: "Think of this as running 100,000 parallel universe simulations of tomorrow's market on a supercomputer. By randomly shocking every asset while keeping their real-world correlations intact, we see all possible outcomes—from minor gains to Black Swan market crashes.",
       keyMetrics: ["100,000 Parallel Paths", "Cholesky Correlation Structure", "1D, 5D, 10D, 30D Horizons"]
@@ -163,8 +162,71 @@ export function QuantDocs() {
       keyMetrics: ["Target Loss Search (-25%)", "Plausible Shock Vector", "Vulnerability Discovery"]
     },
     {
+      id: "alm-irrbb",
+      title: "18. Treasury ALM & IRRBB Runway Engine",
+      category: "treasury",
+      math: "\\text{LCR} = \\frac{\\text{HQLA}}{\\text{Net 30D Outflows}}, \\quad \\Delta\\text{EVE} \\approx -D_{gap} \\cdot \\Delta y \\cdot V_{assets}",
+      institutional: "Asset Liability Management module computing dynamic Basel III LCR/NSFR survival runways under acute deposit runs and measuring Economic Value of Equity (EVE) and Net Interest Income (NII) under regulatory +/-200 bps shocks.",
+      layman: "Ensures the bank never suffers a Silicon Valley Bank-style bank run. LCR tracks if you have enough cash to survive a 30-day panic, and IRRBB measures how rising interest rates affect your bank's equity.",
+      keyMetrics: ["LCR Runway (Days)", "NSFR Structural Funding", "EVE / NII Sensitivity"]
+    },
+    {
+      id: "xva-engine",
+      title: "19. XVA Counterparty Credit Risk & SA-CCR",
+      category: "derivatives",
+      math: "\\text{CVA} = \\text{LGD} \\int_0^T \\text{EE}(t) d\\text{PD}(t), \\quad \\text{EAD}_{\\text{SA-CCR}} = 1.4 \\cdot (\\text{RC} + \\text{PFE})",
+      institutional: "Quantifies Credit Valuation Adjustment (CVA), Debit Valuation Adjustment (DVA), and Funding Valuation Adjustment (FVA) across OTC derivative books with Potential Future Exposure (PFE) profiles.",
+      layman: "When trading billion-dollar swaps with other banks, what happens if they go bankrupt before paying you? CVA is the insurance price tag you subtract from the trade value to protect against counterparty default.",
+      keyMetrics: ["CVA, DVA, FVA Charges", "99% Peak PFE Profile", "Basel SA-CCR EAD"]
+    },
+    {
+      id: "climate-ngfs",
+      title: "20. NGFS Regulatory Climate Stress Engine",
+      category: "research",
+      math: "\\text{Loss}_{\\text{clim}} = w_{\\text{equity}} \\Delta V_{\\text{carbon}} + w_{\\text{debt}} \\Delta V_{\\text{physical}}, \\quad \\text{PD}_{\\text{stressed}} = \\text{PD}_0 \\cdot M_{\\text{NGFS}}",
+      institutional: "Stresses corporate portfolios against Network for Greening the Financial System (NGFS) scenarios (Orderly, Disorderly, Hot House World) modeling carbon taxation and flood/cyclone damage.",
+      layman: "Stress tests the portfolio against global climate policies and extreme weather. If governments impose a $280/ton carbon tax or sea levels flood factories, this calculates how much money energy and industrial companies will lose.",
+      keyMetrics: ["Orderly / Disorderly / HotHouse", "Shadow Carbon Price ($/tCO2e)", "Carbon Intensity (WACI)"]
+    },
+    {
+      id: "quantum-qubo",
+      title: "21. Quantum QUBO & Annealing Optimizer",
+      category: "optimization",
+      math: "H(x) = x^T Q x - \\mu^T x + \\lambda \\left(\\sum x_i - K\\right)^2, \\quad x_i \\in \\{0, 1\\}",
+      institutional: "Quadratic Unconstrained Binary Optimization solved via Simulated Quantum Annealing / QAOA to find the exact global minimum ground energy for cardinality-constrained asset selection.",
+      layman: "Standard portfolio math struggles when you tell it: 'Pick EXACTLY 4 stocks out of 500'. A Quantum Annealing simulator uses quantum physics principles to explore millions of combinations instantly and find the best basket.",
+      keyMetrics: ["QUBO Ground State Energy", "Exact Cardinality K Selection", "Combinatorial Alpha"]
+    },
+    {
+      id: "orderbook-ofi",
+      title: "22. Level-2 Order Book & Order Flow Imbalance",
+      category: "trading",
+      math: "\\text{OFI}_t = \\frac{\\sum \\text{Vol}_{\\text{Bid}} - \\sum \\text{Vol}_{\\text{Ask}}}{\\sum \\text{Vol}_{\\text{Total}}}, \\quad \\text{VWAP} = \\frac{\\sum P_i V_i}{\\sum V_i}",
+      institutional: "High-frequency microstructure engine processing 10-level Depth of Market (DOM) limit orders to derive real-time Order Flow Imbalance (OFI) predictive alpha signals and optimal VWAP execution schedules.",
+      layman: "Peeks inside the live auction ladder of buyers and sellers at every penny. If huge buy orders are piling up while sellers vanish, OFI signals that the stock price is about to pop upward within seconds.",
+      keyMetrics: ["L2 Bid/Ask Depth Ladder", "Order Flow Imbalance (OFI)", "Level 1-5 Top VWAP"]
+    },
+    {
+      id: "committee-agents",
+      title: "23. Multi-Persona AI Risk Committee",
+      category: "agentic",
+      math: "\\text{Multi-Agent Consensus Graph: } \\mathcal{G} = \\{ \\text{Market}, \\text{Treasury}, \\text{Credit}, \\text{Compliance} \\}",
+      institutional: "Autonomous 4-agent institutional committee simulation deliberating risk limit breaches, synthesizing conflicting mandates (Yield vs VaR vs Capital), and outputting binding committee minutes.",
+      layman: "Simulates a boardroom meeting with 4 AI executives (Chief Risk Officer, Treasury Head, Credit Officer, Compliance Head) who argue their cases in real-time and vote on official portfolio rebalancing resolutions.",
+      keyMetrics: ["4 Specialized AI Personas", "Real-Time Committee Debate", "Binding Action Resolutions"]
+    },
+    {
+      id: "ccar-dfast",
+      title: "24. CCAR / DFAST Federal Reserve Filing Pack",
+      category: "validation",
+      math: "\\text{CET1}_{\\text{post-stress}} = \\frac{\\text{Tier 1 Equity} - \\text{Severely Adverse Losses}}{\\text{Stressed RWA}} \\ge 4.5\\%",
+      institutional: "Generates Comprehensive Capital Analysis and Review (CCAR) and DFAST supervisory stress testing packs evaluating capital surplus under Severely Adverse global stagflation.",
+      layman: "The official regulatory exam that the Federal Reserve forces Wall Street banks to pass every year. It proves our portfolio can survive a 10% unemployment recession and 38% stock crash without going bankrupt.",
+      keyMetrics: ["Severely Adverse Stressed CET1", "DFAST Capital Surplus ($)", "CRO Audit Signoff"]
+    },
+    {
       id: "k2-agentic",
-      title: "18. K2-V2 Agentic Reasoning Integration",
+      title: "25. K2-V2 Agentic Reasoning Pipeline",
       category: "agentic",
       math: "\\text{Reasoning Chain: Numerical Evidence} \\rightarrow \\text{Causal Graph} \\rightarrow \\text{Mitigation Plan}",
       institutional: "Orchestrates autonomous multi-agent root cause analysis when risk limits or backtests trigger warnings, synthesizing quantitative outputs into clear executive action steps.",
@@ -192,10 +254,10 @@ export function QuantDocs() {
           </div>
           <div>
             <h2 className="text-xl font-bold font-mono tracking-tight text-white flex items-center gap-2">
-              QUANTITATIVE METHODOLOGY & LAYMAN'S GUIDE
+              QUANTITATIVE METHODOLOGY & LAYMAN'S GUIDE (25 ENGINES)
             </h2>
             <p className="text-xs text-text-muted mt-0.5">
-              Comprehensive mathematical formulations, institutional quantitative applications, and plain-English explanations for all 18 core RISKOS algorithms.
+              Comprehensive mathematical formulations, institutional quantitative applications, and plain-English explanations for all 25 core RISKOS algorithms.
             </p>
           </div>
         </div>
@@ -204,13 +266,16 @@ export function QuantDocs() {
         <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-bg-border">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide py-1">
             {[
-              { id: "all", label: "All Algorithms (18)" },
+              { id: "all", label: "All Algorithms (25)" },
               { id: "core", label: "Core Risk & VaR" },
+              { id: "treasury", label: "Treasury ALM" },
+              { id: "derivatives", label: "XVA & Derivatives" },
               { id: "volatility", label: "Volatility Models" },
               { id: "simulation", label: "Monte Carlo" },
-              { id: "optimization", label: "Optimization" },
-              { id: "research", label: "Advanced Research" },
-              { id: "validation", label: "Backtesting" },
+              { id: "optimization", label: "Quantum & CVaR Opt" },
+              { id: "trading", label: "Order Book & Trading" },
+              { id: "research", label: "Climate & EVT" },
+              { id: "validation", label: "CCAR & Backtesting" },
               { id: "agentic", label: "Agentic AI" }
             ].map((cat) => (
               <button

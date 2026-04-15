@@ -29,6 +29,13 @@ from risk_engine.news_engine import fetch_live_macro_news
 from risk_engine.fixed_income import price_interest_rate_swap
 from risk_engine.credit_derivatives import price_credit_default_swap
 from risk_engine.quant_core import quant_engine
+from risk_engine.alm_engine import calculate_alm_and_irrbb
+from risk_engine.xva_engine import calculate_xva_and_sacr
+from risk_engine.climate_engine import calculate_ngfs_climate_stress
+from risk_engine.quantum_optimizer import simulate_quantum_qubo_optimization
+from risk_engine.orderbook_engine import generate_l2_orderbook
+from risk_engine.committee_engine import run_risk_committee_debate
+from risk_engine.ccar_engine import generate_ccar_dfast_pack
 
 app = FastAPI(
     title="RISKOS Quant Terminal API",
@@ -395,6 +402,34 @@ def get_comprehensive_quant_metrics():
         "black_litterman": black_litterman,
         "risk_attribution": attribution
     }
+
+@app.get("/api/alm/irrbb")
+def get_alm_irrbb(deposits: float = 500000000.0, hqla: float = 85000000.0, outflow_pct: float = 15.0, rate_shock_bps: int = 200):
+    return calculate_alm_and_irrbb(total_deposits=deposits, hqla=hqla, deposit_outflow_pct=outflow_pct, rate_shock_bps=rate_shock_bps)
+
+@app.get("/api/derivatives/xva")
+def get_xva_metrics(notional: float = 50000000.0, maturity: float = 5.0, cpty_spread: float = 140.0, own_spread: float = 80.0):
+    return calculate_xva_and_sacr(notional=notional, maturity_years=maturity, counterparty_spread_bps=cpty_spread, own_credit_spread_bps=own_spread)
+
+@app.get("/api/climate/ngfs")
+def get_climate_stress(scenario: str = "Disorderly"):
+    return calculate_ngfs_climate_stress(active_scenario=scenario)
+
+@app.get("/api/optimization/quantum")
+def get_quantum_qubo(target_return: float = 0.14, cardinality_k: int = 4):
+    return simulate_quantum_qubo_optimization(target_return=target_return, cardinality_k=cardinality_k)
+
+@app.get("/api/market/orderbook")
+def get_l2_orderbook(symbol: str = "NVDA", mid_price: float = 128.50):
+    return generate_l2_orderbook(symbol=symbol, mid_price=mid_price)
+
+@app.get("/api/committee/session")
+def get_committee_session(topic: str = "Cross-Asset Technology Spike & USD/INR FX Volatility"):
+    return run_risk_committee_debate(session_topic=topic)
+
+@app.get("/api/regulatory/ccar")
+def get_ccar_filing():
+    return generate_ccar_dfast_pack()
 
 if __name__ == "__main__":
     import uvicorn

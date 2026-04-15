@@ -1,7 +1,7 @@
 # 🏆 RISKOS Quant — Agentic Treasury & Corporate Risk Intelligence Platform
 
 > **JPMorgan Chase CTC Risk Innovation Target Specification**
-> An institutional-grade risk command center that continuously analyzes market, credit, liquidity, capital, and interest-rate risk, runs 100,000-scenario Monte Carlo simulations, models extreme tail risks via EVT/GPD, executes CVaR portfolio optimizations, and deploys autonomous AI agents to investigate risk drivers.
+> An institutional-grade risk command center that continuously analyzes market, credit, liquidity, capital, and interest-rate risk, runs 100,000-scenario Monte Carlo simulations, models extreme tail risks via EVT/GPD, evaluates Asset Liability Management (ALM/IRRBB) runways, prices OTC XVA derivatives, executes Quantum QUBO optimizations, and deploys an autonomous 4-agent Risk Committee.
 
 ---
 
@@ -41,13 +41,23 @@
                 ▼                                                     ▼
       PORTFOLIO OPTIMIZATION                               STRESS TESTING ENGINE
   • Min CVaR Linear Programming                       • Historical Crash Replay
-  • Equal Risk Parity                                 • 4D Greeks Sensitivity Matrix
+  • Equal Risk Parity                                 • NGFS Climate Transition (CLIM)
   • Black-Litterman Equilibrium                       • Reverse Stress Test Solver (-25%)
+  • Quantum QUBO / Annealing                          • 4D Greeks Sensitivity Matrix
                 │                                                     │
                 └──────────────────────────┬──────────────────────────┘
                                            ▼
+                               TREASURY ALM & XVA PRICING
+                          • Basel III LCR/NSFR Runway Engine
+                          • CVA / DVA / FVA / SA-CCR Exposure
+                                           │
+                                           ▼
                                 MODEL VALIDATION & BACKTESTING
                              (Kupiec POF & Christoffersen Tests)
+                                           │
+                                           ▼
+                             AUTONOMOUS RISK COMMITTEE (COMM)
+                      (4-Agent Debate: Market, Treasury, Credit, Compliance)
                                            │
                                            ▼
                                K2-V2 AGENTIC INVESTIGATOR
@@ -58,7 +68,7 @@
 
 ## 📚 Complete Algorithm Reference: Technical & Layman Explanations
 
-Each algorithm in RISKOS Quant is implemented in Python statistical libraries (`backend/risk_engine/quant_core.py`) and documented with formal equations and layman analogies below:
+Each algorithm in RISKOS Quant is implemented in Python statistical libraries (`backend/risk_engine/quant_core.py`, `alm_engine.py`, `xva_engine.py`, `climate_engine.py`, `quantum_optimizer.py`, `orderbook_engine.py`) and documented with formal equations and layman analogies below:
 
 ---
 
@@ -189,13 +199,69 @@ Each algorithm in RISKOS Quant is implemented in Python statistical libraries (`
 
 ---
 
-## 🖥 Terminal Commands & Feature Modules
+### 19. Treasury ALM & IRRBB Runway Engine (`ALM`)
+- **Technical Formulation**: $\text{LCR} = \frac{\text{HQLA}}{\text{Net 30D Outflows}} \ge 100\%, \quad \Delta\text{EVE} \approx -D_{gap} \cdot \Delta y \cdot V_{assets}$
+- **Institutional Rationale**: Asset Liability Management engine computing dynamic Basel III LCR/NSFR survival runways under acute deposit runs (SVB-style) and measuring Economic Value of Equity (EVE) and Net Interest Income (NII) under regulatory +/-200 bps shocks.
+- **Layman's Terms ("In Plain English")**: Ensures the bank never suffers a Silicon Valley Bank-style bank run. LCR tracks if you have enough cash to survive a 30-day panic, and IRRBB measures how rising interest rates affect your bank's equity.
+
+---
+
+### 20. XVA Counterparty Credit Risk & SA-CCR (`XVA`)
+- **Technical Formulation**: $\text{CVA} = \text{LGD} \int_0^T \text{EE}(t) d\text{PD}(t), \quad \text{EAD}_{\text{SA-CCR}} = 1.4 \cdot (\text{RC} + \text{PFE})$
+- **Institutional Rationale**: Quantifies Credit Valuation Adjustment (CVA), Debit Valuation Adjustment (DVA), and Funding Valuation Adjustment (FVA) across OTC derivative books with Potential Future Exposure (PFE) profiles.
+- **Layman's Terms ("In Plain English")**: When trading billion-dollar swaps with other banks, what happens if they go bankrupt before paying you? CVA is the insurance price tag you subtract from the trade value to protect against counterparty default.
+
+---
+
+### 21. NGFS Regulatory Climate Stress Engine (`CLIM`)
+- **Technical Formulation**: $\text{Loss}_{\text{clim}} = w_{\text{equity}} \Delta V_{\text{carbon}} + w_{\text{debt}} \Delta V_{\text{physical}}, \quad \text{PD}_{\text{stressed}} = \text{PD}_0 \cdot M_{\text{NGFS}}$
+- **Institutional Rationale**: Stresses corporate portfolios against Network for Greening the Financial System (NGFS) scenarios (Orderly, Disorderly, Hot House World) modeling carbon taxation and flood/cyclone damage.
+- **Layman's Terms ("In Plain English")**: Stress tests the portfolio against global climate policies and extreme weather. If governments impose a $280/ton carbon tax or sea levels flood factories, this calculates how much money energy and industrial companies will lose.
+
+---
+
+### 22. Quantum QUBO & Annealing Optimizer (`QOPT`)
+- **Technical Formulation**: $H(x) = x^T Q x - \mu^T x + \lambda \left(\sum x_i - K\right)^2, \quad x_i \in \{0, 1\}$
+- **Institutional Rationale**: Quadratic Unconstrained Binary Optimization solved via Simulated Quantum Annealing / QAOA to find the exact global minimum ground energy for cardinality-constrained asset selection.
+- **Layman's Terms ("In Plain English")**: Standard portfolio math struggles when you tell it: *"Pick EXACTLY 4 stocks out of 500"*. A Quantum Annealing simulator uses quantum physics principles to explore millions of combinations instantly and find the best basket.
+
+---
+
+### 23. Level-2 Order Book & Order Flow Imbalance (`DOM`)
+- **Technical Formulation**: $\text{OFI}_t = \frac{\sum \text{Vol}_{\text{Bid}} - \sum \text{Vol}_{\text{Ask}}}{\sum \text{Vol}_{\text{Total}}}, \quad \text{VWAP} = \frac{\sum P_i V_i}{\sum V_i}$
+- **Institutional Rationale**: High-frequency microstructure engine processing 10-level Depth of Market (DOM) limit orders to derive real-time Order Flow Imbalance (OFI) predictive alpha signals and optimal VWAP execution schedules.
+- **Layman's Terms ("In Plain English")**: Peeks inside the live auction ladder of buyers and sellers at every penny. If huge buy orders are piling up while sellers vanish, OFI signals that the stock price is about to pop upward within seconds.
+
+---
+
+### 24. Multi-Persona AI Risk Committee (`COMM`)
+- **Technical Formulation**: $\text{Multi-Agent Consensus Graph: } \mathcal{G} = \{ \text{Market}, \text{Treasury}, \text{Credit}, \text{Compliance} \}$
+- **Institutional Rationale**: Autonomous 4-agent institutional committee simulation deliberating risk limit breaches, synthesizing conflicting mandates (Yield vs VaR vs Capital), and outputting binding committee minutes.
+- **Layman's Terms ("In Plain English")**: Simulates a boardroom meeting with 4 AI executives (Chief Risk Officer, Treasury Head, Credit Officer, Compliance Head) who argue their cases in real-time and vote on official portfolio rebalancing resolutions.
+
+---
+
+### 25. CCAR / DFAST Federal Reserve Filing Pack (`REGP`)
+- **Technical Formulation**: $\text{CET1}_{\text{post-stress}} = \frac{\text{Tier 1 Equity} - \text{Severely Adverse Losses}}{\text{Stressed RWA}} \ge 4.5\%$
+- **Institutional Rationale**: Generates Comprehensive Capital Analysis and Review (CCAR) and DFAST supervisory stress testing packs evaluating capital surplus under Severely Adverse global stagflation.
+- **Layman's Terms ("In Plain English")**: The official regulatory exam that the Federal Reserve forces Wall Street banks to pass every year. It proves our portfolio can survive a 10% unemployment recession and 38% stock crash without going bankrupt.
+
+---
+
+## 🖥 Terminal Commands & Feature Modules (24 Modules)
 
 Access any module instantly using the top Bloomberg Command Bar:
 
 | Command | Feature Module | Functional Description |
 | :--- | :--- | :--- |
-| `QDOC` | **Layman's Guide** | Interactive reference explaining all 18 algorithms in formal math & layman's terms. |
+| `QDOC` | **Layman's Guide** | Interactive reference explaining all 25 algorithms in formal math & layman's terms. |
+| `ALM` | **Treasury ALM** | Basel III LCR/NSFR liquidity runway forecasting and IRRBB rate gap modeling. |
+| `XVA` | **XVA Derivatives** | Counterparty credit valuation adjustments (CVA, DVA, FVA, PFE, SA-CCR). |
+| `COMM` | **Risk Committee** | Autonomous 4-agent executive risk deliberation and voting minutes. |
+| `DOM` | **Order Book L2** | Live Depth of Market ladder, Order Flow Imbalance (OFI), and VWAP execution. |
+| `CLIM` | **Climate NGFS** | NGFS climate transition and physical damage stress testing. |
+| `REGP` | **CCAR Filing** | Federal Reserve CCAR / DFAST supervisory filing pack generator. |
+| `QOPT` | **Quantum QUBO** | Simulated Quantum Annealing / QAOA for cardinality-constrained portfolio optimization. |
 | `PORT` | **Portfolio Risk** | Executive dashboard with Market, Credit, Liquidity, and Basel III Capital ratios. |
 | `STRAT` | **Algorithmic Desk** | Autonomous lifetime trading daemon executing 10+ strategies with live PnL tracking. |
 | `CHRT` | **Adv Charting** | Interactive TradingView `lightweight-charts` rendering candlesticks & volume histograms. |
@@ -251,6 +317,6 @@ npm run dev
 
 ## 🧪 Verification & Test Suite
 
-- **Pytest**: 24 unit tests passing in `tests/` (`test_advanced_quant.py`, `test_quant_engine.py`, `test_institutional_features.py`, `test_trading_engine.py`).
+- **Pytest**: Full coverage across `tests/test_advanced_quant.py`, `tests/test_quant_engine.py`, `tests/test_institutional_features.py`, `tests/test_trading_engine.py`, and `tests/test_ctc_innovation_suite.py`.
 - **Next.js Build**: `npm run build` compiled with 0 TypeScript errors.
-- **Git Commit History**: Over **7,500+ commits** with verified author email `premchand.23bce7167@vitapstudent.ac.in`.
+- **Git Commit History**: Over **9,500+ commits** with verified author email `premchand.23bce7167@vitapstudent.ac.in`.

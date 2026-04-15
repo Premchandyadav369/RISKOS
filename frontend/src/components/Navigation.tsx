@@ -8,16 +8,21 @@ import {
   Sliders, 
   BrainCircuit, 
   AlertTriangle, 
-  BarChart3,
-  TrendingUp,
-  Layers,
-  ShieldCheck,
-  Activity,
-  LineChart,
-  BookOpen,
-  ArrowRightLeft,
-  LineChart as ChartIcon,
-  HelpCircle
+  BarChart3, 
+  TrendingUp, 
+  Layers, 
+  ShieldCheck, 
+  Activity, 
+  LineChart, 
+  BookOpen, 
+  ArrowRightLeft, 
+  HelpCircle,
+  Landmark,
+  Users,
+  FileCheck,
+  Atom,
+  Globe,
+  LineChart as ChartIcon
 } from "lucide-react";
 
 interface NavProps {
@@ -30,6 +35,13 @@ export function Navigation({ currentTab, setTab }: NavProps) {
     { id: "overview", label: "Portfolio Risk (PORT)", icon: BarChart3 },
     { id: "strat", label: "Algorithmic Desk (STRAT)", icon: TrendingUp },
     { id: "quantdocs", label: "Layman's Guide (QDOC)", icon: HelpCircle },
+    { id: "alm", label: "Treasury ALM & IRRBB", icon: Landmark },
+    { id: "xva", label: "XVA Derivatives Desk", icon: ArrowRightLeft },
+    { id: "committee", label: "AI Risk Committee", icon: Users },
+    { id: "orderbook", label: "Order Book L2 (DOM)", icon: Layers },
+    { id: "climate", label: "Climate NGFS Stress", icon: Globe },
+    { id: "regulatory", label: "CCAR / DFAST Pack", icon: FileCheck },
+    { id: "quantum", label: "Quantum QUBO (QOPT)", icon: Atom },
     { id: "tradesim", label: "Pre-Trade Sim (TSIM)", icon: Calculator },
     { id: "charting", label: "Adv Charting (CHRT)", icon: ChartIcon },
     { id: "markets", label: "Cross-Market (IN/US)", icon: Globe2 },
@@ -60,7 +72,7 @@ export function Navigation({ currentTab, setTab }: NavProps) {
               RISKOS
             </h1>
             <span className="text-[10px] font-semibold tracking-widest uppercase text-forest font-mono">
-              QUANT TERMINAL
+              CTC RISK INNOVATION
             </span>
           </div>
         </div>
@@ -96,8 +108,8 @@ export function Navigation({ currentTab, setTab }: NavProps) {
           <span className="text-forest font-semibold">NON-STOP</span>
         </div>
         <div className="flex items-center justify-between text-[10px]">
-          <span>REASONING:</span>
-          <span className="text-text-main font-semibold">K2 Think V2</span>
+          <span>TARGET:</span>
+          <span className="text-text-main font-semibold">JPM CTC Innovation</span>
         </div>
       </div>
     </aside>
