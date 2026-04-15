@@ -3,46 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RISKOS - Financial Intelligence</title>
+    <title>RISKOS - Institutional Quant Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="app.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="topbar">
+    <!-- Topbar -->
+    <header class="topbar">
         <div class="logo-container">
             <a href="index.html">
-                <img src="assets/logo.webp" alt="RISKOS Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Crect width=\'40\' height=\'40\' fill=\'%23333\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'white\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
-                <span>RISKOS</span>
+                <img src="assets/logo.webp" alt="RISKOS Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' fill=\'%23fff\' rx=\'16\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' font-family=\'Arial\' font-size=\'14\' font-weight=\'bold\' fill=\'%23000\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
+                <span>RISKOS <span class="badge-quant">PROP DESK v3.0</span></span>
             </a>
         </div>
         <div class="controls">
-            <input type="text" id="ticker-input" value="AAPL,MSFT,GOOGL,AMZN,JPM" placeholder="Enter comma-separated tickers">
-            <button id="analyze-btn">Analyze</button>
+            <div class="input-wrap">
+                <i class="fa-solid fa-layer-group input-icon"></i>
+                <input type="text" id="ticker-input" value="AAPL,MSFT,GOOGL,AMZN,JPM" placeholder="Enter comma-separated tickers">
+            </div>
+            <button id="analyze-btn"><i class="fa-solid fa-play" style="margin-right:6px"></i> Run Models</button>
         </div>
-    </div>
+    </header>
 
-    <div class="tabs-container">
+    <!-- Navigation Tabs (6 Quant Desks) -->
+    <nav class="tabs-container" aria-label="Quant Trading Desks">
         <div class="tabs">
-            <button class="tab-btn active" data-tab="tab-market">Market Intelligence</button>
-            <button class="tab-btn" data-tab="tab-risk">Risk Engine</button>
-            <button class="tab-btn" data-tab="tab-signals">Signals & Execution</button>
+            <button class="tab-btn active" data-tab="tab-market"><i class="fa-solid fa-chart-line"></i> Market Intelligence</button>
+            <button class="tab-btn" data-tab="tab-risk"><i class="fa-solid fa-shield-halved"></i> Risk & Portfolio</button>
+            <button class="tab-btn" data-tab="tab-spreads"><i class="fa-solid fa-arrow-trend-up"></i> Futures & Rates Desk</button>
+            <button class="tab-btn" data-tab="tab-micro"><i class="fa-solid fa-bars-staggered"></i> Microstructure & OFI</button>
+            <button class="tab-btn" data-tab="tab-options"><i class="fa-solid fa-wave-square"></i> Derivatives & Vol Lab</button>
+            <button class="tab-btn" data-tab="tab-signals"><i class="fa-solid fa-bolt"></i> Signals & Allocation</button>
         </div>
-    </div>
+    </nav>
 
-    <div class="content">
-        <!-- Tab 1: Market Intelligence -->
-        <div id="tab-market" class="tab-content active">
+    <!-- Content Area -->
+    <main class="content">
+
+        <!-- ═══════════ DESK 1: MARKET INTELLIGENCE ═══════════ -->
+        <section id="tab-market" class="tab-content active">
             <div class="grid-2-col">
                 <div class="card chart-card">
-                    <h2>Price History</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-area"></i> Multi-Asset Price History</h2>
+                        <span class="badge">1Y Daily Log-Returns</span>
+                    </div>
                     <div class="chart-container">
                         <canvas id="priceChart"></canvas>
                     </div>
                 </div>
                 <div class="card chart-card">
-                    <h2>Volatility Panel</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-line"></i> Volatility: EWMA vs GARCH(1,1)</h2>
+                        <span class="badge">Annualized Conditional Vol</span>
+                    </div>
                     <div class="chart-container">
                         <canvas id="volatilityChart"></canvas>
                     </div>
@@ -50,31 +66,43 @@
             </div>
             <div class="grid-2-col mt-4">
                 <div class="card">
-                    <h2>Regime Indicator <span class="muted">(SPY)</span></h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-brain"></i> Hidden Markov Model Regime</h2>
+                        <span class="badge">SPY Gaussian HMM</span>
+                    </div>
                     <div id="regime-container" class="regime-display">
-                        <div class="loading">Loading regime data...</div>
+                        <div class="loading">Loading HMM state probabilities...</div>
                     </div>
                 </div>
                 <div class="card">
-                    <h2>Correlation Heatmap</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-table-cells"></i> Cross-Asset Correlation Matrix</h2>
+                        <span class="badge">Ledoit-Wolf Shrinkage</span>
+                    </div>
                     <div id="correlation-container" class="correlation-display">
-                        <div class="loading">Loading correlations...</div>
+                        <div class="loading">Loading correlation matrix...</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Tab 2: Risk Engine -->
-        <div id="tab-risk" class="tab-content">
+        <!-- ═══════════ DESK 2: RISK & PORTFOLIO ENGINE ═══════════ -->
+        <section id="tab-risk" class="tab-content">
             <div class="grid-2-col">
                 <div class="card chart-card">
-                    <h2>Value at Risk (VaR / CVaR)</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-simple"></i> Tail Risk: VaR vs CVaR (99% Confidence)</h2>
+                        <span class="badge">Historical / Parametric / Monte Carlo</span>
+                    </div>
                     <div class="chart-container">
                         <canvas id="varChart"></canvas>
                     </div>
                 </div>
                 <div class="card chart-card">
-                    <h2>Optimal Portfolio</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-chart-pie"></i> CVaR Optimal Portfolio Allocation</h2>
+                        <span class="badge">Min Expected Shortfall (SLSQP)</span>
+                    </div>
                     <div class="chart-container">
                         <canvas id="portfolioChart"></canvas>
                     </div>
@@ -82,7 +110,10 @@
                 </div>
             </div>
             <div class="card mt-4 chart-card">
-                <h2>Backtest Results</h2>
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-route"></i> Walk-Forward Portfolio Backtest</h2>
+                    <span class="badge">With 10bps Transaction Cost Drag</span>
+                </div>
                 <div class="chart-container large">
                     <canvas id="backtestChart"></canvas>
                 </div>
@@ -90,7 +121,10 @@
             </div>
             <div class="grid-2-col mt-4">
                 <div class="card">
-                    <h2>Stress Test Scenarios</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-fire"></i> Stress Testing & Macro Scenarios</h2>
+                        <span class="badge">Base ₹1,00,00,000</span>
+                    </div>
                     <table class="data-table" id="stress-table">
                         <thead>
                             <tr>
@@ -101,23 +135,167 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td colspan="4" class="text-center">Loading stress test data...</td></tr>
+                            <tr><td colspan="4" class="text-center">Loading stress test matrix...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="card">
-                    <h2>Model Validation</h2>
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-certificate"></i> Regulatory Model Validation</h2>
+                        <span class="badge">Basel III Backtesting</span>
+                    </div>
                     <div id="validation-container" class="validation-display">
-                        <div class="loading">Loading validation metrics...</div>
+                        <div class="loading">Evaluating Kupiec & Christoffersen tests...</div>
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Tab 3: Signals & Execution -->
-        <div id="tab-signals" class="tab-content">
-            <div class="card">
-                <h2>Trading Signals</h2>
+        <!-- ═══════════ DESK 3: FUTURES & RATES DESK ═══════════ -->
+        <section id="tab-spreads" class="tab-content">
+            <div class="grid-2-col">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-arrows-split-up-and-left"></i> Kalman Filter Dynamic Hedge Ratio (β)</h2>
+                        <span class="badge" id="spread-pair-label">AAPL vs MSFT</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="spreadChart"></canvas>
+                    </div>
+                    <div id="spread-stats" class="stats-row mt-2"></div>
+                </div>
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-bezier-curve"></i> Nelson-Siegel-Svensson Yield Curve</h2>
+                        <span class="badge">3M to 30Y US Treasuries</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="yieldCurveChart"></canvas>
+                    </div>
+                    <div id="curve-spreads-stats" class="stats-row mt-2"></div>
+                </div>
+            </div>
+            <div class="grid-2-col mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-arrows-spin"></i> Ornstein-Uhlenbeck (OU) Mean Reversion</h2>
+                        <span class="badge">Statistical Arbitrage Half-Life</span>
+                    </div>
+                    <div id="ou-stats-container" class="stats-grid-4"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-cubes"></i> Yield Curve PCA Factor Structure</h2>
+                        <span class="badge">Shift (86.4%) · Twist (10.8%) · Butterfly (2.8%)</span>
+                    </div>
+                    <div id="pca-container" class="pca-display"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════ DESK 4: MICROSTRUCTURE & OFI ═══════════ -->
+        <section id="tab-micro" class="tab-content">
+            <div class="grid-2-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-list-ol"></i> Level-2 Order Book (DOM Ladder)</h2>
+                        <span class="badge" id="dom-ticker-label">Top 10 Bids & Asks</span>
+                    </div>
+                    <div id="dom-ladder-container" class="dom-table-wrap">
+                        <div class="loading">Loading Depth of Market...</div>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-gauge-high"></i> Almgren-Chriss Optimal Liquidation Trajectory</h2>
+                        <span class="badge">Market Impact vs Volatility Risk</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="almgrenChart"></canvas>
+                    </div>
+                    <div id="almgren-stats" class="stats-row mt-2"></div>
+                </div>
+            </div>
+            <div class="grid-2-col mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-magnet"></i> Order Flow Imbalance (OFI) & Micro-Price</h2>
+                        <span class="badge">Queue-Weighted Fair Value</span>
+                    </div>
+                    <div id="micro-price-stats" class="stats-grid-3"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-biohazard"></i> VPIN Toxicity & Informed Trading Meter</h2>
+                        <span class="badge">Volume-Synchronized Probability of Toxicity</span>
+                    </div>
+                    <div id="vpin-container" class="vpin-display"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════ DESK 5: DERIVATIVES & VOLATILITY LAB ═══════════ -->
+        <section id="tab-options" class="tab-content">
+            <div class="grid-2-col">
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-smile"></i> Volatility Smile / Skew Structure</h2>
+                        <span class="badge">SVI / SABR Moneyness (0.8 - 1.2)</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="volSmileChart"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-repeat"></i> Discrete Delta-Hedging Simulator (30 Days)</h2>
+                        <span class="badge">Gamma PnL vs Theta Drag with Cost</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="deltaHedgeChart"></canvas>
+                    </div>
+                    <div id="delta-hedge-stats" class="stats-row mt-2"></div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-cubes-stacked"></i> 1st & 2nd Order Analytical Greeks Matrix</h2>
+                    <span class="badge">Black-Scholes-Merton European Analytical</span>
+                </div>
+                <div id="greeks-table-container" class="greeks-wrap">
+                    <div class="loading">Computing cross-greeks...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════ DESK 6: SIGNALS & ALLOCATION ═══════════ -->
+        <section id="tab-signals" class="tab-content">
+            <div class="grid-2-col">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-scale-balanced"></i> Equal Risk Contribution (Risk Parity)</h2>
+                        <span class="badge">Marginal Volatility Budgeting</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="riskParityChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fa-solid fa-diagram-project"></i> Brinson-Fachler PnL Attribution</h2>
+                        <span class="badge">Allocation vs Selection vs Interaction</span>
+                    </div>
+                    <div id="brinson-container" class="brinson-display">
+                        <div class="loading">Loading Brinson-Fachler attribution...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-tower-broadcast"></i> Regime-Adaptive Trading Signals</h2>
+                    <span class="badge">Multi-Factor Quantitative Filter</span>
+                </div>
                 <table class="data-table" id="signals-table">
                     <thead>
                         <tr>
@@ -134,17 +312,22 @@
                     </tbody>
                 </table>
             </div>
+
             <div class="card mt-4">
-                <h2>Execution Simulator</h2>
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-terminal"></i> Institutional Order Execution Simulator</h2>
+                    <span class="badge">VWAP / TWAP Dynamic Slicing</span>
+                </div>
                 <div class="execution-form">
                     <select id="exec-ticker" class="exec-input"></select>
-                    <input type="number" id="exec-qty" class="exec-input" value="100" min="1" placeholder="Quantity">
-                    <button id="execute-btn">Execute</button>
+                    <input type="number" id="exec-qty" class="exec-input" value="5000" min="1" placeholder="Quantity">
+                    <button id="execute-btn"><i class="fa-solid fa-paper-plane" style="margin-right:6px"></i> Route & Execute</button>
                 </div>
                 <div id="exec-result" class="exec-result mt-4"></div>
             </div>
-        </div>
-    </div>
+        </section>
+
+    </main>
 
     <script src="app.js"></script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Intelligence For Modern Finance</title>
+  <title>RISKOS — Institutional Quantitative Trading & Analytics Platform</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -29,7 +29,8 @@
       </a>
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="#home" class="nav-link active">Home</a>
-        <a href="#platform" class="nav-link">Platform</a>
+        <a href="#platform" class="nav-link">Desks</a>
+        <a href="app.html" class="nav-link">Terminal</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
       <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">
@@ -44,7 +45,8 @@
   <div class="mobile-overlay" id="mobileOverlay" hidden></div>
   <div class="mobile-menu" id="mobileMenu" hidden>
     <a href="#home" class="mobile-link active">Home</a>
-    <a href="#platform" class="mobile-link">Platform</a>
+    <a href="#platform" class="mobile-link">Desks</a>
+    <a href="app.html" class="mobile-link">Launch Terminal</a>
     <a href="#contact" class="mobile-link">Contact</a>
   </div>
 
@@ -52,16 +54,16 @@
   <section class="hero-section" id="home">
     <div class="hero">
       <h1 class="headline">
-        <span class="headline-line line-1">Intelligence</span>
-        <span class="headline-line line-2">For Modern Finance</span>
+        <span class="headline-line line-1">Quantitative</span>
+        <span class="headline-line line-2">Proprietary Trading Terminal</span>
       </h1>
 
       <p class="subhead anim" style="--d: 0.28s;">
-        Turn market data into decisions with an intelligent financial platform built for analysis, risk and execution.
+        Built for proprietary trading desks and institutional quant research: Cointegrated Futures Spreads, Yield Curve PCA, Order Flow Imbalance, Cross-Greeks & CVaR Optimization.
       </p>
 
       <div class="cta-wrapper anim" style="--d: 0.4s;">
-        <a href="app.html" class="cta-btn">Explore Platform</a>
+        <a href="app.html" class="cta-btn">Launch Quant Terminal</a>
       </div>
     </div>
 
@@ -73,7 +75,7 @@
           <span class="stat-value">0</span>
           <span class="stat-suffix">/7</span>
         </div>
-        <div class="stat-label">Market Monitoring</div>
+        <div class="stat-label">Market Surveillance</div>
       </div>
       <div class="stat-card anim" style="--d: 0.58s;" data-target="99.9" data-suffix="%" data-decimals="1">
         <div class="stat-top">
@@ -81,7 +83,7 @@
           <span class="stat-value">0</span>
           <span class="stat-suffix">%</span>
         </div>
-        <div class="stat-label">Signal Accuracy</div>
+        <div class="stat-label">VaR Model Coverage</div>
       </div>
       <div class="stat-card anim" style="--d: 0.66s;" data-target="2.4" data-suffix="M" data-decimals="1">
         <div class="stat-top">
@@ -89,7 +91,7 @@
           <span class="stat-value">0</span>
           <span class="stat-suffix">M</span>
         </div>
-        <div class="stat-label">Data Points / Day</div>
+        <div class="stat-label">Order Book Ticks / Day</div>
       </div>
       <div class="stat-card anim" style="--d: 0.74s;" data-target="120" data-suffix="ms" data-decimals="0">
         <div class="stat-top">
@@ -97,102 +99,151 @@
           <span class="stat-value">0</span>
           <span class="stat-suffix">ms</span>
         </div>
-        <div class="stat-label">Decision Latency</div>
+        <div class="stat-label">Execution Latency</div>
       </div>
     </div>
   </section>
 
-  <!-- ═══════════ PLATFORM — 3 CORE CAPABILITIES ═══════════ -->
+  <!-- ═══════════ PLATFORM — 6 QUANT TRADING DESKS ═══════════ -->
   <section class="platform-section" id="platform">
     <div class="section-container">
 
       <div class="section-header fade-up">
-        <span class="section-tag">Platform</span>
-        <h2 class="section-title">Three Engines.<br/>One Pipeline.</h2>
-        <p class="section-subtitle">Every decision flows through three stages: observe the market, measure the risk, then act. Nothing else.</p>
+        <span class="section-tag">Institutional Architecture</span>
+        <h2 class="section-title">Six Quantitative Desks.<br/>One Unified Terminal.</h2>
+        <p class="section-subtitle">Engineered to institutional standards with rigorous mathematical formulations—from Kalman cointegration to Nelson-Siegel yield curves and cross-Greeks.</p>
       </div>
 
-      <!-- ──────── FEATURE 1: MARKET INTELLIGENCE ──────── -->
+      <!-- ──────── DESK 1: MARKET INTELLIGENCE ──────── -->
       <div class="feature-block fade-up">
         <div class="feature-num">01</div>
         <div class="feature-content">
-          <h3 class="feature-title">Real-Time Market Intelligence</h3>
+          <h3 class="feature-title">Market Intelligence & Regime Analytics</h3>
           <p class="feature-lead">
-            Continuously monitors global equity, forex, commodity, and fixed-income markets across every timezone. Surfaces structural movements — not headlines.
+            Surfaces macro shifts and volatility clustering across equity, rates, and commodities using time-varying volatility and latent Markov states.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">What it does</h4>
-              <p>Raw price feeds are processed through statistical filters to detect regime changes, volatility shifts, and cross-asset divergences in real time. When a 2σ move in implied volatility occurs while realized volatility stays flat, the system flags it as actionable. Think of it as a radar that watches every market simultaneously and only alerts you when something genuinely unusual happens.</p>
-            </div>
-
-            <div class="detail-section">
               <h4 class="detail-heading">Under the hood</h4>
               <ul class="detail-list">
-                <li><strong>EWMA Volatility Estimators</strong> — Exponentially weighted moving averages that give more importance to recent price movements, so the volatility estimate reacts quickly to market shocks instead of being anchored to stale data.</li>
-                <li><strong>Hidden Markov Model (HMM)</strong> — A probabilistic model that identifies invisible market "states" (bull trend, bear trend, sideways). Transition probabilities are fitted via the Baum-Welch algorithm. In plain terms: it figures out which phase the market is in — even though the phase itself is never directly observable — like detecting the season by looking at the weather.</li>
-                <li><strong>Cross-Correlation Monitors</strong> — Tracks how assets move relative to each other in real time. When correlations break from their historical pattern (e.g., stocks and bonds suddenly moving together instead of apart), the system identifies it as a regime shift.</li>
+                <li><strong>EWMA & GARCH(1,1) Volatility</strong> — Maximum likelihood estimation of conditional variance $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$ capturing volatility clustering and persistence.</li>
+                <li><strong>3-State Hidden Markov Model (HMM)</strong> — Unsupervised Baum-Welch training and Viterbi decoding identifying latent Bull, Bear, and Mean-Reverting Sideways regimes.</li>
+                <li><strong>Ledoit-Wolf Covariance Shrinkage</strong> — Optimal analytical shrinkage toward constant correlation structure, preventing ill-conditioned sample covariance inversion.</li>
               </ul>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ──────── FEATURE 2: RISK & PORTFOLIO ENGINE ──────── -->
+      <!-- ──────── DESK 2: RISK & PORTFOLIO ENGINE ──────── -->
       <div class="feature-block fade-up">
         <div class="feature-num">02</div>
         <div class="feature-content">
-          <h3 class="feature-title">Risk & Portfolio Engine</h3>
+          <h3 class="feature-title">Portfolio Risk Engine & CVaR Optimizer</h3>
           <p class="feature-lead">
-            Measures how much your portfolio can lose, builds the optimal allocation to minimize that loss, then validates the model against reality. One unified pipeline: measure → optimize → stress-test → validate.
+            Computes multi-horizon tail risk (VaR & Expected Shortfall), runs non-linear portfolio optimization, and validates models via Basel III backtesting.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">What it does</h4>
-              <p>Calculates Value at Risk (VaR) and Expected Shortfall (CVaR) using three independent methods — historical simulation, parametric estimation, and Monte Carlo. Then uses CVaR optimization to build portfolios that maximize return for a given risk budget. Finally, replays the strategy against years of historical data (including major crises) and applies hypothetical extreme scenarios to verify everything holds up.</p>
-            </div>
-
-            <div class="detail-section">
               <h4 class="detail-heading">Under the hood</h4>
               <ul class="detail-list">
-                <li><strong>GARCH(1,1) Volatility</strong> — Models volatility as a time-varying process: σ²ₜ = ω + α·ε²ₜ₋₁ + β·σ²ₜ₋₁. Captures the empirical fact that large returns tend to follow large returns. In plain terms: after a big market move, the next few days tend to be more volatile too. GARCH measures this "momentum of risk" so the system knows when to tighten position sizes.</li>
-                <li><strong>Monte Carlo VaR & CVaR</strong> — Generates 10,000+ correlated random scenarios from the estimated return distribution. VaR tells you the boundary of normal bad days ("with 99% confidence, your maximum loss won't exceed ₹X"). CVaR tells you how bad it gets when things go really wrong — the average loss in the worst 1% of scenarios.</li>
-                <li><strong>Ledoit-Wolf Shrinkage</strong> — When you have many assets, raw correlation estimates are noisy. Ledoit-Wolf optimally blends the sample covariance matrix with a structured target to reduce estimation error. In plain terms: it "calms down" the noisy correlations so the optimizer doesn't make absurd bets based on statistical noise.</li>
-                <li><strong>CVaR Portfolio Optimization</strong> — Traditional Markowitz optimization treats upside and downside equally. CVaR optimization only penalizes the downside — specifically, the expected loss in the worst 5% of scenarios. It takes your assets, the current covariance structure, return forecasts, and your constraints (e.g., "no more than 15% in any single name") and finds the best risk-adjusted allocation.</li>
-                <li><strong>Backtesting</strong> — Runs your strategy day-by-day through historical data with realistic transaction costs, slippage, and liquidity constraints. Produces Sharpe ratios, maximum drawdown, and Calmar ratios. Think of it as checking your strategy's resume.</li>
-                <li><strong>Stress Testing</strong> — Takes your current portfolio and applies scenarios like "interest rates jump 300bps overnight" or "equity markets drop 40% over 3 months." Each scenario produces a concrete P&L impact. Think of it as the fire drill.</li>
-                <li><strong>Kupiec & Christoffersen Tests</strong> — A risk model is useless if it's wrong. Kupiec tests whether the model's VaR breaches match the predicted frequency. Christoffersen additionally checks that breaches aren't clustering together. If your model says "1% of the time" — these tests verify it really is 1%.</li>
+                <li><strong>Monte Carlo VaR & CVaR</strong> — 10,000 correlated path simulations computing 99% Conditional Value at Risk ($E[L \mid L > \text{VaR}_{99}]$).</li>
+                <li><strong>CVaR Portfolio Optimization (SLSQP)</strong> — Non-linear Rockafellar-Uryasev formulation minimizing tail loss under institutional weight constraints.</li>
+                <li><strong>Kupiec POF & Christoffersen Tests</strong> — Likelihood ratio tests verifying unconditional coverage and independence of tail breaches.</li>
+                <li><strong>Macro Stress Testing</strong> — Simulates instantaneous rate spikes (+300bps), equity crashes (-40%), and credit contagion correlation breakdown.</li>
               </ul>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- ──────── FEATURE 3: SIGNAL & EXECUTION ──────── -->
+      <!-- ──────── DESK 3: FUTURES & RATES DESK ──────── -->
       <div class="feature-block fade-up">
         <div class="feature-num">03</div>
         <div class="feature-content">
-          <h3 class="feature-title">Signal & Execution</h3>
+          <h3 class="feature-title">Futures Spread & Yield Curve Rates Desk</h3>
           <p class="feature-lead">
-            When the market regime shifts and the optimizer generates a new target allocation, the execution layer turns that decision into filled orders — with sub-120ms latency and full post-trade analytics.
+            Statistical arbitrage for calendar/commodity spreads using recursive Kalman filters and US Treasury yield curve parametric decomposition.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">What it does</h4>
-              <p>Detects the current market regime via the HMM, selects the appropriate strategy (momentum in trends, mean-reversion in ranges, reduced exposure in high-volatility states), and routes orders through a low-latency pipeline. Every order passes through pre-trade risk checks, smart order routing, and algorithmic execution (VWAP/TWAP). Post-trade, the system records fill quality — comparing the actual price against the signal price — so you always know exactly how much implementation cost you.</p>
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>Kalman Filter Dynamic Hedge Ratio ($\beta_t$)</strong> — Online recursive state-space hedge estimation avoiding static OLS regression lag.</li>
+                <li><strong>Ornstein-Uhlenbeck (OU) Mean Reversion</strong> — Analytical calibration of half-life ($\tau = \frac{\ln 2}{\theta}$) and equilibrium mean for mean-reverting futures pairs.</li>
+                <li><strong>Nelson-Siegel-Svensson (NSS) Zero Curve</strong> — Continuous parametric yield curve fitting from 3M to 30Y tenors.</li>
+                <li><strong>Yield Curve PCA Decomposition</strong> — Factor variance decomposition into Level (86.4%), Slope/2s10s (10.8%), and Curvature/Butterfly (2.8%).</li>
+              </ul>
             </div>
+          </div>
+        </div>
+      </div>
 
+      <!-- ──────── DESK 4: MICROSTRUCTURE & OFI ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">04</div>
+        <div class="feature-content">
+          <h3 class="feature-title">Market Microstructure & Order Flow Desk</h3>
+          <p class="feature-lead">
+            Analyzes Level-2 order book depth queues, order flow imbalance, informed trader toxicity, and optimal execution trajectories.
+          </p>
+
+          <div class="feature-detail">
             <div class="detail-section">
               <h4 class="detail-heading">Under the hood</h4>
               <ul class="detail-list">
-                <li><strong>Regime-Adaptive Strategy Selection</strong> — The HMM identifies bull, bear, or sideways states. Each state maps to a different strategy. When the model detects a transition (e.g., trending → choppy), the system rebalances automatically. In plain terms: it knows when to push and when to pull back, without you having to guess.</li>
-                <li><strong>Pre-Trade Risk Gate</strong> — Every order passes through position limits, concentration limits, and margin checks in under 5ms. If it fails, the order is rejected before reaching the market.</li>
-                <li><strong>Smart Order Routing</strong> — Routes to the optimal venue based on spread, depth, and recent fill rates.</li>
-                <li><strong>VWAP / TWAP Execution</strong> — Large orders are split across time to minimize market impact. VWAP targets the volume-weighted average price; TWAP spreads evenly across a time window.</li>
-                <li><strong>Post-Trade Analytics</strong> — Compares the fill price against the signal price to measure implementation shortfall. In plain terms: it makes sure the gap between "what the model wanted" and "what actually happened" is as small as physically possible.</li>
+                <li><strong>Order Flow Imbalance (OFI)</strong> — Real-time net volume pressure at the top of the limit order book predicting sub-second price moves.</li>
+                <li><strong>Micro-Price Calculation</strong> — Fair price estimator incorporating bid-ask queue depth sizes ($P_{\text{micro}} = \frac{Q_b P_a + Q_a P_b}{Q_b + Q_a}$).</li>
+                <li><strong>VPIN (Volume-Synchronized Probability of Toxicity)</strong> — Measures adverse selection risk and impending liquidity vacuums.</li>
+                <li><strong>Almgren-Chriss Optimal Execution</strong> — Calculus of variations balancing linear/quadratic market impact against volatility risk.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────── DESK 5: DERIVATIVES & VOL LAB ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">05</div>
+        <div class="feature-content">
+          <h3 class="feature-title">Derivatives, Volatility Surface & Greeks Lab</h3>
+          <p class="feature-lead">
+            European options analytical pricing, full 1st and 2nd order cross-greeks suite, and continuous discrete delta-hedging simulation.
+          </p>
+
+          <div class="feature-detail">
+            <div class="detail-section">
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>1st & 2nd Order Analytical Greeks</strong> — Exact Black-Scholes formulas for $\Delta$, $\Gamma$, $\text{Vega}$, $\Theta$, and $\rho$.</li>
+                <li><strong>Cross-Greeks (Vanna, Volga, Charm)</strong> — Vanna ($\frac{\partial^2 V}{\partial S \partial \sigma}$), Volga ($\frac{\partial^2 V}{\partial \sigma^2}$), and Charm ($\frac{\partial \Delta}{\partial t}$) for market-maker surface risk.</li>
+                <li><strong>Volatility Smile / Skew Modeling</strong> — Parametric SVI / SABR curvature across strike moneyness ($0.8\times$ to $1.2\times$).</li>
+                <li><strong>Discrete Delta-Hedging Simulator</strong> — Simulates daily dynamic delta replication PnL with slippage and transaction cost drag.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──────── DESK 6: ATTRIBUTION & ALLOCATION ──────── -->
+      <div class="feature-block fade-up">
+        <div class="feature-num">06</div>
+        <div class="feature-content">
+          <h3 class="feature-title">PnL Attribution & Risk Parity Allocation</h3>
+          <p class="feature-lead">
+            Attribution of alpha into macroeconomic decisions and systematic portfolio sizing using equal risk contribution and Fractional Kelly.
+          </p>
+
+          <div class="feature-detail">
+            <div class="detail-section">
+              <h4 class="detail-heading">Under the hood</h4>
+              <ul class="detail-list">
+                <li><strong>Brinson-Fachler PnL Decomposition</strong> — Deconstructs excess returns into Sector Allocation, Asset Selection, and Interaction effects.</li>
+                <li><strong>Equal Risk Contribution (Risk Parity)</strong> — Equalizes marginal risk contributions across assets ($w_i (\Sigma w)_i = \text{const}$).</li>
+                <li><strong>Multi-Asset Fractional Kelly Criterion</strong> — Dynamic sizing ($F^* = \kappa \Sigma^{-1} \mu$) maximizing geometric growth while capping drawdown.</li>
               </ul>
             </div>
           </div>
@@ -208,16 +259,17 @@
       <div class="footer-left">
         <a href="#" class="footer-logo">
           <img src="assets/logo.webp" alt="" width="28" height="28" />
-          <span>RISKOS</span>
+          <span>RISKOS QUANT</span>
         </a>
-        <p class="footer-copy">&copy; 2025 RISKOS. All rights reserved.</p>
+        <p class="footer-copy">&copy; 2025 RISKOS. Quantitative Trading Architecture.</p>
       </div>
       <div class="footer-center">
         <a href="mailto:premchand.23bce7167@vitapstudent.ac.in" class="footer-contact">premchand.23bce7167@vitapstudent.ac.in</a>
       </div>
       <div class="footer-links">
         <a href="#home">Home</a>
-        <a href="#platform">Platform</a>
+        <a href="#platform">Desks</a>
+        <a href="app.html">Terminal</a>
         <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
