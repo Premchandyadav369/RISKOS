@@ -8,7 +8,6 @@ import {
   Sliders, 
   BrainCircuit, 
   AlertTriangle, 
-  FileText,
   BarChart3,
   TrendingUp,
   Layers,
@@ -17,7 +16,8 @@ import {
   LineChart,
   BookOpen,
   ArrowRightLeft,
-  LineChart as ChartIcon
+  LineChart as ChartIcon,
+  HelpCircle
 } from "lucide-react";
 
 interface NavProps {
@@ -29,6 +29,7 @@ export function Navigation({ currentTab, setTab }: NavProps) {
   const items = [
     { id: "overview", label: "Portfolio Risk (PORT)", icon: BarChart3 },
     { id: "strat", label: "Algorithmic Desk (STRAT)", icon: TrendingUp },
+    { id: "quantdocs", label: "Layman's Guide (QDOC)", icon: HelpCircle },
     { id: "tradesim", label: "Pre-Trade Sim (TSIM)", icon: Calculator },
     { id: "charting", label: "Adv Charting (CHRT)", icon: ChartIcon },
     { id: "markets", label: "Cross-Market (IN/US)", icon: Globe2 },

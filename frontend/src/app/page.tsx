@@ -23,6 +23,7 @@ import { ModelExplain } from "@/components/ModelExplain";
 import { SwapPricer } from "@/components/SwapPricer";
 import { CDSPricer } from "@/components/CDSPricer";
 import { Charting } from "@/components/Charting";
+import { QuantDocs } from "@/components/QuantDocs";
 import { fetchRiskOverview, fetchCrossMarketData, fetchQuantAnalytics } from "@/lib/api";
 
 export default function Home() {
@@ -60,6 +61,7 @@ export default function Home() {
           title={
             currentTab === "overview" ? "PORT — Risk Overview" :
             currentTab === "strat" ? "STRAT — Algorithmic Multi-Strategy Trading Desk" :
+            currentTab === "quantdocs" ? "QDOC — Quant Methodology & Layman's Terms Guide" :
             currentTab === "tradesim" ? "TSIM — Pre-Trade Execution & Market Impact Check" :
             currentTab === "charting" ? "CHRT — Advanced Institutional Charting" :
             currentTab === "markets" ? "Cross-Market Analytics (IN / US)" :
@@ -91,6 +93,7 @@ export default function Home() {
             <>
               {currentTab === "overview" && <RiskOverview data={overviewData} />}
               {currentTab === "strat" && <StratDesk />}
+              {currentTab === "quantdocs" && <QuantDocs />}
               {currentTab === "tradesim" && <TradeSim />}
               {currentTab === "charting" && <Charting />}
               {currentTab === "markets" && <CrossMarketView data={crossMarketData} />}
