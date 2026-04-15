@@ -1,6 +1,6 @@
 # RISKOS Quant: Agentic Quantitative Risk Intelligence & Stress-Testing Platform
 
-> **An enterprise-grade, multi-agent quantitative risk intelligence, macro stress testing, and digital twin platform for Indian (NSE/BSE) and US (NYSE/NASDAQ) financial markets.**
+> **An enterprise-grade, multi-agent quantitative risk intelligence, macro stress testing, Bloomberg Terminal trading desk, and Basel III capital adequacy workstation for Indian (NSE/BSE) and US (NYSE/NASDAQ) financial markets.**
 
 Designed specifically to demonstrate institutional-grade risk technology for **JPMorgan Chase – CTC Risk Innovation (Corporate & Treasury Risk)**.
 
@@ -17,18 +17,19 @@ graph TD
     C --> C1[VaR & Expected Shortfall Engine]
     C --> C2[Black-Scholes Options Greeks Engine]
     C --> C3[Portfolio Mean-Variance Optimizer]
-    C --> C4[Cross-Market Correlation & FX Engine]
+    C --> C4[Pre-Trade Execution Impact Simulator]
+    C --> C5[Basel III CET1 & RWA Capital Calculator]
     
     D --> D1[Isolation Forest Anomaly Detection]
     D --> D2[Gaussian Mixture Market Regime Classifier]
     D --> D3[Counterparty Credit Default Model]
-    D --> D4[SHAP Feature Attribution Explainability]
+    D --> D4[Systemic CoVaR Financial Contagion Model]
     
     C --> E[Macro Stress Testing & Risk Digital Twin]
     D --> E
     
     E --> F[K2 Think V2 Reasoning AI Engine]
-    F --> G[Multi-Agent Risk Investigation System]
+    F --> G[Multi-Agent Risk Investigation & Algorithmic Trading Desk]
     
     G --> G1[Quant Agent]
     G --> G2[Market Agent]
@@ -37,7 +38,7 @@ graph TD
     G --> G5[Scenario Agent]
     G --> G6[Risk Investigator Agent]
     
-    G --> H[Institutional Research Terminal UI: Next.js + Tailwind]
+    G --> H[Bloomberg Terminal Workstation UI: Next.js + Tailwind]
 ```
 
 ---
@@ -48,35 +49,22 @@ graph TD
 - Ingests real-time prices for **US Tech & Banking** (`NVDA`, `AAPL`, `MSFT`, `JPM`, `GS`, `SPY`) and **Indian Equities & Banking** (`RELIANCE.NS`, `TCS.NS`, `INFY.NS`, `HDFCBANK.NS`, `ICICIBANK.NS`, `^NSEI`).
 - Built-in **Data Quality Engine** auditing records completeness (99.81%), OHLC consistency, timestamp validity, and synthetic fallbacks.
 
-### 2. Deterministic Quantitative Risk Engine (Python)
-- **Value-at-Risk (VaR)** & **Expected Shortfall (CVaR)**: Calculates 95% and 99% Historical, Parametric (Normal), and Monte Carlo VaR (100,000 simulations).
-- **Options Risk & Black-Scholes Greeks**: Exact European option pricing and full Greeks ($\Delta$, $\Gamma$, $\mathcal{V}$, $\Theta$, $\rho$).
-- **Portfolio Optimization**: Markowitz Mean-Variance optimization maximizing Sharpe ratio under asset & cash constraints.
-- **Factor Risk Decomposition**: Separates systemic beta, technology sector concentration, banking exposure, interest rate sensitivity, and USD/INR FX impact.
+### 2. Bloomberg Terminal Algorithmic Trading Desk
+- **Function Shortcuts**: `PORT` (Portfolio), `STRAT` (Trading Desk), `TSIM` (Pre-Trade Sim), `BTST` (Backtest), `OVME` (Vol Surface), `CAP` (Basel Capital), `NET` (Contagion Net), `NEWS` (News Wire), `MON` (Breach Monitor).
+- **Non-Stop Execution Daemon**: Continuous background execution loop running 5 quantitative trading strategies (*US-India Pairs Trading*, *Delta-Neutral Options Hedging*, *Multi-Factor Momentum*, *Equal Risk Contribution Risk Parity*, *USD/INR FX Carry*).
 
-### 3. Machine Learning Risk Layer
-- **Anomaly Detection**: Isolation Forest flagging single-day abnormal return & volume jumps.
-- **Market Regime Detection**: Gaussian Mixture clustering market state into *Low Volatility*, *Normal*, *High Volatility*, and *Crisis Regime*.
-- **Credit Default Probability (PD)**: ML credit scoring predicting counterparty default probabilities, Expected Loss ($EL = PD \times LGD \times EAD$).
-- **SHAP Explainability**: Feature attribution analysis for risk score movements.
+### 3. Pre-Trade Execution & Almgren-Chriss Market Impact Check
+- Calculates Delta VaR ($\Delta \text{VaR}$), Almgren-Chriss market impact cost ($Impact = \eta \cdot \sigma \cdot \sqrt{\frac{V}{ADV}}$), and TWAP/VWAP execution schedules before order placement.
 
-### 4. Macro Stress Testing & Risk Digital Twin
-- Interactive sliders for **Interest Rate Shocks (+/- 300 bps)**, **NIFTY 50 / S&P 500 Drawdowns (-40%)**, **USD/INR FX Shocks**, **Volatility Spikes**, and **Credit Spread Widening**.
-- Instant recalculation of portfolio P&L, 99% Stressed VaR, Liquidity Buffer drawdown, and capital impacts.
+### 4. Basel III Capital Adequacy & FRTB RWA Engine
+- Calculates Credit Risk RWA, Market Risk RWA (FRTB Standardized/IMA approach), Operational Risk RWA, Common Equity Tier 1 (CET1) Ratio, and Capital Headroom.
 
-### 5. K2-V2 Agentic AI Investigation Engine
+### 5. Systemic Risk $\Delta\text{CoVaR}$ & Financial Contagion Network
+- Measures cross-border financial distress spillover and Absorption Ratio between US money-center banks, tech giants, and Indian financial institutions.
+
+### 6. K2-V2 Agentic AI Investigation Engine
 - Integrated with **K2 Think V2** (`MBZUAI-IFM/K2-Think-v2`) open-weight 70B reasoning model API.
-- 6 specialized agents reason over structured JSON quantitative context to perform root-cause investigations.
-- **"WHY?"** button on all metrics providing step-by-step evidence logs, confidence ratings, and recommended actions.
-
----
-
-## 🎨 Visual Aesthetics & UI Design
-
-Built adhering to the **Modern Institutional Research Terminal** design direction:
-- **Palette**: Warm off-white (`#F5F6F4`), Card surface (`#FFFFFF`), Border (`#D9DDD8`), Text (`#17201B`), Primary Accent: Deep Forest Green (`#176B4D`).
-- **Typography**: IBM Plex Sans + IBM Plex Mono font pairing for dense, analytical terminal readability.
-- **Aesthetic**: Zero neon AI slop, no floating chatbots, no gradients — dense structured tables and analytical cards.
+- **`[ WHY? ]`** button on all metrics and trades providing step-by-step evidence logs, confidence ratings, and recommended actions.
 
 ---
 
@@ -90,28 +78,19 @@ Built adhering to the **Modern Institutional Research Terminal** design directio
 
 ## ⚡ Quick Start & Installation
 
-### 1. Clone & Setup Backend (FastAPI)
 ```bash
+# 1. Start FastAPI Backend
 cd backend
 python -m venv venv
-venv\Scripts\activate  # On Windows
+venv\Scripts\activate
 pip install -r requirements.txt
 python run_backend.py
-```
-*Backend runs locally at `http://127.0.0.1:8000`.*
 
-### 2. Run Automated Tests
-```bash
-python -m pytest tests/test_quant_engine.py
-```
-
-### 3. Setup Frontend (Next.js)
-```bash
+# 2. Start Next.js Bloomberg Workstation
 cd frontend
 npm install
 npm run dev
 ```
-*Frontend terminal runs locally at `http://localhost:3000`.*
 
 ---
 
