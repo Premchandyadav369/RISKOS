@@ -24,6 +24,10 @@ from trading_engine.backtest import run_all_strategies_backtest
 from risk_engine.trade_execution import simulate_pretrade_execution
 from risk_engine.basel_capital import calculate_basel_capital_adequacy
 from risk_engine.contagion import calculate_systemic_contagion
+from risk_engine.yield_curve import get_yield_curve_data
+from risk_engine.news_engine import fetch_live_macro_news
+from risk_engine.fixed_income import price_interest_rate_swap
+from risk_engine.credit_derivatives import price_credit_default_swap
 
 app = FastAPI(
     title="RISKOS Quant Terminal API",
@@ -115,6 +119,14 @@ def get_basel_capital():
 def get_contagion_network():
     return calculate_systemic_contagion()
 
+@app.get("/api/markets/yield-curve")
+def get_yield_curve():
+    return get_yield_curve_data()
+
+@app.get("/api/ml/explain")
+def get_ml_explanation():
+    return explain_risk_movement()
+
 @app.get("/api/trading/status")
 def get_trading_status():
     daemon = get_trading_daemon()
@@ -161,13 +173,37 @@ def get_volatility_surface():
 
 @app.get("/api/trading/news")
 def get_institutional_news():
-    news = [
-        {"id": "N-01", "time": "21:10 IST", "headline": "US Treasury Yield Curve Steepens Following Federal Reserve Policy Signals", "impact": "HIGH", "affected": "US Rates / JPM"},
-        {"id": "N-02", "time": "20:45 IST", "headline": "RBI Keeps Repo Rate Unchanged at 6.50%; Highlights Liquidity Management", "impact": "MEDIUM", "affected": "HDFCBANK / Bank NIFTY"},
-        {"id": "N-03", "time": "19:30 IST", "headline": "Semiconductor Tech Demand Drives Cross-Border IT Outsource Contracts", "impact": "HIGH", "affected": "NVDA / TCS / INFY"},
-        {"id": "N-04", "time": "18:15 IST", "headline": "USD/INR FX Volatility Compresses Near ₹83.80 Resistance Level", "impact": "LOW", "affected": "USDINR"}
-    ]
-    return {"news": news}
+    return fetch_live_macro_news()
+
+class SwapRequest(pydantic.BaseModel):
+    notional: float = 50_000_000.0
+    fixed_rate_bps: float = 450.0
+    tenor_years: int = 5
+    floating_spread_bps: float = 15.0
+
+@app.post("/api/quant/swap")
+def run_swap_pricer(req: SwapRequest):
+    return price_interest_rate_swap(
+        notional=req.notional,
+        fixed_rate_bps=req.fixed_rate_bps,
+        tenor_years=req.tenor_years,
+        floating_spread_bps=req.floating_spread_bps
+    )
+
+class CDSRequest(pydantic.BaseModel):
+    notional: float = 10_000_000.0
+    recovery_rate_pct: float = 40.0
+    hazard_rate_bps: float = 120.0
+    tenor_years: int = 5
+
+@app.post("/api/quant/cds")
+def run_cds_pricer(req: CDSRequest):
+    return price_credit_default_swap(
+        notional=req.notional,
+        recovery_rate_pct=req.recovery_rate_pct,
+        hazard_rate_bps=req.hazard_rate_bps,
+        tenor_years=req.tenor_years
+    )
 
 @app.get("/api/markets/cross")
 def get_cross_market_analytics():

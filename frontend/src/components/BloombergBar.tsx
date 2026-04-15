@@ -15,11 +15,17 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
     { code: "STRAT", label: "Algorithmic Desk", tab: "strat" },
     { code: "TSIM", label: "Pre-Trade Sim", tab: "tradesim" },
     { code: "BTST", label: "Backtest Lab", tab: "quant" },
+    { code: "YCRV", label: "Yield Curve", tab: "yieldcurve" },
+    { code: "SWAP", label: "IRS Pricer", tab: "swap" },
+    { code: "CDSW", label: "CDS Pricer", tab: "cds" },
+    { code: "OVAL", label: "Options Calc", tab: "options" },
     { code: "OVME", label: "Vol Surface", tab: "vol" },
     { code: "CAP", label: "Basel Capital", tab: "basel" },
     { code: "NET", label: "Contagion Net", tab: "contagion" },
+    { code: "XAI", label: "ML Explain", tab: "xai" },
     { code: "NEWS", label: "News Wire", tab: "news" },
-    { code: "MON", label: "Breach Monitor", tab: "limits" }
+    { code: "MON", label: "Limits Monitor", tab: "limits" },
+    { code: "METH", label: "Methodology", tab: "methodology" }
   ];
 
   const handleCommand = (e: React.FormEvent) => {
@@ -46,18 +52,18 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type code (STRAT, TSIM, CAP, NET)..."
-            className="bg-transparent border-none outline-none text-white text-xs w-52 placeholder:text-gray-500 uppercase font-mono"
+            placeholder="Type code (SWAP, CDSW, NEWS)..."
+            className="bg-transparent border-none outline-none text-white text-xs w-60 placeholder:text-gray-500 uppercase font-mono"
           />
         </form>
       </div>
 
-      <div className="hidden lg:flex items-center gap-1.5 text-[10px]">
+      <div className="hidden lg:flex items-center gap-1.5 text-[10px] overflow-x-auto whitespace-nowrap scrollbar-hide ml-4">
         {functions.map((f) => (
           <button
             key={f.code}
             onClick={() => onNavigate(f.tab)}
-            className="px-2 py-0.5 bg-white/10 hover:bg-forest rounded border border-white/15 transition-colors font-bold text-gray-200 hover:text-white"
+            className="px-2 py-0.5 bg-white/10 hover:bg-forest rounded border border-white/15 transition-colors font-bold text-gray-200 hover:text-white shrink-0"
           >
             <span className="text-forest-light mr-1">{f.code}</span>
             <span>{f.label}</span>
