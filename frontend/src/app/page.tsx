@@ -22,6 +22,7 @@ import { OptionsCalc } from "@/components/OptionsCalc";
 import { ModelExplain } from "@/components/ModelExplain";
 import { SwapPricer } from "@/components/SwapPricer";
 import { CDSPricer } from "@/components/CDSPricer";
+import { Charting } from "@/components/Charting";
 import { fetchRiskOverview, fetchCrossMarketData, fetchQuantAnalytics } from "@/lib/api";
 
 export default function Home() {
@@ -60,6 +61,7 @@ export default function Home() {
             currentTab === "overview" ? "PORT — Risk Overview" :
             currentTab === "strat" ? "STRAT — Algorithmic Multi-Strategy Trading Desk" :
             currentTab === "tradesim" ? "TSIM — Pre-Trade Execution & Market Impact Check" :
+            currentTab === "charting" ? "CHRT — Advanced Institutional Charting" :
             currentTab === "markets" ? "Cross-Market Analytics (IN / US)" :
             currentTab === "quant" ? "BTST — Quantitative Risk Lab" :
             currentTab === "yieldcurve" ? "YCRV — Fixed Income Yield Curve Analytics" :
@@ -90,6 +92,7 @@ export default function Home() {
               {currentTab === "overview" && <RiskOverview data={overviewData} />}
               {currentTab === "strat" && <StratDesk />}
               {currentTab === "tradesim" && <TradeSim />}
+              {currentTab === "charting" && <Charting />}
               {currentTab === "markets" && <CrossMarketView data={crossMarketData} />}
               {currentTab === "quant" && <QuantLab data={quantData} />}
               {currentTab === "yieldcurve" && <YieldCurve />}
