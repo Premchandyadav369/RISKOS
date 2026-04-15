@@ -1,51 +1,63 @@
 # Intelligence For Modern Finance
 
-> A single-viewport, full-bleed video-background landing page for a modern institutional financial intelligence platform. Built with static **HTML5 + CSS3 + Vanilla JavaScript** with zero frameworks and zero build dependencies.
+> An institutional-grade financial intelligence platform. Static landing page built with **HTML5 + CSS3 + Vanilla JS** — zero frameworks, zero build tools.
 
 ---
 
-## 🚀 Live Demo & Structure
+## Live File Structure
 
-Open `index.html` directly in any modern browser.
-
-```text
-├── index.html                     # Semantic single-viewport HTML5 structure
-├── styles.css                     # Custom properties, responsive layout, animations
-├── main.js                        # Mobile menu interactions & count-up metrics animation
+```
+├── index.html                     # Multi-section scrollable landing page
+├── styles.css                     # CSS custom properties, responsive grid, animations
+├── main.js                        # Scroll interactions, mobile menu, count-up metrics
 ├── assets/
-│   └── logo.webp                  # Brand circular mark
+│   └── logo.webp                  # Brand logo mark
 └── fonts/
-    └── GeistPixel-Circle.woff2    # Fallback display dot-matrix font
+    └── GeistPixel-Circle.woff2    # Fallback display font
 ```
 
 ---
 
-## 🎨 Visual & Technical Architecture
+## What's on the Page
 
-- **Full-Bleed Cover Video**: Plays CloudFront background video behind UI with `object-fit: cover` and `#000` base.
-- **Display Typography**: Retro dot-matrix display font (**BubbledotICG-FinePos** via CDN + **Geist Pixel Circle** local fallback) for headlines and financial symbols.
-- **UI Typography**: **Inter** (400, 500, 600) via Google Fonts.
-- **Iconography**: **Font Awesome 6.5.2** brand and finance glyphs.
-- **Header**:
-  - Circular logo button (`clamp(40px, 4.4vw, 46px)`) with image scaled to 72% and centered via CSS Grid.
-  - White nav pill with active indicator (three 3×3px black dots).
-  - Dark pill **Sign in** button with hover elevation.
-- **Hero**:
-  - Overlapping 3-avatar trust rings (Microsoft, Institutional Finance, Google) + `Trusted by 2000+ Financial Teams` pill.
-  - Two-line solid white dot-matrix headline:
-    ```text
-    Intelligence
-    For Modern Finance
-    ```
-  - Subhead: *"Turn market data into decisions with an intelligent financial platform built for analysis, risk and execution."*
-  - White pill **Get Started** primary CTA with ambient white glow and `revealPulse` entrance.
-- **Finance Metrics Footer**:
-  - `$` **24/7** Market Monitoring
-  - `↗` **99.9%** Signal Accuracy
-  - `#` **2.4M** Data Points Analyzed
-  - `₹` **120ms** Decision Latency
-  - Animated counting via `easeOutCubic` curve and `IntersectionObserver`.
-- **Mobile Responsive (`≤720px`)**:
-  - Custom circular hamburger button with 3 bars transforming into an **X**.
-  - Backdrop blur modal sheet with staggered link animations.
-  - 2×2 metric grid on smaller screens.
+### Hero (First Viewport)
+Full-bleed looping background video with trust row, dot-matrix headline, subhead, CTA, and four animated financial metrics.
+
+### Platform Features (6 Core Capabilities)
+Each feature includes a clear description and an expandable "How it works" explanation:
+
+1. **Real-Time Market Intelligence** — Monitors global markets through statistical filters to surface regime changes and structural movements.
+2. **Portfolio Risk Engine** — Historical, parametric, and Monte Carlo VaR plus Expected Shortfall (CVaR) with GARCH volatility.
+3. **Adaptive Signal Generation** — Hidden Markov Model detects market regimes and switches strategies automatically.
+4. **Optimal Portfolio Construction** — CVaR optimization with institutional constraints (position limits, sector caps, turnover).
+5. **Stress Testing & Backtesting** — Replays strategies against historical crises and runs hypothetical extreme scenarios.
+6. **Low-Latency Execution Pipeline** — Sub-120ms order routing with VWAP/TWAP algorithms and post-trade analytics.
+
+### How It Works (4 Steps)
+1. **Ingest** — 2.4M data points daily from 50+ global markets.
+2. **Analyze** — GARCH, HMM, and factor models running continuously.
+3. **Decide** — CVaR optimizer generates allocations with confidence intervals.
+4. **Execute** — Low-latency pipeline with pre-trade risk checks and smart routing.
+
+### Algorithm Deep Dive (6 Core Methods)
+Each algorithm is explained in both technical and plain-English terms:
+
+- **GARCH(1,1) Volatility** — Time-varying risk measurement
+- **Monte Carlo VaR & CVaR** — 10,000-scenario worst-case analysis
+- **Ledoit-Wolf Shrinkage** — Noise-resistant covariance estimation
+- **Hidden Markov Model** — Invisible market regime detection
+- **CVaR Portfolio Optimization** — Downside-focused allocation
+- **Kupiec & Christoffersen Tests** — Model validation and accuracy checks
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Markup | Semantic HTML5 |
+| Styling | CSS3 custom properties, Grid, Flexbox, clamp() |
+| Interaction | Vanilla JavaScript (IntersectionObserver, scroll events) |
+| Typography | Inter (Google Fonts), BubbledotICG-FinePos (OnlineWebFonts CDN) |
+| Icons | Font Awesome 6.5.2 |
+| Video | CloudFront CDN stream |
