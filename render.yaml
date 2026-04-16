@@ -1,9 +1,11 @@
 services:
   - type: web
-    name: riskos-quant
+    name: riskos-backend
     runtime: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: uvicorn backend.api.main:app --host 0.0.0.0 --port $PORT
+    startCommand: python backend/run.py
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: PYTHONPATH
+        value: .

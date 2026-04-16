@@ -9,6 +9,7 @@ RUN pip install --no-cache-dir -r backend/requirements.txt
 # Copy all application code
 COPY . .
 
+ENV PYTHONPATH=.
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "backend/run.py"]
