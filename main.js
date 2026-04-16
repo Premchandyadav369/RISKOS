@@ -301,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
       regimeDesc: 'Broad-based market advance supported by institutional flows.',
       corpActions: []
     },
-    // US Market Core Securities
     {
       symbol: 'AAPL',
       bseCode: 'NASDAQ',
@@ -314,9 +313,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sector: 'Technology',
       industry: 'Consumer Electronics & Services',
       aliases: ['apple', 'aapl', 'iphone', 'mac', 'tim cook'],
-      priceINR: 18950.00, // ~$227
+      priceINR: 18950.00,
       changePercent: 0.68,
-      marketCapINR: 288000000000000, // ~$3.45T
+      marketCapINR: 288000000000000,
       pe: 34.20,
       pb: 48.5,
       roe: 147.0,
@@ -349,9 +348,9 @@ document.addEventListener('DOMContentLoaded', () => {
       sector: 'Semiconductors',
       industry: 'AI Acceleration & Compute Hardware',
       aliases: ['nvidia', 'nvda', 'gpu', 'ai chips', 'blackwell'],
-      priceINR: 10688.00, // ~$128
+      priceINR: 10688.00,
       changePercent: 3.42,
-      marketCapINR: 262000000000000, // ~$3.14T
+      marketCapINR: 262000000000000,
       pe: 58.40,
       pb: 42.1,
       roe: 115.4,
@@ -520,192 +519,107 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('#currencyToggleBtn .curr-opt').forEach((el) => {
         el.classList.toggle('active', el.dataset.curr === appState.currency);
       });
-      if (appState.activeSecurity) {
-        renderCompanyModal(appState.activeSecurity);
-      }
+      if (appState.activeSecurity) renderCompanyModal(appState.activeSecurity);
       renderWatchlist();
       if (portfolioEngine) portfolioEngine.update();
     });
   }
 
-  // ── 5. Universal Search & Natural Language Query Resolver ──────────────────
-  const resolveQuery = (rawQuery) => {
-    const q = rawQuery.trim().toLowerCase();
-    if (!q) return [];
+  // ── 5. Landing Page Magnetic CTA Micro-Interaction ────────────────────────
+  const ctaBtn = document.getElementById('ctaBtn');
+  if (ctaBtn && !prefersReducedMotion) {
+    let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0, isHover = false, animId = null;
+    const maxDist = 6;
 
-    const compareMatch = q.match(/(?:compare|vs|versus)\s+([a-zA-Z0-9\s]+?)(?:\s+(?:vs|versus|and|with)\s+([a-zA-Z0-9\s]+))?$/i);
-    if (compareMatch && compareMatch[1] && compareMatch[2]) {
-      const s1 = findSecurity(compareMatch[1]);
-      const s2 = findSecurity(compareMatch[2]);
-      if (s1 && s2) {
-        return [{
-          type: 'INTENT_COMPARE',
-          sec1: s1,
-          sec2: s2,
-          title: `Compare ${s1.symbol} vs ${s2.symbol}`,
-          sub: `Side-by-side fundamental, risk, and valuation analysis`
-        }];
+    const tickMagnetic = () => {
+      if (!isHover) {
+        currentX += (0 - currentX) * 0.15;
+        currentY += (0 - currentY) * 0.15;
+        if (Math.abs(currentX) < 0.05 && Math.abs(currentY) < 0.05) {
+          currentX = 0; currentY = 0;
+          ctaBtn.style.transform = '';
+          cancelAnimationFrame(animId);
+          animId = null;
+          return;
+        }
+      } else {
+        currentX += (mouseX - currentX) * 0.2;
+        currentY += (mouseY - currentY) * 0.2;
       }
-    }
+      ctaBtn.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0) scale(${isHover ? 1.02 : 1})`;
+      animId = requestAnimationFrame(tickMagnetic);
+    };
 
-    const mathMatch = q.match(/(?:explain|what is|formula for)\s+([a-zA-Z\s]+)/i);
-    if (mathMatch) {
-      const term = mathMatch[1].trim();
-      return [{
-        type: 'INTENT_MATH',
-        term: term,
-        title: `Explain ${term.toUpperCase()} Mathematically`,
-        sub: `3-layer formulation with interactive parameter sensitivity`
-      }];
-    }
-
-    const matches = [];
-    SECURITIES_DATABASE.forEach((sec) => {
-      let score = 0;
-      if (sec.symbol.toLowerCase() === q) score += 100;
-      else if (sec.symbol.toLowerCase().startsWith(q)) score += 80;
-      else if (sec.name.toLowerCase().includes(q)) score += 60;
-      else if (sec.commonName.toLowerCase().includes(q)) score += 70;
-      else if (sec.aliases.some((a) => a.toLowerCase().includes(q))) score += 50;
-      else if (sec.sector.toLowerCase().includes(q)) score += 30;
-
-      if (score > 0) {
-        matches.push({ type: 'SECURITY', security: sec, score });
-      }
+    ctaBtn.addEventListener('mouseenter', () => {
+      if (window.innerWidth <= 720) return;
+      isHover = true;
+      if (!animId) animId = requestAnimationFrame(tickMagnetic);
     });
 
-    matches.sort((a, b) => b.score - a.score);
-    return matches.slice(0, 6);
-  };
-
-  const findSecurity = (term) => {
-    const clean = term.trim().toLowerCase();
-    return SECURITIES_DATABASE.find((s) =>
-      s.symbol.toLowerCase() === clean ||
-      s.commonName.toLowerCase() === clean ||
-      s.aliases.some((a) => a.toLowerCase() === clean) ||
-      s.name.toLowerCase().includes(clean)
-    ) || SECURITIES_DATABASE[0];
-  };
-
-  // ── Universal Search UI ───────────────────────────────────────────────────
-  const searchInput = document.getElementById('searchInput');
-  const searchDropdown = document.getElementById('searchDropdown');
-  const dropdownResults = document.getElementById('dropdownResults');
-
-  let activeIndex = -1;
-
-  const renderDropdown = (results) => {
-    dropdownResults.innerHTML = '';
-    if (results.length === 0) {
-      dropdownResults.innerHTML = `<div style="padding:10px;font-size:0.75rem;color:#71717a;">No direct securities matched. Try "Reliance", "TCS", "HDFC", "AAPL", or "Explain Sharpe".</div>`;
-      searchDropdown.removeAttribute('hidden');
-      return;
-    }
-
-    results.forEach((res, i) => {
-      const item = document.createElement('div');
-      item.className = `dropdown-item ${i === activeIndex ? 'is-selected' : ''}`;
-
-      if (res.type === 'SECURITY') {
-        const s = res.security;
-        const badgeClass = s.exchange === 'NSE' ? 'badge--nse' : (s.exchange === 'BSE' ? 'badge--bse' : (s.exchange === 'NASDAQ' ? 'badge--us' : 'badge--idx'));
-        item.innerHTML = `
-          <div class="dropdown-item-left">
-            <span class="di-symbol">${s.symbol}</span>
-            <span class="di-badge ${badgeClass}">${s.exchange} &bull; ${s.instrumentType}</span>
-            <span class="di-name">${s.name}</span>
-          </div>
-          <span class="di-price">${formatMoney(s.priceINR)}</span>
-        `;
-        item.addEventListener('click', () => {
-          openCompanyModal(s);
-          searchDropdown.setAttribute('hidden', '');
-          searchInput.value = '';
-        });
-      } else if (res.type === 'INTENT_COMPARE') {
-        item.innerHTML = `
-          <div class="dropdown-item-left">
-            <span class="di-symbol" style="color:var(--accent-emerald);"><i class="fa-solid fa-code-compare"></i></span>
-            <span class="di-name"><strong>${res.title}</strong> — ${res.sub}</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          openCompareModal(res.sec1, res.sec2);
-          searchDropdown.setAttribute('hidden', '');
-          searchInput.value = '';
-        });
-      } else if (res.type === 'INTENT_MATH') {
-        item.innerHTML = `
-          <div class="dropdown-item-left">
-            <span class="di-symbol" style="color:var(--accent-cyan);"><i class="fa-solid fa-square-root-variable"></i></span>
-            <span class="di-name"><strong>${res.title}</strong> — ${res.sub}</span>
-          </div>
-        `;
-        item.addEventListener('click', () => {
-          openMathGlossaryModal(res.term);
-          searchDropdown.setAttribute('hidden', '');
-          searchInput.value = '';
-        });
-      }
-
-      dropdownResults.appendChild(item);
+    ctaBtn.addEventListener('mousemove', (e) => {
+      if (window.innerWidth <= 720) return;
+      const rect = ctaBtn.getBoundingClientRect();
+      const relX = e.clientX - (rect.left + rect.width / 2);
+      const relY = e.clientY - (rect.top + rect.height / 2);
+      mouseX = Math.max(-maxDist, Math.min(maxDist, relX * 0.25));
+      mouseY = Math.max(-maxDist, Math.min(maxDist, relY * 0.25));
+      if (!animId) animId = requestAnimationFrame(tickMagnetic);
     });
 
-    searchDropdown.removeAttribute('hidden');
-  };
-
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const q = e.target.value;
-      if (!q.trim()) {
-        searchDropdown.setAttribute('hidden', '');
-        return;
-      }
-      activeIndex = 0;
-      const results = resolveQuery(q);
-      renderDropdown(results);
-    });
-
-    searchInput.addEventListener('keydown', (e) => {
-      const items = dropdownResults.querySelectorAll('.dropdown-item');
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        activeIndex = (activeIndex + 1) % items.length;
-        items.forEach((it, idx) => it.classList.toggle('is-selected', idx === activeIndex));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        activeIndex = (activeIndex - 1 + items.length) % items.length;
-        items.forEach((it, idx) => it.classList.toggle('is-selected', idx === activeIndex));
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (items[activeIndex]) items[activeIndex].click();
-      } else if (e.key === 'Escape') {
-        searchDropdown.setAttribute('hidden', '');
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('#universalSearchBar')) {
-        searchDropdown.setAttribute('hidden', '');
-      }
+    ctaBtn.addEventListener('mouseleave', () => {
+      isHover = false;
+      mouseX = 0; mouseY = 0;
     });
   }
 
-  // Quick Prompt Chips
-  document.querySelectorAll('.prompt-chip').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      const q = chip.dataset.query;
-      const results = resolveQuery(q);
-      if (results.length > 0) {
-        if (results[0].type === 'SECURITY') openCompanyModal(results[0].security);
-        else if (results[0].type === 'INTENT_COMPARE') openCompareModal(results[0].sec1, results[0].sec2);
-        else if (results[0].type === 'INTENT_MATH') openMathGlossaryModal(results[0].term);
-      }
-    });
-  });
+  // ── 6. Financial Metrics Count-Up ────────────────────────────────────────
+  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+  const animateCount = (el, target, decimals, duration, delay) => {
+    if (prefersReducedMotion) {
+      el.textContent = decimals > 0 ? target.toFixed(decimals) : Math.round(target).toString();
+      return;
+    }
+    setTimeout(() => {
+      const t0 = performance.now();
+      const tick = (now) => {
+        const p = Math.min((now - t0) / duration, 1);
+        const v = easeOutCubic(p) * target;
+        el.textContent = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toString();
+      };
+      requestAnimationFrame(tick);
+    }, delay);
+  };
 
-  // ── 6. Command Palette (⌘K) Controller ────────────────────────────────────
+  let countDone = false;
+  const metricsFooter = document.getElementById('metricsFooter');
+  const runCountUp = () => {
+    if (countDone) return;
+    countDone = true;
+    document.querySelectorAll('.metric-item').forEach((item, i) => {
+      const target = parseFloat(item.dataset.target || '0');
+      const dec = parseInt(item.dataset.decimals || '0', 10);
+      const valEl = item.querySelector('.metric-value');
+      if (valEl) animateCount(valEl, target, dec, 1400 + i * 100, 300 + i * 80);
+    });
+  };
+
+  if ('IntersectionObserver' in window && metricsFooter) {
+    const obs = new IntersectionObserver((entries, o) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          runCountUp();
+          o.disconnect();
+        }
+      });
+    }, { threshold: 0.2 });
+    obs.observe(metricsFooter);
+  } else {
+    runCountUp();
+  }
+
+  // ── 7. Command Palette (⌘K) Controller ────────────────────────────────────
   const paletteOverlay = document.getElementById('paletteOverlay');
   const paletteInput = document.getElementById('paletteInput');
   const paletteResults = document.getElementById('paletteResults');
@@ -806,17 +720,33 @@ document.addEventListener('DOMContentLoaded', () => {
       closeWatchlistDrawer();
       closeAlertsDrawer();
       if (isObsOpen) closeObservatory();
+      if (isMobileMenuOpen) closeMobileMenu();
     }
   });
 
-  const cmdKBtn = document.getElementById('cmdKBtn');
-  if (cmdKBtn) cmdKBtn.addEventListener('click', openCommandPalette);
+  const navSearchTrigger = document.getElementById('navSearchTrigger');
+  if (navSearchTrigger) navSearchTrigger.addEventListener('click', openCommandPalette);
   const heroQuickSearchBtn = document.getElementById('heroQuickSearchBtn');
   if (heroQuickSearchBtn) heroQuickSearchBtn.addEventListener('click', openCommandPalette);
   const palBackdrop = document.getElementById('paletteBackdrop');
   if (palBackdrop) palBackdrop.addEventListener('click', closeCommandPalette);
 
-  // ── 7. Company Research Intelligence Modal Controller ─────────────────────
+  // Quick Prompt Chips in Hero
+  document.querySelectorAll('.prompt-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const q = chip.dataset.query;
+      const match = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === q.toLowerCase() || s.name.toLowerCase().includes(q.toLowerCase()) || s.aliases.some(a => a.toLowerCase().includes(q.toLowerCase())));
+      if (q.includes('vs')) {
+        openCompareModal(SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]);
+      } else if (q.toLowerCase().includes('sharpe')) {
+        openMathGlossaryModal('sharpe');
+      } else if (match) {
+        openCompanyModal(match);
+      }
+    });
+  });
+
+  // ── 8. Company Research Intelligence Modal Controller ─────────────────────
   const companyModalOverlay = document.getElementById('companyModalOverlay');
   const compCloseBtn = document.getElementById('compCloseBtn');
   const compModalBackdrop = document.getElementById('companyModalBackdrop');
@@ -1052,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── 8. 3-Layer Mathematical Explainer Engine ──────────────────────────────
+  // ── 9. 3-Layer Mathematical Explainer Engine ──────────────────────────────
   const renderMathExplainer = (sec) => {
     const layer = appState.mathExplainerLayer;
     const layerContent = document.getElementById('layerContent');
@@ -1143,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── 9. Comparison Mode Modal ──────────────────────────────────────────────
+  // ── 10. Comparison Mode Modal ─────────────────────────────────────────────
   const compareModalOverlay = document.getElementById('compareModalOverlay');
   const compareCloseBtn = document.getElementById('compareCloseBtn');
   const compareModalBackdrop = document.getElementById('compareModalBackdrop');
@@ -1217,19 +1147,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (compareCloseBtn) compareCloseBtn.addEventListener('click', closeCompareModal);
   if (compareModalBackdrop) compareModalBackdrop.addEventListener('click', closeCompareModal);
 
-  // ── 10. Watchlist Drawer Controller ───────────────────────────────────────
+  // ── 11. Watchlist Drawer Controller ───────────────────────────────────────
   const watchlistDrawer = document.getElementById('watchlistDrawer');
-  const btnOpenWatchlist = document.getElementById('btnOpenWatchlist');
+  const btnOpenWatchlist = document.getElementById('navOpenWatchlist');
   const watchlistCloseBtn = document.getElementById('watchlistCloseBtn');
   const clearWatchlistBtn = document.getElementById('clearWatchlistBtn');
 
   const renderWatchlist = () => {
     const list = document.getElementById('watchlistItemsList');
-    const countEl = document.getElementById('watchlistCount');
+    const countEl = document.getElementById('navWatchCount');
     if (!list) return;
 
     list.innerHTML = '';
-    countEl.textContent = appState.watchlist.length.toString();
+    if (countEl) countEl.textContent = appState.watchlist.length.toString();
 
     if (appState.watchlist.length === 0) {
       list.innerHTML = `<div style="padding:16px;text-align:center;color:#71717a;font-size:0.75rem;">Your watchlist is currently empty. Search any security and click "Add to Watchlist".</div>`;
@@ -1277,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── 11. Alerts / Notification Drawer ──────────────────────────────────────
+  // ── 12. Alerts / Notification Drawer ──────────────────────────────────────
   const alertsDrawer = document.getElementById('alertsDrawer');
   const btnOpenAlerts = document.getElementById('btnOpenAlerts');
   const alertsCloseBtn = document.getElementById('alertsCloseBtn');
@@ -1311,7 +1241,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenAlerts) btnOpenAlerts.addEventListener('click', openAlertsDrawer);
   if (alertsCloseBtn) alertsCloseBtn.addEventListener('click', closeAlertsDrawer);
 
-  // ── 12. Quantitative Explainer Library Modal ──────────────────────────────
+  // ── 13. Quantitative Explainer Library Modal ──────────────────────────────
   const glossaryModalOverlay = document.getElementById('glossaryModalOverlay');
   const glossaryCloseBtn = document.getElementById('glossaryCloseBtn');
   const glossaryModalBackdrop = document.getElementById('glossaryModalBackdrop');
@@ -1404,12 +1334,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const btnOpenMathGlossary = document.getElementById('btnOpenMathGlossary');
-  if (btnOpenMathGlossary) btnOpenMathGlossary.addEventListener('click', () => openMathGlossaryModal('sharpe'));
+  const navOpenMath = document.getElementById('navOpenMath');
+  if (navOpenMath) navOpenMath.addEventListener('click', () => openMathGlossaryModal('sharpe'));
   if (glossaryCloseBtn) glossaryCloseBtn.addEventListener('click', closeMathGlossaryModal);
   if (glossaryModalBackdrop) glossaryModalBackdrop.addEventListener('click', closeMathGlossaryModal);
 
-  // ── 13. Mobile Menu Overlay ───────────────────────────────────────────────
+  // ── 14. Mobile Menu Overlay ───────────────────────────────────────────────
   const burger = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const menuBackdrop = document.getElementById('menuBackdrop');
@@ -1448,6 +1378,11 @@ document.addEventListener('DOMContentLoaded', () => {
     mobileMenu.querySelectorAll('a').forEach((l) => l.addEventListener('click', closeMobileMenu));
   }
 
+  const mobileOpenSearch = document.getElementById('mobileOpenSearch');
+  if (mobileOpenSearch) mobileOpenSearch.addEventListener('click', () => {
+    closeMobileMenu();
+    openCommandPalette();
+  });
   const mobileOpenWatchlist = document.getElementById('mobileOpenWatchlist');
   if (mobileOpenWatchlist) mobileOpenWatchlist.addEventListener('click', () => {
     closeMobileMenu();
@@ -1458,53 +1393,6 @@ document.addEventListener('DOMContentLoaded', () => {
     closeMobileMenu();
     openMathGlossaryModal('sharpe');
   });
-
-  // ── 14. Financial Metrics Count-Up ────────────────────────────────────────
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-  const animateCount = (el, target, decimals, duration, delay) => {
-    if (prefersReducedMotion) {
-      el.textContent = decimals > 0 ? target.toFixed(decimals) : Math.round(target).toString();
-      return;
-    }
-    setTimeout(() => {
-      const t0 = performance.now();
-      const tick = (now) => {
-        const p = Math.min((now - t0) / duration, 1);
-        const v = easeOutCubic(p) * target;
-        el.textContent = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toString();
-      };
-      requestAnimationFrame(tick);
-    }, delay);
-  };
-
-  let countDone = false;
-  const metricsFooter = document.getElementById('metricsFooter');
-  const runCountUp = () => {
-    if (countDone) return;
-    countDone = true;
-    document.querySelectorAll('.metric-item').forEach((item, i) => {
-      const target = parseFloat(item.dataset.target || '0');
-      const dec = parseInt(item.dataset.decimals || '0', 10);
-      const valEl = item.querySelector('.metric-value');
-      if (valEl) animateCount(valEl, target, dec, 1400 + i * 100, 300 + i * 80);
-    });
-  };
-
-  if ('IntersectionObserver' in window && metricsFooter) {
-    const obs = new IntersectionObserver((entries, o) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          runCountUp();
-          o.disconnect();
-        }
-      });
-    }, { threshold: 0.2 });
-    obs.observe(metricsFooter);
-  } else {
-    runCountUp();
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 🏛️ FINANCIAL INTELLIGENCE OBSERVATORY ENGINE (FULL-SCREEN ARTIFACT)
@@ -1572,6 +1460,7 @@ document.addEventListener('DOMContentLoaded', () => {
   [
     document.getElementById('ctaBtn'),
     document.getElementById('headerExploreBtn'),
+    document.getElementById('navOpenObs'),
     document.getElementById('mobileOpenObs'),
     document.getElementById('mobileCtaLaunchObs')
   ].forEach((btn) => {

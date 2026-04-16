@@ -72,6 +72,10 @@ body.modal-open {
   touch-action: none !important;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -187,7 +191,7 @@ button, select, input {
   z-index: 2;
 }
 
-/* ── 1. Top Header & Universal Search Architecture ────────────────────────── */
+/* ── 1. Top Header Architecture ───────────────────────────────────────────── */
 .header {
   width: 100%;
   display: flex;
@@ -209,7 +213,7 @@ button, select, input {
 .header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -235,7 +239,7 @@ button, select, input {
   object-fit: cover;
 }
 
-/* Market Clock Badge (NSE/BSE & US Switcher) */
+/* Market Clock Badge */
 .market-clock-badge {
   display: flex;
   align-items: center;
@@ -271,56 +275,80 @@ button, select, input {
 .market-state { color: var(--accent-emerald); font-size: 0.65rem; }
 .market-time { color: var(--text-muted); font-family: monospace; font-size: 0.65rem; }
 
-/* Universal Intelligent Search Bar */
-.universal-search-bar {
-  position: relative;
-  flex: 1;
-  max-width: 580px;
+/* Center Navigation Pill */
+.nav-pill {
   display: flex;
   align-items: center;
-  background: rgba(20, 20, 25, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(24, 24, 28, 0.85);
+  border: 1px solid var(--nav-pill-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px 6px;
   border-radius: 100px;
-  padding: 4px 8px 4px 14px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  gap: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
 }
 
-.universal-search-bar:focus-within {
-  border-color: var(--accent-emerald);
-  box-shadow: 0 0 0 2px rgba(81, 207, 102, 0.2), 0 8px 28px rgba(0, 0, 0, 0.6);
+.nav-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.725rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.search-icon {
+.nav-search-trigger:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.kbd-pill {
+  font-size: 0.6rem;
+  font-weight: 700;
   color: var(--text-muted);
-  font-size: 0.85rem;
-  margin-right: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-family: monospace;
 }
 
-.search-input {
-  flex: 1;
+.nav-link {
+  font-size: 0.775rem;
+  font-weight: 500;
+  color: var(--nav-link-color);
+  padding: 6px 12px;
+  border-radius: 100px;
+  transition: color 0.2s, background-color 0.2s;
+  white-space: nowrap;
+}
+
+.nav-link--btn {
   background: transparent;
   border: none;
+  cursor: pointer;
+}
+
+.nav-link:hover,
+.nav-link.active {
   color: #ffffff;
-  font-size: 0.825rem;
-  font-weight: 500;
-  outline: none;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.search-input::placeholder {
-  color: #71717a;
-  font-size: 0.8rem;
-}
-
-.search-actions {
+/* Header Actions */
+.header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
 }
 
-/* Currency Toggle Pill (INR ₹ / USD $) */
 .currency-toggle-pill {
   display: flex;
   background: rgba(255, 255, 255, 0.06);
@@ -343,109 +371,6 @@ button, select, input {
 .curr-opt.active {
   background: #ffffff;
   color: #000000;
-}
-
-.kbd-hint {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-}
-
-/* Autocomplete Dropdown Menu */
-.search-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
-  right: 0;
-  background: #0f0f13;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 14px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
-  padding: 8px;
-  z-index: 100;
-  max-height: 380px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.dropdown-header {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 10px;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  border-bottom: 1px solid var(--panel-border);
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-.dropdown-item:hover,
-.dropdown-item.is-selected {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dropdown-item-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.di-symbol {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #ffffff;
-  font-family: monospace;
-}
-
-.di-name {
-  font-size: 0.775rem;
-  color: var(--text-secondary);
-}
-
-.di-badge {
-  font-size: 0.6rem;
-  font-weight: 600;
-  padding: 2px 6px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
-}
-
-.badge--nse { color: var(--accent-cyan); background: rgba(34, 211, 238, 0.08); border: 1px solid rgba(34, 211, 238, 0.2); }
-.badge--bse { color: var(--accent-blue); background: rgba(79, 143, 255, 0.08); border: 1px solid rgba(79, 143, 255, 0.2); }
-.badge--us  { color: var(--accent-purple); background: rgba(204, 93, 232, 0.08); border: 1px solid rgba(204, 93, 232, 0.2); }
-.badge--idx { color: var(--accent-amber); background: rgba(250, 176, 5, 0.08); border: 1px solid rgba(250, 176, 5, 0.2); }
-
-.di-price {
-  font-size: 0.8rem;
-  font-weight: 700;
-  font-family: monospace;
-  color: #ffffff;
-}
-
-/* Header Actions */
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
 }
 
 .icon-nav-btn {
@@ -485,9 +410,7 @@ button, select, input {
   justify-content: center;
 }
 
-.nav-badge--pulse {
-  background: var(--accent-amber);
-}
+.nav-badge--pulse { background: var(--accent-amber); }
 
 .signin-btn {
   font-size: 0.775rem;
@@ -519,7 +442,6 @@ button, select, input {
   box-shadow: 0 0 16px rgba(255, 255, 255, 0.35);
 }
 
-/* Burger Button */
 .menu-toggle {
   display: none;
   flex-direction: column;
@@ -547,8 +469,8 @@ button, select, input {
 .menu-toggle.is-open .bar:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .menu-toggle.is-open .bar:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
 
-@media (max-width: 768px) {
-  .universal-search-bar { max-width: 220px; }
+@media (max-width: 860px) {
+  .nav-pill { display: none; }
   .market-clock-badge { display: none; }
   .signin-btn, .terminal-btn-link { display: none; }
   .menu-toggle { display: flex; }
@@ -1365,7 +1287,6 @@ button, select, input {
 
 .news-snippet { font-size: 0.775rem; color: var(--text-secondary); line-height: 1.45; }
 
-/* Modelled Impact Box inside News Card */
 .news-impact-box {
   display: flex;
   align-items: center;
@@ -1381,16 +1302,11 @@ button, select, input {
 .nib-left { display: flex; align-items: center; gap: 8px; }
 .nib-tag { font-size: 0.55rem; font-weight: 700; color: var(--text-muted); }
 .nib-sentiment { font-size: 0.725rem; font-weight: 700; }
-
 .nib-signals { font-size: 0.675rem; color: var(--text-secondary); }
 .nib-disclaimer { font-size: 0.55rem; color: var(--text-muted); font-family: monospace; }
 
 /* Tab 3: Fundamentals Grid */
-.fundamentals-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+.fundamentals-layout { display: flex; flex-direction: column; gap: 16px; }
 
 .fund-metrics-grid {
   display: grid;
@@ -1416,7 +1332,6 @@ button, select, input {
 .fc-value { font-size: 1.1rem; font-weight: 800; color: #ffffff; font-family: monospace; }
 .fc-sub { font-size: 0.675rem; color: var(--text-secondary); }
 
-/* Corporate Actions Timeline */
 .corp-actions-panel {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
@@ -1429,11 +1344,7 @@ button, select, input {
 
 .panel-subtitle { font-size: 0.85rem; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px; }
 
-.corp-actions-timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.corp-actions-timeline { display: flex; flex-direction: column; gap: 8px; }
 
 .corp-event-row {
   display: flex;
@@ -1449,11 +1360,7 @@ button, select, input {
 .cer-desc { color: var(--text-secondary); flex: 1; }
 
 /* Tab 4: Quantitative Signals Grid */
-.quant-signals-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.quant-signals-layout { display: flex; flex-direction: column; gap: 14px; }
 
 .quant-grid {
   display: grid;
@@ -1495,11 +1402,7 @@ button, select, input {
 .qsc-desc { font-size: 0.725rem; color: var(--text-secondary); line-height: 1.4; }
 
 /* Tab 5: 3-Layer Mathematical Explainer */
-.math-explainer-layout {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
+.math-explainer-layout { display: flex; flex-direction: column; gap: 14px; }
 
 .math-explainer-topbar {
   display: flex;
