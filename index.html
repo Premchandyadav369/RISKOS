@@ -14,7 +14,7 @@
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
 
-  <!-- MathJax Configuration (CRITICAL: Renders all quantitative formulas into crisp SVG math) -->
+  <!-- MathJax Configuration (Renders all formulas into crisp SVG mathematical typesetting) -->
   <script>
     window.MathJax = {
       tex: {
@@ -35,7 +35,7 @@
 
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body data-user-mode="beginner">
 
   <!-- Background Video (Full-Viewport Cover) -->
   <div class="bg" aria-hidden="true">
@@ -64,29 +64,29 @@
       <span class="math-eq">\( \text{VaR}_{\alpha} = \inf\{x : P(L > x) \le 1 - \alpha\} \)</span>
     </div>
     <div class="quant-math-tag math-tag--5">
-      <span class="math-label">CAPM EXPECTED RETURN</span>
+      <span class="math-label">CAPM HURDLE RATE</span>
       <span class="math-eq">\( \mathbb{E}[R_i] = R_f + \beta_i (\mathbb{E}[R_m] - R_f) \)</span>
     </div>
     <div class="quant-math-tag math-tag--6">
-      <span class="math-label">KALMAN FILTER HEDGE</span>
-      <span class="math-eq">\( \beta_t = \beta_{t-1} + K_t (y_t - \hat{y}_t) \)</span>
+      <span class="math-label">PORTFOLIO VARIANCE</span>
+      <span class="math-eq">\( \sigma_p^2 = w^T \Sigma w \)</span>
     </div>
   </div>
 
   <!-- Strict Viewport Single-Page Grid (100vh / 100dvh) -->
   <div class="page" id="page">
 
-    <!-- ═══════════════════════ 1. TOP NAVBAR (ORIGINAL PRISTINE LAYOUT + ADD-ON CONTROLS) ═══════════════════════ -->
+    <!-- ═══════════════════════ 1. TOP NAVBAR ═══════════════════════ -->
     <header class="header" id="siteHeader">
       <div class="header-inner">
         
-        <!-- Left: Logo & Market Status Badge -->
+        <!-- Left: Logo & Market Clock Badge -->
         <div class="header-left">
           <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
             <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" />
           </a>
           
-          <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle India (NSE) / US (NYSE) market view">
+          <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle Indian (NSE) / US (NYSE) market hours">
             <span class="market-status-dot dot--open" id="marketStatusDot"></span>
             <span class="market-name" id="marketName">NSE</span>
             <span class="market-state" id="marketState">OPEN</span>
@@ -94,32 +94,41 @@
           </div>
         </div>
 
-        <!-- Center: Navigation Pill with Search Trigger & Sections -->
+        <!-- Center: Navigation Pill with Universal Command Trigger & Links -->
         <nav class="nav-pill" aria-label="Main Navigation">
-          <button class="nav-search-trigger" id="navSearchTrigger" title="Search Indian & US Securities (⌘K)">
+          <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Ask Anything (⌘K)">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Search Market...</span>
+            <span>Search or Ask (⌘K)...</span>
             <kbd class="kbd-pill">⌘K</kbd>
           </button>
           <a href="#home" class="nav-link active" id="navHome">Home</a>
-          <button class="nav-link nav-link--btn" id="navOpenObs">Observatory</button>
-          <button class="nav-link nav-link--btn" id="navOpenWatchlist">Watchlist (<span id="navWatchCount">6</span>)</button>
-          <button class="nav-link nav-link--btn" id="navOpenMath">Math Library</button>
+          <button class="nav-link nav-link--btn" id="navOpenCanvas" title="Open Financial Intelligence Canvas">Canvas</button>
+          <button class="nav-link nav-link--btn" id="navOpenPulse" title="Open Market Pulse">Market Pulse</button>
+          <button class="nav-link nav-link--btn" id="navOpenObs" title="Open Quantitative Observatory">Observatory</button>
+          <button class="nav-link nav-link--btn" id="navOpenWatchlist" title="View Watchlist">Watchlist (<span id="navWatchCount">6</span>)</button>
         </nav>
 
-        <!-- Right: Currency Toggle, Alerts & CTAs -->
+        <!-- Right: Mode Switcher, Currency & Action Buttons -->
         <div class="header-actions">
+          
+          <!-- Universal "Explain Like Me" Mode Selector (BEGINNER | INVESTOR | QUANT) -->
+          <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth: Beginner (simple) / Investor (context) / Quant (mathematical)">
+            <button class="mode-btn active" data-mode="beginner">Beginner</button>
+            <button class="mode-btn" data-mode="investor">Investor</button>
+            <button class="mode-btn" data-mode="quant">Quant</button>
+          </div>
+
+          <!-- Currency Toggle -->
           <span class="currency-toggle-pill" id="currencyToggleBtn" title="Toggle Currency: INR (₹) / USD ($)">
             <span class="curr-opt active" data-curr="INR">₹ INR</span>
             <span class="curr-opt" data-curr="USD">$ USD</span>
           </span>
 
-          <button class="icon-nav-btn" id="btnOpenAlerts" title="News & Filing Alerts">
+          <button class="icon-nav-btn" id="btnOpenAlerts" title="Filings & Surveillance Alerts">
             <i class="fa-solid fa-bell"></i>
             <span class="nav-badge nav-badge--pulse" id="alertCount">3</span>
           </button>
 
-          <button class="signin-btn" id="headerExploreBtn">Observatory</button>
           <a href="app.html" class="terminal-btn-link" title="Launch Full Institutional Quant Terminal">Terminal</a>
 
           <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
@@ -132,31 +141,31 @@
       </div>
     </header>
 
-    <!-- ═══════════════════════ 2. HERO (PRISTINE ICONIC CENTERED CONTENT) ═══════════════════════ -->
+    <!-- ═══════════════════════ 2. HERO SECTION ═══════════════════════ -->
     <main class="hero" id="home">
       <div class="hero-inner">
 
         <!-- 1. Live Market Status Pill -->
-        <div class="live-status-pill" id="heroLiveTickerPill" aria-label="Dual market live status">
+        <div class="live-status-pill" id="heroLiveTickerPill" aria-label="Live dual market stream">
           <span class="status-pulse-dot" aria-hidden="true"></span>
           <span class="status-text" id="liveTickerText">NIFTY 50 24,820.40 (+0.45%) &bull; SENSEX 81,340.20 (+0.38%) &bull; S&P 500 5,640.10 (+0.22%)</span>
-          <span class="status-time" id="statusClock">LIVE</span>
+          <span class="status-provenance-tag">LIVE &bull; NSE/NYSE</span>
         </div>
 
         <!-- 2. Trust Row with Independent Hover Avatars -->
         <div class="trust-row">
-          <div class="trust-avatars" aria-label="Trusted by quantitative teams">
+          <div class="trust-avatars" aria-label="Trusted by quantitative desks">
             <div class="trust-avatar avatar-1" title="Quantitative Hedge Fund">
               <span class="avatar-letter">Q</span>
             </div>
             <div class="trust-avatar avatar-2" title="Institutional Risk Desk">
               <span class="avatar-letter">R</span>
             </div>
-            <div class="trust-avatar avatar-3" title="Proprietary Trading Firm">
+            <div class="trust-avatar avatar-3" title="Proprietary Trading Desk">
               <span class="avatar-letter">T</span>
             </div>
           </div>
-          <span class="trust-text">Institutional Intelligence for Indian (NSE/BSE) &amp; US Markets</span>
+          <span class="trust-text">Simple by Default &bull; Deep on Demand &bull; Mathematical when Requested</span>
         </div>
 
         <!-- 3. Exact Two-Line Headline -->
@@ -167,7 +176,7 @@
 
         <!-- 4. Subhead -->
         <p class="subhead">
-          Turn market data into decisions with an intelligent financial platform built for equity research, news intelligence, risk analytics, and quantitative explainability.
+          Turn market data into understanding with an AI-native financial intelligence platform built for equity research, event-driven causality, risk analytics, and mathematical explainability.
         </p>
 
         <!-- 5. Interactive Action CTAs -->
@@ -177,29 +186,28 @@
             <i class="fa-solid fa-atom cta-icon" aria-hidden="true"></i>
           </button>
           
-          <button class="cta-secondary-btn" id="heroQuickSearchBtn">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Quick Research (⌘K)</span>
+          <button class="cta-secondary-btn" id="heroCanvasBtn">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Financial Canvas (⌘K)</span>
           </button>
         </div>
 
-        <!-- 6. Popular Quick Research Prompts -->
+        <!-- 6. Popular Natural Language Question Chips -->
         <div class="quick-prompts-row">
-          <span class="prompt-tag-label">Research:</span>
-          <button class="prompt-chip" data-query="Reliance">Reliance (RIL)</button>
-          <button class="prompt-chip" data-query="TCS">TCS</button>
-          <button class="prompt-chip" data-query="HDFC Bank">HDFC Bank</button>
-          <button class="prompt-chip" data-query="Nifty 50">NIFTY 50</button>
-          <button class="prompt-chip" data-query="Compare Reliance vs TCS">Compare RIL vs TCS</button>
-          <button class="prompt-chip" data-query="NVDA">Nvidia</button>
-          <button class="prompt-chip" data-query="Explain Sharpe ratio">Sharpe Ratio</button>
+          <span class="prompt-tag-label">Ask anything:</span>
+          <button class="prompt-chip" data-intent="analyse" data-query="Reliance">Analyse Reliance</button>
+          <button class="prompt-chip" data-intent="why_moved" data-query="HDFC Bank">Why did HDFC Bank move?</button>
+          <button class="prompt-chip" data-intent="compare" data-query="TCS vs INFY">Compare TCS vs Infosys</button>
+          <button class="prompt-chip" data-intent="sector_vol" data-query="Indian IT volatility">Indian IT Volatility</button>
+          <button class="prompt-chip" data-intent="explain_math" data-query="Sharpe ratio">Explain Sharpe Ratio</button>
+          <button class="prompt-chip" data-intent="explain_math" data-query="Beta">Explain Beta</button>
         </div>
 
       </div>
     </main>
 
-    <!-- ═══════════════════════ 3. FINANCIAL METRICS FOOTER (4-ITEM COUNT UP) ═══════════════════════ -->
-    <footer class="financial-metrics" id="metricsFooter" aria-label="Key Platform Metrics">
+    <!-- ═══════════════════════ 3. FINANCIAL METRICS FOOTER ═══════════════════════ -->
+    <footer class="financial-metrics" id="metricsFooter" aria-label="Platform Metrics & Provenance">
       <div class="metrics-grid">
 
         <!-- Metric 1 -->
@@ -210,6 +218,7 @@
             <span class="metric-suffix">/7</span>
           </div>
           <div class="metric-label">Surveillance (NSE &amp; US)</div>
+          <span class="metric-provenance">LIVE DATA &bull; IST/EST</span>
         </div>
 
         <!-- Metric 2 -->
@@ -219,7 +228,8 @@
             <span class="metric-value">0</span>
             <span class="metric-suffix">%</span>
           </div>
-          <div class="metric-label">Model Verification</div>
+          <div class="metric-label">Mathematical Verification</div>
+          <span class="metric-provenance">DETERMINISTIC FORMULAS</span>
         </div>
 
         <!-- Metric 3 -->
@@ -230,6 +240,7 @@
             <span class="metric-suffix">M</span>
           </div>
           <div class="metric-label">Order Book Ticks Analyzed</div>
+          <span class="metric-provenance">SIMULATION STREAM</span>
         </div>
 
         <!-- Metric 4 -->
@@ -240,6 +251,7 @@
             <span class="metric-suffix">ms</span>
           </div>
           <div class="metric-label">Decision Latency</div>
+          <span class="metric-provenance">OPTIMIZER SLSQP</span>
         </div>
 
       </div>
@@ -247,41 +259,130 @@
 
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 1: UNIVERSAL COMMAND PALETTE (CMD+K) ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 1: UNIVERSAL FINANCIAL COMMAND PALETTE (CMD+K) ═══════════════════════ -->
   <div class="palette-overlay" id="paletteOverlay" aria-hidden="true" hidden>
     <div class="palette-backdrop" id="paletteBackdrop"></div>
-    <div class="palette-modal" role="dialog" aria-modal="true" aria-label="Command Palette">
+    <div class="palette-modal" role="dialog" aria-modal="true" aria-label="Universal Financial Command Bar">
       <div class="palette-search-box">
-        <i class="fa-solid fa-magnifying-glass palette-icon"></i>
+        <i class="fa-solid fa-wand-magic-sparkles palette-icon"></i>
         <input 
           type="text" 
           id="paletteInput" 
           class="palette-input" 
-          placeholder="Search Reliance, TCS, HDFC, Nifty, AAPL, NVDA or 'Analyse Reliance'..." 
+          placeholder="Search companies, NSE/BSE symbols, ask 'Why did HDFC fall?' or 'Compare TCS and Infosys'..." 
           autocomplete="off"
         />
         <kbd class="palette-kbd">ESC</kbd>
       </div>
 
+      <div class="palette-intent-preview" id="paletteIntentPreview" hidden>
+        <span class="intent-tag" id="intentTag">INTENT: COMPANY ANALYSIS</span>
+        <span class="intent-desc" id="intentDesc">Generating structured research canvas for Reliance Industries Ltd...</span>
+      </div>
+
       <div class="palette-sections" id="paletteResults">
-        <!-- Dynamically rendered -->
+        <!-- Dynamically populated -->
       </div>
 
       <div class="palette-footer">
         <div class="palette-shortcuts">
           <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
-          <span><kbd>↵</kbd> Select</span>
+          <span><kbd>↵</kbd> Execute / Open Canvas</span>
           <span><kbd>ESC</kbd> Close</span>
           <span><kbd>W</kbd> Watchlist</span>
         </div>
         <div class="palette-currency-tip">
-          <span id="paletteCurrencyIndicator">Currency: ₹ INR (1 USD = ₹83.50)</span>
+          <span id="paletteCurrencyIndicator">Currency: ₹ INR (1 USD = ₹83.50) &bull; SEBI Compliant</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 2: COMPANY RESEARCH INTELLIGENCE MODAL ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 2: FINANCIAL INTELLIGENCE CANVAS (GENERATIVE UI ARTIFACT) ═══════════════════════ -->
+  <div class="canvas-modal-overlay" id="financialCanvasOverlay" aria-hidden="true" hidden>
+    <div class="canvas-modal-backdrop" id="financialCanvasBackdrop"></div>
+    <div class="canvas-modal-window" role="dialog" aria-modal="true" aria-label="Financial Intelligence Canvas">
+      
+      <header class="canvas-header">
+        <div class="canvas-header-left">
+          <span class="canvas-badge"><i class="fa-solid fa-wand-magic-sparkles"></i> GENERATIVE FINANCIAL CANVAS</span>
+          <h2 class="canvas-query-title" id="canvasQueryTitle">Analysis: Reliance Industries Ltd (NSE: RELIANCE)</h2>
+        </div>
+        <div class="canvas-header-right">
+          <div class="canvas-mode-indicator" id="canvasModeIndicator">Perspective: BEGINNER</div>
+          <button class="canvas-btn" id="canvasPinBtn" title="Pin to Saved Research"><i class="fa-regular fa-bookmark"></i> Pin</button>
+          <button class="comp-close-btn" id="canvasCloseBtn" aria-label="Close Canvas (ESC)"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </header>
+
+      <div class="canvas-body" id="canvasDynamicContent">
+        <!-- Dynamically rendered UI components determined by user's question -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 3: UNIVERSAL "WHY?" [?] EXPLAINER POPOVER ═══════════════════════ -->
+  <div class="why-modal-overlay" id="whyModalOverlay" aria-hidden="true" hidden>
+    <div class="why-modal-backdrop" id="whyModalBackdrop"></div>
+    <div class="why-modal-card" role="dialog" aria-modal="true" aria-label="Why This Number?">
+      <div class="why-header">
+        <div class="why-title-wrap">
+          <span class="why-tag">EXPLAIN THIS NUMBER</span>
+          <h3 class="why-title" id="whyTitle">Why is Beta (\(\beta\)) = 1.17?</h3>
+        </div>
+        <button class="why-close-btn" id="whyCloseBtn">&times;</button>
+      </div>
+
+      <div class="why-body">
+        <!-- 1. What It Means -->
+        <div class="why-section">
+          <span class="ws-label">1. WHAT IT MEANS (PLAIN ENGLISH)</span>
+          <p class="ws-text" id="whyMeaning">
+            Beta measures how strongly this stock has historically moved compared to the broader stock market (NIFTY 50).
+          </p>
+        </div>
+
+        <!-- 2. Why It Matters -->
+        <div class="why-section">
+          <span class="ws-label">2. WHY IT MATTERS TO AN INVESTOR</span>
+          <p class="ws-text" id="whyImportance">
+            A beta of 1.17 means when the NIFTY 50 rises 1%, this stock historically rose about 1.17%. In market downturns, it has tended to fall slightly more than the index.
+          </p>
+        </div>
+
+        <!-- 3. How It Is Calculated With Your Company's Exact Numbers -->
+        <div class="why-section">
+          <span class="ws-label">3. CALCULATION WITH ACTUAL DATA</span>
+          <div class="why-formula-card" id="whyFormulaCard">
+            <!-- Rendered LaTeX equation -->
+          </div>
+        </div>
+
+        <!-- 4. Interactive "Show Mathematics & Sensitivity" -->
+        <div class="why-math-toggle-wrap">
+          <button class="why-math-toggle-btn" id="whyShowMathBtn">
+            <span>Show Full Quantitative Formulation &amp; Sandbox</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+
+        <div class="why-math-expanded" id="whyMathExpanded" hidden>
+          <div class="why-math-text" id="whyMathText"></div>
+          <div class="why-sliders-grid" id="whySlidersGrid"></div>
+        </div>
+
+        <!-- 5. Limitations & Data Provenance -->
+        <div class="why-provenance-box">
+          <div class="wpb-row"><span>Source:</span><strong id="whySource">NSE Daily Log Returns (252 Trading Days)</strong></div>
+          <div class="wpb-row"><span>Data Status:</span><span class="status-tag tag--verified">VERIFIED HISTORICAL</span></div>
+          <div class="wpb-row"><span>Limitation:</span><span id="whyLimitation">Past price sensitivity does not guarantee future co-movement in structural regime shifts.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 4: COMPANY RESEARCH INTELLIGENCE MODAL ═══════════════════════ -->
   <div class="company-modal-overlay" id="companyModalOverlay" aria-hidden="true" hidden>
     <div class="company-modal-backdrop" id="companyModalBackdrop"></div>
     <div class="company-modal-window" role="dialog" aria-modal="true" aria-label="Company Intelligence">
@@ -329,10 +430,10 @@
       <!-- 5-Tab Navigation Bar -->
       <div class="comp-nav-tabs" role="tablist">
         <button class="comp-tab active" data-tab="tab-overview">Overview &amp; Chart</button>
-        <button class="comp-tab" data-tab="tab-news">News &amp; Impact (<span id="compNewsCount">4</span>)</button>
-        <button class="comp-tab" data-tab="tab-fundamentals">Fundamentals</button>
-        <button class="comp-tab" data-tab="tab-quant">Quantitative Signals</button>
-        <button class="comp-tab" data-tab="tab-math">Mathematical Explainer</button>
+        <button class="comp-tab" data-tab="tab-causal">Why Did It Move? (Causal Tree)</button>
+        <button class="comp-tab" data-tab="tab-news">News &amp; Filings (<span id="compNewsCount">4</span>)</button>
+        <button class="comp-tab" data-tab="tab-fundamentals">Fundamentals &amp; Valuation</button>
+        <button class="comp-tab" data-tab="tab-quant">Quantitative Risk &amp; Math</button>
       </div>
 
       <!-- Tab Content Area -->
@@ -379,12 +480,36 @@
               </div>
 
               <div class="side-card">
-                <span class="sc-title">ANALYTICAL SUMMARY (SEBI COMPLIANT)</span>
+                <span class="sc-title">ANALYTICAL SNAPSHOT</span>
                 <div class="sc-summary-body" id="compSummaryBody">
-                  <div class="sum-row"><span>Valuation:</span><strong id="sumValuation">Fair Value (P/E 24.8)</strong></div>
-                  <div class="sum-row"><span>Risk Rating:</span><strong id="sumRiskRating">Moderate (Beta 0.88)</strong></div>
-                  <div class="sum-row"><span>News Sentiment:</span><strong class="pos" id="sumSentiment">Positive (78%)</strong></div>
-                  <div class="sum-row"><span>Corporate Actions:</span><strong id="sumCorpAction">₹10/sh Div (Ex: Aug 19)</strong></div>
+                  <div class="sum-row">
+                    <span>Valuation (P/E):</span>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <strong id="sumValuation">25.5×</strong>
+                      <button class="why-trigger-btn" data-why-key="pe" title="Why this P/E?">?</button>
+                    </div>
+                  </div>
+                  <div class="sum-row">
+                    <span>Systematic Risk (Beta):</span>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <strong id="sumRiskRating">0.88</strong>
+                      <button class="why-trigger-btn" data-why-key="beta" title="Why this Beta?">?</button>
+                    </div>
+                  </div>
+                  <div class="sum-row">
+                    <span>Annualized Volatility:</span>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <strong id="sumVol">18.4%</strong>
+                      <button class="why-trigger-btn" data-why-key="volatility" title="Why this Volatility?">?</button>
+                    </div>
+                  </div>
+                  <div class="sum-row">
+                    <span>Return on Equity (ROE):</span>
+                    <div style="display:flex;align-items:center;gap:6px;">
+                      <strong id="sumRoe">9.8%</strong>
+                      <button class="why-trigger-btn" data-why-key="roe" title="Why this ROE?">?</button>
+                    </div>
+                  </div>
                 </div>
                 <span class="sc-disclaimer">MODEL OUTPUT &bull; FOR RESEARCH &amp; ANALYSIS ONLY</span>
               </div>
@@ -393,7 +518,24 @@
           </div>
         </div>
 
-        <!-- Tab 2: News Intelligence & Exchange Filings -->
+        <!-- Tab 2: Why Did It Move? (Causal Tree) -->
+        <div class="comp-tab-pane" id="pane-tab-causal">
+          <div class="causal-tab-layout">
+            <div class="causal-summary-banner">
+              <span class="csb-tag">CAUSAL ATTRIBUTION &bull; RECENT MOVE</span>
+              <h3 class="csb-headline" id="causalHeadline">What Drove the +1.16% Move in Reliance?</h3>
+              <p class="csb-desc" id="causalDesc">
+                Structured multi-factor attribution separating company corporate filings from broader sector momentum and macro rate expectations.
+              </p>
+            </div>
+
+            <div class="causal-tree-diagram" id="causalTreeDiagram">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: News Intelligence & Exchange Filings -->
         <div class="comp-tab-pane" id="pane-tab-news">
           <div class="news-intelligence-layout">
             <div class="news-filter-bar">
@@ -414,18 +556,46 @@
           </div>
         </div>
 
-        <!-- Tab 3: Fundamentals & Corporate Actions -->
+        <!-- Tab 4: Fundamentals & Valuation -->
         <div class="comp-tab-pane" id="pane-tab-fundamentals">
           <div class="fundamentals-layout">
             <div class="fund-metrics-grid">
+              <div class="fund-card">
+                <div class="fc-header">
+                  <span class="fc-label">PRICE-TO-EARNINGS (P/E)</span>
+                  <button class="why-trigger-btn" data-why-key="pe">?</button>
+                </div>
+                <span class="fc-value" id="fundPe">25.55</span>
+                <span class="fc-sub">Industry Benchmark: 23.4</span>
+              </div>
+              <div class="fund-card">
+                <div class="fc-header">
+                  <span class="fc-label">RETURN ON EQUITY (ROE)</span>
+                  <button class="why-trigger-btn" data-why-key="roe">?</button>
+                </div>
+                <span class="fc-value" id="fundRoe">9.8%</span>
+                <span class="fc-sub">ROCE: 11.2%</span>
+              </div>
+              <div class="fund-card">
+                <div class="fc-header">
+                  <span class="fc-label">EARNINGS PER SHARE (EPS)</span>
+                  <button class="why-trigger-btn" data-why-key="eps">?</button>
+                </div>
+                <span class="fc-value" id="fundEps">₹116.80</span>
+                <span class="fc-sub">Diluted TTM</span>
+              </div>
+              <div class="fund-card">
+                <div class="fc-header">
+                  <span class="fc-label">DEBT / EQUITY</span>
+                  <button class="why-trigger-btn" data-why-key="debtEquity">?</button>
+                </div>
+                <span class="fc-value" id="fundDebtEquity">0.42</span>
+                <span class="fc-sub">Net Debt: Low</span>
+              </div>
               <div class="fund-card"><span class="fc-label">REVENUE (TTM)</span><span class="fc-value" id="fundRevenue">₹9,84,200 Cr</span><span class="fc-sub pos">+11.2% YoY</span></div>
               <div class="fund-card"><span class="fc-label">EBITDA</span><span class="fc-value" id="fundEbitda">₹1,78,400 Cr</span><span class="fc-sub pos">+14.6% margin</span></div>
               <div class="fund-card"><span class="fc-label">NET PROFIT</span><span class="fc-value" id="fundNetProfit">₹79,020 Cr</span><span class="fc-sub pos">+9.4% YoY</span></div>
-              <div class="fund-card"><span class="fc-label">EARNINGS PER SHARE (EPS)</span><span class="fc-value" id="fundEps">₹116.80</span><span class="fc-sub">Diluted TTM</span></div>
-              <div class="fund-card"><span class="fc-label">PRICE-TO-EARNINGS (P/E)</span><span class="fc-value" id="fundPe">25.55</span><span class="fc-sub">Industry: 23.4</span></div>
               <div class="fund-card"><span class="fc-label">PRICE-TO-BOOK (P/B)</span><span class="fc-value" id="fundPb">2.48</span><span class="fc-sub">Book Val: ₹1,203</span></div>
-              <div class="fund-card"><span class="fc-label">RETURN ON EQUITY (ROE)</span><span class="fc-value" id="fundRoe">9.8%</span><span class="fc-sub">ROCE: 11.2%</span></div>
-              <div class="fund-card"><span class="fc-label">DEBT / EQUITY</span><span class="fc-value" id="fundDebtEquity">0.42</span><span class="fc-sub">Net Debt: Low</span></div>
             </div>
 
             <div class="corp-actions-panel">
@@ -437,67 +607,58 @@
           </div>
         </div>
 
-        <!-- Tab 4: Quantitative Signals & Risk Metrics -->
+        <!-- Tab 5: Quantitative Risk & Mathematics -->
         <div class="comp-tab-pane" id="pane-tab-quant">
           <div class="quant-signals-layout">
             <div class="quant-grid">
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">HISTORICAL BETA (\(\beta\))</span><button class="explain-metric-btn" data-formula="beta">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">HISTORICAL BETA (\(\beta\))</span>
+                  <button class="why-trigger-btn" data-why-key="beta">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantBeta">0.88</span>
                 <span class="qsc-desc">Benchmark: NIFTY 50 index. Low systematic risk sensitivity.</span>
               </div>
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">ANNUALIZED VOLATILITY (\(\sigma\))</span><button class="explain-metric-btn" data-formula="volatility">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">ANNUALIZED VOLATILITY (\(\sigma\))</span>
+                  <button class="why-trigger-btn" data-why-key="volatility">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantVol">18.4%</span>
                 <span class="qsc-desc">GARCH(1,1) conditional volatility clustering estimate.</span>
               </div>
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">VALUE-AT-RISK (\(\text{VaR}_{99\%}\))</span><button class="explain-metric-btn" data-formula="var">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">VALUE-AT-RISK (\(\text{VaR}_{99\%}\))</span>
+                  <button class="why-trigger-btn" data-why-key="var">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantVar">-3.12% / day</span>
                 <span class="qsc-desc">Parametric 99% 1-day tail risk boundary under normal assumption.</span>
               </div>
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">SHARPE RATIO (\(S\))</span><button class="explain-metric-btn" data-formula="sharpe">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">SHARPE RATIO (\(S\))</span>
+                  <button class="why-trigger-btn" data-why-key="sharpe">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantSharpe">1.14</span>
                 <span class="qsc-desc">Risk-adjusted excess return over RBI repo rate (6.50%).</span>
               </div>
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">MAX DRAWDOWN (MDD)</span><button class="explain-metric-btn" data-formula="maxDrawdown">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">MAX DRAWDOWN (MDD)</span>
+                  <button class="why-trigger-btn" data-why-key="maxDrawdown">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantMdd">-14.2%</span>
                 <span class="qsc-desc">Peak-to-trough maximum drawdown during 52-week lookback.</span>
               </div>
               <div class="quant-stat-card">
-                <div class="qsc-header"><span class="qsc-title">CAPM EXPECTED RETURN</span><button class="explain-metric-btn" data-formula="capm">? Explain</button></div>
+                <div class="qsc-header">
+                  <span class="qsc-title">CAPM HURDLE RATE</span>
+                  <button class="why-trigger-btn" data-why-key="capm">? Explain</button>
+                </div>
                 <span class="qsc-val" id="quantCapm">12.8%</span>
-                <span class="qsc-desc">Required hurdle rate given equity risk premium of 7.2%.</span>
+                <span class="qsc-desc">Required expected return given equity risk premium of 7.2%.</span>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Tab 5: 3-Layer Mathematical Explainer -->
-        <div class="comp-tab-pane" id="pane-tab-math">
-          <div class="math-explainer-layout">
-            <div class="math-explainer-topbar">
-              <span class="met-tag">3-LAYER MATHEMATICAL EXPLAINER ENGINE</span>
-              <div class="layer-switch" id="layerSwitch">
-                <button class="layer-btn active" data-layer="1">Level 1: Simple</button>
-                <button class="layer-btn" data-layer="2">Level 2: Quantitative</button>
-                <button class="layer-btn" data-layer="3">Level 3: Technical</button>
-              </div>
-            </div>
-
-            <div class="math-hero-box" id="compMathHeroBox">
-              <span class="mhb-title" id="mhbTitle">SHARPE RATIO FORMULATION FOR RELIANCE</span>
-              <div class="mhb-equation-render" id="mhbEquationRender">
-                \[ S = \frac{R_i - R_f}{\sigma_i} = \frac{16.8\% - 6.5\%}{18.4\%} = \mathbf{0.56} \]
-              </div>
-              <div class="layer-view" id="layerContent"></div>
-            </div>
-
-            <div class="math-sandbox-controls">
-              <span class="msc-title">INTERACTIVE FORMULA SENSITIVITY SANDBOX</span>
-              <div class="msc-sliders" id="mscSliders"></div>
             </div>
           </div>
         </div>
@@ -506,7 +667,21 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 3: COMPARISON MODE MODAL ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 5: MARKET PULSE DRAWER (INDIAN & US BREADTH) ═══════════════════════ -->
+  <div class="market-pulse-drawer" id="marketPulseDrawer" aria-hidden="true" hidden>
+    <div class="drawer-header">
+      <div class="drawer-title-wrap">
+        <span class="drawer-tag">MARKET SURVEILLANCE &bull; NSE/BSE</span>
+        <h3 class="drawer-title">Indian Market Pulse</h3>
+      </div>
+      <button class="drawer-close-btn" id="pulseCloseBtn">&times;</button>
+    </div>
+    <div class="drawer-body" id="pulseBody">
+      <!-- Dynamically populated based on Beginner vs Quant mode -->
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 6: COMPARISON MODE MODAL ═══════════════════════ -->
   <div class="compare-modal-overlay" id="compareModalOverlay" aria-hidden="true" hidden>
     <div class="compare-modal-backdrop" id="compareModalBackdrop"></div>
     <div class="compare-modal-window" role="dialog" aria-modal="true" aria-label="Security Comparison">
@@ -521,7 +696,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 4: WATCHLIST DRAWER ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 7: WATCHLIST DRAWER ═══════════════════════ -->
   <div class="watchlist-drawer" id="watchlistDrawer" aria-hidden="true" hidden>
     <div class="drawer-header">
       <div class="drawer-title-wrap">
@@ -538,7 +713,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 5: NOTIFICATION ALERTS DRAWER ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 8: NOTIFICATION ALERTS DRAWER ═══════════════════════ -->
   <div class="alerts-drawer" id="alertsDrawer" aria-hidden="true" hidden>
     <div class="drawer-header">
       <div class="drawer-title-wrap">
@@ -552,7 +727,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ ADD-ON 6: QUANTITATIVE EXPLAINER LIBRARY ═══════════════════════ -->
+  <!-- ═══════════════════════ MODAL 9: QUANTITATIVE EXPLAINER LIBRARY ═══════════════════════ -->
   <div class="glossary-modal-overlay" id="glossaryModalOverlay" aria-hidden="true" hidden>
     <div class="glossary-modal-backdrop" id="glossaryModalBackdrop"></div>
     <div class="glossary-modal-window" role="dialog" aria-modal="true" aria-label="Mathematical Explainer Library">
@@ -566,20 +741,20 @@
       <div class="glossary-body">
         <div class="glossary-tabs" id="glossaryFormulaList">
           <button class="g-tab active" data-formula="sharpe">Sharpe Ratio</button>
-          <button class="g-tab" data-formula="cagr">CAGR</button>
-          <button class="g-tab" data-formula="volatility">Volatility (\(\sigma\))</button>
           <button class="g-tab" data-formula="beta">Beta (\(\beta\))</button>
+          <button class="g-tab" data-formula="volatility">Volatility (\(\sigma\))</button>
+          <button class="g-tab" data-formula="cagr">CAGR</button>
           <button class="g-tab" data-formula="capm">CAPM Hurdle Rate</button>
           <button class="g-tab" data-formula="var">Value-at-Risk</button>
           <button class="g-tab" data-formula="maxDrawdown">Max Drawdown</button>
-          <button class="g-tab" data-formula="portfolioReturn">Portfolio Return</button>
+          <button class="g-tab" data-formula="portfolioVariance">Portfolio Variance</button>
         </div>
         <div class="glossary-content-panel" id="glossaryContentPanel"></div>
       </div>
     </div>
   </div>
 
-  <!-- ═══════════════════════ 7. MOBILE MENU (FIXED OVERLAY LAYER) ═══════════════════════ -->
+  <!-- ═══════════════════════ 10. MOBILE MENU (FIXED OVERLAY LAYER) ═══════════════════════ -->
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true" hidden>
     <div class="mobile-menu__backdrop" id="menuBackdrop"></div>
     <div class="mobile-menu__sheet" id="menuSheet" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
@@ -598,7 +773,15 @@
         </a>
         <button class="mobile-nav-link" id="mobileOpenSearch" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <span>Search Securities (⌘K)</span>
+          <span>Command Palette (⌘K)</span>
+        </button>
+        <button class="mobile-nav-link" id="mobileOpenCanvasBtn" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Financial Canvas</span>
+        </button>
+        <button class="mobile-nav-link" id="mobileOpenPulseBtn" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
+          <i class="fa-solid fa-heart-pulse"></i>
+          <span>Market Pulse</span>
         </button>
         <button class="mobile-nav-link" id="mobileOpenObs" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
           <i class="fa-solid fa-atom"></i>
@@ -608,17 +791,9 @@
           <i class="fa-solid fa-star"></i>
           <span>My Watchlist</span>
         </button>
-        <button class="mobile-nav-link" id="mobileOpenMath" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
-          <i class="fa-solid fa-square-root-variable"></i>
-          <span>Math Library</span>
-        </button>
         <a href="app.html" class="mobile-nav-link">
           <i class="fa-solid fa-terminal"></i>
           <span>Quant Terminal</span>
-        </a>
-        <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener" class="mobile-nav-link">
-          <i class="fa-brands fa-github"></i>
-          <span>GitHub Source</span>
         </a>
       </nav>
 
@@ -631,7 +806,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ 8. FINANCIAL INTELLIGENCE OBSERVATORY (FULL-SCREEN ARTIFACT) ═══════════════════════ -->
+  <!-- ═══════════════════════ 11. FINANCIAL INTELLIGENCE OBSERVATORY (FULL-SCREEN ARTIFACT) ═══════════════════════ -->
   <div class="observatory-overlay" id="observatoryOverlay" aria-hidden="true" hidden>
     <div class="observatory-backdrop" id="observatoryBackdrop"></div>
     
@@ -829,7 +1004,7 @@
           <section class="obs-panel obs-panel--scenarios">
             <div class="panel-header">
               <div class="panel-title-wrap">
-                <span class="panel-tag">SCENARIO ENGINE</span>
+                <span class="panel-tag">SCENARIO LAB</span>
                 <h2 class="panel-title">Macroeconomic Stress &amp; Regime Shocks</h2>
               </div>
               <span class="scenario-active-tag" id="activeScenarioLabel">MODELLED SCENARIO: Base Case</span>
