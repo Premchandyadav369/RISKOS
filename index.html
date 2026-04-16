@@ -88,14 +88,14 @@
         <!-- Center: Nav Pill (Desktop) -->
         <nav class="nav-pill" aria-label="Main Navigation">
           <a href="index.html" class="nav-link active">Home</a>
-          <a href="app.html" class="nav-link">Product</a>
-          <a href="app.html#tab-spreads" class="nav-link">Insights</a>
+          <a href="#observatory" class="nav-link" id="navOpenObs">Observatory</a>
+          <a href="app.html" class="nav-link">Terminal</a>
           <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener" class="nav-link">Contact</a>
         </nav>
 
-        <!-- Right: Sign In / Terminal CTA & Mobile Burger -->
+        <!-- Right: Sign In / Observatory CTA & Mobile Burger -->
         <div class="header-actions">
-          <a href="app.html" class="signin-btn">Sign In</a>
+          <button class="signin-btn" id="headerExploreBtn">Explore</button>
           <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
             <span class="bar"></span>
             <span class="bar"></span>
@@ -144,12 +144,12 @@
           Turn market data into decisions with an intelligent financial platform built for analysis, risk and execution.
         </p>
 
-        <!-- 5. Get Started CTA with Desktop Magnetic Interaction -->
+        <!-- 5. Get Started CTA with Desktop Magnetic Interaction (Opens Observatory) -->
         <div class="cta-wrapper">
-          <a href="app.html" class="cta-btn" id="ctaBtn">
+          <button class="cta-btn" id="ctaBtn" aria-label="Launch Financial Intelligence Observatory">
             <span>Get Started</span>
             <i class="fa-solid fa-arrow-right cta-icon" aria-hidden="true"></i>
-          </a>
+          </button>
         </div>
 
       </div>
@@ -221,21 +221,13 @@
           <i class="fa-solid fa-house"></i>
           <span>Home</span>
         </a>
+        <button class="mobile-nav-link" id="mobileOpenObs" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
+          <i class="fa-solid fa-atom"></i>
+          <span>Financial Observatory</span>
+        </button>
         <a href="app.html" class="mobile-nav-link">
           <i class="fa-solid fa-terminal"></i>
           <span>Quant Terminal</span>
-        </a>
-        <a href="app.html#tab-spreads" class="mobile-nav-link">
-          <i class="fa-solid fa-arrow-trend-up"></i>
-          <span>Futures & Rates Desk</span>
-        </a>
-        <a href="app.html#tab-micro" class="mobile-nav-link">
-          <i class="fa-solid fa-bars-staggered"></i>
-          <span>Microstructure & OFI</span>
-        </a>
-        <a href="app.html#tab-options" class="mobile-nav-link">
-          <i class="fa-solid fa-wave-square"></i>
-          <span>Derivatives & Greeks</span>
         </a>
         <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener" class="mobile-nav-link">
           <i class="fa-brands fa-github"></i>
@@ -244,11 +236,435 @@
       </nav>
 
       <div class="mobile-menu__footer">
-        <a href="app.html" class="mobile-cta-btn">
-          <span>Launch Platform</span>
+        <button class="mobile-cta-btn" id="mobileCtaLaunchObs">
+          <span>Launch Observatory</span>
           <i class="fa-solid fa-arrow-right"></i>
-        </a>
+        </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ FINANCIAL INTELLIGENCE OBSERVATORY (FULL-SCREEN ARTIFACT) ═══════════════════════ -->
+  <div class="observatory-overlay" id="observatoryOverlay" aria-hidden="true" hidden>
+    <div class="observatory-backdrop" id="observatoryBackdrop"></div>
+    
+    <div class="observatory-workspace" id="observatoryWorkspace" role="dialog" aria-modal="true" aria-label="Financial Intelligence Observatory">
+      
+      <!-- Top System Header & Status Bar -->
+      <header class="obs-header">
+        <div class="obs-header-left">
+          <div class="obs-brand">
+            <img src="assets/logo.webp" alt="RISKOS Logo" width="28" height="28" class="obs-logo" />
+            <span class="obs-title">FINANCIAL INTELLIGENCE OBSERVATORY</span>
+          </div>
+          <div class="obs-status-chips">
+            <span class="obs-chip obs-chip--sim"><span class="chip-dot chip-dot--amber"></span> SIMULATION MODE</span>
+            <span class="obs-chip"><span class="chip-dot chip-dot--green"></span> MARKET: READY</span>
+            <span class="obs-chip"><span class="chip-dot chip-dot--green"></span> RISK: READY</span>
+            <span class="obs-chip"><span class="chip-dot chip-dot--green"></span> SCENARIO: READY</span>
+          </div>
+        </div>
+
+        <div class="obs-header-right">
+          <button class="obs-btn obs-btn--explain" id="btnExplainPortfolio">
+            <i class="fa-solid fa-brain"></i>
+            <span>Explain Decision</span>
+          </button>
+          <a href="app.html" class="obs-btn obs-btn--terminal" title="Launch Full 6-Desk Terminal">
+            <i class="fa-solid fa-terminal"></i>
+            <span>Full Terminal</span>
+          </a>
+          <button class="obs-close-btn" id="obsCloseBtn" aria-label="Close Observatory (ESC)">
+            <span class="obs-esc-badge">ESC</span>
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Observatory Body Grid -->
+      <div class="obs-body">
+
+        <!-- Row 1: Time Series Intelligence & Generative Portfolio Allocation -->
+        <div class="obs-grid-row obs-row-1">
+          
+          <!-- Panel 1: Interactive Time-Series Canvas Explorer -->
+          <section class="obs-panel obs-panel--chart">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-tag">MARKET INTELLIGENCE</span>
+                <h2 class="panel-title">Simulated Asset Trajectory & Regime Projections</h2>
+              </div>
+              <div class="timeframe-selector" id="timeframeSelector" role="group" aria-label="Timeframe">
+                <button class="tf-btn" data-tf="1M">1M</button>
+                <button class="tf-btn" data-tf="3M">3M</button>
+                <button class="tf-btn" data-tf="6M">6M</button>
+                <button class="tf-btn active" data-tf="1Y">1Y</button>
+                <button class="tf-btn" data-tf="5Y">5Y</button>
+              </div>
+            </div>
+
+            <!-- Quick Metrics Ribbon -->
+            <div class="chart-metrics-ribbon">
+              <div class="ribbon-item">
+                <span class="ribbon-label">EXPECTED RETURN</span>
+                <span class="ribbon-value" id="ribbonReturn">+11.8%</span>
+              </div>
+              <div class="ribbon-item">
+                <span class="ribbon-label">ANNUAL VOLATILITY</span>
+                <span class="ribbon-value" id="ribbonVol">9.2%</span>
+              </div>
+              <div class="ribbon-item">
+                <span class="ribbon-label">SHARPE RATIO</span>
+                <span class="ribbon-value" id="ribbonSharpe">1.28</span>
+              </div>
+              <div class="ribbon-item">
+                <span class="ribbon-label">MAX DRAWDOWN</span>
+                <span class="ribbon-value ribbon-value--neg" id="ribbonDrawdown">-8.4%</span>
+              </div>
+              <div class="ribbon-item">
+                <span class="ribbon-label">QUANT RISK SCORE</span>
+                <span class="ribbon-value" id="ribbonRiskScore">64/100</span>
+              </div>
+            </div>
+
+            <!-- Canvas Interactive Chart Container -->
+            <div class="chart-canvas-container" id="chartCanvasContainer">
+              <canvas id="timeSeriesCanvas"></canvas>
+              <div class="chart-tooltip" id="chartTooltip" hidden>
+                <div class="tt-date" id="ttDate">2026-08-27</div>
+                <div class="tt-row"><span>Index Value:</span><strong id="ttValue">112.40</strong></div>
+                <div class="tt-row"><span>Cumulative Return:</span><strong id="ttReturn">+12.4%</strong></div>
+                <div class="tt-row"><span>Rolling Vol (\(\sigma\)):</span><strong id="ttVol">8.6%</strong></div>
+                <div class="tt-row"><span>Drawdown:</span><strong id="ttDd">-2.1%</strong></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Panel 2: Generative Portfolio Simulator & SVG Donut -->
+          <section class="obs-panel obs-panel--alloc">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-tag">PORTFOLIO SIMULATOR</span>
+                <h2 class="panel-title">Asset Allocation & Risk Budgeting</h2>
+              </div>
+              <span class="panel-subbadge" id="allocTotalBadge">100% Allocated</span>
+            </div>
+
+            <div class="alloc-content">
+              <!-- SVG Donut Chart -->
+              <div class="donut-wrap">
+                <svg id="donutSvg" viewBox="0 0 160 160" width="130" height="130">
+                  <circle cx="80" cy="80" r="56" class="donut-bg-ring"></circle>
+                  <circle id="sliceEquities" cx="80" cy="80" r="56" class="donut-slice slice--eq"></circle>
+                  <circle id="sliceBonds" cx="80" cy="80" r="56" class="donut-slice slice--bnd"></circle>
+                  <circle id="sliceCash" cx="80" cy="80" r="56" class="donut-slice slice--csh"></circle>
+                  <circle id="sliceCommodities" cx="80" cy="80" r="56" class="donut-slice slice--cmd"></circle>
+                </svg>
+                <div class="donut-center-info">
+                  <span class="donut-center-val" id="donutAmountDisplay">$100k</span>
+                  <span class="donut-center-lbl">PORTFOLIO</span>
+                </div>
+              </div>
+
+              <!-- Allocation Sliders -->
+              <div class="alloc-sliders">
+                <div class="slider-row">
+                  <div class="slider-label-line">
+                    <span class="asset-name"><span class="color-dot dot--eq"></span> Equities</span>
+                    <span class="asset-weight" id="lblEqWeight">52%</span>
+                  </div>
+                  <input type="range" class="weight-range" id="rangeEquities" min="0" max="100" value="52" />
+                </div>
+
+                <div class="slider-row">
+                  <div class="slider-label-line">
+                    <span class="asset-name"><span class="color-dot dot--bnd"></span> Fixed Income</span>
+                    <span class="asset-weight" id="lblBndWeight">28%</span>
+                  </div>
+                  <input type="range" class="weight-range" id="rangeBonds" min="0" max="100" value="28" />
+                </div>
+
+                <div class="slider-row">
+                  <div class="slider-label-line">
+                    <span class="asset-name"><span class="color-dot dot--csh"></span> Cash / Liquidity</span>
+                    <span class="asset-weight" id="lblCshWeight">10%</span>
+                  </div>
+                  <input type="range" class="weight-range" id="rangeCash" min="0" max="100" value="10" />
+                </div>
+
+                <div class="slider-row">
+                  <div class="slider-label-line">
+                    <span class="asset-name"><span class="color-dot dot--cmd"></span> Commodities / Gold</span>
+                    <span class="asset-weight" id="lblCmdWeight">10%</span>
+                  </div>
+                  <input type="range" class="weight-range" id="rangeCommodities" min="0" max="100" value="10" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Parameter Controls (Horizon, Amount, Risk Profile) -->
+            <div class="alloc-meta-controls">
+              <div class="meta-field">
+                <label for="inputCapital">CAPITAL</label>
+                <select id="inputCapital" class="meta-select">
+                  <option value="50000">$50,000</option>
+                  <option value="100000" selected>$100,000</option>
+                  <option value="500000">$500,000</option>
+                  <option value="1000000">$1,000,000</option>
+                </select>
+              </div>
+              <div class="meta-field">
+                <label for="inputHorizon">HORIZON</label>
+                <select id="inputHorizon" class="meta-select">
+                  <option value="1">1 Year</option>
+                  <option value="3" selected>3 Years</option>
+                  <option value="5">5 Years</option>
+                  <option value="10">10 Years</option>
+                </select>
+              </div>
+              <div class="meta-field">
+                <label for="inputRiskTol">RISK PROFILE</label>
+                <select id="inputRiskTol" class="meta-select">
+                  <option value="conservative">Conservative</option>
+                  <option value="moderate" selected>Moderate</option>
+                  <option value="aggressive">Aggressive</option>
+                </select>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Row 2: Scenario Engine & Interactive Mathematical Formulations & Risk Heatmap -->
+        <div class="obs-grid-row obs-row-2">
+          
+          <!-- Panel 3: Scenario Engine -->
+          <section class="obs-panel obs-panel--scenarios">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-tag">SCENARIO ENGINE</span>
+                <h2 class="panel-title">Macroeconomic Stress & Regime Shocks</h2>
+              </div>
+              <span class="scenario-active-tag" id="activeScenarioLabel">MODELLED SCENARIO: Base Case</span>
+            </div>
+
+            <div class="scenario-pills" id="scenarioPills">
+              <button class="scenario-pill active" data-scenario="base">
+                <span class="pill-name">BASE CASE</span>
+                <span class="pill-desc">Steady macroeconomic baseline</span>
+              </button>
+              <button class="scenario-pill" data-scenario="bull">
+                <span class="pill-name">BULL MARKET</span>
+                <span class="pill-desc">Equity expansion + low vol regime</span>
+              </button>
+              <button class="scenario-pill" data-scenario="bear">
+                <span class="pill-name">BEAR MARKET</span>
+                <span class="pill-desc">Liquidity contraction (-25% shock)</span>
+              </button>
+              <button class="scenario-pill" data-scenario="highvol">
+                <span class="pill-name">HIGH VOLATILITY</span>
+                <span class="pill-desc">Turbulence surge (\(3\times \sigma\))</span>
+              </button>
+              <button class="scenario-pill" data-scenario="rate_shock">
+                <span class="pill-name">RATE SHOCK</span>
+                <span class="pill-desc">Yield curve shift (+300bps)</span>
+              </button>
+              <button class="scenario-pill" data-scenario="inflation">
+                <span class="pill-name">INFLATION SHOCK</span>
+                <span class="pill-desc">Commodities surge, bond drag</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- Panel 4: Interactive Quantitative Mathematics & Risk Surface -->
+          <section class="obs-panel obs-panel--math">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <span class="panel-tag">DYNAMIC FORMULATIONS</span>
+                <h2 class="panel-title">Real-Time Mathematical Model State</h2>
+              </div>
+            </div>
+
+            <!-- Dynamic Live Equations -->
+            <div class="live-math-equations" id="liveMathContainer">
+              <div class="equation-card">
+                <span class="eq-tag">EXPECTED PORTFOLIO RETURN</span>
+                <div class="equation equation--display" id="eqReturn">
+                  \[ R_p = \sum_{i=1}^{n} w_i R_i = 11.8\% \]
+                </div>
+              </div>
+              <div class="equation-card">
+                <span class="eq-tag">SHARPE RATIO SENSITIVITY</span>
+                <div class="equation equation--display" id="eqSharpe">
+                  \[ S = \frac{R_p - R_f}{\sigma_p} = \frac{11.8\% - 4.0\%}{9.2\%} = 1.28 \]
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Risk Surface / Heatmap -->
+            <div class="risk-matrix-wrap">
+              <span class="matrix-title">ASSET RISK CONTRIBUTION MATRIX (\(\sigma_{\text{contrib}}\))</span>
+              <div class="risk-heatmap-grid" id="riskHeatmap">
+                <div class="hm-header"></div>
+                <div class="hm-header">LOW VOL</div>
+                <div class="hm-header">MED VOL</div>
+                <div class="hm-header">HIGH VOL</div>
+
+                <div class="hm-row-label">Equities</div>
+                <div class="hm-cell hm--low" data-tooltip="Equities in Low Vol: +3.2% risk"><span>● 3.2%</span></div>
+                <div class="hm-cell hm--med" data-tooltip="Equities in Med Vol: +6.8% risk"><span>● 6.8%</span></div>
+                <div class="hm-cell hm--high" data-tooltip="Equities in High Vol: +14.2% risk"><span>● 14.2%</span></div>
+
+                <div class="hm-row-label">Fixed Income</div>
+                <div class="hm-cell hm--low" data-tooltip="Bonds in Low Vol: +1.1% risk"><span>● 1.1%</span></div>
+                <div class="hm-cell hm--low" data-tooltip="Bonds in Med Vol: +2.3% risk"><span>● 2.3%</span></div>
+                <div class="hm-cell hm--med" data-tooltip="Bonds in High Vol: +4.7% risk"><span>● 4.7%</span></div>
+
+                <div class="hm-row-label">Commodities</div>
+                <div class="hm-cell hm--low" data-tooltip="Gold in Low Vol: +0.9% risk"><span>● 0.9%</span></div>
+                <div class="hm-cell hm--med" data-tooltip="Gold in Med Vol: +2.1% risk"><span>● 2.1%</span></div>
+                <div class="hm-cell hm--high" data-tooltip="Gold in High Vol: +5.4% risk"><span>● 5.4%</span></div>
+
+                <div class="hm-row-label">Cash / Liquid</div>
+                <div class="hm-cell hm--zero" data-tooltip="Cash Risk: 0.0% variance"><span>● 0.0%</span></div>
+                <div class="hm-cell hm--zero" data-tooltip="Cash Risk: 0.0% variance"><span>● 0.0%</span></div>
+                <div class="hm-cell hm--zero" data-tooltip="Cash Risk: 0.0% variance"><span>● 0.0%</span></div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+
+        <!-- Row 3: AI Quantitative Reasoning Pipeline -->
+        <section class="obs-panel obs-panel--pipeline">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <span class="panel-tag">QUANTITATIVE PIPELINE</span>
+              <h2 class="panel-title">End-to-End Decision Architecture (Click any node to inspect math)</h2>
+            </div>
+          </div>
+
+          <div class="pipeline-flow" id="pipelineFlow">
+            <div class="pipeline-node active" data-node="market">
+              <span class="node-step">01</span>
+              <span class="node-title">MARKET DATA</span>
+              <span class="node-sub">Tick streams & log returns</span>
+            </div>
+            <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="pipeline-node" data-node="feature">
+              <span class="node-step">02</span>
+              <span class="node-title">FEATURE ENGINE</span>
+              <span class="node-sub">Continuous variance signals</span>
+            </div>
+            <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="pipeline-node" data-node="risk">
+              <span class="node-step">03</span>
+              <span class="node-title">RISK MODEL</span>
+              <span class="node-sub">GARCH & Ledoit-Wolf</span>
+            </div>
+            <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="pipeline-node" data-node="portfolio">
+              <span class="node-step">04</span>
+              <span class="node-title">PORTFOLIO ENGINE</span>
+              <span class="node-sub">CVaR minimization (SLSQP)</span>
+            </div>
+            <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="pipeline-node" data-node="scenario">
+              <span class="node-step">05</span>
+              <span class="node-title">SCENARIO ENGINE</span>
+              <span class="node-sub">Macro shocks & stress tests</span>
+            </div>
+            <div class="pipeline-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+
+            <div class="pipeline-node" data-node="insight">
+              <span class="node-step">06</span>
+              <span class="node-title">FINANCIAL INSIGHT</span>
+              <span class="node-sub">Execution boundary</span>
+            </div>
+          </div>
+
+          <!-- Node Detail Dynamic Box -->
+          <div class="node-detail-card" id="nodeDetailCard">
+            <div class="node-detail-header">
+              <span class="node-badge" id="nodeBadge">PIPELINE NODE 01: MARKET DATA</span>
+              <h3 class="node-headline" id="nodeHeadline">Raw Tick Ingestion & Log Returns</h3>
+            </div>
+            <p class="node-text" id="nodeText">
+              Continuous ingestion of multi-asset high-frequency price and quote time-series. Prices are converted to continuous compounding log-returns \( r_t = \ln(P_t / P_{t-1}) \) ensuring additivity and normality properties for downstream estimators.
+            </p>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ═══════════════════════ MODAL DRAWER: EXPLAIN THIS DECISION ═══════════════════════ -->
+      <div class="explain-drawer" id="explainDrawer" hidden>
+        <div class="drawer-header">
+          <div class="drawer-title-wrap">
+            <span class="drawer-tag">ANALYTICAL ATTRIBUTION</span>
+            <h3 class="drawer-title">Why This Portfolio Allocation? (Model Output)</h3>
+          </div>
+          <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close Explanation">&times;</button>
+        </div>
+
+        <div class="drawer-body">
+          <div class="attr-item">
+            <div class="attr-label-line">
+              <span>RETURN CONTRIBUTION</span>
+              <strong id="attrReturnVal">41%</strong>
+            </div>
+            <div class="attr-bar-track">
+              <div class="attr-bar-fill fill--green" id="attrReturnBar" style="width: 41%;"></div>
+            </div>
+            <p class="attr-desc">Equities allocation drives the primary alpha component under the current interest rate regime.</p>
+          </div>
+
+          <div class="attr-item">
+            <div class="attr-label-line">
+              <span>RISK CONTRIBUTION</span>
+              <strong id="attrRiskVal">28%</strong>
+            </div>
+            <div class="attr-bar-track">
+              <div class="attr-bar-fill fill--amber" id="attrRiskBar" style="width: 28%;"></div>
+            </div>
+            <p class="attr-desc">Fixed income and gold dampen tail variance, keeping portfolio volatility under 10%.</p>
+          </div>
+
+          <div class="attr-item">
+            <div class="attr-label-line">
+              <span>DIVERSIFICATION BENEFIT</span>
+              <strong id="attrDivVal">87%</strong>
+            </div>
+            <div class="attr-bar-track">
+              <div class="attr-bar-fill fill--blue" id="attrDivBar" style="width: 87%;"></div>
+            </div>
+            <p class="attr-desc">Negative equity-bond correlation yields significant variance reduction over single-asset exposure.</p>
+          </div>
+
+          <div class="attr-item">
+            <div class="attr-label-line">
+              <span>LIQUIDITY CAPACITY</span>
+              <strong id="attrLiqVal">94%</strong>
+            </div>
+            <div class="attr-bar-track">
+              <div class="attr-bar-fill fill--purple" id="attrLiqBar" style="width: 94%;"></div>
+            </div>
+            <p class="attr-desc">10% cash liquidity allocation enables instant rebalancing with negligible market impact.</p>
+          </div>
+
+          <div class="attr-formula-note">
+            <span>Mathematical Basis:</span>
+            <div class="equation">
+              \[ \text{Diversification Ratio} = \frac{\sum w_i \sigma_i}{\sigma_p} = \frac{13.4\%}{9.2\%} = \mathbf{1.45} \]
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
