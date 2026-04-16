@@ -761,8 +761,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Try to sync with backend SQLite database if online
+  try {
+    fetch('/api/portfolio/transactions')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        if (data && Array.isArray(data.transactions) && data.transactions.length > 0) {
+          portfolioTransactions = data.transactions;
+          localStorage.setItem('riskos_transactions_v2', JSON.stringify(portfolioTransactions));
+          renderPortfolioManager();
+          updateNavbarPortfolioCount();
+        }
+      })
+      .catch(() => {});
+  } catch (e) {}
+
   // ── 12. Professional Interactive Candlestick / OHLC Canvas Engine ──────────
-  const renderCandlestickChart = (sec, tf = '1Y') => {
+  const renderCandlestickChart = async (sec, tf = '1Y') => {
     const canvas = document.getElementById('candlestickCanvas');
     const wrap = document.getElementById('candleCanvasWrap');
     if (!canvas || !wrap) return;
@@ -776,55 +791,75 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
-    const tfMap = { '1D': 30, '1W': 40, '1M': 30, '3M': 60, '1Y': 120, '5Y': 240, 'ALL': 300 };
-    const n = tfMap[tf] || 120;
+    let bars = [];
+    let sma20 = [];
+    let ema50 = [];
 
-    // Generate realistic OHLC bars
-    const bars = [];
-    const baseP = sec.priceINR || 100;
-    const volParam = sec.volatility || 0.18;
-    let currClose = baseP * 0.82;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - n);
-
-    for (let i = 0; i < n; i++) {
-      const d = new Date(startDate);
-      d.setDate(d.getDate() + i);
-      const ret = (Math.sin(i * 0.35 + sec.symbol.length) * 0.015) + ((Math.random() - 0.48) * volParam * 0.08);
-      const op = currClose;
-      const cl = op * (1 + ret);
-      const hi = Math.max(op, cl) * (1 + (Math.random() * 0.008));
-      const lo = Math.min(op, cl) * (1 - (Math.random() * 0.008));
-      const vol = Math.round(500000 + Math.random() * 2500000 * (1 + Math.abs(ret) * 10));
-
-      bars.push({
-        date: d.toISOString().split('T')[0],
-        open: op,
-        high: hi,
-        low: lo,
-        close: cl,
-        volume: vol
-      });
-      currClose = cl;
-    }
-
-    // Indicators: 20-period SMA & 50-period EMA
-    const sma20 = [];
-    for (let i = 0; i < bars.length; i++) {
-      if (i < 19) sma20.push(null);
-      else {
-        const sum = bars.slice(i - 19, i + 1).reduce((acc, b) => acc + b.close, 0);
-        sma20.push(sum / 20);
+    // Attempt to load 100% real live market data from backend
+    try {
+      const liveData = await cachedFetch(`/api/market/candlesticks?ticker=${encodeURIComponent(sec.symbol)}&timeframe=${encodeURIComponent(tf)}`);
+      if (liveData && Array.isArray(liveData.close) && liveData.close.length >= 5) {
+        for (let i = 0; i < liveData.close.length; i++) {
+          bars.push({
+            date: liveData.dates[i],
+            open: liveData.open[i],
+            high: liveData.high[i],
+            low: liveData.low[i],
+            close: liveData.close[i],
+            volume: liveData.volume[i]
+          });
+        }
+        sma20 = liveData.sma20 || [];
+        ema50 = liveData.ema50 || [];
       }
-    }
+    } catch (e) {}
 
-    const ema50 = [];
-    const k = 2 / 51;
-    let prevEma = bars[0].close;
-    for (let i = 0; i < bars.length; i++) {
-      const e = (bars[i].close * k) + (prevEma * (1 - k));
-      ema50.push(i >= 20 ? e : null);
-      prevEma = e;
+    // Fallback generator if offline
+    if (bars.length === 0) {
+      const tfMap = { '1D': 30, '1W': 40, '1M': 30, '3M': 60, '1Y': 120, '5Y': 240, 'ALL': 300 };
+      const n = tfMap[tf] || 120;
+      const baseP = sec.priceINR || 100;
+      const volParam = sec.volatility || 0.18;
+      let currClose = baseP * 0.82;
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - n);
+
+      for (let i = 0; i < n; i++) {
+        const d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        const ret = (Math.sin(i * 0.35 + sec.symbol.length) * 0.015) + ((Math.random() - 0.48) * volParam * 0.08);
+        const op = currClose;
+        const cl = op * (1 + ret);
+        const hi = Math.max(op, cl) * (1 + (Math.random() * 0.008));
+        const lo = min(op, cl) * (1 - (Math.random() * 0.008));
+        const vol = Math.round(500000 + Math.random() * 2500000 * (1 + Math.abs(ret) * 10));
+
+        bars.push({
+          date: d.toISOString().split('T')[0],
+          open: op,
+          high: hi,
+          low: lo,
+          close: cl,
+          volume: vol
+        });
+        currClose = cl;
+      }
+
+      for (let i = 0; i < bars.length; i++) {
+        if (i < 19) sma20.push(null);
+        else {
+          const sum = bars.slice(i - 19, i + 1).reduce((acc, b) => acc + b.close, 0);
+          sma20.push(sum / 20);
+        }
+      }
+
+      const k = 2 / 51;
+      let prevEma = bars[0].close;
+      for (let i = 0; i < bars.length; i++) {
+        const e = (bars[i].close * k) + (prevEma * (1 - k));
+        ema50.push(i >= 20 ? e : null);
+        prevEma = e;
+      }
     }
 
     // Chart layout dimensions
@@ -848,6 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.clearRect(0, 0, w, h);
 
       // Price Gridlines & Labels
+
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 1;
       ctx.fillStyle = '#71717a';

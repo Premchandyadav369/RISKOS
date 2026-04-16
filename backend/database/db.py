@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker, Session
 
 from .models import (
     Base, SecurityModel, PriceHistoryModel, PortfolioModel,
-    OrderModel, WatchlistModel, NewsEventModel, MarketSnapshotModel
+    OrderModel, WatchlistModel, NewsEventModel, MarketSnapshotModel, TransactionModel
 )
 
 # Database path
@@ -110,25 +110,26 @@ def init_db():
             )
             db.add(snap)
 
-            # Seed default sample orders
-            sample_order = OrderModel(
-                order_id="ORD-20260827-001",
-                symbol="RELIANCE",
-                direction="BUY",
-                quantity=100,
-                order_type="VWAP",
-                avg_fill_price=2984.50,
-                vwap_benchmark=2983.80,
-                slippage_bps=2.3,
-                total_cost=298450.0,
-                status="FILLED"
-            )
-            db.add(sample_order)
-            
             db.commit()
             print("Database initialized & seeded successfully with master securities!")
+
+        # Check transactions independently
+        existing_txs = db.query(TransactionModel).count()
+        if existing_txs == 0:
+            sample_txs = [
+                TransactionModel(tx_id="tx-1", symbol="RELIANCE", type="BUY", quantity=20, price=2920.0, fees=20.0, date="2026-01-15", notes="Core long position"),
+                TransactionModel(tx_id="tx-2", symbol="RELIANCE", type="BUY", quantity=10, price=2980.0, fees=15.0, date="2026-02-10", notes="Dip buy"),
+                TransactionModel(tx_id="tx-3", symbol="TCS", type="BUY", quantity=15, price=4150.0, fees=25.0, date="2026-01-20", notes="IT allocation"),
+                TransactionModel(tx_id="tx-4", symbol="HDFCBANK", type="BUY", quantity=30, price=1610.0, fees=20.0, date="2026-02-01", notes="Private banking allocation"),
+                TransactionModel(tx_id="tx-5", symbol="GOLDBEES", type="BUY", quantity=200, price=62.5, fees=10.0, date="2026-01-05", notes="Gold hedge")
+            ]
+            for stx in sample_txs:
+                db.add(stx)
+            db.commit()
+            print("Transactions table seeded with initial positions!")
     except Exception as e:
         db.rollback()
         print(f"Database init notice: {e}")
     finally:
         db.close()
+

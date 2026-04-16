@@ -20,10 +20,10 @@ from sqlalchemy.orm import Session
 from database.db import engine, get_db, init_db
 from database.models import (
     SecurityModel, PriceHistoryModel, PortfolioModel,
-    OrderModel, WatchlistModel, NewsEventModel, MarketSnapshotModel
+    OrderModel, WatchlistModel, NewsEventModel, MarketSnapshotModel, TransactionModel
 )
 
-from engine.market import get_prices, get_returns, get_live_quote, get_live_fundamentals
+from engine.market import get_prices, get_returns, get_live_quote, get_live_fundamentals, get_candlesticks
 from engine.volatility import garch_volatility
 from engine.regime import detect_regime
 from engine.correlation import correlation_matrix
@@ -515,6 +515,194 @@ def api_get_attribution(tickers: Optional[str] = None):
     try:
         t_list = parse_tickers(tickers)
         return analyze_attribution_and_parity(t_list)
+    except Exception as e:
+        return {"error": str(e)}
+
+# ── Real-Time Candlestick & Market Data Endpoints ────────────────────────────
+@app.get("/api/market/candlesticks")
+def api_get_candlesticks(ticker: str = "RELIANCE", timeframe: str = "1Y"):
+    """Returns OHLC candlestick series with volume and computed SMA/EMA."""
+    try:
+        return get_candlesticks(ticker, timeframe)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/market/quote")
+def api_get_quote(ticker: str = "RELIANCE"):
+    """Returns live market quote."""
+    try:
+        return get_live_quote(ticker)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/market/fundamentals")
+def api_get_fundamentals(ticker: str = "RELIANCE"):
+    """Returns live corporate fundamentals."""
+    try:
+        return get_live_fundamentals(ticker)
+    except Exception as e:
+        return {"error": str(e)}
+
+# ── Database-Backed Portfolio Transactions CRUD & Accounting Endpoints ───────
+@app.get("/api/portfolio/transactions")
+def api_get_portfolio_transactions(db: Session = Depends(get_db)):
+    """Returns all stored portfolio transactions from database."""
+    try:
+        txs = db.query(TransactionModel).order_by(TransactionModel.date.desc()).all()
+        return {
+            "transactions": [
+                {
+                    "id": t.tx_id,
+                    "symbol": t.symbol,
+                    "type": t.type,
+                    "quantity": t.quantity,
+                    "price": t.price,
+                    "fees": t.fees,
+                    "date": t.date,
+                    "currency": t.currency,
+                    "notes": t.notes
+                }
+                for t in txs
+            ]
+        }
+    except Exception as e:
+        return {"error": str(e), "transactions": []}
+
+@app.post("/api/portfolio/transactions")
+def api_add_portfolio_transaction(data: Dict[str, Any] = Body(...), db: Session = Depends(get_db)):
+    """Adds a new transaction to the database with accounting recalculation."""
+    try:
+        tx_id = data.get("id") or f"tx-{int(datetime.utcnow().timestamp() * 1000)}"
+        new_tx = TransactionModel(
+            tx_id=tx_id,
+            symbol=data.get("symbol", "RELIANCE").upper(),
+            type=data.get("type", "BUY").upper(),
+            quantity=int(data.get("quantity", 1)),
+            price=float(data.get("price", 0.0)),
+            fees=float(data.get("fees", 0.0)),
+            date=data.get("date", datetime.utcnow().strftime("%Y-%m-%d")),
+            currency=data.get("currency", "INR"),
+            notes=data.get("notes", "")
+        )
+        db.add(new_tx)
+        db.commit()
+        db.refresh(new_tx)
+        return {"status": "SUCCESS", "id": new_tx.tx_id, "transaction": data}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e)}
+
+@app.put("/api/portfolio/transactions/{tx_id}")
+def api_update_portfolio_transaction(tx_id: str, data: Dict[str, Any] = Body(...), db: Session = Depends(get_db)):
+    """Updates an existing transaction in the database."""
+    try:
+        tx = db.query(TransactionModel).filter(TransactionModel.tx_id == tx_id).first()
+        if not tx:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        
+        if "symbol" in data: tx.symbol = data["symbol"].upper()
+        if "type" in data: tx.type = data["type"].upper()
+        if "quantity" in data: tx.quantity = int(data["quantity"])
+        if "price" in data: tx.price = float(data["price"])
+        if "fees" in data: tx.fees = float(data["fees"])
+        if "date" in data: tx.date = data["date"]
+        if "notes" in data: tx.notes = data["notes"]
+        
+        db.commit()
+        return {"status": "SUCCESS", "id": tx_id}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e)}
+
+@app.delete("/api/portfolio/transactions/{tx_id}")
+def api_delete_portfolio_transaction(tx_id: str, db: Session = Depends(get_db)):
+    """Deletes a transaction from the database."""
+    try:
+        tx = db.query(TransactionModel).filter(TransactionModel.tx_id == tx_id).first()
+        if not tx:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+        db.delete(tx)
+        db.commit()
+        return {"status": "SUCCESS", "id": tx_id}
+    except Exception as e:
+        db.rollback()
+        return {"error": str(e)}
+
+@app.get("/api/portfolio/summary")
+def api_get_portfolio_summary(db: Session = Depends(get_db)):
+    """Computes real-time portfolio holdings, invested capital, live value, and P&L from transaction history."""
+    try:
+        txs = db.query(TransactionModel).all()
+        holdings_map = {}
+        total_realized_pnl = 0.0
+
+        for t in txs:
+            if t.symbol not in holdings_map:
+                holdings_map[t.symbol] = {
+                    "symbol": t.symbol,
+                    "buy_qty": 0,
+                    "buy_cost": 0.0,
+                    "sell_qty": 0,
+                    "sell_proceeds": 0.0,
+                    "total_fees": 0.0
+                }
+            h = holdings_map[t.symbol]
+            h["total_fees"] += t.fees
+
+            if t.type == "BUY":
+                h["buy_qty"] += t.quantity
+                h["buy_cost"] += (t.quantity * t.price) + t.fees
+            elif t.type == "SELL":
+                avg_cost_before = (h["buy_cost"] / h["buy_qty"]) if h["buy_qty"] > 0 else t.price
+                realized_gain = (t.price - avg_cost_before) * t.quantity - t.fees
+                total_realized_pnl += realized_gain
+                h["sell_qty"] += t.quantity
+                h["sell_proceeds"] += (t.quantity * t.price) - t.fees
+
+        holdings = []
+        total_invested = 0.0
+        total_current_val = 0.0
+
+        for sym, h in holdings_map.items():
+            net_qty = h["buy_qty"] - h["sell_qty"]
+            if net_qty > 0:
+                avg_buy_price = h["buy_cost"] / h["buy_qty"]
+                quote = get_live_quote(sym)
+                live_price = quote.get("price", avg_buy_price)
+                invested = net_qty * avg_buy_price
+                curr_val = net_qty * live_price
+                unrealized = curr_val - invested
+                unrealized_pct = (unrealized / invested * 100.0) if invested > 0 else 0.0
+
+                total_invested += invested
+                total_current_val += curr_val
+
+                holdings.append({
+                    "symbol": sym,
+                    "quantity": net_qty,
+                    "avg_buy_price": round(avg_buy_price, 2),
+                    "live_price": round(live_price, 2),
+                    "invested": round(invested, 2),
+                    "current_value": round(curr_val, 2),
+                    "unrealized_pnl": round(unrealized, 2),
+                    "unrealized_pnl_percent": round(unrealized_pct, 2)
+                })
+
+        for h in holdings:
+            h["weight_percent"] = round((h["current_value"] / total_current_val * 100.0), 2) if total_current_val > 0 else 0.0
+
+        total_unrealized_pnl = total_current_val - total_invested
+        total_unrealized_pct = (total_unrealized_pnl / total_invested * 100.0) if total_invested > 0 else 0.0
+
+        return {
+            "total_invested": round(total_invested, 2),
+            "current_value": round(total_current_val, 2),
+            "unrealized_pnl": round(total_unrealized_pnl, 2),
+            "unrealized_pnl_percent": round(total_unrealized_pct, 2),
+            "realized_pnl": round(total_realized_pnl, 2),
+            "holdings": holdings,
+            "transaction_count": len(txs)
+        }
     except Exception as e:
         return {"error": str(e)}
 
