@@ -1,27 +1,17 @@
 {
-  "version": 2,
   "cleanUrls": true,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://riskos-backend.onrender.com/api/$1",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "X-Requested-With, Content-Type, Authorization"
-      }
+      "source": "/api/:path*",
+      "destination": "https://riskos-backend.onrender.com/api/:path*"
     },
     {
-      "src": "/app",
-      "dest": "/app.html"
+      "source": "/app",
+      "destination": "/app.html"
     },
     {
-      "src": "/terminal",
-      "dest": "/app.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/terminal",
+      "destination": "/app.html"
     }
   ]
 }
