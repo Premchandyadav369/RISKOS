@@ -2,310 +2,255 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RISKOS — Institutional Quantitative Trading & Analytics Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Intelligence Designed To Evolve — RISKOS</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link href="https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  
+  <!-- Favicon and Brand Icons -->
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+
+  <!-- MathJax Configuration (CRITICAL: Renders all quantitative formulas into crisp SVG math) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]'], ['$$', '$$']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      svg: {
+        fontCache: 'global'
+      },
+      startup: {
+        typeset: true
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-  <!-- Background Video -->
+  <!-- Background Video (Full-Viewport Cover) -->
   <div class="bg" aria-hidden="true">
-    <video class="bg-video" autoplay muted loop playsinline>
+    <video class="bg-video" autoplay muted loop playsinline poster="assets/logo.webp">
       <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
     </video>
+    <div class="bg-overlay"></div>
   </div>
 
-  <!-- ═══════════ HEADER ═══════════ -->
-  <header class="header" id="siteHeader">
-    <div class="header-inner">
-      <a href="#" class="logo-btn" aria-label="Home">
-        <img src="assets/logo.webp" alt="" width="52" height="52" class="logo-img" />
-      </a>
-      <nav class="nav-pill" aria-label="Main Navigation">
-        <a href="#home" class="nav-link active">Home</a>
-        <a href="#platform" class="nav-link">Desks Explained</a>
-        <a href="app.html" class="nav-link">Terminal</a>
-        <a href="#contact" class="nav-link">Contact</a>
-      </nav>
-      <button class="burger-btn" id="burgerBtn" aria-label="Toggle menu" aria-expanded="false">
-        <span class="burger-bar"></span>
-        <span class="burger-bar"></span>
-        <span class="burger-bar"></span>
-      </button>
+  <!-- Ambient Floating Quantitative Mathematical Intelligence Layer -->
+  <div class="quant-ambient-layer" aria-hidden="true">
+    <div class="quant-math-tag math-tag--1">
+      <span class="math-label">PORTFOLIO RETURN</span>
+      <span class="math-eq">\( R_p = \sum_{i=1}^{n} w_i R_i \)</span>
     </div>
-  </header>
-
-  <!-- Mobile Menu -->
-  <div class="mobile-overlay" id="mobileOverlay" hidden></div>
-  <div class="mobile-menu" id="mobileMenu" hidden>
-    <a href="#home" class="mobile-link active">Home</a>
-    <a href="#platform" class="mobile-link">Desks Explained</a>
-    <a href="app.html" class="mobile-link">Launch Terminal</a>
-    <a href="#contact" class="mobile-link">Contact</a>
+    <div class="quant-math-tag math-tag--2">
+      <span class="math-label">SHARPE RATIO</span>
+      <span class="math-eq">\( S = \frac{R_p - R_f}{\sigma_p} \)</span>
+    </div>
+    <div class="quant-math-tag math-tag--3">
+      <span class="math-label">GARCH VOLATILITY</span>
+      <span class="math-eq">\( \sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2 \)</span>
+    </div>
+    <div class="quant-math-tag math-tag--4">
+      <span class="math-label">VALUE-AT-RISK (99%)</span>
+      <span class="math-eq">\( \text{VaR}_{\alpha} = \inf\{x : P(L > x) \le 1 - \alpha\} \)</span>
+    </div>
+    <div class="quant-math-tag math-tag--5">
+      <span class="math-label">CROSS-GREEK VANNA</span>
+      <span class="math-eq">\( \text{Vanna} = \frac{\partial^2 V}{\partial S \partial \sigma} \)</span>
+    </div>
+    <div class="quant-math-tag math-tag--6">
+      <span class="math-label">KALMAN FILTER HEDGE</span>
+      <span class="math-eq">\( \beta_t = \beta_{t-1} + K_t (y_t - \hat{y}_t) \)</span>
+    </div>
   </div>
 
-  <!-- ═══════════ HERO ═══════════ -->
-  <section class="hero-section" id="home">
-    <div class="hero">
-      <h1 class="headline">
-        <span class="headline-line line-1">Quantitative</span>
-        <span class="headline-line line-2">Proprietary Trading Terminal</span>
-      </h1>
+  <!-- Strict Viewport Single-Page Grid (100vh / 100dvh) -->
+  <div class="page" id="page">
 
-      <p class="subhead anim" style="--d: 0.28s;">
-        Institutional financial intelligence designed for modern traders, researchers, and risk desks: Kalman Filter Cointegration, Yield Curve PCA, Order Flow Imbalance, Cross-Greeks & CVaR Optimization.
-      </p>
-
-      <div class="cta-wrapper anim" style="--d: 0.4s;">
-        <a href="app.html" class="cta-btn">Launch Quant Terminal</a>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div class="stats-footer">
-      <div class="stat-card anim" style="--d: 0.5s;" data-target="24" data-suffix="/7" data-decimals="0">
-        <div class="stat-top">
-          <span class="stat-icon"><i class="fa-solid fa-satellite-dish"></i></span>
-          <span class="stat-value">0</span>
-          <span class="stat-suffix">/7</span>
-        </div>
-        <div class="stat-label">Market Surveillance</div>
-      </div>
-      <div class="stat-card anim" style="--d: 0.58s;" data-target="99.9" data-suffix="%" data-decimals="1">
-        <div class="stat-top">
-          <span class="stat-icon"><i class="fa-solid fa-bullseye"></i></span>
-          <span class="stat-value">0</span>
-          <span class="stat-suffix">%</span>
-        </div>
-        <div class="stat-label">VaR Model Coverage</div>
-      </div>
-      <div class="stat-card anim" style="--d: 0.66s;" data-target="2.4" data-suffix="M" data-decimals="1">
-        <div class="stat-top">
-          <span class="stat-icon"><i class="fa-solid fa-database"></i></span>
-          <span class="stat-value">0</span>
-          <span class="stat-suffix">M</span>
-        </div>
-        <div class="stat-label">Order Book Ticks / Day</div>
-      </div>
-      <div class="stat-card anim" style="--d: 0.74s;" data-target="120" data-suffix="ms" data-decimals="0">
-        <div class="stat-top">
-          <span class="stat-icon"><i class="fa-solid fa-bolt"></i></span>
-          <span class="stat-value">0</span>
-          <span class="stat-suffix">ms</span>
-        </div>
-        <div class="stat-label">Execution Latency</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════ PLATFORM — 6 QUANT TRADING DESKS ═══════════ -->
-  <section class="platform-section" id="platform">
-    <div class="section-container">
-
-      <div class="section-header fade-up">
-        <span class="section-tag">Institutional Architecture</span>
-        <h2 class="section-title">Six Quantitative Desks.<br/>Every Method Explained.</h2>
-        <p class="section-subtitle">Every model is presented with both its mathematical formulation for quants and a clear plain-English explanation for general investors.</p>
-      </div>
-
-      <!-- ──────── DESK 1: MARKET INTELLIGENCE ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">01</div>
-        <div class="feature-content">
-          <h3 class="feature-title">Market Intelligence & Volatility Clustering</h3>
-          <p class="feature-lead">
-            Continuously monitors global asset returns, detects whether volatility is accelerating, and classifies market regimes without human bias.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>Markets aren't equally risky every day. When a big shock hits, high volatility sticks around for several days ("volatility clustering"). Our volatility engine measures the "momentum of market fear" so you don't over-trade in turbulent storms. Meanwhile, the Hidden Markov Model (HMM) acts like an invisible weather detector: it analyzes price patterns to tell you if the market is currently in a Bullish sunny trend, a Bearish thunderstorm, or a Choppy sideways fog.</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>GARCH(1,1) Volatility</strong> — Maximum Likelihood Estimation of time-varying conditional variance $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$.</li>
-                <li><strong>3-State Gaussian HMM</strong> — Unsupervised Baum-Welch training and Viterbi decoding identifying latent Bull, Bear, and Sideways regimes.</li>
-                <li><strong>Ledoit-Wolf Covariance Shrinkage</strong> — Blends the sample covariance matrix with an identity target to eliminate estimation error and inversion instability.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ──────── DESK 2: RISK & PORTFOLIO ENGINE ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">02</div>
-        <div class="feature-content">
-          <h3 class="feature-title">Portfolio Risk Engine & CVaR Optimizer</h3>
-          <p class="feature-lead">
-            Quantifies maximum expected losses under severe crises and builds portfolios that specifically protect against worst-case disaster scenarios.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>Traditional financial software tells you your "average risk." But on Wall Street, average risk doesn't blow up funds—tail risk does. Value at Risk (VaR) tells you: <em>"On 99 out of 100 days, you won't lose more than ₹X."</em> Expected Shortfall (CVaR) answers the critical question regulators care about: <em>"When that 1 terrible day happens, how bad will the bleeding actually be?"</em> Our optimizer then builds a portfolio that mathematically minimizes that worst-case disaster.</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>Monte Carlo VaR & CVaR (99%)</strong> — 10,000 correlated path simulations computing Expected Shortfall ($E[L \mid L > \text{VaR}_{99}]$).</li>
-                <li><strong>CVaR Portfolio Optimization (SLSQP)</strong> — Non-linear Rockafellar-Uryasev linear programming minimizing downside tail loss under institutional weight constraints.</li>
-                <li><strong>Kupiec POF & Christoffersen Tests</strong> — Likelihood ratio tests verifying unconditional coverage and independence of tail breaches.</li>
-                <li><strong>Macro Stress Testing</strong> — Simulates instantaneous rate spikes (+300bps), equity crashes (-40%), and credit contagion correlation breakdown.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ──────── DESK 3: FUTURES & RATES DESK ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">03</div>
-        <div class="feature-content">
-          <h3 class="feature-title">Futures Spread & Yield Curve Rates Desk</h3>
-          <p class="feature-lead">
-            Statistical arbitrage for correlated futures pairs (e.g. Brent vs WTI, ES vs NQ) and continuous zero-coupon Treasury yield curve modeling.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>Individual asset prices are unpredictable, but economic relationships between two connected assets (like Brent Crude and WTI Crude, or 2-Year and 10-Year Treasury bonds) are bound by rubber bands. When the price spread stretches too far (high Z-Score), it inevitably snaps back to its historical average. Our Kalman Filter continuously adjusts the exact ratio of contracts to buy and sell in real time, while the Ornstein-Uhlenbeck model calculates the exact half-life (how many days until the trade converges).</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>Kalman Filter Dynamic Hedge Ratio ($\beta_t$)</strong> — Online recursive state-space hedge estimation: $y_t = \alpha_t + \beta_t x_t + v_t$.</li>
-                <li><strong>Ornstein-Uhlenbeck (OU) Mean Reversion</strong> — Analytical calibration of half-life ($\tau = \frac{\ln 2}{\theta}$) and equilibrium mean for mean-reverting futures pairs.</li>
-                <li><strong>Nelson-Siegel-Svensson (NSS) Zero Curve</strong> — Continuous parametric yield curve fitting from 3M to 30Y tenors: $y(t) = \beta_0 + \beta_1 \frac{1-e^{-t/\tau_1}}{t/\tau_1} + \beta_2 (\dots) + \beta_3 (\dots)$.</li>
-                <li><strong>Yield Curve PCA Decomposition</strong> — Deconstructs yield shifts into Level (Shift ~86%), Slope (Twist ~11%), and Curvature (Butterfly ~3%).</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ──────── DESK 4: MICROSTRUCTURE & OFI ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">04</div>
-        <div class="feature-content">
-          <h3 class="feature-title">Market Microstructure & Order Flow Imbalance</h3>
-          <p class="feature-lead">
-            Peers inside the exchange limit order book to track buy/sell queue imbalances, informed toxic flow, and optimal execution paths.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>When you place an order, you aren't just trading against a chart—you are competing in a live queue of thousands of buyers and sellers. If the bid queue has 10,000 shares waiting and the ask queue only has 500 shares, buying pressure will push the price up within milliseconds (Order Flow Imbalance). Our Micro-Price calculates the true fair value before the market moves. When executing large orders, the Almgren-Chriss algorithm breaks your trade into mathematically optimal slices so you don't crash the price against yourself.</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>Order Flow Imbalance (OFI)</strong> — Real-time net volume pressure at the top of the limit order book predicting sub-second price moves.</li>
-                <li><strong>Micro-Price Calculation</strong> — Fair price estimator incorporating bid-ask queue depth sizes ($P_{\text{micro}} = \frac{Q_b P_a + Q_a P_b}{Q_b + Q_a}$).</li>
-                <li><strong>VPIN (Volume-Synchronized Probability of Toxicity)</strong> — Measures adverse selection risk and impending liquidity vacuums.</li>
-                <li><strong>Almgren-Chriss Optimal Execution</strong> — Calculus of variations balancing linear/quadratic market impact against volatility risk.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ──────── DESK 5: DERIVATIVES & VOL LAB ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">05</div>
-        <div class="feature-content">
-          <h3 class="feature-title">Derivatives, Volatility Surface & Cross-Greeks</h3>
-          <p class="feature-lead">
-            European options pricing, volatility smile modeling, 2nd-order cross-Greeks for market makers, and dynamic delta-hedging simulation.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>Options aren't just lottery tickets; they are precision mathematical contracts. When market makers sell an option, they don't bet on direction—they immediately buy or sell the underlying stock to stay "Delta Neutral" ($\Delta = 0$). But as the stock moves or time ticks away, that hedge shifts. Our Cross-Greeks (Vanna, Volga, Charm) tell traders exactly how their risk changes when market volatility spikes or time decays, while the Delta-Hedging simulator replays 30 days of real-world hedging with transaction costs.</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>1st & 2nd Order Analytical Greeks</strong> — Exact Black-Scholes formulas for $\Delta$, $\Gamma$, $\text{Vega}$, $\Theta$, and $\rho$.</li>
-                <li><strong>Cross-Greeks (Vanna, Volga, Charm)</strong> — Vanna ($\frac{\partial^2 V}{\partial S \partial \sigma}$), Volga ($\frac{\partial^2 V}{\partial \sigma^2}$), and Charm ($\frac{\partial \Delta}{\partial t}$) for market-maker surface risk.</li>
-                <li><strong>Volatility Smile / Skew Modeling</strong> — Parametric SVI / SABR curvature across strike moneyness ($0.8\times$ to $1.2\times$).</li>
-                <li><strong>Discrete Delta-Hedging Simulator</strong> — Simulates daily dynamic delta replication PnL with slippage and transaction cost drag.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ──────── DESK 6: ATTRIBUTION & ALLOCATION ──────── -->
-      <div class="feature-block fade-up">
-        <div class="feature-num">06</div>
-        <div class="feature-content">
-          <h3 class="feature-title">PnL Attribution & Risk Parity Allocation</h3>
-          <p class="feature-lead">
-            Decomposes where your profits actually came from (Skill vs Luck) and sizes positions so every asset contributes equal volatility risk.
-          </p>
-
-          <div class="feature-detail">
-            <div class="detail-section">
-              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
-              <p>If your portfolio made a 20% return, did you make money because you picked brilliant individual stocks (Selection Effect), or because you were overweight in a booming tech sector (Allocation Effect)? Brinson-Fachler attribution breaks down your exact source of alpha. Furthermore, amateur investors put equal money into each stock ($20,000 each), which means volatile stocks dominate their risk. Risk Parity instead puts smaller dollar amounts in volatile assets and larger amounts in stable assets so every asset contributes equal risk.</p>
-            </div>
-
-            <div class="detail-section">
-              <h4 class="detail-heading">Under The Hood (The Math)</h4>
-              <ul class="detail-list">
-                <li><strong>Brinson-Fachler PnL Decomposition</strong> — Deconstructs excess returns into Sector Allocation, Asset Selection, and Interaction effects.</li>
-                <li><strong>Equal Risk Contribution (Risk Parity)</strong> — Equalizes marginal risk contributions across assets ($w_i (\Sigma w)_i = \text{const}$).</li>
-                <li><strong>Multi-Asset Fractional Kelly Criterion</strong> — Dynamic sizing ($F^* = \kappa \Sigma^{-1} \mu$) maximizing geometric growth while capping drawdown.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ═══════════ FOOTER ═══════════ -->
-  <footer class="site-footer" id="contact">
-    <div class="section-container footer-inner">
-      <div class="footer-left">
-        <a href="#" class="footer-logo">
-          <img src="assets/logo.webp" alt="" width="28" height="28" />
-          <span>RISKOS QUANT</span>
+    <!-- ═══════════════════════ HEADER ═══════════════════════ -->
+    <header class="header" id="siteHeader">
+      <div class="header-inner">
+        
+        <!-- Left: Logo -->
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="40" height="40" class="logo-img" />
         </a>
-        <p class="footer-copy">&copy; 2025 RISKOS. Quantitative Trading Architecture.</p>
+
+        <!-- Center: Nav Pill (Desktop) -->
+        <nav class="nav-pill" aria-label="Main Navigation">
+          <a href="index.html" class="nav-link active">Home</a>
+          <a href="app.html" class="nav-link">Product</a>
+          <a href="app.html#tab-spreads" class="nav-link">Insights</a>
+          <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener" class="nav-link">Contact</a>
+        </nav>
+
+        <!-- Right: Sign In / Terminal CTA & Mobile Burger -->
+        <div class="header-actions">
+          <a href="app.html" class="signin-btn">Sign In</a>
+          <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </button>
+        </div>
+
       </div>
-      <div class="footer-center">
-        <a href="mailto:premchand.23bce7167@vitapstudent.ac.in" class="footer-contact">premchand.23bce7167@vitapstudent.ac.in</a>
+    </header>
+
+    <!-- ═══════════════════════ HERO (CENTERED IN REMAINING SPACE) ═══════════════════════ -->
+    <main class="hero" id="home">
+      <div class="hero-inner">
+
+        <!-- 1. Live Market Status Indicator -->
+        <div class="live-status-pill" aria-label="System status">
+          <span class="status-pulse-dot" aria-hidden="true"></span>
+          <span class="status-text">SYSTEM ONLINE &bull; QUANT CORE ACTIVE</span>
+          <span class="status-time" id="statusClock">LIVE</span>
+        </div>
+
+        <!-- 2. Trust Row with Independent Hover Avatars -->
+        <div class="trust-row">
+          <div class="trust-avatars" aria-label="Trusted by quantitative teams">
+            <div class="trust-avatar avatar-1" title="Quantitative Hedge Fund">
+              <span class="avatar-letter">Q</span>
+            </div>
+            <div class="trust-avatar avatar-2" title="Institutional Risk Desk">
+              <span class="avatar-letter">R</span>
+            </div>
+            <div class="trust-avatar avatar-3" title="Proprietary Trading Firm">
+              <span class="avatar-letter">T</span>
+            </div>
+          </div>
+          <span class="trust-text">Trusted by 2000+ Financial Teams</span>
+        </div>
+
+        <!-- 3. Exact Two-Line Headline -->
+        <h1 class="headline">
+          <span class="headline-line line-1">Intelligence</span>
+          <span class="headline-line line-2">For Modern Finance</span>
+        </h1>
+
+        <!-- 4. Refined Subhead -->
+        <p class="subhead">
+          Turn market data into decisions with an intelligent financial platform built for analysis, risk and execution.
+        </p>
+
+        <!-- 5. Get Started CTA with Desktop Magnetic Interaction -->
+        <div class="cta-wrapper">
+          <a href="app.html" class="cta-btn" id="ctaBtn">
+            <span>Get Started</span>
+            <i class="fa-solid fa-arrow-right cta-icon" aria-hidden="true"></i>
+          </a>
+        </div>
+
       </div>
-      <div class="footer-links">
-        <a href="#home">Home</a>
-        <a href="#platform">Desks</a>
-        <a href="app.html">Terminal</a>
-        <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener">GitHub</a>
+    </main>
+
+    <!-- ═══════════════════════ FINANCIAL METRICS FOOTER ═══════════════════════ -->
+    <footer class="financial-metrics" id="metricsFooter" aria-label="Key Platform Metrics">
+      <div class="metrics-grid">
+
+        <!-- Metric 1 -->
+        <div class="metric-item" data-target="24" data-suffix="/7" data-decimals="0">
+          <div class="metric-top">
+            <span class="metric-icon" aria-hidden="true"><i class="fa-solid fa-satellite-dish"></i></span>
+            <span class="metric-value">0</span>
+            <span class="metric-suffix">/7</span>
+          </div>
+          <div class="metric-label">Markets Monitoring</div>
+        </div>
+
+        <!-- Metric 2 -->
+        <div class="metric-item" data-target="99.9" data-suffix="%" data-decimals="1">
+          <div class="metric-top">
+            <span class="metric-icon" aria-hidden="true"><i class="fa-solid fa-bullseye"></i></span>
+            <span class="metric-value">0</span>
+            <span class="metric-suffix">%</span>
+          </div>
+          <div class="metric-label">Signal Accuracy</div>
+        </div>
+
+        <!-- Metric 3 -->
+        <div class="metric-item" data-target="2.4" data-suffix="M" data-decimals="1">
+          <div class="metric-top">
+            <span class="metric-icon" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
+            <span class="metric-value">0</span>
+            <span class="metric-suffix">M</span>
+          </div>
+          <div class="metric-label">Data Analyzed</div>
+        </div>
+
+        <!-- Metric 4 -->
+        <div class="metric-item" data-target="120" data-suffix="ms" data-decimals="0">
+          <div class="metric-top">
+            <span class="metric-icon" aria-hidden="true"><i class="fa-solid fa-bolt"></i></span>
+            <span class="metric-value">0</span>
+            <span class="metric-suffix">ms</span>
+          </div>
+          <div class="metric-label">Decision Latency</div>
+        </div>
+
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ═══════════════════════ MOBILE MENU (FIXED OVERLAY LAYER) ═══════════════════════ -->
+  <div class="mobile-menu" id="mobileMenu" aria-hidden="true" hidden>
+    <div class="mobile-menu__backdrop" id="menuBackdrop"></div>
+    <div class="mobile-menu__sheet" id="menuSheet" role="dialog" aria-modal="true" aria-label="Mobile Navigation Menu">
+      <div class="mobile-menu__header">
+        <div class="mobile-menu__brand">
+          <img src="assets/logo.webp" alt="" width="28" height="28" class="mobile-logo-img" />
+          <span class="mobile-brand-name">RISKOS</span>
+        </div>
+        <button class="mobile-menu__close" id="menuCloseBtn" aria-label="Close menu">&times;</button>
+      </div>
+
+      <nav class="mobile-menu__nav">
+        <a href="index.html" class="mobile-nav-link active">
+          <i class="fa-solid fa-house"></i>
+          <span>Home</span>
+        </a>
+        <a href="app.html" class="mobile-nav-link">
+          <i class="fa-solid fa-terminal"></i>
+          <span>Quant Terminal</span>
+        </a>
+        <a href="app.html#tab-spreads" class="mobile-nav-link">
+          <i class="fa-solid fa-arrow-trend-up"></i>
+          <span>Futures & Rates Desk</span>
+        </a>
+        <a href="app.html#tab-micro" class="mobile-nav-link">
+          <i class="fa-solid fa-bars-staggered"></i>
+          <span>Microstructure & OFI</span>
+        </a>
+        <a href="app.html#tab-options" class="mobile-nav-link">
+          <i class="fa-solid fa-wave-square"></i>
+          <span>Derivatives & Greeks</span>
+        </a>
+        <a href="https://github.com/Premchandyadav369/RISKOS" target="_blank" rel="noopener" class="mobile-nav-link">
+          <i class="fa-brands fa-github"></i>
+          <span>GitHub Source</span>
+        </a>
+      </nav>
+
+      <div class="mobile-menu__footer">
+        <a href="app.html" class="mobile-cta-btn">
+          <span>Launch Platform</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
       </div>
     </div>
-  </footer>
+  </div>
 
   <script src="main.js"></script>
 </body>
