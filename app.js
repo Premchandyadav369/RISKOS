@@ -133,11 +133,15 @@ async function fetchAllQuantData() {
 }
 
 async function fetchAPI(endpoint) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 3500);
     try {
-        const res = await fetch(API + endpoint);
+        const res = await fetch(API + endpoint, { signal: controller.signal });
+        clearTimeout(timer);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
     } catch (e) {
+        clearTimeout(timer);
         console.warn('API fetch fallback for ' + endpoint, e);
         return getMockFallback(endpoint);
     }
