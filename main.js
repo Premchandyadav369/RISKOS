@@ -5,12 +5,12 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const NEWS_API_KEY = "8083462b641b4fc1ae785c4a89c57d06";
   const USD_TO_INR = 83.50;
 
   // ── 1. Global Application State ───────────────────────────────────────────
   const appState = {
     userMode: localStorage.getItem('riskos_user_mode') || 'beginner', // 'beginner' | 'investor' | 'quant'
+    marketRegion: localStorage.getItem('riskos_market_region') || 'IN', // 'IN' | 'US'
     currency: localStorage.getItem('riskos_currency') || 'INR', // 'INR' | 'USD'
     marketContext: 'NSE', // 'NSE' | 'US'
     watchlist: JSON.parse(localStorage.getItem('riskos_watchlist') || '["RELIANCE", "TCS", "HDFCBANK", "INFY", "AAPL", "NVDA"]'),
@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   document.body.dataset.userMode = appState.userMode;
+  document.body.dataset.marketRegion = appState.marketRegion;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── MathJax Safety Hook ──────────────────────────────────────────────────
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
       name: 'Price-to-Earnings Ratio (P/E)',
       symbol: 'P/E',
       latex: '\\[ P/E = \\frac{\\text{Market Price Per Share}}{\\text{Earnings Per Share (EPS)}} \\]',
-      simple: 'Tells you how much investors are currently paying for each ₹1 of annual company earnings.',
+      simple: 'Tells you how much investors are currently paying for each unit of annual company earnings.',
       investor: 'Standard equity valuation multiple. Allows relative comparison against industry peers and 5-year historical median.',
       quant: 'Inverse of the earnings yield \\( E/P \\). In dynamic discount models, reflects market expectations of perpetual dividend growth and discount hurdle rate.',
       calculate: (sec) => {
@@ -109,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       name: 'Systematic Beta (\\(\\beta\\))',
       symbol: '\\beta',
       latex: '\\[ \\beta_i = \\frac{\\operatorname{Cov}(R_i, R_m)}{\\operatorname{Var}(R_m)} \\]',
-      simple: 'Measures how sensitively this stock tends to move whenever the broader market (NIFTY 50) moves.',
+      simple: 'Measures how sensitively this stock tends to move whenever the broader market benchmark moves.',
       investor: 'A beta < 1.0 indicates lower market sensitivity (defensive), while beta > 1.0 indicates higher sensitivity (cyclical/growth).',
       quant: 'OLS linear regression slope of asset excess returns against benchmark index: \\( R_{i,t} - R_f = \\alpha_i + \\beta_i (R_{m,t} - R_f) + \\epsilon_{i,t} \\).',
       calculate: (sec) => {
@@ -121,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
           result: betaVal,
           sliders: [
             { id: 'beta_cov', label: 'Co-Movement (Covariance)', min: 0.005, max: 0.05, val: parseFloat(cov), step: 0.001, format: (v) => v.toFixed(4) },
-            { id: 'beta_varm', label: 'Benchmark Variance (NIFTY)', min: 0.01, max: 0.04, val: 0.0225, step: 0.001, format: (v) => v.toFixed(4) }
+            { id: 'beta_varm', label: 'Benchmark Variance', min: 0.01, max: 0.04, val: 0.0225, step: 0.001, format: (v) => v.toFixed(4) }
           ],
           onUpdate: (vals) => {
             const b = (vals.beta_cov / vals.beta_varm).toFixed(2);
@@ -153,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
       },
-      limitations: 'Treats upside upside gains and downside drops as equally risky variance.'
+      limitations: 'Treats upside gains and downside drops as equally risky variance.'
     },
     sharpe: {
       name: 'Sharpe Ratio (Risk-Adjusted Return)',
@@ -163,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
       investor: 'A Sharpe ratio above 1.0 is considered good; above 1.5 is institutional grade.',
       quant: 'Ex-post excess return over risk-free rate divided by sample standard deviation of returns.',
       calculate: (sec) => {
-        const rf = sec.country === 'IN' ? 0.065 : 0.045;
+        const rf = appState.marketRegion === 'IN' ? 0.065 : 0.045;
         const ret = 0.168;
         const vol = sec.volatility;
         const s = ((ret - rf) / vol).toFixed(2);
@@ -191,20 +192,20 @@ document.addEventListener('DOMContentLoaded', () => {
       investor: 'Helps determine if the stock\'s potential upside compensates for its systematic beta risk.',
       quant: 'Equilibrium expected return under Capital Asset Pricing Model where only non-diversifiable systematic risk is rewarded.',
       calculate: (sec) => {
-        const rf = 6.5;
+        const rf = appState.marketRegion === 'IN' ? 6.5 : 4.5;
         const erp = 7.2;
         const b = sec.beta;
         const capm = (rf + b * erp).toFixed(1);
         return {
-          substitutedLatex: `\\[ \\mathbb{E}[R_i] = 6.5\\% + (${b} \\times 7.2\\%) = \\mathbf{${capm}\\%} \\]`,
+          substitutedLatex: `\\[ \\mathbb{E}[R_i] = ${rf}\\% + (${b} \\times ${erp}\\%) = \\mathbf{${capm}\\%} \\]`,
           result: `${capm}%`,
           sliders: [
             { id: 'capm_b', label: 'Stock Beta', min: 0.2, max: 2.5, val: b, step: 0.05, format: (v) => v.toFixed(2) },
             { id: 'capm_erp', label: 'Market Risk Premium', min: 4.0, max: 10.0, val: erp, step: 0.2, format: (v) => `${v}%` }
           ],
           onUpdate: (vals) => {
-            const res = (6.5 + vals.capm_b * vals.capm_erp).toFixed(1);
-            return `\\[ \\mathbb{E}[R_i] = 6.5\\% + (${vals.capm_b.toFixed(2)} \\times ${vals.capm_erp.toFixed(1)}\\%) = \\mathbf{${res}\\%} \\]`;
+            const res = (rf + vals.capm_b * vals.capm_erp).toFixed(1);
+            return `\\[ \\mathbb{E}[R_i] = ${rf}\\% + (${vals.capm_b.toFixed(2)} \\times ${vals.capm_erp.toFixed(1)}\\%) = \\mathbf{${res}\\%} \\]`;
           }
         };
       },
@@ -244,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
       calculate: (sec) => {
         const mdd = (sec.mdd * 100).toFixed(1);
         return {
-          substitutedLatex: `\\[ \\text{MDD} = \\frac{\\text{₹3,217.90} - \\text{₹2,760.00}}{\\text{₹3,217.90}} = \\mathbf{${mdd}\\%} \\]`,
+          substitutedLatex: `\\[ \\text{MDD} = \\frac{\\text{Peak} - \\text{Trough}}{\\text{Peak}} = \\mathbf{${mdd}\\%} \\]`,
           result: `${mdd}%`,
           sliders: [],
           onUpdate: () => ''
@@ -259,9 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
       simple: 'The smoothed annual return rate assuming compounding over multiple years.',
       investor: 'Eliminates annual volatility noise to show true multi-year wealth accumulation pace.',
       quant: 'Geometric mean return \\( \\left(\\prod_{t=1}^n (1+R_t)\\right)^{1/n} - 1 \\).',
-      calculate: (sec) => {
+      calculate: () => {
         return {
-          substitutedLatex: `\\[ \\text{CAGR} = \\left( \\frac{\\text{₹2,984}}{\\text{₹1,420}} \\right)^{\\frac{1}{5}} - 1 = \\mathbf{16.0\\%} \\]`,
+          substitutedLatex: `\\[ \\text{CAGR} = \\left( \\frac{V_{\\text{final}}}{V_{\\text{initial}}} \\right)^{\\frac{1}{5}} - 1 = \\mathbf{16.0\\%} \\]`,
           result: '16.0%',
           sliders: [],
           onUpdate: () => ''
@@ -575,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sector: 'Technology',
       industry: 'Consumer Electronics & Services',
       aliases: ['apple', 'aapl', 'iphone', 'mac'],
-      priceINR: 18950.00,
+      priceINR: 18950.00, // ~$226.95 USD
       changePercent: 0.68,
       marketCapINR: 288000000000000,
       pe: 34.20,
@@ -614,7 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
       sector: 'Semiconductors',
       industry: 'AI Acceleration & Compute Hardware',
       aliases: ['nvidia', 'nvda', 'gpu', 'ai chips', 'blackwell'],
-      priceINR: 10688.00,
+      priceINR: 10688.00, // ~$128.00 USD
       changePercent: 3.42,
       marketCapINR: 262000000000000,
       pe: 58.40,
@@ -647,32 +648,27 @@ document.addEventListener('DOMContentLoaded', () => {
   const resolveQuery = (queryText) => {
     const q = (queryText || '').trim().toLowerCase();
     
-    // Check for Compare Intent
     if (q.includes('compare') || q.includes(' vs ') || q.includes(' versus ')) {
       const parts = q.replace('compare', '').split(/vs|versus|and/i).map((s) => s.trim());
       const sec1 = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === parts[0] || s.name.toLowerCase().includes(parts[0]) || s.aliases.some((a) => a.toLowerCase().includes(parts[0]))) || SECURITIES_DATABASE[0];
-      const sec2 = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === parts[1] || s.name.toLowerCase().includes(parts[1]) || s.aliases.some((a) => a.toLowerCase().includes(parts[1]))) || SECURITIES_DATABASE[1];
+      const sec2 = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === parts[1] || s.name.toLowerCase().includes(parts[1]) || s.aliases.some((a) => a.toLowerCase().includes(parts[1]))) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[1] : SECURITIES_DATABASE[7]);
       return { intent: 'COMPARE', sec1, sec2, query: queryText };
     }
 
-    // Check for Why Moved / Causality Intent
     if (q.includes('why') || q.includes('fall') || q.includes('drop') || q.includes('jump') || q.includes('move')) {
-      const sec = SECURITIES_DATABASE.find((s) => q.includes(s.symbol.toLowerCase()) || q.includes(s.commonName.toLowerCase()) || s.aliases.some((a) => q.includes(a.toLowerCase()))) || SECURITIES_DATABASE[2]; // Default HDFC Bank
+      const sec = SECURITIES_DATABASE.find((s) => q.includes(s.symbol.toLowerCase()) || q.includes(s.commonName.toLowerCase()) || s.aliases.some((a) => q.includes(a.toLowerCase()))) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[2] : SECURITIES_DATABASE[7]);
       return { intent: 'WHY_MOVED', security: sec, query: queryText };
     }
 
-    // Check for Sector Volatility / Screening Intent
-    if (q.includes('volatility') && (q.includes('it') || q.includes('tech') || q.includes('banking') || q.includes('sector'))) {
-      return { intent: 'SECTOR_VOL', sector: 'Indian IT', query: queryText };
+    if (q.includes('volatility') && (q.includes('it') || q.includes('tech') || q.includes('semi') || q.includes('banking') || q.includes('sector'))) {
+      return { intent: 'SECTOR_VOL', sector: appState.marketRegion === 'IN' ? 'Indian IT' : 'US Tech & Semiconductors', query: queryText };
     }
 
-    // Check for Math Explanation Intent
     if (q.includes('explain') || q.includes('calculate') || q.includes('formula') || q.includes('what is')) {
       const formulaKey = Object.keys(MATHEMATICAL_REGISTRY).find((k) => q.includes(k) || q.includes(MATHEMATICAL_REGISTRY[k].name.toLowerCase())) || 'sharpe';
       return { intent: 'EXPLAIN_MATH', formulaKey, query: queryText };
     }
 
-    // Check for Direct Security Entity Match
     const match = SECURITIES_DATABASE.find((s) =>
       s.symbol.toLowerCase() === q ||
       s.bseCode === q ||
@@ -685,47 +681,34 @@ document.addEventListener('DOMContentLoaded', () => {
       return { intent: 'ANALYSE', security: match, query: queryText };
     }
 
-    // Default Fallback
-    return { intent: 'ANALYSE', security: SECURITIES_DATABASE[0], query: queryText };
+    return { intent: 'ANALYSE', security: appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[6], query: queryText };
   };
 
-  // ── 5. News Intelligence Engine with Modelled Impact ──────────────────────
+  // ── 5. News Intelligence Engine ───────────────────────────────────────────
   const fetchCompanyNews = async (security) => {
     const query = encodeURIComponent(`${security.commonName} OR ${security.symbol}`);
     let articles = [];
 
     try {
-      const res = await fetch(`https://newsapi.org/v2/everything?q=${query}&sortBy=publishedAt&pageSize=6&apiKey=${NEWS_API_KEY}`);
+      const res = await fetch(`/api/news/intelligence?ticker=${encodeURIComponent(security.symbol)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.articles && data.articles.length > 0) {
-          articles = data.articles.map((art, idx) => ({
-            title: art.title,
-            source: art.source?.name || 'Financial Media',
-            sourceType: idx % 2 === 0 ? 'PRIMARY SOURCE' : 'FINANCIAL MEDIA',
-            publishedAt: new Date(art.publishedAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            snippet: art.description || art.content || 'Corporate regulatory announcement and market development report.',
-            url: art.url || '#',
-            sentiment: idx % 3 === 0 ? 'POSITIVE' : (idx % 3 === 1 ? 'NEUTRAL' : 'MIXED'),
-            confidence: Math.round(75 + (idx * 4.3) % 20),
-            signals: 'Capex guidance expansion, institutional block transaction, regulatory filing verification',
-            eventTag: idx === 0 ? 'EARNINGS & CAPEX' : (idx === 1 ? 'REGULATORY FILING' : 'CORPORATE ACTION'),
-            dedupCount: 4 + (idx * 3)
-          }));
+          articles = data.articles;
         }
       }
     } catch (e) {
-      console.warn('News API live fetch fallback triggered:', e);
+      console.warn('Backend news fetch notice:', e);
     }
 
     if (articles.length === 0) {
       articles = [
         {
-          title: `${security.name} announces strategic expansion and institutional capital allocation`,
+          title: `${security.name} announces strategic capital allocation and quarterly operational update`,
           source: `${security.exchange} Regulatory Disclosure Stream`,
           sourceType: 'OFFICIAL FILING',
-          publishedAt: '10:15 IST',
-          snippet: `Official filing submitted under SEBI (LODR) Regulations regarding board approval for strategic operational expansion.`,
+          publishedAt: appState.marketRegion === 'IN' ? '10:15 IST' : '10:15 EST',
+          snippet: `Official filing submitted regarding board approval for strategic operational expansion.`,
           url: 'https://www.nseindia.com',
           sentiment: 'POSITIVE',
           confidence: 84,
@@ -737,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
           title: `Analysts revise valuation targets on ${security.symbol} following operational milestone`,
           source: 'Institutional Research Desk',
           sourceType: 'PRIMARY SOURCE',
-          publishedAt: '09:40 IST',
+          publishedAt: appState.marketRegion === 'IN' ? '09:40 IST' : '09:40 EST',
           snippet: `Operating cash flows and margin expansion result in positive sector allocation stance.`,
           url: 'https://www.bseindia.com',
           sentiment: 'POSITIVE',
@@ -779,7 +762,101 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── 7. Universal "Why?" [?] Popover Engine ────────────────────────────────
+  // ── 7. Unified Market Region & Currency Synchronizer (India ↔ US) ─────────
+  const setMarketRegion = (region) => {
+    appState.marketRegion = region;
+    appState.currency = region === 'IN' ? 'INR' : 'USD';
+    appState.marketContext = region === 'IN' ? 'NSE' : 'US';
+    
+    localStorage.setItem('riskos_market_region', region);
+    localStorage.setItem('riskos_currency', appState.currency);
+    document.body.dataset.marketRegion = region;
+
+    // 1. Update Currency Pill
+    document.querySelectorAll('#currencyToggleBtn .curr-opt').forEach((el) => {
+      el.classList.toggle('active', el.dataset.curr === appState.currency);
+    });
+
+    // 2. Smoothly Update Hero Live Ticker with Fade
+    const tickerPill = document.getElementById('heroLiveTickerPill');
+    const tickerText = document.getElementById('liveTickerText');
+    const tickerTag = tickerPill ? tickerPill.querySelector('.status-provenance-tag') : null;
+
+    if (tickerText && tickerPill) {
+      tickerPill.style.opacity = '0.4';
+      tickerPill.style.transform = 'translateY(-2px)';
+      setTimeout(() => {
+        if (region === 'IN') {
+          tickerText.innerHTML = `NIFTY 50 24,820.40 (+0.45%) &bull; SENSEX 81,340.20 (+0.38%) &bull; BANK NIFTY 51,240.10 (-0.12%)`;
+          if (tickerTag) tickerTag.textContent = 'LIVE • NSE/BSE';
+        } else {
+          tickerText.innerHTML = `S&P 500 5,640.10 (+0.22%) &bull; NASDAQ 17,820.30 (+0.48%) &bull; DOW 40,840.50 (+0.15%)`;
+          if (tickerTag) tickerTag.textContent = 'LIVE • NYSE/NASDAQ';
+        }
+        tickerPill.style.opacity = '1';
+        tickerPill.style.transform = 'translateY(0)';
+      }, 150);
+    }
+
+    // 3. Update Hero Prompt Chips
+    const promptRow = document.querySelector('.quick-prompts-row');
+    if (promptRow) {
+      promptRow.style.opacity = '0.4';
+      setTimeout(() => {
+        if (region === 'IN') {
+          promptRow.innerHTML = `
+            <span class="prompt-tag-label">Ask anything:</span>
+            <button class="prompt-chip" data-intent="analyse" data-query="Reliance">Analyse Reliance</button>
+            <button class="prompt-chip" data-intent="why_moved" data-query="HDFC Bank">Why did HDFC Bank move?</button>
+            <button class="prompt-chip" data-intent="compare" data-query="TCS vs INFY">Compare TCS vs Infosys</button>
+            <button class="prompt-chip" data-intent="sector_vol" data-query="Indian IT volatility">Indian IT Volatility</button>
+            <button class="prompt-chip" data-intent="explain_math" data-query="Sharpe ratio">Explain Sharpe Ratio</button>
+            <button class="prompt-chip" data-intent="explain_math" data-query="Beta">Explain Beta</button>
+          `;
+        } else {
+          promptRow.innerHTML = `
+            <span class="prompt-tag-label">Ask anything:</span>
+            <button class="prompt-chip" data-intent="analyse" data-query="Apple">Analyse Apple (AAPL)</button>
+            <button class="prompt-chip" data-intent="why_moved" data-query="Nvidia">Why did Nvidia jump?</button>
+            <button class="prompt-chip" data-intent="compare" data-query="AAPL vs NVDA">Compare Apple vs Nvidia</button>
+            <button class="prompt-chip" data-intent="sector_vol" data-query="US Tech volatility">US Tech Volatility</button>
+            <button class="prompt-chip" data-intent="explain_math" data-query="Sharpe ratio">Explain Sharpe Ratio</button>
+            <button class="prompt-chip" data-intent="explain_math" data-query="Beta">Explain Beta</button>
+          `;
+        }
+        promptRow.querySelectorAll('.prompt-chip').forEach((chip) => {
+          chip.addEventListener('click', () => openFinancialCanvas(chip.dataset.query));
+        });
+        promptRow.style.opacity = '1';
+      }, 150);
+    }
+
+    // 4. Update Market Clock Badge
+    updateMarketClocks();
+
+    // 5. Re-render active security modal or canvas if open
+    if (appState.activeSecurity) renderCompanyModal(appState.activeSecurity);
+    renderWatchlist();
+    if (portfolioEngine) portfolioEngine.update();
+  };
+
+  const currToggle = document.getElementById('currencyToggleBtn');
+  if (currToggle) {
+    currToggle.addEventListener('click', () => {
+      const nextReg = appState.marketRegion === 'IN' ? 'US' : 'IN';
+      setMarketRegion(nextReg);
+    });
+  }
+
+  const clockBadge = document.getElementById('marketClockBadge');
+  if (clockBadge) {
+    clockBadge.addEventListener('click', () => {
+      const nextReg = appState.marketRegion === 'IN' ? 'US' : 'IN';
+      setMarketRegion(nextReg);
+    });
+  }
+
+  // ── 8. Universal "Why?" [?] Popover Engine ────────────────────────────────
   const whyModalOverlay = document.getElementById('whyModalOverlay');
   const whyCloseBtn = document.getElementById('whyCloseBtn');
   const whyModalBackdrop = document.getElementById('whyModalBackdrop');
@@ -787,7 +864,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const whyMathExpanded = document.getElementById('whyMathExpanded');
 
   const openWhyModal = (metricKey, customSecurity = null) => {
-    const sec = customSecurity || appState.activeSecurity || SECURITIES_DATABASE[0];
+    const sec = customSecurity || appState.activeSecurity || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[6]);
     const formula = MATHEMATICAL_REGISTRY[metricKey] || MATHEMATICAL_REGISTRY.pe;
 
     document.getElementById('whyTitle').textContent = `Why is ${formula.name}?`;
@@ -868,7 +945,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Bind all why triggers dynamically
   document.addEventListener('click', (e) => {
     const btn = e.target.closest('.why-trigger-btn');
     if (btn) {
@@ -878,14 +954,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // ── 8. Signature Feature: Generative Financial Intelligence Canvas ────────
+  // ── 9. Signature Feature: Generative Financial Intelligence Canvas ────────
   const financialCanvasOverlay = document.getElementById('financialCanvasOverlay');
   const canvasCloseBtn = document.getElementById('canvasCloseBtn');
   const canvasModalBackdrop = document.getElementById('financialCanvasBackdrop');
   const canvasBody = document.getElementById('canvasDynamicContent');
   const canvasQueryTitle = document.getElementById('canvasQueryTitle');
 
-  const executeCanvasQuery = (queryText) => {
+  const executeCanvasQuery = async (queryText) => {
     appState.lastQuery = queryText;
     const resolved = resolveQuery(queryText);
     canvasQueryTitle.textContent = `Generative Canvas: "${queryText}"`;
@@ -947,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <button class="why-trigger-btn" data-why-key="beta">?</button>
             </div>
             <span style="font-size:1.3rem;font-weight:800;color:#fff;font-family:monospace;">${sec.beta}</span>
-            <span style="font-size:0.725rem;color:#a1a1aa;">Relative to NIFTY 50 (1.00)</span>
+            <span style="font-size:0.725rem;color:#a1a1aa;">Relative to Benchmark (1.00)</span>
           </div>
 
           <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
@@ -965,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;">
           <span style="font-size:0.65rem;font-weight:700;color:#51CF66;">MATHEMATICAL EXPLAINABILITY &bull; ACTUAL DATA SUBSTITUTION</span>
           <div style="font-size:1.15rem;color:#fff;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
-            \\[ S = \\frac{R_i - R_f}{\\sigma_i} = \\frac{16.8\\% - 6.5\\%}{${(sec.volatility*100).toFixed(1)}\\%} = \\mathbf{${sec.sharpe}} \\]
+            \\[ S = \\frac{R_i - R_f}{\\sigma_i} = \\frac{16.8\\% - ${appState.marketRegion === 'IN' ? '6.5%' : '4.5%'}}{${(sec.volatility*100).toFixed(1)}\\%} = \\mathbf{${sec.sharpe}} \\]
           </div>
           <div style="font-size:0.75rem;color:#a1a1aa;line-height:1.5;">
             <strong>Plain English:</strong> ${sec.name} generated approximately ${sec.sharpe} units of excess return for every 1.0 unit of annual price volatility.
@@ -1010,30 +1086,30 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (resolved.intent === 'SECTOR_VOL') {
       canvasBody.innerHTML = `
         <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;">
-          <span style="font-size:0.65rem;font-weight:700;color:#4F8FFF;">SECTOR RISK SURFACE &bull; INDIAN IT VOLATILITY</span>
-          <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Are Indian IT Equities Becoming More Volatile?</h3>
+          <span style="font-size:0.65rem;font-weight:700;color:#4F8FFF;">SECTOR RISK SURFACE &bull; ${appState.marketRegion === 'IN' ? 'INDIAN IT' : 'US TECH & SEMIS'} VOLATILITY</span>
+          <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Are ${appState.marketRegion === 'IN' ? 'Indian IT' : 'US Technology'} Equities Becoming More Volatile?</h3>
           
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">INFY (Infosys)</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">19.8%</strong>
+              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'INFY' : 'NVDA'}</span>
+              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">${appState.marketRegion === 'IN' ? '19.8%' : '38.5%'}</strong>
             </div>
             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">TCS</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#51CF66;">15.2%</strong>
+              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'TCS' : 'AAPL'}</span>
+              <strong style="font-size:1.2rem;font-family:monospace;color:#51CF66;">${appState.marketRegion === 'IN' ? '15.2%' : '17.2%'}</strong>
             </div>
             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">HCLTECH</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">21.4%</strong>
+              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'HCLTECH' : 'MSFT'}</span>
+              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">${appState.marketRegion === 'IN' ? '21.4%' : '18.4%'}</strong>
             </div>
             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">WIPRO</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FF6B6B;">24.8%</strong>
+              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'WIPRO' : 'GOOGL'}</span>
+              <strong style="font-size:1.2rem;font-family:monospace;color:#FF6B6B;">${appState.marketRegion === 'IN' ? '24.8%' : '22.1%'}</strong>
             </div>
           </div>
 
           <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
-            \\[ \\sigma_{\\text{Sector}} = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^n (\\sigma_i - \\bar{\\sigma})^2} = \\mathbf{19.6\\%} \\quad (\\text{+2.4\\% vs 90D Baseline}) \\]
+            \\[ \\sigma_{\\text{Sector}} = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^n (\\sigma_i - \\bar{\\sigma})^2} = \\mathbf{${appState.marketRegion === 'IN' ? '19.6%' : '23.4%'}} \\]
           </div>
         </div>
       `;
@@ -1100,11 +1176,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (canvasCloseBtn) canvasCloseBtn.addEventListener('click', closeFinancialCanvas);
   if (canvasModalBackdrop) canvasModalBackdrop.addEventListener('click', closeFinancialCanvas);
   const navOpenCanvas = document.getElementById('navOpenCanvas');
-  if (navOpenCanvas) navOpenCanvas.addEventListener('click', () => openFinancialCanvas('Reliance'));
+  if (navOpenCanvas) navOpenCanvas.addEventListener('click', () => openFinancialCanvas(appState.marketRegion === 'IN' ? 'Reliance' : 'Apple'));
   const heroCanvasBtn = document.getElementById('heroCanvasBtn');
-  if (heroCanvasBtn) heroCanvasBtn.addEventListener('click', () => openFinancialCanvas('Reliance'));
+  if (heroCanvasBtn) heroCanvasBtn.addEventListener('click', () => openFinancialCanvas(appState.marketRegion === 'IN' ? 'Reliance' : 'Apple'));
 
-  // ── 9. Universal Command Palette (⌘K) ─────────────────────────────────────
+  // ── 10. Universal Command Palette (⌘K) ────────────────────────────────────
   const paletteOverlay = document.getElementById('paletteOverlay');
   const paletteInput = document.getElementById('paletteInput');
   const paletteResults = document.getElementById('paletteResults');
@@ -1114,7 +1190,8 @@ document.addEventListener('DOMContentLoaded', () => {
     paletteOverlay.removeAttribute('hidden');
     document.body.classList.add('modal-open');
     paletteInput.value = '';
-    renderPaletteItems(SECURITIES_DATABASE.slice(0, 5));
+    const defSecs = appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 6) : [SECURITIES_DATABASE[6], SECURITIES_DATABASE[7], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]];
+    renderPaletteItems(defSecs);
     paletteInput.focus();
   };
 
@@ -1127,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     paletteResults.innerHTML = '';
     
     const groupSec = document.createElement('div');
-    groupSec.innerHTML = `<div class="palette-group-title">SECURITIES &amp; INDICES (NSE / US)</div>`;
+    groupSec.innerHTML = `<div class="palette-group-title">SECURITIES &amp; BENCHMARKS (${appState.marketRegion === 'IN' ? 'NSE / BSE' : 'NYSE / NASDAQ'})</div>`;
     items.forEach((s) => {
       const it = document.createElement('div');
       it.className = 'palette-item';
@@ -1152,37 +1229,38 @@ document.addEventListener('DOMContentLoaded', () => {
       <div class="palette-item" id="palOptHdfc">
         <div style="display:flex;align-items:center;gap:10px;">
           <i class="fa-solid fa-bolt" style="color:var(--accent-amber);"></i>
-          <span>"Why did HDFC Bank move today?"</span>
+          <span>${appState.marketRegion === 'IN' ? '"Why did HDFC Bank move today?"' : '"Why did Nvidia jump today?"'}</span>
         </div>
       </div>
       <div class="palette-item" id="palOptCompare">
         <div style="display:flex;align-items:center;gap:10px;">
           <i class="fa-solid fa-code-compare" style="color:var(--accent-blue);"></i>
-          <span>"Compare TCS and Infosys"</span>
+          <span>${appState.marketRegion === 'IN' ? '"Compare TCS and Infosys"' : '"Compare Apple and Nvidia"'}</span>
         </div>
       </div>
       <div class="palette-item" id="palOptSector">
         <div style="display:flex;align-items:center;gap:10px;">
           <i class="fa-solid fa-chart-line" style="color:var(--accent-purple);"></i>
-          <span>"Show Indian IT sector volatility"</span>
+          <span>${appState.marketRegion === 'IN' ? '"Show Indian IT sector volatility"' : '"Show US Tech sector volatility"'}</span>
         </div>
       </div>
     `;
     paletteResults.appendChild(groupTools);
 
     const btnH = groupTools.querySelector('#palOptHdfc');
-    if (btnH) btnH.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas('Why did HDFC Bank move?'); });
+    if (btnH) btnH.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas(appState.marketRegion === 'IN' ? 'Why did HDFC Bank move?' : 'Why did Nvidia jump?'); });
     const btnC = groupTools.querySelector('#palOptCompare');
-    if (btnC) btnC.addEventListener('click', () => { closeCommandPalette(); openCompareModal(SECURITIES_DATABASE[1], SECURITIES_DATABASE[3]); });
+    if (btnC) btnC.addEventListener('click', () => { closeCommandPalette(); openCompareModal(appState.marketRegion === 'IN' ? SECURITIES_DATABASE[1] : SECURITIES_DATABASE[6], appState.marketRegion === 'IN' ? SECURITIES_DATABASE[3] : SECURITIES_DATABASE[7]); });
     const btnS = groupTools.querySelector('#palOptSector');
-    if (btnS) btnS.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas('Indian IT volatility'); });
+    if (btnS) btnS.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas(appState.marketRegion === 'IN' ? 'Indian IT volatility' : 'US Tech volatility'); });
   };
 
   if (paletteInput) {
     paletteInput.addEventListener('input', (e) => {
       const q = e.target.value.trim().toLowerCase();
       if (!q) {
-        renderPaletteItems(SECURITIES_DATABASE.slice(0, 5));
+        const defSecs = appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 6) : [SECURITIES_DATABASE[6], SECURITIES_DATABASE[7], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]];
+        renderPaletteItems(defSecs);
         return;
       }
       const matches = SECURITIES_DATABASE.filter((s) =>
@@ -1235,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── 10. Market Pulse Drawer ───────────────────────────────────────────────
+  // ── 11. Market Pulse Drawer ───────────────────────────────────────────────
   const marketPulseDrawer = document.getElementById('marketPulseDrawer');
   const pulseCloseBtn = document.getElementById('pulseCloseBtn');
   const navOpenPulse = document.getElementById('navOpenPulse');
@@ -1243,25 +1321,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const openMarketPulseDrawer = () => {
     const pulseBody = document.getElementById('pulseBody');
     const isBeginner = appState.userMode === 'beginner';
+    const isIN = appState.marketRegion === 'IN';
 
     pulseBody.innerHTML = `
       <div class="pulse-card">
-        <span style="font-size:0.6rem;font-weight:700;color:#51CF66;">BENCHMARK INDICES</span>
+        <span style="font-size:0.6rem;font-weight:700;color:#51CF66;">BENCHMARK INDICES (${isIN ? 'INDIA • NSE' : 'US • NYSE/NASDAQ'})</span>
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="display:flex;justify-content:space-between;"><span>NIFTY 50</span><strong class="pos">24,820.40 (+0.45%)</strong></div>
-          <div style="display:flex;justify-content:space-between;"><span>SENSEX</span><strong class="pos">81,340.20 (+0.38%)</strong></div>
-          <div style="display:flex;justify-content:space-between;"><span>BANK NIFTY</span><strong class="neg">51,240.10 (-0.12%)</strong></div>
+          ${isIN ? `
+            <div style="display:flex;justify-content:space-between;"><span>NIFTY 50</span><strong class="pos">24,820.40 (+0.45%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>SENSEX</span><strong class="pos">81,340.20 (+0.38%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>BANK NIFTY</span><strong class="neg">51,240.10 (-0.12%)</strong></div>
+          ` : `
+            <div style="display:flex;justify-content:space-between;"><span>S&amp;P 500</span><strong class="pos">5,640.10 (+0.22%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>NASDAQ COMPOSITE</span><strong class="pos">17,820.30 (+0.48%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>DOW JONES</span><strong class="pos">40,840.50 (+0.15%)</strong></div>
+          `}
         </div>
       </div>
 
       <div class="pulse-card">
         <span style="font-size:0.6rem;font-weight:700;color:#FAB005;">MARKET BREADTH &bull; ADVANCES VS DECLINES</span>
         <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;">
-          <span style="color:#51CF66;">1,842 Advances (62%)</span>
-          <span style="color:#FF6B6B;">1,103 Declines (38%)</span>
+          <span style="color:#51CF66;">${isIN ? '1,842 Advances (62%)' : '3,240 Advances (68%)'}</span>
+          <span style="color:#FF6B6B;">${isIN ? '1,103 Declines (38%)' : '1,520 Declines (32%)'}</span>
         </div>
         <div class="pulse-breadth-bar">
-          <div class="pbb-advances" style="width:62%;"></div>
+          <div class="pbb-advances" style="width:${isIN ? '62%' : '68%'};"></div>
         </div>
       </div>
 
@@ -1269,8 +1354,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <span style="font-size:0.6rem;font-weight:700;color:#a1a1aa;">${isBeginner ? 'MARKET MOOD IN PLAIN ENGLISH' : 'QUANTITATIVE MARKET DISPERSION'}</span>
         <p style="font-size:0.775rem;color:#d4d4d8;line-height:1.5;">
           ${isBeginner 
-            ? 'More stocks are rising than falling today. Broad market buying interest is healthy, led by energy and technology sectors.' 
-            : 'Cross-sectional dispersion is \\( \\sigma_{\\text{cross}} = 1.48\\% \\). Market breadth ratio is 1.67 with positive volume confirmation.'}
+            ? (isIN ? 'More stocks are rising than falling today in India. Broad market buying interest is healthy, led by energy and technology sectors.' : 'US market breadth remains solidly positive with mega-cap tech and semiconductor momentum.') 
+            : `Cross-sectional dispersion is \\( \\sigma_{\\text{cross}} = ${isIN ? '1.48%' : '1.82%'} \\). Market breadth ratio is ${isIN ? '1.67' : '2.13'} with positive volume confirmation.`}
         </p>
       </div>
     `;
@@ -1286,7 +1371,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navOpenPulse) navOpenPulse.addEventListener('click', openMarketPulseDrawer);
   if (pulseCloseBtn) pulseCloseBtn.addEventListener('click', closeMarketPulseDrawer);
 
-  // ── 11. Company Research Intelligence Modal ───────────────────────────────
+  // ── 12. Company Research Intelligence Modal ───────────────────────────────
   const companyModalOverlay = document.getElementById('companyModalOverlay');
   const compCloseBtn = document.getElementById('compCloseBtn');
   const compModalBackdrop = document.getElementById('companyModalBackdrop');
@@ -1401,12 +1486,13 @@ document.addEventListener('DOMContentLoaded', () => {
       corpTl.appendChild(row);
     });
 
+    const rfRate = appState.marketRegion === 'IN' ? 6.5 : 4.5;
     document.getElementById('quantBeta').textContent = sec.beta.toString();
     document.getElementById('quantVol').textContent = `${(sec.volatility * 100).toFixed(1)}%`;
     document.getElementById('quantVar').textContent = `${(sec.var99 * 100).toFixed(2)}% / day`;
     document.getElementById('quantSharpe').textContent = sec.sharpe.toString();
     document.getElementById('quantMdd').textContent = `${(sec.mdd * 100).toFixed(1)}%`;
-    document.getElementById('quantCapm').textContent = `${(6.5 + sec.beta * 7.2).toFixed(1)}%`;
+    document.getElementById('quantCapm').textContent = `${(rfRate + sec.beta * 7.2).toFixed(1)}%`;
 
     const newsArticles = await fetchCompanyNews(sec);
     renderCompanyNewsStream(newsArticles);
@@ -1542,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ── 12. Comparison Mode Modal ─────────────────────────────────────────────
+  // ── 13. Comparison Mode Modal ─────────────────────────────────────────────
   const compareModalOverlay = document.getElementById('compareModalOverlay');
   const compareCloseBtn = document.getElementById('compareCloseBtn');
   const compareModalBackdrop = document.getElementById('compareModalBackdrop');
@@ -1616,7 +1702,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (compareCloseBtn) compareCloseBtn.addEventListener('click', closeCompareModal);
   if (compareModalBackdrop) compareModalBackdrop.addEventListener('click', closeCompareModal);
 
-  // ── 13. Watchlist & Alerts Drawers ────────────────────────────────────────
+  // ── 14. Watchlist & Alerts Drawers ────────────────────────────────────────
   const watchlistDrawer = document.getElementById('watchlistDrawer');
   const btnOpenWatchlist = document.getElementById('navOpenWatchlist');
   const watchlistCloseBtn = document.getElementById('watchlistCloseBtn');
@@ -1710,7 +1796,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenAlerts) btnOpenAlerts.addEventListener('click', openAlertsDrawer);
   if (alertsCloseBtn) alertsCloseBtn.addEventListener('click', closeAlertsDrawer);
 
-  // ── 14. Quantitative Explainer Library Modal ──────────────────────────────
+  // ── 15. Quantitative Explainer Library Modal ──────────────────────────────
   const glossaryModalOverlay = document.getElementById('glossaryModalOverlay');
   const glossaryCloseBtn = document.getElementById('glossaryCloseBtn');
   const glossaryModalBackdrop = document.getElementById('glossaryModalBackdrop');
@@ -1756,7 +1842,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (glossaryCloseBtn) glossaryCloseBtn.addEventListener('click', closeMathGlossaryModal);
   if (glossaryModalBackdrop) glossaryModalBackdrop.addEventListener('click', closeMathGlossaryModal);
 
-  // ── 15. Market Hours & Timezone Engine ─────────────────────────────────────
+  // ── 16. Market Hours & Timezone Engine ─────────────────────────────────────
   const updateMarketClocks = () => {
     const now = new Date();
 
@@ -1776,7 +1862,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const badgeTime = document.getElementById('marketTime');
 
     if (badgeName && badgeState && badgeDot && badgeTime) {
-      if (appState.marketContext === 'NSE') {
+      if (appState.marketRegion === 'IN') {
         badgeName.textContent = 'NSE';
         badgeTime.textContent = `${istTimeStr} IST`;
         if (istTotalMins >= 540 && istTotalMins < 555) {
@@ -1806,30 +1892,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateMarketClocks();
   setInterval(updateMarketClocks, 1000);
 
-  const clockBadge = document.getElementById('marketClockBadge');
-  if (clockBadge) {
-    clockBadge.addEventListener('click', () => {
-      appState.marketContext = appState.marketContext === 'NSE' ? 'US' : 'NSE';
-      updateMarketClocks();
-    });
-  }
-
-  // Currency Switcher
-  const currToggle = document.getElementById('currencyToggleBtn');
-  if (currToggle) {
-    currToggle.addEventListener('click', () => {
-      appState.currency = appState.currency === 'INR' ? 'USD' : 'INR';
-      localStorage.setItem('riskos_currency', appState.currency);
-      document.querySelectorAll('#currencyToggleBtn .curr-opt').forEach((el) => {
-        el.classList.toggle('active', el.dataset.curr === appState.currency);
-      });
-      if (appState.activeSecurity) renderCompanyModal(appState.activeSecurity);
-      renderWatchlist();
-      if (portfolioEngine) portfolioEngine.update();
-    });
-  }
-
-  // ── 16. Landing Page Magnetic CTA & Metrics Count-Up ───────────────────────
+  // ── 17. Landing Page Magnetic CTA & Metrics Count-Up ───────────────────────
   const ctaBtn = document.getElementById('ctaBtn');
   if (ctaBtn && !prefersReducedMotion) {
     let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0, isHover = false, animId = null;
@@ -1923,7 +1986,7 @@ document.addEventListener('DOMContentLoaded', () => {
     runCountUp();
   }
 
-  // ── 17. Mobile Menu ───────────────────────────────────────────────────────
+  // ── 18. Mobile Menu ───────────────────────────────────────────────────────
   const burger = document.getElementById('menuToggle');
   const mobileMenu = document.getElementById('mobileMenu');
   const menuBackdrop = document.getElementById('menuBackdrop');
@@ -2386,7 +2449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         2 * (wEq / 100) * (wBnd / 100) * (-0.15) * obsState.assets.eq.baseVol * obsState.assets.bnd.baseVol
       ) * scen.volMult;
 
-      const rf = appState.marketContext === 'NSE' ? 0.065 : 0.045;
+      const rf = appState.marketRegion === 'IN' ? 0.065 : 0.045;
       const sharpe = expVol > 0.005 ? ((expR - rf) / expVol) : 0;
       const maxDd = (expVol * 0.95 * scen.ddMult);
       const riskScore = Math.min(100, Math.max(10, Math.round((expVol / 0.25) * 100)));
@@ -2532,6 +2595,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  // Initialize region state on boot
+  setMarketRegion(appState.marketRegion);
 
   // Initial watchlist render
   renderWatchlist();
