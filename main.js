@@ -1527,16 +1527,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const compAddTxBtn = document.getElementById('compAddTxBtn');
-  if (compAddTxBtn) {
-    compAddTxBtn.addEventListener('click', () => {
-      if (appState.activeSecurity) {
-        openAddTransactionModal(appState.activeSecurity.symbol);
-      } else {
-        openAddTransactionModal('RELIANCE');
-      }
-    });
-  }
+
 
   // ── 16. Financial Intelligence Canvas ──────────────────────────────────────
   const financialCanvasOverlay = document.getElementById('financialCanvasOverlay');
