@@ -43,6 +43,7 @@ from engine.rates import analyze_yield_curve
 from engine.microstructure import analyze_microstructure
 from engine.derivatives import analyze_derivatives
 from engine.attribution import analyze_attribution_and_parity
+from engine.speculations import monte_carlo_gbm_simulation, prophet_trend_decomposition
 from engine.intelligence import resolve_query, get_math_explanation, get_market_pulse, SECURITIES_MASTER
 
 app = FastAPI(
@@ -510,11 +511,19 @@ def api_get_derivatives(spot: float = 180.0, strike: float = 185.0, expiry: floa
     except Exception as e:
         return {"error": str(e)}
 
-@app.get("/api/quant/attribution")
-def api_get_attribution(tickers: Optional[str] = None):
+@app.get("/api/quant/speculations")
+def api_get_speculations(ticker: str = "RELIANCE", horizon_days: int = 90, drift: float = 0.12, vol_mult: float = 1.0, jumps: bool = True):
+    """Returns 10,000-path Monte Carlo Geometric Brownian Motion prediction fan chart and terminal probabilities."""
     try:
-        t_list = parse_tickers(tickers)
-        return analyze_attribution_and_parity(t_list)
+        return monte_carlo_gbm_simulation(ticker, horizon_days, drift, vol_mult, n_sims=10000, use_jumps=jumps)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/prophet")
+def api_get_prophet(ticker: str = "RELIANCE", horizon_days: int = 90):
+    """Returns Prophet-style time series decomposition into trend, Fourier seasonality, and 95% confidence bands."""
+    try:
+        return prophet_trend_decomposition(ticker, horizon_days)
     except Exception as e:
         return {"error": str(e)}
 

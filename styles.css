@@ -3044,4 +3044,231 @@ button, select, input {
   color: #fff;
 }
 
+/* ── 22. Quant Speculations & Monte Carlo Price Prediction Desk ───────────── */
+.spec-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.spec-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.spec-panel {
+  position: relative;
+  width: min(1080px, 96vw);
+  max-height: 92vh;
+  background: #09090c;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  z-index: 2;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.95);
+  overflow: hidden;
+}
+
+.spec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: rgba(18, 18, 24, 0.6);
+  border-bottom: 1px solid var(--panel-border-subtle);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.spec-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.spec-ticker-select {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--panel-border);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.spec-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  overflow-y: auto;
+}
+
+.spec-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+}
+
+.spec-metric-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.spec-metric-label {
+  font-size: 0.675rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.spec-metric-val {
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+.spec-prob-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+
+.spec-prob-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.spec-prob-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.725rem;
+  font-weight: 600;
+}
+
+.spec-prob-bar-bg {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.spec-prob-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--motion-base);
+}
+
+.spec-chart-panel {
+  display: flex;
+  flex-direction: column;
+  background: #050508;
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  height: 380px;
+}
+
+.spec-chart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-4);
+  background: rgba(18, 18, 22, 0.7);
+  border-bottom: 1px solid var(--panel-border-subtle);
+  font-size: 0.75rem;
+}
+
+.spec-hud {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: 4px var(--space-4);
+  background: rgba(10, 10, 14, 0.9);
+  font-size: 0.675rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--panel-border-subtle);
+}
+
+.spec-canvas-wrap {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  cursor: crosshair;
+}
+
+#specCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.spec-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.spec-slider-box {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.spec-slider-top {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.spec-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+.spec-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
+}
+
+
 
