@@ -3129,6 +3129,55 @@ button, select, input {
   overflow-y: auto;
 }
 
+/* Spec Presets Bar */
+.spec-presets-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.spec-chips-track {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.spec-preset-chip {
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--motion-fast);
+}
+
+.spec-preset-chip:hover {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.spec-stance-btn.active[data-stance="long"] {
+  background: rgba(81, 207, 102, 0.2);
+  border-color: var(--accent-emerald);
+  color: #ffffff;
+}
+
+.spec-stance-btn.active[data-stance="short"] {
+  background: rgba(255, 107, 107, 0.2);
+  border-color: var(--accent-red);
+  color: #ffffff;
+}
+
 .spec-ribbon {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

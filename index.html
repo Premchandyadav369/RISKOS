@@ -1469,27 +1469,53 @@
             <i class="fa-solid fa-chart-line"></i>
           </div>
           <div>
-            <h3 style="color:#ffffff;font-size:1.1rem;font-weight:700;margin:0;">Quant Speculations & Price Forecasts</h3>
-            <div style="font-size:0.725rem;color:var(--text-muted);">10,000-Path Monte Carlo GBM + Merton Jump Diffusion & Prophet Decomposition</div>
+            <h3 style="color:#ffffff;font-size:1.1rem;font-weight:700;margin:0;">Quant Speculations &amp; Price Forecasts</h3>
+            <div style="font-size:0.725rem;color:var(--text-muted);">10,000-Path Monte Carlo GBM + Merton Jump Diffusion &amp; Prophet Decomposition</div>
           </div>
         </div>
 
-        <div style="display:flex;align-items:center;gap:var(--space-3);">
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:var(--space-3);">
+          <!-- Security Picker Trigger -->
           <button type="button" class="security-picker-btn" id="specTickerPickerBtn" title="Click to search and select any security">
             <span class="sp-btn-ticker" id="specActiveTickerText">RELIANCE</span>
             <span class="sp-btn-name" id="specActiveNameText">Reliance Industries &bull; NSE</span>
             <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-muted);margin-left:4px;"></i>
           </button>
+
+          <!-- Stance Toggle: Long (Bullish) vs Short (Bearish) -->
+          <div class="candle-tf-group spec-stance-group" title="Trading Stance Direction">
+            <button class="candle-btn active spec-stance-btn" data-stance="long"><i class="fa-solid fa-arrow-trend-up" style="color:var(--accent-emerald);"></i> Long</button>
+            <button class="candle-btn spec-stance-btn" data-stance="short"><i class="fa-solid fa-arrow-trend-down" style="color:var(--accent-red);"></i> Short</button>
+          </div>
+
+          <!-- Model Switcher: GBM vs Merton Jump vs Prophet -->
           <div class="candle-tf-group">
             <button class="candle-btn active spec-model-btn" data-model="gbm">Monte Carlo GBM</button>
+            <button class="candle-btn spec-model-btn" data-model="merton">Merton Jump Diffusion</button>
             <button class="candle-btn spec-model-btn" data-model="prophet">Prophet Decomposition</button>
           </div>
+
           <button class="modal-close-btn" id="specCloseBtn" aria-label="Close Speculations Desk">&times;</button>
         </div>
       </div>
 
       <!-- Modal Body -->
       <div class="spec-body">
+
+        <!-- Preset Scenario Quick Chips -->
+        <div class="spec-presets-bar">
+          <span style="font-size:0.68rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;display:inline-flex;align-items:center;gap:4px;">
+            <i class="fa-solid fa-bolt" style="color:var(--accent-cyan);font-size:0.65rem;"></i> Scenario Presets:
+          </span>
+          <div class="spec-chips-track">
+            <button class="lab-chip spec-preset-chip" data-preset="baseline">⚡ Baseline Base Case</button>
+            <button class="lab-chip spec-preset-chip" data-preset="short_squeeze">🐻 Short Squeeze Trap</button>
+            <button class="lab-chip spec-preset-chip" data-preset="recession">📉 Macro Recession (-25%)</button>
+            <button class="lab-chip spec-preset-chip" data-preset="breakout">🚀 Earnings Breakout (+35%)</button>
+            <button class="lab-chip spec-preset-chip" data-preset="black_swan">🌊 Black Swan Shock (-40%)</button>
+            <button class="lab-chip spec-preset-chip" data-preset="rate_shock">🏦 Rate Spike (+300 bps)</button>
+          </div>
+        </div>
         
         <!-- Summary Metric Ribbon -->
         <div class="spec-ribbon">
@@ -1498,7 +1524,7 @@
             <span class="spec-metric-val" id="specSpotPrice">₹2,984.50</span>
           </div>
           <div class="spec-metric-card">
-            <span class="spec-metric-label">Expected Terminal Price</span>
+            <span class="spec-metric-label" id="specExpPriceLabel">Expected Terminal Price</span>
             <span class="spec-metric-val" id="specExpPrice" style="color:var(--accent-emerald);">₹3,340.20</span>
           </div>
           <div class="spec-metric-card">
@@ -1506,15 +1532,15 @@
             <span class="spec-metric-val" id="specMedianPrice">₹3,280.00</span>
           </div>
           <div class="spec-metric-card">
-            <span class="spec-metric-label">95th %ile (Bull Case)</span>
+            <span class="spec-metric-label" id="specP95Label">95th %ile (Bull Case)</span>
             <span class="spec-metric-val" id="specP95Price" style="color:var(--accent-cyan);">₹3,920.00</span>
           </div>
           <div class="spec-metric-card">
-            <span class="spec-metric-label">5th %ile (Bear Case)</span>
+            <span class="spec-metric-label" id="specP05Label">5th %ile (Bear Case)</span>
             <span class="spec-metric-val" id="specP05Price" style="color:var(--accent-red);">₹2,480.00</span>
           </div>
           <div class="spec-metric-card">
-            <span class="spec-metric-label">Terminal VaR (99%)</span>
+            <span class="spec-metric-label" id="specVarLabel">Terminal VaR (99%)</span>
             <span class="spec-metric-val" id="specVar99" style="color:var(--accent-amber);">-22.4%</span>
           </div>
         </div>
@@ -1523,35 +1549,35 @@
         <div class="spec-prob-grid">
           <div class="spec-prob-card">
             <div class="spec-prob-header">
-              <span style="color:var(--text-muted);">Gain &ge; +10%</span>
+              <span style="color:var(--text-muted);" id="specLabelGain10">Gain &ge; +10%</span>
               <span id="specProbGain10" style="color:var(--accent-emerald);font-weight:700;">64.2%</span>
             </div>
             <div class="spec-prob-bar-bg"><div class="spec-prob-bar-fill" id="specProbBarGain10" style="width:64.2%;background:var(--accent-emerald);"></div></div>
           </div>
           <div class="spec-prob-card">
             <div class="spec-prob-header">
-              <span style="color:var(--text-muted);">Gain &ge; +25%</span>
+              <span style="color:var(--text-muted);" id="specLabelGain25">Gain &ge; +25%</span>
               <span id="specProbGain25" style="color:var(--accent-cyan);font-weight:700;">38.5%</span>
             </div>
             <div class="spec-prob-bar-bg"><div class="spec-prob-bar-fill" id="specProbBarGain25" style="width:38.5%;background:var(--accent-cyan);"></div></div>
           </div>
           <div class="spec-prob-card">
             <div class="spec-prob-header">
-              <span style="color:var(--text-muted);">Loss &ge; -10%</span>
+              <span style="color:var(--text-muted);" id="specLabelLoss10">Loss &ge; -10%</span>
               <span id="specProbLoss10" style="color:var(--accent-amber);font-weight:700;">18.4%</span>
             </div>
             <div class="spec-prob-bar-bg"><div class="spec-prob-bar-fill" id="specProbBarLoss10" style="width:18.4%;background:var(--accent-amber);"></div></div>
           </div>
           <div class="spec-prob-card">
             <div class="spec-prob-header">
-              <span style="color:var(--text-muted);">Loss &ge; -25%</span>
+              <span style="color:var(--text-muted);" id="specLabelLoss25">Loss &ge; -25%</span>
               <span id="specProbLoss25" style="color:var(--accent-red);font-weight:700;">6.2%</span>
             </div>
             <div class="spec-prob-bar-bg"><div class="spec-prob-bar-fill" id="specProbBarLoss25" style="width:6.2%;background:var(--accent-red);"></div></div>
           </div>
           <div class="spec-prob-card">
             <div class="spec-prob-header">
-              <span style="color:var(--text-muted);">Overall Positive</span>
+              <span style="color:var(--text-muted);" id="specLabelPositive">Overall Positive Return</span>
               <span id="specProbPositive" style="color:#ffffff;font-weight:700;">72.1%</span>
             </div>
             <div class="spec-prob-bar-bg"><div class="spec-prob-bar-fill" id="specProbBarPositive" style="width:72.1%;background:linear-gradient(90deg, #51cf66, #22d3ee);"></div></div>
@@ -1563,11 +1589,12 @@
           <div class="spec-chart-toolbar">
             <div style="display:flex;align-items:center;gap:var(--space-2);">
               <strong id="specChartTickerTitle">RELIANCE (90-Day Simulation Fan)</strong>
-              <span style="font-size:0.675rem;color:var(--text-muted);">• Quantile Bands (5th to 95th Percentile)</span>
+              <span style="font-size:0.675rem;color:var(--text-muted);" id="specChartSubtitle">• Quantile Bands (5th to 95th Percentile)</span>
             </div>
-            <div style="display:flex;align-items:center;gap:var(--space-2);">
-              <span style="color:var(--text-muted);font-size:0.7rem;">Drift μ: <strong id="specHudDrift" style="color:#fff;">+15%</strong></span>
+            <div style="display:flex;align-items:center;gap:var(--space-3);">
+              <span style="color:var(--text-muted);font-size:0.7rem;">Drift μ: <strong id="specHudDrift" style="color:#fff;">+12.0%</strong></span>
               <span style="color:var(--text-muted);font-size:0.7rem;">Vol σ: <strong id="specHudVol" style="color:#fff;">22.4%</strong></span>
+              <span style="color:var(--text-muted);font-size:0.7rem;" id="specHudJumpWrap">Jumps λ: <strong id="specHudJump" style="color:var(--accent-cyan);">0/yr</strong></span>
             </div>
           </div>
           
@@ -1577,6 +1604,7 @@
             <span>Median: <strong id="specHudMedian" class="candle-hud-val">-</strong></span>
             <span>P95: <strong id="specHudP95" class="candle-hud-val" style="color:var(--accent-cyan);">-</strong></span>
             <span>P05: <strong id="specHudP05" class="candle-hud-val" style="color:var(--accent-red);">-</strong></span>
+            <span>Stance P&amp;L: <strong id="specHudPnl" class="candle-hud-val" style="color:var(--accent-emerald);">-</strong></span>
           </div>
 
           <div class="spec-canvas-wrap" id="specCanvasWrap">
@@ -1588,7 +1616,7 @@
         <div class="spec-controls-grid">
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Simulation Horizon</span>
+              <span>Simulation Horizon (T)</span>
               <strong id="specHorizonVal" style="color:var(--accent-cyan);">90 Days</strong>
             </div>
             <input type="range" class="spec-slider" id="specHorizonSlider" min="30" max="365" step="15" value="90" />
@@ -1596,23 +1624,23 @@
 
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Expected Annual Drift (\(\mu\))</span>
+              <span>Expected Annual Drift (μ)</span>
               <strong id="specDriftVal" style="color:var(--accent-emerald);">+12.0%</strong>
             </div>
-            <input type="range" class="spec-slider" id="specDriftSlider" min="-20" max="30" step="1" value="12" />
+            <input type="range" class="spec-slider" id="specDriftSlider" min="-40" max="50" step="1" value="12" />
           </div>
 
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Volatility Multiplier (\(\sigma\))</span>
-              <strong id="specVolVal" style="color:var(--accent-amber);">1.0x (Historical)</strong>
+              <span>Volatility Multiplier (σ)</span>
+              <strong id="specVolVal" style="color:var(--accent-amber);">1.0x</strong>
             </div>
-            <input type="range" class="spec-slider" id="specVolSlider" min="0.5" max="2.5" step="0.1" value="1.0" />
+            <input type="range" class="spec-slider" id="specVolSlider" min="0.5" max="3.5" step="0.1" value="1.0" />
           </div>
 
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Interest Rate Shift (\(\Delta r\))</span>
+              <span>Interest Rate Shift (Δr)</span>
               <strong id="specRateShiftVal" style="color:var(--text-secondary);">0 bps</strong>
             </div>
             <input type="range" class="spec-slider" id="specRateShiftSlider" min="-300" max="300" step="25" value="0" />
@@ -1620,28 +1648,45 @@
 
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Inflation Rate Shock</span>
+              <span>Inflation Rate Shock (π)</span>
               <strong id="specInflationVal" style="color:var(--text-secondary);">0.0%</strong>
             </div>
-            <input type="range" class="spec-slider" id="specInflationSlider" min="-4.0" max="4.0" step="0.5" value="0.0" />
+            <input type="range" class="spec-slider" id="specInflationSlider" min="-4.0" max="5.0" step="0.5" value="0.0" />
           </div>
 
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Earnings / Revenue Growth</span>
+              <span>Earnings / Revenue Shock (EPS Δ)</span>
               <strong id="specEarningsVal" style="color:var(--text-secondary);">0.0%</strong>
             </div>
-            <input type="range" class="spec-slider" id="specEarningsSlider" min="-25" max="25" step="1" value="0" />
+            <input type="range" class="spec-slider" id="specEarningsSlider" min="-35" max="35" step="1" value="0" />
+          </div>
+
+          <!-- Merton Jump Parameters (Displayed dynamically) -->
+          <div class="spec-slider-box" id="specJumpBox1">
+            <div class="spec-slider-top">
+              <span>Jump Arrival Rate (λ/yr)</span>
+              <strong id="specJumpFreqVal" style="color:var(--accent-cyan);">0 jumps/yr</strong>
+            </div>
+            <input type="range" class="spec-slider" id="specJumpFreqSlider" min="0" max="8" step="1" value="0" />
+          </div>
+
+          <div class="spec-slider-box" id="specJumpBox2">
+            <div class="spec-slider-top">
+              <span>Mean Jump Shock Magnitude (k)</span>
+              <strong id="specJumpSizeVal" style="color:var(--accent-cyan);">0.0%</strong>
+            </div>
+            <input type="range" class="spec-slider" id="specJumpSizeSlider" min="-30" max="30" step="2" value="0" />
           </div>
         </div>
 
         <!-- Dynamic Modelled Scenario Math & Plain English Insight -->
         <div class="scenario-result-banner">
           <div>
-            <span class="provenance-tag tag--scenario" style="margin-bottom:4px;display:inline-block;">STOCHASTIC PROCESS SPECIFICATION</span>
-            <div style="font-family:monospace;font-size:0.85rem;color:#ffffff;">\[ dS_t = \mu S_t dt + \sigma S_t dW_t + J_t dN_t \]</div>
-            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px;" id="scenarioPlainEnglish">
-              Under current parameters, the probability of exceeding the hurdle rate is 68.4% with a 99% 1-day conditional VaR of -22.4%.
+            <span class="provenance-tag tag--scenario" style="margin-bottom:4px;display:inline-block;" id="specProcessBadge">STOCHASTIC PROCESS SPECIFICATION</span>
+            <div style="font-family:monospace;font-size:0.85rem;color:#ffffff;" id="specMathFormula">\[ dS_t = \mu S_t dt + \sigma S_t dW_t \]</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;line-height:1.5;" id="scenarioPlainEnglish">
+              Under current parameters, the probability of positive terminal return is 72.1% with a 99% conditional tail VaR of -22.4%.
             </div>
           </div>
           <span class="obs-chip obs-chip--sim"><span class="chip-dot chip-dot--amber"></span> MODELLED / SIMULATED</span>
