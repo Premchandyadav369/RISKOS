@@ -676,7 +676,56 @@
     // 8. Setup Security Search & Initial Module
     setupSecuritySearch();
     renderConceptTray();
-    switchModule('cagr');
+
+    // Check URL search parameters for seamless deep linking across RISKOS
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetSec = urlParams.get('sec') || urlParams.get('ticker') || urlParams.get('symbol');
+    let targetMod = urlParams.get('module') || urlParams.get('metric') || 'cagr';
+
+    const metricMap = {
+      'pe': 'pe_ratio',
+      'eps': 'pe_ratio',
+      'valuation': 'pe_ratio',
+      'roe': 'roe_dupont',
+      'roce': 'roe_dupont',
+      'beta': 'beta',
+      'vol': 'volatility',
+      'volatility': 'volatility',
+      'sharpe': 'sharpe_ratio',
+      'mdd': 'max_drawdown',
+      'maxdrawdown': 'max_drawdown',
+      'drawdown': 'max_drawdown',
+      'capm': 'capm',
+      'cagr': 'cagr',
+      'sip': 'sip',
+      'dca': 'sip',
+      'compounding': 'compounding',
+      'diversification': 'portfolio_diversification',
+      'variance': 'portfolio_return_variance',
+      'var': 'risk_return'
+    };
+
+    if (metricMap[targetMod.toLowerCase()]) {
+      targetMod = metricMap[targetMod.toLowerCase()];
+    }
+
+    if (targetSec) {
+      labState.activeSecuritySymbol = targetSec.toUpperCase();
+      labState.sourceMode = 'security';
+      const secBtn = document.getElementById('btnModeSecurity');
+      const custBtn = document.getElementById('btnModeCustom');
+      if (secBtn && custBtn) {
+        secBtn.classList.add('active');
+        custBtn.classList.remove('active');
+      }
+      const tickEl = document.getElementById('labSecTicker');
+      const nameEl = document.getElementById('labSecName');
+      if (tickEl) tickEl.textContent = targetSec.toUpperCase();
+      if (nameEl) nameEl.textContent = `${targetSec.toUpperCase()} (Loaded from Platform)`;
+      fetchAndApplySecurityData(targetSec.toUpperCase());
+    }
+
+    switchModule(targetMod || 'cagr');
   };
 
   // Run on DOM Ready
