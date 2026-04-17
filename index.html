@@ -480,6 +480,8 @@
                     <button class="candle-btn ind--active" id="btnToggleSMA" title="20-Day Simple Moving Average">SMA(20)</button>
                     <button class="candle-btn ema--active" id="btnToggleEMA" title="50-Day Exponential Moving Average">EMA(50)</button>
                     <button class="candle-btn active" id="btnToggleVol" title="Volume Sub-Pane">VOL</button>
+                    <button class="candle-btn" id="btnToggleRSI" title="14-Day Relative Strength Index">RSI(14)</button>
+                    <button class="candle-btn" id="btnToggleMACD" title="Moving Average Convergence Divergence">MACD</button>
                   </div>
                 </div>
                 <div class="candle-hud" id="candleHud">
@@ -1127,6 +1129,28 @@
 
         </div>
 
+        <!-- Row 2.5: Live Dynamic Market Observatory Discovery Deck -->
+        <section class="obs-panel" style="margin-bottom:var(--space-6);">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <span class="panel-tag" style="background:rgba(34,211,238,0.15);color:var(--accent-cyan);"><i class="fa-solid fa-satellite-dish"></i> LIVE DISCOVERY DECK</span>
+              <h2 class="panel-title">Dynamic Statistical Anomalies &amp; Cross-Market Events</h2>
+            </div>
+            <div class="candle-tf-group" id="obsCategoryFilters">
+              <button class="candle-btn active" data-obscat="all">All Events</button>
+              <button class="candle-btn" data-obscat="volume">Volume Surges</button>
+              <button class="candle-btn" data-obscat="movers">Market Movers</button>
+              <button class="candle-btn" data-obscat="rotation">Sector Rotation</button>
+              <button class="candle-btn" data-obscat="volatility">Volatility Shifts</button>
+            </div>
+          </div>
+
+          <!-- 6-Part Dynamic Discovery Container -->
+          <div class="obs-discovery-feed" id="obsDiscoveryFeed">
+            <!-- Dynamically populated from /api/observatory/feed -->
+          </div>
+        </section>
+
         <!-- Row 3: AI Quantitative Reasoning Pipeline -->
         <section class="obs-panel obs-panel--pipeline">
           <div class="panel-header">
@@ -1451,9 +1475,11 @@
         </div>
 
         <div style="display:flex;align-items:center;gap:var(--space-3);">
-          <select class="spec-ticker-select" id="specSelectTicker">
-            <!-- Populated dynamically with Indian & US securities -->
-          </select>
+          <button type="button" class="security-picker-btn" id="specTickerPickerBtn" title="Click to search and select any security">
+            <span class="sp-btn-ticker" id="specActiveTickerText">RELIANCE</span>
+            <span class="sp-btn-name" id="specActiveNameText">Reliance Industries &bull; NSE</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:0.65rem;color:var(--text-muted);margin-left:4px;"></i>
+          </button>
           <div class="candle-tf-group">
             <button class="candle-btn active spec-model-btn" data-model="gbm">Monte Carlo GBM</button>
             <button class="candle-btn spec-model-btn" data-model="prophet">Prophet Decomposition</button>
@@ -1558,11 +1584,11 @@
           </div>
         </div>
 
-        <!-- Interactive Speculation Parameter Controls -->
+        <!-- Interactive Scenario Parameter & Macro Driver Controls -->
         <div class="spec-controls-grid">
           <div class="spec-slider-box">
             <div class="spec-slider-top">
-              <span>Forecast Horizon</span>
+              <span>Simulation Horizon</span>
               <strong id="specHorizonVal" style="color:var(--accent-cyan);">90 Days</strong>
             </div>
             <input type="range" class="spec-slider" id="specHorizonSlider" min="30" max="365" step="15" value="90" />
@@ -1581,8 +1607,44 @@
               <span>Volatility Multiplier (\(\sigma\))</span>
               <strong id="specVolVal" style="color:var(--accent-amber);">1.0x (Historical)</strong>
             </div>
-            <input type="range" class="spec-slider" id="specVolSlider" min="0.5" max="2.0" step="0.1" value="1.0" />
+            <input type="range" class="spec-slider" id="specVolSlider" min="0.5" max="2.5" step="0.1" value="1.0" />
           </div>
+
+          <div class="spec-slider-box">
+            <div class="spec-slider-top">
+              <span>Interest Rate Shift (\(\Delta r\))</span>
+              <strong id="specRateShiftVal" style="color:var(--text-secondary);">0 bps</strong>
+            </div>
+            <input type="range" class="spec-slider" id="specRateShiftSlider" min="-300" max="300" step="25" value="0" />
+          </div>
+
+          <div class="spec-slider-box">
+            <div class="spec-slider-top">
+              <span>Inflation Rate Shock</span>
+              <strong id="specInflationVal" style="color:var(--text-secondary);">0.0%</strong>
+            </div>
+            <input type="range" class="spec-slider" id="specInflationSlider" min="-4.0" max="4.0" step="0.5" value="0.0" />
+          </div>
+
+          <div class="spec-slider-box">
+            <div class="spec-slider-top">
+              <span>Earnings / Revenue Growth</span>
+              <strong id="specEarningsVal" style="color:var(--text-secondary);">0.0%</strong>
+            </div>
+            <input type="range" class="spec-slider" id="specEarningsSlider" min="-25" max="25" step="1" value="0" />
+          </div>
+        </div>
+
+        <!-- Dynamic Modelled Scenario Math & Plain English Insight -->
+        <div class="scenario-result-banner">
+          <div>
+            <span class="provenance-tag tag--scenario" style="margin-bottom:4px;display:inline-block;">STOCHASTIC PROCESS SPECIFICATION</span>
+            <div style="font-family:monospace;font-size:0.85rem;color:#ffffff;">\[ dS_t = \mu S_t dt + \sigma S_t dW_t + J_t dN_t \]</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px;" id="scenarioPlainEnglish">
+              Under current parameters, the probability of exceeding the hurdle rate is 68.4% with a 99% 1-day conditional VaR of -22.4%.
+            </div>
+          </div>
+          <span class="obs-chip obs-chip--sim"><span class="chip-dot chip-dot--amber"></span> MODELLED / SIMULATED</span>
         </div>
 
       </div>
@@ -1608,6 +1670,41 @@
       </div>
       <div class="ud-body" id="udBody">
         <!-- Injected dynamically -->
+      </div>
+    </div>
+  <!-- ═══════════════════════ SEARCHABLE COMMAND-STYLE SECURITY PICKER ═══════════════════════ -->
+  <div class="sec-picker-overlay" id="secPickerOverlay" hidden>
+    <div class="sec-picker-backdrop" id="secPickerBackdrop"></div>
+    <div class="sec-picker-panel" id="secPickerPanel" role="dialog" aria-modal="true" aria-label="Select Security">
+      <div class="sec-picker-header">
+        <div class="sec-picker-search-wrap">
+          <i class="fa-solid fa-magnifying-glass sec-picker-icon"></i>
+          <input type="text" id="secPickerInput" class="sec-picker-input" placeholder="Search thousands of stocks, indices, ETFs, ISINs, or BSE codes..." autocomplete="off" />
+          <kbd class="kbd-pill" id="secPickerEscKbd">ESC</kbd>
+        </div>
+        <button class="modal-close-btn" id="secPickerCloseBtn" aria-label="Close Security Selector">&times;</button>
+      </div>
+
+      <!-- Quick Filter Tabs (ALL, NSE, BSE, US, INDICES, ETFS, WATCHLIST) -->
+      <div class="sec-picker-tabs" id="secPickerTabs">
+        <button class="sec-picker-tab active" data-filter="all">All</button>
+        <button class="sec-picker-tab" data-filter="nse">NSE</button>
+        <button class="sec-picker-tab" data-filter="bse">BSE</button>
+        <button class="sec-picker-tab" data-filter="us">US Markets</button>
+        <button class="sec-picker-tab" data-filter="index">Indices</button>
+        <button class="sec-picker-tab" data-filter="etf">ETFs &amp; Funds</button>
+        <button class="sec-picker-tab" data-filter="watchlist"><i class="fa-solid fa-star"></i> Watchlist</button>
+      </div>
+
+      <!-- Virtualized / Filtered Results List -->
+      <div class="sec-picker-list" id="secPickerList" role="listbox">
+        <!-- Injected dynamically -->
+      </div>
+
+      <div class="sec-picker-footer">
+        <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
+        <span><kbd>↵</kbd> to select</span>
+        <span><kbd>ESC</kbd> to dismiss</span>
       </div>
     </div>
   </div>

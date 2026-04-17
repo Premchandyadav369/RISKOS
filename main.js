@@ -1060,7 +1060,25 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleVol.addEventListener('click', () => {
       appState.candleIndicators.vol = !appState.candleIndicators.vol;
       btnToggleVol.classList.toggle('active', appState.candleIndicators.vol);
-      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, '1Y');
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
+    });
+  }
+
+  const btnToggleRSI = document.getElementById('btnToggleRSI');
+  if (btnToggleRSI) {
+    btnToggleRSI.addEventListener('click', () => {
+      appState.candleIndicators.rsi = !appState.candleIndicators.rsi;
+      btnToggleRSI.classList.toggle('active', appState.candleIndicators.rsi);
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
+    });
+  }
+
+  const btnToggleMACD = document.getElementById('btnToggleMACD');
+  if (btnToggleMACD) {
+    btnToggleMACD.addEventListener('click', () => {
+      appState.candleIndicators.macd = !appState.candleIndicators.macd;
+      btnToggleMACD.classList.toggle('active', appState.candleIndicators.macd);
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
     });
   }
 
@@ -2150,12 +2168,364 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
-  // ── 21. Hero Prompt Chips ──────────────────────────────────────────────────
+  // ── 21. Searchable Command-Style Security Picker Module ──────────────────
+  const SecurityPicker = (() => {
+    let activeCallback = null;
+    let currentFilter = 'all';
+    let selectedIndex = 0;
+    let currentMatches = [];
+
+    const overlay = document.getElementById('secPickerOverlay');
+    const input = document.getElementById('secPickerInput');
+    const list = document.getElementById('secPickerList');
+    const closeBtn = document.getElementById('secPickerCloseBtn');
+    const backdrop = document.getElementById('secPickerBackdrop');
+    const tabs = document.querySelectorAll('.sec-picker-tab');
+
+    const open = ({ onSelect, initialQuery = '' }) => {
+      activeCallback = onSelect;
+      currentFilter = 'all';
+      selectedIndex = 0;
+      if (overlay) overlay.removeAttribute('hidden');
+      document.body.classList.add('modal-open');
+      if (input) {
+        input.value = initialQuery;
+        input.focus();
+      }
+      renderMatches(initialQuery);
+    };
+
+    const close = () => {
+      if (overlay) overlay.setAttribute('hidden', '');
+      document.body.classList.remove('modal-open');
+      activeCallback = null;
+    };
+
+    const renderMatches = async (query = '') => {
+      if (!list) return;
+      list.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:0.8rem;">Searching securities...</div>';
+
+      let results = await SecurityMaster.searchSecurities(query, 30);
+
+      // Filter by active tab
+      if (currentFilter === 'nse') results = results.filter(r => (r.exchange || '').toUpperCase() === 'NSE');
+      else if (currentFilter === 'bse') results = results.filter(r => (r.exchange || '').toUpperCase() === 'BSE' || r.bseCode);
+      else if (currentFilter === 'us') results = results.filter(r => (r.exchange || '').toUpperCase() === 'US' || (r.exchange || '').toUpperCase() === 'NASDAQ' || (r.exchange || '').toUpperCase() === 'NYSE');
+      else if (currentFilter === 'index') results = results.filter(r => (r.assetType || '').toUpperCase() === 'INDEX' || r.symbol.startsWith('^'));
+      else if (currentFilter === 'etf') results = results.filter(r => (r.assetType || '').toUpperCase() === 'ETF' || (r.assetType || '').toUpperCase() === 'MUTUAL FUND');
+      else if (currentFilter === 'watchlist') results = results.filter(r => appState.watchlist.includes(r.symbol));
+
+      currentMatches = results.slice(0, 20);
+
+      if (currentMatches.length === 0) {
+        list.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:0.85rem;"><i class="fa-solid fa-circle-question" style="font-size:1.4rem;display:block;margin-bottom:8px;color:var(--accent-amber);"></i>No matching securities found. Press Enter to resolve symbol directly.</div>';
+        return;
+      }
+
+      list.innerHTML = currentMatches.map((sec, idx) => {
+        const ex = (sec.exchange || 'NSE').toUpperCase();
+        const tagClass = ex === 'NSE' ? 'tag--nse' : (ex === 'BSE' ? 'tag--bse' : (ex === 'US' || ex === 'NASDAQ' ? 'tag--us' : 'tag--index'));
+        const price = sec.basePrice || sec.priceINR || sec.price_inr || 1000;
+        const chg = sec.changePercent !== undefined ? sec.changePercent : 1.15;
+
+        return `
+          <div class="sec-picker-item ${idx === selectedIndex ? 'active' : ''}" data-idx="${idx}" role="option">
+            <div class="sp-item-left">
+              <span class="sp-item-tag ${tagClass}">${ex}</span>
+              <div>
+                <div class="sp-item-sym">${sec.symbol}</div>
+                <div class="sp-item-name">${sec.name || sec.symbol}</div>
+              </div>
+            </div>
+            <div class="sp-item-right">
+              <div class="sp-item-price">${formatMoney(price)}</div>
+              <div class="sp-item-chg" style="color:${chg >= 0 ? 'var(--accent-emerald)' : 'var(--accent-red)'};">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      list.querySelectorAll('.sec-picker-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const idx = parseInt(item.dataset.idx, 10);
+          selectItem(currentMatches[idx]);
+        });
+      });
+    };
+
+    const selectItem = (sec) => {
+      if (!sec) return;
+      if (activeCallback) activeCallback(sec);
+      close();
+    };
+
+    if (closeBtn) closeBtn.addEventListener('click', close);
+    if (backdrop) backdrop.addEventListener('click', close);
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        selectedIndex = 0;
+        renderMatches(input ? input.value : '');
+      });
+    });
+
+    if (input) {
+      let debounce = null;
+      input.addEventListener('input', (e) => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          selectedIndex = 0;
+          renderMatches(e.target.value);
+        }, 120);
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (currentMatches.length > 0) {
+            selectedIndex = (selectedIndex + 1) % currentMatches.length;
+            list.querySelectorAll('.sec-picker-item').forEach((it, idx) => it.classList.toggle('active', idx === selectedIndex));
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (currentMatches.length > 0) {
+            selectedIndex = (selectedIndex - 1 + currentMatches.length) % currentMatches.length;
+            list.querySelectorAll('.sec-picker-item').forEach((it, idx) => it.classList.toggle('active', idx === selectedIndex));
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (currentMatches[selectedIndex]) {
+            selectItem(currentMatches[selectedIndex]);
+          } else if (input.value.trim()) {
+            SecurityMaster.resolveSecurity(input.value.trim()).then(sec => selectItem(sec));
+          }
+        } else if (e.key === 'Escape') {
+          close();
+        }
+      });
+    }
+
+    return { open, close };
+  })();
+
+  window.SecurityPicker = SecurityPicker;
+
+  // Wire up Speculations Security Picker Button
+  const specTickerPickerBtn = document.getElementById('specTickerPickerBtn');
+  if (specTickerPickerBtn) {
+    specTickerPickerBtn.addEventListener('click', () => {
+      SecurityPicker.open({
+        initialQuery: activeSpecState.ticker,
+        onSelect: (sec) => {
+          activeSpecState.ticker = sec.symbol;
+          const tickText = document.getElementById('specActiveTickerText');
+          const nameText = document.getElementById('specActiveNameText');
+          if (tickText) tickText.textContent = sec.symbol;
+          if (nameText) nameText.textContent = `${sec.name} • ${sec.exchange}`;
+          renderSpeculationsDesk();
+        }
+      });
+    });
+  }
+
+  // ── 22. Dynamic Observatory Discovery Feed & Portfolio Impact Engine ───────
+  const observatoryOverlay = document.getElementById('observatoryOverlay');
+  const obsCloseBtn = document.getElementById('obsCloseBtn');
+  const obsBackdrop = document.getElementById('observatoryBackdrop');
+  const navOpenObs = document.getElementById('navOpenObs');
+  const mobileOpenObs = document.getElementById('mobileOpenObs');
+
+  let activeObsCategory = 'all';
+
+  const renderObservatoryDiscoveryFeed = async () => {
+    const feedContainer = document.getElementById('obsDiscoveryFeed');
+    if (!feedContainer) return;
+
+    feedContainer.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Scanning real-time tick feeds and calculating anomalies...</div>';
+
+    let observations = [];
+    try {
+      const res = await fetch('/api/observatory/feed');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.observations && data.observations.length > 0) {
+          observations = data.observations;
+        }
+      }
+    } catch (e) {}
+
+    if (observations.length === 0) {
+      feedContainer.innerHTML = '<div style="padding:24px;text-align:center;color:var(--text-muted);">Insufficient real-time data currently available. Exchange scan in progress.</div>';
+      return;
+    }
+
+    // Filter by active category if selected
+    let filtered = observations;
+    if (activeObsCategory === 'volume') filtered = observations.filter(o => o.type === 'UNUSUAL_VOLUME');
+    else if (activeObsCategory === 'movers') filtered = observations.filter(o => o.type === 'MARKET_MOVER' || o.type === 'MARKET_BREADTH');
+    else if (activeObsCategory === 'rotation') filtered = observations.filter(o => o.type === 'SECTOR_ROTATION');
+    else if (activeObsCategory === 'volatility') filtered = observations.filter(o => o.type === 'VOLATILITY_SHIFT');
+
+    // Calculate Portfolio Impact
+    const totalPortVal = portfolioTransactions.reduce((acc, t) => acc + (t.quantity * t.price), 0);
+
+    feedContainer.innerHTML = filtered.map(obs => {
+      const tag = obs.tag || 'OBSERVATION';
+      const tagClass = tag === 'FACT' ? 'tag--fact' : (tag === 'MODEL SIGNAL' ? 'tag--model' : (tag === 'SCENARIO' ? 'tag--scenario' : 'tag--obs'));
+
+      // Check if user holds any related securities
+      let portfolioImpactBadge = '';
+      if (totalPortVal > 0 && Array.isArray(obs.related_securities)) {
+        const matchingTx = portfolioTransactions.filter(t => obs.related_securities.includes(t.symbol));
+        if (matchingTx.length > 0) {
+          const heldVal = matchingTx.reduce((acc, t) => acc + (t.quantity * t.price), 0);
+          const weight = (heldVal / totalPortVal) * 100;
+          const impact = (weight * (obs.impact_direction === 'BEARISH' ? -1 : 1) * 0.05).toFixed(2);
+          portfolioImpactBadge = `
+            <div class="obs-portfolio-impact-badge">
+              <i class="fa-solid fa-wallet"></i>
+              <span>YOUR PORTFOLIO: Affects your portfolio by ${impact >= 0 ? '+' : ''}${impact}% (${weight.toFixed(1)}% weight held)</span>
+            </div>
+          `;
+        }
+      }
+
+      return `
+        <article class="obs-6part-card" data-symbol="${obs.primary_symbol || 'RELIANCE'}">
+          <div class="obs-card-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="provenance-tag ${tagClass}">${tag}</span>
+              <span style="font-size:0.75rem;font-weight:700;color:var(--accent-cyan);text-transform:uppercase;">${obs.category}</span>
+            </div>
+            ${portfolioImpactBadge}
+          </div>
+
+          <h3 class="obs-card-title">${obs.title}</h3>
+
+          <div class="obs-6part-grid">
+            <div class="obs-grid-block">
+              <span class="obs-block-title">01. What Happened?</span>
+              <p class="obs-block-text">${obs.what_happened}</p>
+            </div>
+
+            <div class="obs-grid-block">
+              <span class="obs-block-title">02. Quantitative Evidence</span>
+              <p class="obs-block-text">${obs.evidence}</p>
+            </div>
+
+            <div class="obs-grid-block">
+              <span class="obs-block-title">03. Why It Matters</span>
+              <p class="obs-block-text">${obs.why_it_matters}</p>
+            </div>
+
+            <div class="obs-grid-block">
+              <span class="obs-block-title">04. Related Securities (Click to Inspect)</span>
+              <div class="obs-related-chips">
+                ${(obs.related_securities || []).map(s => `
+                  <button class="obs-ticker-btn" data-symbol="${s}">${s}</button>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <div class="obs-sources-row">
+            <span>Verified Sources:</span>
+            ${(obs.sources || []).map(src => `
+              <a href="${src.url}" target="_blank" rel="noopener" class="obs-source-link"><i class="fa-solid fa-link" style="font-size:0.65rem;margin-right:3px;"></i>${src.title}</a>
+            `).join(' &bull; ')}
+          </div>
+        </article>
+      `;
+    }).join('');
+
+    // Attach click listeners to all ticker chips
+    feedContainer.querySelectorAll('.obs-ticker-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sym = btn.dataset.symbol;
+        const sec = findBestSecurityMatch(sym) || SECURITIES_DATABASE[0];
+        closeObservatoryModal();
+        openCompanyModal(sec);
+      });
+    });
+
+    feedContainer.querySelectorAll('.obs-6part-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const sym = card.dataset.symbol;
+        const sec = findBestSecurityMatch(sym) || SECURITIES_DATABASE[0];
+        closeObservatoryModal();
+        openCompanyModal(sec);
+      });
+    });
+  };
+
+  const openObservatoryModal = () => {
+    if (!observatoryOverlay) return;
+    observatoryOverlay.removeAttribute('hidden');
+    document.body.classList.add('modal-open');
+    renderObservatoryDiscoveryFeed();
+  };
+
+  const closeObservatoryModal = () => {
+    if (!observatoryOverlay) return;
+    observatoryOverlay.setAttribute('hidden', '');
+    document.body.classList.remove('modal-open');
+  };
+
+  if (navOpenObs) navOpenObs.addEventListener('click', openObservatoryModal);
+  if (mobileOpenObs) mobileOpenObs.addEventListener('click', openObservatoryModal);
+  if (obsCloseBtn) obsCloseBtn.addEventListener('click', closeObservatoryModal);
+  if (obsBackdrop) obsBackdrop.addEventListener('click', closeObservatoryModal);
+
+  document.querySelectorAll('#obsCategoryFilters button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#obsCategoryFilters button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeObsCategory = btn.dataset.obscat;
+      renderObservatoryDiscoveryFeed();
+    });
+  });
+
+  // ── 23. Macro Driver Sliders for Scenario Desk ─────────────────────────────
+  const specRateShiftSlider = document.getElementById('specRateShiftSlider');
+  const specInflationSlider = document.getElementById('specInflationSlider');
+  const specEarningsSlider = document.getElementById('specEarningsSlider');
+
+  if (specRateShiftSlider) {
+    specRateShiftSlider.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value, 10);
+      document.getElementById('specRateShiftVal').textContent = `${v >= 0 ? '+' : ''}${v} bps`;
+      activeSpecState.drift = 0.12 - (v / 10000.0) * 1.5;
+      renderSpeculationsDesk();
+    });
+  }
+
+  if (specInflationSlider) {
+    specInflationSlider.addEventListener('input', (e) => {
+      const v = parseFloat(e.target.value);
+      document.getElementById('specInflationVal').textContent = `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
+      activeSpecState.volMult = 1.0 + Math.abs(v) * 0.15;
+      renderSpeculationsDesk();
+    });
+  }
+
+  if (specEarningsSlider) {
+    specEarningsSlider.addEventListener('input', (e) => {
+      const v = parseInt(e.target.value, 10);
+      document.getElementById('specEarningsVal').textContent = `${v >= 0 ? '+' : ''}${v}%`;
+      activeSpecState.drift = 0.12 + (v / 100.0) * 0.8;
+      renderSpeculationsDesk();
+    });
+  }
+
+  // ── 24. Hero Prompt Chips & Counters ───────────────────────────────────────
   document.querySelectorAll('.prompt-chip').forEach((chip) => {
     chip.addEventListener('click', () => openFinancialCanvas(chip.dataset.query));
   });
 
-  // ── 22. Metric Counters Animation ──────────────────────────────────────────
   const initMetricCounters = () => {
     const items = document.querySelectorAll('.metric-item');
     items.forEach(item => {
@@ -2195,4 +2565,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initMetricCounters();
 
 });
+
 
