@@ -1624,6 +1624,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe);
     }
     renderPortfolioManager();
+    renderUniverseGrid();
     if (currentDrawerState.security) {
       renderUniversalDrawerContent();
     }
@@ -2088,9 +2089,86 @@ document.addEventListener('DOMContentLoaded', () => {
     chip.addEventListener('click', () => openFinancialCanvas(chip.dataset.query));
   });
 
+  // ── 22. Covered Asset Universe Grid ────────────────────────────────────────
+  const renderUniverseGrid = () => {
+    const grid = document.getElementById('universeGrid');
+    if (!grid) return;
+
+    grid.innerHTML = SECURITIES_DATABASE.map(sec => {
+      const p = sec.priceINR || 100;
+      const chg = sec.changePercent !== undefined ? sec.changePercent : 0;
+      const chgClass = chg >= 0 ? 'pos' : 'neg';
+      return `
+        <div class="universe-card" data-symbol="${sec.symbol}">
+          <div class="uc-header">
+            <span class="uc-sym">${sec.symbol}</span>
+            <span class="badge" style="font-size:0.6rem;padding:2px 6px;background:rgba(255,255,255,0.06);border-radius:4px;">${sec.exchange}</span>
+          </div>
+          <div class="uc-name" title="${sec.name}">${sec.name}</div>
+          <div class="uc-metrics">
+            <span class="uc-price">${formatMoney(p)}</span>
+            <span class="uc-chg ${chgClass}">${formatPercent(chg)}</span>
+          </div>
+          <div class="uc-footer">
+            <span>P/E: <strong>${sec.pe || '-'}×</strong></span>
+            <span>Beta: <strong>${sec.beta || 1.0}</strong></span>
+            <span>Vol: <strong>${((sec.volatility || 0.18) * 100).toFixed(1)}%</strong></span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.universe-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const sym = card.dataset.symbol;
+        const sec = findBestSecurityMatch(sym);
+        if (sec) openCompanyModal(sec);
+      });
+    });
+  };
+
+  // ── 23. Metric Counters Animation ──────────────────────────────────────────
+  const initMetricCounters = () => {
+    const items = document.querySelectorAll('.metric-item');
+    items.forEach(item => {
+      const target = parseFloat(item.dataset.target);
+      const decimals = parseInt(item.dataset.decimals || '0', 10);
+      const valEl = item.querySelector('.metric-value');
+      if (!valEl || isNaN(target)) return;
+
+      let start = 0;
+      const duration = 1200;
+      const startTime = performance.now();
+
+      const updateCounter = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1.0);
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentVal = start + (target - start) * easeOut;
+
+        if (item.dataset.target === '5' && item.dataset.suffix === 'ms') {
+          valEl.textContent = '<5';
+        } else {
+          valEl.textContent = currentVal.toFixed(decimals);
+        }
+
+        if (progress < 1.0) {
+          requestAnimationFrame(updateCounter);
+        }
+      };
+
+      requestAnimationFrame(updateCounter);
+    });
+  };
+
   // Initialize state
   updateNavbarPortfolioCount();
   renderWatchlist();
+  renderUniverseGrid();
+  initMetricCounters();
+  
+  const methSec = document.getElementById('methodologySection');
+  if (methSec) triggerMathJax(methSec);
 
 });
 
