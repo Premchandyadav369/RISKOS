@@ -30,17 +30,62 @@
     savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]')
   };
 
-  // ── Render All 18 Laboratory Modules Grid ─────────────────────────────────
+  // ── Category to Modules Filter Mapping ────────────────────────────────────
+  const getFilteredModules = (categoryKey) => {
+    if (typeof LearnMathEngine === 'undefined') return [];
+    const allMods = LearnMathEngine.MODULES_DIRECTORY;
+    if (!categoryKey || categoryKey === 'all') return allMods;
+    
+    if (categoryKey === 'growth') {
+      return allMods.filter(m => ['cagr', 'compounding', 'sip_dca', 'lumpsum_vs_sip', 'compound_interest'].includes(m.id));
+    }
+    if (categoryKey === 'valuation') {
+      return allMods.filter(m => ['pe_valuation', 'roe_roce'].includes(m.id));
+    }
+    if (categoryKey === 'risk') {
+      return allMods.filter(m => ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery'].includes(m.id));
+    }
+    if (categoryKey === 'portfolio') {
+      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter'].includes(m.id));
+    }
+    if (categoryKey === 'simulators') {
+      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress'].includes(m.id));
+    }
+    if (categoryKey === 'mathematics') {
+      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm'].includes(m.id));
+    }
+    
+    return allMods.filter(m => m.categoryKey === categoryKey);
+  };
+
+  // ── Render Top Modules Quick-Switcher Bar ─────────────────────────────────
+  const renderTopModulesBar = () => {
+    const track = document.getElementById('labTopModulesTrack');
+    if (!track || typeof LearnMathEngine === 'undefined') return;
+
+    const modules = getFilteredModules(labState.activeCategory);
+
+    track.innerHTML = modules.map(m => `
+      <button class="top-module-pill ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}" title="${m.title}">
+        <i class="fa-solid ${m.icon || 'fa-chart-line'} top-pill-icon"></i>
+        <span>${m.shortTitle || m.title}</span>
+        <span class="top-pill-badge">${m.badge || m.categoryKey.toUpperCase()}</span>
+      </button>
+    `).join('');
+
+    track.querySelectorAll('.top-module-pill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        switchModule(btn.dataset.moduleId);
+      });
+    });
+  };
+
+  // ── Render All 18 Laboratory Modules Grid (Bottom Directory) ──────────────
   const renderAllModulesGrid = () => {
     const grid = document.getElementById('allLabModulesGrid');
     if (!grid || typeof LearnMathEngine === 'undefined') return;
 
-    const allMods = LearnMathEngine.MODULES_DIRECTORY;
-    const filtered = labState.activeCategory === 'all'
-      ? allMods
-      : (labState.activeCategory === 'mathematics'
-          ? allMods.filter(m => m.categoryKey === 'risk' || m.categoryKey === 'portfolio')
-          : allMods.filter(m => m.categoryKey === labState.activeCategory));
+    const filtered = getFilteredModules(labState.activeCategory);
 
     grid.innerHTML = filtered.map(m => `
       <div class="module-card-item ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}">
@@ -89,7 +134,8 @@
     // Evaluate Math & Update UI
     evaluateActiveModule();
 
-    // Refresh Modules Directory Grid
+    // Refresh Top Modules Bar & Bottom Directory Grid
+    renderTopModulesBar();
     renderAllModulesGrid();
 
     // Update URL query state for deep-linking
@@ -827,8 +873,19 @@
       pill.addEventListener('click', () => {
         document.querySelectorAll('.lab-cat-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
-        labState.activeCategory = pill.dataset.category;
-        renderAllModulesGrid();
+        const cat = pill.dataset.category;
+        labState.activeCategory = cat;
+
+        const catMods = getFilteredModules(cat);
+        const isCurrentInCat = catMods.some(m => m.id === labState.activeModuleId);
+
+        // Auto-switch to the first module in the selected category if current module is not in it
+        if (!isCurrentInCat && catMods.length > 0) {
+          switchModule(catMods[0].id);
+        } else {
+          renderTopModulesBar();
+          renderAllModulesGrid();
+        }
       });
     });
 
@@ -1027,6 +1084,7 @@
       targetMod = metricMap[targetMod.toLowerCase()];
     }
 
+    renderTopModulesBar();
     renderAllModulesGrid();
     switchModule(targetMod || 'cagr', false);
 
