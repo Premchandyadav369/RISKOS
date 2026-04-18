@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ticker Library — RISKOS Financial Intelligence</title>
+  <meta name="description" content="Search every supported security across markets, exchanges and asset classes. One unified market-data intelligence layer.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Inter UI Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Core Theme Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ticker.css">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="ticker-page">
+
+  <!-- ═══════════════════════ 1. UNIVERSAL APPLICATION HEADER ═══════════════════════ -->
+  <header class="site-header" id="siteHeader">
+    <div class="header-inner">
+      
+      <!-- Brand Logo -->
+      <div class="header-left">
+        <a href="index.html" class="brand-logo" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" class="brand-mark-img" onerror="this.style.display='none'; document.getElementById('headerFallbackSvg').style.display='inline-block';">
+          <svg class="brand-mark-fallback" id="headerFallbackSvg" viewBox="0 0 32 32" fill="none" style="display:none;" aria-hidden="true">
+            <rect width="32" height="32" rx="16" fill="#ffffff" />
+            <path d="M16 8L24 22H8L16 8Z" fill="#000000" />
+          </svg>
+          <div class="brand-text-block">
+            <span class="brand-name">RISKOS</span>
+            <span class="brand-tag">TICKER LIBRARY</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Center Navigation Pill Bar -->
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, ISIN, or Command (⌘K)">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search (⌘K)...</span>
+          <kbd class="kbd-pill">⌘K</kbd>
+        </button>
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="ticker.html" class="nav-link active">Ticker Library</a>
+        <a href="learn.html" class="nav-link">Learn &amp; Lab</a>
+        <a href="observatory.html" class="nav-link">Observatory</a>
+        <a href="app.html" class="nav-link">Terminal</a>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <!-- Live Market Clock -->
+        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
+          <span class="clock-live-dot"></span>
+          <span class="market-clock-label" id="marketName">NSE</span>
+          <span class="market-clock-time" id="marketTime">--:-- IST</span>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth">
+          <button class="mode-btn active" data-mode="beginner">Beginner</button>
+          <button class="mode-btn" data-mode="investor">Investor</button>
+          <button class="mode-btn" data-mode="quant">Quant</button>
+        </div>
+
+        <!-- Terminal Quick Link -->
+        <a href="app.html" class="terminal-btn-link" title="Launch Quant Terminal">Terminal</a>
+
+        <!-- Mobile Menu Trigger -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ 2. TICKER LIBRARY CONTAINER ═══════════════════════ -->
+  <main class="ticker-container" id="tickerMainContent">
+
+    <!-- ── Hero Search Section ── -->
+    <section class="ticker-hero-section">
+      <div class="ticker-hero-tag">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Universal Security Master</span>
+      </div>
+
+      <h1 class="ticker-hero-title">TICKER LIBRARY</h1>
+      <p class="ticker-hero-subtitle">Every market. Every security. One searchable intelligence layer.</p>
+
+      <!-- Universal Search Box -->
+      <div class="ticker-search-wrap">
+        <i class="fa-solid fa-magnifying-glass search-leading-icon"></i>
+        <input 
+          type="text" 
+          id="tickerSearchInput" 
+          class="ticker-search-input" 
+          placeholder="Search company, ticker, ISIN, index, ETF (e.g. RELIANCE, TCS, INE002A01018, NVDA)..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="ticker-clear-btn" id="tickerClearBtn" aria-label="Clear search" hidden>&times;</button>
+        <kbd class="ticker-kbd-badge">⌘K</kbd>
+      </div>
+
+      <!-- Recent Searches & Popular Chips -->
+      <div class="ticker-chips-row" id="tickerChipsRow">
+        <span class="chips-label">Quick Jump:</span>
+        <button class="ticker-chip" data-query="RELIANCE">RELIANCE</button>
+        <button class="ticker-chip" data-query="TCS">TCS</button>
+        <button class="ticker-chip" data-query="HDFCBANK">HDFC Bank</button>
+        <button class="ticker-chip" data-query="INFY">INFY</button>
+        <button class="ticker-chip" data-query="NVDA">NVIDIA</button>
+        <button class="ticker-chip" data-query="^NSEI">NIFTY 50</button>
+        <button class="ticker-chip" data-query="GOLDBEES">Gold BeES</button>
+      </div>
+    </section>
+
+    <!-- ── Market Overview Ribbon (Real-Time Resolvers) ── -->
+    <section class="market-ribbon-card" aria-label="Global Benchmark Strip">
+      <div class="market-ribbon-track" id="marketRibbonTrack">
+        <!-- Dynamically populated benchmark ribbons -->
+      </div>
+    </section>
+
+    <!-- ── Filter & Navigation Toolbar ── -->
+    <section class="ticker-filter-toolbar">
+      
+      <!-- Primary Market Scope -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">Market:</span>
+          <div class="pill-segmented-control" id="marketScopeControl">
+            <button class="seg-btn active" data-market="ALL">ALL</button>
+            <button class="seg-btn" data-market="INDIA">INDIA (NSE/BSE)</button>
+            <button class="seg-btn" data-market="US">US (NASDAQ/NYSE)</button>
+            <button class="seg-btn" data-market="GLOBAL">GLOBAL</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Exchange:</span>
+          <div class="pill-segmented-control" id="exchangeControl">
+            <button class="seg-btn active" data-exchange="ALL">ALL</button>
+            <button class="seg-btn" data-exchange="NSE">NSE</button>
+            <button class="seg-btn" data-exchange="BSE">BSE</button>
+            <button class="seg-btn" data-exchange="NASDAQ">NASDAQ</button>
+            <button class="seg-btn" data-exchange="NYSE">NYSE</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asset Class & Quick Conditions -->
+      <div class="filter-row">
+        <div class="filter-group">
+          <span class="filter-label">Asset:</span>
+          <div class="pill-segmented-control" id="assetTypeControl">
+            <button class="seg-btn active" data-asset="ALL">ALL ASSETS</button>
+            <button class="seg-btn" data-asset="EQUITY">STOCKS</button>
+            <button class="seg-btn" data-asset="INDEX">INDICES</button>
+            <button class="seg-btn" data-asset="ETF">ETFS</button>
+            <button class="seg-btn" data-asset="COMMODITY">COMMODITIES</button>
+            <button class="seg-btn" data-asset="CURRENCY">FOREX</button>
+          </div>
+        </div>
+
+        <div class="filter-group quick-filters-wrap">
+          <span class="filter-label">Quick:</span>
+          <div class="pill-segmented-control" id="quickFilterControl">
+            <button class="seg-btn active" data-quick="ALL">ALL (<span id="totalSecCount">0</span>)</button>
+            <button class="seg-btn" data-quick="PINNED"><i class="fa-solid fa-thumbtack"></i> PINNED</button>
+            <button class="seg-btn" data-quick="WATCHLIST"><i class="fa-solid fa-star"></i> WATCHLIST</button>
+            <button class="seg-btn" data-quick="GAINERS"><i class="fa-solid fa-arrow-trend-up"></i> GAINERS</button>
+            <button class="seg-btn" data-quick="LOSERS"><i class="fa-solid fa-arrow-trend-down"></i> LOSERS</button>
+            <button class="seg-btn" data-quick="VOLUME"><i class="fa-solid fa-bolt"></i> HIGH VOL</button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── Virtualized Security Master Table ── -->
+    <section class="ticker-table-section">
+      
+      <!-- Table Top Meta -->
+      <div class="table-meta-bar">
+        <div class="meta-left">
+          <span class="meta-count" id="filteredCountText">Showing 0 securities</span>
+          <span class="data-provider-badge"><i class="fa-solid fa-circle-check text-emerald"></i> Central Market Store Active</span>
+        </div>
+        <div class="meta-right">
+          <button class="btn-subtle-pill" id="btnResetFilters"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <span class="table-live-indicator"><span class="pulse-dot"></span> Live Tick Feed</span>
+        </div>
+      </div>
+
+      <!-- Main Responsive Table -->
+      <div class="table-responsive-wrapper" id="tableWrapper">
+        <table class="ticker-table" id="tickerMasterTable">
+          <thead>
+            <tr>
+              <th class="th-pin">#</th>
+              <th class="th-sortable" data-sort="name">Security &amp; Name <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable" data-sort="symbol">Ticker <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable" data-sort="exchange">Exchange <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable" data-sort="assetType">Type <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable text-right" data-sort="price">Price <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable text-right" data-sort="change">Change <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable text-right" data-sort="changePercent">Change % <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable text-right" data-sort="volume">Volume (20D) <i class="fa-solid fa-sort"></i></th>
+              <th class="th-status text-center">Market</th>
+              <th class="th-actions text-right">Quick Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tickerTableBody">
+            <!-- Dynamically populated virtualized rows -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div class="ticker-empty-state" id="tickerEmptyState" hidden>
+        <i class="fa-solid fa-magnifying-glass empty-icon"></i>
+        <h3>No matching securities found</h3>
+        <p>Try searching by company name (e.g. Reliance), ticker (RELIANCE), ISIN code (INE002A01018), or exchange.</p>
+        <button class="btn-action-primary" id="emptyResetBtn">Reset Search &amp; Filters</button>
+      </div>
+
+      <!-- Pagination / Range Info -->
+      <div class="ticker-pagination-bar" id="tickerPaginationBar">
+        <span class="pagination-info" id="paginationInfoText">Page 1</span>
+        <div class="pagination-controls">
+          <button class="pag-btn" id="pagPrevBtn" disabled><i class="fa-solid fa-chevron-left"></i> Previous</button>
+          <div class="pag-pages" id="pagPagesContainer"></div>
+          <button class="pag-btn" id="pagNextBtn">Next <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════ 3. SLIDE-OVER SECURITY DETAIL DRAWER ═══════════════════════ -->
+  <div class="ticker-drawer-overlay" id="tickerDetailDrawerOverlay" hidden>
+    <div class="ticker-drawer-backdrop" id="tickerDrawerBackdrop"></div>
+    <aside class="ticker-drawer-panel" role="dialog" aria-modal="true">
+      
+      <!-- Drawer Header -->
+      <div class="drawer-header">
+        <div class="drawer-header-left">
+          <div class="drawer-sec-badge" id="drawerAssetBadge">EQUITY</div>
+          <div>
+            <h2 class="drawer-title" id="drawerSecTitle">RELIANCE</h2>
+            <span class="drawer-subtitle" id="drawerSecSubtitle">Reliance Industries Ltd • NSE</span>
+          </div>
+        </div>
+        <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close drawer">&times;</button>
+      </div>
+
+      <!-- Drawer Body -->
+      <div class="drawer-body">
+        
+        <!-- Live Price & Quote Ribbon -->
+        <div class="drawer-quote-card">
+          <div class="quote-main">
+            <span class="quote-price" id="drawerPrice">₹2,984.50</span>
+            <span class="quote-change text-emerald" id="drawerChange">+₹68.40 (+2.35%)</span>
+          </div>
+          <div class="quote-status-badge">
+            <span class="pulse-dot"></span>
+            <span id="drawerMarketStatus">MARKET OPEN</span>
+          </div>
+        </div>
+
+        <!-- Key Quantitative Fundamentals Ribbon -->
+        <div class="drawer-metrics-grid">
+          <div class="metric-card">
+            <span class="m-label">P/E Ratio</span>
+            <span class="m-val" id="drawerPE">25.55</span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">Beta (β)</span>
+            <span class="m-val" id="drawerBeta">1.08</span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">Annual Vol (σ)</span>
+            <span class="m-val" id="drawerVol">18.5%</span>
+          </div>
+          <div class="metric-card">
+            <span class="m-label">52W High</span>
+            <span class="m-val" id="drawer52WHigh">₹3,420.00</span>
+          </div>
+        </div>
+
+        <!-- Interactive Chart Card -->
+        <div class="drawer-chart-card">
+          <div class="chart-header">
+            <span class="chart-title"><i class="fa-solid fa-chart-line"></i> Price &amp; Volume Trajectory</span>
+            <div class="chart-time-pill" id="drawerChartTimePill">
+              <button class="c-time-btn active" data-time="1D">1D</button>
+              <button class="c-time-btn" data-time="1W">1W</button>
+              <button class="c-time-btn" data-time="1M">1M</button>
+              <button class="c-time-btn" data-time="1Y">1Y</button>
+            </div>
+          </div>
+          <div class="drawer-canvas-container">
+            <canvas id="drawerCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Universal Cross-Platform Action Center -->
+        <div class="drawer-action-center">
+          <h4 class="action-heading">Connect Across RISKOS Platform</h4>
+          
+          <div class="action-grid">
+            <a href="index.html" class="platform-action-card" id="drawerGoDashboard">
+              <i class="fa-solid fa-chart-pie action-icon"></i>
+              <div>
+                <strong>Company Workspace</strong>
+                <span>Open in Dashboard with complete financials &amp; news</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+            </a>
+
+            <a href="observatory.html" class="platform-action-card" id="drawerGoObservatory">
+              <i class="fa-solid fa-satellite-dish action-icon" style="color:var(--accent-cyan);"></i>
+              <div>
+                <strong>Observatory Intelligence</strong>
+                <span>Inspect anomaly feeds, volume spikes &amp; rotations</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+            </a>
+
+            <a href="learn.html" class="platform-action-card" id="drawerGoLearnLab">
+              <i class="fa-solid fa-flask action-icon" style="color:#cc5de8;"></i>
+              <div>
+                <strong>Learn &amp; Simulation Lab</strong>
+                <span>Simulate CAPM, Sharpe ratio, and CAGR models</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+            </a>
+
+            <a href="app.html" class="platform-action-card" id="drawerGoTerminal">
+              <i class="fa-solid fa-terminal action-icon" style="color:var(--accent-emerald);"></i>
+              <div>
+                <strong>Quant Terminal</strong>
+                <span>GARCH volatility, HMM regimes &amp; CVaR optimization</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+            </a>
+          </div>
+
+          <div class="drawer-btn-row">
+            <button class="btn-drawer-watch" id="drawerToggleWatchBtn">
+              <i class="fa-regular fa-star"></i> Add to Watchlist
+            </button>
+            <button class="btn-drawer-pin" id="drawerTogglePinBtn">
+              <i class="fa-solid fa-thumbtack"></i> Pin Instrument
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+  </div>
+
+  <!-- ═══════════════════════ 4. UNIVERSAL COMMAND PALETTE (CMD+K) ═══════════════════════ -->
+  <div class="palette-overlay" id="paletteOverlay" hidden>
+    <div class="palette-backdrop" id="paletteBackdrop"></div>
+    <div class="palette-modal" role="dialog" aria-modal="true">
+      <div class="palette-search-box">
+        <i class="fa-solid fa-magnifying-glass palette-icon"></i>
+        <input type="text" id="paletteInput" class="palette-input" placeholder="Search securities, ISIN, or command..." autocomplete="off">
+        <kbd class="palette-esc-badge">ESC</kbd>
+      </div>
+      <div class="palette-results" id="paletteResults"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 5. MOBILE MENU OVERLAY ═══════════════════════ -->
+  <div class="lab-mobile-menu-overlay" id="mobileMenuOverlay" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-weight:700;color:#fff;letter-spacing:0.04em;">RISKOS NAVIGATION</span>
+      <button id="mobileMenuCloseBtn" style="background:transparent;border:none;color:#fff;font-size:1.75rem;cursor:pointer;">&times;</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:20px;">
+      <a href="index.html" class="nav-link-btn"><i class="fa-solid fa-house" style="margin-right:8px;"></i> Dashboard</a>
+      <a href="ticker.html" class="nav-link-btn" style="color:var(--accent-cyan);"><i class="fa-solid fa-layer-group" style="margin-right:8px;"></i> Ticker Library</a>
+      <a href="learn.html" class="nav-link-btn"><i class="fa-solid fa-flask" style="margin-right:8px;"></i> Learn &amp; Lab</a>
+      <a href="observatory.html" class="nav-link-btn"><i class="fa-solid fa-satellite-dish" style="margin-right:8px;"></i> Observatory</a>
+      <a href="app.html" class="nav-link-btn"><i class="fa-solid fa-terminal" style="margin-right:8px;"></i> Terminal</a>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="securityMaster.js"></script>
+  <script src="ticker.js"></script>
+</body>
+</html>
