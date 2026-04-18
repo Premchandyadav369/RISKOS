@@ -50,6 +50,7 @@ from engine.instruments import (
     get_historical_ohlcv, get_fundamentals, get_news,
     get_market_breadth, get_sector_performance
 )
+from engine.market_aggregator import market_aggregator
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
@@ -84,24 +85,72 @@ def parse_weights(weights_str: Optional[str], n_assets: int) -> list[float]:
         return [1.0 / n_assets] * n_assets
     return weights
 
-# ── 1. Real-Time Market Streaming SSE Endpoint ──────────────────────────────
+# ── 1. Real-Time Multi-Provider Market Endpoints ────────────────────────────
+@app.get("/api/market/quote")
+def api_market_quote(symbol: Optional[str] = None, securityId: Optional[str] = None):
+    """Fetches real-time quote via NSE Direct / Google Finance / Yahoo Finance with automatic failover."""
+    sym = symbol or securityId or "RELIANCE"
+    return market_aggregator.get_quote(sym)
+
+@app.get("/api/market/quotes")
+def api_market_quotes(symbols: Optional[str] = "RELIANCE,TCS,HDFCBANK,INFY,NVDA,AAPL"):
+    """Fetches concurrent multi-ticker live quotes."""
+    sym_list = [s.strip() for s in symbols.split(",") if s.strip()]
+    return market_aggregator.get_quotes(sym_list)
+
+@app.get("/api/market/candles")
+def api_market_candles(symbol: str = "RELIANCE", tf: str = "1D", timeframe: Optional[str] = None, period: str = "1Y"):
+    """Fetches historical multi-timeframe OHLCV candles for charts."""
+    selected_tf = timeframe or tf
+    return market_aggregator.get_candles(symbol, selected_tf, period)
+
+@app.get("/api/market/movers")
+def api_market_movers():
+    """Fetches real-time top gainers and losers directly from market feed."""
+    return market_aggregator.get_movers()
+
+@app.get("/api/market/breadth")
+def api_market_breadth():
+    """Fetches real-time market breadth (advances, declines, unchanged)."""
+    return market_aggregator.get_market_breadth()
+
+@app.get("/api/market/status")
+def api_market_status():
+    """Returns exchange status and live clocks."""
+    now_utc = datetime.utcnow()
+    # IST = UTC + 5h30m
+    ist_minutes = (now_utc.hour * 60 + now_utc.minute + 330) % 1440
+    is_nse_open = (now_utc.weekday() < 5) and (9 * 60 + 15 <= ist_minutes <= 15 * 60 + 30)
+    
+    # US EDT = UTC - 4h (13:30 to 20:00 UTC)
+    us_minutes = now_utc.hour * 60 + now_utc.minute
+    is_us_open = (now_utc.weekday() < 5) and (13 * 60 + 30 <= us_minutes <= 20 * 60)
+
+    return {
+        "NSE": {
+            "name": "National Stock Exchange of India",
+            "timezone": "Asia/Kolkata",
+            "status": "OPEN" if is_nse_open else "CLOSED"
+        },
+        "NASDAQ": {
+            "name": "NASDAQ Stock Market",
+            "timezone": "America/New_York",
+            "status": "OPEN" if is_us_open else "CLOSED"
+        }
+    }
+
+# ── 1B. Real-Time Market Streaming SSE Endpoint ─────────────────────────────
 @app.get("/api/stream/market")
 async def stream_market():
     """Server-Sent Events (SSE) stream broadcasting live quotes and market breadth every 2 seconds."""
     async def event_generator():
         while True:
             try:
-                pulse = get_market_pulse()
-                ticks = {
-                    'RELIANCE': get_live_quote('RELIANCE'),
-                    'TCS': get_live_quote('TCS'),
-                    'HDFCBANK': get_live_quote('HDFCBANK'),
-                    'AAPL': get_live_quote('AAPL'),
-                    'NVDA': get_live_quote('NVDA')
-                }
+                breadth = market_aggregator.get_market_breadth()
+                ticks = market_aggregator.get_quotes(['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', '^NSEI', '^GSPC'])
                 payload = {
                     'timestamp': datetime.utcnow().isoformat(),
-                    'pulse': pulse,
+                    'breadth': breadth,
                     'ticks': ticks
                 }
                 yield f"data: {json.dumps(payload)}\n\n"

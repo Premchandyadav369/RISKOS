@@ -57,7 +57,7 @@
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
 
-    return [
+    const rawObs = [
       {
         id: 'obs_rel_vol_1',
         type: 'UNUSUAL_VOLUME',
@@ -268,6 +268,23 @@
         timestamp: `${timeStr} IST`
       }
     ];
+
+    return rawObs.map(obs => {
+      if (typeof SecurityMaster !== 'undefined' && obs.security && obs.security.symbol) {
+        const live = SecurityMaster._liveQuotes?.get(obs.security.symbol);
+        if (live && live.price) {
+          return {
+            ...obs,
+            security: {
+              ...obs.security,
+              price: live.price,
+              changePercent: live.changePercent || obs.security.changePercent
+            }
+          };
+        }
+      }
+      return obs;
+    });
   };
 
   // ── 3. Render Sector Rotation Columns ──────────────────────────────────────
