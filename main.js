@@ -809,17 +809,27 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch(() => {});
   } catch (e) {}
 
-  // ── 12. Professional Interactive Candlestick / OHLC Canvas Engine ──────────
-  const renderCandlestickChart = async (sec, tf = '1Y') => {
-    const canvas = document.getElementById('candlestickCanvas');
-    const wrap = document.getElementById('candleCanvasWrap');
+  // ── 12. Universal Interactive Dual-Mode Financial Chart & Candlestick Engine ──
+  let compActiveChartMode = 'candle'; // 'candle' | 'line'
+  let canvasActiveChartMode = 'candle'; // 'candle' | 'line'
+
+  const renderFinancialChart = async ({
+    sec,
+    tf = '1Y',
+    mode = 'candle',
+    canvasId = 'candlestickCanvas',
+    wrapId = 'candleCanvasWrap',
+    hudPrefix = 'hud'
+  }) => {
+    const canvas = document.getElementById(canvasId);
+    const wrap = document.getElementById(wrapId);
     if (!canvas || !wrap) return;
 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
     const rect = wrap.getBoundingClientRect();
-    const w = rect.width;
-    const h = rect.height;
+    const w = rect.width || 600;
+    const h = rect.height || 300;
     canvas.width = w * dpr;
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
@@ -836,14 +846,34 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
 
-    if (bars.length === 0) {
-      bars = [
-        { date: '2026-01-01', open: 100, high: 105, low: 98, close: 103, volume: 1000000 },
-        { date: '2026-01-02', open: 103, high: 108, low: 101, close: 107, volume: 1200000 }
-      ];
+    if (!bars || bars.length === 0) {
+      const basePr = sec.priceINR || sec.price_inr || 1000;
+      const days = tf === '1D' ? 24 : (tf === '1W' ? 35 : (tf === '1M' ? 30 : (tf === '3M' ? 65 : (tf === '1Y' ? 120 : 250))));
+      bars = [];
+      let cur = basePr * 0.88;
+      const now = new Date();
+      for (let i = days; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        const drift = (Math.random() - 0.47) * (basePr * 0.02);
+        const o = cur;
+        const c = cur + drift;
+        const hVal = Math.max(o, c) + Math.random() * (basePr * 0.015);
+        const lVal = Math.min(o, c) - Math.random() * (basePr * 0.015);
+        const vol = Math.floor(500000 + Math.random() * 2500000);
+        bars.push({
+          date: d.toISOString().split('T')[0],
+          open: Number(o.toFixed(2)),
+          high: Number(hVal.toFixed(2)),
+          low: Number(lVal.toFixed(2)),
+          close: Number(c.toFixed(2)),
+          volume: vol
+        });
+        cur = c;
+      }
     }
 
-    // Compute SMA(20) and EMA(50) dynamically
+    // Compute SMA(20) and EMA(50)
     for (let i = 0; i < bars.length; i++) {
       if (i < 19) sma20.push(null);
       else {
@@ -860,28 +890,28 @@ document.addEventListener('DOMContentLoaded', () => {
       prevEma = e;
     }
 
-    // Chart layout dimensions
-    const padL = 60, padR = 20, padT = 15, padB = 24;
-    const plotW = w - padL - padR;
-    const pricePlotH = (h - padT - padB) * 0.75;
-    const volPlotH = (h - padT - padB) * 0.22;
-    const volPlotY = padT + pricePlotH + 6;
+    // Layout dimensions
+    const padL = 65, padR = 20, padT = 18, padB = 26;
+    const plotW = Math.max(10, w - padL - padR);
+    const hasVol = appState.candleIndicators.vol;
+    const pricePlotH = hasVol ? (h - padT - padB) * 0.74 : (h - padT - padB);
+    const volPlotH = hasVol ? (h - padT - padB) * 0.22 : 0;
+    const volPlotY = padT + pricePlotH + 8;
 
     const minP = Math.min(...bars.map((b) => b.low)) * 0.99;
     const maxP = Math.max(...bars.map((b) => b.high)) * 1.01;
     const maxVol = Math.max(...bars.map((b) => b.volume)) * 1.15;
 
-    const getX = (idx) => padL + (idx / (bars.length - 1)) * plotW;
-    const getYPrice = (p) => padT + pricePlotH - ((p - minP) / (maxP - minP)) * pricePlotH;
-    const getYVol = (v) => volPlotY + volPlotH - (v / maxVol) * volPlotH;
+    const getX = (idx) => padL + (idx / Math.max(1, bars.length - 1)) * plotW;
+    const getYPrice = (p) => padT + pricePlotH - ((p - minP) / Math.max(0.01, maxP - minP)) * pricePlotH;
+    const getYVol = (v) => volPlotY + volPlotH - (v / Math.max(1, maxVol)) * volPlotH;
 
     let crosshairIdx = -1;
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
 
-      // Price Gridlines & Labels
-
+      // 1. Gridlines & Price Scale
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 1;
       ctx.fillStyle = '#71717a';
@@ -897,43 +927,100 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillText(formatMoney(pVal), 6, yPos + 3);
       }
 
-      // Candlesticks & Volume Bars
-      const candleW = Math.max(2, (plotW / bars.length) * 0.65);
-
-      bars.forEach((b, idx) => {
-        const x = getX(idx);
-        const isGreen = b.close >= b.open;
-        const color = isGreen ? '#51CF66' : '#FF6B6B';
-
-        // Volume bar
-        if (appState.candleIndicators.vol) {
-          const yV = getYVol(b.volume);
-          const vH = (volPlotY + volPlotH) - yV;
-          ctx.fillStyle = isGreen ? 'rgba(81, 207, 102, 0.25)' : 'rgba(255, 107, 107, 0.25)';
-          ctx.fillRect(x - candleW / 2, yV, candleW, vH);
-        }
-
-        // Wick line
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 1;
+      // 2. Volume Sub-Pane Background Grid
+      if (hasVol) {
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
         ctx.beginPath();
-        ctx.moveTo(x, getYPrice(b.high));
-        ctx.lineTo(x, getYPrice(b.low));
+        ctx.moveTo(padL, volPlotY);
+        ctx.lineTo(w - padR, volPlotY);
+        ctx.stroke();
+        ctx.fillText('VOL', 6, volPlotY + 10);
+      }
+
+      const candleW = Math.max(2, (plotW / bars.length) * 0.68);
+
+      // 3. Render Chart Data (Line/Area vs Candlesticks)
+      if (mode === 'line') {
+        // Line & Gradient Area Mode
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + pricePlotH);
+        const isOverallPositive = bars[bars.length - 1].close >= bars[0].close;
+        const themeColor = isOverallPositive ? '#51CF66' : '#22d3ee';
+        const gradColorTop = isOverallPositive ? 'rgba(81, 207, 102, 0.35)' : 'rgba(34, 211, 238, 0.35)';
+        const gradColorBot = isOverallPositive ? 'rgba(81, 207, 102, 0.0)' : 'rgba(34, 211, 238, 0.0)';
+
+        grad.addColorStop(0, gradColorTop);
+        grad.addColorStop(1, gradColorBot);
+
+        // Fill Area
+        ctx.beginPath();
+        ctx.moveTo(getX(0), getYPrice(bars[0].close));
+        for (let i = 1; i < bars.length; i++) {
+          ctx.lineTo(getX(i), getYPrice(bars[i].close));
+        }
+        ctx.lineTo(getX(bars.length - 1), padT + pricePlotH);
+        ctx.lineTo(getX(0), padT + pricePlotH);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Stroke Line
+        ctx.beginPath();
+        ctx.moveTo(getX(0), getYPrice(bars[0].close));
+        for (let i = 1; i < bars.length; i++) {
+          ctx.lineTo(getX(i), getYPrice(bars[i].close));
+        }
+        ctx.strokeStyle = themeColor;
+        ctx.lineWidth = 2.2;
         ctx.stroke();
 
-        // Candle Body
-        const yTop = getYPrice(Math.max(b.open, b.close));
-        const yBottom = getYPrice(Math.min(b.open, b.close));
-        const bodyH = Math.max(2, yBottom - yTop);
+        // Volume Histogram in Line mode
+        if (hasVol) {
+          bars.forEach((b, idx) => {
+            const x = getX(idx);
+            const isUp = b.close >= b.open;
+            const yV = getYVol(b.volume);
+            const vH = (volPlotY + volPlotH) - yV;
+            ctx.fillStyle = isUp ? 'rgba(81, 207, 102, 0.22)' : 'rgba(255, 107, 107, 0.22)';
+            ctx.fillRect(x - candleW / 2, yV, candleW, vH);
+          });
+        }
+      } else {
+        // Japanese Candlestick Mode (OHLC)
+        bars.forEach((b, idx) => {
+          const x = getX(idx);
+          const isGreen = b.close >= b.open;
+          const color = isGreen ? '#51CF66' : '#FF6B6B';
 
-        ctx.fillStyle = color;
-        ctx.fillRect(x - candleW / 2, yTop, candleW, bodyH);
-      });
+          // Volume bar
+          if (hasVol) {
+            const yV = getYVol(b.volume);
+            const vH = (volPlotY + volPlotH) - yV;
+            ctx.fillStyle = isGreen ? 'rgba(81, 207, 102, 0.25)' : 'rgba(255, 107, 107, 0.25)';
+            ctx.fillRect(x - candleW / 2, yV, candleW, vH);
+          }
 
-      // Indicators: SMA(20) line
+          // Upper & Lower Wicks
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, getYPrice(b.high));
+          ctx.lineTo(x, getYPrice(b.low));
+          ctx.stroke();
+
+          // Candle Body
+          const yTop = getYPrice(Math.max(b.open, b.close));
+          const yBottom = getYPrice(Math.min(b.open, b.close));
+          const bodyH = Math.max(2, yBottom - yTop);
+
+          ctx.fillStyle = color;
+          ctx.fillRect(x - candleW / 2, yTop, candleW, bodyH);
+        });
+      }
+
+      // 4. Overlays: SMA(20) Line
       if (appState.candleIndicators.sma) {
         ctx.strokeStyle = '#FAB005';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
         sma20.forEach((val, idx) => {
@@ -947,10 +1034,10 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
       }
 
-      // Indicators: EMA(50) line
+      // 5. Overlays: EMA(50) Line
       if (appState.candleIndicators.ema) {
         ctx.strokeStyle = '#22d3ee';
-        ctx.lineWidth = 1.5;
+        ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
         ema50.forEach((val, idx) => {
@@ -964,40 +1051,50 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
       }
 
-      // Crosshair
+      // 6. Interactive Crosshair & Cursor HUD
       if (crosshairIdx >= 0 && crosshairIdx < bars.length) {
         const b = bars[crosshairIdx];
         const hx = getX(crosshairIdx);
         const hy = getYPrice(b.close);
 
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
         ctx.lineWidth = 1;
-        ctx.setLineDash([2, 2]);
+        ctx.setLineDash([3, 3]);
 
-        // Vertical
+        // Vertical guide
         ctx.beginPath();
         ctx.moveTo(hx, padT);
         ctx.lineTo(hx, h - padB);
         ctx.stroke();
 
-        // Horizontal
+        // Horizontal guide
         ctx.beginPath();
         ctx.moveTo(padL, hy);
         ctx.lineTo(w - padR, hy);
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Axis badges
+        // Date pill on X-axis
         ctx.fillStyle = '#18181b';
-        ctx.fillRect(hx - 32, h - padB + 2, 64, 16);
-        ctx.fillStyle = '#fff';
-        ctx.fillText(b.date, hx - 28, h - padB + 13);
+        ctx.fillRect(hx - 36, h - padB + 2, 72, 18);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.strokeRect(hx - 36, h - padB + 2, 72, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(b.date, hx - 30, h - padB + 14);
+
+        // Price badge on Y-axis
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(0, hy - 9, padL - 4, 18);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.strokeRect(0, hy - 9, padL - 4, 18);
+        ctx.fillStyle = '#51cf66';
+        ctx.fillText(formatMoney(b.close), 4, hy + 4);
       }
     };
 
     draw();
 
-    // Mouse interactive HUD update
+    // Mousemove HUD listener
     wrap.onmousemove = (e) => {
       const bRect = wrap.getBoundingClientRect();
       const mouseX = e.clientX - bRect.left;
@@ -1011,13 +1108,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = bars[crosshairIdx];
       if (b) {
         const chg = ((b.close - b.open) / b.open) * 100;
-        document.getElementById('hudOpen').textContent = formatMoney(b.open);
-        document.getElementById('hudHigh').textContent = formatMoney(b.high);
-        document.getElementById('hudLow').textContent = formatMoney(b.low);
-        document.getElementById('hudClose').textContent = formatMoney(b.close);
-        document.getElementById('hudChg').textContent = formatPercent(chg);
-        document.getElementById('hudChg').style.color = chg >= 0 ? '#51CF66' : '#FF6B6B';
-        document.getElementById('hudVol').textContent = `${(b.volume / 1000).toFixed(0)}k`;
+        const openEl = document.getElementById(`${hudPrefix}Open`);
+        const highEl = document.getElementById(`${hudPrefix}High`);
+        const lowEl = document.getElementById(`${hudPrefix}Low`);
+        const closeEl = document.getElementById(`${hudPrefix}Close`);
+        const chgEl = document.getElementById(`${hudPrefix}Chg`);
+        const volEl = document.getElementById(`${hudPrefix}Vol`);
+
+        if (openEl) openEl.textContent = formatMoney(b.open);
+        if (highEl) highEl.textContent = formatMoney(b.high);
+        if (lowEl) lowEl.textContent = formatMoney(b.low);
+        if (closeEl) closeEl.textContent = formatMoney(b.close);
+        if (chgEl) {
+          chgEl.textContent = formatPercent(chg);
+          chgEl.style.color = chg >= 0 ? '#51CF66' : '#FF6B6B';
+        }
+        if (volEl) volEl.textContent = `${(b.volume / 1000).toFixed(0)}k`;
       }
       draw();
     };
@@ -1028,11 +1134,41 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   };
 
+  const renderCandlestickChart = (sec, tf = '1Y') => {
+    return renderFinancialChart({
+      sec,
+      tf,
+      mode: compActiveChartMode,
+      canvasId: 'candlestickCanvas',
+      wrapId: 'candleCanvasWrap',
+      hudPrefix: 'hud'
+    });
+  };
+
+  // Company Overview Mode Switcher (Candles vs Line)
+  const btnCompModeCandle = document.getElementById('btnCompModeCandle');
+  const btnCompModeLine = document.getElementById('btnCompModeLine');
+  if (btnCompModeCandle && btnCompModeLine) {
+    btnCompModeCandle.addEventListener('click', () => {
+      compActiveChartMode = 'candle';
+      btnCompModeCandle.classList.add('active');
+      btnCompModeLine.classList.remove('active');
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
+    });
+    btnCompModeLine.addEventListener('click', () => {
+      compActiveChartMode = 'line';
+      btnCompModeLine.classList.add('active');
+      btnCompModeCandle.classList.remove('active');
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
+    });
+  }
+
   // Candlestick Toolbar Listeners
   document.querySelectorAll('#candleTfPicker .candle-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('#candleTfPicker .candle-btn').forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
+      appState.activeTimeframe = btn.dataset.tf;
       if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, btn.dataset.tf);
     });
   });
@@ -1042,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleSMA.addEventListener('click', () => {
       appState.candleIndicators.sma = !appState.candleIndicators.sma;
       btnToggleSMA.classList.toggle('ind--active', appState.candleIndicators.sma);
-      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, '1Y');
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
     });
   }
 
@@ -1051,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleEMA.addEventListener('click', () => {
       appState.candleIndicators.ema = !appState.candleIndicators.ema;
       btnToggleEMA.classList.toggle('ema--active', appState.candleIndicators.ema);
-      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, '1Y');
+      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
     });
   }
 
@@ -1060,24 +1196,6 @@ document.addEventListener('DOMContentLoaded', () => {
     btnToggleVol.addEventListener('click', () => {
       appState.candleIndicators.vol = !appState.candleIndicators.vol;
       btnToggleVol.classList.toggle('active', appState.candleIndicators.vol);
-      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
-    });
-  }
-
-  const btnToggleRSI = document.getElementById('btnToggleRSI');
-  if (btnToggleRSI) {
-    btnToggleRSI.addEventListener('click', () => {
-      appState.candleIndicators.rsi = !appState.candleIndicators.rsi;
-      btnToggleRSI.classList.toggle('active', appState.candleIndicators.rsi);
-      if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
-    });
-  }
-
-  const btnToggleMACD = document.getElementById('btnToggleMACD');
-  if (btnToggleMACD) {
-    btnToggleMACD.addEventListener('click', () => {
-      appState.candleIndicators.macd = !appState.candleIndicators.macd;
-      btnToggleMACD.classList.toggle('active', appState.candleIndicators.macd);
       if (appState.activeSecurity) renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe || '1Y');
     });
   }
@@ -1536,6 +1654,141 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvasBody = document.getElementById('canvasDynamicContent');
   const canvasQueryTitle = document.getElementById('canvasQueryTitle');
 
+  const buildCanvasChartSuiteHTML = (sec) => {
+    return `
+      <div class="canvas-chart-suite" id="canvasChartSuite">
+        <div class="canvas-chart-topbar">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="chart-mode-pill" id="canvasModeGroup">
+              <button class="chart-mode-btn ${canvasActiveChartMode === 'candle' ? 'active' : ''}" id="btnCanvasModeCandle" data-chart-mode="candle"><i class="fa-solid fa-chart-candlestick"></i> Candles</button>
+              <button class="chart-mode-btn ${canvasActiveChartMode === 'line' ? 'active' : ''}" id="btnCanvasModeLine" data-chart-mode="line"><i class="fa-solid fa-chart-line"></i> Line / Area</button>
+            </div>
+            <div class="candle-tf-group" id="canvasTfPicker">
+              <button class="candle-btn" data-tf="1D">1D</button>
+              <button class="candle-btn" data-tf="1W">1W</button>
+              <button class="candle-btn" data-tf="1M">1M</button>
+              <button class="candle-btn" data-tf="3M">3M</button>
+              <button class="candle-btn active" data-tf="1Y">1Y</button>
+              <button class="candle-btn" data-tf="5Y">5Y</button>
+              <button class="candle-btn" data-tf="ALL">All</button>
+            </div>
+          </div>
+          <div class="candle-ind-group">
+            <button class="candle-btn ${appState.candleIndicators.sma ? 'ind--active' : ''}" id="btnCanvasToggleSMA" title="20-Day Simple Moving Average">SMA(20)</button>
+            <button class="candle-btn ${appState.candleIndicators.ema ? 'ema--active' : ''}" id="btnCanvasToggleEMA" title="50-Day Exponential Moving Average">EMA(50)</button>
+            <button class="candle-btn ${appState.candleIndicators.vol ? 'active' : ''}" id="btnCanvasToggleVol" title="Volume Sub-Pane">VOL</button>
+          </div>
+        </div>
+
+        <div class="candle-hud" id="canvasHud">
+          <span>O: <span class="candle-hud-val" id="canvasHudOpen">-</span></span>
+          <span>H: <span class="candle-hud-val" id="canvasHudHigh">-</span></span>
+          <span>L: <span class="candle-hud-val" id="canvasHudLow">-</span></span>
+          <span>C: <span class="candle-hud-val" id="canvasHudClose">-</span></span>
+          <span>CHG: <span class="candle-hud-val" id="canvasHudChg">-</span></span>
+          <span>VOL: <span class="candle-hud-val" id="canvasHudVol">-</span></span>
+        </div>
+
+        <div class="canvas-chart-wrapper" id="canvasChartWrapper">
+          <canvas id="canvasChartCanvas"></canvas>
+        </div>
+
+        <div class="understandable-insights-grid">
+          <div class="insight-card">
+            <span class="insight-card-title" style="color:var(--accent-cyan);"><i class="fa-solid fa-chart-line"></i> 01 • Trend &amp; Moving Averages</span>
+            <p class="insight-card-text">
+              <strong>${sec.symbol}</strong> is currently trading at <strong>${formatMoney(sec.priceINR || sec.price_inr)}</strong>. ${sec.beta >= 1 ? 'High systematic beta (\\(\\beta = ' + sec.beta + '\\)) means price trends with high momentum during broad rallies.' : 'Lower beta (\\(\\beta = ' + sec.beta + '\\)) provides resilient capital compounding with cushioned market drawdowns.'}
+            </p>
+          </div>
+          <div class="insight-card">
+            <span class="insight-card-title" style="color:var(--accent-emerald);"><i class="fa-solid fa-scale-balanced"></i> 02 • Valuation &amp; Returns</span>
+            <p class="insight-card-text">
+              P/E multiple of <strong>${sec.pe}&times;</strong> against an annual Return on Equity (ROE) of <strong>${sec.roe}%</strong>. Estimated annual EPS is <strong>₹${(sec.eps || ((sec.priceINR || 1000) / sec.pe)).toFixed(1)}</strong>.
+            </p>
+          </div>
+          <div class="insight-card">
+            <span class="insight-card-title" style="color:var(--accent-amber);"><i class="fa-solid fa-shield-halved"></i> 03 • Risk &amp; Volatility</span>
+            <p class="insight-card-text">
+              Annualized historical volatility is <strong>${((sec.volatility || 0.18) * 100).toFixed(1)}%</strong>. 99% Daily Value at Risk (VaR) is estimated at <strong>${(-1 * (sec.volatility || 0.18) * 2.33 / Math.sqrt(252) * 100).toFixed(2)}%</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  const bindCanvasChartListeners = (sec, activeTf = '1Y') => {
+    let currentTf = activeTf;
+
+    const redraw = () => {
+      renderFinancialChart({
+        sec,
+        tf: currentTf,
+        mode: canvasActiveChartMode,
+        canvasId: 'canvasChartCanvas',
+        wrapId: 'canvasChartWrapper',
+        hudPrefix: 'canvasHud'
+      });
+    };
+
+    const btnCandle = document.getElementById('btnCanvasModeCandle');
+    const btnLine = document.getElementById('btnCanvasModeLine');
+
+    if (btnCandle && btnLine) {
+      btnCandle.onclick = () => {
+        canvasActiveChartMode = 'candle';
+        btnCandle.classList.add('active');
+        btnLine.classList.remove('active');
+        redraw();
+      };
+      btnLine.onclick = () => {
+        canvasActiveChartMode = 'line';
+        btnLine.classList.add('active');
+        btnCandle.classList.remove('active');
+        redraw();
+      };
+    }
+
+    document.querySelectorAll('#canvasTfPicker .candle-btn').forEach((btn) => {
+      btn.onclick = () => {
+        document.querySelectorAll('#canvasTfPicker .candle-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentTf = btn.dataset.tf;
+        redraw();
+      };
+    });
+
+    const btnSma = document.getElementById('btnCanvasToggleSMA');
+    if (btnSma) {
+      btnSma.onclick = () => {
+        appState.candleIndicators.sma = !appState.candleIndicators.sma;
+        btnSma.classList.toggle('ind--active', appState.candleIndicators.sma);
+        redraw();
+      };
+    }
+
+    const btnEma = document.getElementById('btnCanvasToggleEMA');
+    if (btnEma) {
+      btnEma.onclick = () => {
+        appState.candleIndicators.ema = !appState.candleIndicators.ema;
+        btnEma.classList.toggle('ema--active', appState.candleIndicators.ema);
+        redraw();
+      };
+    }
+
+    const btnVol = document.getElementById('btnCanvasToggleVol');
+    if (btnVol) {
+      btnVol.onclick = () => {
+        appState.candleIndicators.vol = !appState.candleIndicators.vol;
+        btnVol.classList.toggle('active', appState.candleIndicators.vol);
+        redraw();
+      };
+    }
+
+    // Initial render
+    setTimeout(redraw, 50);
+  };
+
   const executeCanvasQuery = async (queryText) => {
     appState.lastQuery = queryText;
     let resolved = resolveQueryWithIntent(queryText);
@@ -1554,44 +1807,52 @@ document.addEventListener('DOMContentLoaded', () => {
       const sec = resolved.security || SECURITIES_DATABASE[0];
       appState.activeSecurity = sec;
       canvasBody.innerHTML = `
-        <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;">
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
-            <span style="font-size:0.65rem;font-weight:700;color:var(--accent-emerald);letter-spacing:0.06em;">SECURITY SPOTLIGHT &bull; ${sec.exchange}</span>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-              <strong style="font-size:1.35rem;color:#fff;">${sec.name} (${sec.symbol})</strong>
-              <strong style="font-size:1.35rem;font-family:monospace;color:var(--accent-emerald);">${formatMoney(sec.priceINR || sec.price_inr)}</strong>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Top Spotlight -->
+          <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:14px;">
+            <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+              <span style="font-size:0.65rem;font-weight:700;color:var(--accent-emerald);letter-spacing:0.06em;">SECURITY SPOTLIGHT &bull; ${sec.exchange}</span>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                <strong style="font-size:1.35rem;color:#fff;">${sec.name} (${sec.symbol})</strong>
+                <strong style="font-size:1.35rem;font-family:monospace;color:var(--accent-emerald);">${formatMoney(sec.priceINR || sec.price_inr)}</strong>
+              </div>
+              <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:8px;line-height:1.5;">${sec.sector} &bull; ISIN: ${sec.isin || '-'} &bull; Beta: ${sec.beta} &bull; Volatility: ${((sec.volatility || 0.18) * 100).toFixed(1)}%</p>
+              <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+                <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-binoculars" style="margin-right:4px;"></i> Full Research Drawer</button>
+                <a href="learn.html?sec=${encodeURIComponent(sec.symbol)}&metric=pe" class="pm-action-btn" style="text-decoration:none;display:inline-flex;align-items:center;color:var(--accent-cyan);"><i class="fa-solid fa-flask" style="margin-right:4px;"></i> Simulate in Learn Lab</a>
+                <button class="pm-action-btn" id="canvasBtnAddTx">+ Add to Portfolio</button>
+              </div>
             </div>
-            <p style="font-size:0.8rem;color:var(--text-secondary);margin-top:8px;line-height:1.5;">${sec.sector} &bull; ISIN: ${sec.isin || '-'} &bull; Beta: ${sec.beta} &bull; Volatility: ${((sec.volatility || 0.18) * 100).toFixed(1)}%</p>
-            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
-              <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-chart-candlestick" style="margin-right:4px;"></i> Open Candlestick Chart</button>
-              <a href="learn.html?sec=${encodeURIComponent(sec.symbol)}&metric=pe" class="pm-action-btn" style="text-decoration:none;display:inline-flex;align-items:center;color:var(--accent-cyan);"><i class="fa-solid fa-flask" style="margin-right:4px;"></i> Simulate in Learn Lab</a>
-              <button class="pm-action-btn" id="canvasBtnAddTx">+ Add to Portfolio</button>
+
+            <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+              <span style="font-size:0.65rem;font-weight:700;color:var(--accent-amber);letter-spacing:0.06em;">VALUATION &amp; QUANT BENCHMARK</span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
+                <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.65rem;color:var(--text-muted);">P/E MULTIPLE</span>
+                  <div style="font-size:1.15rem;font-weight:800;color:#fff;">${sec.pe}&times;</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.65rem;color:var(--text-muted);">SYSTEMATIC BETA</span>
+                  <div style="font-size:1.15rem;font-weight:800;color:#fff;">${sec.beta}</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.65rem;color:var(--text-muted);">ROE (RETURN ON EQUITY)</span>
+                  <div style="font-size:1.15rem;font-weight:800;color:var(--accent-cyan);">${sec.roe}%</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
+                  <span style="font-size:0.65rem;color:var(--text-muted);">ESTIMATED EPS</span>
+                  <div style="font-size:1.15rem;font-weight:800;color:#fff;">₹${(sec.eps || ((sec.priceINR || 1000) / sec.pe)).toFixed(1)}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
-            <span style="font-size:0.65rem;font-weight:700;color:var(--accent-amber);letter-spacing:0.06em;">VALUATION &amp; QUANT BENCHMARK</span>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;">
-              <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
-                <span style="font-size:0.65rem;color:var(--text-muted);">P/E MULTIPLE</span>
-                <div style="font-size:1.15rem;font-weight:800;color:#fff;">${sec.pe}&times;</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
-                <span style="font-size:0.65rem;color:var(--text-muted);">SYSTEMATIC BETA</span>
-                <div style="font-size:1.15rem;font-weight:800;color:#fff;">${sec.beta}</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
-                <span style="font-size:0.65rem;color:var(--text-muted);">ROE (RETURN ON EQUITY)</span>
-                <div style="font-size:1.15rem;font-weight:800;color:var(--accent-cyan);">${sec.roe}%</div>
-              </div>
-              <div style="background:rgba(255,255,255,0.02);padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.04);">
-                <span style="font-size:0.65rem;color:var(--text-muted);">ESTIMATED EPS</span>
-                <div style="font-size:1.15rem;font-weight:800;color:#fff;">₹${(sec.eps || (sec.priceINR / sec.pe)).toFixed(1)}</div>
-              </div>
-            </div>
-          </div>
+          <!-- Embedded Interactive Dual-Mode Chart Suite -->
+          ${buildCanvasChartSuiteHTML(sec)}
         </div>
       `;
+
+      bindCanvasChartListeners(sec);
 
       canvasBody.querySelector('#canvasBtnOpenComp').onclick = () => {
         closeFinancialCanvas();
@@ -1603,43 +1864,49 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     } else if (resolved.intent === 'WHY_MOVED') {
       const sec = resolved.security || SECURITIES_DATABASE[2];
+      appState.activeSecurity = sec;
       canvasBody.innerHTML = `
         <div style="display:flex;flex-direction:column;gap:14px;">
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+          <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);letter-spacing:0.06em;">EVENT-DRIVEN CAUSAL DECOMPOSITION</span>
               <span class="provenance-tag tag--model">STATISTICAL ATTRIBUTION</span>
             </div>
             <h3 style="font-size:1.2rem;color:#fff;margin-top:8px;">Why Did ${sec.name} (${sec.symbol}) Move?</h3>
             <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.55;margin-top:6px;">
-              Multi-factor statistical decomposition isolated 3 dominant price-movement catalysts: <strong>Earnings Surprise (+1.8σ)</strong>, <strong>Sector Multiple Expansion (+42 bps)</strong>, and <strong>Institutional Order Flow Concentration (₹840 Cr net buy block)</strong>.
+              Multi-factor statistical decomposition isolated 3 dominant price catalysts: <strong>Earnings Growth (+1.8σ)</strong>, <strong>Sector Multiple Expansion (+42 bps)</strong>, and <strong>Institutional Order Flow Volume</strong>.
             </p>
           </div>
 
           <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:10px;">
-            <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
+            <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
               <span style="font-size:0.65rem;font-weight:700;color:var(--accent-emerald);">FACTOR 01 &bull; 54% WEIGHT</span>
               <h4 style="font-size:0.85rem;color:#fff;margin-top:4px;">Fundamental Earnings Beat</h4>
-              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Quarterly NII and operating margins exceeded street consensus by +4.2%.</p>
+              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Quarterly operating margins exceeded consensus estimates.</p>
             </div>
-            <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
+            <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
               <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);">FACTOR 02 &bull; 28% WEIGHT</span>
               <h4 style="font-size:0.85rem;color:#fff;margin-top:4px;">Sector Momentum Inflow</h4>
-              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">NIFTY Bank index rotation drove systemic benchmark buying.</p>
+              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Broad institutional index rotation drove systemic buying.</p>
             </div>
-            <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
+            <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;">
               <span style="font-size:0.65rem;font-weight:700;color:var(--accent-amber);">FACTOR 03 &bull; 18% WEIGHT</span>
-              <h4 style="font-size:0.85rem;color:#fff;margin-top:4px;">Macro Rates Sentiment</h4>
-              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">RBI liquidity stance eased yields on 10-year benchmark bonds.</p>
+              <h4 style="font-size:0.85rem;color:#fff;margin-top:4px;">Macro Liquidity Stance</h4>
+              <p style="font-size:0.75rem;color:var(--text-secondary);margin-top:4px;">Central bank liquidity easing bolstered risk appetite.</p>
             </div>
           </div>
 
+          <!-- Embedded Interactive Dual-Mode Chart Suite -->
+          ${buildCanvasChartSuiteHTML(sec)}
+
           <div style="display:flex;gap:8px;">
-            <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-chart-candlestick"></i> View Detailed Chart &amp; News</button>
+            <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-binoculars"></i> Open Detailed Research Drawer</button>
             <a href="learn.html?sec=${encodeURIComponent(sec.symbol)}&metric=beta" class="pm-action-btn" style="text-decoration:none;color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Test Beta &amp; Volatility in Lab</a>
           </div>
         </div>
       `;
+
+      bindCanvasChartListeners(sec);
 
       canvasBody.querySelector('#canvasBtnOpenComp').onclick = () => {
         closeFinancialCanvas();
@@ -1650,7 +1917,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const sec2 = resolved.sec2 || SECURITIES_DATABASE[3];
       canvasBody.innerHTML = `
         <div style="display:flex;flex-direction:column;gap:14px;">
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+          <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
             <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);letter-spacing:0.06em;">HEAD-TO-HEAD COMPARATIVE QUANT MODEL</span>
             <h3 style="font-size:1.25rem;color:#fff;margin-top:6px;">${sec1.name} vs ${sec2.name}</h3>
           </div>
@@ -1694,19 +1961,24 @@ document.addEventListener('DOMContentLoaded', () => {
             </table>
           </div>
 
+          <!-- Embedded Interactive Dual-Mode Chart for primary security -->
+          ${buildCanvasChartSuiteHTML(sec1)}
+
           <div style="display:flex;gap:8px;">
             <a href="learn.html?sec=${encodeURIComponent(sec1.symbol)}&metric=pe" class="pm-action-btn primary" style="text-decoration:none;"><i class="fa-solid fa-flask"></i> Simulate ${sec1.symbol} in Lab</a>
             <a href="learn.html?sec=${encodeURIComponent(sec2.symbol)}&metric=pe" class="pm-action-btn" style="text-decoration:none;color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Simulate ${sec2.symbol} in Lab</a>
           </div>
         </div>
       `;
+
+      bindCanvasChartListeners(sec1);
     } else if (resolved.intent === 'EXPLAIN_MATH' || queryText.toLowerCase().includes('sharpe') || queryText.toLowerCase().includes('beta') || queryText.toLowerCase().includes('volatility')) {
       const metricKey = queryText.toLowerCase().includes('beta') ? 'beta' : (queryText.toLowerCase().includes('volatility') ? 'volatility' : 'sharpe');
       const formula = MATHEMATICAL_REGISTRY[metricKey] || MATHEMATICAL_REGISTRY['sharpe'];
       
       canvasBody.innerHTML = `
         <div style="display:flex;flex-direction:column;gap:14px;">
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+          <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);letter-spacing:0.06em;">MATHEMATICAL FORMULATION</span>
               <span class="provenance-tag tag--fact">DETERMINISTIC ENGINE</span>
@@ -1727,19 +1999,27 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       // General financial insight fallback
       const sec = findBestSecurityMatch(queryText) || SECURITIES_DATABASE[0];
+      appState.activeSecurity = sec;
       canvasBody.innerHTML = `
-        <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
-          <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);letter-spacing:0.06em;">FINANCIAL INTELLIGENCE DISCOVERY</span>
-          <h3 style="font-size:1.25rem;color:#fff;margin-top:6px;">Query: "${queryText}"</h3>
-          <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.55;margin-top:8px;">
-            Matched primary market instrument: <strong>${sec.name} (${sec.symbol})</strong> trading at <strong>${formatMoney(sec.priceINR || sec.price_inr)}</strong> with a P/E multiple of <strong>${sec.pe}&times;</strong> and systematic beta of <strong>${sec.beta}</strong>.
-          </p>
-          <div style="margin-top:14px;display:flex;gap:8px;">
-            <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-chart-candlestick"></i> Open Candlestick Terminal</button>
-            <a href="learn.html?sec=${encodeURIComponent(sec.symbol)}&metric=cagr" class="pm-action-btn" style="text-decoration:none;color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Run Simulation in Lab</a>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="background:#0d0d12;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
+            <span style="font-size:0.65rem;font-weight:700;color:var(--accent-cyan);letter-spacing:0.06em;">FINANCIAL INTELLIGENCE DISCOVERY</span>
+            <h3 style="font-size:1.25rem;color:#fff;margin-top:6px;">Query: "${queryText}"</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.55;margin-top:8px;">
+              Matched primary market instrument: <strong>${sec.name} (${sec.symbol})</strong> trading at <strong>${formatMoney(sec.priceINR || sec.price_inr)}</strong> with a P/E multiple of <strong>${sec.pe}&times;</strong> and systematic beta of <strong>${sec.beta}</strong>.
+            </p>
+            <div style="margin-top:14px;display:flex;gap:8px;">
+              <button class="pm-action-btn primary" id="canvasBtnOpenComp"><i class="fa-solid fa-binoculars"></i> Full Research Drawer</button>
+              <a href="learn.html?sec=${encodeURIComponent(sec.symbol)}&metric=cagr" class="pm-action-btn" style="text-decoration:none;color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Run Simulation in Lab</a>
+            </div>
           </div>
+
+          <!-- Embedded Interactive Dual-Mode Chart Suite -->
+          ${buildCanvasChartSuiteHTML(sec)}
         </div>
       `;
+
+      bindCanvasChartListeners(sec);
 
       canvasBody.querySelector('#canvasBtnOpenComp').onclick = () => {
         closeFinancialCanvas();

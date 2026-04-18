@@ -470,6 +470,10 @@
               <!-- Professional Candlestick Canvas Component -->
               <div class="candle-chart-container" id="candleChartContainer">
                 <div class="candle-toolbar">
+                  <div class="candle-mode-group" id="compChartModeGroup" style="display:flex;gap:4px;">
+                    <button class="candle-btn active" id="btnCompModeCandle" data-chart-mode="candle"><i class="fa-solid fa-chart-candlestick"></i> Candles</button>
+                    <button class="candle-btn" id="btnCompModeLine" data-chart-mode="line"><i class="fa-solid fa-chart-line"></i> Line / Area</button>
+                  </div>
                   <div class="candle-tf-group" id="candleTfPicker">
                     <button class="candle-btn" data-tf="1D">1D</button>
                     <button class="candle-btn" data-tf="1W">1W</button>
@@ -483,8 +487,6 @@
                     <button class="candle-btn ind--active" id="btnToggleSMA" title="20-Day Simple Moving Average">SMA(20)</button>
                     <button class="candle-btn ema--active" id="btnToggleEMA" title="50-Day Exponential Moving Average">EMA(50)</button>
                     <button class="candle-btn active" id="btnToggleVol" title="Volume Sub-Pane">VOL</button>
-                    <button class="candle-btn" id="btnToggleRSI" title="14-Day Relative Strength Index">RSI(14)</button>
-                    <button class="candle-btn" id="btnToggleMACD" title="Moving Average Convergence Divergence">MACD</button>
                   </div>
                 </div>
                 <div class="candle-hud" id="candleHud">
