@@ -44,6 +44,14 @@ const getWeights = (tickers) => tickers.map(() => 1 / tickers.length).join(',');
 
 // Setup UI
 document.addEventListener('DOMContentLoaded', () => {
+    // Check URL query parameters for deep-linking
+    const urlParams = new URLSearchParams(window.location.search);
+    const qTickers = urlParams.get('tickers') || urlParams.get('ticker') || urlParams.get('sec');
+    if (qTickers) {
+        const inputEl = document.getElementById('ticker-input');
+        if (inputEl) inputEl.value = qTickers.toUpperCase();
+    }
+
     // Tab switching
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
@@ -63,10 +71,70 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzeBtn = document.getElementById('analyze-btn');
     if(analyzeBtn) analyzeBtn.addEventListener('click', fetchAllQuantData);
 
-    // Initial fetch
+    // Initial fetch & market ribbon
+    initTerminalMarketRibbon();
     fetchAllQuantData();
     fetchOrdersHistory();
 });
+
+function initTerminalMarketRibbon() {
+    const track = document.getElementById('terminalRibbonTrack');
+    if (!track || typeof SecurityMaster === 'undefined') return;
+
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+
+    const renderRibbon = () => {
+        track.innerHTML = benchmarks.map(sym => {
+            const live = SecurityMaster._liveQuotes.get(sym);
+            if (!live) return '';
+            const chg = Number((live.price - live.previousClose).toFixed(2));
+            const chgPct = Number(((chg / live.previousClose) * 100).toFixed(2));
+            const isUp = chg >= 0;
+
+            return `
+                <div class="ribbon-item" data-symbol="${sym}" id="term_ribbon_${sym.replace(/[\^=]/g, '')}">
+                    <span class="ribbon-symbol">${sym.replace('^', '')}</span>
+                    <span class="ribbon-price">${formatCurrency(live.price)}</span>
+                    <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
+                </div>
+            `;
+        }).join('');
+
+        track.querySelectorAll('.ribbon-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const sym = item.dataset.symbol.replace('^', '');
+                const inputEl = document.getElementById('ticker-input');
+                if (inputEl) {
+                    inputEl.value = sym;
+                    fetchAllQuantData();
+                }
+            });
+        });
+    };
+
+    renderRibbon();
+
+    SecurityMaster.subscribeLiveTicks((updates) => {
+        updates.forEach(u => {
+            const cleanSym = u.symbol.replace(/[\^=]/g, '');
+            const el = document.getElementById(`term_ribbon_${cleanSym}`);
+            if (el) {
+                const pEl = el.querySelector('.ribbon-price');
+                const cEl = el.querySelector('.ribbon-chg');
+                if (pEl) {
+                    pEl.textContent = formatCurrency(u.price);
+                    pEl.classList.remove('price-flash-up', 'price-flash-down');
+                    void pEl.offsetWidth;
+                    pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+                }
+                if (cEl) {
+                    cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+                    cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+                }
+            }
+        });
+    });
+}
 
 async function fetchAllQuantData() {
     const inputEl = document.getElementById('ticker-input');
