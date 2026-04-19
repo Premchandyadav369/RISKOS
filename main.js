@@ -896,6 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pricePlotH = hasVol ? (h - padT - padB) * 0.74 : (h - padT - padB);
     const volPlotH = hasVol ? (h - padT - padB) * 0.22 : 0;
     const volPlotY = padT + pricePlotH + 8;
+    const chartCurr = sec.currency || (['US', 'NASDAQ', 'NYSE', 'COMEX', 'NYMEX', 'ICE', 'LME', 'CBOT', 'GLOBAL'].includes(sec.exchange) ? 'USD' : 'INR');
 
     const minP = Math.min(...bars.map((b) => b.low)) * 0.99;
     const maxP = Math.max(...bars.map((b) => b.high)) * 1.01;
@@ -923,7 +924,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.moveTo(padL, yPos);
         ctx.lineTo(w - padR, yPos);
         ctx.stroke();
-        ctx.fillText(formatMoney(pVal), 6, yPos + 3);
+        ctx.fillText(formatMoney(pVal, chartCurr), 6, yPos + 3);
       }
 
       // 2. Volume Sub-Pane Background Grid
@@ -1087,7 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
         ctx.strokeRect(0, hy - 9, padL - 4, 18);
         ctx.fillStyle = '#51cf66';
-        ctx.fillText(formatMoney(b.close), 4, hy + 4);
+        ctx.fillText(formatMoney(b.close, chartCurr), 4, hy + 4);
       }
     };
 
@@ -1114,10 +1115,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const chgEl = document.getElementById(`${hudPrefix}Chg`);
         const volEl = document.getElementById(`${hudPrefix}Vol`);
 
-        if (openEl) openEl.textContent = formatMoney(b.open);
-        if (highEl) highEl.textContent = formatMoney(b.high);
-        if (lowEl) lowEl.textContent = formatMoney(b.low);
-        if (closeEl) closeEl.textContent = formatMoney(b.close);
+        if (openEl) openEl.textContent = formatMoney(b.open, chartCurr);
+        if (highEl) highEl.textContent = formatMoney(b.high, chartCurr);
+        if (lowEl) lowEl.textContent = formatMoney(b.low, chartCurr);
+        if (closeEl) closeEl.textContent = formatMoney(b.close, chartCurr);
         if (chgEl) {
           chgEl.textContent = formatPercent(chg);
           chgEl.style.color = chg >= 0 ? '#51CF66' : '#FF6B6B';

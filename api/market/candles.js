@@ -21,8 +21,24 @@ function normalizeSymbol(symbol) {
   if (['SP500', 'SPY', 'GSPC', '^GSPC'].includes(sym)) return '^GSPC';
   if (['NASDAQ', 'IXIC', '^IXIC'].includes(sym)) return '^IXIC';
   if (['DOW', 'DJI', '^DJI'].includes(sym)) return '^DJI';
+  if (['USDINR', 'USDINR=X'].includes(sym)) return 'USDINR=X';
+  if (['BRENT', 'BZ=F'].includes(sym)) return 'BZ=F';
+  if (['CRUDE', 'CL=F', 'WTI'].includes(sym)) return 'CL=F';
+  if (['GOLD', 'GC=F'].includes(sym)) return 'GC=F';
+  if (['SILVER', 'SI=F'].includes(sym)) return 'SI=F';
+  if (['COPPER', 'HG=F'].includes(sym)) return 'HG=F';
+  if (['NATGAS', 'NG=F', 'GAS'].includes(sym)) return 'NG=F';
+  if (['PLATINUM', 'PL=F'].includes(sym)) return 'PL=F';
+  if (['PALLADIUM', 'PA=F'].includes(sym)) return 'PA=F';
+  if (['ALUMINIUM', 'ALI=F'].includes(sym)) return 'ALI=F';
+  if (['WHEAT', 'ZW=F'].includes(sym)) return 'ZW=F';
+  if (['CORN', 'ZC=F'].includes(sym)) return 'ZC=F';
+  if (['COTTON', 'CT=F'].includes(sym)) return 'CT=F';
+  if (['MCXGOLD', 'GOLDBEES'].includes(sym)) return 'GOLDBEES.NS';
+  if (['MCXSILVER', 'SILVERBEES'].includes(sym)) return 'SILVERBEES.NS';
+  if (['MCXCRUDE'].includes(sym)) return 'ONGC.NS';
 
-  if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^')) return sym;
+  if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^') || sym.includes('=')) return sym;
   if (US_KNOWN.has(sym)) return sym;
   return `${sym}.NS`;
 }

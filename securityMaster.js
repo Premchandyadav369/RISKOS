@@ -5,7 +5,17 @@
  */
 
 const SecurityMaster = (() => {
-  const USD_TO_INR = 86.50;
+  let USD_TO_INR = 86.50;
+
+  const getUsdToInr = () => USD_TO_INR;
+  const convertCurrency = (val, fromCurr = 'USD', toCurr = 'INR') => {
+    if (val === undefined || val === null || isNaN(val)) return 0;
+    const num = Number(val);
+    if (fromCurr === toCurr) return num;
+    if (fromCurr === 'USD' && toCurr === 'INR') return num * USD_TO_INR;
+    if (fromCurr === 'INR' && toCurr === 'USD') return num / USD_TO_INR;
+    return num;
+  };
 
   // ── Universal Dynamic API Base Detection ──────────────────────────────────
   const getApiBase = () => {
@@ -98,10 +108,27 @@ const SecurityMaster = (() => {
     { id: 'NASDAQ:AMD', symbol: 'AMD', symbolNS: 'AMD', name: 'Advanced Micro Devices', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0079031078', aliases: ['AMD', 'RADEON'], currency: 'USD', basePrice: 152.00, beta: 1.72, vol: 0.395, pe: 48.00, eps: 3.15, roe: 12.50, roce: 14.00, marketCap: 245000000000, sector: 'Semiconductors', country: 'US' },
     { id: 'NYSE:JPM', symbol: 'JPM', symbolNS: 'JPM', name: 'JPMorgan Chase & Co.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US46625H1005', aliases: ['JPM', 'JPMORGAN'], currency: 'USD', basePrice: 218.50, beta: 1.05, vol: 0.175, pe: 12.40, eps: 17.62, roe: 17.20, roce: 16.50, marketCap: 625000000000, sector: 'Banking & Financials', country: 'US' },
 
-    // ── Macro Commodities & Currencies ──
-    { id: 'COMMODITY:BRENT', symbol: 'BRENT', symbolNS: 'BZ=F', name: 'Brent Crude Oil Futures', exchange: 'GLOBAL', assetType: 'COMMODITY', isin: 'XC0009677409', aliases: ['CRUDE', 'OIL', 'BRENT'], currency: 'USD', basePrice: 76.20, beta: 0.85, vol: 0.285, sector: 'Energy Commodity', country: 'GLOBAL' },
-    { id: 'COMMODITY:GOLD', symbol: 'GOLD', symbolNS: 'GC=F', name: 'Gold Futures Comex', exchange: 'GLOBAL', assetType: 'COMMODITY', isin: 'XC0009677410', aliases: ['GOLD', 'COMEX GOLD'], currency: 'USD', basePrice: 2510.00, beta: 0.05, vol: 0.125, sector: 'Precious Metals', country: 'GLOBAL' },
-    { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR'], currency: 'INR', basePrice: 86.74, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' }
+    // ── Macro Commodities, Precious Metals, Industrial Metals & Minerals ──
+    { id: 'COMM:GOLD', symbol: 'GOLD', symbolNS: 'GC=F', name: 'Gold Comex Futures (100 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677410', aliases: ['GOLD', 'COMEX GOLD', 'AU', 'PRECIOUS METALS'], currency: 'USD', basePrice: 2510.00, beta: 0.05, vol: 0.125, sector: 'Precious Metals & Reserve Asset', country: 'GLOBAL' },
+    { id: 'COMM:SILVER', symbol: 'SILVER', symbolNS: 'SI=F', name: 'Silver Comex Futures (5,000 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677411', aliases: ['SILVER', 'AG', 'COMEX SILVER'], currency: 'USD', basePrice: 31.50, beta: 0.35, vol: 0.245, sector: 'Precious & Industrial Metals', country: 'GLOBAL' },
+    { id: 'COMM:PLATINUM', symbol: 'PLATINUM', symbolNS: 'PL=F', name: 'Platinum NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677412', aliases: ['PLATINUM', 'PT', 'CATALYST METAL'], currency: 'USD', basePrice: 995.00, beta: 0.42, vol: 0.220, sector: 'Precious & Auto-Catalyst Metals', country: 'GLOBAL' },
+    { id: 'COMM:PALLADIUM', symbol: 'PALLADIUM', symbolNS: 'PA=F', name: 'Palladium NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677413', aliases: ['PALLADIUM', 'PD'], currency: 'USD', basePrice: 1080.00, beta: 0.55, vol: 0.320, sector: 'Industrial Precious Metals', country: 'GLOBAL' },
+    { id: 'COMM:BRENT', symbol: 'BRENT', symbolNS: 'BZ=F', name: 'Brent Crude Oil Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677409', aliases: ['CRUDE', 'OIL', 'BRENT OIL'], currency: 'USD', basePrice: 78.50, beta: 0.85, vol: 0.285, sector: 'Energy & Fossil Fuels', country: 'GLOBAL' },
+    { id: 'COMM:CRUDE', symbol: 'CRUDE', symbolNS: 'CL=F', name: 'WTI Light Sweet Crude Oil', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677414', aliases: ['WTI', 'CRUDE OIL', 'US OIL'], currency: 'USD', basePrice: 74.80, beta: 0.88, vol: 0.295, sector: 'Energy & Refined Petroleum', country: 'GLOBAL' },
+    { id: 'COMM:NATGAS', symbol: 'NATGAS', symbolNS: 'NG=F', name: 'Natural Gas Futures (Henry Hub)', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677415', aliases: ['NATGAS', 'GAS', 'HENRY HUB'], currency: 'USD', basePrice: 2.35, beta: 0.65, vol: 0.460, sector: 'Energy & Power Generation', country: 'GLOBAL' },
+    { id: 'COMM:COPPER', symbol: 'COPPER', symbolNS: 'HG=F', name: 'Copper High Grade (COMEX)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677416', aliases: ['COPPER', 'CU', 'DOCTOR COPPER', 'ELECTRIFICATION'], currency: 'USD', basePrice: 4.42, beta: 1.15, vol: 0.210, sector: 'Industrial Metals & Electrification', country: 'GLOBAL' },
+    { id: 'COMM:ALUMINIUM', symbol: 'ALUMINIUM', symbolNS: 'ALI=F', name: 'Aluminium Primary (LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677417', aliases: ['ALUMINIUM', 'ALUMINUM', 'AL'], currency: 'USD', basePrice: 2480.00, beta: 0.95, vol: 0.195, sector: 'Industrial Base Metals', country: 'GLOBAL' },
+    { id: 'COMM:ZINC', symbol: 'ZINC', symbolNS: 'ZN=F', name: 'Zinc Physical (LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677418', aliases: ['ZINC', 'ZN', 'GALVANIZING'], currency: 'USD', basePrice: 2850.00, beta: 0.92, vol: 0.225, sector: 'Industrial Galvanizing Metals', country: 'GLOBAL' },
+    { id: 'COMM:NICKEL', symbol: 'NICKEL', symbolNS: 'NI=F', name: 'Nickel Futures (EV Battery Grade)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677419', aliases: ['NICKEL', 'NI', 'BATTERY MINERALS'], currency: 'USD', basePrice: 16400.00, beta: 1.25, vol: 0.380, sector: 'Battery Minerals & Stainless Steel', country: 'GLOBAL' },
+    { id: 'COMM:WHEAT', symbol: 'WHEAT', symbolNS: 'ZW=F', name: 'Chicago SRW Wheat Futures', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677420', aliases: ['WHEAT', 'GRAIN', 'AGRICULTURE'], currency: 'USD', basePrice: 565.00, beta: 0.25, vol: 0.260, sector: 'Agricultural Commodities & Food', country: 'GLOBAL' },
+    { id: 'COMM:CORN', symbol: 'CORN', symbolNS: 'ZC=F', name: 'Corn Futures (CBOT)', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677421', aliases: ['CORN', 'GRAIN FEED'], currency: 'USD', basePrice: 410.00, beta: 0.28, vol: 0.240, sector: 'Agricultural Feed & Biofuels', country: 'GLOBAL' },
+    { id: 'COMM:COTTON', symbol: 'COTTON', symbolNS: 'CT=F', name: 'Cotton #2 Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677422', aliases: ['COTTON', 'TEXTILE FIBER'], currency: 'USD', basePrice: 72.50, beta: 0.45, vol: 0.230, sector: 'Textiles & Agriculture', country: 'GLOBAL' },
+    { id: 'MCX:MCXGOLD', symbol: 'MCXGOLD', symbolNS: 'GOLDBEES.NS', name: 'MCX Gold 10g Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB17I5', aliases: ['MCX GOLD', 'GOLD INDIA'], currency: 'INR', basePrice: 74500.00, beta: 0.05, vol: 0.125, sector: 'MCX Commodities India', country: 'IN' },
+    { id: 'MCX:MCXSILVER', symbol: 'MCXSILVER', symbolNS: 'SILVERBEES.NS', name: 'MCX Silver 1kg Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB18I3', aliases: ['MCX SILVER', 'SILVER INDIA'], currency: 'INR', basePrice: 88500.00, beta: 0.35, vol: 0.245, sector: 'MCX Commodities India', country: 'IN' },
+    { id: 'MCX:MCXCRUDE', symbol: 'MCXCRUDE', symbolNS: 'ONGC.NS', name: 'MCX Crude Oil 100 BBL', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INE213A01029', aliases: ['MCX CRUDE', 'CRUDE INDIA'], currency: 'INR', basePrice: 6450.00, beta: 0.85, vol: 0.285, sector: 'MCX Energy India', country: 'IN' },
+
+    // ── Forex & Real-Time Currencies ──
+    { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR', 'USD INR'], currency: 'INR', basePrice: 86.74, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' }
   ];
 
   // ── 2. Live Dynamic Quote, Tape & Price Pipeline ───────────────────────────
@@ -153,7 +180,7 @@ const SecurityMaster = (() => {
   const _fetchRealQuotesBatch = async () => {
     const API_BASE = getApiBase();
     try {
-      const symbols = LOCAL_REGISTRY.slice(0, 24).map(s => s.symbol).join(',');
+      const symbols = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'GOLD', 'SILVER', 'BRENT', 'CRUDE', 'COPPER', 'NATGAS', 'PLATINUM', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'SUZLON', 'IRFC', 'MCXGOLD', 'MCXSILVER'].join(',');
       const res = await fetch(`${API_BASE}/market/quotes?symbols=${encodeURIComponent(symbols)}`);
       if (res.ok) {
         const data = await res.json();
@@ -167,6 +194,11 @@ const SecurityMaster = (() => {
           const oldP = oldQuote ? oldQuote.price : q.price;
           const newP = Number(q.price);
           const delta = Number((newP - oldP).toFixed(2));
+
+          if (sym === 'USDINR' || sym === 'USDINR=X' || q.symbol === 'USDINR') {
+            USD_TO_INR = newP;
+            SecurityMaster.USD_TO_INR = newP;
+          }
 
           const updatedQuote = {
             id: oldQuote ? oldQuote.id : `SEC:${sym}`,
@@ -803,7 +835,10 @@ const SecurityMaster = (() => {
   };
 
   return {
-    USD_TO_INR,
+    get USD_TO_INR() { return USD_TO_INR; },
+    set USD_TO_INR(val) { USD_TO_INR = val; },
+    getUsdToInr,
+    convertCurrency,
     LOCAL_REGISTRY,
     _liveQuotes,
     searchSecurities,
@@ -839,11 +874,21 @@ const MarketStore = (() => {
   const STORAGE_RECENT = 'riskos_recent_searches';
   const STORAGE_PORTFOLIO = 'riskos_portfolio_ledger';
 
+  const getStorage = (k, defaultVal) => {
+    if (typeof localStorage === 'undefined') return defaultVal;
+    try {
+      const v = localStorage.getItem(k);
+      return v ? JSON.parse(v) : defaultVal;
+    } catch(e) {
+      return defaultVal;
+    }
+  };
+
   // State
-  let activeSecurity = JSON.parse(localStorage.getItem(STORAGE_ACTIVE_SEC) || 'null') || SecurityMaster.LOCAL_REGISTRY[0];
-  let watchlist = JSON.parse(localStorage.getItem(STORAGE_WATCHLIST) || '["RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ZOMATO", "NVDA", "AAPL"]');
-  let favorites = JSON.parse(localStorage.getItem(STORAGE_FAVORITES) || '["^NSEI", "RELIANCE", "TCS", "NVDA"]');
-  let recentSearches = JSON.parse(localStorage.getItem(STORAGE_RECENT) || '["RELIANCE", "TCS", "INFY", "NVDA"]');
+  let activeSecurity = getStorage(STORAGE_ACTIVE_SEC, null) || SecurityMaster.LOCAL_REGISTRY[0];
+  let watchlist = getStorage(STORAGE_WATCHLIST, ["RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ZOMATO", "NVDA", "AAPL", "GOLD", "BRENT"]);
+  let favorites = getStorage(STORAGE_FAVORITES, ["^NSEI", "RELIANCE", "TCS", "NVDA", "GOLD"]);
+  let recentSearches = getStorage(STORAGE_RECENT, ["RELIANCE", "TCS", "INFY", "NVDA", "GOLD"]);
 
   // PubSub listeners
   const listeners = {
