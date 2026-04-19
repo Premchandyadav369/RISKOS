@@ -46,13 +46,13 @@
       return allMods.filter(m => ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery'].includes(m.id));
     }
     if (categoryKey === 'portfolio') {
-      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter'].includes(m.id));
+      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest'].includes(m.id));
     }
     if (categoryKey === 'simulators') {
-      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress'].includes(m.id));
+      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest'].includes(m.id));
     }
     if (categoryKey === 'mathematics') {
-      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm'].includes(m.id));
+      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff'].includes(m.id));
     }
     
     return allMods.filter(m => m.categoryKey === categoryKey);
