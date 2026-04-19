@@ -27,24 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // ── 2. Central Number & Currency Formatter ─────────────────────────────────
-  const formatMoney = (valInINR, forceCurrency = null, exact = false) => {
-    if (valInINR === undefined || valInINR === null || isNaN(valInINR)) return '-';
+  const formatMoney = (val, forceCurrency = null, exact = false) => {
+    if (val === undefined || val === null || isNaN(val)) return '-';
     const curr = forceCurrency || appState.currency;
+    const num = Number(val);
 
     if (curr === 'USD') {
-      const valUSD = valInINR / USD_TO_INR;
-      if (exact) return `$${valUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      if (valUSD >= 1e12) return `$${(valUSD / 1e12).toFixed(2)}T`;
-      if (valUSD >= 1e9) return `$${(valUSD / 1e9).toFixed(2)}B`;
-      if (valUSD >= 1e6) return `$${(valUSD / 1e6).toFixed(2)}M`;
-      if (valUSD >= 1e3) return `$${(valUSD / 1e3).toFixed(1)}k`;
-      return `$${valUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (exact) return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`;
+      if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
+      if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
+      if (num >= 1e3) return `$${(num / 1e3).toFixed(1)}k`;
+      return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     } else {
-      if (exact) return `₹${valInINR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      if (valInINR >= 1e12) return `₹${(valInINR / 1e12).toFixed(2)} Lakh Cr`;
-      if (valInINR >= 1e7) return `₹${(valInINR / 1e7).toFixed(2)} Cr`;
-      if (valInINR >= 1e5) return `₹${(valInINR / 1e5).toFixed(2)} Lakh`;
-      return `₹${valInINR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (exact) return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (num >= 1e12) return `₹${(num / 1e12).toFixed(2)} Lakh Cr`;
+      if (num >= 1e7) return `₹${(num / 1e7).toFixed(2)} Cr`;
+      if (num >= 1e5) return `₹${(num / 1e5).toFixed(2)} Lakh`;
+      return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     }
   };
 

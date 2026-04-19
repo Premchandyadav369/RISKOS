@@ -478,6 +478,54 @@ button, select, input {
   transition: background-color 0.2s, color 0.2s;
 }
 
+.live-sync-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  color: #ffffff;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.live-sync-trigger-btn:hover {
+  background: rgba(34, 211, 238, 0.18);
+  border-color: rgba(34, 211, 238, 0.7);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.25);
+  transform: translateY(-1px);
+}
+
+.live-sync-trigger-btn:active {
+  transform: scale(0.97);
+}
+
+.live-sync-trigger-btn.syncing {
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+.live-sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulse-live-dot 1.8s infinite;
+}
+
+@keyframes pulse-live-dot {
+  0% { transform: scale(0.95); opacity: 0.7; box-shadow: 0 0 4px #10b981; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 10px #10b981; }
+  100% { transform: scale(0.95); opacity: 0.7; box-shadow: 0 0 4px #10b981; }
+}
+
 .curr-opt.active {
   background: #ffffff;
   color: #000000;

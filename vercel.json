@@ -2,8 +2,12 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://riskos-backend.onrender.com/api/:path*"
+      "source": "/api/risk/:path*",
+      "destination": "https://riskos-backend.onrender.com/api/risk/:path*"
+    },
+    {
+      "source": "/api/signals/:path*",
+      "destination": "https://riskos-backend.onrender.com/api/signals/:path*"
     },
     {
       "source": "/app",
