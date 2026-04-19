@@ -1493,16 +1493,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const renderCompanyModal = async (sec) => {
     appState.activeSecurity = sec;
+    const live = await SecurityMaster.getQuote(sec.symbol);
+    const resolvedPrice = live ? live.price : (sec.priceINR || sec.basePrice);
+    const resolvedPriceInr = live ? live.price_inr : (sec.priceINR || sec.basePrice);
+    const chgVal = live ? live.changePercent : (sec.changePercent !== undefined ? sec.changePercent : 0);
+    const curr = live ? live.currency : (sec.currency || 'INR');
+
     document.getElementById('compLogoBadge').textContent = sec.symbol[0];
-    document.getElementById('compName').textContent = sec.name;
+    document.getElementById('compName').textContent = live ? (live.name || sec.name) : sec.name;
     document.getElementById('compExchange').textContent = `${sec.exchange}: ${sec.symbol}`;
     document.getElementById('compSector').textContent = sec.sector || 'Equities';
     document.getElementById('compIsin').textContent = sec.isin || '-';
     document.getElementById('compAliases').textContent = `Aliases: ${(sec.aliases || []).slice(0, 5).join(', ')}`;
-    document.getElementById('compPrice').textContent = formatMoney(sec.priceINR || sec.price_inr);
+    document.getElementById('compPrice').textContent = formatMoney(resolvedPriceInr, curr);
     
     const chgEl = document.getElementById('compChange');
-    const chgVal = sec.changePercent !== undefined ? sec.changePercent : 0;
     chgEl.textContent = formatPercent(chgVal);
     chgEl.className = `comp-change ${chgVal >= 0 ? 'pos' : 'neg'}`;
 
@@ -1515,16 +1520,16 @@ document.addEventListener('DOMContentLoaded', () => {
       starText.textContent = isWatch ? 'In Watchlist' : 'Add to Watchlist';
     }
 
-    const pr = sec.priceINR || 100;
-    document.getElementById('cs52High').textContent = formatMoney(pr * 1.15);
-    document.getElementById('cs52Low').textContent = formatMoney(pr * 0.78);
-    document.getElementById('csVolume').textContent = '4.82M';
-    document.getElementById('csMarketCap').textContent = formatMoney(sec.marketCapINR || 1000000000000);
-    document.getElementById('compRegimeText').textContent = sec.regime || 'BULLISH TREND';
-    document.getElementById('sumValuation').textContent = `${sec.pe}×`;
+    const pr = resolvedPriceInr || 100;
+    document.getElementById('cs52High').textContent = formatMoney(live?.high52w || (pr * 1.15), curr);
+    document.getElementById('cs52Low').textContent = formatMoney(live?.low52w || (pr * 0.78), curr);
+    document.getElementById('csVolume').textContent = live?.volume ? `${(live.volume / 1000000).toFixed(2)}M` : '4.82M';
+    document.getElementById('csMarketCap').textContent = formatMoney(sec.marketCapINR || (pr * 1000000000), curr);
+    document.getElementById('compRegimeText').textContent = chgVal >= 0 ? 'BULLISH TREND' : 'BEARISH CORRECTION';
+    document.getElementById('sumValuation').textContent = `${sec.pe || (resolvedPrice / (sec.eps || 25)).toFixed(1)}×`;
     document.getElementById('sumRiskRating').textContent = (sec.beta || 1.0).toString();
     document.getElementById('sumVol').textContent = `${((sec.volatility || 0.18) * 100).toFixed(1)}%`;
-    document.getElementById('sumRoe').textContent = `${sec.roe}%`;
+    document.getElementById('sumRoe').textContent = `${sec.roe || 15.0}%`;
 
     const labBtn = document.getElementById('compOpenLabBtn');
     if (labBtn) {

@@ -18,32 +18,60 @@ class YahooFinanceClient:
     def __init__(self):
         self.executor = ThreadPoolExecutor(max_workers=8)
 
+US_KNOWN_TICKERS = {
+    "AAPL", "NVDA", "MSFT", "GOOGL", "GOOG", "AMZN", "META", "TSLA", "NFLX", "AMD",
+    "INTC", "QCOM", "AVGO", "TXN", "MU", "ARM", "JPM", "V", "MA", "BAC", "WFC",
+    "GS", "MS", "BRK-B", "BRK-A", "WMT", "COST", "TGT", "HD", "MCD", "NKE", "SBUX",
+    "DIS", "KO", "PEP", "PG", "JNJ", "PFE", "UNH", "LLY", "ABBV", "MRK", "XOM",
+    "CVX", "COP", "SLB", "BA", "CAT", "GE", "HON", "UPS", "SPY", "QQQ", "DIA",
+    "IWM", "VOO", "IVV", "VTI", "GLD", "SLV", "USO", "TLT", "BND", "BABA", "PDD",
+    "NIO", "PLTR", "UBER", "ABNB", "COIN", "SNOW", "PANW", "CRWD", "NOW", "SHOP",
+    "SQ", "PYPL", "ROKU", "SE", "MELI", "RIVN", "LCID", "SMCI", "SOFI"
+}
+
+class YahooFinanceClient:
+    def __init__(self):
+        self.executor = ThreadPoolExecutor(max_workers=16)
+
     def _normalize_symbol(self, symbol: str) -> str:
         sym = symbol.upper().strip()
-        if sym in ["NIFTY", "NIFTY 50", "NIFTY50", "NSEI"]:
+        if sym in ["NIFTY", "NIFTY 50", "NIFTY50", "NSEI", "^NSEI"]:
             return "^NSEI"
-        if sym in ["SENSEX", "BSESN"]:
+        if sym in ["SENSEX", "BSESN", "^BSESN"]:
             return "^BSESN"
-        if sym in ["BANKNIFTY", "BANK NIFTY", "NSEBANK"]:
+        if sym in ["BANKNIFTY", "BANK NIFTY", "NSEBANK", "^NSEBANK"]:
             return "^NSEBANK"
-        if sym in ["NIFTYIT", "CNXIT"]:
+        if sym in ["NIFTYIT", "CNXIT", "^CNXIT"]:
             return "^CNXIT"
-        if sym in ["SP500", "SPY", "GSPC"]:
+        if sym in ["SP500", "SPY", "GSPC", "^GSPC"]:
             return "^GSPC"
-        if sym in ["NASDAQ", "IXIC"]:
+        if sym in ["NASDAQ", "IXIC", "^IXIC"]:
             return "^IXIC"
-        if sym in ["DOW", "DJI"]:
+        if sym in ["DOW", "DJI", "^DJI"]:
             return "^DJI"
+        if sym in ["USDINR", "USDINR=X"]:
+            return "USDINR=X"
+        if sym in ["BRENT", "BZ=F"]:
+            return "BZ=F"
+        if sym in ["CRUDE", "CL=F"]:
+            return "CL=F"
+        if sym in ["GOLD", "GC=F"]:
+            return "GC=F"
+        if sym in ["SILVER", "SI=F"]:
+            return "SI=F"
         
-        # Indian equities without suffix -> add .NS
-        if not sym.endswith(".NS") and not sym.endswith(".BO") and not sym.startswith("^"):
-            if sym in ["RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "SBIN", "BHARTIARTL", "ITC", "TATAMOTORS", "LT", "HINDUNILVR", "AXISBANK", "MARUTI", "SUNPHARMA", "BAJFINANCE", "TITAN", "ASIANPAINT", "KOTAKBANK", "ZOMATO", "PAYTM", "ADANIENT", "WIPRO", "HCLTECH", "NIFTYBEES", "GOLDBEES", "SILVERBEES", "ITBEES"]:
-                return f"{sym}.NS"
-        return sym
+        if sym.endswith(".NS") or sym.endswith(".BO") or sym.startswith("^"):
+            return sym
+
+        if sym in US_KNOWN_TICKERS:
+            return sym
+
+        # Default for Indian equity symbols
+        return f"{sym}.NS"
 
     def get_quote(self, symbol: str) -> Optional[Dict[str, Any]]:
         """
-        Fetch real-time snapshot via fast_info.
+        Fetch real-time snapshot via fast_info with fallback.
         """
         clean_sym = self._normalize_symbol(symbol)
         try:
@@ -52,12 +80,22 @@ class YahooFinanceClient:
             
             price = fast.last_price
             if price is None:
-                # Fallback to history 1d
-                hist = t.history(period="1d")
-                if not hist.empty:
-                    price = float(hist["Close"].iloc[-1])
-                else:
-                    return None
+                # Try raw symbol without suffix if failed
+                if clean_sym.endswith(".NS"):
+                    alt_sym = clean_sym.replace(".NS", "")
+                    alt_t = yf.Ticker(alt_sym)
+                    if alt_t.fast_info.last_price is not None:
+                        clean_sym = alt_sym
+                        t = alt_t
+                        fast = alt_t.fast_info
+                        price = fast.last_price
+                
+                if price is None:
+                    hist = t.history(period="2d")
+                    if not hist.empty:
+                        price = float(hist["Close"].iloc[-1])
+                    else:
+                        return None
 
             prev_close = fast.previous_close or price
             change = price - prev_close

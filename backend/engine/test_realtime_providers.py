@@ -89,6 +89,14 @@ class TestRealtimeProviders(unittest.TestCase):
         self.assertIn("regime", breadth)
         print(f"  [PASS] Aggregator Market Breadth: Adv={breadth['advances']}, Dec={breadth['declines']}, A/D={breadth['ad_ratio']}x [{breadth['regime']}]")
 
+    def test_market_aggregator_multi_ticker_diversity(self):
+        diverse_symbols = ["SUZLON", "ZOMATO", "IRFC", "TSLA", "META", "AMD"]
+        results = self.aggregator.get_quotes(diverse_symbols)
+        for sym in diverse_symbols:
+            self.assertIn(sym, results)
+            self.assertGreater(results[sym]["price"], 0)
+            print(f"  [PASS] Multi-Ticker Resolution {sym}: {results[sym]['currency']} {results[sym]['price']} [Provider: {results[sym]['provider']}]")
+
     def test_market_aggregator_candles(self):
         candles = self.aggregator.get_candles("TCS", timeframe="1D", period="1Y")
         self.assertIn("bars", candles)
