@@ -453,3 +453,105 @@ button:hover {
     .input-wrap input { width: 100%; }
     .stats-grid-4, .stats-grid-3 { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   QUANT TERMINAL REAL-TIME MARKET RIBBON & INFINITE MARQUEE SCROLLER
+   ══════════════════════════════════════════════════════════════════════════ */
+.market-ribbon-card {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: rgba(13, 13, 18, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+    padding: 6px 14px;
+    overflow: hidden;
+    position: relative;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+}
+
+.market-ribbon-track {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: max-content;
+    animation: marketMarqueeScroll 42s linear infinite;
+    will-change: transform;
+}
+
+.market-ribbon-track:hover,
+.market-ribbon-card:hover .market-ribbon-track {
+    animation-play-state: paused;
+}
+
+@keyframes marketMarqueeScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.ribbon-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.ribbon-item:hover {
+    background: rgba(34, 211, 238, 0.12);
+    border-color: rgba(34, 211, 238, 0.4);
+    transform: translateY(-1px);
+}
+
+.ribbon-symbol {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #ffffff;
+    font-family: monospace;
+}
+
+.ribbon-price {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    font-family: monospace;
+}
+
+.ribbon-chg {
+    font-size: 0.675rem;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.text-emerald { color: #51CF66 !important; }
+.text-red { color: #FF6B6B !important; }
+
+@keyframes flashGreen {
+    0% { background-color: rgba(81, 207, 102, 0.45); color: #fff; }
+    100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+    0% { background-color: rgba(255, 107, 107, 0.45); color: #fff; }
+    100% { background-color: transparent; }
+}
+
+.price-flash-up {
+    animation: flashGreen 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    border-radius: 4px;
+}
+
+.price-flash-down {
+    animation: flashRed 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+    border-radius: 4px;
+}

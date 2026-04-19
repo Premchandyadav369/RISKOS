@@ -33,14 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const num = Number(val);
 
     if (curr === 'USD') {
-      if (exact) return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (exact || Math.abs(num) < 1e6) return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       if (num >= 1e12) return `$${(num / 1e12).toFixed(2)}T`;
       if (num >= 1e9) return `$${(num / 1e9).toFixed(2)}B`;
       if (num >= 1e6) return `$${(num / 1e6).toFixed(2)}M`;
-      if (num >= 1e3) return `$${(num / 1e3).toFixed(1)}k`;
       return `$${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     } else {
-      if (exact) return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (exact || Math.abs(num) < 1e6) return `₹${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       if (num >= 1e12) return `₹${(num / 1e12).toFixed(2)} Lakh Cr`;
       if (num >= 1e7) return `₹${(num / 1e7).toFixed(2)} Cr`;
       if (num >= 1e5) return `₹${(num / 1e5).toFixed(2)} Lakh`;
@@ -3474,10 +3473,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = document.getElementById('globalRibbonTrack');
     if (!track || typeof SecurityMaster === 'undefined') return;
 
-    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'SUZLON', 'IRFC'];
+    const renderList = [...benchmarks, ...benchmarks];
 
     const renderRibbon = () => {
-      track.innerHTML = benchmarks.map(sym => {
+      track.innerHTML = renderList.map((sym, idx) => {
         const live = SecurityMaster._liveQuotes.get(sym);
         if (!live) return '';
         const chg = Number((live.price - live.previousClose).toFixed(2));
@@ -3485,7 +3485,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const isUp = chg >= 0;
 
         return `
-          <div class="ribbon-item" data-symbol="${sym}" id="dash_ribbon_${sym.replace(/[\^=]/g, '')}">
+          <div class="ribbon-item" data-symbol="${sym}" data-idx="${idx}">
             <span class="ribbon-symbol">${sym.replace('^', '')}</span>
             <span class="ribbon-price">${formatMoney(live.price, live.currency)}</span>
             <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
@@ -3507,9 +3507,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     SecurityMaster.subscribeLiveTicks((updates) => {
       updates.forEach(u => {
-        const cleanSym = u.symbol.replace(/[\^=]/g, '');
-        const el = document.getElementById(`dash_ribbon_${cleanSym}`);
-        if (el) {
+        const items = track.querySelectorAll(`.ribbon-item[data-symbol="${u.symbol}"]`);
+        items.forEach(el => {
           const pEl = el.querySelector('.ribbon-price');
           const cEl = el.querySelector('.ribbon-chg');
           if (pEl) {
@@ -3522,7 +3521,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
             cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
           }
-        }
+        });
       });
     });
   };

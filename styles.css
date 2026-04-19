@@ -4317,7 +4317,7 @@ button, select, input {
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
-   UNIVERSAL REAL-TIME MARKET RIBBON & LIVE TAPE STREAM
+   UNIVERSAL REAL-TIME MARKET RIBBON & INFINITE MARQUEE SCROLLER
    ══════════════════════════════════════════════════════════════════════════ */
 .market-ribbon-card {
   width: 100%;
@@ -4328,32 +4328,42 @@ button, select, input {
   border-radius: var(--radius-full, 9999px);
   padding: 6px 14px;
   overflow: hidden;
+  position: relative;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
 }
 
 .market-ribbon-track {
   display: flex;
   align-items: center;
-  gap: 16px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
+  gap: 12px;
+  width: max-content;
+  animation: marketMarqueeScroll 42s linear infinite;
+  will-change: transform;
 }
 
-.market-ribbon-track::-webkit-scrollbar {
-  display: none;
+.market-ribbon-track:hover,
+.market-ribbon-card:hover .market-ribbon-track,
+.market-ribbon-track.is-paused {
+  animation-play-state: paused;
+}
+
+@keyframes marketMarqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 .ribbon-item {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: var(--radius-full, 9999px);
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.2s ease;
@@ -4361,8 +4371,8 @@ button, select, input {
 }
 
 .ribbon-item:hover {
-  background: rgba(34, 211, 238, 0.1);
-  border-color: rgba(34, 211, 238, 0.3);
+  background: rgba(34, 211, 238, 0.12);
+  border-color: rgba(34, 211, 238, 0.4);
   transform: translateY(-1px);
 }
 
