@@ -872,21 +872,44 @@ async function executeTrade(ticker, direction, qty) {
     }
 }
 
-// Fallback generator if backend is starting up
+// Fallback dynamic generator anchored to live SecurityMaster quotes
 function getMockFallback(endpoint) {
+    const inputEl = document.getElementById('ticker-input');
+    const tickersStr = (inputEl ? inputEl.value : 'AAPL,MSFT,GOOGL,AMZN,JPM').toUpperCase().replace(/\s/g, '');
+    const userTickers = tickersStr.split(',').filter(Boolean);
+
+    const getBaseSpot = (sym) => {
+        if (typeof SecurityMaster !== 'undefined') {
+            const live = SecurityMaster._liveQuotes?.get(sym);
+            if (live && live.price) return live.price;
+            const reg = SecurityMaster.LOCAL_REGISTRY?.find(s => s.symbol === sym);
+            if (reg && reg.basePrice) return reg.basePrice;
+        }
+        return 180;
+    };
+
     if (endpoint.includes('/market/prices')) {
         const dummyPrices = {};
-        ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'JPM'].forEach(t => {
-            dummyPrices[t] = Array.from({length: 40}, (_, i) => 150 + Math.sin(i / 3) * 10 + i * 0.5);
+        userTickers.forEach(t => {
+            const spot = getBaseSpot(t);
+            dummyPrices[t] = Array.from({length: 40}, (_, i) => {
+                const noise = Math.sin(i / 3.5) * (spot * 0.04) + (i * (spot * 0.002));
+                return Number((spot * 0.94 + noise).toFixed(2));
+            });
         });
         return { prices: dummyPrices, dates: Array.from({length: 40}, (_, i) => `D-${40-i}`) };
     }
     if (endpoint.includes('/quant/spreads')) {
+        const t1 = userTickers[0] || 'BRENT';
+        const t2 = userTickers[1] || 'CRUDE';
+        const s1 = getBaseSpot(t1);
+        const s2 = getBaseSpot(t2);
+        const ratio = Number((s1 / (s2 || 1)).toFixed(3));
         return {
             dates: Array.from({length: 40}, (_, i) => `D-${40-i}`),
-            spread_history: Array.from({length: 40}, (_, i) => Math.sin(i / 4) * 2.5 + Math.random() * 0.5),
-            z_scores: Array.from({length: 40}, (_, i) => Math.sin(i / 4) * 1.8),
-            current_hedge_ratio: 1.154,
+            spread_history: Array.from({length: 40}, (_, i) => Number((ratio + Math.sin(i / 4) * (ratio * 0.05)).toFixed(3))),
+            z_scores: Array.from({length: 40}, (_, i) => Number((Math.sin(i / 4) * 1.8).toFixed(2))),
+            current_hedge_ratio: ratio,
             current_z_score: 0.42,
             signal: 'EQUILIBRIUM / MONITORING',
             ou_stats: { half_life_days: 1.45, mean_reversion_speed: 0.478, equilibrium_mean: 0.05, annualized_spread_vol: 0.185 }
@@ -909,51 +932,95 @@ function getMockFallback(endpoint) {
         };
     }
     if (endpoint.includes('/quant/microstructure')) {
+        const t1 = userTickers[0] || 'AAPL';
+        const spot = getBaseSpot(t1);
         return {
             order_book: {
-                mid_price: 185.00, micro_price: 185.02, ofi_imbalance: 0.42, vpin_toxicity: 0.28,
-                order_book: Array.from({length: 10}, (_, i) => ({ level: i+1, bid_size: 1500 - i*100, bid_price: 184.98 - i*0.01, ask_price: 185.02 + i*0.01, ask_size: 1300 - i*80 }))
+                mid_price: spot,
+                micro_price: Number((spot * 1.0002).toFixed(2)),
+                ofi_imbalance: 0.42,
+                vpin_toxicity: 0.28,
+                order_book: Array.from({length: 10}, (_, i) => ({
+                    level: i+1,
+                    bid_size: 1500 - i*100,
+                    bid_price: Number((spot - (i+1)*0.05).toFixed(2)),
+                    ask_price: Number((spot + (i+1)*0.05).toFixed(2)),
+                    ask_size: 1300 - i*80
+                }))
             },
             almgren_chriss: {
-                total_shares: 25000, urgency_kappa: 0.042, expected_market_impact_cost: 1420.50,
+                total_shares: 25000, urgency_kappa: 0.042, expected_market_impact_cost: Number((spot * 0.008 * 25000).toFixed(2)),
                 intervals: ['T+0m', 'T+10m', 'T+20m', 'T+30m', 'T+40m', 'T+50m', 'T+60m'],
                 holdings_trajectory: [25000, 21000, 16800, 12500, 8100, 3900, 0]
             }
         };
     }
     if (endpoint.includes('/quant/derivatives')) {
+        const t1 = userTickers[0] || 'AAPL';
+        const spot = getBaseSpot(t1);
+        const k = Number((spot * 1.02).toFixed(2));
         return {
-            call_greeks: { price: 4.85, delta: 0.54, gamma: 0.024, vega: 0.28, theta: -0.045, rho: 0.12, vanna: 0.0035, volga: 0.028, charm: 0.0012 },
-            put_greeks: { price: 6.20, delta: -0.46, gamma: 0.024, vega: 0.28, theta: -0.038, rho: -0.15, vanna: 0.0035, volga: 0.028, charm: 0.0012 },
-            volatility_smile: { strikes: [144, 153, 162, 171, 180, 189, 198, 207, 216], moneyness: [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2], implied_vols: [28.5, 26.2, 24.1, 22.8, 22.0, 22.4, 23.5, 25.1, 27.0] },
-            delta_hedging_simulation: { days: Array.from({length: 31}, (_, i) => i), price_path: Array.from({length: 31}, (_, i) => 180 + Math.sin(i/3)*8), cumulative_pnl: Array.from({length: 31}, (_, i) => Math.sin(i/4)*120), final_replication_error: 45.20, total_rebalances: 30 }
+            call_greeks: { price: Number((spot * 0.035).toFixed(2)), delta: 0.54, gamma: 0.024, vega: 0.28, theta: -0.045, rho: 0.12, vanna: 0.0035, volga: 0.028, charm: 0.0012 },
+            put_greeks: { price: Number((spot * 0.042).toFixed(2)), delta: -0.46, gamma: 0.024, vega: 0.28, theta: -0.038, rho: -0.15, vanna: 0.0035, volga: 0.028, charm: 0.0012 },
+            volatility_smile: {
+                strikes: [spot*0.8, spot*0.85, spot*0.9, spot*0.95, spot, spot*1.05, spot*1.1, spot*1.15, spot*1.2].map(v => Number(v.toFixed(1))),
+                moneyness: [0.8, 0.85, 0.9, 0.95, 1.0, 1.05, 1.1, 1.15, 1.2],
+                implied_vols: [28.5, 26.2, 24.1, 22.8, 22.0, 22.4, 23.5, 25.1, 27.0]
+            },
+            delta_hedging_simulation: {
+                days: Array.from({length: 31}, (_, i) => i),
+                price_path: Array.from({length: 31}, (_, i) => Number((spot + Math.sin(i/3)*(spot*0.04)).toFixed(2))),
+                cumulative_pnl: Array.from({length: 31}, (_, i) => Math.sin(i/4)*120),
+                final_replication_error: 45.20,
+                total_rebalances: 30
+            }
         };
     }
     if (endpoint.includes('/quant/attribution')) {
+        const wObj = {};
+        const rcObj = {};
+        userTickers.forEach(t => {
+            wObj[t] = Number((1 / userTickers.length).toFixed(3));
+            rcObj[t] = Number((100 / userTickers.length).toFixed(1));
+        });
         return {
-            risk_parity_weights: { AAPL: 0.28, MSFT: 0.26, GOOGL: 0.24, AMZN: 0.12, JPM: 0.10 },
-            risk_contribution_pct: { AAPL: 20.0, MSFT: 20.0, GOOGL: 20.0, AMZN: 20.0, JPM: 20.0 },
+            risk_parity_weights: wObj,
+            risk_contribution_pct: rcObj,
             fractional_kelly: { implied_leverage: 1.25 },
             brinson_attribution: { total_active_return_pct: 3.45, total_allocation_effect_pct: 1.80, total_selection_effect_pct: 1.45, total_interaction_effect_pct: 0.20 }
         };
     }
     if (endpoint.includes('/market/volatility')) {
-        return { ewma: Array.from({length: 40}, () => 0.18 + Math.random() * 0.03), garch: Array.from({length: 40}, () => 0.19 + Math.random() * 0.04) };
+        return { ewma: Array.from({length: 40}, () => Number((0.18 + Math.random() * 0.03).toFixed(3))), garch: Array.from({length: 40}, () => Number((0.19 + Math.random() * 0.04).toFixed(3))) };
     }
     if (endpoint.includes('/market/regime')) {
         return { current_state: 'Bull', probabilities: { Bull: 0.72, Sideways: 0.20, Bear: 0.08 } };
     }
     if (endpoint.includes('/market/correlations')) {
-        return { tickers: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'JPM'], matrix: [[1, 0.72, 0.65, 0.58, 0.42], [0.72, 1, 0.68, 0.61, 0.45], [0.65, 0.68, 1, 0.74, 0.38], [0.58, 0.61, 0.74, 1, 0.35], [0.42, 0.45, 0.38, 0.35, 1]] };
+        const n = userTickers.length;
+        const mat = [];
+        for (let i = 0; i < n; i++) {
+            const row = [];
+            for (let j = 0; j < n; j++) {
+                if (i === j) row.push(1.0);
+                else row.push(Number((0.35 + Math.abs(Math.sin(i * 3 + j)) * 0.45).toFixed(2)));
+            }
+            mat.push(row);
+        }
+        return { tickers: userTickers, matrix: mat };
     }
     if (endpoint.includes('/risk/var')) {
         return { historical_var: -0.023, parametric_var: -0.021, monte_carlo_var: -0.025, historical_cvar: -0.036, parametric_cvar: -0.032, monte_carlo_cvar: -0.039 };
     }
     if (endpoint.includes('/risk/optimize')) {
-        return { optimal_weights: { AAPL: 0.25, MSFT: 0.30, GOOGL: 0.20, AMZN: 0.15, JPM: 0.10 }, expected_return: 0.152, portfolio_cvar: -0.028 };
+        const wObj = {};
+        userTickers.forEach((t, idx) => {
+            wObj[t] = Number((1 / userTickers.length).toFixed(3));
+        });
+        return { optimal_weights: wObj, expected_return: 0.152, portfolio_cvar: -0.028 };
     }
     if (endpoint.includes('/risk/backtest')) {
-        return { equity_curve: Array.from({length: 40}, (_, i) => 1.0 + i * 0.008 + Math.sin(i/2) * 0.02), total_return: 0.285, sharpe_ratio: 1.88, max_drawdown: 0.084, calmar_ratio: 2.24, win_rate: 0.62 };
+        return { equity_curve: Array.from({length: 40}, (_, i) => Number((1.0 + i * 0.008 + Math.sin(i/2) * 0.02).toFixed(3))), total_return: 0.285, sharpe_ratio: 1.88, max_drawdown: 0.084, calmar_ratio: 2.24, win_rate: 0.62 };
     }
     if (endpoint.includes('/risk/stress')) {
         return {
@@ -970,13 +1037,14 @@ function getMockFallback(endpoint) {
     }
     if (endpoint.includes('/signals/generate')) {
         return {
-            signals: [
-                { ticker: 'AAPL', regime: 'Bull', strategy: 'Momentum', direction: 'BUY', confidence: 0.85, rationale: 'Bull regime with MA20 > MA50' },
-                { ticker: 'MSFT', regime: 'Bull', strategy: 'Momentum', direction: 'BUY', confidence: 0.80, rationale: 'Strong positive trend across multi-factor filter' },
-                { ticker: 'GOOGL', regime: 'Sideways', strategy: 'Mean-Reversion', direction: 'HOLD', confidence: 0.55, rationale: 'Neutral RSI (48.2) in consolidation band' },
-                { ticker: 'AMZN', regime: 'Bull', strategy: 'Momentum', direction: 'BUY', confidence: 0.75, rationale: 'Breakout above 50-day moving average' },
-                { ticker: 'JPM', regime: 'Sideways', strategy: 'Mean-Reversion', direction: 'BUY', confidence: 0.70, rationale: 'Oversold condition near lower Bollinger band' }
-            ]
+            signals: userTickers.map((t, idx) => ({
+                ticker: t,
+                regime: idx % 2 === 0 ? 'Bull' : 'Sideways',
+                strategy: idx % 2 === 0 ? 'Momentum Trend' : 'Mean-Reversion',
+                direction: idx % 3 === 0 ? 'BUY' : (idx % 3 === 1 ? 'HOLD' : 'BUY'),
+                confidence: Number((0.70 + (idx % 4) * 0.06).toFixed(2)),
+                rationale: `Multi-factor quantitative signal computed for ${t} with positive momentum and risk parity weighting.`
+            }))
         };
     }
     if (endpoint.includes('/signals/execute')) {
@@ -1189,6 +1257,9 @@ async function renderAppSpeculations() {
     ctx.beginPath();
     ctx.moveTo(getX(0), getY(med[0]));
     for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(med[i]));
+    ctx.stroke();
+}
+
 // ── Quant Tear Sheet Generator ─────────────────────────────────────────────
 const initTearSheetModal = () => {
     const btn = document.getElementById('btnExportTearSheet');
