@@ -768,6 +768,63 @@
     if (resetBtn) resetBtn.addEventListener('click', resetAll);
     if (emptyResetBtn) emptyResetBtn.addEventListener('click', resetAll);
 
+    // CSV Exporter
+    const csvBtn = document.getElementById('btnExportTickerCsv');
+    if (csvBtn) {
+      csvBtn.addEventListener('click', () => {
+        const rows = [
+          ['Symbol', 'Name', 'Exchange', 'AssetType', 'Currency', 'Price', 'Change', 'ChangePct', 'PE', 'Beta', 'Sector']
+        ];
+        state.filteredSecurities.forEach(s => {
+          const q = SecurityMaster._liveQuotes.get(s.symbol) || s;
+          const chg = Number(((q.price || s.basePrice) - (q.previousClose || s.basePrice)).toFixed(2));
+          const chgPct = q.previousClose > 0 ? Number(((chg / q.previousClose) * 100).toFixed(2)) : 0;
+          rows.push([
+            `"${s.symbol}"`,
+            `"${s.name.replace(/"/g, '""')}"`,
+            `"${s.exchange}"`,
+            `"${s.assetType}"`,
+            `"${s.currency}"`,
+            q.price || s.basePrice,
+            chg,
+            chgPct,
+            s.pe || '',
+            s.beta || '',
+            `"${s.sector || ''}"`
+          ]);
+        });
+        const csvContent = 'data:text/csv;charset=utf-8,' + rows.map(r => r.join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `riskos_securities_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
+    // JSON Exporter
+    const jsonBtn = document.getElementById('btnExportTickerJson');
+    if (jsonBtn) {
+      jsonBtn.addEventListener('click', () => {
+        const data = state.filteredSecurities.map(s => {
+          const q = SecurityMaster._liveQuotes.get(s.symbol) || s;
+          return {
+            ...s,
+            liveQuote: q
+          };
+        });
+        const jsonStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2));
+        const link = document.createElement('a');
+        link.setAttribute('href', jsonStr);
+        link.setAttribute('download', `riskos_securities_${Date.now()}.json`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    }
+
     // 7. Drawer Close Handlers
     const drawerCloseBtn = document.getElementById('drawerCloseBtn');
     const drawerBackdrop = document.getElementById('tickerDrawerBackdrop');

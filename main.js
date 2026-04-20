@@ -3559,12 +3559,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const initCurrencyToggle = () => {
+    const currencyToggleBtn = document.getElementById('currencyToggleBtn');
+    if (!currencyToggleBtn) return;
+    currencyToggleBtn.addEventListener('click', (e) => {
+      const opt = e.target.closest('.curr-opt');
+      if (opt && opt.dataset.curr) {
+        appState.currency = opt.dataset.curr;
+      } else {
+        appState.currency = appState.currency === 'INR' ? 'USD' : 'INR';
+      }
+      
+      currencyToggleBtn.querySelectorAll('.curr-opt').forEach(el => {
+        el.classList.toggle('active', el.dataset.curr === appState.currency);
+      });
+
+      updateNavbarPortfolioCount();
+      renderWatchlist();
+      initGlobalMarketRibbon();
+    });
+  };
+
   // Initialize state
   updateNavbarPortfolioCount();
   renderWatchlist();
   initMetricCounters();
   initGlobalMarketRibbon();
   initLiveTradeTape();
+  initCurrencyToggle();
 
 });
 

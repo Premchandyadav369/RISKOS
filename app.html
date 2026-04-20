@@ -216,6 +216,74 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Enterprise Portfolio Stress Lab & Historical Crisis Replay -->
+            <div class="card mt-4" style="background:#0e0f14; border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-radiation text-sell"></i> Institutional Crisis Replay &amp; Macro Shock Simulator
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Replay actual historic market dislocations against your active portfolio capital &amp; compute exact drawdown recovery horizons.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(255,107,107,0.15); color:#FF6B6B;">Aladdin-Grade Multi-Factor Stress Suite</span>
+                </div>
+
+                <!-- Historic Scenario Selector Buttons -->
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;" id="crisisSelector">
+                    <button class="crisis-btn active" data-crisis="gfc2008" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.4); color:#FF6B6B; cursor:pointer;">2008 Lehman GFC (-45%)</button>
+                    <button class="crisis-btn" data-crisis="covid2020" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2020 COVID-19 Crash (-34%)</button>
+                    <button class="crisis-btn" data-crisis="rate2022" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2022 Rate Shock (+500bps)</button>
+                    <button class="crisis-btn" data-crisis="energy2024" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">Geopolitical Oil Shock ($115/bbl)</button>
+                    <button class="crisis-btn" data-crisis="custom" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">Custom Multi-Factor</button>
+                </div>
+
+                <!-- Custom Sliders (Revealed on Custom) -->
+                <div id="customStressSliders" style="display:none; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:16px; padding:14px; background:rgba(255,255,255,0.02); border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-bottom:4px;"><span>Equity Shock:</span><strong id="customEqVal" style="color:#FF6B6B">-25%</strong></div>
+                        <input type="range" id="customEqSlider" min="-60" max="0" step="1" value="-25" style="width:100%; accent-color:#FF6B6B; cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-bottom:4px;"><span>Interest Rates:</span><strong id="customRateVal" style="color:#FAB005">+200 bps</strong></div>
+                        <input type="range" id="customRateSlider" min="0" max="600" step="25" value="200" style="width:100%; accent-color:#FAB005; cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-bottom:4px;"><span>Commodity Surge:</span><strong id="customCommVal" style="color:#20C997">+35%</strong></div>
+                        <input type="range" id="customCommSlider" min="-40" max="100" step="5" value="35" style="width:100%; accent-color:#20C997; cursor:pointer;">
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-bottom:4px;"><span>USD/INR Move:</span><strong id="customFxVal" style="color:#4F8FFF">+5.0%</strong></div>
+                        <input type="range" id="customFxSlider" min="-10" max="25" step="0.5" value="5" style="width:100%; accent-color:#4F8FFF; cursor:pointer;">
+                    </div>
+                </div>
+
+                <!-- Simulation Output KPI Cards -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Estimated Portfolio Drawdown</span>
+                        <div id="stressDrawdownPct" style="font-size:1.4rem; font-weight:800; color:#FF6B6B; margin:4px 0;">-32.40%</div>
+                        <span id="stressDrawdownAbs" style="font-size:0.75rem; color:#a1a1aa;">-₹32,40,000</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Post-Shock Remaining Capital</span>
+                        <div id="stressRemainingCap" style="font-size:1.4rem; font-weight:800; color:#fff; margin:4px 0;">₹67,60,000</div>
+                        <span style="font-size:0.75rem; color:#51CF66;">Surviving Capital Cushion</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Required Recovery Gain</span>
+                        <div id="stressRequiredGain" style="font-size:1.4rem; font-weight:800; color:#FAB005; margin:4px 0;">+47.93%</div>
+                        <span id="stressRecoveryMonths" style="font-size:0.75rem; color:#a1a1aa;">~34 Months @ 12% Hurdle</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Primary Vulnerability Factor</span>
+                        <div id="stressPrimaryVuln" style="font-size:1.1rem; font-weight:700; color:#22d3ee; margin:4px 0;">High-Beta Tech &amp; Equities</div>
+                        <span style="font-size:0.75rem; color:#a1a1aa;">Hedge: Long USD/INR &amp; Gold</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════ DESK 3: FUTURES & RATES DESK ═══════════ -->
