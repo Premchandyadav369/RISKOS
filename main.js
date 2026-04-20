@@ -3523,6 +3523,22 @@ document.addEventListener('DOMContentLoaded', () => {
             cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
           }
         });
+
+        // Update active company modal if open
+        if (appState.activeSecurity && (u.symbol === appState.activeSecurity.symbol || u.symbol === appState.activeSecurity.symbolNS)) {
+          const mPrice = document.getElementById('compModalPrice');
+          const mChg = document.getElementById('compModalChange');
+          if (mPrice) {
+            mPrice.textContent = formatMoney(u.price, u.currency);
+            mPrice.classList.remove('price-flash-up', 'price-flash-down');
+            void mPrice.offsetWidth;
+            mPrice.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+          }
+          if (mChg) {
+            mChg.textContent = `${u.change >= 0 ? '+' : ''}${u.change.toFixed(2)} (${u.changePercent >= 0 ? '+' : ''}${u.changePercent.toFixed(2)}%)`;
+            mChg.className = `comp-price-change ${u.change >= 0 ? 'pos' : 'neg'}`;
+          }
+        }
       });
     });
   };

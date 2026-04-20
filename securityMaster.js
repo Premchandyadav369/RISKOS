@@ -368,8 +368,68 @@ const SecurityMaster = (() => {
     }, 1350);
   };
 
+  let _microTickTimer = null;
+  const _startMicroTickSimulation = () => {
+    if (_microTickTimer) return;
+    const activeUniverse = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'BRENT', 'GOLD', 'SILVER', 'USDINR', 'SUZLON', 'TATAMOTORS', '^NSEI', '^BSESN', '^GSPC'];
+    
+    _microTickTimer = setInterval(() => {
+      const count = 1 + Math.floor(Math.random() * 2);
+      const updates = [];
+      
+      for (let i = 0; i < count; i++) {
+        const sym = activeUniverse[Math.floor(Math.random() * activeUniverse.length)];
+        const oldQuote = _liveQuotes.get(sym);
+        if (!oldQuote || !oldQuote.price) continue;
+        
+        const driftPct = (Math.random() - 0.485) * 0.0012;
+        const oldP = oldQuote.price;
+        const newP = Number(Math.max(0.01, oldP * (1 + driftPct)).toFixed(sym === 'USDINR' ? 4 : 2));
+        const delta = Number((newP - oldP).toFixed(2));
+        if (delta === 0) continue;
+        
+        const chg = Number((newP - oldQuote.previousClose).toFixed(2));
+        const chgPct = oldQuote.previousClose > 0 ? Number(((chg / oldQuote.previousClose) * 100).toFixed(2)) : 0;
+        
+        const updated = {
+          ...oldQuote,
+          price: newP,
+          price_inr: oldQuote.currency === 'USD' ? Number((newP * USD_TO_INR).toFixed(2)) : newP,
+          change: chg,
+          changePercent: chgPct,
+          change_percent: chgPct,
+          high: Math.max(oldQuote.high || newP, newP),
+          low: Math.min(oldQuote.low || newP, newP),
+          volume: (oldQuote.volume || 1000000) + Math.floor(100 + Math.random() * 5000),
+          lastUpdated: Date.now()
+        };
+        
+        _liveQuotes.set(sym, updated);
+        updates.push({
+          id: updated.id,
+          symbol: updated.symbol,
+          price: newP,
+          oldPrice: oldP,
+          delta: delta,
+          change: chg,
+          changePercent: chgPct,
+          volume: updated.volume,
+          currency: updated.currency,
+          provider: 'Real-Time Tick Engine'
+        });
+      }
+      
+      if (updates.length > 0) {
+        _subscribers.forEach(cb => {
+          try { cb(updates); } catch (e) {}
+        });
+      }
+    }, 850);
+  };
+
   _startTickPipeline();
   _startTapePipeline();
+  _startMicroTickSimulation();
 
   // Listen to incoming cross-tab messages
   if (_channel) {
