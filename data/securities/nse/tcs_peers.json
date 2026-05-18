@@ -1,0 +1,13 @@
+{
+  "symbol": "TCS",
+  "exchange": "NSE",
+  "name": "Tata Consultancy Services Ltd",
+  "sector": "Information Technology",
+  "currency": "INR",
+  "base_price": 4210.8,
+  "beta": 0.72,
+  "pe_ratio": 31.2,
+  "schema_type": "institutional_security_peers",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
