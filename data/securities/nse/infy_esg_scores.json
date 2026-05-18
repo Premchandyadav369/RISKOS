@@ -1,0 +1,13 @@
+{
+  "symbol": "INFY",
+  "exchange": "NSE",
+  "name": "Infosys Ltd",
+  "sector": "Information Technology",
+  "currency": "INR",
+  "base_price": 1885.4,
+  "beta": 0.85,
+  "pe_ratio": 28.4,
+  "schema_type": "institutional_security_esg_scores",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
