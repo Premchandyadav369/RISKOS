@@ -1,0 +1,13 @@
+{
+  "symbol": "RELIANCE",
+  "exchange": "NSE",
+  "name": "Reliance Industries Ltd",
+  "sector": "Energy & Telecom",
+  "currency": "INR",
+  "base_price": 2984.5,
+  "beta": 0.88,
+  "pe_ratio": 25.5,
+  "schema_type": "institutional_security_macro_correlations",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
