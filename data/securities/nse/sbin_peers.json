@@ -1,0 +1,13 @@
+{
+  "symbol": "SBIN",
+  "exchange": "NSE",
+  "name": "State Bank of India",
+  "sector": "Public Banking",
+  "currency": "INR",
+  "base_price": 824.5,
+  "beta": 1.22,
+  "pe_ratio": 11.8,
+  "schema_type": "institutional_security_peers",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
