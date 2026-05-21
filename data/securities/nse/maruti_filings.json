@@ -1,0 +1,13 @@
+{
+  "symbol": "MARUTI",
+  "exchange": "NSE",
+  "name": "Maruti Suzuki India Ltd",
+  "sector": "Automotive",
+  "currency": "INR",
+  "base_price": 12450.0,
+  "beta": 0.92,
+  "pe_ratio": 28.2,
+  "schema_type": "institutional_security_filings",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
