@@ -1,0 +1,13 @@
+{
+  "symbol": "AXISBANK",
+  "exchange": "NSE",
+  "name": "Axis Bank Ltd",
+  "sector": "Financial Services",
+  "currency": "INR",
+  "base_price": 1180.5,
+  "beta": 1.18,
+  "pe_ratio": 14.8,
+  "schema_type": "institutional_security_peers",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
