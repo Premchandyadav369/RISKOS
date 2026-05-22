@@ -1,0 +1,13 @@
+{
+  "symbol": "NVDA",
+  "exchange": "NASDAQ",
+  "name": "NVIDIA Corporation",
+  "sector": "Semiconductors & AI",
+  "currency": "USD",
+  "base_price": 128.5,
+  "beta": 1.85,
+  "pe_ratio": 62.4,
+  "schema_type": "institutional_security_governance",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
