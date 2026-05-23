@@ -1,0 +1,13 @@
+{
+  "symbol": "MSFT",
+  "exchange": "NASDAQ",
+  "name": "Microsoft Corporation",
+  "sector": "Cloud & Enterprise Software",
+  "currency": "USD",
+  "base_price": 448.2,
+  "beta": 0.95,
+  "pe_ratio": 36.2,
+  "schema_type": "institutional_security_profile",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
