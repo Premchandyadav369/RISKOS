@@ -1,0 +1,16 @@
+{
+  "crisis_id": "svb_2023_bankrun",
+  "title": "2023 US Regional Banking Uninsured Deposit Run",
+  "phase": "hedging_playbook",
+  "max_drawdown_pct": -38.5,
+  "peak_vix": 68.2,
+  "spread_widening_bps": 340,
+  "recovery_months": 28,
+  "asset_impacts": {
+    "equities": -42.0,
+    "commodities": -28.0,
+    "high_yield_credit": -18.5,
+    "sovereign_bonds": 12.4,
+    "cash": 0.0
+  }
+}
