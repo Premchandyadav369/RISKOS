@@ -1,0 +1,13 @@
+{
+  "api": "observatory_feed",
+  "title": "Event-Driven Causality & Macro Anomaly Discovery Stream",
+  "spec_type": "json_schema",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/observatory_feed/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
