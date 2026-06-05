@@ -1,0 +1,13 @@
+{
+  "api": "risk_engine",
+  "title": "Real-Time Portfolio VaR/CVaR Computation Endpoint",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/risk_engine/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
