@@ -1,0 +1,13 @@
+{
+  "api": "stress_tester",
+  "title": "Aladdin Multi-Factor Crisis Replay & Scenario Shocker API",
+  "spec_type": "json_schema",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/stress_tester/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
