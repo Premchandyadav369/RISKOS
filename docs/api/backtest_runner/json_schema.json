@@ -1,0 +1,13 @@
+{
+  "api": "backtest_runner",
+  "title": "High-Throughput Walk-Forward Strategy Backtester",
+  "spec_type": "json_schema",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/backtest_runner/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
