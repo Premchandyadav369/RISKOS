@@ -1,0 +1,13 @@
+{
+  "api": "regime_detection",
+  "title": "Gaussian HMM Multi-Regime Classification Endpoint",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/regime_detection/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
