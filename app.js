@@ -2397,13 +2397,22 @@ function initFeatureExplainability() {
         currentExplainKey = key;
         renderExplainDrawer();
         modal.hidden = false;
+        modal.classList.remove('hidden');
+        modal.classList.add('open');
         modal.removeAttribute('aria-hidden');
+        modal.style.display = 'flex';
     }
 
     function closeExplainDrawer() {
         modal.hidden = true;
+        modal.classList.add('hidden');
+        modal.classList.remove('open');
         modal.setAttribute('aria-hidden', 'true');
+        modal.style.display = 'none';
     }
+
+    // Ensure hidden on startup
+    closeExplainDrawer();
 
     // Attach click listeners to all .explain-trigger-btn
     document.body.addEventListener('click', (e) => {
@@ -2422,11 +2431,25 @@ function initFeatureExplainability() {
         });
     });
 
-    if (closeBtn) closeBtn.addEventListener('click', closeExplainDrawer);
-    if (backdrop) backdrop.addEventListener('click', closeExplainDrawer);
+    if (closeBtn) closeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeExplainDrawer();
+    });
+    if (backdrop) backdrop.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeExplainDrawer();
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeExplainDrawer();
+        }
+    });
 
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.hidden) {
+        if (e.key === 'Escape' && !modal.hidden && modal.style.display !== 'none') {
             closeExplainDrawer();
         }
     });
