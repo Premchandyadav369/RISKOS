@@ -1135,7 +1135,8 @@ function initAppSpeculationsDesk() {
     if (sHorizon) {
         sHorizon.addEventListener('input', (e) => {
             appSpecState.horizon = parseInt(e.target.value, 10);
-            document.getElementById('app-spec-val-horizon').textContent = `${appSpecState.horizon} Days`;
+            const el = document.getElementById('app-spec-val-horizon');
+            if (el) el.textContent = `${appSpecState.horizon} Days`;
             renderAppSpeculations();
         });
     }
@@ -1144,7 +1145,8 @@ function initAppSpeculationsDesk() {
         sDrift.addEventListener('input', (e) => {
             const val = parseInt(e.target.value, 10);
             appSpecState.drift = val / 100.0;
-            document.getElementById('app-spec-val-drift').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+            const el = document.getElementById('app-spec-val-drift');
+            if (el) el.textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
             renderAppSpeculations();
         });
     }
@@ -1152,7 +1154,8 @@ function initAppSpeculationsDesk() {
     if (sVol) {
         sVol.addEventListener('input', (e) => {
             appSpecState.volMult = parseFloat(e.target.value);
-            document.getElementById('app-spec-val-vol').textContent = `${appSpecState.volMult.toFixed(1)}x`;
+            const el = document.getElementById('app-spec-val-vol');
+            if (el) el.textContent = `${appSpecState.volMult.toFixed(1)}x`;
             renderAppSpeculations();
         });
     }

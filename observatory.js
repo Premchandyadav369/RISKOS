@@ -307,9 +307,13 @@
     const neutral = sectors.filter(s => s.status === 'neutral');
     const weak = sectors.filter(s => s.status === 'weak');
 
-    document.getElementById('strongSectorCount').textContent = strong.length;
-    document.getElementById('neutralSectorCount').textContent = neutral.length;
-    document.getElementById('weakSectorCount').textContent = weak.length;
+    const strongEl = document.getElementById('strongSectorCount');
+    const neutralEl = document.getElementById('neutralSectorCount');
+    const weakEl = document.getElementById('weakSectorCount');
+
+    if (strongEl) strongEl.textContent = strong.length;
+    if (neutralEl) neutralEl.textContent = neutral.length;
+    if (weakEl) weakEl.textContent = weak.length;
 
     const renderItems = (list) => list.map(s => `
       <div class="sector-row-item" data-sector="${s.name}">
@@ -590,27 +594,42 @@
     if (!overlay) return;
 
     const sec = obs.security;
-    document.getElementById('drawerSecSymbol').textContent = sec.symbol;
-    document.getElementById('drawerSecName').textContent = `${sec.name} • ${sec.exchange}`;
-    document.getElementById('drawerObsType').textContent = obs.type.replace(/_/g, ' ');
-
-    document.getElementById('drawerSpotPrice').textContent = formatMoney(sec.price);
+    const secSymbolEl = document.getElementById('drawerSecSymbol');
+    const secNameEl = document.getElementById('drawerSecName');
+    const obsTypeEl = document.getElementById('drawerObsType');
+    const spotPriceEl = document.getElementById('drawerSpotPrice');
     const chgEl = document.getElementById('drawerSpotChg');
-    chgEl.textContent = `${sec.changePercent >= 0 ? '+' : ''}${sec.changePercent.toFixed(2)}%`;
-    chgEl.className = `drawer-m-val ${sec.changePercent >= 0 ? 'text-emerald' : 'text-red'}`;
+    const obsMetricEl = document.getElementById('drawerObsMetricVal');
+    const zScoreEl = document.getElementById('drawerZScoreVal');
+    const evidenceEl = document.getElementById('drawerEvidenceText');
+    const whyEl = document.getElementById('drawerWhyText');
 
-    document.getElementById('drawerObsMetricVal').textContent = obs.magnitude;
-    document.getElementById('drawerZScoreVal').textContent = obs.mathematics ? obs.mathematics.zScore.split('=')[2]?.trim() || '+2.50σ' : '+2.50σ';
+    if (secSymbolEl) secSymbolEl.textContent = sec.symbol;
+    if (secNameEl) secNameEl.textContent = `${sec.name} • ${sec.exchange}`;
+    if (obsTypeEl) obsTypeEl.textContent = obs.type.replace(/_/g, ' ');
 
-    document.getElementById('drawerEvidenceText').textContent = obs.evidence;
-    document.getElementById('drawerWhyText').textContent = obs.why_it_matters;
+    if (spotPriceEl) spotPriceEl.textContent = formatMoney(sec.price);
+    if (chgEl) {
+      chgEl.textContent = `${sec.changePercent >= 0 ? '+' : ''}${sec.changePercent.toFixed(2)}%`;
+      chgEl.className = `drawer-m-val ${sec.changePercent >= 0 ? 'text-emerald' : 'text-red'}`;
+    }
 
-    // Mathematics LaTeX
+    if (obsMetricEl) obsMetricEl.textContent = obs.magnitude;
+    if (zScoreEl) zScoreEl.textContent = obs.mathematics ? obs.mathematics.zScore.split('=')[2]?.trim() || '+2.50σ' : '+2.50σ';
+
+    if (evidenceEl) evidenceEl.textContent = obs.evidence;
+    if (whyEl) whyEl.textContent = obs.why_it_matters;
+
+    // Mathematics LaTeX / KaTeX rendering
     const mathContainer = document.getElementById('drawerMathContainer');
     if (mathContainer && obs.mathematics) {
-      mathContainer.innerHTML = `\\[ ${obs.mathematics.formula} \\]`;
-      if (window.MathJax && window.MathJax.typesetPromise) {
+      if (typeof katex !== 'undefined' && katex.render) {
+        katex.render(obs.mathematics.formula, mathContainer, { displayMode: true, throwOnError: false });
+      } else if (window.MathJax && window.MathJax.typesetPromise) {
+        mathContainer.innerHTML = `\\[ ${obs.mathematics.formula} \\]`;
         window.MathJax.typesetPromise([mathContainer]).catch(() => {});
+      } else {
+        mathContainer.textContent = obs.mathematics.formula;
       }
     }
 
@@ -929,7 +948,8 @@
       renderMarketTimeline();
 
       const timeStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-      document.getElementById('obsLastUpdated').textContent = `Updated at ${timeStr} IST`;
+      const lastUpEl = document.getElementById('obsLastUpdated');
+      if (lastUpEl) lastUpEl.textContent = `Updated at ${timeStr} IST`;
       setTimeout(() => {
         if (refreshBtn) refreshBtn.classList.remove('rotating');
       }, 600);
