@@ -1,0 +1,13 @@
+{
+  "api": "speculations_fan",
+  "title": "10,000-Path Monte Carlo Quantile Fan Forecaster",
+  "spec_type": "json_schema",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/speculations_fan/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
