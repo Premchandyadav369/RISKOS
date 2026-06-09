@@ -1,0 +1,13 @@
+{
+  "api": "tearsheet_export",
+  "title": "Institutional Factsheet & PDF Generator Gateway",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/tearsheet_export/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
