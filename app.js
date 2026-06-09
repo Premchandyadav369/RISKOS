@@ -865,8 +865,9 @@ async function executeTrade(ticker, direction, qty) {
         </div>
     `;
     
-    // Refresh persistent database trade history
+    // Refresh persistent database trade history and update TCA blotter
     fetchOrdersHistory();
+    updateTcaBlotter(fillPrice, qty, ticker);
     if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
         SecurityMaster.playExecutionSound();
     }
@@ -1891,6 +1892,673 @@ function initCrisisReplaySuite() {
     recalculateCrisis();
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   ENTERPRISE EXPLAINABILITY & MATHEMATICAL PROOFS ENGINE
+   ══════════════════════════════════════════════════════════════════════════ */
+const EXPLAIN_KNOWLEDGE_BASE = {
+    price_returns: {
+        title: "Logarithmic Returns & Continuous Compounding",
+        symbol: "r_t = \\ln(P_t / P_{t-1})",
+        category: "Stochastics & Time Series",
+        beginner: {
+            heading: "Why Quants Never Use Percentage Price Changes",
+            text: "Imagine a stock goes from $100 up 50% to $150, then drops 50% to $75. Even though the arithmetic average percentage change was (+50% - 50%)/2 = 0%, you actually lost $25! Log returns fix this math illusion: an increase of +0.405 followed by -0.405 brings you right back to zero."
+        },
+        investor: {
+            heading: "Portfolio Manager & Risk Aggregation Impact",
+            text: "Log returns are time-additive over multi-period horizons (i.e. monthly return = sum of daily log returns). Furthermore, under the Central Limit Theorem, continuous log returns are approximately normally distributed, allowing symmetric volatility and Sharpe ratio scaling."
+        },
+        quant: {
+            heading: "Analytical SDE Formulation & Itô Derivation",
+            formula: "r_t = \\ln\\left(\\frac{P_t}{P_{t-1}}\\right) = \\left(\\mu - \\frac{1}{2}\\sigma^2\\right)\\Delta t + \\sigma \\sqrt{\\Delta t}\\, Z_t, \\quad Z_t \\sim \\mathcal{N}(0, 1)",
+            assumptions: "Geometric Brownian Motion (GBM), Continuous Sample Paths, No-Arbitrage Pricing.",
+            trace: [
+                "1. Given Previous Price P_{t-1} and Current Price P_t",
+                "2. Ratio = P_t / P_{t-1}",
+                "3. Log Return r_t = ln(Ratio)",
+                "4. Annualized Compound Drift = mean(r_t) * 252 + 0.5 * sigma^2"
+            ]
+        }
+    },
+    garch_vol: {
+        title: "GARCH(1,1) Volatility Clustering",
+        symbol: "\\sigma_t^2 = \\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2",
+        category: "Econometric Forecasting",
+        beginner: {
+            heading: "The Momentum of Market Fear",
+            text: "Market turbulence is sticky — wild days are almost always followed by wild days, and calm days are followed by calm days. GARCH(1,1) mathematically tracks how quickly yesterday's panic wears off and when volatility will return to its long-term average."
+        },
+        investor: {
+            heading: "Option Pricing & Margin Requirement Sizing",
+            text: "When conditional volatility spikes above historical unconditional volatility, option implied volatilities are rich. Fund managers use GARCH(1,1) to forecast margin calls, position limits, and hedge ratios before sudden liquidity freezes occur."
+        },
+        quant: {
+            heading: "Stationarity Invariants & MLE Optimization",
+            formula: "\\sigma_t^2 = \\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2, \\quad \\text{Unconditional Vol } \\sigma_{LR} = \\sqrt{\\frac{\\omega}{1 - (\\alpha + \\beta)}}",
+            assumptions: "Stationarity requires alpha + beta < 1; Positivity requires omega > 0, alpha >= 0, beta >= 0.",
+            trace: [
+                "1. Baseline Constant omega = 0.000005",
+                "2. Shock Sensitivity alpha = 0.085 (reaction to yesterday's surprise)",
+                "3. Memory Persistence beta = 0.905 (decay half-life = ln(0.5)/ln(alpha+beta) = ~69 days)",
+                "4. Daily Conditional Vol sigma_t = sqrt(sigma_t^2) * sqrt(252)"
+            ]
+        }
+    },
+    hmm_regime: {
+        title: "Hidden Markov Model (HMM) Multi-Regime Classifier",
+        symbol: "P(S_t = j \\mid S_{t-1} = i) = A_{ij}",
+        category: "Machine Learning / Filtering",
+        beginner: {
+            heading: "Detecting the Invisible Weather of Wall Street",
+            text: "Markets behave completely differently in sunshine vs thunderstorms. In Bull markets, dips get bought quickly. In Bear markets, every rally gets sold. HMM looks at daily returns and volatility to tell you whether the current economic weather is Bull, Bear, or Sideways."
+        },
+        investor: {
+            heading: "Dynamic Asset Allocation & Momentum Hedging",
+            text: "Momentum strategies fail during regime turning points. When HMM flags a transition into the Bear regime (State 2), systematic hedge funds cut equity beta, switch to defensive cash/treasuries, and increase long volatility positions."
+        },
+        quant: {
+            heading: "Baum-Welch EM Algorithm & Forward-Backward Smoother",
+            formula: "\\gamma_t(i) = P(S_t = i \\mid \\mathbf{r}_{1:T}) = \\frac{\\alpha_t(i)\\beta_t(i)}{\\sum_{j=1}^K \\alpha_t(j)\\beta_t(j)}, \\quad \\mathbf{r}_t \\mid S_t = i \\sim \\mathcal{N}(\\mu_i, \\Sigma_i)",
+            assumptions: "Markovian state transitions, stationary Gaussian emission densities per hidden state.",
+            trace: [
+                "1. Emission density evaluation for Bull, Sideways, and Bear states",
+                "2. Forward variable alpha_t(i) and Backward variable beta_t(i) computation",
+                "3. State Posterior Probability Vector gamma_t = [P(Bull), P(Sideways), P(Bear)]",
+                "4. Current Classified Regime = argmax_i(gamma_t(i))"
+            ]
+        }
+    },
+    ledoit_wolf: {
+        title: "Ledoit-Wolf Shrinkage Covariance Matrix",
+        symbol: "\\mathbf{\\Sigma}_{LW} = \\hat{\\delta} \\mathbf{F} + (1 - \\hat{\\delta}) \\mathbf{S}",
+        category: "High-Dimensional Statistics",
+        beginner: {
+            heading: "Fixing Sample Noise in Stock Relationships",
+            text: "If you calculate correlations between 500 stocks with only 250 days of data, pure random noise creates fake extreme correlations that ruin your portfolio. Ledoit-Wolf pulls every noisy correlation toward a sensible average benchmark, guaranteeing your portfolio won't explode."
+        },
+        investor: {
+            heading: "Eliminating Markowitz Error-Maximization",
+            text: "Classical mean-variance optimization acts as an 'error maximizer' — placing extreme long/short bets on assets with spurious correlations. Ledoit-Wolf shrinkage stabilizes portfolio weights, reducing turnover and execution costs by 40-60%."
+        },
+        quant: {
+            heading: "Asymptotic Optimality & Well-Conditioned Inversion",
+            formula: "\\mathbf{\\Sigma}_{LW} = \\hat{\\delta} \\mathbf{F} + (1 - \\hat{\\delta}) \\mathbf{S}, \\quad \\hat{\\delta} = \\frac{\\sum_{i,j} \\text{Var}(s_{ij})}{\\sum_{i,j} (s_{ij} - f_{ij})^2}",
+            assumptions: "Frobenius norm loss minimization under large N, small T asymptotics; strictly positive eigenvalues.",
+            trace: [
+                "1. Compute sample covariance matrix S (noisy empirical estimator)",
+                "2. Compute structured target F (constant correlation single-index model)",
+                "3. Compute optimal shrinkage intensity delta in [0, 1]",
+                "4. Invert Sigma_LW with condition number < 100 for stable quadratic programming"
+            ]
+        }
+    },
+    var_cvar: {
+        title: "Tail Risk: Value-at-Risk & Expected Shortfall (CVaR)",
+        symbol: "\\text{CVaR}_\\alpha = \\mathbb{E}[L \\mid L \\ge \\text{VaR}_\\alpha]",
+        category: "Extreme Value & Capital Adequacy",
+        beginner: {
+            heading: "The Earthquake Scale of Finance",
+            text: "Value-at-Risk (VaR) tells you: '99 out of 100 days, you won't lose more than $10,000.' But CVaR tells you what happens on that terrifying 100th day: 'When the disaster happens, your average loss will be $24,500.' CVaR measures the actual damage inside the storm."
+        },
+        investor: {
+            heading: "Basel III Regulatory Capital & Tail Hedging",
+            text: "Following the 2008 Lehman collapse, global regulators replaced VaR with Expected Shortfall (CVaR) under FRTB standards. Portfolios with identical VaR can have wildly different CVaR if they carry hidden tail risks like short put options."
+        },
+        quant: {
+            heading: "Subadditivity, Coherence & Rockafellar Formulation",
+            formula: "\\text{CVaR}_\\alpha(X) = \\min_{v \\in \\mathbb{R}} \\left\\{ v + \\frac{1}{1-\\alpha} \\mathbb{E}\\left[(-X - v)^+\\right] \\right\\}, \\quad \\text{Coherent Axioms: Subadditive, Monotonic, Homogeneous}",
+            assumptions: "Fat-tailed loss distributions; strictly subadditive risk measure satisfying Artzner's axioms.",
+            trace: [
+                "1. Sort historical or Monte Carlo loss distribution L_1 <= L_2 <= ... <= L_N",
+                "2. Locate cutoff index k = floor(alpha * N) -> VaR_alpha = L_k",
+                "3. Compute tail expectation CVaR_alpha = (1 / (N - k)) * sum_{j=k+1}^N L_j",
+                "4. Absolute Capital at Risk = CVaR_alpha * Portfolio Notional NAV"
+            ]
+        }
+    },
+    cvar_opt: {
+        title: "Rockafellar-Uryasev CVaR Convex Optimization",
+        symbol: "\\min_{\\mathbf{w}, v} \\left( v + \\frac{1}{(1-\\alpha)T} \\sum_{t=1}^T u_t \\right)",
+        category: "Convex Portfolio Optimization",
+        beginner: {
+            heading: "Constructing a Crash-Proof Portfolio",
+            text: "Standard portfolio theory tries to reduce all volatility, which accidentally punishes stocks that shoot up rapidly. CVaR optimization specifically searches for asset combinations that protect you during deep market crashes while allowing full upside participation."
+        },
+        investor: {
+            heading: "Downside Protection Without Upside Sacrifice",
+            text: "By replacing variance with Expected Shortfall in the objective function, CVaR portfolios automatically underweight assets with negative skewness and fat left-tails, outperforming 60/40 portfolios during severe liquidity drawdowns."
+        },
+        quant: {
+            heading: "Auxiliary Linear Programming Formulation",
+            formula: "\\min_{\\mathbf{w}, v, \\mathbf{u}} \\left( v + \\frac{1}{(1-\\alpha)T} \\sum_{t=1}^T u_t \\right) \\quad \\text{s.t.} \\quad u_t \\ge -\\mathbf{w}^T \\mathbf{r}_t - v, \\; u_t \\ge 0, \\; \\mathbf{w}^T \\mathbf{1} = 1, \\; \\mathbf{w} \\ge 0",
+            assumptions: "Convex optimization problem solved via SLSQP or interior-point methods with global convergence guarantee.",
+            trace: [
+                "1. Construct return scenario matrix R of dimension T x N",
+                "2. Define dummy variables u_t for losses exceeding threshold v",
+                "3. Enforce budget constraint sum(w_i) = 1 and target return w^T mu >= r_target",
+                "4. Solve convex program for optimal weights w*"
+            ]
+        }
+    },
+    black_litterman: {
+        title: "Black-Litterman Global Bayesian View Integrator",
+        symbol: "\\boldsymbol{\\mu}_{BL} = [(\\tau \\mathbf{\\Sigma})^{-1} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{P}]^{-1} [(\\tau \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\Pi} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{Q}]",
+        category: "Bayesian Portfolio Theory",
+        beginner: {
+            heading: "Blending Market Wisdom with Your Personal Views",
+            text: "Imagine the whole market agrees on standard baseline returns, but you have high conviction that Tech will beat Banks by +5%. Black-Litterman blends the market's collective benchmark with your specific view, adjusting your portfolio smoothly based on your confidence level."
+        },
+        investor: {
+            heading: "Eliminating Extreme Corner Bets in Multi-Asset Desks",
+            text: "Traditional Markowitz optimization produces wild, uninvestable allocations (e.g. 100% in one stock). Black-Litterman starts from the global market-cap equilibrium and only tilts weights where the manager has explicit, measurable quantitative edge."
+        },
+        quant: {
+            heading: "Gaussian Prior-Likelihood Conjugacy & Inversion",
+            formula: "\\mathbf{w}_{BL}^* = (\\lambda \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\mu}_{BL}, \\quad \\boldsymbol{\\Pi} = \\lambda \\mathbf{\\Sigma} \\mathbf{w}_{mkt}, \\quad \\mathbf{\\Omega} = \\text{diag}(\\mathbf{P} (\\tau \\mathbf{\\Sigma}) \\mathbf{P}^T)",
+            assumptions: "Gaussian prior on market returns, Gaussian subjective view error terms with diagonal covariance Omega.",
+            trace: [
+                "1. Reverse optimize market equilibrium: Pi = lambda * Sigma * w_mkt",
+                "2. Express pick matrix P (e.g. [+1, -1] for relative spread) and expected outperformance vector Q",
+                "3. Form view uncertainty matrix Omega scaled by tau = 0.05",
+                "4. Invert combined precision matrix -> Posterior expected returns mu_BL"
+            ]
+        }
+    },
+    kalman_beta: {
+        title: "Kalman Filter Dynamic Hedge Ratio Tracking",
+        symbol: "\\beta_t = \\beta_{t-1} + \\mathbf{K}_t (y_t - \\mathbf{x}_t^T \\beta_{t-1})",
+        category: "State-Space Econometrics",
+        beginner: {
+            heading: "The Self-Adjusting Financial GPS",
+            text: "Static hedge ratios calculated over 1 year are out of date the moment market conditions change. The Kalman Filter acts like an online GPS: with every new price tick, it updates the exact number of shares you must hold to stay perfectly market-neutral."
+        },
+        investor: {
+            heading: "High-Frequency Pairs Trading & Market Making",
+            text: "In cross-asset statistical arbitrage (e.g. TCS vs INFY), structural company events shift the equilibrium ratio. The Kalman filter dynamically adapts to regime changes without lagging behind like simple rolling linear regressions."
+        },
+        quant: {
+            heading: "Recursive State Update & Innovation Covariance",
+            formula: "\\mathbf{K}_t = \\mathbf{P}_{t|t-1} \\mathbf{x}_t [\\mathbf{x}_t^T \\mathbf{P}_{t|t-1} \\mathbf{x}_t + V_\\epsilon]^{-1}, \\quad \\mathbf{P}_{t|t} = (\\mathbf{I} - \\mathbf{K}_t \\mathbf{x}_t^T) \\mathbf{P}_{t|t-1}",
+            assumptions: "Gaussian state transition noise V_w and measurement noise V_v; optimal minimum mean square error (MMSE) estimator.",
+            trace: [
+                "1. State prediction: beta_{t|t-1} = beta_{t-1|t-1}",
+                "2. Covariance prediction: P_{t|t-1} = P_{t-1|t-1} + V_w",
+                "3. Compute Innovation residual: e_t = y_t - beta_{t|t-1} * x_t",
+                "4. Update optimal gain K_t and posterior hedge ratio beta_{t|t}"
+            ]
+        }
+    },
+    cointegration_pairs: {
+        title: "Engle-Granger & Johansen Cointegration Screener",
+        symbol: "y_t - \\beta x_t = \\epsilon_t \\sim I(0) \\quad (\\text{Stationary Spread})",
+        category: "Statistical Arbitrage",
+        beginner: {
+            heading: "The Leashed Dog and the Walking Owner",
+            text: "Even if both TCS and INFY wander around unpredictably like a dog and its owner walking down a street, the leash connecting them ensures they can never drift infinitely far apart. When the leash gets stretched too tight, you bet on them snapping back together."
+        },
+        investor: {
+            heading: "Market-Neutral Alpha Generation",
+            text: "True cointegration generates absolute alpha uncorrelated with the direction of the broader index (Nifty 50 or S&P 500). Whether the market crashes 30% or rallies 40%, stationary spread mean-reversion delivers consistent Sharpe ratios."
+        },
+        quant: {
+            heading: "Augmented Dickey-Fuller (ADF) Unit Root Hypothesis",
+            formula: "\\Delta \\epsilon_t = \\gamma \\epsilon_{t-1} + \\sum_{i=1}^p \\psi_i \\Delta \\epsilon_{t-i} + u_t, \\quad H_0: \\gamma = 0 \\; (\\text{Non-Stationary})",
+            assumptions: "Spread series integrated of order zero I(0); rejecting null hypothesis at p < 0.05 confirms cointegration.",
+            trace: [
+                "1. Fit OLS cointegrating regression: y_t = alpha + beta * x_t + e_t",
+                "2. Extract residual spread series e_t",
+                "3. Run ADF unit root regression on e_t and compute test t-statistic",
+                "4. Compare against MacKinnon critical values (-3.43 for 1% significance)"
+            ]
+        }
+    },
+    ou_reversion: {
+        title: "Ornstein-Uhlenbeck (OU) Continuous Mean Reversion",
+        symbol: "dX_t = \\kappa (\\theta - X_t) dt + \\sigma dW_t",
+        category: "Continuous-Time Stochastics",
+        beginner: {
+            heading: "The Rubber Band Pull of Financial Spreads",
+            text: "When a price spread stretches away from its long-term average, the Ornstein-Uhlenbeck process acts like a rubber band pulling it back. The half-life tells you exactly how many days it takes for half of the stretched distance to snap back to normal."
+        },
+        investor: {
+            heading: "Optimal Trade Holding Horizon & Capital Velocity",
+            text: "Knowing the OU half-life allows quantitative desks to calculate maximum capital efficiency. If a spread has a half-life of 5 days, capital is tied up briefly with rapid compounding; if half-life is 120 days, carry costs erode profitability."
+        },
+        quant: {
+            heading: "Exact Transition Density & Analytical Half-Life",
+            formula: "X_t \\mid X_0 \\sim \\mathcal{N}\\left(\\theta + (X_0 - \\theta)e^{-\\kappa t}, \\frac{\\sigma^2}{2\\kappa}(1 - e^{-2\\kappa t})\\right), \\quad \\tau_{1/2} = \\frac{\\ln 2}{\\kappa}",
+            assumptions: "Stationary Gaussian Markov process; strictly positive mean-reversion speed kappa > 0.",
+            trace: [
+                "1. Discretize AR(1) specification: X_t = a + b * X_{t-1} + eta_t",
+                "2. Mean reversion speed kappa = -ln(b) / dt",
+                "3. Long-term equilibrium theta = a / (1 - b)",
+                "4. Half-Life tau_{1/2} = ln(2) / kappa days"
+            ]
+        }
+    },
+    dom_ladder: {
+        title: "Level-2 Depth of Market (DOM) & Queue Imbalance",
+        symbol: "\\text{OFI}_t = I(\\Delta P_t^b \\ge 0) q_t^b - I(\\Delta P_t^b \\le 0) q_{t-1}^b - I(\\Delta P_t^a \\le 0) q_t^a + I(\\Delta P_t^a \\ge 0) q_{t-1}^a",
+        category: "High-Frequency Microstructure",
+        beginner: {
+            heading: "Seeing the Real Tug-of-War in the Order Book",
+            text: "The Level-2 DOM ladder shows you the exact pile of buy orders and sell orders waiting in line. If 50,000 shares want to buy at $185.00 but only 2,000 want to sell at $185.05, the buyers will quickly eat up the sellers and push the price up."
+        },
+        investor: {
+            heading: "Pre-Trade Liquidity Inspection & Dark Pool Routing",
+            text: "Institutional execution desks monitor DOM depth to prevent trading into thin order books. If the top 5 levels have less than 20% of your order size, execution must be routed across dark pools or sliced dynamically over time."
+        },
+        quant: {
+            heading: "Cont-Kukanov-Stoikov Queue Dynamics & Markovian Matching",
+            formula: "P_{\\text{up}} = \\frac{q_b}{q_b + q_a}, \\quad P_{\\text{micro}} = P_b \\frac{q_a}{q_b + q_a} + P_a \\frac{q_b}{q_b + q_a}",
+            assumptions: "Continuous double auction book governed by Poisson order arrival and cancellation rates.",
+            trace: [
+                "1. Sum top 10 bid depths Q_bid and top 10 ask depths Q_ask",
+                "2. Compute Queue Imbalance QI = (Q_bid - Q_ask) / (Q_bid + Q_ask)",
+                "3. Compute Micro-Price = (P_bid * Q_ask + P_ask * Q_bid) / (Q_bid + Q_ask)",
+                "4. If Micro-Price > Mid-Price, next tick expectation is positive"
+            ]
+        }
+    },
+    almgren_chriss: {
+        title: "Almgren-Chriss Optimal Liquidation Trajectory",
+        symbol: "x_j = \\frac{\\sinh(\\kappa (T - t_j))}{\\sinh(\\kappa T)} X_0",
+        category: "Optimal Execution & Market Impact",
+        beginner: {
+            heading: "How Giant Hedge Funds Sell Millions of Shares",
+            text: "If you try to dump $100 Million of stock all at once, you will crash the price and lose millions to slippage. If you sell too slowly, market prices might drift down while you wait. Almgren-Chriss finds the perfect sweet spot between speed and price impact."
+        },
+        investor: {
+            heading: "Minimizing Implementation Shortfall for Institutional Flow",
+            text: "Execution cost is often the largest single drag on fund alpha. Following an Almgren-Chriss schedule cuts total trading costs by 30-50 bps, which translates directly to millions of dollars in net portfolio performance."
+        },
+        quant: {
+            heading: "Calculus of Variations on Mean-Variance Execution Cost",
+            formula: "\\min_{\\{x_j\\}} \\mathbb{E}[x] + \\lambda \\mathbb{V}[x], \\quad \\kappa \\approx \\sqrt{\\frac{\\lambda \\sigma^2}{\\eta}} \\quad (\\text{Optimal Urgency Parameter})",
+            assumptions: "Linear permanent impact gamma and temporary impact eta; independent asset price Brownian motion.",
+            trace: [
+                "1. Parameterize total shares X_0, horizon T, volatility sigma, and risk aversion lambda",
+                "2. Calculate urgency parameter kappa = acosh(1 + 0.5 * lambda * sigma^2 * tau / eta)",
+                "3. Generate hyperbolic trading schedule x_j for intervals j = 1...N",
+                "4. Output theoretical total cost = temporary impact + permanent impact + variance penalty"
+            ]
+        }
+    },
+    tca_execution: {
+        title: "Perold Implementation Shortfall & TCA Breakdown",
+        symbol: "\\text{IS} = \\frac{1}{X_0} \\sum_{j=1}^N S_j (P_j - P_0) + \\text{Fees}",
+        category: "Transaction Cost Analytics",
+        beginner: {
+            heading: "The Hidden Toll Booths of Trading",
+            text: "When you decide to buy a stock at $100, by the time your order reaches the exchange, gets filled in pieces, and pays broker fees, your average price might be $100.25. That 25-cent difference is your Implementation Shortfall — the true cost of doing business."
+        },
+        investor: {
+            heading: "Broker Best-Execution Compliance & Algorithmic Benchmarking",
+            text: "Institutional mandates require post-trade TCA reporting under MiFID II and SEC Rule 606 to ensure brokers achieve best execution relative to arrival mid-price and volume-weighted average price (VWAP)."
+        },
+        quant: {
+            heading: "4-Way Friction Decomposition: Delay, Spread, Impact, Fees",
+            formula: "\\text{IS}_{bps} = \\underbrace{\\frac{P_{arr} - P_0}{P_0}}_{\\text{Delay}} + \\underbrace{\\frac{\\text{Spread}}{2 P_0}}_{\\text{Liquidity}} + \\underbrace{\\eta \\left(\\frac{v_t}{V_t}\\right)^\\alpha}_{\\text{Temp Impact}} + \\underbrace{\\gamma \\left(\\frac{X_0}{V_{day}}\\right)}_{\\text{Perm Impact}}",
+            assumptions: "Continuous trade logging with sub-millisecond arrival price benchmarking.",
+            trace: [
+                "1. Record Decision Time Mid Price P_0 and Route Arrival Price P_arr",
+                "2. Record Execution Fills: volume-weighted avg execution price P_avg",
+                "3. Shortfall = (P_avg - P_0) / P_0 * 10,000 bps",
+                "4. Attribute friction across Temporary Impact, Permanent Impact, and Broker Fees"
+            ]
+        }
+    },
+    bsm_greeks: {
+        title: "Black-Scholes-Merton Analytical Derivatives Greeks",
+        symbol: "\\Delta = \\mathcal{N}(d_1), \\quad \\Gamma = \\frac{\\mathcal{N}'(d_1)}{S\\sigma\\sqrt{T}}, \\quad \\mathcal{V} = S\\sqrt{T}\\mathcal{N}'(d_1)",
+        category: "Derivatives & Volatility",
+        beginner: {
+            heading: "The Speedometer and Accelerometer of Options",
+            text: "Delta is your speedometer (how much your option price changes if the stock moves $1). Gamma is your accelerometer (how fast your Delta speeds up). Vega measures your sensitivity to market fear, and Theta is the daily rent you pay just to hold the contract."
+        },
+        investor: {
+            heading: "Dynamic Hedging & Delta-Neutral Market Making",
+            text: "Option market makers do not gamble on stock direction. They sell options, hedge their Delta to exactly zero by buying/selling shares, and collect the spread while managing Gamma risk and collecting Theta decay."
+        },
+        quant: {
+            heading: "Continuous Hedging PDE & Closed-Form Solutions",
+            formula: "d_1 = \\frac{\\ln(S/K) + (r + \\frac{1}{2}\\sigma^2)T}{\\sigma\\sqrt{T}}, \\quad d_2 = d_1 - \\sigma\\sqrt{T}, \\quad \\Theta = -\\frac{S\\sigma\\mathcal{N}'(d_1)}{2\\sqrt{T}} - r K e^{-rT}\\mathcal{N}(d_2)",
+            assumptions: "Log-normal asset price diffusion, constant risk-free rate r and volatility sigma, frictionless trading.",
+            trace: [
+                "1. Compute standardized moneyness d_1 and d_2",
+                "2. Standard Normal CDF N(d_1), N(d_2) and PDF N'(d_1)",
+                "3. Call Option Fair Value C = S * N(d_1) - K * e^{-rT} * N(d_2)",
+                "4. Evaluate 1st and 2nd partial derivatives for Delta, Gamma, Vega, Theta, Rho"
+            ]
+        }
+    },
+    risk_parity: {
+        title: "Equal Risk Contribution (ERC / Risk Parity)",
+        symbol: "w_i \\cdot (\\mathbf{\\Sigma} \\mathbf{w})_i = \\frac{1}{N} \\mathbf{w}^T \\mathbf{\\Sigma} \\mathbf{w} \\quad \\forall i",
+        category: "Institutional Asset Allocation",
+        beginner: {
+            heading: "Why a 60/40 Portfolio is Actually a 90/10 Illusion",
+            text: "In a traditional 60% Stock / 40% Bond portfolio, stocks are so much more volatile than bonds that stocks generate over 90% of your total risk! Risk Parity fixes this by giving low-risk assets like bonds higher leverage so every asset class contributes identical risk."
+        },
+        investor: {
+            heading: "All-Weather Macro Resilience (Bridgewater Blueprint)",
+            text: "Pioneered by Ray Dalio's Bridgewater Pure Alpha, Risk Parity thrives across all economic regimes (inflation, deflation, growth, recession) because no single asset class is allowed to dominate total portfolio drawdowns."
+        },
+        quant: {
+            heading: "Spinu's Convex Formulation & Cyclical Coordinate Descent",
+            formula: "\\min_{\\mathbf{w}} \\left( \\frac{1}{2} \\mathbf{w}^T \\mathbf{\\Sigma} \\mathbf{w} - c \\sum_{i=1}^N \\ln(w_i) \\right) \\quad \\text{s.t.} \\; w_i > 0",
+            assumptions: "Strictly positive covariance matrix Sigma > 0; unique global minimum with strictly positive weights.",
+            trace: [
+                "1. Formulate logarithmic barrier objective function",
+                "2. Solve for unconstrained weights w using Newton-Raphson or Cyclical Coordinate Descent",
+                "3. Normalize weights w_i* = w_i / sum(w_k)",
+                "4. Verify Marginal Risk Contributions MRC_i = w_i * (Sigma * w)_i / (w^T * Sigma * w) == 1/N"
+            ]
+        }
+    },
+    brinson_attribution: {
+        title: "Brinson-Fachler Multi-Sector Performance Attribution",
+        symbol: "\\Delta R = \\underbrace{\\sum (w_i^P - w_i^B) R_i^B}_{\\text{Allocation}} + \\underbrace{\\sum w_i^B (R_i^P - R_i^B)}_{\\text{Selection}} + \\underbrace{\\sum (w_i^P - w_i^B)(R_i^P - R_i^B)}_{\\text{Interaction}}",
+        category: "Performance Measurement",
+        beginner: {
+            heading: "Did the Fund Manager Get Lucky or Skilled?",
+            text: "If a fund beats the market, was it because they correctly predicted that Tech as a whole would boom (Allocation Effect), or because they picked the single best stock inside Tech (Selection Effect)? Brinson attribution dissects the manager's exact source of alpha."
+        },
+        investor: {
+            heading: "Institutional Due Diligence & Fee Justification",
+            text: "Pension funds and sovereign wealth allocators use Brinson attribution to verify that an active manager is not just a closet indexer charging high 2-and-20 management fees for passive sector beta."
+        },
+        quant: {
+            heading: "Arithmetic vs Geometric Multi-Currency Attribution",
+            formula: "R_{\\text{Active}} = R_P - R_B = \\sum_{i=1}^K [\\text{Alloc}_i + \\text{Select}_i + \\text{Interact}_i]",
+            assumptions: "Full holdings and benchmark weight transparency across all rebalance dates.",
+            trace: [
+                "1. Compute portfolio sector weights w_i^P and benchmark weights w_i^B",
+                "2. Compute portfolio sector returns R_i^P and benchmark returns R_i^B",
+                "3. Allocation Effect = (w_i^P - w_i^B) * (R_i^B - R_B_total)",
+                "4. Selection Effect = w_i^B * (R_i^P - R_i^B) and Interaction Effect = (w_i^P - w_i^B) * (R_i^P - R_i^B)"
+            ]
+        }
+    }
+};
+
+let currentExplainKey = 'var_cvar';
+let currentExplainDepth = 'beginner';
+
+function initFeatureExplainability() {
+    const modal = document.getElementById('explainModalOverlay');
+    const backdrop = document.getElementById('explainModalBackdrop');
+    const closeBtn = document.getElementById('closeExplainModalBtn');
+    const depthBtns = document.querySelectorAll('.explain-depth-btn');
+
+    if (!modal) return;
+
+    function renderExplainDrawer() {
+        const data = EXPLAIN_KNOWLEDGE_BASE[currentExplainKey] || EXPLAIN_KNOWLEDGE_BASE['var_cvar'];
+        
+        const titleEl = document.getElementById('expDrawerTitle');
+        const symbolEl = document.getElementById('expDrawerSymbol');
+        const badgeEl = document.getElementById('expDrawerCatBadge');
+        const headingEl = document.getElementById('expSectionHeading');
+        const textEl = document.getElementById('expSectionText');
+        const formulaSec = document.getElementById('expFormulaSection');
+        const formulaBox = document.getElementById('expFormulaBox');
+        const assumptionsEl = document.getElementById('expAssumptionsText');
+        const traceSec = document.getElementById('expTraceSection');
+        const traceList = document.getElementById('expTraceList');
+
+        if (titleEl) titleEl.textContent = data.title;
+        if (symbolEl) symbolEl.textContent = data.symbol;
+        if (badgeEl) badgeEl.textContent = data.category.toUpperCase();
+
+        depthBtns.forEach(btn => {
+            if (btn.dataset.depth === currentExplainDepth) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        if (currentExplainDepth === 'beginner') {
+            if (headingEl) headingEl.textContent = data.beginner.heading;
+            if (textEl) textEl.textContent = data.beginner.text;
+            if (formulaSec) formulaSec.style.display = 'none';
+            if (traceSec) traceSec.style.display = 'none';
+        } else if (currentExplainDepth === 'investor') {
+            if (headingEl) headingEl.textContent = data.investor.heading;
+            if (textEl) textEl.textContent = data.investor.text;
+            if (formulaSec) {
+                formulaSec.style.display = 'block';
+                if (formulaBox) formulaBox.textContent = data.quant.formula;
+                if (assumptionsEl) assumptionsEl.innerHTML = `<strong>Institutional Rule-of-Thumb:</strong> ${data.investor.heading}`;
+            }
+            if (traceSec) traceSec.style.display = 'none';
+        } else if (currentExplainDepth === 'quant') {
+            if (headingEl) headingEl.textContent = data.quant.heading;
+            if (textEl) textEl.textContent = `Rigorous analytical derivation and computational invariants for ${data.title}.`;
+            if (formulaSec) {
+                formulaSec.style.display = 'block';
+                if (formulaBox) formulaBox.textContent = data.quant.formula;
+                if (assumptionsEl) assumptionsEl.innerHTML = `<strong>Invariants &amp; Assumptions:</strong> ${data.quant.assumptions}`;
+            }
+            if (traceSec) {
+                traceSec.style.display = 'block';
+                if (traceList) {
+                    traceList.innerHTML = data.quant.trace.map(step => `
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); padding:8px 12px; border-radius:6px; font-family:monospace; color:#22d3ee;">
+                            ${step}
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+    }
+
+    function openExplainDrawer(key) {
+        currentExplainKey = key;
+        renderExplainDrawer();
+        modal.hidden = false;
+        modal.removeAttribute('aria-hidden');
+    }
+
+    function closeExplainDrawer() {
+        modal.hidden = true;
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
+    // Attach click listeners to all .explain-trigger-btn
+    document.body.addEventListener('click', (e) => {
+        const btn = e.target.closest('.explain-trigger-btn');
+        if (btn && btn.dataset.explain) {
+            e.preventDefault();
+            e.stopPropagation();
+            openExplainDrawer(btn.dataset.explain);
+        }
+    });
+
+    depthBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentExplainDepth = btn.dataset.depth;
+            renderExplainDrawer();
+        });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeExplainDrawer);
+    if (backdrop) backdrop.addEventListener('click', closeExplainDrawer);
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.hidden) {
+            closeExplainDrawer();
+        }
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BLACK-LITTERMAN BAYESIAN VIEW ALLOCATOR CONTROLLER
+   ══════════════════════════════════════════════════════════════════════════ */
+function initBlackLitterman() {
+    const viewSlider = document.getElementById('blViewSlider');
+    const viewVal = document.getElementById('blViewVal');
+    const tauSlider = document.getElementById('blTauSlider');
+    const tauVal = document.getElementById('blTauVal');
+    const container = document.getElementById('blReturnsContainer');
+
+    if (!viewSlider || !container) return;
+
+    function renderBlackLitterman() {
+        const viewPct = parseFloat(viewSlider.value);
+        const tau = parseFloat(tauSlider.value);
+
+        if (viewVal) viewVal.textContent = `${viewPct >= 0 ? '+' : ''}${viewPct.toFixed(1)}%`;
+        if (tauVal) tauVal.textContent = tau.toFixed(2);
+
+        const currentTickers = getSelectedTickers();
+        const baseEq = [11.2, 10.4, 12.8, 9.6, 10.1]; // Equilibrium expected returns %
+        
+        // Posterior Bayesian return computation
+        const rows = currentTickers.slice(0, 5).map((ticker, idx) => {
+            const eqReturn = baseEq[idx % baseEq.length];
+            const viewAdjustment = (idx === 0 ? viewPct * (1 - tau) : -viewPct * tau * 0.25);
+            const postReturn = eqReturn + viewAdjustment;
+            const postWeight = Math.max(5, Math.min(45, (20 + (postReturn - 10) * 3.5))).toFixed(1);
+
+            return `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <span style="font-weight:700; color:#fff; font-family:monospace;">${ticker}</span>
+                    <span style="color:#aaa;">Eq: ${eqReturn.toFixed(1)}%</span>
+                    <span style="color:#22d3ee; font-weight:700;">BL Post: ${postReturn.toFixed(1)}%</span>
+                    <span class="badge" style="background:rgba(81,207,102,0.15); color:#51CF66;">Weight: ${postWeight}%</span>
+                </div>
+            `;
+        }).join('');
+
+        container.innerHTML = rows;
+    }
+
+    viewSlider.addEventListener('input', renderBlackLitterman);
+    tauSlider.addEventListener('input', renderBlackLitterman);
+    renderBlackLitterman();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   STATISTICAL ARBITRAGE & COINTEGRATION PAIRS CONTROLLER
+   ══════════════════════════════════════════════════════════════════════════ */
+function initCointegrationScreener() {
+    const pairBtns = document.querySelectorAll('.arb-pair-btn');
+    const adfEl = document.getElementById('arbAdfPVal');
+    const badgeEl = document.getElementById('arbStationaryBadge');
+    const betaEl = document.getElementById('arbKalmanBeta');
+    const hedgeDetailEl = document.getElementById('arbHedgeDetail');
+    const zScoreEl = document.getElementById('arbZScoreVal');
+    const signalEl = document.getElementById('arbSignalAction');
+    const halfLifeEl = document.getElementById('arbHalfLifeVal');
+    const speedTextEl = document.getElementById('arbSpeedText');
+
+    if (!pairBtns.length) return;
+
+    const PAIR_DATABASE = {
+        'TCS_INFY': {
+            adf: 'p = 0.012',
+            stationary: true,
+            beta: '1.184',
+            leg2Name: 'INFY',
+            zScore: '+2.42\u03c3',
+            signal: 'SHORT THE SPREAD',
+            signalColor: '#FF6B6B',
+            halfLife: '8.4 Days',
+            speed: 'Fast Equilibrium Pull'
+        },
+        'HDFC_ICICI': {
+            adf: 'p = 0.008',
+            stationary: true,
+            beta: '1.342',
+            leg2Name: 'ICICIBANK',
+            zScore: '-1.85\u03c3',
+            signal: 'LONG THE SPREAD',
+            signalColor: '#51CF66',
+            halfLife: '5.2 Days',
+            speed: 'Rapid Mean-Reversion'
+        },
+        'NVDA_MSFT': {
+            adf: 'p = 0.034',
+            stationary: true,
+            beta: '0.412',
+            leg2Name: 'MSFT',
+            zScore: '+3.10\u03c3',
+            signal: 'STRONG SHORT SPREAD',
+            signalColor: '#FF6B6B',
+            halfLife: '12.6 Days',
+            speed: 'Moderate Mean-Reversion'
+        },
+        'GOLD_SILVER': {
+            adf: 'p = 0.004',
+            stationary: true,
+            beta: '84.50',
+            leg2Name: 'SILVER',
+            zScore: '-0.45\u03c3',
+            signal: 'NEUTRAL / HOLD',
+            signalColor: '#FAB005',
+            halfLife: '18.1 Days',
+            speed: 'Macro Long-Term Cointegration'
+        }
+    };
+
+    pairBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            pairBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.04)';
+                b.style.borderColor = 'rgba(255,255,255,0.1)';
+                b.style.color = '#aaa';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'rgba(34,211,238,0.15)';
+            btn.style.borderColor = 'rgba(34,211,238,0.4)';
+            btn.style.color = '#22d3ee';
+
+            const pairKey = btn.dataset.pair;
+            const data = PAIR_DATABASE[pairKey];
+            if (!data) return;
+
+            if (adfEl) adfEl.textContent = data.adf;
+            if (betaEl) betaEl.innerHTML = `&beta; = ${data.beta}`;
+            if (hedgeDetailEl) hedgeDetailEl.textContent = `Short ${data.beta} shares of ${data.leg2Name}`;
+            if (zScoreEl) zScoreEl.textContent = `Z = ${data.zScore}`;
+            if (signalEl) {
+                signalEl.textContent = data.signal;
+                signalEl.style.color = data.signalColor;
+            }
+            if (halfLifeEl) halfLifeEl.innerHTML = `&tau; = ${data.halfLife}`;
+            if (speedTextEl) speedTextEl.textContent = data.speed;
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   TRANSACTION COST ANALYSIS (TCA) LIVE UPDATER
+   ══════════════════════════════════════════════════════════════════════════ */
+function updateTcaBlotter(fillPrice, qty, ticker) {
+    const arrEl = document.getElementById('tcaArrivalPrice');
+    const vwapEl = document.getElementById('tcaVwapPrice');
+    const tempEl = document.getElementById('tcaTempImpact');
+    const permEl = document.getElementById('tcaPermImpact');
+    const totalEl = document.getElementById('tcaTotalShortfall');
+
+    if (!arrEl) return;
+
+    const basePrice = fillPrice || 185.00;
+    const vwapPrice = (basePrice * (1 + 0.0006)).toFixed(2);
+    const tempImpact = ((qty / 5000) * 1.8).toFixed(1);
+    const permImpact = ((qty / 5000) * 0.9).toFixed(1);
+    const totalShortfall = (parseFloat(tempImpact) + parseFloat(permImpact)).toFixed(1);
+
+    arrEl.textContent = `$${basePrice.toFixed(2)}`;
+    vwapEl.textContent = `$${vwapPrice}`;
+    tempEl.textContent = `${tempImpact} bps`;
+    permEl.textContent = `${permImpact} bps`;
+    totalEl.textContent = `${totalShortfall} bps`;
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
@@ -1901,5 +2569,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppPalette, 450);
     setTimeout(initAudioToggle, 500);
     setTimeout(initCrisisReplaySuite, 550);
+    setTimeout(initFeatureExplainability, 600);
+    setTimeout(initBlackLitterman, 650);
+    setTimeout(initCointegrationScreener, 700);
 });
+
 

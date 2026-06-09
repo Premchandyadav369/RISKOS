@@ -450,6 +450,63 @@
       </div>
     </section>
 
+    <!-- ── 6B. CENTRAL BANK POLICY & TAYLOR RULE FORECASTER ──────────────────── -->
+    <section class="obs-causality-section mt-4" style="margin-top:24px;">
+      <div class="obs-section-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="badge" style="background:rgba(34,211,238,0.15);color:#22d3ee;">MONETARY POLICY DESK</span>
+            <h3 class="obs-section-title font-display" style="margin:0;">TAYLOR RULE CENTRAL BANK POLICY FORECASTER</h3>
+          </div>
+          <p class="obs-section-desc">Empirical Taylor (1993) interest rate rule tracking neutral policy rates, inflation gap, and output slack for RBI &amp; US Fed.</p>
+        </div>
+        <div class="mode-selector-pill" id="obsBankSelector">
+          <button class="mode-btn active" id="btnBankRbi" data-bank="rbi">RBI (India)</button>
+          <button class="mode-btn" id="btnBankFed" data-bank="fed">US Fed (FOMC)</button>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:20px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.75rem;color:var(--text-secondary);">Headline CPI Inflation (\(\pi_t\)):</span>
+            <strong id="obsTaylorCpiVal" style="color:var(--accent-amber);font-family:monospace;font-size:0.9rem;">4.85%</strong>
+          </div>
+          <input type="range" id="obsTaylorCpiSlider" min="2.0" max="9.0" step="0.1" value="4.85" style="width:100%;accent-color:var(--accent-amber);cursor:pointer;" />
+          
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.75rem;color:var(--text-secondary);">Real GDP Output Gap (\(y_t - y^*\)):</span>
+            <strong id="obsTaylorGapVal" style="color:var(--accent-cyan);font-family:monospace;font-size:0.9rem;">+0.60%</strong>
+          </div>
+          <input type="range" id="obsTaylorGapSlider" min="-3.0" max="3.0" step="0.1" value="0.60" style="width:100%;accent-color:var(--accent-cyan);cursor:pointer;" />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;">
+            <span style="font-size:0.68rem;color:#71717a;font-weight:700;text-transform:uppercase;">Current Official Repo</span>
+            <div id="obsOfficialRate" style="font-size:1.3rem;font-weight:800;color:#fff;margin:2px 0;">6.50%</div>
+            <span style="font-size:0.68rem;color:#a1a1aa;" id="obsBankName">Reserve Bank of India</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(34,211,238,0.2);border-radius:10px;padding:12px;">
+            <span style="font-size:0.68rem;color:#71717a;font-weight:700;text-transform:uppercase;">Taylor Rule Target (\(i_t\))</span>
+            <div id="obsTaylorTargetRate" style="font-size:1.3rem;font-weight:800;color:#22d3ee;margin:2px 0;">6.82%</div>
+            <span style="font-size:0.68rem;color:#fab005;font-weight:700;" id="obsPolicyStance">TIGHTENING BIAS (+32 bps)</span>
+          </div>
+          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px;grid-column:1 / -1;">
+            <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:#aaa;margin-bottom:6px;">
+              <span>Upcoming MPC Policy Probabilities:</span>
+              <strong id="obsHoldProb" style="color:#51CF66;">Hold: 78% | Cut: 14% | Hike: 8%</strong>
+            </div>
+            <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;display:flex;">
+              <div style="width:78%;background:#51CF66;" title="Hold Probability"></div>
+              <div style="width:14%;background:#22d3ee;" title="Cut Probability"></div>
+              <div style="width:8%;background:#FF6B6B;" title="Hike Probability"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── 7. INTRADAY MARKET TIMELINE ──────────────────────────────────────── -->
     <section class="obs-timeline-section">
       <div class="obs-section-header">

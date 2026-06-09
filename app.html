@@ -81,7 +81,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-chart-area"></i> Multi-Asset Price History</h2>
+                        <h2><i class="fa-solid fa-chart-area"></i> Multi-Asset Price History <button class="explain-trigger-btn" data-explain="price_returns" title="Explain Log Returns">?</button></h2>
                         <span class="badge">1Y Daily Log-Returns</span>
                     </div>
                     <div class="chart-container">
@@ -90,7 +90,7 @@
                 </div>
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-chart-line"></i> Volatility: EWMA vs GARCH(1,1)</h2>
+                        <h2><i class="fa-solid fa-chart-line"></i> Volatility: EWMA vs GARCH(1,1) <button class="explain-trigger-btn" data-explain="garch_vol" title="Explain GARCH Volatility">?</button></h2>
                         <span class="badge">Annualized Conditional Vol</span>
                     </div>
                     <div class="chart-container">
@@ -101,7 +101,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-brain"></i> Hidden Markov Model Regime</h2>
+                        <h2><i class="fa-solid fa-brain"></i> Hidden Markov Model Regime <button class="explain-trigger-btn" data-explain="hmm_regime" title="Explain Hidden Markov Model">?</button></h2>
                         <span class="badge">SPY Gaussian HMM</span>
                     </div>
                     <div id="regime-container" class="regime-display">
@@ -110,7 +110,7 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-table-cells"></i> Cross-Asset Correlation Matrix</h2>
+                        <h2><i class="fa-solid fa-table-cells"></i> Cross-Asset Correlation Matrix <button class="explain-trigger-btn" data-explain="ledoit_wolf" title="Explain Ledoit-Wolf Shrinkage">?</button></h2>
                         <span class="badge">Ledoit-Wolf Shrinkage</span>
                     </div>
                     <div id="correlation-container" class="correlation-display">
@@ -158,7 +158,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-chart-simple"></i> Tail Risk: VaR vs CVaR (99% Confidence)</h2>
+                        <h2><i class="fa-solid fa-chart-simple"></i> Tail Risk: VaR vs CVaR (99% Confidence) <button class="explain-trigger-btn" data-explain="var_cvar" title="Explain Value at Risk & CVaR">?</button></h2>
                         <span class="badge">Historical / Parametric / Monte Carlo</span>
                     </div>
                     <div class="chart-container">
@@ -167,7 +167,7 @@
                 </div>
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-chart-pie"></i> CVaR Optimal Portfolio Allocation</h2>
+                        <h2><i class="fa-solid fa-chart-pie"></i> CVaR Optimal Portfolio Allocation <button class="explain-trigger-btn" data-explain="cvar_opt" title="Explain Rockafellar-Uryasev CVaR">?</button></h2>
                         <span class="badge">Min Expected Shortfall (SLSQP)</span>
                     </div>
                     <div class="chart-container">
@@ -176,9 +176,51 @@
                     <div id="portfolio-stats" class="text-center mt-2"></div>
                 </div>
             </div>
+
+            <!-- Black-Litterman Global Bayesian View Integrator -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-scale-unbalanced-flip text-cyan"></i> Black-Litterman Global Bayesian View Integrator
+                            <button class="explain-trigger-btn" data-explain="black_litterman" title="Explain Black-Litterman Model">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Blend market-implied equilibrium returns with subjective quantitative views to eliminate mean-variance portfolio instability.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Bayesian Posterior Updating</span>
+                </div>
+
+                <div class="grid-2-col">
+                    <div>
+                        <span style="font-size:0.75rem; color:#a1a1aa; display:block; margin-bottom:8px; font-weight:600;">Investor Subjective View Builder:</span>
+                        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa;">
+                                <span>Relative Outperformance View (Asset 1 vs Basket):</span>
+                                <strong id="blViewVal" style="color:#51CF66;">+4.5%</strong>
+                            </div>
+                            <input type="range" id="blViewSlider" min="-10" max="15" step="0.5" value="4.5" style="width:100%; accent-color:#51CF66; cursor:pointer;">
+                            
+                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-top:6px;">
+                                <span>Prior Uncertainty Scaling (\(\tau\)):</span>
+                                <strong id="blTauVal" style="color:#22d3ee;">0.05</strong>
+                            </div>
+                            <input type="range" id="blTauSlider" min="0.01" max="0.10" step="0.01" value="0.05" style="width:100%; accent-color:#22d3ee; cursor:pointer;">
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-size:0.75rem; color:#a1a1aa; display:block; margin-bottom:8px; font-weight:600;">Posterior Expected Returns vs Equilibrium (\(\Pi\)):</span>
+                        <div id="blReturnsContainer" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px; font-size:0.75rem;">
+                            <!-- Dynamically generated BL table -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="card mt-4 chart-card">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-route"></i> Walk-Forward Portfolio Backtest</h2>
+                    <h2><i class="fa-solid fa-route"></i> Walk-Forward Portfolio Backtest <button class="explain-trigger-btn" data-explain="backtest_walkforward" title="Explain Walk-Forward Backtesting">?</button></h2>
                     <span class="badge">With 10bps Transaction Cost Drag</span>
                 </div>
                 <div class="chart-container large">
@@ -189,7 +231,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-fire"></i> Stress Testing & Macro Scenarios</h2>
+                        <h2><i class="fa-solid fa-fire"></i> Stress Testing & Macro Scenarios <button class="explain-trigger-btn" data-explain="stress_scenarios" title="Explain Macro Stress Testing">?</button></h2>
                         <span class="badge">Base ₹1,00,00,000</span>
                     </div>
                     <table class="data-table" id="stress-table">
@@ -208,7 +250,7 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-certificate"></i> Regulatory Model Validation</h2>
+                        <h2><i class="fa-solid fa-certificate"></i> Regulatory Model Validation <button class="explain-trigger-btn" data-explain="model_validation" title="Explain Basel III Validation">?</button></h2>
                         <span class="badge">Basel III Backtesting</span>
                     </div>
                     <div id="validation-container" class="validation-display">
@@ -302,7 +344,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-arrows-split-up-and-left"></i> Kalman Filter Dynamic Hedge Ratio (β)</h2>
+                        <h2><i class="fa-solid fa-arrows-split-up-and-left"></i> Kalman Filter Dynamic Hedge Ratio (β) <button class="explain-trigger-btn" data-explain="kalman_beta" title="Explain Kalman Dynamic Beta">?</button></h2>
                         <span class="badge" id="spread-pair-label">AAPL vs MSFT</span>
                     </div>
                     <div class="chart-container">
@@ -312,7 +354,7 @@
                 </div>
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-bezier-curve"></i> Nelson-Siegel-Svensson Yield Curve</h2>
+                        <h2><i class="fa-solid fa-bezier-curve"></i> Nelson-Siegel-Svensson Yield Curve <button class="explain-trigger-btn" data-explain="nelson_siegel" title="Explain Nelson-Siegel Yield Curves">?</button></h2>
                         <span class="badge">3M to 30Y US Treasuries</span>
                     </div>
                     <div class="chart-container">
@@ -321,17 +363,64 @@
                     <div id="curve-spreads-stats" class="stats-row mt-2"></div>
                 </div>
             </div>
+
+            <!-- Statistical Arbitrage & Cointegration Pairs Screener -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-shuffle text-emerald"></i> Statistical Arbitrage &amp; Cointegration Pairs Screener
+                            <button class="explain-trigger-btn" data-explain="cointegration_pairs" title="Explain Cointegration Pairs Trading">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Live Augmented Dickey-Fuller (ADF) test &amp; Ornstein-Uhlenbeck mean-reversion speed for cross-asset hedge pairs.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(81,207,102,0.15); color:#51CF66;">Johansen &amp; Engle-Granger Engine</span>
+                </div>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;" id="statArbPairSelector">
+                    <button class="arb-pair-btn active" data-pair="TCS_INFY" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(34,211,238,0.15); border:1px solid rgba(34,211,238,0.4); color:#22d3ee; cursor:pointer;">TCS / INFY (IT Spread)</button>
+                    <button class="arb-pair-btn" data-pair="HDFC_ICICI" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">HDFCBANK / ICICIBANK</button>
+                    <button class="arb-pair-btn" data-pair="NVDA_MSFT" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">NVDA / MSFT (AI Spread)</button>
+                    <button class="arb-pair-btn" data-pair="GOLD_SILVER" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">GOLD / SILVER Ratio</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">ADF Stationarity p-value</span>
+                        <div id="arbAdfPVal" style="font-size:1.4rem; font-weight:800; color:#51CF66; margin:4px 0;">p = 0.012</div>
+                        <span class="arb-pair-badge stationary" id="arbStationaryBadge">COINTEGRATED (STATIONARY)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Dynamic Kalman Hedge Ratio (\(\beta\))</span>
+                        <div id="arbKalmanBeta" style="font-size:1.4rem; font-weight:800; color:#22d3ee; margin:4px 0;">&beta; = 1.184</div>
+                        <span style="font-size:0.75rem; color:#a1a1aa;" id="arbHedgeDetail">Short 1.184 shares of Leg 2</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">Spread Z-Score Divergence</span>
+                        <div id="arbZScoreVal" style="font-size:1.4rem; font-weight:800; color:#fab005; margin:4px 0;">Z = +2.42&sigma;</div>
+                        <span style="font-size:0.75rem; color:#FF6B6B; font-weight:700;" id="arbSignalAction">SHORT THE SPREAD</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px;">
+                        <span style="font-size:0.72rem; color:#71717a; display:block; font-weight:700; text-transform:uppercase;">OU Mean-Reversion Half-Life</span>
+                        <div id="arbHalfLifeVal" style="font-size:1.4rem; font-weight:800; color:#fff; margin:4px 0;">&tau; = 8.4 Days</div>
+                        <span style="font-size:0.75rem; color:#51CF66;" id="arbSpeedText">Fast Equilibrium Pull</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-arrows-spin"></i> Ornstein-Uhlenbeck (OU) Mean Reversion</h2>
+                        <h2><i class="fa-solid fa-arrows-spin"></i> Ornstein-Uhlenbeck (OU) Mean Reversion <button class="explain-trigger-btn" data-explain="ou_reversion" title="Explain Ornstein-Uhlenbeck Process">?</button></h2>
                         <span class="badge">Statistical Arbitrage Half-Life</span>
                     </div>
                     <div id="ou-stats-container" class="stats-grid-4"></div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-cubes"></i> Yield Curve PCA Factor Structure</h2>
+                        <h2><i class="fa-solid fa-cubes"></i> Yield Curve PCA Factor Structure <button class="explain-trigger-btn" data-explain="curve_pca" title="Explain Curve PCA">?</button></h2>
                         <span class="badge">Shift (86.4%) · Twist (10.8%) · Butterfly (2.8%)</span>
                     </div>
                     <div id="pca-container" class="pca-display"></div>
@@ -356,7 +445,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-list-ol"></i> Level-2 Order Book (DOM Ladder)</h2>
+                        <h2><i class="fa-solid fa-list-ol"></i> Level-2 Order Book (DOM Ladder) <button class="explain-trigger-btn" data-explain="dom_ladder" title="Explain Level-2 Order Book">?</button></h2>
                         <div style="display:flex; gap:6px; align-items:center;">
                             <button id="btnDomQuickBuy" class="btn-dom-buy"><i class="fa-solid fa-arrow-up"></i> BUY 100</button>
                             <button id="btnDomQuickSell" class="btn-dom-sell"><i class="fa-solid fa-arrow-down"></i> SELL 100</button>
@@ -369,7 +458,7 @@
                 </div>
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-gauge-high"></i> Almgren-Chriss Optimal Liquidation Trajectory</h2>
+                        <h2><i class="fa-solid fa-gauge-high"></i> Almgren-Chriss Optimal Liquidation Trajectory <button class="explain-trigger-btn" data-explain="almgren_chriss" title="Explain Almgren-Chriss Model">?</button></h2>
                         <span class="badge">Market Impact vs Volatility Risk</span>
                     </div>
                     <div class="chart-container">
@@ -378,17 +467,62 @@
                     <div id="almgren-stats" class="stats-row mt-2"></div>
                 </div>
             </div>
+
+            <!-- Transaction Cost Analysis (TCA) Execution Blotter -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,255,255,0.09); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-receipt text-cyan"></i> Institutional TCA (Transaction Cost Analysis) Breakdown
+                            <button class="explain-trigger-btn" data-explain="tca_execution" title="Explain Transaction Cost Analysis">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Deconstruct execution friction: Implementation Shortfall, Delay Cost, Temporary Market Impact, and Exchange Fees.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Perold (1988) Implementation Shortfall</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Arrival Benchmark Price</span>
+                        <div id="tcaArrivalPrice" style="font-size:1.2rem; font-weight:800; color:#fff; margin:2px 0;">$185.00</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Pre-Trade Mid</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">VWAP Benchmark</span>
+                        <div id="tcaVwapPrice" style="font-size:1.2rem; font-weight:800; color:#22d3ee; margin:2px 0;">$185.12</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Volume-Weighted</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Temporary Impact Drag</span>
+                        <div id="tcaTempImpact" style="font-size:1.2rem; font-weight:800; color:#fab005; margin:2px 0;">1.8 bps</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Instant Liquidity Cost</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Permanent Price Impact</span>
+                        <div id="tcaPermImpact" style="font-size:1.2rem; font-weight:800; color:#FF6B6B; margin:2px 0;">0.9 bps</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Kyle's &lambda; Information</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Total Implementation Shortfall</span>
+                        <div id="tcaTotalShortfall" style="font-size:1.2rem; font-weight:800; color:#51CF66; margin:2px 0;">2.7 bps</div>
+                        <span style="font-size:0.7rem; color:#51CF66;">Low Impact Execution</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-magnet"></i> Order Flow Imbalance (OFI) & Micro-Price</h2>
+                        <h2><i class="fa-solid fa-magnet"></i> Order Flow Imbalance (OFI) & Micro-Price <button class="explain-trigger-btn" data-explain="ofi_microprice" title="Explain OFI & Micro-Price">?</button></h2>
                         <span class="badge">Queue-Weighted Fair Value</span>
                     </div>
                     <div id="micro-price-stats" class="stats-grid-3"></div>
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-biohazard"></i> VPIN Toxicity & Informed Trading Meter</h2>
+                        <h2><i class="fa-solid fa-biohazard"></i> VPIN Toxicity & Informed Trading Meter <button class="explain-trigger-btn" data-explain="vpin_toxicity" title="Explain VPIN Toxicity">?</button></h2>
                         <span class="badge">Volume-Synchronized Probability of Toxicity</span>
                     </div>
                     <div id="vpin-container" class="vpin-display"></div>
@@ -414,6 +548,7 @@
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
                     <h3 style="font-size:0.9rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-sliders" style="color:#22d3ee;"></i> Real-Time Analytical Black-Scholes Greeks Sandbox
+                        <button class="explain-trigger-btn" data-explain="bsm_greeks" title="Explain Analytical Greeks">?</button>
                     </h3>
                     <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Continuous SDE Model</span>
                 </div>
@@ -444,7 +579,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-smile"></i> Volatility Smile / Skew Structure</h2>
+                        <h2><i class="fa-solid fa-smile"></i> Volatility Smile / Skew Structure <button class="explain-trigger-btn" data-explain="vol_smile" title="Explain Volatility Smile">?</button></h2>
                         <span class="badge">SVI / SABR Moneyness (0.8 - 1.2)</span>
                     </div>
                     <div class="chart-container">
@@ -453,7 +588,7 @@
                 </div>
                 <div class="card chart-card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-repeat"></i> Discrete Delta-Hedging Simulator (30 Days)</h2>
+                        <h2><i class="fa-solid fa-repeat"></i> Discrete Delta-Hedging Simulator (30 Days) <button class="explain-trigger-btn" data-explain="delta_hedging" title="Explain Delta Hedging">?</button></h2>
                         <span class="badge">Gamma PnL vs Theta Drag with Cost</span>
                     </div>
                     <div class="chart-container">
@@ -464,7 +599,7 @@
             </div>
             <div class="card mt-4">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-cubes-stacked"></i> 1st & 2nd Order Analytical Greeks Matrix</h2>
+                    <h2><i class="fa-solid fa-cubes-stacked"></i> 1st & 2nd Order Analytical Greeks Matrix <button class="explain-trigger-btn" data-explain="cross_greeks" title="Explain Cross-Greeks Matrix">?</button></h2>
                     <span class="badge">Black-Scholes-Merton European Analytical</span>
                 </div>
                 <div id="greeks-table-container" class="greeks-wrap">
@@ -489,7 +624,7 @@
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-scale-balanced"></i> Equal Risk Contribution (Risk Parity)</h2>
+                        <h2><i class="fa-solid fa-scale-balanced"></i> Equal Risk Contribution (Risk Parity) <button class="explain-trigger-btn" data-explain="risk_parity" title="Explain Risk Parity">?</button></h2>
                         <span class="badge">Marginal Volatility Budgeting</span>
                     </div>
                     <div class="chart-container">
@@ -498,7 +633,7 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h2><i class="fa-solid fa-diagram-project"></i> Brinson-Fachler PnL Attribution</h2>
+                        <h2><i class="fa-solid fa-diagram-project"></i> Brinson-Fachler PnL Attribution <button class="explain-trigger-btn" data-explain="brinson_attribution" title="Explain Brinson Attribution">?</button></h2>
                         <span class="badge">Allocation vs Selection vs Interaction</span>
                     </div>
                     <div id="brinson-container" class="brinson-display">
@@ -509,7 +644,7 @@
 
             <div class="card mt-4">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-tower-broadcast"></i> Regime-Adaptive Trading Signals</h2>
+                    <h2><i class="fa-solid fa-tower-broadcast"></i> Regime-Adaptive Trading Signals <button class="explain-trigger-btn" data-explain="quant_signals" title="Explain Quant Signals">?</button></h2>
                     <span class="badge">Multi-Factor Quantitative Filter</span>
                 </div>
                 <table class="data-table" id="signals-table">
@@ -531,7 +666,7 @@
 
             <div class="card mt-4">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-terminal"></i> Institutional Order Execution Simulator</h2>
+                    <h2><i class="fa-solid fa-terminal"></i> Institutional Order Execution Simulator <button class="explain-trigger-btn" data-explain="exec_slicing" title="Explain Dynamic Slicing">?</button></h2>
                     <span class="badge">VWAP / TWAP Dynamic Slicing</span>
                 </div>
                 <div class="execution-form">
@@ -545,7 +680,7 @@
             <!-- Database-Backed Executed Orders History -->
             <div class="card mt-4">
                 <div class="card-header">
-                    <h2><i class="fa-solid fa-database"></i> Persistent Database Trade History (SQLite)</h2>
+                    <h2><i class="fa-solid fa-database"></i> Persistent Database Trade History (SQLite) <button class="explain-trigger-btn" data-explain="sqlite_blotter" title="Explain SQLite Blotter">?</button></h2>
                     <span class="badge" style="background:rgba(81,207,102,0.15);color:#51CF66;">Live SQLite ORM Record</span>
                 </div>
                 <table class="data-table" id="db-orders-table">
@@ -584,7 +719,7 @@
             <!-- Parameters Toolbar -->
             <div class="card mt-4" style="background:#0e0e12;border:1px solid rgba(255,255,255,0.08);">
                 <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-                    <h2><i class="fa-solid fa-sliders"></i> Stochastic Projection Parameters</h2>
+                    <h2><i class="fa-solid fa-sliders"></i> Stochastic Projection Parameters <button class="explain-trigger-btn" data-explain="monte_carlo_fan" title="Explain Stochastic Projection">?</button></h2>
                     <div style="display:flex;gap:10px;align-items:center;">
                         <select id="app-spec-ticker-select" class="exec-select" style="min-width:180px;background:#18181c;color:#fff;padding:6px 10px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);"></select>
                         <div class="segmented-control" style="display:flex;gap:4px;background:rgba(255,255,255,0.05);padding:3px;border-radius:6px;">
@@ -680,6 +815,57 @@
             </div>
             <div class="palette-suggestions" id="paletteSuggestions">
                 <!-- Dynamically populated by app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ UNIVERSAL MATHEMATICAL EXPLAINABILITY DRAWER ═══════════ -->
+    <div class="explain-modal-overlay" id="explainModalOverlay" aria-hidden="true" hidden>
+        <div class="explain-modal-backdrop" id="explainModalBackdrop"></div>
+        <div class="explain-drawer-panel" role="dialog" aria-modal="true" aria-label="Mathematical Explainability Engine">
+            <div class="explain-drawer-header">
+                <div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="badge" id="expDrawerCatBadge" style="background:rgba(34,211,238,0.15);color:#22d3ee;">TAIL RISK METRIC</span>
+                        <span style="font-family:monospace;font-weight:700;color:#fab005;" id="expDrawerSymbol">VaR_{99%}</span>
+                    </div>
+                    <h2 style="font-size:1.15rem;font-weight:700;color:#fff;margin-top:4px;" id="expDrawerTitle">Value-at-Risk (99% Confidence)</h2>
+                </div>
+                <button id="closeExplainModalBtn" style="background:transparent;border:none;color:#a1a1aa;font-size:1.4rem;cursor:pointer;line-height:1;">&times;</button>
+            </div>
+
+            <div class="explain-drawer-body">
+                <!-- 3-Tier Depth Switcher -->
+                <div class="explain-depth-selector">
+                    <button class="explain-depth-btn active" data-depth="beginner"><i class="fa-solid fa-child-reaching" style="margin-right:4px;"></i> Layman Metaphor</button>
+                    <button class="explain-depth-btn" data-depth="investor"><i class="fa-solid fa-briefcase" style="margin-right:4px;"></i> Professional Investor</button>
+                    <button class="explain-depth-btn" data-depth="quant"><i class="fa-solid fa-square-root-variable" style="margin-right:4px;"></i> Pure Quant / Proof</button>
+                </div>
+
+                <!-- Depth Content Card -->
+                <div class="explain-section-card">
+                    <h4 style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:#71717a;margin-bottom:8px;" id="expSectionHeading">Intuitive Conceptual Analogy</h4>
+                    <p style="font-size:0.85rem;line-height:1.6;color:#e4e4e7;" id="expSectionText"></p>
+                </div>
+
+                <!-- Mathematical Equation Card (Visible for Quant & Investor) -->
+                <div class="explain-section-card" id="expFormulaSection">
+                    <h4 style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:#71717a;margin-bottom:8px;">Analytical Mathematical Formulation</h4>
+                    <div class="explain-formula-box" id="expFormulaBox">
+                        <!-- Formula rendered in LaTeX / math -->
+                    </div>
+                    <div style="font-size:0.75rem;color:#a1a1aa;line-height:1.5;" id="expAssumptionsText">
+                        <strong>Assumptions &amp; Invariants:</strong>
+                    </div>
+                </div>
+
+                <!-- Step-by-Step Numerical Calculation Trace with Live Data -->
+                <div class="explain-section-card" id="expTraceSection">
+                    <h4 style="font-size:0.8rem;font-weight:700;text-transform:uppercase;color:#71717a;margin-bottom:8px;">Step-by-Step Live Arithmetic Trace</h4>
+                    <div id="expTraceList" style="display:flex;flex-direction:column;gap:8px;font-size:0.78rem;">
+                        <!-- Dynamically filled with active parameters -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
