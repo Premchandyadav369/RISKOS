@@ -1,0 +1,12 @@
+{
+  "symbol": "AMZN",
+  "name": "Amazon.com Inc",
+  "figi": "BBG000BVPV84",
+  "isin": "US0231351067",
+  "exchange": "NASDAQ",
+  "sector": "E-Commerce & Cloud",
+  "bloomberg_ticker": "AMZN NASDAQ Equity",
+  "lot_size": 1,
+  "currency": "USD",
+  "version": 59
+}
