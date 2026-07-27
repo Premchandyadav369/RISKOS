@@ -1,0 +1,12 @@
+{
+  "symbol": "ICICIBANK",
+  "name": "ICICI Bank Ltd",
+  "figi": "BBG000BHYG05",
+  "isin": "INE090A01021",
+  "exchange": "NSE",
+  "sector": "Banking & Financials",
+  "bloomberg_ticker": "ICICIBANK NSE Equity",
+  "lot_size": 1,
+  "currency": "INR",
+  "version": 85
+}
