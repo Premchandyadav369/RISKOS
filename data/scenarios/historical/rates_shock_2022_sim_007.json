@@ -1,0 +1,10 @@
+{
+  "crisis_id": "rates_shock_2022",
+  "title": "2022 Central Bank Tightening Cycle",
+  "equity_shock_pct": -0.22,
+  "rate_shock_bps": 500,
+  "commodity_shock_pct": 0.4,
+  "transmission_mechanism": "Inflation shock & yield spike",
+  "simulation_run": 7,
+  "risk_horizon_days": 20
+}
