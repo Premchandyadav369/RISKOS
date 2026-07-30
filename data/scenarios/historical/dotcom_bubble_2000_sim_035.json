@@ -1,0 +1,10 @@
+{
+  "crisis_id": "dotcom_bubble_2000",
+  "title": "2000 DotCom Valuation Reset",
+  "equity_shock_pct": -0.38,
+  "rate_shock_bps": -150,
+  "commodity_shock_pct": -0.2,
+  "transmission_mechanism": "High-multiple growth unwind",
+  "simulation_run": 35,
+  "risk_horizon_days": 20
+}
