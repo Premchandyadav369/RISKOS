@@ -1,0 +1,10 @@
+{
+  "crisis_id": "covid_flash_2020",
+  "title": "2020 COVID Pandemic Shock",
+  "equity_shock_pct": -0.34,
+  "rate_shock_bps": -100,
+  "commodity_shock_pct": -0.65,
+  "transmission_mechanism": "Supply chain halt & oil collapse",
+  "simulation_run": 174,
+  "risk_horizon_days": 20
+}
