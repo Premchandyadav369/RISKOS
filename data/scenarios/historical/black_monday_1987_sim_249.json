@@ -1,0 +1,10 @@
+{
+  "crisis_id": "black_monday_1987",
+  "title": "1987 Black Monday Equity Crash",
+  "equity_shock_pct": -0.226,
+  "rate_shock_bps": 450,
+  "commodity_shock_pct": -0.15,
+  "transmission_mechanism": "Portfolio insurance cascade",
+  "simulation_run": 249,
+  "risk_horizon_days": 20
+}
