@@ -408,6 +408,212 @@
     };
   };
 
+  // ── 8. Brinson-Fachler Multi-Sector Performance Attribution ───────────────────
+  const brinsonAttribution = ({ portfolioWeights, benchmarkWeights, portfolioReturns, benchmarkReturns, sectors }) => {
+    // Allocation: (wp_i - wb_i) * (Rb_i - Rb_total)
+    // Selection:  wb_i * (Rp_i - Rb_i)
+    // Interaction: (wp_i - wb_i) * (Rp_i - Rb_i)
+    const n = sectors.length;
+    const totalBenchmarkReturn = benchmarkWeights.reduce((acc, w, i) => acc + w * benchmarkReturns[i], 0);
+    const totalPortfolioReturn = portfolioWeights.reduce((acc, w, i) => acc + w * portfolioReturns[i], 0);
+
+    const attributionRows = sectors.map((sec, i) => {
+      const wp = portfolioWeights[i] || 0;
+      const wb = benchmarkWeights[i] || 0;
+      const rp = portfolioReturns[i] || 0;
+      const rb = benchmarkReturns[i] || 0;
+
+      const allocation = (wp - wb) * (rb - totalBenchmarkReturn);
+      const selection  = wb * (rp - rb);
+      const interaction = (wp - wb) * (rp - rb);
+      const totalActive = allocation + selection + interaction;
+
+      return {
+        sector: sec,
+        portfolioWeight: Number((wp * 100).toFixed(2)),
+        benchmarkWeight: Number((wb * 100).toFixed(2)),
+        portfolioReturn: Number((rp * 100).toFixed(2)),
+        benchmarkReturn: Number((rb * 100).toFixed(2)),
+        allocationBps: Number((allocation * 10000).toFixed(1)),
+        selectionBps:  Number((selection * 10000).toFixed(1)),
+        interactionBps: Number((interaction * 10000).toFixed(1)),
+        totalActiveBps: Number((totalActive * 10000).toFixed(1))
+      };
+    });
+
+    const totalAlloc = attributionRows.reduce((a, r) => a + r.allocationBps, 0);
+    const totalSelect = attributionRows.reduce((a, r) => a + r.selectionBps, 0);
+    const totalInteract = attributionRows.reduce((a, r) => a + r.interactionBps, 0);
+    const totalActiveAlpha = totalAlloc + totalSelect + totalInteract;
+
+    return {
+      summary: {
+        portfolioReturnPct: Number((totalPortfolioReturn * 100).toFixed(2)),
+        benchmarkReturnPct: Number((totalBenchmarkReturn * 100).toFixed(2)),
+        totalActiveAlphaBps: Number(totalActiveAlpha.toFixed(1)),
+        allocationEffectBps: Number(totalAlloc.toFixed(1)),
+        selectionEffectBps:  Number(totalSelect.toFixed(1)),
+        interactionEffectBps: Number(totalInteract.toFixed(1))
+      },
+      sectors: attributionRows
+    };
+  };
+
+  // ── 9. Hagan Analytical SABR Implied Volatility Smile Engine ───────────────────
+  const sabrVolatilitySmile = ({ F, K, T, alpha = 0.25, beta = 0.70, rho = -0.25, nu = 0.40 }) => {
+    // Forward F, Strike K, Expiry T (years)
+    const forward = Math.max(0.001, Number(F));
+    const strike = Math.max(0.001, Number(K));
+    const time = Math.max(0.001, Number(T));
+
+    if (Math.abs(forward - strike) < 1e-6) {
+      // ATM formula
+      const term1 = alpha / Math.pow(forward, 1.0 - beta);
+      const term2 = 1.0 + (
+        ((1.0 - beta) * (1.0 - beta) * alpha * alpha) / (24.0 * Math.pow(forward, 2.0 - 2.0 * beta)) +
+        (rho * beta * nu * alpha) / (4.0 * Math.pow(forward, 1.0 - beta)) +
+        ((2.0 - 3.0 * rho * rho) * nu * nu) / 24.0
+      ) * time;
+      return Number((term1 * term2).toFixed(4));
+    }
+
+    const fkBeta = Math.pow(forward * strike, (1.0 - beta) / 2.0);
+    const logFK = Math.log(forward / strike);
+    const z = (nu / alpha) * fkBeta * logFK;
+    const xz = Math.log((Math.sqrt(1.0 - 2.0 * rho * z + z * z) + z - rho) / (1.0 - rho));
+
+    const denominator = fkBeta * (
+      1.0 +
+      ((1.0 - beta) * (1.0 - beta) / 24.0) * logFK * logFK +
+      (Math.pow(1.0 - beta, 4) / 1920.0) * Math.pow(logFK, 4)
+    );
+
+    const numerator = alpha * (z / xz);
+    const timeFactor = 1.0 + (
+      ((1.0 - beta) * (1.0 - beta) * alpha * alpha) / (24.0 * fkBeta * fkBeta) +
+      (rho * beta * nu * alpha) / (4.0 * fkBeta) +
+      ((2.0 - 3.0 * rho * rho) * nu * nu) / 24.0
+    ) * time;
+
+    const sigmaSABR = (numerator / denominator) * timeFactor;
+    return Math.max(0.01, Number(sigmaSABR.toFixed(4)));
+  };
+
+  // ── 10. Dupire Local Volatility Surface Extractor ──────────────────────────────
+  const dupireLocalVolatility = ({ spot, strike, tenor, dC_dT, dC_dK, d2C_dK2, r = 0.05, q = 0.0 }) => {
+    // Dupire (1994) Formula: sigma_loc^2(K, T) = [dC/dT + (r-q)K*dC/dK + q*C] / [0.5 * K^2 * d2C/dK2]
+    const k = Math.max(0.01, Number(strike));
+    const denom = 0.5 * k * k * Math.max(1e-7, Number(d2C_dK2));
+    const numer = Math.max(1e-7, Number(dC_dT) + (r - q) * k * Number(dC_dK) + q * spot);
+    const localVar = Math.max(0.0001, numer / denom);
+    return Math.min(2.0, Math.max(0.05, Math.sqrt(localVar)));
+  };
+
+  // ── 11. Key Rate Durations (KRD) & Yield Curve Twist Sensitivity ──────────────
+  const keyRateDurationConvexity = ({ cashFlows, curveYields, notional = 10000000 }) => {
+    // Evaluates portfolio price sensitivity to localized shifts at 1Y, 2Y, 5Y, 10Y, 30Y tenors
+    const tenors = [1, 2, 5, 10, 30];
+    const baseDiscounted = cashFlows.map(cf => cf.amount * Math.exp(-(curveYields[cf.year] || 0.07) * cf.year));
+    const basePrice = baseDiscounted.reduce((a, b) => a + b, 0);
+
+    const krdResults = tenors.map(keyTenor => {
+      // Shift curve locally by +1 bp at keyTenor
+      const shiftedPrice = cashFlows.reduce((acc, cf) => {
+        const weight = Math.max(0, 1.0 - Math.abs(cf.year - keyTenor) / Math.max(1, keyTenor * 0.5));
+        const rate = (curveYields[cf.year] || 0.07) + (weight * 0.0001);
+        return acc + cf.amount * Math.exp(-rate * cf.year);
+      }, 0);
+
+      const krdYears = -((shiftedPrice - basePrice) / basePrice) / 0.0001;
+      const dv01 = (basePrice * krdYears * 0.0001 * (notional / basePrice));
+
+      return {
+        keyTenor: `${keyTenor}Y`,
+        durationYears: Number(krdYears.toFixed(3)),
+        dv01INR: Number(dv01.toFixed(2))
+      };
+    });
+
+    const totalModifiedDuration = krdResults.reduce((a, r) => a + r.durationYears, 0);
+    const totalDV01 = (notional * totalModifiedDuration * 0.0001);
+
+    return {
+      basePortfolioValue: Number(basePrice.toFixed(2)),
+      totalModifiedDuration: Number(totalModifiedDuration.toFixed(3)),
+      totalDV01INR: Number(totalDV01.toFixed(2)),
+      keyRateDurations: krdResults
+    };
+  };
+
+  // ── 12. Credit Default Swap (CDSW) Hazard Rate Curve Bootstrapper ─────────────
+  const creditDefaultSwapCurve = ({ parSpreadsBps = [45, 65, 95, 130, 165], tenors = [1, 2, 3, 5, 10], recoveryRate = 0.40, riskFreeRate = 0.05 }) => {
+    // Bloomberg CDSW intensity model: lambda_t = spread / (1 - recovery)
+    const LGD = 1.0 - recoveryRate;
+    const curve = tenors.map((t, i) => {
+      const spread = (parSpreadsBps[i] || 100) / 10000.0;
+      const hazardRate = spread / LGD; // Annual default intensity lambda
+      const survivalProb = Math.exp(-hazardRate * t); // Q(0, t)
+      const defaultProb = 1.0 - survivalProb; // Cumulative PD
+
+      return {
+        tenor: `${t}Y`,
+        parSpreadBps: parSpreadsBps[i],
+        hazardRateAnnual: Number((hazardRate * 100).toFixed(3)),
+        cumulativePD: Number((defaultProb * 100).toFixed(2)),
+        survivalProbPct: Number((survivalProb * 100).toFixed(2))
+      };
+    });
+
+    return {
+      recoveryRatePct: Number((recoveryRate * 100).toFixed(0)),
+      lossGivenDefaultPct: Number((LGD * 100).toFixed(0)),
+      hazardCurve: curve
+    };
+  };
+
+  // ── 13. Cornish-Fisher Non-Normal VaR & Fat-Tail Expansion ────────────────────
+  const cornishFisherVaR = ({ mean = 0.0, std = 0.015, skewness = -0.45, kurtosis = 4.20, confidence = 0.99 }) => {
+    const z = normalInvCDF(confidence);
+    const S = Number(skewness);
+    const K = Number(kurtosis) - 3.0; // Excess kurtosis
+
+    // Cornish-Fisher expansion adjustment
+    const z_cf = z + 
+      (1.0 / 6.0) * (z * z - 1.0) * S +
+      (1.0 / 24.0) * (z * z * z - 3.0 * z) * K -
+      (1.0 / 36.0) * (2.0 * z * z * z - 5.0 * z) * S * S;
+
+    const parametricVaR = -(mean - z * std);
+    const cornishFisherVaR = -(mean - z_cf * std);
+    const fatTailPremiumPct = ((cornishFisherVaR - parametricVaR) / parametricVaR) * 100;
+
+    return {
+      confidencePct: Number((confidence * 100).toFixed(1)),
+      gaussianZ: Number(z.toFixed(3)),
+      cornishFisherZ: Number(z_cf.toFixed(3)),
+      parametricVaR: Number((parametricVaR * 100).toFixed(3)),
+      cornishFisherVaR: Number((cornishFisherVaR * 100).toFixed(3)),
+      fatTailPremiumPct: Number(fatTailPremiumPct.toFixed(1))
+    };
+  };
+
+  // ── 14. Kelly Criterion Optimal Institutional Leverage Sizer ─────────────────
+  const kellyOptimalLeverage = ({ winRate = 0.56, winLossRatio = 1.45, maxLeverage = 3.0 }) => {
+    // Discrete Kelly: f* = p - (1-p)/b
+    const p = Number(winRate);
+    const b = Number(winLossRatio);
+    const f_full = (p * (b + 1.0) - 1.0) / b;
+    const f_half = f_full * 0.5; // Half-Kelly (institutional standard)
+    const f_quarter = f_full * 0.25;
+
+    return {
+      fullKellyLeverage: Number(Math.max(0, Math.min(maxLeverage, f_full)).toFixed(2)),
+      halfKellyLeverage: Number(Math.max(0, Math.min(maxLeverage, f_half)).toFixed(2)),
+      quarterKellyLeverage: Number(Math.max(0, Math.min(maxLeverage, f_quarter)).toFixed(2)),
+      expectedGrowthRate: Number((p * Math.log(1.0 + f_half * b) + (1.0 - p) * Math.log(1.0 - f_half)).toFixed(4))
+    };
+  };
+
   // ── Attach QuantEngine to Global Scope ─────────────────────────────────────────
   const QuantEngine = {
     normalCDF,
@@ -421,7 +627,14 @@
     markowitzFrontier,
     almgrenChriss,
     nelsonSiegel,
-    kupiecPOFTest
+    kupiecPOFTest,
+    brinsonAttribution,
+    sabrVolatilitySmile,
+    dupireLocalVolatility,
+    keyRateDurationConvexity,
+    creditDefaultSwapCurve,
+    cornishFisherVaR,
+    kellyOptimalLeverage
   };
 
   if (typeof window !== 'undefined') {

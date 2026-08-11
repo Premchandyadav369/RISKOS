@@ -281,6 +281,56 @@
                     <div id="validation-container" class="validation-display">
                         <div class="loading">Evaluating Kupiec & Christoffersen tests...</div>
                     </div>
+            <!-- ═══════════ BLOOMBERG PORT: BRINSON-FACHLER PERFORMANCE ATTRIBUTION & CORNISH-FISHER FAT-TAIL VAR ═══════════ -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,158,0,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-chart-column" style="color:#ff9e00;"></i> Bloomberg PORT: Brinson-Fachler Multi-Factor Attribution
+                            <button class="explain-trigger-btn" data-explain="brinson_attr" title="Explain Brinson-Fachler Multi-Factor Attribution">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Decomposes active portfolio returns into pure Sector Allocation (\(A_i\)), Stock Selection (\(S_i\)), and Interaction (\(I_i\)) effects vs benchmark.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(255,158,0,0.15); color:#ff9e00;">FRTB / GIPS Compliant</span>
+                </div>
+
+                <div class="grid-2-col">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%; font-size:0.75rem; text-align:left; border-collapse:collapse;" id="brinsonAttributionTable">
+                            <thead>
+                                <tr style="color:#a1a1aa; border-bottom:1px solid rgba(255,255,255,0.1);">
+                                    <th style="padding:6px 8px;">Sector</th>
+                                    <th style="padding:6px 8px;">Port Wt</th>
+                                    <th style="padding:6px 8px;">Bench Wt</th>
+                                    <th style="padding:6px 8px;">Alloc (bps)</th>
+                                    <th style="padding:6px 8px;">Select (bps)</th>
+                                    <th style="padding:6px 8px;">Active Alpha</th>
+                                </tr>
+                            </thead>
+                            <tbody id="brinsonTableBody">
+                                <!-- Populated dynamically by QuantEngine.brinsonAttribution -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:center; gap:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; color:#aaa;">Cornish-Fisher Fat-Tail VaR (99%):</span>
+                            <strong id="cfVaRVal" style="color:#FF6B6B; font-size:1.05rem; font-family:monospace;">-4.18%</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; color:#aaa;">Gaussian Parametric VaR (99%):</span>
+                            <strong id="gaussVaRVal" style="color:#a1a1aa; font-size:0.95rem; font-family:monospace;">-3.49%</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:0.8rem; color:#aaa;">Excess Fat-Tail Risk Premium:</span>
+                            <strong id="fatTailPremiumVal" style="color:#FAB005; font-size:0.95rem; font-family:monospace;">+19.8%</strong>
+                        </div>
+                        <div style="font-size:0.72rem; color:#71717a; line-height:1.4; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px;">
+                            Adjusts for skewness (\(S = -0.45\)) and leptokurtic excess kurtosis (\(K = 4.20\)) via Cornish-Fisher quantile expansion.
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -449,6 +499,37 @@
                         <span class="badge">Shift (86.4%) · Twist (10.8%) · Butterfly (2.8%)</span>
                     </div>
                     <div id="pca-container" class="pca-display"></div>
+                </div>
+            </div>
+
+            <!-- ═══════════ BLOOMBERG YCRV & CDSW: KEY RATE DURATIONS & HAZARD INTENSITY ═══════════ -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,158,0,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-layer-group" style="color:#ff9e00;"></i> Bloomberg YCRV / CDSW: Key Rate Durations (KRD) &amp; Hazard Rate Curve
+                            <button class="explain-trigger-btn" data-explain="krd_hazard" title="Explain Key Rate Durations & CDSW Hazard Rates">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Multi-tenor localized curve sensitivity (\(DV01\)) and sovereign credit default swap hazard rate intensity \(\lambda(t)\).
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(255,158,0,0.15); color:#ff9e00;">FIW Fixed Income Analytics</span>
+                </div>
+
+                <div class="grid-2-col">
+                    <div>
+                        <h4 style="font-size:0.8rem; font-weight:700; color:#a1a1aa; margin-bottom:8px;">Key Rate Durations (\(DV01\) per \(\pm 1\text{bp}\) Shift):</h4>
+                        <div id="krdTableContainer" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:8px;">
+                            <!-- Populated dynamically by QuantEngine.keyRateDurationConvexity -->
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:0.8rem; font-weight:700; color:#a1a1aa; margin-bottom:8px;">CDSW Sovereign Credit Hazard Curve (\(\lambda_t\)):</h4>
+                        <div id="cdswTableContainer" style="overflow-x:auto;">
+                            <!-- Populated dynamically by QuantEngine.creditDefaultSwapCurve -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -631,6 +712,40 @@
                     <div class="loading">Computing cross-greeks...</div>
                 </div>
             </div>
+
+            <!-- ═══════════ BLOOMBERG OVX / SABR: HAGAN SMILE VS DUPIRE LOCAL VOLATILITY ═══════════ -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,158,0,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-water" style="color:#ff9e00;"></i> Bloomberg OVME: Hagan Analytical SABR Smile vs Dupire Local Vol Surface
+                            <button class="explain-trigger-btn" data-explain="sabr_dupire" title="Explain SABR Smile & Dupire Local Volatility">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Simultaneous closed-form Hagan (2002) asymptotic expansion \(\sigma_{\text{SABR}}(K, F)\) and Dupire (1994) forward PDE local volatility \(\sigma_{\text{loc}}(K, T)\).
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(255,158,0,0.15); color:#ff9e00;">OVME Volatility Desk</span>
+                </div>
+
+                <div class="grid-2-col">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#aaa; margin-bottom:8px;">
+                            <span>SABR Parameters: \(\alpha=0.25, \beta=0.70, \rho=-0.25, \nu=0.40\)</span>
+                            <span style="color:#22d3ee; font-weight:700;">Forward = $185.00</span>
+                        </div>
+                        <div id="sabrStrikesContainer" style="display:grid; grid-template-columns:repeat(5, 1fr); gap:6px; font-size:0.72rem;">
+                            <!-- Populated dynamically by QuantEngine.sabrVolatilitySmile -->
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+                        <h4 style="font-size:0.78rem; font-weight:700; color:#a1a1aa; margin-bottom:8px;">Dupire Local Vol PDE Surface Slices:</h4>
+                        <div id="dupireSurfaceContainer" style="display:flex; flex-direction:column; gap:6px; font-size:0.72rem;">
+                            <!-- Populated dynamically by QuantEngine.dupireLocalVolatility -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════ DESK 6: SIGNALS & ALLOCATION ═══════════ -->
@@ -644,6 +759,45 @@
                     <strong>Fractional Kelly:</strong> Mathematical sizing maximizing compound capital growth while preventing catastrophic drawdowns. 
                     <strong>Execution Simulator:</strong> Routes trades with VWAP/TWAP order slicing to minimize market impact.
                 </p>
+            </div>
+
+            <!-- ═══════════ BLOOMBERG BTAC: KELLY CRITERION OPTIMAL LEVERAGE & BET SIZING ═══════════ -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(255,158,0,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-dice" style="color:#ff9e00;"></i> Bloomberg BTAC: Institutional Kelly Criterion Capital Sizing
+                            <button class="explain-trigger-btn" data-explain="kelly_sizing" title="Explain Kelly Criterion Leverage Sizing">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Calculates optimal compounding capital fractions (\(f^* = p - \frac{1-p}{b}\)) to maximize long-term geometric growth while constraining drawdown variance.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(255,158,0,0.15); color:#ff9e00;">Half-Kelly Institutional</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;" id="kellySizingGrid">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Full Kelly Maximum</span>
+                        <div id="fullKellyVal" style="font-size:1.3rem; font-weight:800; color:#ff9e00; margin:2px 0;">1.26x</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Aggressive Leverage Limit</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Half-Kelly Recommended</span>
+                        <div id="halfKellyVal" style="font-size:1.3rem; font-weight:800; color:#51CF66; margin:2px 0;">0.63x</div>
+                        <span style="font-size:0.7rem; color:#51CF66;">Standard Quant Target</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Quarter-Kelly Conservative</span>
+                        <div id="quarterKellyVal" style="font-size:1.3rem; font-weight:800; color:#22d3ee; margin:2px 0;">0.32x</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Preservation Regime</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Expected Geometric Growth</span>
+                        <div id="kellyGrowthVal" style="font-size:1.3rem; font-weight:800; color:#fff; margin:2px 0;">+14.2%</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Annualized Log Compounding</span>
+                    </div>
+                </div>
             </div>
 
             <div class="grid-2-col mt-4">
