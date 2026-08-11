@@ -2621,6 +2621,125 @@ function updateTcaBlotter(fillPrice, qty, ticker) {
     totalEl.textContent = `${totalShortfall} bps`;
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   BLOOMBERG TERMINAL FUNCTION KEYS, QUAD TILE GRID & FIX ROUTER
+   ══════════════════════════════════════════════════════════════════════════ */
+function initBloombergTerminalFeatures() {
+    const fnBtns = document.querySelectorAll('.bbg-fn-btn');
+    const singleBtn = document.getElementById('btnSingleDeskView');
+    const quadBtn = document.getElementById('btnQuadDeskView');
+    const fixModal = document.getElementById('fixRouterModal');
+    const closeFixBtn = document.getElementById('closeFixModalBtn');
+    const fixBackdrop = document.getElementById('fixBackdrop');
+    const sendFixBtn = document.getElementById('btnSendFixOrder');
+    const fixLog = document.getElementById('fixStreamLog');
+
+    // Mnemonic Actions Mapping
+    const executeMnemonic = (fnKey) => {
+        fnBtns.forEach(b => b.classList.toggle('active', b.dataset.fn === fnKey));
+        switch(fnKey) {
+            case 'help':
+                document.getElementById('btnOpenPalette')?.click();
+                break;
+            case 'desk1': switchTab('tab-market'); break;
+            case 'desk2': switchTab('tab-risk'); break;
+            case 'desk3': switchTab('tab-spreads'); break;
+            case 'desk4': switchTab('tab-micro'); break;
+            case 'desk5': switchTab('tab-options'); break;
+            case 'desk6': switchTab('tab-signals'); break;
+            case 'desk7': switchTab('tab-speculations'); break;
+            case 'tear':
+                document.getElementById('btnExportTearSheet')?.click();
+                break;
+            case 'sync':
+                document.getElementById('globalLiveSyncBtn')?.click();
+                break;
+            case 'fix':
+                if (fixModal) {
+                    fixModal.hidden = false;
+                    fixModal.style.display = 'flex';
+                }
+                break;
+        }
+    };
+
+    fnBtns.forEach(btn => {
+        btn.addEventListener('click', () => executeMnemonic(btn.dataset.fn));
+    });
+
+    // Keyboard Shortcuts (F1 - F12)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'F1') { e.preventDefault(); executeMnemonic('help'); }
+        else if (e.key === 'F2') { e.preventDefault(); executeMnemonic('desk1'); }
+        else if (e.key === 'F3') { e.preventDefault(); executeMnemonic('desk2'); }
+        else if (e.key === 'F4') { e.preventDefault(); executeMnemonic('desk3'); }
+        else if (e.key === 'F5') { e.preventDefault(); executeMnemonic('desk4'); }
+        else if (e.key === 'F6') { e.preventDefault(); executeMnemonic('desk5'); }
+        else if (e.key === 'F7') { e.preventDefault(); executeMnemonic('desk6'); }
+        else if (e.key === 'F8') { e.preventDefault(); executeMnemonic('desk7'); }
+        else if (e.key === 'F9') { e.preventDefault(); executeMnemonic('tear'); }
+        else if (e.key === 'F10') { e.preventDefault(); executeMnemonic('sync'); }
+        else if (e.key === 'F12') { e.preventDefault(); executeMnemonic('fix'); }
+        else if (e.key === 'Escape') {
+            if (fixModal && !fixModal.hidden) {
+                fixModal.hidden = true;
+                fixModal.style.display = 'none';
+            }
+        }
+    });
+
+    // Quad Tile Grid View Mode
+    if (singleBtn && quadBtn) {
+        singleBtn.addEventListener('click', () => {
+            document.body.classList.remove('quad-grid-active');
+            singleBtn.classList.add('active');
+            quadBtn.classList.remove('active');
+            const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'tab-market';
+            switchTab(activeTab);
+        });
+
+        quadBtn.addEventListener('click', () => {
+            document.body.classList.add('quad-grid-active');
+            quadBtn.classList.add('active');
+            singleBtn.classList.remove('active');
+        });
+    }
+
+    // FIX 4.4 Order Transmit Handler
+    const closeFix = () => {
+        if (fixModal) {
+            fixModal.hidden = true;
+            fixModal.style.display = 'none';
+        }
+    };
+
+    if (closeFixBtn) closeFixBtn.addEventListener('click', closeFix);
+    if (fixBackdrop) fixBackdrop.addEventListener('click', closeFix);
+
+    if (sendFixBtn && fixLog) {
+        let seqNum = 102;
+        sendFixBtn.addEventListener('click', () => {
+            const sym = document.getElementById('fixInputSymbol')?.value.toUpperCase() || 'RELIANCE';
+            const side = document.getElementById('fixInputSide')?.value || '1';
+            const qty = document.getElementById('fixInputQty')?.value || '5000';
+            const px = parseFloat(document.getElementById('fixInputPrice')?.value || '2985.50').toFixed(2);
+            const clOrdId = `ORD_${Math.floor(1000 + Math.random() * 9000)}`;
+            const timeStr = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 15);
+
+            const fixMsg = `8=FIX.4.4|9=156|35=D|49=RISKOS_PROP|56=BLOOMBERG_EMS|34=${seqNum++}|52=${timeStr}|11=${clOrdId}|55=${sym}|54=${side}|38=${qty}|40=2|44=${px}|59=0|10=182|`;
+            const execReport = `8=FIX.4.4|9=168|35=8|49=BLOOMBERG_EMS|56=RISKOS_PROP|34=${seqNum++}|52=${timeStr}|11=${clOrdId}|37=EX_${seqNum}|39=2|150=2|55=${sym}|54=${side}|38=${qty}|32=${qty}|31=${px}|6=${px}|14=${qty}|10=194|`;
+
+            fixLog.textContent = `>>> OUTBOUND (NewOrderSingle):\n${fixMsg}\n\n<<< INBOUND (ExecutionReport - FILLED):\n${execReport}\n\n` + fixLog.textContent;
+
+            // Trigger audio and blotter
+            if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+                SecurityMaster.playExecutionSound();
+            }
+            updateTcaBlotter(parseFloat(px), parseInt(qty, 10), sym);
+        });
+    }
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
@@ -2634,6 +2753,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initFeatureExplainability, 600);
     setTimeout(initBlackLitterman, 650);
     setTimeout(initCointegrationScreener, 700);
+    setTimeout(initBloombergTerminalFeatures, 750);
     setTimeout(() => {
         if (typeof renderMathInElement !== 'undefined') {
             try {
@@ -2648,7 +2768,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch(e) {}
         }
-    }, 750);
+    }, 800);
 });
 
 

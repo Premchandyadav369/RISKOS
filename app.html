@@ -45,6 +45,27 @@
         </div>
     </header>
 
+    <!-- ═══════════ BLOOMBERG TERMINAL FUNCTION KEY STRIP (F1 - F12) ═══════════ -->
+    <div class="bloomberg-function-strip" id="bbgFunctionStrip">
+        <div class="bbg-fn-track">
+            <button class="bbg-fn-btn" data-fn="help" title="F1: Help / Keyboard Mnemonics"><kbd>F1</kbd> <span>&lt;HELP&gt;</span></button>
+            <button class="bbg-fn-btn active" data-fn="desk1" title="F2: Desk 1 - Market Intelligence"><kbd>F2</kbd> <span>&lt;DESK1&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk2" title="F3: Desk 2 - Risk & Portfolio"><kbd>F3</kbd> <span>&lt;RISK&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk3" title="F4: Desk 3 - Rates & Yield Curve"><kbd>F4</kbd> <span>&lt;YCRV&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk4" title="F5: Desk 4 - Order Flow & DOM"><kbd>F5</kbd> <span>&lt;DOM&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk5" title="F6: Desk 5 - Derivatives & Greeks"><kbd>F6</kbd> <span>&lt;VOL&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk6" title="F7: Desk 6 - Signals & Allocation"><kbd>F7</kbd> <span>&lt;SIG&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk7" title="F8: Desk 7 - Monte Carlo AI"><kbd>F8</kbd> <span>&lt;AI&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="tear" title="F9: Institutional Tear Sheet"><kbd>F9</kbd> <span>&lt;TEAR&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="sync" title="F10: Global Market Quotes Sync"><kbd>F10</kbd> <span>&lt;SYNC&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="fix" title="F12: FIX 4.4 Order Protocol Router"><kbd>F12</kbd> <span>&lt;FIX&gt;</span></button>
+        </div>
+        <div class="bbg-mode-toggle-group">
+            <button class="bbg-tile-btn active" id="btnSingleDeskView" title="Single Desk Full View"><i class="fa-solid fa-square"></i> Single</button>
+            <button class="bbg-tile-btn" id="btnQuadDeskView" title="Bloomberg Quad-Desk Tile View"><i class="fa-solid fa-table-cells"></i> Quad Grid</button>
+        </div>
+    </div>
+
     <!-- Navigation Tabs (7 Quant Desks) -->
     <nav class="tabs-container" aria-label="Quant Trading Desks">
         <div class="tabs">
@@ -870,6 +891,47 @@
                         <!-- Dynamically filled with active parameters -->
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ BLOOMBERG FIX 4.4 ELECTRONIC EXECUTION MODAL ═══════════ -->
+    <div class="fix-modal-overlay" id="fixRouterModal" aria-hidden="true" hidden>
+        <div class="fix-modal-backdrop" id="fixBackdrop"></div>
+        <div class="fix-modal-panel" role="dialog" aria-modal="true" aria-label="FIX 4.4 Institutional Order Router">
+            <div class="fix-modal-header">
+                <div>
+                    <span class="badge" style="background:rgba(255,158,0,0.15);color:#ff9e00;">FIX 4.4 PROTOCOL</span>
+                    <h3 style="margin:4px 0 0 0;font-size:1.1rem;font-weight:700;color:#fff;">Institutional Electronic Order Routing</h3>
+                </div>
+                <button id="closeFixModalBtn" class="explain-drawer-close-btn" aria-label="Close FIX Modal">&times;</button>
+            </div>
+            <div class="fix-modal-body">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:0.75rem;color:#71717a;">Target Symbol (Tag 55)</label>
+                        <input type="text" id="fixInputSymbol" value="RELIANCE" style="width:100%;background:#09090c;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;font-family:monospace;margin-top:4px;" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;color:#71717a;">Order Side (Tag 54)</label>
+                        <select id="fixInputSide" style="width:100%;background:#09090c;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;font-family:monospace;margin-top:4px;">
+                            <option value="1">1 = BUY (Long Entry)</option>
+                            <option value="2">2 = SELL (Long Exit)</option>
+                            <option value="5">5 = SHORT SELL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;color:#71717a;">Quantity (Tag 38)</label>
+                        <input type="number" id="fixInputQty" value="5000" style="width:100%;background:#09090c;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;font-family:monospace;margin-top:4px;" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;color:#71717a;">Limit Price (Tag 44)</label>
+                        <input type="number" id="fixInputPrice" value="2985.50" step="0.05" style="width:100%;background:#09090c;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;font-family:monospace;margin-top:4px;" />
+                    </div>
+                </div>
+                <button id="btnSendFixOrder" style="background:#ff9e00;border:none;color:#000;font-weight:700;padding:10px 18px;border-radius:8px;cursor:pointer;width:100%;font-size:0.85rem;margin-bottom:16px;"><i class="fa-solid fa-satellite"></i> Transmit NewOrderSingle (MsgType 35=D)</button>
+                <h4 style="font-size:0.75rem;color:#71717a;text-transform:uppercase;margin:0 0 6px 0;">Live Raw FIX 4.4 Stream</h4>
+                <pre id="fixStreamLog" style="background:#050508;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;font-family:monospace;font-size:0.75rem;color:#22d3ee;overflow-x:auto;max-height:160px;">8=FIX.4.4|9=142|35=D|49=RISKOS_PROP|56=BLOOMBERG_EMS|34=101|52=20260901-08:26:00|11=ORD_9942|55=RELIANCE|54=1|38=5000|40=2|44=2985.50|59=0|10=168|</pre>
             </div>
         </div>
     </div>
