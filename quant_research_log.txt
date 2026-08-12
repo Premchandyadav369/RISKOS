@@ -1,1 +1,2 @@
 Research cycle 1: Quant model iteration.
+Research cycle 2: Quant model iteration.
