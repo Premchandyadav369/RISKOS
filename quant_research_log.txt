@@ -817,3 +817,4 @@ Research cycle 816: Quant model iteration.
 Research cycle 817: Quant model iteration.
 Research cycle 818: Quant model iteration.
 Research cycle 819: Quant model iteration.
+Research cycle 820: Quant model iteration.
