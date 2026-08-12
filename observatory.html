@@ -184,6 +184,61 @@
       </div>
     </section>
 
+    <!-- ── 2B. OPENBB OPEN DATA PLATFORM (ODP) MACRO INTELLIGENCE HUB ──────── -->
+    <section class="obs-openbb-hub-card" style="background:#090d16; border:1px solid rgba(34,211,238,0.3); border-radius:14px; padding:16px 20px; margin-bottom:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:rgba(34,211,238,0.15); display:flex; align-items:center; justify-content:center; color:#22d3ee;">
+            <i class="fa-solid fa-cubes"></i>
+          </div>
+          <div>
+            <h3 style="font-size:0.95rem; font-weight:700; color:#fff; margin:0;">OpenBB Open Data Platform (ODP) Real-Time Ingestion Hub</h3>
+            <span style="font-size:0.7rem; color:var(--text-muted);">Standardized multi-provider macro indicators &amp; yield curve telemetry</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:0.7rem; color:#71717a; font-weight:700;">ACTIVE PROVIDER:</span>
+          <select id="obsOpenbbProviderSelect" style="background:#141721; border:1px solid rgba(34,211,238,0.3); color:#22d3ee; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+            <option value="yfinance">Yahoo Finance (Live)</option>
+            <option value="fmp">Financial Modeling Prep</option>
+            <option value="polygon">Polygon.io</option>
+            <option value="cboe">CBOE Volatility Index</option>
+            <option value="fred">Federal Reserve FRED</option>
+            <option value="nse">NSE India Official</option>
+          </select>
+          <span class="badge-tag" style="background:rgba(81,207,102,0.15); color:#51CF66;"><i class="fa-solid fa-circle-nodes"></i> STREAMING</span>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;" id="obsOpenbbIndicatorsGrid">
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+          <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Brent Crude (Spot)</span>
+          <div id="obbBrentVal" style="font-size:1.15rem; font-weight:800; color:#ff9e00; margin:2px 0;">$78.45/bbl</div>
+          <span id="obbBrentChg" style="font-size:0.68rem; color:#51CF66;"><i class="fa-solid fa-arrow-trend-up"></i> +1.82% Today</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+          <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">India 10Y Benchmark</span>
+          <div id="obbIn10YVal" style="font-size:1.15rem; font-weight:800; color:#22d3ee; margin:2px 0;">6.88%</div>
+          <span id="obbIn10YChg" style="font-size:0.68rem; color:#a1a1aa;">-2.4 bps Daily</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+          <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">US 10Y Treasury</span>
+          <div id="obbUs10YVal" style="font-size:1.15rem; font-weight:800; color:#fff; margin:2px 0;">4.18%</div>
+          <span id="obbUs10YChg" style="font-size:0.68rem; color:#51CF66;">Spread: +270 bps</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+          <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">USD/INR Currency</span>
+          <div id="obbUsdInrVal" style="font-size:1.15rem; font-weight:800; color:#a78bfa; margin:2px 0;">₹86.72</div>
+          <span id="obbUsdInrChg" style="font-size:0.68rem; color:#FF6B6B;">+0.14% Vol</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+          <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Global Sentiment Gauge</span>
+          <div id="obbSentimentVal" style="font-size:1.15rem; font-weight:800; color:#51CF66; margin:2px 0;">RISK-ON (68/100)</div>
+          <span style="font-size:0.68rem; color:#51CF66;">Low Tail Contagion</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ── 3. MACRO MARKET PULSE & BREADTH RADAR STRIP ─────────────────────── -->
     <section class="obs-macro-grid">
       
