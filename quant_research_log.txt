@@ -105,3 +105,4 @@ Research cycle 104: Quant model iteration.
 Research cycle 105: Quant model iteration.
 Research cycle 106: Quant model iteration.
 Research cycle 107: Quant model iteration.
+Research cycle 108: Quant model iteration.
