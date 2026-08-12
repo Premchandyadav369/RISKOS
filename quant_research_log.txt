@@ -710,3 +710,4 @@ Research cycle 709: Quant model iteration.
 Research cycle 710: Quant model iteration.
 Research cycle 711: Quant model iteration.
 Research cycle 712: Quant model iteration.
+Research cycle 713: Quant model iteration.
