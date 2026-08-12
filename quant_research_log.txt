@@ -44,3 +44,4 @@ Research cycle 43: Quant model iteration.
 Research cycle 44: Quant model iteration.
 Research cycle 45: Quant model iteration.
 Research cycle 46: Quant model iteration.
+Research cycle 47: Quant model iteration.
