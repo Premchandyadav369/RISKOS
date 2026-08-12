@@ -517,3 +517,4 @@ Research cycle 516: Quant model iteration.
 Research cycle 517: Quant model iteration.
 Research cycle 518: Quant model iteration.
 Research cycle 519: Quant model iteration.
+Research cycle 520: Quant model iteration.
