@@ -420,6 +420,54 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ═══════════ 8-CRISIS HISTORICAL REPLAY SIMULATOR SUITE ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(244,63,94,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; margin:0;">
+                            <i class="fa-solid fa-fire text-sell"></i> 8-Crisis Historical Replay Simulator &amp; Shockwave Engine
+                            <button class="explain-trigger-btn" data-explain="scenario_stress" title="Explain Historical Crisis Replay">?</button>
+                        </h3>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">Simulate real-time portfolio liquidity drawdowns, VIX spikes, and margin haircuts under historic black swan shocks.</span>
+                    </div>
+                    <span class="badge" style="background:rgba(244,63,94,0.15); color:#f43f5e;"><i class="fa-solid fa-triangle-exclamation"></i> Extreme Value Replay</span>
+                </div>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;" id="crisisReplayButtons">
+                    <button class="btn-crisis-replay active" data-crisis="black_monday" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.5); color:#f43f5e; cursor:pointer;">1987 Black Monday (-22.6%)</button>
+                    <button class="btn-crisis-replay" data-crisis="ltcm_1998" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">1998 LTCM Collapse</button>
+                    <button class="btn-crisis-replay" data-crisis="dotcom_2000" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2000 Dot-Com Bust</button>
+                    <button class="btn-crisis-replay" data-crisis="lehman_2008" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2008 Lehman GFC (-56.8%)</button>
+                    <button class="btn-crisis-replay" data-crisis="flash_crash_2010" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2010 Flash Crash (-9%)</button>
+                    <button class="btn-crisis-replay" data-crisis="covid_2020" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2020 COVID Crash (VIX 82.7)</button>
+                    <button class="btn-crisis-replay" data-crisis="rates_2022" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2022 Fed Rate Shock</button>
+                    <button class="btn-crisis-replay" data-crisis="yen_2024" style="padding:6px 12px; font-size:0.75rem; font-weight:700; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer;">2024 Yen Carry Unwind</button>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;" id="crisisStatsGrid">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Peak Portfolio Drawdown</span>
+                        <div id="crisisDrawdownVal" style="font-size:1.3rem; font-weight:800; color:#f43f5e; margin:2px 0;">-22.60%</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;" id="crisisLossAbs">-₹22,60,000 PnL Impact</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">VIX Volatility Surge</span>
+                        <div id="crisisVixVal" style="font-size:1.3rem; font-weight:800; color:#ff9e00; margin:2px 0;">VIX: 64.80</div>
+                        <span style="font-size:0.7rem; color:#fab005;">+285% Vol Spike</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Liquidity Haircut &amp; Margin</span>
+                        <div id="crisisMarginVal" style="font-size:1.3rem; font-weight:800; color:#a78bfa; margin:2px 0;">+45.0% Haircut</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Margin Call Warning</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Mean Recovery Duration</span>
+                        <div id="crisisRecoveryVal" style="font-size:1.3rem; font-weight:800; color:#22d3ee; margin:2px 0;">285 Trading Days</div>
+                        <span style="font-size:0.7rem; color:#51CF66;">Full Rebound Trajectory</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════ DESK 3: FUTURES & RATES DESK ═══════════ -->
@@ -681,6 +729,50 @@
                 </div>
             </div>
 
+            <!-- ═══════════ LEVEL-3 LIMIT ORDER BOOK (LOB) HEATMAP & ICEBERG DETECTOR ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(34,211,238,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; margin:0;">
+                            <i class="fa-solid fa-layer-group text-cyan"></i> Level-3 Limit Order Book (LOB) Depth Heatmap &amp; Iceberg Detector
+                            <button class="explain-trigger-btn" data-explain="dom_ladder" title="Explain LOB Depth Heatmap">?</button>
+                        </h3>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">Real-time historical depth wall visualization, queue cancellations, VPIN toxicity, and iceberg spoofing detection.</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;"><i class="fa-solid fa-eye"></i> CME/NSE L3 Depth</span>
+                        <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;" id="icebergAlertBadge">NO SPOOFING DETECTED</span>
+                    </div>
+                </div>
+
+                <div style="position:relative; width:100%; height:220px; background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                    <canvas id="lobHeatmapCanvas" style="width:100%; height:100%; display:block;"></canvas>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">VPIN Order Flow Toxicity</span>
+                        <div id="lobVpinVal" style="font-size:1.2rem; font-weight:800; color:#51CF66; margin:2px 0;">VPIN: 0.182</div>
+                        <span style="font-size:0.68rem; color:#51CF66;">Low Adverse Selection</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Resting Bid/Ask Ratio</span>
+                        <div id="lobDepthRatioVal" style="font-size:1.2rem; font-weight:800; color:#22d3ee; margin:2px 0;">1.42x Bids</div>
+                        <span style="font-size:0.68rem; color:#a1a1aa;">Support Wall at $184.80</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Queue Cancellation Rate</span>
+                        <div id="lobCancelRateVal" style="font-size:1.2rem; font-weight:800; color:#fab005; margin:2px 0;">4.2% / sec</div>
+                        <span style="font-size:0.68rem; color:#a1a1aa;">Normal HFT Quoting</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Detected Iceberg Orders</span>
+                        <div id="lobIcebergCountVal" style="font-size:1.2rem; font-weight:800; color:#fff; margin:2px 0;">1 Block Hidden</div>
+                        <span style="font-size:0.68rem; color:#22d3ee;">~15k sh at $185.05</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
@@ -806,6 +898,58 @@
                         <div id="dupireSurfaceContainer" style="display:flex; flex-direction:column; gap:6px; font-size:0.72rem;">
                             <!-- Populated dynamically by QuantEngine.dupireLocalVolatility -->
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ INTERACTIVE 3D IMPLIED VOLATILITY SURFACE (VOL3D) ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(139,92,246,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; margin:0;">
+                            <i class="fa-solid fa-cube text-primary" style="color:#a78bfa;"></i> Interactive 3D Implied Volatility Surface (\(K \times T \times \sigma_{\text{implied}}\))
+                            <button class="explain-trigger-btn" data-explain="vol_surface" title="Explain 3D Volatility Surface">?</button>
+                        </h3>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">Rotatable 3D parametric surface mesh rendering Strike vs Expiration vs Implied Volatility with Gatheral SVI and Heston stochastic calibration.</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <select id="vol3dModelSelect" style="background:#141721; border:1px solid rgba(139,92,246,0.4); color:#a78bfa; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+                            <option value="svi">Gatheral SVI Model</option>
+                            <option value="sabr">Hagan SABR Expansion</option>
+                            <option value="heston">Heston FFT Stochastic Vol</option>
+                            <option value="dupire">Dupire Local Volatility</option>
+                        </select>
+                        <span class="badge" style="background:rgba(139,92,246,0.15); color:#a78bfa;"><i class="fa-solid fa-cube"></i> WebGL 3D Mesh</span>
+                    </div>
+                </div>
+
+                <div style="position:relative; width:100%; height:280px; background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                    <canvas id="vol3dCanvas" style="width:100%; height:100%; display:block;"></canvas>
+                    <div style="position:absolute; bottom:8px; left:12px; font-size:0.68rem; color:#71717a; pointer-events:none;">
+                        <i class="fa-solid fa-hand-pointer"></i> Drag to rotate 3D view &bull; Pinch to zoom
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">ATM Term Structure Slope</span>
+                        <div id="vol3dAtmSlopeVal" style="font-size:1.2rem; font-weight:800; color:#22d3ee; margin:2px 0;">+2.4% / yr (Contango)</div>
+                        <span style="font-size:0.68rem; color:#51CF66;">Normal Term Premium</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">25-Delta Put Skew</span>
+                        <div id="vol3dPutSkewVal" style="font-size:1.2rem; font-weight:800; color:#ff9e00; margin:2px 0;">+4.8% Vol Spread</div>
+                        <span style="font-size:0.68rem; color:#a1a1aa;">Downside Crash Protection</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Vol-of-Vol Curvature (ν)</span>
+                        <div id="vol3dVolOfVolVal" style="font-size:1.2rem; font-weight:800; color:#a78bfa; margin:2px 0;">ν = 0.42</div>
+                        <span style="font-size:0.68rem; color:#a1a1aa;">Fat-Tailed Risk Surface</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Arbitrage Free Status</span>
+                        <div id="vol3dArbStatusVal" style="font-size:1.2rem; font-weight:800; color:#51CF66; margin:2px 0;">NO BUTTERFLY ARB</div>
+                        <span style="font-size:0.68rem; color:#51CF66;">Strictly Convex (∂²C/∂K² ≥ 0)</span>
                     </div>
                 </div>
             </div>
