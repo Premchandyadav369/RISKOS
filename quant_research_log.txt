@@ -505,3 +505,4 @@ Research cycle 504: Quant model iteration.
 Research cycle 505: Quant model iteration.
 Research cycle 506: Quant model iteration.
 Research cycle 507: Quant model iteration.
+Research cycle 508: Quant model iteration.
