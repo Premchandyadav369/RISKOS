@@ -977,3 +977,4 @@ Research cycle 976: Quant model iteration.
 Research cycle 977: Quant model iteration.
 Research cycle 978: Quant model iteration.
 Research cycle 979: Quant model iteration.
+Research cycle 980: Quant model iteration.
