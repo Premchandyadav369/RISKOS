@@ -98,3 +98,4 @@ Research cycle 97: Quant model iteration.
 Research cycle 98: Quant model iteration.
 Research cycle 99: Quant model iteration.
 Research cycle 100: Quant model iteration.
+Research cycle 101: Quant model iteration.
