@@ -498,3 +498,4 @@ Research cycle 497: Quant model iteration.
 Research cycle 498: Quant model iteration.
 Research cycle 499: Quant model iteration.
 Research cycle 500: Quant model iteration.
+Research cycle 501: Quant model iteration.
