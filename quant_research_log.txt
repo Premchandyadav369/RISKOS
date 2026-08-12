@@ -84,3 +84,4 @@ Research cycle 83: Quant model iteration.
 Research cycle 84: Quant model iteration.
 Research cycle 85: Quant model iteration.
 Research cycle 86: Quant model iteration.
+Research cycle 87: Quant model iteration.
