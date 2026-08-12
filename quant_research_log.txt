@@ -20,3 +20,4 @@ Research cycle 19: Quant model iteration.
 Research cycle 20: Quant model iteration.
 Research cycle 21: Quant model iteration.
 Research cycle 22: Quant model iteration.
+Research cycle 23: Quant model iteration.
