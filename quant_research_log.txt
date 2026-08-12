@@ -205,3 +205,4 @@ Research cycle 204: Quant model iteration.
 Research cycle 205: Quant model iteration.
 Research cycle 206: Quant model iteration.
 Research cycle 207: Quant model iteration.
+Research cycle 208: Quant model iteration.
