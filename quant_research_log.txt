@@ -805,3 +805,4 @@ Research cycle 804: Quant model iteration.
 Research cycle 805: Quant model iteration.
 Research cycle 806: Quant model iteration.
 Research cycle 807: Quant model iteration.
+Research cycle 808: Quant model iteration.
