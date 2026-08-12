@@ -48,6 +48,36 @@ const formatMoney = (val, currency = 'INR') => {
 const formatPercent = (val) => ((val || 0) * 100).toFixed(2) + '%';
 const getWeights = (tickers) => tickers.map(() => 1 / tickers.length).join(',');
 
+// Global Tab Switching Engine
+function switchTab(tabId) {
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const fnBtns = document.querySelectorAll('.bbg-fn-btn');
+
+    tabBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+
+    tabContents.forEach(content => {
+        content.classList.toggle('active', content.id === tabId);
+    });
+
+    const tabToFnMap = {
+        'tab-market': 'desk1',
+        'tab-risk': 'desk2',
+        'tab-spreads': 'desk3',
+        'tab-micro': 'desk4',
+        'tab-options': 'desk5',
+        'tab-signals': 'desk6',
+        'tab-speculations': 'desk7'
+    };
+    const targetFn = tabToFnMap[tabId];
+    if (targetFn) {
+        fnBtns.forEach(b => b.classList.toggle('active', b.dataset.fn === targetFn));
+    }
+}
+window.switchTab = switchTab;
+
 // Setup UI
 document.addEventListener('DOMContentLoaded', () => {
     // Check URL query parameters for deep-linking
@@ -58,18 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inputEl) inputEl.value = qTickers.toUpperCase();
     }
 
-    // Tab switching
+    // Tab switching event listeners
     const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-    
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            
-            btn.classList.add('active');
-            const target = document.getElementById(btn.dataset.tab);
-            if(target) target.classList.add('active');
+            if (btn.dataset.tab) switchTab(btn.dataset.tab);
         });
     });
 
@@ -1368,6 +1391,9 @@ const initTearSheetModal = () => {
         modal.style.display = 'none';
     };
 
+    window.openTearSheetModal = openModal;
+    window.closeTearSheetModal = closeModal;
+
     btn.addEventListener('click', openModal);
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
     modal.addEventListener('click', (e) => {
@@ -1667,6 +1693,7 @@ function initAppPalette() {
 
     const openPalette = () => {
         overlay.removeAttribute('hidden');
+        overlay.style.display = 'flex';
         input.value = '';
         input.focus();
         renderPaletteItems('');
@@ -1674,7 +1701,11 @@ function initAppPalette() {
 
     const closePalette = () => {
         overlay.setAttribute('hidden', '');
+        overlay.style.display = 'none';
     };
+
+    window.openPalette = openPalette;
+    window.closePalette = closePalette;
 
     if (triggerBtn) triggerBtn.addEventListener('click', openPalette);
     if (backdrop) backdrop.addEventListener('click', closePalette);
@@ -1682,7 +1713,7 @@ function initAppPalette() {
     document.addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
             e.preventDefault();
-            if (overlay.hasAttribute('hidden')) openPalette();
+            if (overlay.hasAttribute('hidden') || overlay.style.display === 'none') openPalette();
             else closePalette();
         }
         if (e.key === 'Escape' && !overlay.hasAttribute('hidden')) {
@@ -2735,7 +2766,8 @@ function initBloombergTerminalFeatures() {
         fnBtns.forEach(b => b.classList.toggle('active', b.dataset.fn === fnKey));
         switch(fnKey) {
             case 'help':
-                document.getElementById('btnOpenPalette')?.click();
+                if (typeof window.openPalette === 'function') window.openPalette();
+                else document.getElementById('btnOpenPalette')?.click();
                 break;
             case 'desk1': switchTab('tab-market'); break;
             case 'desk2': switchTab('tab-risk'); break;
@@ -2745,7 +2777,8 @@ function initBloombergTerminalFeatures() {
             case 'desk6': switchTab('tab-signals'); break;
             case 'desk7': switchTab('tab-speculations'); break;
             case 'tear':
-                document.getElementById('btnExportTearSheet')?.click();
+                if (typeof window.openTearSheetModal === 'function') window.openTearSheetModal();
+                else document.getElementById('btnExportTearSheet')?.click();
                 break;
             case 'sync':
                 document.getElementById('globalLiveSyncBtn')?.click();
