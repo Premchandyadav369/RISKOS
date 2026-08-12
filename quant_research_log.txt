@@ -11,3 +11,4 @@ Research cycle 10: Quant model iteration.
 Research cycle 11: Quant model iteration.
 Research cycle 12: Quant model iteration.
 Research cycle 13: Quant model iteration.
+Research cycle 14: Quant model iteration.
