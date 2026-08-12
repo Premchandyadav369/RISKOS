@@ -51,6 +51,8 @@ from engine.instruments import (
     get_market_breadth, get_sector_performance
 )
 from engine.market_aggregator import market_aggregator
+from engine.openbb_bridge import get_openbb_historical, get_openbb_macro_indicators
+from engine.backtrader_bridge import run_backtrader_simulation
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
@@ -814,6 +816,45 @@ def api_get_portfolio_summary(db: Session = Depends(get_db)):
             "holdings": holdings,
             "transaction_count": len(txs)
         }
+    except Exception as e:
+        return {"error": str(e)}
+
+# ── 6.5 OpenBB Platform & Backtrader Endpoints ──────────────────────────────
+@app.get("/api/openbb/historical")
+def api_openbb_historical(
+    symbol: str = Query("AAPL", description="Ticker symbol"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    provider: str = Query("yfinance", description="OpenBB Data Provider")
+):
+    try:
+        return get_openbb_historical(symbol=symbol, start_date=start_date, end_date=end_date, provider=provider)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/openbb/indicators")
+def api_openbb_indicators():
+    try:
+        return get_openbb_macro_indicators()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/backtrader/simulate")
+def api_backtrader_simulate(
+    symbol: str = Query("AAPL", description="Ticker symbol"),
+    strategy: str = Query("DualSMA", description="Strategy Name"),
+    fast: int = Query(10, description="Fast SMA Period"),
+    slow: int = Query(30, description="Slow SMA Period"),
+    cash: float = Query(1000000.0, description="Initial Starting Capital")
+):
+    try:
+        return run_backtrader_simulation(
+            symbol=symbol,
+            strategy_name=strategy,
+            fast_period=fast,
+            slow_period=slow,
+            initial_cash=cash
+        )
     except Exception as e:
         return {"error": str(e)}
 
