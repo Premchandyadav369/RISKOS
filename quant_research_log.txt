@@ -705,3 +705,4 @@ Research cycle 704: Quant model iteration.
 Research cycle 705: Quant model iteration.
 Research cycle 706: Quant model iteration.
 Research cycle 707: Quant model iteration.
+Research cycle 708: Quant model iteration.
