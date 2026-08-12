@@ -110,3 +110,4 @@ Research cycle 109: Quant model iteration.
 Research cycle 110: Quant model iteration.
 Research cycle 111: Quant model iteration.
 Research cycle 112: Quant model iteration.
+Research cycle 113: Quant model iteration.
