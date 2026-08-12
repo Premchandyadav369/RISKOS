@@ -302,3 +302,4 @@ Research cycle 301: Quant model iteration.
 Research cycle 302: Quant model iteration.
 Research cycle 303: Quant model iteration.
 Research cycle 304: Quant model iteration.
+Research cycle 305: Quant model iteration.
