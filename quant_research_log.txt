@@ -64,3 +64,4 @@ Research cycle 63: Quant model iteration.
 Research cycle 64: Quant model iteration.
 Research cycle 65: Quant model iteration.
 Research cycle 66: Quant model iteration.
+Research cycle 67: Quant model iteration.
