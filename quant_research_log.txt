@@ -31,3 +31,4 @@ Research cycle 30: Quant model iteration.
 Research cycle 31: Quant model iteration.
 Research cycle 32: Quant model iteration.
 Research cycle 33: Quant model iteration.
+Research cycle 34: Quant model iteration.
