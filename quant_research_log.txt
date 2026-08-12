@@ -133,3 +133,4 @@ Research cycle 132: Quant model iteration.
 Research cycle 133: Quant model iteration.
 Research cycle 134: Quant model iteration.
 Research cycle 135: Quant model iteration.
+Research cycle 136: Quant model iteration.
