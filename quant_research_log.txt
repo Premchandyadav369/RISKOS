@@ -578,3 +578,4 @@ Research cycle 577: Quant model iteration.
 Research cycle 578: Quant model iteration.
 Research cycle 579: Quant model iteration.
 Research cycle 580: Quant model iteration.
+Research cycle 581: Quant model iteration.
