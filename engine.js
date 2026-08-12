@@ -614,6 +614,132 @@
     };
   };
 
+  // ── 15. Prediction Markets: Hanson's LMSR Market Maker Engine ──────────────────
+  const predictionMarketLMSR = {
+    // Cost Function: C(q) = b * ln(sum(e^{q_i / b}))
+    cost: (qYes, qNo, b = 1000) => {
+      const bParam = Math.max(1, Number(b));
+      return bParam * Math.log(Math.exp(qYes / bParam) + Math.exp(qNo / bParam));
+    },
+
+    // Marginal Probabilities: p_i = e^{q_i / b} / sum(e^{q_j / b})
+    probabilities: (qYes, qNo, b = 1000) => {
+      const bParam = Math.max(1, Number(b));
+      const maxQ = Math.max(qYes, qNo);
+      const expYes = Math.exp((qYes - maxQ) / bParam);
+      const expNo = Math.exp((qNo - maxQ) / bParam);
+      const sumExp = expYes + expNo;
+      const pYes = expYes / sumExp;
+      const pNo = expNo / sumExp;
+      return {
+        probYes: Number(pYes.toFixed(4)),
+        probNo: Number(pNo.toFixed(4)),
+        priceYesCents: Number((pYes * 100).toFixed(1)),
+        priceNoCents: Number((pNo * 100).toFixed(1))
+      };
+    },
+
+    // Trade Execution Cost: Delta C = C(q + delta) - C(q)
+    trade: (qYes, qNo, deltaShares, outcome = 'YES', b = 1000) => {
+      const bParam = Math.max(1, Number(b));
+      const costBefore = bParam * Math.log(Math.exp(qYes / bParam) + Math.exp(qNo / bParam));
+      const newQYes = outcome === 'YES' ? qYes + deltaShares : qYes;
+      const newQNo = outcome === 'NO' ? qNo + deltaShares : qNo;
+      const costAfter = bParam * Math.log(Math.exp(newQYes / bParam) + Math.exp(newQNo / bParam));
+      const totalCost = costAfter - costBefore;
+      const avgPricePerShare = totalCost / deltaShares;
+
+      const newProbs = predictionMarketLMSR.probabilities(newQYes, newQNo, bParam);
+
+      return {
+        newQYes: Number(newQYes.toFixed(1)),
+        newQNo: Number(newQNo.toFixed(1)),
+        totalCost: Number(totalCost.toFixed(2)),
+        avgPricePerShare: Number(avgPricePerShare.toFixed(3)),
+        newProbYes: newProbs.probYes,
+        newProbNo: newProbs.probNo,
+        newPriceYesCents: newProbs.priceYesCents,
+        newPriceNoCents: newProbs.priceNoCents
+      };
+    }
+  };
+
+  // ── 16. Futures Market: Cost-of-Carry & Calendar Basis Arbitrage ───────────────
+  const futuresMarketEngine = {
+    // Fair Theoretical Futures Price: F(t, T) = S_t * e^{(r - q + u) * (T - t)}
+    fairPrice: ({ spotPrice = 24500, riskFreeRate = 0.065, dividendYield = 0.012, storageCost = 0.0, timeToExpiry = 0.0833 }) => {
+      const S = Number(spotPrice);
+      const r = Number(riskFreeRate);
+      const q = Number(dividendYield);
+      const u = Number(storageCost);
+      const T = Number(timeToExpiry);
+
+      const netCarryRate = r - q + u;
+      const theoreticalFutures = S * Math.exp(netCarryRate * T);
+      const basisPoints = theoreticalFutures - S;
+      const annualizedBasisYield = (basisPoints / S) * (1.0 / Math.max(0.001, T)) * 100;
+
+      return {
+        spotPrice: S,
+        theoreticalFutures: Number(theoreticalFutures.toFixed(2)),
+        netCarryRatePct: Number((netCarryRate * 100).toFixed(2)),
+        basisPoints: Number(basisPoints.toFixed(2)),
+        annualizedBasisYieldPct: Number(annualizedBasisYield.toFixed(2))
+      };
+    },
+
+    // Calendar Spread Roll Yield: (F_near - F_far) / F_near * (365 / days)
+    calendarSpread: ({ nearPrice = 24550, farPrice = 24680, daysBetween = 30 }) => {
+      const near = Number(nearPrice);
+      const far = Number(farPrice);
+      const days = Math.max(1, Number(daysBetween));
+
+      const spread = far - near;
+      const isContango = spread > 0;
+      const rollYieldAnnualized = ((near - far) / near) * (365.0 / days) * 100;
+
+      return {
+        nearPrice: near,
+        farPrice: far,
+        spreadPoints: Number(spread.toFixed(2)),
+        structure: isContango ? 'CONTANGO (Carry Cost)' : 'BACKWARDATION (Convenience Yield)',
+        rollYieldAnnualizedPct: Number(rollYieldAnnualized.toFixed(2))
+      };
+    },
+
+    // Cash & Carry Arbitrage Execution Simulator: Long Spot + Short Overpriced Futures
+    cashAndCarryArbitrage: ({ spotPrice = 24500, actualFuturesPrice = 24650, daysToExpiry = 30, borrowRate = 0.065, divYield = 0.012, capital = 10000000 }) => {
+      const S = Number(spotPrice);
+      const F = Number(actualFuturesPrice);
+      const T = Number(daysToExpiry) / 365.0;
+      const r = Number(borrowRate);
+      const q = Number(divYield);
+      const cap = Number(capital);
+
+      const fairF = S * Math.exp((r - q) * T);
+      const mispricing = F - fairF;
+      const basisYield = ((F - S) / S) * (365.0 / daysToExpiry) * 100;
+      const netArbSpreadAnnualized = basisYield - (r - q) * 100;
+
+      const isArbitrageProfitable = mispricing > (S * 0.001); // 10 bps threshold for transaction costs
+      const contractsTraded = Math.floor(cap / (S * 50)); // 50 lot size
+      const grossPnL = isArbitrageProfitable ? mispricing * contractsTraded * 50 : 0;
+      const financingCost = cap * r * T;
+      const netProfit = Math.max(0, grossPnL - financingCost * 0.1);
+
+      return {
+        fairFutures: Number(fairF.toFixed(2)),
+        actualFutures: F,
+        mispricingPoints: Number(mispricing.toFixed(2)),
+        basisYieldAnnualizedPct: Number(basisYield.toFixed(2)),
+        netArbSpreadAnnualizedPct: Number(netArbSpreadAnnualized.toFixed(2)),
+        opportunity: isArbitrageProfitable ? 'CASH & CARRY ARBITRAGE (Short Futures, Long Spot)' : mispricing < -5 ? 'REVERSE CASH & CARRY (Long Futures, Short Spot)' : 'FAIR VALUE EQUILIBRIUM',
+        contractsTraded,
+        estimatedNetProfitINR: Number(netProfit.toFixed(0))
+      };
+    }
+  };
+
   // ── Attach QuantEngine to Global Scope ─────────────────────────────────────────
   const QuantEngine = {
     normalCDF,
@@ -634,7 +760,9 @@
     keyRateDurationConvexity,
     creditDefaultSwapCurve,
     cornishFisherVaR,
-    kellyOptimalLeverage
+    kellyOptimalLeverage,
+    predictionMarketLMSR,
+    futuresMarketEngine
   };
 
   if (typeof window !== 'undefined') {
