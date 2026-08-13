@@ -1155,3 +1155,4 @@ Algorithm hardening cycle 603: System optimization.
 Algorithm hardening cycle 604: System optimization.
 Algorithm hardening cycle 605: System optimization.
 Algorithm hardening cycle 606: System optimization.
+Algorithm hardening cycle 607: System optimization.
