@@ -1928,3 +1928,4 @@ Algorithm hardening cycle 1376: System optimization.
 Algorithm hardening cycle 1377: System optimization.
 Algorithm hardening cycle 1378: System optimization.
 Algorithm hardening cycle 1379: System optimization.
+Algorithm hardening cycle 1380: System optimization.
