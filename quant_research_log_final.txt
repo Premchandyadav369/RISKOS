@@ -653,3 +653,4 @@ Algorithm hardening cycle 101: System optimization.
 Algorithm hardening cycle 102: System optimization.
 Algorithm hardening cycle 103: System optimization.
 Algorithm hardening cycle 104: System optimization.
+Algorithm hardening cycle 105: System optimization.
