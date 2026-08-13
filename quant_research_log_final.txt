@@ -1852,3 +1852,4 @@ Algorithm hardening cycle 1300: System optimization.
 Algorithm hardening cycle 1301: System optimization.
 Algorithm hardening cycle 1302: System optimization.
 Algorithm hardening cycle 1303: System optimization.
+Algorithm hardening cycle 1304: System optimization.
