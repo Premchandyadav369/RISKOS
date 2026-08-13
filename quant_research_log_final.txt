@@ -853,3 +853,4 @@ Algorithm hardening cycle 301: System optimization.
 Algorithm hardening cycle 302: System optimization.
 Algorithm hardening cycle 303: System optimization.
 Algorithm hardening cycle 304: System optimization.
+Algorithm hardening cycle 305: System optimization.
