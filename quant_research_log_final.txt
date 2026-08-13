@@ -928,3 +928,4 @@ Algorithm hardening cycle 376: System optimization.
 Algorithm hardening cycle 377: System optimization.
 Algorithm hardening cycle 378: System optimization.
 Algorithm hardening cycle 379: System optimization.
+Algorithm hardening cycle 380: System optimization.
