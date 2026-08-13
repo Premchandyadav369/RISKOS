@@ -1253,3 +1253,4 @@ Algorithm hardening cycle 701: System optimization.
 Algorithm hardening cycle 702: System optimization.
 Algorithm hardening cycle 703: System optimization.
 Algorithm hardening cycle 704: System optimization.
+Algorithm hardening cycle 705: System optimization.
