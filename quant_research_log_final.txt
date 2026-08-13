@@ -1414,3 +1414,4 @@ Algorithm hardening cycle 862: System optimization.
 Algorithm hardening cycle 863: System optimization.
 Algorithm hardening cycle 864: System optimization.
 Algorithm hardening cycle 865: System optimization.
+Algorithm hardening cycle 866: System optimization.
