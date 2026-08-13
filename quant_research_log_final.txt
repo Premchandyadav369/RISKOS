@@ -1395,3 +1395,4 @@ Algorithm hardening cycle 843: System optimization.
 Algorithm hardening cycle 844: System optimization.
 Algorithm hardening cycle 845: System optimization.
 Algorithm hardening cycle 846: System optimization.
+Algorithm hardening cycle 847: System optimization.
