@@ -14,6 +14,7 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
     { code: "PORT", label: "Portfolio Risk", tab: "overview" },
     { code: "STRAT", label: "Algorithmic Desk", tab: "strat" },
     { code: "TSIM", label: "Pre-Trade Sim", tab: "tradesim" },
+    { code: "CHRT", label: "Adv Charting", tab: "charting" },
     { code: "BTST", label: "Backtest Lab", tab: "quant" },
     { code: "YCRV", label: "Yield Curve", tab: "yieldcurve" },
     { code: "SWAP", label: "IRS Pricer", tab: "swap" },
@@ -52,8 +53,8 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type code (SWAP, CDSW, NEWS)..."
-            className="bg-transparent border-none outline-none text-white text-xs w-60 placeholder:text-gray-500 uppercase font-mono"
+            placeholder="Type code (CHRT, SWAP, CDSW, NEWS)..."
+            className="bg-transparent border-none outline-none text-white text-xs w-64 placeholder:text-gray-500 uppercase font-mono"
           />
         </form>
       </div>
