@@ -571,3 +571,4 @@ Algorithm hardening cycle 19: System optimization.
 Algorithm hardening cycle 20: System optimization.
 Algorithm hardening cycle 21: System optimization.
 Algorithm hardening cycle 22: System optimization.
+Algorithm hardening cycle 23: System optimization.
