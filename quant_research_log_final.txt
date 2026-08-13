@@ -1353,3 +1353,4 @@ Algorithm hardening cycle 801: System optimization.
 Algorithm hardening cycle 802: System optimization.
 Algorithm hardening cycle 803: System optimization.
 Algorithm hardening cycle 804: System optimization.
+Algorithm hardening cycle 805: System optimization.
