@@ -1809,3 +1809,4 @@ Algorithm hardening cycle 1257: System optimization.
 Algorithm hardening cycle 1258: System optimization.
 Algorithm hardening cycle 1259: System optimization.
 Algorithm hardening cycle 1260: System optimization.
+Algorithm hardening cycle 1261: System optimization.
