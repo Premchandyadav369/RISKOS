@@ -1064,3 +1064,4 @@ Algorithm hardening cycle 512: System optimization.
 Algorithm hardening cycle 513: System optimization.
 Algorithm hardening cycle 514: System optimization.
 Algorithm hardening cycle 515: System optimization.
+Algorithm hardening cycle 516: System optimization.
