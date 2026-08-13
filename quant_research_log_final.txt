@@ -1489,3 +1489,4 @@ Algorithm hardening cycle 937: System optimization.
 Algorithm hardening cycle 938: System optimization.
 Algorithm hardening cycle 939: System optimization.
 Algorithm hardening cycle 940: System optimization.
+Algorithm hardening cycle 941: System optimization.
