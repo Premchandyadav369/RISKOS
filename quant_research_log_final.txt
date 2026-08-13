@@ -771,3 +771,4 @@ Algorithm hardening cycle 219: System optimization.
 Algorithm hardening cycle 220: System optimization.
 Algorithm hardening cycle 221: System optimization.
 Algorithm hardening cycle 222: System optimization.
+Algorithm hardening cycle 223: System optimization.
