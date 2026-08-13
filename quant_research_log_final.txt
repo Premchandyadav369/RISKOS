@@ -884,3 +884,4 @@ Algorithm hardening cycle 332: System optimization.
 Algorithm hardening cycle 333: System optimization.
 Algorithm hardening cycle 334: System optimization.
 Algorithm hardening cycle 335: System optimization.
+Algorithm hardening cycle 336: System optimization.
