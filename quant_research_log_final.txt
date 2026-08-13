@@ -470,3 +470,4 @@ Algorithm hardening cycle 469: System optimization.
 Algorithm hardening cycle 470: System optimization.
 Algorithm hardening cycle 471: System optimization.
 Algorithm hardening cycle 472: System optimization.
+Algorithm hardening cycle 473: System optimization.
