@@ -503,3 +503,4 @@ Algorithm hardening cycle 502: System optimization.
 Algorithm hardening cycle 503: System optimization.
 Algorithm hardening cycle 504: System optimization.
 Algorithm hardening cycle 505: System optimization.
+Algorithm hardening cycle 506: System optimization.
