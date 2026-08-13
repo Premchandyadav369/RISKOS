@@ -844,3 +844,4 @@ Algorithm hardening cycle 292: System optimization.
 Algorithm hardening cycle 293: System optimization.
 Algorithm hardening cycle 294: System optimization.
 Algorithm hardening cycle 295: System optimization.
+Algorithm hardening cycle 296: System optimization.
