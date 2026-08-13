@@ -1309,3 +1309,4 @@ Algorithm hardening cycle 757: System optimization.
 Algorithm hardening cycle 758: System optimization.
 Algorithm hardening cycle 759: System optimization.
 Algorithm hardening cycle 760: System optimization.
+Algorithm hardening cycle 761: System optimization.
