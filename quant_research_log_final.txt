@@ -23,3 +23,4 @@ Algorithm hardening cycle 22: System optimization.
 Algorithm hardening cycle 23: System optimization.
 Algorithm hardening cycle 24: System optimization.
 Algorithm hardening cycle 25: System optimization.
+Algorithm hardening cycle 26: System optimization.
