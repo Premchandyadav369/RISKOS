@@ -1514,3 +1514,4 @@ Algorithm hardening cycle 962: System optimization.
 Algorithm hardening cycle 963: System optimization.
 Algorithm hardening cycle 964: System optimization.
 Algorithm hardening cycle 965: System optimization.
+Algorithm hardening cycle 966: System optimization.
