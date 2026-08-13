@@ -1508,3 +1508,4 @@ Algorithm hardening cycle 956: System optimization.
 Algorithm hardening cycle 957: System optimization.
 Algorithm hardening cycle 958: System optimization.
 Algorithm hardening cycle 959: System optimization.
+Algorithm hardening cycle 960: System optimization.
