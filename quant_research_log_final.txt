@@ -1384,3 +1384,4 @@ Algorithm hardening cycle 832: System optimization.
 Algorithm hardening cycle 833: System optimization.
 Algorithm hardening cycle 834: System optimization.
 Algorithm hardening cycle 835: System optimization.
+Algorithm hardening cycle 836: System optimization.
