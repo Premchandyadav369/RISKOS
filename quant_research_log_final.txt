@@ -556,3 +556,4 @@ Algorithm hardening cycle 4: System optimization.
 Algorithm hardening cycle 5: System optimization.
 Algorithm hardening cycle 6: System optimization.
 Algorithm hardening cycle 7: System optimization.
+Algorithm hardening cycle 8: System optimization.
