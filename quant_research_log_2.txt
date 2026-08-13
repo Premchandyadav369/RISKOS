@@ -102,3 +102,4 @@ Advanced Research cycle 101: Institutional modeling.
 Advanced Research cycle 102: Institutional modeling.
 Advanced Research cycle 103: Institutional modeling.
 Advanced Research cycle 104: Institutional modeling.
+Advanced Research cycle 105: Institutional modeling.
