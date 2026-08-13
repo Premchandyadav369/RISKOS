@@ -1375,3 +1375,4 @@ Algorithm hardening cycle 823: System optimization.
 Algorithm hardening cycle 824: System optimization.
 Algorithm hardening cycle 825: System optimization.
 Algorithm hardening cycle 826: System optimization.
+Algorithm hardening cycle 827: System optimization.
