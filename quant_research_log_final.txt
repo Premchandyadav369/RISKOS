@@ -340,3 +340,4 @@ Algorithm hardening cycle 339: System optimization.
 Algorithm hardening cycle 340: System optimization.
 Algorithm hardening cycle 341: System optimization.
 Algorithm hardening cycle 342: System optimization.
+Algorithm hardening cycle 343: System optimization.
