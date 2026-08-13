@@ -1,23 +1,29 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Globe2, Bell, ShieldAlert, ArrowUpRight } from "lucide-react";
+import { Globe2, AlertTriangle, Activity } from "lucide-react";
 
 export function NewsView() {
-  const [news, setNews] = useState<any[]>([]);
+  const [newsData, setNewsData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/trading/news");
+      if (res.ok) {
+        setNewsData(await res.json());
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/trading/news")
-      .then((res) => res.json())
-      .then((d) => setNews(d.news || []))
-      .catch(() => {
-        setNews([
-          { id: "N-01", time: "21:10 IST", headline: "US Treasury Yield Curve Steepens Following Federal Reserve Policy Signals", impact: "HIGH", affected: "US Rates / JPM" },
-          { id: "N-02", time: "20:45 IST", headline: "RBI Keeps Repo Rate Unchanged at 6.50%; Highlights Liquidity Management", impact: "MEDIUM", affected: "HDFCBANK / Bank NIFTY" },
-          { id: "N-03", time: "19:30 IST", headline: "Semiconductor Tech Demand Drives Cross-Border IT Outsource Contracts", impact: "HIGH", affected: "NVDA / TCS / INFY" },
-          { id: "N-04", time: "18:15 IST", headline: "USD/INR FX Volatility Compresses Near ₹83.80 Resistance Level", impact: "LOW", affected: "USDINR" }
-        ]);
-      });
+    fetchNews();
+    const interval = setInterval(fetchNews, 60000); // Refresh every minute
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -29,35 +35,58 @@ export function NewsView() {
               <Globe2 className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-sm font-mono tracking-tight uppercase">
-                INSTITUTIONAL MACRO & RISK NEWS STREAM (NEWS)
+              <h3 className="font-bold text-sm font-mono tracking-tight uppercase flex items-center gap-2">
+                INSTITUTIONAL WIRE (NEWS) 
+                {newsData?.status === "LIVE_API" && (
+                  <span className="px-2 py-0.5 bg-status-warning/20 text-status-warning text-[9px] rounded-full flex items-center gap-1 animate-pulse">
+                    <Activity className="w-3 h-3" /> LIVE NewsAPI
+                  </span>
+                )}
               </h3>
               <p className="text-xs text-text-muted">
-                Real-time institutional wire tagged by portfolio constituent impact and volatility weighting.
+                Real-time macroeconomic news feed with algorithmic risk impact tagging.
               </p>
             </div>
           </div>
-          <span className="px-2 py-1 rounded bg-forest-light text-forest text-xs font-mono font-bold">
-            4 LIVE HEADLINES
-          </span>
+          <button 
+            onClick={fetchNews} disabled={loading}
+            className="text-[10px] font-mono px-3 py-1 border border-bg-border rounded hover:bg-bg-secondary text-text-muted transition-colors"
+          >
+            {loading ? "FETCHING..." : "FORCE REFRESH"}
+          </button>
         </div>
 
-        <div className="space-y-3 font-mono text-xs">
-          {news.map((item) => (
-            <div key={item.id} className="p-3 bg-bg-secondary rounded border border-bg-border flex items-start justify-between gap-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-text-muted text-[10px]">{item.time}</span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                    item.impact === "HIGH" ? "bg-status-critical/10 text-status-critical border border-status-critical/30" :
-                    item.impact === "MEDIUM" ? "bg-status-warning/10 text-status-warning border border-status-warning/30" :
-                    "bg-forest-light text-forest border border-forest/20"
+        <div className="space-y-3 font-mono">
+          {!newsData && !loading && (
+            <div className="text-center py-10 text-text-muted text-xs">Failed to fetch news feed.</div>
+          )}
+          
+          {newsData?.news?.map((item: any) => (
+            <div key={item.id} className="p-3 bg-bg-secondary rounded border border-bg-border flex items-start gap-4 group hover:border-forest/50 transition-colors">
+              <div className="text-[10px] text-text-muted w-20 shrink-0 pt-1">
+                {item.time}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1 text-[10px]">
+                  <span className="text-forest font-bold">{item.source?.toUpperCase()}</span>
+                  <span className="text-text-muted">•</span>
+                  <span className={`px-1.5 py-0.5 rounded font-bold ${
+                    item.impact === "CRITICAL" ? "bg-status-critical/20 text-status-critical" :
+                    item.impact === "HIGH" ? "bg-status-warning/20 text-status-warning" :
+                    item.impact === "MEDIUM" ? "bg-yellow-500/20 text-yellow-500" :
+                    "bg-status-normal/20 text-status-normal"
                   }`}>
                     {item.impact} IMPACT
                   </span>
                 </div>
-                <h4 className="font-bold text-text-main font-sans text-sm">{item.headline}</h4>
-                <p className="text-text-muted text-[11px]">Affected Assets: <strong className="text-text-main">{item.affected}</strong></p>
+                <h4 className="font-bold text-sm text-text-main group-hover:text-forest transition-colors">
+                  {item.headline}
+                </h4>
+                <div className="mt-2 text-[10px] text-text-muted flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3" />
+                  <span>AFFECTED:</span>
+                  <span className="font-bold text-text-main">{item.affected}</span>
+                </div>
               </div>
             </div>
           ))}
