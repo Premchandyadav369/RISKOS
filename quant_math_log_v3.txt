@@ -387,3 +387,4 @@ Quant Engine Math Hardening Cycle 386: Institutional refinement.
 Quant Engine Math Hardening Cycle 387: Institutional refinement.
 Quant Engine Math Hardening Cycle 388: Institutional refinement.
 Quant Engine Math Hardening Cycle 389: Institutional refinement.
+Quant Engine Math Hardening Cycle 390: Institutional refinement.
