@@ -563,3 +563,4 @@ Quant Engine Math Hardening Cycle 562: Institutional refinement.
 Quant Engine Math Hardening Cycle 563: Institutional refinement.
 Quant Engine Math Hardening Cycle 564: Institutional refinement.
 Quant Engine Math Hardening Cycle 565: Institutional refinement.
+Quant Engine Math Hardening Cycle 566: Institutional refinement.
