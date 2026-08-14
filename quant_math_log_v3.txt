@@ -503,3 +503,4 @@ Quant Engine Math Hardening Cycle 502: Institutional refinement.
 Quant Engine Math Hardening Cycle 503: Institutional refinement.
 Quant Engine Math Hardening Cycle 504: Institutional refinement.
 Quant Engine Math Hardening Cycle 505: Institutional refinement.
+Quant Engine Math Hardening Cycle 506: Institutional refinement.
