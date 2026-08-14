@@ -5,3 +5,4 @@ Quant Engine Math Hardening Cycle 4: Institutional refinement.
 Quant Engine Math Hardening Cycle 5: Institutional refinement.
 Quant Engine Math Hardening Cycle 6: Institutional refinement.
 Quant Engine Math Hardening Cycle 7: Institutional refinement.
+Quant Engine Math Hardening Cycle 8: Institutional refinement.
