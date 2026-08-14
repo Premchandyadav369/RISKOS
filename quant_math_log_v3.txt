@@ -251,3 +251,4 @@ Quant Engine Math Hardening Cycle 250: Institutional refinement.
 Quant Engine Math Hardening Cycle 251: Institutional refinement.
 Quant Engine Math Hardening Cycle 252: Institutional refinement.
 Quant Engine Math Hardening Cycle 253: Institutional refinement.
+Quant Engine Math Hardening Cycle 254: Institutional refinement.
