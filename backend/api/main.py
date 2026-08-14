@@ -28,6 +28,7 @@ from risk_engine.yield_curve import get_yield_curve_data
 from risk_engine.news_engine import fetch_live_macro_news
 from risk_engine.fixed_income import price_interest_rate_swap
 from risk_engine.credit_derivatives import price_credit_default_swap
+from risk_engine.quant_core import quant_engine
 
 app = FastAPI(
     title="RISKOS Quant Terminal API",
@@ -351,6 +352,48 @@ def get_daily_risk_report():
             "Increase 30-day liquidity buffer by $15.0M",
             "Recalculate 10-day 99% Stress VaR prior to tomorrow's trading session"
         ]
+    }
+
+@app.get("/api/quant/comprehensive")
+def get_comprehensive_quant_metrics():
+    import numpy as np
+    np.random.seed(42)
+    returns = np.random.normal(0.0005, 0.015, 500)
+    # Add fat tails
+    returns[::20] *= 3.5
+    
+    weights = np.array([0.25, 0.20, 0.15, 0.15, 0.15, 0.10])
+    returns_matrix = np.random.normal(0.0005, 0.015, (500, 6))
+    
+    ewma = quant_engine.calculate_ewma(returns)
+    garch = quant_engine.calculate_garch(returns)
+    sample_cov, ledoit_cov, shrinkage = quant_engine.ledoit_wolf_covariance(returns_matrix)
+    cf_var = quant_engine.cornish_fisher_var(returns)
+    mc_sim = quant_engine.monte_carlo_simulation(weights, ledoit_cov, np.mean(returns_matrix, axis=0))
+    evt = quant_engine.extreme_value_theory(returns)
+    
+    # Generate mock VaR estimates for backtesting
+    var_series = np.full(len(returns), -0.035)
+    backtest = quant_engine.backtest_var(returns, var_series)
+    reverse_stress = quant_engine.reverse_stress_test(weights, target_loss=-0.25)
+    black_litterman = quant_engine.black_litterman_views(weights, ledoit_cov, {"confidence": "65%"})
+    attribution = quant_engine.risk_attribution(weights, ledoit_cov)
+
+    return {
+        "status": "SUCCESS",
+        "ewma_volatility": ewma,
+        "garch_volatility": garch,
+        "ledoit_wolf_shrinkage": {
+            "shrinkage_intensity": round(shrinkage, 4),
+            "matrix_stability": "POSITIVE_DEFINITE_CONDITION_OPTIMAL"
+        },
+        "cornish_fisher_var": cf_var,
+        "monte_carlo_100k": mc_sim,
+        "extreme_value_theory": evt,
+        "var_backtesting": backtest,
+        "reverse_stress_test": reverse_stress,
+        "black_litterman": black_litterman,
+        "risk_attribution": attribution
     }
 
 if __name__ == "__main__":

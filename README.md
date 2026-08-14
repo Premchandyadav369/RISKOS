@@ -1,98 +1,137 @@
-# RISKOS Quant: Agentic Quantitative Risk Intelligence & Stress-Testing Platform
+# 🏆 RISKOS Quant — Agentic Treasury & Corporate Risk Intelligence Platform
 
-> **An enterprise-grade, multi-agent quantitative risk intelligence, macro stress testing, Bloomberg Terminal trading desk, and Basel III capital adequacy workstation for Indian (NSE/BSE) and US (NYSE/NASDAQ) financial markets.**
-
-Designed specifically to demonstrate institutional-grade risk technology for **JPMorgan Chase – CTC Risk Innovation (Corporate & Treasury Risk)**.
+> **JPMorgan Chase CTC Risk Innovation Target Specification**
+> An institutional-grade risk command center that continuously analyzes market, credit, liquidity, capital, and interest-rate risk, runs 100,000-scenario Monte Carlo simulations, models extreme tail risks via EVT/GPD, executes CVaR portfolio optimizations, and deploys autonomous AI agents to investigate risk drivers.
 
 ---
 
-## 🏛 Architecture Overview
+## 🏛 Mathematically Serious Quant Algorithm Stack
 
-```mermaid
-graph TD
-    A[yfinance Data Layer: US & Indian Markets] --> B[Data Quality Engine: Completeness & Consistency]
-    B --> C[Python Quantitative Analytics Engine]
-    B --> D[Machine Learning Risk Engine]
-    
-    C --> C1[VaR & Expected Shortfall Engine]
-    C --> C2[Black-Scholes Options Greeks Engine]
-    C --> C3[Portfolio Mean-Variance Optimizer]
-    C --> C4[Pre-Trade Execution Impact Simulator]
-    C --> C5[Basel III CET1 & RWA Capital Calculator]
-    
-    D --> D1[Isolation Forest Anomaly Detection]
-    D --> D2[Gaussian Mixture Market Regime Classifier]
-    D --> D3[Counterparty Credit Default Model]
-    D --> D4[Systemic CoVaR Financial Contagion Model]
-    
-    C --> E[Macro Stress Testing & Risk Digital Twin]
-    D --> E
-    
-    E --> F[K2 Think V2 Reasoning AI Engine]
-    F --> G[Multi-Agent Risk Investigation & Algorithmic Trading Desk]
-    
-    G --> G1[Quant Agent]
-    G --> G2[Market Agent]
-    G --> G3[Credit Agent]
-    G --> G4[Liquidity Agent]
-    G --> G5[Scenario Agent]
-    G --> G6[Risk Investigator Agent]
-    
-    G --> H[Bloomberg Terminal Workstation UI: Next.js + Tailwind]
+RISKOS Quant is built around mathematically rigorous quantitative finance standards rather than generic machine learning heuristics:
+
+```text
+                               DATA INGESTION (YFINANCE)
+                                           │
+                                           ▼
+                                 RETURN GENERATION
+                                           │
+                ┌──────────────────────────┼──────────────────────────┐
+                ▼                          ▼                          ▼
+       GARCH(1,1) / GJR             FACTOR MODELS            HMM 4-STATE REGIME
+        (Asymmetric Vol)           (NIFTY, S&P, FX)           (Low, Normal, Crisis)
+                │                          │                          │
+                └──────────────────────────┼──────────────────────────┘
+                                           ▼
+                                LEDOIT-WOLF COVARIANCE
+                                  (Shrinkage Matrix)
+                                           │
+                                           ▼
+                               MONTE CARLO SIMULATION
+                            (100,000 Cholesky Scenarios)
+                                           │
+                ┌──────────────────────────┼──────────────────────────┐
+                ▼                          ▼                          ▼
+          HISTORICAL VaR           PARAMETRIC / C-F            EXPECTED SHORTFALL
+         (Empirical 99%)           (Cornish-Fisher)               (CVaR 99%)
+                │                          │                          │
+                └──────────────────────────┼──────────────────────────┘
+                                           ▼
+                            EXTREME VALUE THEORY (EVT / POT)
+                             (Generalized Pareto Distribution)
+                                           │
+                ┌──────────────────────────┴──────────────────────────┐
+                ▼                                                     ▼
+      PORTFOLIO OPTIMIZATION                               STRESS TESTING ENGINE
+  • Min CVaR Linear Programming                       • Historical Crash Replay
+  • Equal Risk Parity                                 • 4D Greeks Sensitivity Matrix
+  • Black-Litterman Equilibrium                       • Reverse Stress Test Solver (-25%)
+                │                                                     │
+                └──────────────────────────┬──────────────────────────┘
+                                           ▼
+                                MODEL VALIDATION & BACKTESTING
+                             (Kupiec POF & Christoffersen Tests)
+                                           │
+                                           ▼
+                               K2-V2 AGENTIC INVESTIGATOR
+                        (MBZUAI-IFM/K2-Think-v2 Root Cause Engine)
 ```
 
 ---
 
-## 🚀 Key Features & Capabilities
+## 🔬 Algorithm Hierarchy & Formulations
 
-### 1. Dual Market Ingestion (India 🇮🇳 + US 🇺🇸)
-- Ingests real-time prices for **US Tech & Banking** (`NVDA`, `AAPL`, `MSFT`, `JPM`, `GS`, `SPY`) and **Indian Equities & Banking** (`RELIANCE.NS`, `TCS.NS`, `INFY.NS`, `HDFCBANK.NS`, `ICICIBANK.NS`, `^NSEI`).
-- Built-in **Data Quality Engine** auditing records completeness (99.81%), OHLC consistency, timestamp validity, and synthetic fallbacks.
+### 1. Volatility & Covariance Calibration
+- **GARCH(1,1) & GJR-GARCH**: $\sigma_t^2 = \omega + (\alpha + \gamma \cdot I_{\epsilon < 0})\epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$ (Captures asymmetric leverage & volatility clustering).
+- **EWMA Volatility**: $\sigma_t^2 = \lambda \sigma_{t-1}^2 + (1-\lambda) r_{t-1}^2$ ($\lambda \in \{0.94, 0.97, 0.99\}$).
+- **Ledoit-Wolf Shrinkage**: $\Sigma_{shrunk} = (1-\alpha)\Sigma_{sample} + \alpha F$ (Ensures positive semi-definite matrix stability).
 
-### 2. Bloomberg Terminal Algorithmic Trading Desk
-- **Function Shortcuts**: `PORT` (Portfolio), `STRAT` (Trading Desk), `TSIM` (Pre-Trade Sim), `BTST` (Backtest), `OVME` (Vol Surface), `CAP` (Basel Capital), `NET` (Contagion Net), `NEWS` (News Wire), `MON` (Breach Monitor).
-- **Non-Stop Execution Daemon**: Continuous background execution loop running 5 quantitative trading strategies (*US-India Pairs Trading*, *Delta-Neutral Options Hedging*, *Multi-Factor Momentum*, *Equal Risk Contribution Risk Parity*, *USD/INR FX Carry*).
+### 2. Tail Risk & Value-at-Risk (VaR)
+- **Cornish-Fisher VaR**: Adjusts Gaussian quantiles for empirical Skewness ($S$) and Excess Kurtosis ($K$).
+- **100,000-Scenario Monte Carlo**: Correlated normal random shocks via Cholesky decomposition ($L L^T = \Sigma$) across 1D, 5D, 10D, and 30D horizons.
+- **Expected Shortfall (CVaR)**: $\text{ES}_\alpha = E[L \mid L > \text{VaR}_\alpha]$ (Basel III FRTB compliant).
+- **Extreme Value Theory (EVT/POT)**: Fits Generalized Pareto Distribution ($G_{\xi, \beta}$) to extreme tail losses beyond 95th/99th percentiles.
 
-### 3. Pre-Trade Execution & Almgren-Chriss Market Impact Check
-- Calculates Delta VaR ($\Delta \text{VaR}$), Almgren-Chriss market impact cost ($Impact = \eta \cdot \sigma \cdot \sqrt{\frac{V}{ADV}}$), and TWAP/VWAP execution schedules before order placement.
+### 3. Dependence & Factor Risk
+- **Gaussian & Student-t Copula**: Non-linear tail dependence modeling for joint India (NIFTY) ↔ US (S&P 500) crashes.
+- **Multi-Factor Decomposition**: Systematic factor regression ($R_p = \sum \beta_i F_i + \epsilon$) across Equity, FX (USD/INR), and Rates.
+- **HMM 4-State Regimes**: Markov regime switching model classifying market state (Low Vol, Normal, High Vol, Crisis).
 
-### 4. Basel III Capital Adequacy & FRTB RWA Engine
-- Calculates Credit Risk RWA, Market Risk RWA (FRTB Standardized/IMA approach), Operational Risk RWA, Common Equity Tier 1 (CET1) Ratio, and Capital Headroom.
+### 4. Portfolio Optimization & Attribution
+- **Minimum CVaR Optimization**: Linear Programming minimizing tail loss subject to sector and country bounds.
+- **Risk Parity**: Equal Risk Contribution $RC_i = w_i \frac{\partial \sigma_p}{\partial w_i}$.
+- **Black-Litterman**: Blends CAPM equilibrium returns with subjective quantitative views and confidence intervals.
+- **Risk Attribution**: Component VaR, Standalone VaR, and Marginal VaR.
 
-### 5. Systemic Risk $\Delta\text{CoVaR}$ & Financial Contagion Network
-- Measures cross-border financial distress spillover and Absorption Ratio between US money-center banks, tech giants, and Indian financial institutions.
-
-### 6. K2-V2 Agentic AI Investigation Engine
-- Integrated with **K2 Think V2** (`MBZUAI-IFM/K2-Think-v2`) open-weight 70B reasoning model API.
-- **`[ WHY? ]`** button on all metrics and trades providing step-by-step evidence logs, confidence ratings, and recommended actions.
-
----
-
-## 🛠 Technology Stack
-
-- **Backend**: Python 3.11, FastAPI, NumPy, pandas, SciPy, scikit-learn, XGBoost, yfinance, pydantic.
-- **AI & Reasoning**: K2 Think V2 (`api.k2think.ai`), Multi-Agent Orchestration.
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, Lucide Icons, Recharts.
+### 5. Model Validation & Stress Testing
+- **Kupiec POF & Christoffersen Tests**: Statistical binomial proportion-of-failures backtest for VaR breaches.
+- **Reverse Stress Testing Solver**: Solves $\min \|\Delta S\|_{\Sigma^{-1}}$ to identify the exact macroeconomic shock vector triggering a -25% loss.
+- **Black-Scholes & 4D Greeks Stressing**: Analytical Delta, Gamma, Vega, Theta, Rho under 4D shock matrices.
 
 ---
 
-## ⚡ Quick Start & Installation
+## 🤖 K2-V2 Agentic Reasoning Architecture
 
+> **Critical Rule**: K2-V2 never performs raw mathematical calculations. Python statistical engines compute validated numerical outputs, and K2-V2 reasons over the validated output graph to generate mitigation plans.
+
+```text
+[Numerical Calculation] ──> [Evidence Graph] ──> [K2-V2 Reasoner] ──> [Executive Mitigation]
+  - GARCH Vol: 24.7%           - Tech Factor: 31%   - Identifies Vol Spike    - Rebalance NVDA
+  - 99% VaR: $51.9K            - NIFTY/SPX Corr: 0.74 - Detects Regime Change  - Add $15M Liquidity
+```
+
+---
+
+## 💻 Installation & Quickstart
+
+### 1. Backend (FastAPI + Python Quant Stack)
 ```bash
-# 1. Start FastAPI Backend
 cd backend
 python -m venv venv
-venv\Scripts\activate
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 python run_backend.py
+```
+*API runs at `http://127.0.0.1:8000` with interactive Swagger docs at `/docs`.*
 
-# 2. Start Next.js Bloomberg Workstation
+### 2. Frontend (Next.js 14 + Bloomberg Terminal UI)
+```bash
 cd frontend
 npm install
 npm run dev
 ```
+*Terminal interface available at `http://localhost:3000`.*
 
 ---
 
-## 📜 License
-MIT License. Developed independently as an academic and portfolio project inspired by institutional quantitative risk workflows.
+## ⌨️ Bloomberg Terminal Shortcut Commands
+
+- `QDOC`: Quant Methodology & Layman's Terms Guide (18 Algorithms Explained)
+- `PORT`: Portfolio Risk Overview & Basel III Capital Metrics
+- `STRAT`: Autonomous Algorithmic Multi-Strategy Trading Desk (10+ Algos, Lifetime PnL)
+- `CHRT`: Advanced TradingView Candlestick & Volume Charting
+- `BTST`: Quantitative Risk Lab & VaR Backtesting (Kupiec / Christoffersen)
+- `SWAP`: Interest Rate Swap (IRS) Derivatives Pricer
+- `CDSW`: Credit Default Swap (CDS) Risk Pricer
+- `YCRV`: US Treasury & Indian G-Sec Yield Curve Inversion Analytics
+- `OVAL`: Black-Scholes Options Calculator & 4D Greeks Matrix
+- `TSIM`: Pre-Trade Execution & Almgren-Chriss Market Impact Simulator
