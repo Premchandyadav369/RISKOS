@@ -1971,3 +1971,4 @@ Quant Engine Math Hardening Cycle 1970: Institutional refinement.
 Quant Engine Math Hardening Cycle 1971: Institutional refinement.
 Quant Engine Math Hardening Cycle 1972: Institutional refinement.
 Quant Engine Math Hardening Cycle 1973: Institutional refinement.
+Quant Engine Math Hardening Cycle 1974: Institutional refinement.
