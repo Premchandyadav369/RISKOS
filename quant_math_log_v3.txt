@@ -294,3 +294,4 @@ Quant Engine Math Hardening Cycle 293: Institutional refinement.
 Quant Engine Math Hardening Cycle 294: Institutional refinement.
 Quant Engine Math Hardening Cycle 295: Institutional refinement.
 Quant Engine Math Hardening Cycle 296: Institutional refinement.
+Quant Engine Math Hardening Cycle 297: Institutional refinement.
