@@ -121,3 +121,4 @@ Quant Engine Math Hardening Cycle 120: Institutional refinement.
 Quant Engine Math Hardening Cycle 121: Institutional refinement.
 Quant Engine Math Hardening Cycle 122: Institutional refinement.
 Quant Engine Math Hardening Cycle 123: Institutional refinement.
+Quant Engine Math Hardening Cycle 124: Institutional refinement.
