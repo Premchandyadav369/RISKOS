@@ -1833,3 +1833,4 @@ Quant Engine Math Hardening Cycle 1832: Institutional refinement.
 Quant Engine Math Hardening Cycle 1833: Institutional refinement.
 Quant Engine Math Hardening Cycle 1834: Institutional refinement.
 Quant Engine Math Hardening Cycle 1835: Institutional refinement.
+Quant Engine Math Hardening Cycle 1836: Institutional refinement.
