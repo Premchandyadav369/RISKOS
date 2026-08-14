@@ -19,3 +19,4 @@ Quant Engine Math Hardening Cycle 18: Institutional refinement.
 Quant Engine Math Hardening Cycle 19: Institutional refinement.
 Quant Engine Math Hardening Cycle 20: Institutional refinement.
 Quant Engine Math Hardening Cycle 21: Institutional refinement.
+Quant Engine Math Hardening Cycle 22: Institutional refinement.
