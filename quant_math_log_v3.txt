@@ -323,3 +323,4 @@ Quant Engine Math Hardening Cycle 322: Institutional refinement.
 Quant Engine Math Hardening Cycle 323: Institutional refinement.
 Quant Engine Math Hardening Cycle 324: Institutional refinement.
 Quant Engine Math Hardening Cycle 325: Institutional refinement.
+Quant Engine Math Hardening Cycle 326: Institutional refinement.
