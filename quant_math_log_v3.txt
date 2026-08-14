@@ -35,3 +35,4 @@ Quant Engine Math Hardening Cycle 34: Institutional refinement.
 Quant Engine Math Hardening Cycle 35: Institutional refinement.
 Quant Engine Math Hardening Cycle 36: Institutional refinement.
 Quant Engine Math Hardening Cycle 37: Institutional refinement.
+Quant Engine Math Hardening Cycle 38: Institutional refinement.
