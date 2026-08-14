@@ -1966,3 +1966,4 @@ Quant Engine Math Hardening Cycle 1965: Institutional refinement.
 Quant Engine Math Hardening Cycle 1966: Institutional refinement.
 Quant Engine Math Hardening Cycle 1967: Institutional refinement.
 Quant Engine Math Hardening Cycle 1968: Institutional refinement.
+Quant Engine Math Hardening Cycle 1969: Institutional refinement.
