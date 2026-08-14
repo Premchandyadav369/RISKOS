@@ -1933,3 +1933,4 @@ Quant Engine Math Hardening Cycle 1932: Institutional refinement.
 Quant Engine Math Hardening Cycle 1933: Institutional refinement.
 Quant Engine Math Hardening Cycle 1934: Institutional refinement.
 Quant Engine Math Hardening Cycle 1935: Institutional refinement.
+Quant Engine Math Hardening Cycle 1936: Institutional refinement.
