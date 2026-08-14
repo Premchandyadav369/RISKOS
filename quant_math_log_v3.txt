@@ -63,3 +63,4 @@ Quant Engine Math Hardening Cycle 62: Institutional refinement.
 Quant Engine Math Hardening Cycle 63: Institutional refinement.
 Quant Engine Math Hardening Cycle 64: Institutional refinement.
 Quant Engine Math Hardening Cycle 65: Institutional refinement.
+Quant Engine Math Hardening Cycle 66: Institutional refinement.
