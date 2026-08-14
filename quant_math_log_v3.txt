@@ -433,3 +433,4 @@ Quant Engine Math Hardening Cycle 432: Institutional refinement.
 Quant Engine Math Hardening Cycle 433: Institutional refinement.
 Quant Engine Math Hardening Cycle 434: Institutional refinement.
 Quant Engine Math Hardening Cycle 435: Institutional refinement.
+Quant Engine Math Hardening Cycle 436: Institutional refinement.
