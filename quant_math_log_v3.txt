@@ -1984,3 +1984,4 @@ Quant Engine Math Hardening Cycle 1983: Institutional refinement.
 Quant Engine Math Hardening Cycle 1984: Institutional refinement.
 Quant Engine Math Hardening Cycle 1985: Institutional refinement.
 Quant Engine Math Hardening Cycle 1986: Institutional refinement.
+Quant Engine Math Hardening Cycle 1987: Institutional refinement.
