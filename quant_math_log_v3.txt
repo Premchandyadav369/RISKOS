@@ -48,3 +48,4 @@ Quant Engine Math Hardening Cycle 47: Institutional refinement.
 Quant Engine Math Hardening Cycle 48: Institutional refinement.
 Quant Engine Math Hardening Cycle 49: Institutional refinement.
 Quant Engine Math Hardening Cycle 50: Institutional refinement.
+Quant Engine Math Hardening Cycle 51: Institutional refinement.
