@@ -24,3 +24,4 @@ Quant Engine Math Hardening Cycle 23: Institutional refinement.
 Quant Engine Math Hardening Cycle 24: Institutional refinement.
 Quant Engine Math Hardening Cycle 25: Institutional refinement.
 Quant Engine Math Hardening Cycle 26: Institutional refinement.
+Quant Engine Math Hardening Cycle 27: Institutional refinement.
