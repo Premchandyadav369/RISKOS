@@ -203,3 +203,4 @@ Quant Engine Math Hardening Cycle 202: Institutional refinement.
 Quant Engine Math Hardening Cycle 203: Institutional refinement.
 Quant Engine Math Hardening Cycle 204: Institutional refinement.
 Quant Engine Math Hardening Cycle 205: Institutional refinement.
+Quant Engine Math Hardening Cycle 206: Institutional refinement.
