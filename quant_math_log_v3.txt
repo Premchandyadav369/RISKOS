@@ -1938,3 +1938,4 @@ Quant Engine Math Hardening Cycle 1937: Institutional refinement.
 Quant Engine Math Hardening Cycle 1938: Institutional refinement.
 Quant Engine Math Hardening Cycle 1939: Institutional refinement.
 Quant Engine Math Hardening Cycle 1940: Institutional refinement.
+Quant Engine Math Hardening Cycle 1941: Institutional refinement.
