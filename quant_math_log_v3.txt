@@ -1790,3 +1790,4 @@ Quant Engine Math Hardening Cycle 1789: Institutional refinement.
 Quant Engine Math Hardening Cycle 1790: Institutional refinement.
 Quant Engine Math Hardening Cycle 1791: Institutional refinement.
 Quant Engine Math Hardening Cycle 1792: Institutional refinement.
+Quant Engine Math Hardening Cycle 1793: Institutional refinement.
