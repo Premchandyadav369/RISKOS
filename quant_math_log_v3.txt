@@ -344,3 +344,4 @@ Quant Engine Math Hardening Cycle 343: Institutional refinement.
 Quant Engine Math Hardening Cycle 344: Institutional refinement.
 Quant Engine Math Hardening Cycle 345: Institutional refinement.
 Quant Engine Math Hardening Cycle 346: Institutional refinement.
+Quant Engine Math Hardening Cycle 347: Institutional refinement.
