@@ -194,3 +194,4 @@ Quant Engine Math Hardening Cycle 193: Institutional refinement.
 Quant Engine Math Hardening Cycle 194: Institutional refinement.
 Quant Engine Math Hardening Cycle 195: Institutional refinement.
 Quant Engine Math Hardening Cycle 196: Institutional refinement.
+Quant Engine Math Hardening Cycle 197: Institutional refinement.
