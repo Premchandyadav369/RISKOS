@@ -110,3 +110,4 @@ Quant Engine Math Hardening Cycle 109: Institutional refinement.
 Quant Engine Math Hardening Cycle 110: Institutional refinement.
 Quant Engine Math Hardening Cycle 111: Institutional refinement.
 Quant Engine Math Hardening Cycle 112: Institutional refinement.
+Quant Engine Math Hardening Cycle 113: Institutional refinement.
