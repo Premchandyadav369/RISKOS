@@ -58,3 +58,4 @@ Quant Engine Math Hardening Cycle 57: Institutional refinement.
 Quant Engine Math Hardening Cycle 58: Institutional refinement.
 Quant Engine Math Hardening Cycle 59: Institutional refinement.
 Quant Engine Math Hardening Cycle 60: Institutional refinement.
+Quant Engine Math Hardening Cycle 61: Institutional refinement.
