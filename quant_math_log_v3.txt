@@ -105,3 +105,4 @@ Quant Engine Math Hardening Cycle 104: Institutional refinement.
 Quant Engine Math Hardening Cycle 105: Institutional refinement.
 Quant Engine Math Hardening Cycle 106: Institutional refinement.
 Quant Engine Math Hardening Cycle 107: Institutional refinement.
+Quant Engine Math Hardening Cycle 108: Institutional refinement.
