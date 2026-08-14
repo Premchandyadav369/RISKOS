@@ -1996,3 +1996,4 @@ Quant Engine Math Hardening Cycle 1995: Institutional refinement.
 Quant Engine Math Hardening Cycle 1996: Institutional refinement.
 Quant Engine Math Hardening Cycle 1997: Institutional refinement.
 Quant Engine Math Hardening Cycle 1998: Institutional refinement.
+Quant Engine Math Hardening Cycle 1999: Institutional refinement.
