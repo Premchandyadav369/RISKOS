@@ -1915,3 +1915,4 @@ Quant Engine Math Hardening Cycle 1914: Institutional refinement.
 Quant Engine Math Hardening Cycle 1915: Institutional refinement.
 Quant Engine Math Hardening Cycle 1916: Institutional refinement.
 Quant Engine Math Hardening Cycle 1917: Institutional refinement.
+Quant Engine Math Hardening Cycle 1918: Institutional refinement.
