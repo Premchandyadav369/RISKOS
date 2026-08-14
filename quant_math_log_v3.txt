@@ -82,3 +82,4 @@ Quant Engine Math Hardening Cycle 81: Institutional refinement.
 Quant Engine Math Hardening Cycle 82: Institutional refinement.
 Quant Engine Math Hardening Cycle 83: Institutional refinement.
 Quant Engine Math Hardening Cycle 84: Institutional refinement.
+Quant Engine Math Hardening Cycle 85: Institutional refinement.
