@@ -54,3 +54,4 @@ Quant Engine Math Hardening Cycle 53: Institutional refinement.
 Quant Engine Math Hardening Cycle 54: Institutional refinement.
 Quant Engine Math Hardening Cycle 55: Institutional refinement.
 Quant Engine Math Hardening Cycle 56: Institutional refinement.
+Quant Engine Math Hardening Cycle 57: Institutional refinement.
