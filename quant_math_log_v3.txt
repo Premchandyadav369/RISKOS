@@ -185,3 +185,4 @@ Quant Engine Math Hardening Cycle 184: Institutional refinement.
 Quant Engine Math Hardening Cycle 185: Institutional refinement.
 Quant Engine Math Hardening Cycle 186: Institutional refinement.
 Quant Engine Math Hardening Cycle 187: Institutional refinement.
+Quant Engine Math Hardening Cycle 188: Institutional refinement.
