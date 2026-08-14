@@ -163,3 +163,4 @@ Quant Engine Math Hardening Cycle 162: Institutional refinement.
 Quant Engine Math Hardening Cycle 163: Institutional refinement.
 Quant Engine Math Hardening Cycle 164: Institutional refinement.
 Quant Engine Math Hardening Cycle 165: Institutional refinement.
+Quant Engine Math Hardening Cycle 166: Institutional refinement.
