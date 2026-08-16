@@ -14,6 +14,13 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
     { code: "PORT", label: "Portfolio Risk", tab: "overview" },
     { code: "STRAT", label: "Algorithmic Desk", tab: "strat" },
     { code: "QDOC", label: "Layman's Guide", tab: "quantdocs" },
+    { code: "ALM", label: "Treasury ALM", tab: "alm" },
+    { code: "XVA", label: "XVA Derivatives", tab: "xva" },
+    { code: "COMM", label: "Risk Committee", tab: "committee" },
+    { code: "DOM", label: "Order Book L2", tab: "orderbook" },
+    { code: "CLIM", label: "Climate NGFS", tab: "climate" },
+    { code: "REGP", label: "CCAR Regulatory", tab: "regulatory" },
+    { code: "QOPT", label: "Quantum QUBO", tab: "quantum" },
     { code: "TSIM", label: "Pre-Trade Sim", tab: "tradesim" },
     { code: "CHRT", label: "Adv Charting", tab: "charting" },
     { code: "BTST", label: "Backtest Lab", tab: "quant" },
@@ -54,7 +61,7 @@ export function BloombergBar({ onNavigate }: BloombergBarProps) {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type code (QDOC, CHRT, SWAP, CDSW)..."
+            placeholder="Type code (ALM, XVA, COMM, DOM, QDOC)..."
             className="bg-transparent border-none outline-none text-white text-xs w-64 placeholder:text-gray-500 uppercase font-mono"
           />
         </form>
