@@ -915,3 +915,4 @@ CTC Innovation Hardening Cycle 914: Institutional refinement.
 CTC Innovation Hardening Cycle 915: Institutional refinement.
 CTC Innovation Hardening Cycle 916: Institutional refinement.
 CTC Innovation Hardening Cycle 917: Institutional refinement.
+CTC Innovation Hardening Cycle 918: Institutional refinement.
