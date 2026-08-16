@@ -1102,3 +1102,4 @@ CTC Innovation Hardening Cycle 1101: Institutional refinement.
 CTC Innovation Hardening Cycle 1102: Institutional refinement.
 CTC Innovation Hardening Cycle 1103: Institutional refinement.
 CTC Innovation Hardening Cycle 1104: Institutional refinement.
+CTC Innovation Hardening Cycle 1105: Institutional refinement.
