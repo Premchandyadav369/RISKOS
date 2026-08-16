@@ -902,3 +902,4 @@ CTC Innovation Hardening Cycle 901: Institutional refinement.
 CTC Innovation Hardening Cycle 902: Institutional refinement.
 CTC Innovation Hardening Cycle 903: Institutional refinement.
 CTC Innovation Hardening Cycle 904: Institutional refinement.
+CTC Innovation Hardening Cycle 905: Institutional refinement.
