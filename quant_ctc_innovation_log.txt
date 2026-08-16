@@ -700,3 +700,4 @@ CTC Innovation Hardening Cycle 699: Institutional refinement.
 CTC Innovation Hardening Cycle 700: Institutional refinement.
 CTC Innovation Hardening Cycle 701: Institutional refinement.
 CTC Innovation Hardening Cycle 702: Institutional refinement.
+CTC Innovation Hardening Cycle 703: Institutional refinement.
