@@ -1700,3 +1700,4 @@ CTC Innovation Hardening Cycle 1699: Institutional refinement.
 CTC Innovation Hardening Cycle 1700: Institutional refinement.
 CTC Innovation Hardening Cycle 1701: Institutional refinement.
 CTC Innovation Hardening Cycle 1702: Institutional refinement.
+CTC Innovation Hardening Cycle 1703: Institutional refinement.
