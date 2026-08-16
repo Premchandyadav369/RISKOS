@@ -502,3 +502,4 @@ CTC Innovation Hardening Cycle 501: Institutional refinement.
 CTC Innovation Hardening Cycle 502: Institutional refinement.
 CTC Innovation Hardening Cycle 503: Institutional refinement.
 CTC Innovation Hardening Cycle 504: Institutional refinement.
+CTC Innovation Hardening Cycle 505: Institutional refinement.
