@@ -800,3 +800,4 @@ CTC Innovation Hardening Cycle 799: Institutional refinement.
 CTC Innovation Hardening Cycle 800: Institutional refinement.
 CTC Innovation Hardening Cycle 801: Institutional refinement.
 CTC Innovation Hardening Cycle 802: Institutional refinement.
+CTC Innovation Hardening Cycle 803: Institutional refinement.
