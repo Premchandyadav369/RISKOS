@@ -1602,3 +1602,4 @@ CTC Innovation Hardening Cycle 1601: Institutional refinement.
 CTC Innovation Hardening Cycle 1602: Institutional refinement.
 CTC Innovation Hardening Cycle 1603: Institutional refinement.
 CTC Innovation Hardening Cycle 1604: Institutional refinement.
+CTC Innovation Hardening Cycle 1605: Institutional refinement.
