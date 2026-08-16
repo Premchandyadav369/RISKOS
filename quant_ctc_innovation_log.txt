@@ -1302,3 +1302,4 @@ CTC Innovation Hardening Cycle 1301: Institutional refinement.
 CTC Innovation Hardening Cycle 1302: Institutional refinement.
 CTC Innovation Hardening Cycle 1303: Institutional refinement.
 CTC Innovation Hardening Cycle 1304: Institutional refinement.
+CTC Innovation Hardening Cycle 1305: Institutional refinement.
