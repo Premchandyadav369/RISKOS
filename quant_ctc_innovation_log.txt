@@ -606,3 +606,4 @@ CTC Innovation Hardening Cycle 605: Institutional refinement.
 CTC Innovation Hardening Cycle 606: Institutional refinement.
 CTC Innovation Hardening Cycle 607: Institutional refinement.
 CTC Innovation Hardening Cycle 608: Institutional refinement.
+CTC Innovation Hardening Cycle 609: Institutional refinement.
