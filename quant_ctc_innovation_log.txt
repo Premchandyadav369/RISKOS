@@ -724,3 +724,4 @@ CTC Innovation Hardening Cycle 723: Institutional refinement.
 CTC Innovation Hardening Cycle 724: Institutional refinement.
 CTC Innovation Hardening Cycle 725: Institutional refinement.
 CTC Innovation Hardening Cycle 726: Institutional refinement.
+CTC Innovation Hardening Cycle 727: Institutional refinement.
