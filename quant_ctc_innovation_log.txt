@@ -1803,3 +1803,4 @@ CTC Innovation Hardening Cycle 1802: Institutional refinement.
 CTC Innovation Hardening Cycle 1803: Institutional refinement.
 CTC Innovation Hardening Cycle 1804: Institutional refinement.
 CTC Innovation Hardening Cycle 1805: Institutional refinement.
+CTC Innovation Hardening Cycle 1806: Institutional refinement.
