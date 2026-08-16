@@ -821,3 +821,4 @@ CTC Innovation Hardening Cycle 820: Institutional refinement.
 CTC Innovation Hardening Cycle 821: Institutional refinement.
 CTC Innovation Hardening Cycle 822: Institutional refinement.
 CTC Innovation Hardening Cycle 823: Institutional refinement.
+CTC Innovation Hardening Cycle 824: Institutional refinement.
