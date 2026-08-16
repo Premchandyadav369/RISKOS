@@ -100,3 +100,4 @@ CTC Innovation Hardening Cycle 99: Institutional refinement.
 CTC Innovation Hardening Cycle 100: Institutional refinement.
 CTC Innovation Hardening Cycle 101: Institutional refinement.
 CTC Innovation Hardening Cycle 102: Institutional refinement.
+CTC Innovation Hardening Cycle 103: Institutional refinement.
