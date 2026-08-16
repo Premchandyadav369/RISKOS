@@ -968,3 +968,4 @@ CTC Innovation Hardening Cycle 967: Institutional refinement.
 CTC Innovation Hardening Cycle 968: Institutional refinement.
 CTC Innovation Hardening Cycle 969: Institutional refinement.
 CTC Innovation Hardening Cycle 970: Institutional refinement.
+CTC Innovation Hardening Cycle 971: Institutional refinement.
