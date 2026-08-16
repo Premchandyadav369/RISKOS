@@ -1709,3 +1709,4 @@ CTC Innovation Hardening Cycle 1708: Institutional refinement.
 CTC Innovation Hardening Cycle 1709: Institutional refinement.
 CTC Innovation Hardening Cycle 1710: Institutional refinement.
 CTC Innovation Hardening Cycle 1711: Institutional refinement.
+CTC Innovation Hardening Cycle 1712: Institutional refinement.
