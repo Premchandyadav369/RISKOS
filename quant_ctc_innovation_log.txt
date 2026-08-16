@@ -844,3 +844,4 @@ CTC Innovation Hardening Cycle 843: Institutional refinement.
 CTC Innovation Hardening Cycle 844: Institutional refinement.
 CTC Innovation Hardening Cycle 845: Institutional refinement.
 CTC Innovation Hardening Cycle 846: Institutional refinement.
+CTC Innovation Hardening Cycle 847: Institutional refinement.
