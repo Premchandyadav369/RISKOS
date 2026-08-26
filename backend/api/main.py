@@ -214,3 +214,30 @@ def api_get_attribution(tickers: Optional[str] = None):
         return analyze_attribution_and_parity(t_list)
     except Exception as e:
         return {"error": str(e)}
+
+# ── Serve Static Web Frontend (All-in-One Cloud Deployment) ───────────────────
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+frontend_dir = backend_dir.parent
+
+if (frontend_dir / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dir / "assets")), name="assets")
+if (frontend_dir / "fonts").exists():
+    app.mount("/fonts", StaticFiles(directory=str(frontend_dir / "fonts")), name="fonts")
+
+@app.get("/")
+def serve_landing():
+    index_file = frontend_dir / "index.html"
+    return FileResponse(str(index_file)) if index_file.exists() else {"status": "RISKOS API Online"}
+
+@app.get("/terminal")
+@app.get("/app")
+@app.get("/app.html")
+def serve_terminal():
+    app_file = frontend_dir / "app.html"
+    return FileResponse(str(app_file)) if app_file.exists() else {"status": "Terminal UI"}
+
+# Fallback static mount for CSS and JS files
+if frontend_dir.exists():
+    app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="root_static")

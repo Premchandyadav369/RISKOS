@@ -1,4 +1,7 @@
-const API = 'http://127.0.0.1:8000/api';
+// Dynamic API URL: Uses current origin if deployed, falls back to localhost if opened as local file
+const API = (window.location.protocol === 'http:' || window.location.protocol === 'https:') && window.location.port !== '5500' && window.location.port !== '3000'
+    ? (window.location.origin + '/api')
+    : 'http://127.0.0.1:8000/api';
 const BASE_CAPITAL = 10000000; // 1,00,00,000 INR
 
 // Chart configuration globals
