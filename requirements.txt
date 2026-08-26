@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+yfinance
+numpy
+pandas
+scipy
+scikit-learn
+arch
+hmmlearn
