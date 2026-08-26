@@ -1,170 +1,119 @@
 /**
- * Intelligence For Modern Finance — Vanilla JavaScript
+ * Intelligence For Modern Finance — main.js
  */
-
 document.addEventListener('DOMContentLoaded', () => {
-  // ── 1. Mobile Menu ──────────────────────────────────────────────────────
-  const burgerBtn = document.getElementById('burgerBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const mobileOverlay = document.getElementById('mobileOverlay');
-  const body = document.body;
 
-  const isMenuOpen = () => body.classList.contains('menu-open');
+  // ── Mobile Menu ────────────────────────────────────────────────────────
+  const burger = document.getElementById('burgerBtn');
+  const menu   = document.getElementById('mobileMenu');
+  const overlay = document.getElementById('mobileOverlay');
+  const body   = document.body;
 
-  const openMenu = () => {
+  const menuOpen = () => body.classList.contains('menu-open');
+
+  const open = () => {
     body.classList.add('menu-open');
-    burgerBtn.setAttribute('aria-expanded', 'true');
-    mobileMenu.removeAttribute('hidden');
-    mobileOverlay.removeAttribute('hidden');
+    burger.setAttribute('aria-expanded', 'true');
+    menu.removeAttribute('hidden');
+    overlay.removeAttribute('hidden');
   };
 
-  const closeMenu = () => {
+  const close = () => {
     body.classList.remove('menu-open');
-    burgerBtn.setAttribute('aria-expanded', 'false');
-    mobileMenu.setAttribute('hidden', '');
-    mobileOverlay.setAttribute('hidden', '');
+    burger.setAttribute('aria-expanded', 'false');
+    menu.setAttribute('hidden', '');
+    overlay.setAttribute('hidden', '');
   };
 
-  if (burgerBtn && mobileMenu && mobileOverlay) {
-    burgerBtn.addEventListener('click', () => {
-      isMenuOpen() ? closeMenu() : openMenu();
-    });
-
-    mobileOverlay.addEventListener('click', closeMenu);
-
-    mobileMenu.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => {
-        mobileMenu.querySelectorAll('.mobile-link').forEach(l => l.classList.remove('active'));
-        if (link.classList.contains('mobile-link')) link.classList.add('active');
-        closeMenu();
+  if (burger && menu && overlay) {
+    burger.addEventListener('click', () => menuOpen() ? close() : open());
+    overlay.addEventListener('click', close);
+    menu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        menu.querySelectorAll('.mobile-link').forEach(l => l.classList.remove('active'));
+        if (a.classList.contains('mobile-link')) a.classList.add('active');
+        close();
       });
     });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && isMenuOpen()) closeMenu();
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 720 && isMenuOpen()) closeMenu();
-    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen()) close(); });
+    window.addEventListener('resize', () => { if (window.innerWidth > 720 && menuOpen()) close(); });
   }
 
-  // ── 2. Desktop Nav Active State ─────────────────────────────────────────
-  const desktopNavLinks = document.querySelectorAll('.nav-pill .nav-link');
-  desktopNavLinks.forEach((link) => {
-    link.addEventListener('click', () => {
-      desktopNavLinks.forEach(l => l.classList.remove('active'));
-      link.classList.add('active');
-    });
-  });
-
-  // ── 3. Sticky Header Background on Scroll ──────────────────────────────
+  // ── Sticky Header ─────────────────────────────────────────────────────
   const header = document.getElementById('siteHeader');
   if (header) {
-    const onScroll = () => {
-      if (window.scrollY > 60) {
-        header.classList.add('scrolled');
-      } else {
-        header.classList.remove('scrolled');
-      }
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
+    const check = () => header.classList.toggle('scrolled', window.scrollY > 60);
+    window.addEventListener('scroll', check, { passive: true });
+    check();
   }
 
-  // ── 4. Active Nav Highlight on Scroll ───────────────────────────────────
+  // ── Scroll-Spy Active Nav ──────────────────────────────────────────────
   const sections = document.querySelectorAll('section[id]');
-  const allNavLinks = document.querySelectorAll('.nav-link, .mobile-link');
+  const allLinks = document.querySelectorAll('.nav-link, .mobile-link');
 
-  const updateActiveNav = () => {
-    const scrollPos = window.scrollY + 120;
-    let currentId = '';
-
-    sections.forEach((section) => {
-      if (section.offsetTop <= scrollPos) {
-        currentId = section.getAttribute('id');
-      }
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY + 140;
+    let current = '';
+    sections.forEach(s => { if (s.offsetTop <= y) current = s.id; });
+    allLinks.forEach(l => {
+      l.classList.remove('active');
+      if (l.getAttribute('href') === '#' + current) l.classList.add('active');
     });
+  }, { passive: true });
 
-    allNavLinks.forEach((link) => {
-      link.classList.remove('active');
-      const href = link.getAttribute('href');
-      if (href && href.substring(1) === currentId) {
-        link.classList.add('active');
-      }
-    });
-  };
+  // ── Count-Up ──────────────────────────────────────────────────────────
+  const ease = t => 1 - Math.pow(1 - t, 3);
 
-  window.addEventListener('scroll', updateActiveNav, { passive: true });
-
-  // ── 5. Count-Up Animation ──────────────────────────────────────────────
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-  const animateCountUp = (element, target, decimals, duration, delay) => {
+  const countUp = (el, target, dec, dur, delay) => {
     setTimeout(() => {
-      const startTime = performance.now();
-
-      const update = (now) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = easeOutCubic(progress);
-        const value = eased * target;
-
-        element.textContent = decimals > 0
-          ? value.toFixed(decimals)
-          : Math.round(value).toString();
-
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        } else {
-          element.textContent = decimals > 0
-            ? target.toFixed(decimals)
-            : target.toString();
-        }
+      const t0 = performance.now();
+      const tick = now => {
+        const p = Math.min((now - t0) / dur, 1);
+        const v = ease(p) * target;
+        el.textContent = dec > 0 ? v.toFixed(dec) : Math.round(v).toString();
+        if (p < 1) requestAnimationFrame(tick);
+        else el.textContent = dec > 0 ? target.toFixed(dec) : target.toString();
       };
-
-      requestAnimationFrame(update);
+      requestAnimationFrame(tick);
     }, delay);
   };
 
-  const statCards = document.querySelectorAll('.stat-card');
-  let statsAnimated = false;
+  let counted = false;
+  const cards = document.querySelectorAll('.stat-card');
 
   if ('IntersectionObserver' in window) {
-    const statsObs = new IntersectionObserver((entries, obs) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && !statsAnimated) {
-          statsAnimated = true;
-          statCards.forEach((card, i) => {
-            const target = parseFloat(card.dataset.target || '0');
-            const decimals = parseInt(card.dataset.decimals || '0', 10);
-            const el = card.querySelector('.stat-value');
-            if (el) animateCountUp(el, target, decimals, 1500 + i * 80, 480 + i * 90);
+    const obs = new IntersectionObserver((entries, o) => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !counted) {
+          counted = true;
+          cards.forEach((c, i) => {
+            const t = parseFloat(c.dataset.target || '0');
+            const d = parseInt(c.dataset.decimals || '0', 10);
+            const v = c.querySelector('.stat-value');
+            if (v) countUp(v, t, d, 1500 + i * 80, 480 + i * 90);
           });
-          obs.disconnect();
+          o.disconnect();
         }
       });
     }, { threshold: 0.25 });
-
-    const statsFooter = document.querySelector('.stats-footer');
-    if (statsFooter) statsObs.observe(statsFooter);
+    const sf = document.querySelector('.stats-footer');
+    if (sf) obs.observe(sf);
   }
 
-  // ── 6. Scroll-Triggered Fade-Up ────────────────────────────────────────
-  const fadeElements = document.querySelectorAll('.fade-up');
-
+  // ── Scroll Fade-Up ────────────────────────────────────────────────────
+  const fades = document.querySelectorAll('.fade-up');
   if ('IntersectionObserver' in window) {
-    const fadeObs = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          fadeObs.unobserve(entry.target);
+    const fo = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          fo.unobserve(e.target);
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-
-    fadeElements.forEach((el) => fadeObs.observe(el));
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    fades.forEach(el => fo.observe(el));
   } else {
-    fadeElements.forEach((el) => el.classList.add('visible'));
+    fades.forEach(el => el.classList.add('visible'));
   }
+
 });
