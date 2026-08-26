@@ -145,10 +145,13 @@ def api_get_validate(ticker: str = "SPY", confidence: float = 0.99, period: str 
         if returns.empty:
             return {"error": "No data"}
         
-        ret_series = returns[ticker]
-        # Generate a dummy VaR series (e.g. historical rolling var)
-        var_series = ret_series.rolling(252).quantile(1 - confidence).dropna()
-        # Align
+        ret_series = returns[ticker].dropna()
+        if len(ret_series) < 10:
+            return {"error": "Insufficient return data"}
+            
+        win = min(len(ret_series) // 2, 60)
+        win = max(win, 5)
+        var_series = ret_series.rolling(win, min_periods=5).quantile(1 - confidence).dropna()
         aligned_ret = ret_series.loc[var_series.index]
         
         kupiec = kupiec_test(aligned_ret, var_series, confidence)
