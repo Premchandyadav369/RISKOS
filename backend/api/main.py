@@ -23,6 +23,11 @@ from engine.stress import stress_test
 from engine.validation import kupiec_test, christoffersen_test
 from engine.signals import generate_signals
 from engine.execution import simulate_execution
+from engine.spreads import analyze_spread
+from engine.rates import analyze_yield_curve
+from engine.microstructure import analyze_microstructure
+from engine.derivatives import analyze_derivatives
+from engine.attribution import analyze_attribution_and_parity
 
 app = FastAPI(title="RISKOS Backend API")
 
@@ -168,5 +173,41 @@ def api_generate_signals(tickers: Optional[str] = None, period: str = '1y'):
 def api_execute(ticker: str, direction: str, quantity: int):
     try:
         return simulate_execution(ticker, direction, quantity)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/spreads")
+def api_get_spreads(ticker1: str = "CL=F", ticker2: str = "BZ=F", period: str = "1y"):
+    try:
+        return analyze_spread(ticker1, ticker2, period)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/rates")
+def api_get_rates():
+    try:
+        return analyze_yield_curve()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/microstructure")
+def api_get_microstructure(ticker: str = "AAPL", shares: int = 25000):
+    try:
+        return analyze_microstructure(ticker, shares)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/derivatives")
+def api_get_derivatives(spot: float = 180.0, strike: float = 185.0, expiry: float = 0.25, vol: float = 0.22, rate: float = 0.045):
+    try:
+        return analyze_derivatives(spot, strike, expiry, vol, rate)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/quant/attribution")
+def api_get_attribution(tickers: Optional[str] = None):
+    try:
+        t_list = parse_tickers(tickers)
+        return analyze_attribution_and_parity(t_list)
     except Exception as e:
         return {"error": str(e)}
