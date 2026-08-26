@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISKOS - Financial Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="app.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="assets/logo.webp" alt="RISKOS Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'40\' viewBox=\'0 0 40 40\'%3E%3Crect width=\'40\' height=\'40\' fill=\'%23333\'/%3E%3Ctext x=\'50%25\' y=\'50%25\' font-family=\'Arial\' font-size=\'16\' fill=\'white\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
+                <span>RISKOS</span>
+            </a>
+        </div>
+        <div class="controls">
+            <input type="text" id="ticker-input" value="AAPL,MSFT,GOOGL,AMZN,JPM" placeholder="Enter comma-separated tickers">
+            <button id="analyze-btn">Analyze</button>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-market">Market Intelligence</button>
+            <button class="tab-btn" data-tab="tab-risk">Risk Engine</button>
+            <button class="tab-btn" data-tab="tab-signals">Signals & Execution</button>
+        </div>
+    </div>
+
+    <div class="content">
+        <!-- Tab 1: Market Intelligence -->
+        <div id="tab-market" class="tab-content active">
+            <div class="grid-2-col">
+                <div class="card chart-card">
+                    <h2>Price History</h2>
+                    <div class="chart-container">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <h2>Volatility Panel</h2>
+                    <div class="chart-container">
+                        <canvas id="volatilityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-2-col mt-4">
+                <div class="card">
+                    <h2>Regime Indicator <span class="muted">(SPY)</span></h2>
+                    <div id="regime-container" class="regime-display">
+                        <div class="loading">Loading regime data...</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2>Correlation Heatmap</h2>
+                    <div id="correlation-container" class="correlation-display">
+                        <div class="loading">Loading correlations...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 2: Risk Engine -->
+        <div id="tab-risk" class="tab-content">
+            <div class="grid-2-col">
+                <div class="card chart-card">
+                    <h2>Value at Risk (VaR / CVaR)</h2>
+                    <div class="chart-container">
+                        <canvas id="varChart"></canvas>
+                    </div>
+                </div>
+                <div class="card chart-card">
+                    <h2>Optimal Portfolio</h2>
+                    <div class="chart-container">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                    <div id="portfolio-stats" class="text-center mt-2"></div>
+                </div>
+            </div>
+            <div class="card mt-4 chart-card">
+                <h2>Backtest Results</h2>
+                <div class="chart-container large">
+                    <canvas id="backtestChart"></canvas>
+                </div>
+                <div id="backtest-stats" class="stats-row mt-4"></div>
+            </div>
+            <div class="grid-2-col mt-4">
+                <div class="card">
+                    <h2>Stress Test Scenarios</h2>
+                    <table class="data-table" id="stress-table">
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Description</th>
+                                <th>Impact %</th>
+                                <th>Impact ₹</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="4" class="text-center">Loading stress test data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h2>Model Validation</h2>
+                    <div id="validation-container" class="validation-display">
+                        <div class="loading">Loading validation metrics...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 3: Signals & Execution -->
+        <div id="tab-signals" class="tab-content">
+            <div class="card">
+                <h2>Trading Signals</h2>
+                <table class="data-table" id="signals-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Regime</th>
+                            <th>Strategy</th>
+                            <th>Direction</th>
+                            <th>Confidence</th>
+                            <th>Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" class="text-center">Loading signals...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card mt-4">
+                <h2>Execution Simulator</h2>
+                <div class="execution-form">
+                    <select id="exec-ticker" class="exec-input"></select>
+                    <input type="number" id="exec-qty" class="exec-input" value="100" min="1" placeholder="Quantity">
+                    <button id="execute-btn">Execute</button>
+                </div>
+                <div id="exec-result" class="exec-result mt-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
