@@ -44,7 +44,17 @@
 
         <!-- ═══════════ DESK 1: MARKET INTELLIGENCE ═══════════ -->
         <section id="tab-market" class="tab-content active">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Market Intelligence</div>
+                <p class="primer-text">
+                    <strong>GARCH(1,1) Volatility:</strong> Measures the "momentum of fear" — if annualized vol is spiking above 25%, volatility clustering is active. 
+                    <strong>Hidden Markov Model (HMM):</strong> Unsupervised machine learning classifying whether the macro environment is currently Bullish (high returns, low vol), Bearish (negative returns, high vol), or Sideways (mean-reverting consolidation). 
+                    <strong>Correlation Matrix:</strong> Green (>0.6) means assets move in lockstep; lower correlation enables superior portfolio diversification.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-chart-area"></i> Multi-Asset Price History</h2>
@@ -88,7 +98,18 @@
 
         <!-- ═══════════ DESK 2: RISK & PORTFOLIO ENGINE ═══════════ -->
         <section id="tab-risk" class="tab-content">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Tail Risk & CVaR Optimization</div>
+                <p class="primer-text">
+                    <strong>Value at Risk (VaR 99%):</strong> The boundary of normal bad days — on 99 out of 100 days, your portfolio will not lose more than this amount. 
+                    <strong>Expected Shortfall (CVaR 99%):</strong> The true crisis metric — the average loss expected when that 1% disaster strikes. 
+                    <strong>CVaR Optimizer:</strong> Allocates capital to specifically minimize your loss during market crashes (rather than classical Markowitz which treats good gains as risk). 
+                    <strong>Kupiec & Christoffersen:</strong> Basel III statistical tests verifying that your risk model is accurate and tail breaches do not clump together.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-chart-simple"></i> Tail Risk: VaR vs CVaR (99% Confidence)</h2>
@@ -153,7 +174,18 @@
 
         <!-- ═══════════ DESK 3: FUTURES & RATES DESK ═══════════ -->
         <section id="tab-spreads" class="tab-content">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Futures Spreads & Yield Curves</div>
+                <p class="primer-text">
+                    <strong>Kalman Filter Dynamic β:</strong> The real-time hedge ratio telling you how many shares of Asset B to short for every 1 share of Asset A you buy. 
+                    <strong>Z-Score Signal:</strong> When Z > +2.0, the spread is abnormally wide (Short the spread). When Z < -2.0, the spread is abnormally narrow (Long the spread). 
+                    <strong>OU Half-Life:</strong> The exact expected number of days for the spread to mean-revert back to equilibrium. 
+                    <strong>Nelson-Siegel-Svensson & PCA:</strong> Fits continuous yield curves; 2s10s slope indicates steepener/flattener trades, and PC1/PC2/PC3 explain 99%+ of curve shifts.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-arrows-split-up-and-left"></i> Kalman Filter Dynamic Hedge Ratio (β)</h2>
@@ -195,7 +227,19 @@
 
         <!-- ═══════════ DESK 4: MICROSTRUCTURE & OFI ═══════════ -->
         <section id="tab-micro" class="tab-content">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Order Flow & Microstructure</div>
+                <p class="primer-text">
+                    <strong>Level-2 DOM Ladder:</strong> The live queue of buyers (green) and sellers (red) waiting at each price level. 
+                    <strong>Micro-Price:</strong> The true fair price weighted by bid/ask queue sizes; if bid size dominates, Micro-Price sits above Mid-Price, forecasting an upward tick. 
+                    <strong>Order Flow Imbalance (OFI):</strong> Net volume buying pressure (+1.0 strong buyers, -1.0 strong sellers). 
+                    <strong>VPIN Toxicity:</strong> Flags when aggressive institutional informed traders are active, warning market makers of imminent adverse selection. 
+                    <strong>Almgren-Chriss:</strong> Slices large institutional orders to minimize market impact while managing volatility risk.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-list-ol"></i> Level-2 Order Book (DOM Ladder)</h2>
@@ -236,7 +280,18 @@
 
         <!-- ═══════════ DESK 5: DERIVATIVES & VOLATILITY LAB ═══════════ -->
         <section id="tab-options" class="tab-content">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Greeks & Volatility Surface</div>
+                <p class="primer-text">
+                    <strong>Delta (Δ) & Gamma (Γ):</strong> Delta is your directional exposure (and stock hedge ratio); Gamma is how fast your Delta changes when the stock moves. 
+                    <strong>Vega & Theta (Θ):</strong> Vega measures sensitivity to volatility changes; Theta is the daily dollar decay you earn/pay over time. 
+                    <strong>Cross-Greeks (Vanna, Volga, Charm):</strong> Vanna measures how your Delta shifts when volatility moves; Volga measures your exposure to Volatility Smile convexity; Charm is Delta decay per day. 
+                    <strong>Delta-Hedging Simulator:</strong> Shows how continuous stock rebalancing replicates an option payoff and locks in theoretical PnL after transaction costs.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card chart-card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-smile"></i> Volatility Smile / Skew Structure</h2>
@@ -270,7 +325,18 @@
 
         <!-- ═══════════ DESK 6: SIGNALS & ALLOCATION ═══════════ -->
         <section id="tab-signals" class="tab-content">
-            <div class="grid-2-col">
+            <!-- Desk Primer Card -->
+            <div class="desk-primer-card">
+                <div class="primer-title"><i class="fa-solid fa-lightbulb"></i> Desk Primer — How to Interpret Risk Parity & Brinson Attribution</div>
+                <p class="primer-text">
+                    <strong>Equal Risk Contribution (Risk Parity):</strong> Instead of putting equal dollars in each stock, Risk Parity allocates inverse to volatility so every asset contributes the exact same amount of portfolio risk. 
+                    <strong>Brinson-Fachler Attribution:</strong> Proves whether your outperformance came from smart sector betting (Allocation Effect) or picking individual winning stocks (Selection Effect). 
+                    <strong>Fractional Kelly:</strong> Mathematical sizing maximizing compound capital growth while preventing catastrophic drawdowns. 
+                    <strong>Execution Simulator:</strong> Routes trades with VWAP/TWAP order slicing to minimize market impact.
+                </p>
+            </div>
+
+            <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-scale-balanced"></i> Equal Risk Contribution (Risk Parity)</h2>

@@ -29,7 +29,7 @@
       </a>
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="#home" class="nav-link active">Home</a>
-        <a href="#platform" class="nav-link">Desks</a>
+        <a href="#platform" class="nav-link">Desks Explained</a>
         <a href="app.html" class="nav-link">Terminal</a>
         <a href="#contact" class="nav-link">Contact</a>
       </nav>
@@ -45,7 +45,7 @@
   <div class="mobile-overlay" id="mobileOverlay" hidden></div>
   <div class="mobile-menu" id="mobileMenu" hidden>
     <a href="#home" class="mobile-link active">Home</a>
-    <a href="#platform" class="mobile-link">Desks</a>
+    <a href="#platform" class="mobile-link">Desks Explained</a>
     <a href="app.html" class="mobile-link">Launch Terminal</a>
     <a href="#contact" class="mobile-link">Contact</a>
   </div>
@@ -59,7 +59,7 @@
       </h1>
 
       <p class="subhead anim" style="--d: 0.28s;">
-        Built for proprietary trading desks and institutional quant research: Cointegrated Futures Spreads, Yield Curve PCA, Order Flow Imbalance, Cross-Greeks & CVaR Optimization.
+        Institutional financial intelligence designed for modern traders, researchers, and risk desks: Kalman Filter Cointegration, Yield Curve PCA, Order Flow Imbalance, Cross-Greeks & CVaR Optimization.
       </p>
 
       <div class="cta-wrapper anim" style="--d: 0.4s;">
@@ -110,26 +110,31 @@
 
       <div class="section-header fade-up">
         <span class="section-tag">Institutional Architecture</span>
-        <h2 class="section-title">Six Quantitative Desks.<br/>One Unified Terminal.</h2>
-        <p class="section-subtitle">Engineered to institutional standards with rigorous mathematical formulations—from Kalman cointegration to Nelson-Siegel yield curves and cross-Greeks.</p>
+        <h2 class="section-title">Six Quantitative Desks.<br/>Every Method Explained.</h2>
+        <p class="section-subtitle">Every model is presented with both its mathematical formulation for quants and a clear plain-English explanation for general investors.</p>
       </div>
 
       <!-- ──────── DESK 1: MARKET INTELLIGENCE ──────── -->
       <div class="feature-block fade-up">
         <div class="feature-num">01</div>
         <div class="feature-content">
-          <h3 class="feature-title">Market Intelligence & Regime Analytics</h3>
+          <h3 class="feature-title">Market Intelligence & Volatility Clustering</h3>
           <p class="feature-lead">
-            Surfaces macro shifts and volatility clustering across equity, rates, and commodities using time-varying volatility and latent Markov states.
+            Continuously monitors global asset returns, detects whether volatility is accelerating, and classifies market regimes without human bias.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>Markets aren't equally risky every day. When a big shock hits, high volatility sticks around for several days ("volatility clustering"). Our volatility engine measures the "momentum of market fear" so you don't over-trade in turbulent storms. Meanwhile, the Hidden Markov Model (HMM) acts like an invisible weather detector: it analyzes price patterns to tell you if the market is currently in a Bullish sunny trend, a Bearish thunderstorm, or a Choppy sideways fog.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
-                <li><strong>EWMA & GARCH(1,1) Volatility</strong> — Maximum likelihood estimation of conditional variance $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$ capturing volatility clustering and persistence.</li>
-                <li><strong>3-State Hidden Markov Model (HMM)</strong> — Unsupervised Baum-Welch training and Viterbi decoding identifying latent Bull, Bear, and Mean-Reverting Sideways regimes.</li>
-                <li><strong>Ledoit-Wolf Covariance Shrinkage</strong> — Optimal analytical shrinkage toward constant correlation structure, preventing ill-conditioned sample covariance inversion.</li>
+                <li><strong>GARCH(1,1) Volatility</strong> — Maximum Likelihood Estimation of time-varying conditional variance $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$.</li>
+                <li><strong>3-State Gaussian HMM</strong> — Unsupervised Baum-Welch training and Viterbi decoding identifying latent Bull, Bear, and Sideways regimes.</li>
+                <li><strong>Ledoit-Wolf Covariance Shrinkage</strong> — Blends the sample covariance matrix with an identity target to eliminate estimation error and inversion instability.</li>
               </ul>
             </div>
           </div>
@@ -142,15 +147,20 @@
         <div class="feature-content">
           <h3 class="feature-title">Portfolio Risk Engine & CVaR Optimizer</h3>
           <p class="feature-lead">
-            Computes multi-horizon tail risk (VaR & Expected Shortfall), runs non-linear portfolio optimization, and validates models via Basel III backtesting.
+            Quantifies maximum expected losses under severe crises and builds portfolios that specifically protect against worst-case disaster scenarios.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>Traditional financial software tells you your "average risk." But on Wall Street, average risk doesn't blow up funds—tail risk does. Value at Risk (VaR) tells you: <em>"On 99 out of 100 days, you won't lose more than ₹X."</em> Expected Shortfall (CVaR) answers the critical question regulators care about: <em>"When that 1 terrible day happens, how bad will the bleeding actually be?"</em> Our optimizer then builds a portfolio that mathematically minimizes that worst-case disaster.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
-                <li><strong>Monte Carlo VaR & CVaR</strong> — 10,000 correlated path simulations computing 99% Conditional Value at Risk ($E[L \mid L > \text{VaR}_{99}]$).</li>
-                <li><strong>CVaR Portfolio Optimization (SLSQP)</strong> — Non-linear Rockafellar-Uryasev formulation minimizing tail loss under institutional weight constraints.</li>
+                <li><strong>Monte Carlo VaR & CVaR (99%)</strong> — 10,000 correlated path simulations computing Expected Shortfall ($E[L \mid L > \text{VaR}_{99}]$).</li>
+                <li><strong>CVaR Portfolio Optimization (SLSQP)</strong> — Non-linear Rockafellar-Uryasev linear programming minimizing downside tail loss under institutional weight constraints.</li>
                 <li><strong>Kupiec POF & Christoffersen Tests</strong> — Likelihood ratio tests verifying unconditional coverage and independence of tail breaches.</li>
                 <li><strong>Macro Stress Testing</strong> — Simulates instantaneous rate spikes (+300bps), equity crashes (-40%), and credit contagion correlation breakdown.</li>
               </ul>
@@ -165,17 +175,22 @@
         <div class="feature-content">
           <h3 class="feature-title">Futures Spread & Yield Curve Rates Desk</h3>
           <p class="feature-lead">
-            Statistical arbitrage for calendar/commodity spreads using recursive Kalman filters and US Treasury yield curve parametric decomposition.
+            Statistical arbitrage for correlated futures pairs (e.g. Brent vs WTI, ES vs NQ) and continuous zero-coupon Treasury yield curve modeling.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>Individual asset prices are unpredictable, but economic relationships between two connected assets (like Brent Crude and WTI Crude, or 2-Year and 10-Year Treasury bonds) are bound by rubber bands. When the price spread stretches too far (high Z-Score), it inevitably snaps back to its historical average. Our Kalman Filter continuously adjusts the exact ratio of contracts to buy and sell in real time, while the Ornstein-Uhlenbeck model calculates the exact half-life (how many days until the trade converges).</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
-                <li><strong>Kalman Filter Dynamic Hedge Ratio ($\beta_t$)</strong> — Online recursive state-space hedge estimation avoiding static OLS regression lag.</li>
+                <li><strong>Kalman Filter Dynamic Hedge Ratio ($\beta_t$)</strong> — Online recursive state-space hedge estimation: $y_t = \alpha_t + \beta_t x_t + v_t$.</li>
                 <li><strong>Ornstein-Uhlenbeck (OU) Mean Reversion</strong> — Analytical calibration of half-life ($\tau = \frac{\ln 2}{\theta}$) and equilibrium mean for mean-reverting futures pairs.</li>
-                <li><strong>Nelson-Siegel-Svensson (NSS) Zero Curve</strong> — Continuous parametric yield curve fitting from 3M to 30Y tenors.</li>
-                <li><strong>Yield Curve PCA Decomposition</strong> — Factor variance decomposition into Level (86.4%), Slope/2s10s (10.8%), and Curvature/Butterfly (2.8%).</li>
+                <li><strong>Nelson-Siegel-Svensson (NSS) Zero Curve</strong> — Continuous parametric yield curve fitting from 3M to 30Y tenors: $y(t) = \beta_0 + \beta_1 \frac{1-e^{-t/\tau_1}}{t/\tau_1} + \beta_2 (\dots) + \beta_3 (\dots)$.</li>
+                <li><strong>Yield Curve PCA Decomposition</strong> — Deconstructs yield shifts into Level (Shift ~86%), Slope (Twist ~11%), and Curvature (Butterfly ~3%).</li>
               </ul>
             </div>
           </div>
@@ -186,14 +201,19 @@
       <div class="feature-block fade-up">
         <div class="feature-num">04</div>
         <div class="feature-content">
-          <h3 class="feature-title">Market Microstructure & Order Flow Desk</h3>
+          <h3 class="feature-title">Market Microstructure & Order Flow Imbalance</h3>
           <p class="feature-lead">
-            Analyzes Level-2 order book depth queues, order flow imbalance, informed trader toxicity, and optimal execution trajectories.
+            Peers inside the exchange limit order book to track buy/sell queue imbalances, informed toxic flow, and optimal execution paths.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>When you place an order, you aren't just trading against a chart—you are competing in a live queue of thousands of buyers and sellers. If the bid queue has 10,000 shares waiting and the ask queue only has 500 shares, buying pressure will push the price up within milliseconds (Order Flow Imbalance). Our Micro-Price calculates the true fair value before the market moves. When executing large orders, the Almgren-Chriss algorithm breaks your trade into mathematically optimal slices so you don't crash the price against yourself.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
                 <li><strong>Order Flow Imbalance (OFI)</strong> — Real-time net volume pressure at the top of the limit order book predicting sub-second price moves.</li>
                 <li><strong>Micro-Price Calculation</strong> — Fair price estimator incorporating bid-ask queue depth sizes ($P_{\text{micro}} = \frac{Q_b P_a + Q_a P_b}{Q_b + Q_a}$).</li>
@@ -209,14 +229,19 @@
       <div class="feature-block fade-up">
         <div class="feature-num">05</div>
         <div class="feature-content">
-          <h3 class="feature-title">Derivatives, Volatility Surface & Greeks Lab</h3>
+          <h3 class="feature-title">Derivatives, Volatility Surface & Cross-Greeks</h3>
           <p class="feature-lead">
-            European options analytical pricing, full 1st and 2nd order cross-greeks suite, and continuous discrete delta-hedging simulation.
+            European options pricing, volatility smile modeling, 2nd-order cross-Greeks for market makers, and dynamic delta-hedging simulation.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>Options aren't just lottery tickets; they are precision mathematical contracts. When market makers sell an option, they don't bet on direction—they immediately buy or sell the underlying stock to stay "Delta Neutral" ($\Delta = 0$). But as the stock moves or time ticks away, that hedge shifts. Our Cross-Greeks (Vanna, Volga, Charm) tell traders exactly how their risk changes when market volatility spikes or time decays, while the Delta-Hedging simulator replays 30 days of real-world hedging with transaction costs.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
                 <li><strong>1st & 2nd Order Analytical Greeks</strong> — Exact Black-Scholes formulas for $\Delta$, $\Gamma$, $\text{Vega}$, $\Theta$, and $\rho$.</li>
                 <li><strong>Cross-Greeks (Vanna, Volga, Charm)</strong> — Vanna ($\frac{\partial^2 V}{\partial S \partial \sigma}$), Volga ($\frac{\partial^2 V}{\partial \sigma^2}$), and Charm ($\frac{\partial \Delta}{\partial t}$) for market-maker surface risk.</li>
@@ -234,12 +259,17 @@
         <div class="feature-content">
           <h3 class="feature-title">PnL Attribution & Risk Parity Allocation</h3>
           <p class="feature-lead">
-            Attribution of alpha into macroeconomic decisions and systematic portfolio sizing using equal risk contribution and Fractional Kelly.
+            Decomposes where your profits actually came from (Skill vs Luck) and sizes positions so every asset contributes equal volatility risk.
           </p>
 
           <div class="feature-detail">
             <div class="detail-section">
-              <h4 class="detail-heading">Under the hood</h4>
+              <h4 class="detail-heading">In Plain English (The Intuition)</h4>
+              <p>If your portfolio made a 20% return, did you make money because you picked brilliant individual stocks (Selection Effect), or because you were overweight in a booming tech sector (Allocation Effect)? Brinson-Fachler attribution breaks down your exact source of alpha. Furthermore, amateur investors put equal money into each stock ($20,000 each), which means volatile stocks dominate their risk. Risk Parity instead puts smaller dollar amounts in volatile assets and larger amounts in stable assets so every asset contributes equal risk.</p>
+            </div>
+
+            <div class="detail-section">
+              <h4 class="detail-heading">Under The Hood (The Math)</h4>
               <ul class="detail-list">
                 <li><strong>Brinson-Fachler PnL Decomposition</strong> — Deconstructs excess returns into Sector Allocation, Asset Selection, and Interaction effects.</li>
                 <li><strong>Equal Risk Contribution (Risk Parity)</strong> — Equalizes marginal risk contributions across assets ($w_i (\Sigma w)_i = \text{const}$).</li>
