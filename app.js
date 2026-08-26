@@ -1,7 +1,18 @@
-// Dynamic API URL: Uses current origin if deployed, falls back to localhost if opened as local file
-const API = (window.location.protocol === 'http:' || window.location.protocol === 'https:') && window.location.port !== '5500' && window.location.port !== '3000'
-    ? (window.location.origin + '/api')
-    : 'http://127.0.0.1:8000/api';
+// Dynamic API URL for Vercel + Render or Localhost
+const getApiBase = () => {
+    const customBackend = localStorage.getItem('RISKOS_RENDER_URL');
+    if (customBackend) return customBackend.replace(/\/$/, '') + '/api';
+    
+    if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (window.location.port === '5500' || window.location.port === '3000' || window.location.port === '5173') {
+            return 'http://127.0.0.1:8000/api';
+        }
+        return window.location.origin + '/api';
+    }
+    return 'http://127.0.0.1:8000/api';
+};
+
+const API = getApiBase();
 const BASE_CAPITAL = 10000000; // 1,00,00,000 INR
 
 // Chart configuration globals
