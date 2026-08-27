@@ -28,8 +28,9 @@ from engine.rates import analyze_yield_curve
 from engine.microstructure import analyze_microstructure
 from engine.derivatives import analyze_derivatives
 from engine.attribution import analyze_attribution_and_parity
+from engine.intelligence import resolve_query, get_math_explanation, get_market_pulse, SECURITIES_MASTER
 
-app = FastAPI(title="RISKOS Backend API")
+app = FastAPI(title="RISKOS World-Class Financial Intelligence Backend API", version="2.0.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,6 +55,54 @@ def parse_weights(weights_str: Optional[str], n_assets: int) -> list[float]:
         return [1.0 / n_assets] * n_assets
     return weights
 
+# ── 1. AI-Native Financial Query & Entity Resolution ─────────────────────────
+@app.get("/api/finance/query")
+def api_finance_query(q: str = "Analyse Reliance", groq_key: Optional[str] = None):
+    """
+    Understands natural language financial queries:
+    - 'Analyse Reliance' -> structured research object
+    - 'Why did HDFC Bank fall today?' -> causal event tree
+    - 'Compare TCS and Infosys' -> comparative matrix
+    - 'Explain beta' -> mathematical explainer
+    - 'Show Indian IT volatility' -> sector volatility surface
+    """
+    try:
+        return resolve_query(q, groq_key)
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/securities/master")
+def api_securities_master(q: Optional[str] = None):
+    """Returns normalized security master list with ISINs, BSE codes, and aliases."""
+    try:
+        if not q:
+            return {"securities": SECURITIES_MASTER}
+        query_str = q.lower().strip()
+        filtered = [
+            s for s in SECURITIES_MASTER
+            if query_str in s["symbol"].lower() or query_str in s["name"].lower() or any(query_str in a for a in s["aliases"])
+        ]
+        return {"securities": filtered}
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/market/pulse")
+def api_market_pulse():
+    """Returns Indian & US Market Breadth, Advances/Declines, and Dispersion metrics."""
+    try:
+        return get_market_pulse()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/math/explain")
+def api_math_explain(formula: str = "sharpe", ticker: Optional[str] = None):
+    """Returns verified deterministic mathematical equations with real substituted company data."""
+    try:
+        return get_math_explanation(formula, ticker)
+    except Exception as e:
+        return {"error": str(e)}
+
+# ── 2. Market Intelligence & Volatility Endpoints ───────────────────────────
 @app.get("/api/market/prices")
 def api_get_prices(tickers: Optional[str] = None, period: str = '1y'):
     try:
@@ -66,7 +115,7 @@ def api_get_prices(tickers: Optional[str] = None, period: str = '1y'):
 def api_get_volatility(ticker: str = "AAPL", period: str = '1y'):
     try:
         returns = get_returns([ticker], period)
-        if returns.empty:
+        if returns.empty or ticker not in returns:
             return {"error": "No data"}
         return garch_volatility(returns[ticker])
     except Exception as e:
@@ -76,7 +125,7 @@ def api_get_volatility(ticker: str = "AAPL", period: str = '1y'):
 def api_get_regime(ticker: str = "SPY", period: str = '1y'):
     try:
         returns = get_returns([ticker], period)
-        if returns.empty:
+        if returns.empty or ticker not in returns:
             return {"error": "No data"}
         return detect_regime(returns[ticker])
     except Exception as e:
@@ -90,6 +139,7 @@ def api_get_correlations(tickers: Optional[str] = None, period: str = '1y'):
     except Exception as e:
         return {"error": str(e)}
 
+# ── 3. Risk Engine & Portfolio Optimization Endpoints ───────────────────────
 @app.get("/api/risk/var")
 def api_get_var(tickers: Optional[str] = None, weights: Optional[str] = None, confidence: float = 0.99, period: str = '1y'):
     try:
@@ -142,7 +192,7 @@ def api_get_stress(tickers: Optional[str] = None, weights: Optional[str] = None,
 def api_get_validate(ticker: str = "SPY", confidence: float = 0.99, period: str = '1y'):
     try:
         returns = get_returns([ticker], period)
-        if returns.empty:
+        if returns.empty or ticker not in returns:
             return {"error": "No data"}
         
         ret_series = returns[ticker].dropna()
@@ -164,6 +214,7 @@ def api_get_validate(ticker: str = "SPY", confidence: float = 0.99, period: str 
     except Exception as e:
         return {"error": str(e)}
 
+# ── 4. Signals & Quantitative Desk Endpoints ────────────────────────────────
 @app.get("/api/signals/generate")
 def api_generate_signals(tickers: Optional[str] = None, period: str = '1y'):
     try:
@@ -215,7 +266,7 @@ def api_get_attribution(tickers: Optional[str] = None):
     except Exception as e:
         return {"error": str(e)}
 
-# ── Serve Static Web Frontend (All-in-One Cloud Deployment) ───────────────────
+# ── 5. Serve Static Web Frontend (All-in-One Cloud Deployment) ───────────────
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
@@ -238,6 +289,5 @@ def serve_terminal():
     app_file = frontend_dir / "app.html"
     return FileResponse(str(app_file)) if app_file.exists() else {"status": "Terminal UI"}
 
-# Fallback static mount for CSS and JS files
 if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="root_static")
