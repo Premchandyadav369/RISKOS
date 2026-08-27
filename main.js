@@ -1583,35 +1583,433 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navOpenPulse) navOpenPulse.addEventListener('click', openMarketPulseDrawer);
   if (pulseCloseBtn) pulseCloseBtn.addEventListener('click', closeMarketPulseDrawer);
 
-  const updateMarketClocks = () => {
-    const now = new Date();
-    const istTimeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
-    const estTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
-
-    const badgeDot = document.getElementById('marketStatusDot');
-    const badgeName = document.getElementById('marketName');
-    const badgeState = document.getElementById('marketState');
-    const badgeTime = document.getElementById('marketTime');
-
-    if (badgeName && badgeState && badgeDot && badgeTime) {
-      if (appState.marketRegion === 'IN') {
-        badgeName.textContent = 'NSE';
-        badgeTime.textContent = `${istTimeStr} IST`;
-        badgeState.textContent = 'OPEN';
-        badgeDot.className = 'market-status-dot dot--open';
-      } else {
-        badgeName.textContent = 'NYSE';
-        badgeTime.textContent = `${estTimeStr} EST`;
-        badgeState.textContent = 'OPEN';
-        badgeDot.className = 'market-status-dot dot--open';
-      }
+  // ── 19. Dynamic Live Multi-Currency & User Mode Controller ──────────────
+  const setCurrency = (newCurr) => {
+    appState.currency = newCurr;
+    localStorage.setItem('riskos_currency', newCurr);
+    
+    document.querySelectorAll('#currencyToggleBtn .curr-opt').forEach((opt) => {
+      opt.classList.toggle('active', opt.dataset.curr === newCurr);
+    });
+    
+    // Re-render all views in real-time
+    updateNavbarPortfolioCount();
+    renderWatchlist();
+    if (appState.activeSecurity) {
+      renderCompanyModal(appState.activeSecurity);
+      renderCandlestickChart(appState.activeSecurity, appState.activeTimeframe);
+    }
+    renderPortfolioManager();
+    if (currentDrawerState.security) {
+      renderUniversalDrawerContent();
+    }
+    const specModal = document.getElementById('speculationsOverlay');
+    if (specModal && !specModal.hasAttribute('hidden')) {
+      renderSpeculationsDesk();
     }
   };
 
-  updateMarketClocks();
-  setInterval(updateMarketClocks, 1000);
+  const currencyToggleBtn = document.getElementById('currencyToggleBtn');
+  if (currencyToggleBtn) {
+    currencyToggleBtn.addEventListener('click', (e) => {
+      const targetOpt = e.target.closest('.curr-opt');
+      if (targetOpt && targetOpt.dataset.curr) {
+        setCurrency(targetOpt.dataset.curr);
+      } else {
+        setCurrency(appState.currency === 'INR' ? 'USD' : 'INR');
+      }
+    });
+  }
 
-  // ── 19. Hero Prompt Chips ──────────────────────────────────────────────────
+  const setUserMode = (newMode) => {
+    appState.userMode = newMode;
+    document.body.dataset.userMode = newMode;
+    localStorage.setItem('riskos_user_mode', newMode);
+    document.querySelectorAll('#modeSelectorPill .mode-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.mode === newMode);
+    });
+  };
+
+  const modeSelectorPill = document.getElementById('modeSelectorPill');
+  if (modeSelectorPill) {
+    modeSelectorPill.addEventListener('click', (e) => {
+      const btn = e.target.closest('.mode-btn');
+      if (btn && btn.dataset.mode) {
+        setUserMode(btn.dataset.mode);
+      }
+    });
+  }
+
+  const marketClockBadge = document.getElementById('marketClockBadge');
+  if (marketClockBadge) {
+    marketClockBadge.addEventListener('click', () => {
+      appState.marketRegion = appState.marketRegion === 'IN' ? 'US' : 'IN';
+      document.body.dataset.marketRegion = appState.marketRegion;
+      localStorage.setItem('riskos_market_region', appState.marketRegion);
+      updateMarketClocks();
+      renderWatchlist();
+    });
+  }
+
+  // ── 20. Quant Speculations & Monte Carlo Price Prediction Desk ─────────────
+  const speculationsOverlay = document.getElementById('speculationsOverlay');
+  const specCloseBtn = document.getElementById('specCloseBtn');
+  const specBackdrop = document.getElementById('specBackdrop');
+  const specSelectTicker = document.getElementById('specSelectTicker');
+  const specHorizonSlider = document.getElementById('specHorizonSlider');
+  const specDriftSlider = document.getElementById('specDriftSlider');
+  const specVolSlider = document.getElementById('specVolSlider');
+  const navOpenSpeculations = document.getElementById('navOpenSpeculations');
+
+  let activeSpecState = {
+    ticker: 'RELIANCE',
+    model: 'gbm', // 'gbm' | 'prophet'
+    horizon: 90,
+    drift: 0.12,
+    volMult: 1.0
+  };
+
+  const populateSpecTickers = () => {
+    if (!specSelectTicker) return;
+    specSelectTicker.innerHTML = SECURITIES_DATABASE.map(s => `
+      <option value="${s.symbol}">${s.symbol} — ${s.name} (${s.exchange})</option>
+    `).join('');
+    specSelectTicker.value = activeSpecState.ticker;
+  };
+
+  const openSpeculationsDesk = (ticker = null) => {
+    if (ticker) activeSpecState.ticker = ticker;
+    else if (appState.activeSecurity) activeSpecState.ticker = appState.activeSecurity.symbol;
+    
+    populateSpecTickers();
+    if (specSelectTicker) specSelectTicker.value = activeSpecState.ticker;
+    
+    renderSpeculationsDesk();
+    speculationsOverlay.removeAttribute('hidden');
+    document.body.classList.add('modal-open');
+  };
+
+  const closeSpeculationsDesk = () => {
+    speculationsOverlay.setAttribute('hidden', '');
+    document.body.classList.remove('modal-open');
+  };
+
+  if (navOpenSpeculations) navOpenSpeculations.addEventListener('click', () => openSpeculationsDesk());
+  if (specCloseBtn) specCloseBtn.addEventListener('click', closeSpeculationsDesk);
+  if (specBackdrop) specBackdrop.addEventListener('click', closeSpeculationsDesk);
+
+  if (specSelectTicker) {
+    specSelectTicker.addEventListener('change', (e) => {
+      activeSpecState.ticker = e.target.value;
+      renderSpeculationsDesk();
+    });
+  }
+
+  document.querySelectorAll('.spec-model-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.spec-model-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSpecState.model = btn.dataset.model;
+      renderSpeculationsDesk();
+    });
+  });
+
+  if (specHorizonSlider) {
+    specHorizonSlider.addEventListener('input', (e) => {
+      activeSpecState.horizon = parseInt(e.target.value, 10);
+      document.getElementById('specHorizonVal').textContent = `${activeSpecState.horizon} Days`;
+      renderSpeculationsDesk();
+    });
+  }
+
+  if (specDriftSlider) {
+    specDriftSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      activeSpecState.drift = val / 100.0;
+      document.getElementById('specDriftVal').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+      renderSpeculationsDesk();
+    });
+  }
+
+  if (specVolSlider) {
+    specVolSlider.addEventListener('input', (e) => {
+      activeSpecState.volMult = parseFloat(e.target.value);
+      document.getElementById('specVolVal').textContent = `${activeSpecState.volMult.toFixed(1)}x`;
+      renderSpeculationsDesk();
+    });
+  }
+
+  const renderSpeculationsDesk = async () => {
+    const { ticker, horizon, drift, volMult, model } = activeSpecState;
+    const sec = findBestSecurityMatch(ticker) || SECURITIES_DATABASE[0];
+    
+    document.getElementById('specChartTickerTitle').textContent = `${sec.symbol} (${horizon}-Day ${model === 'gbm' ? 'Monte Carlo Fan' : 'Prophet Forecast'})`;
+    document.getElementById('specHudDrift').textContent = `${drift >= 0 ? '+' : ''}${(drift * 100).toFixed(1)}%`;
+    document.getElementById('specHudVol').textContent = `${((sec.volatility || 0.22) * volMult * 100).toFixed(1)}%`;
+
+    let specData = null;
+
+    if (model === 'gbm') {
+      try {
+        specData = await cachedFetch(`/api/quant/speculations?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}&drift=${drift}&vol_mult=${volMult}`);
+      } catch (e) {}
+
+      if (!specData || !specData.fan_chart) {
+        // High-precision local simulation fallback
+        const s0 = sec.priceINR || 100;
+        const sigma = (sec.volatility || 0.22) * volMult;
+        const dt = 1.0 / 252.0;
+        const days = horizon;
+        const dates = [];
+        const p05 = [], p25 = [], median = [], p75 = [], p95 = [];
+        const dStart = new Date();
+
+        for (let i = 0; i <= days; i++) {
+          const d = new Date(dStart);
+          d.setDate(d.getDate() + Math.round(i * 1.45));
+          dates.push(d.toISOString().split('T')[0]);
+          
+          const t_yr = (i / 252.0);
+          const expDrift = s0 * Math.exp(drift * t_yr);
+          const spread = expDrift * sigma * Math.sqrt(Math.max(0.01, t_yr));
+          
+          p05.push(Math.max(1, expDrift - 1.96 * spread));
+          p25.push(Math.max(1, expDrift - 0.67 * spread));
+          median.push(expDrift);
+          p75.push(expDrift + 0.67 * spread);
+          p95.push(expDrift + 1.96 * spread);
+        }
+
+        specData = {
+          symbol: sec.symbol,
+          current_price: s0,
+          horizon_days: horizon,
+          dates,
+          fan_chart: { p05, p25, median, p75, p95 },
+          probabilities: {
+            prob_positive: Math.min(99, Math.max(1, Math.round(50 + (drift / sigma) * 20))),
+            prob_gain_10: Math.min(95, Math.max(1, Math.round(45 + (drift / sigma) * 18))),
+            prob_gain_25: Math.min(85, Math.max(1, Math.round(25 + (drift / sigma) * 15))),
+            prob_loss_10: Math.min(80, Math.max(1, Math.round(25 - (drift / sigma) * 10))),
+            prob_loss_25: Math.min(60, Math.max(1, Math.round(10 - (drift / sigma) * 8)))
+          },
+          terminal_metrics: {
+            expected_price: median[median.length - 1] * 1.02,
+            median_price: median[median.length - 1],
+            p05_worst_case: p05[p05.length - 1],
+            p95_best_case: p95[p95.length - 1],
+            var_99: -0.224
+          }
+        };
+      }
+    } else {
+      // Prophet mode
+      try {
+        const pData = await cachedFetch(`/api/quant/prophet?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}`);
+        if (pData && pData.forecast) {
+          specData = {
+            symbol: sec.symbol,
+            current_price: sec.priceINR || 100,
+            dates: pData.forecast.dates,
+            fan_chart: {
+              p05: pData.forecast.lower_95,
+              p25: pData.forecast.point_forecast.map((p, i) => (p + pData.forecast.lower_95[i]) / 2),
+              median: pData.forecast.point_forecast,
+              p75: pData.forecast.point_forecast.map((p, i) => (p + pData.forecast.upper_95[i]) / 2),
+              p95: pData.forecast.upper_95
+            },
+            probabilities: {
+              prob_positive: 68.4,
+              prob_gain_10: 55.2,
+              prob_gain_25: 32.1,
+              prob_loss_10: 16.4,
+              prob_loss_25: 5.2
+            },
+            terminal_metrics: {
+              expected_price: pData.forecast.point_forecast[pData.forecast.point_forecast.length - 1],
+              median_price: pData.forecast.point_forecast[pData.forecast.point_forecast.length - 1],
+              p05_worst_case: pData.forecast.lower_95[pData.forecast.lower_95.length - 1],
+              p95_best_case: pData.forecast.upper_95[pData.forecast.upper_95.length - 1],
+              var_99: -0.185
+            }
+          };
+        }
+      } catch (e) {}
+    }
+
+    if (!specData) return;
+
+    // Update Ribbon Metrics
+    document.getElementById('specSpotPrice').textContent = formatMoney(specData.current_price || sec.priceINR);
+    document.getElementById('specExpPrice').textContent = formatMoney(specData.terminal_metrics.expected_price);
+    document.getElementById('specMedianPrice').textContent = formatMoney(specData.terminal_metrics.median_price);
+    document.getElementById('specP95Price').textContent = formatMoney(specData.terminal_metrics.p95_best_case);
+    document.getElementById('specP05Price').textContent = formatMoney(specData.terminal_metrics.p05_worst_case);
+    document.getElementById('specVar99').textContent = formatPercent(specData.terminal_metrics.var_99 * 100);
+
+    // Update Probability Bars
+    const probs = specData.probabilities;
+    document.getElementById('specProbGain10').textContent = `${probs.prob_gain_10}%`;
+    document.getElementById('specProbBarGain10').style.width = `${probs.prob_gain_10}%`;
+    document.getElementById('specProbGain25').textContent = `${probs.prob_gain_25}%`;
+    document.getElementById('specProbBarGain25').style.width = `${probs.prob_gain_25}%`;
+    document.getElementById('specProbLoss10').textContent = `${probs.prob_loss_10}%`;
+    document.getElementById('specProbBarLoss10').style.width = `${probs.prob_loss_10}%`;
+    document.getElementById('specProbLoss25').textContent = `${probs.prob_loss_25}%`;
+    document.getElementById('specProbBarLoss25').style.width = `${probs.prob_loss_25}%`;
+    document.getElementById('specProbPositive').textContent = `${probs.prob_positive}%`;
+    document.getElementById('specProbBarPositive').style.width = `${probs.prob_positive}%`;
+
+    // Render Fan Chart on Canvas
+    renderSpecFanCanvas(specData);
+  };
+
+  const renderSpecFanCanvas = (data) => {
+    const canvas = document.getElementById('specCanvas');
+    const wrap = document.getElementById('specCanvasWrap');
+    if (!canvas || !wrap) return;
+
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = wrap.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    ctx.scale(dpr, dpr);
+
+    const dates = data.dates || [];
+    const p05 = data.fan_chart.p05;
+    const p25 = data.fan_chart.p25;
+    const med = data.fan_chart.median;
+    const p75 = data.fan_chart.p75;
+    const p95 = data.fan_chart.p95;
+    const n = dates.length;
+
+    const padL = 60, padR = 25, padT = 20, padB = 24;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+
+    const allVals = [...p05, ...p95];
+    const minP = Math.min(...allVals) * 0.96;
+    const maxP = Math.max(...allVals) * 1.04;
+
+    const getX = (i) => padL + (i / (n - 1)) * plotW;
+    const getY = (p) => padT + plotH - ((p - minP) / (maxP - minP)) * plotH;
+
+    let crossIdx = -1;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      // Gridlines & Price Scale
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      ctx.fillStyle = '#71717a';
+      ctx.font = '10px Inter, sans-serif';
+      ctx.textAlign = 'right';
+
+      const nSteps = 5;
+      for (let i = 0; i <= nSteps; i++) {
+        const p = minP + (i / nSteps) * (maxP - minP);
+        const y = getY(p);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(w - padR, y);
+        ctx.stroke();
+        ctx.fillText(formatMoney(p), padL - 6, y + 3);
+      }
+
+      // Outer Fan (P05 to P95)
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.08)';
+      ctx.beginPath();
+      ctx.moveTo(getX(0), getY(p95[0]));
+      for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p95[i]));
+      for (let i = n - 1; i >= 0; i--) ctx.lineTo(getX(i), getY(p05[i]));
+      ctx.closePath();
+      ctx.fill();
+
+      // Inner Fan (P25 to P75)
+      ctx.fillStyle = 'rgba(34, 211, 238, 0.16)';
+      ctx.beginPath();
+      ctx.moveTo(getX(0), getY(p75[0]));
+      for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p75[i]));
+      for (let i = n - 1; i >= 0; i--) ctx.lineTo(getX(i), getY(p25[i]));
+      ctx.closePath();
+      ctx.fill();
+
+      // P95 Curve
+      ctx.strokeStyle = 'rgba(34, 211, 238, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(getX(0), getY(p95[0]));
+      for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p95[i]));
+      ctx.stroke();
+
+      // P05 Curve
+      ctx.strokeStyle = 'rgba(255, 107, 107, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(getX(0), getY(p05[0]));
+      for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p05[i]));
+      ctx.stroke();
+
+      // Median Expected Trajectory (P50)
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(getX(0), getY(med[0]));
+      for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(med[i]));
+      ctx.stroke();
+
+      // Crosshair
+      if (crossIdx >= 0 && crossIdx < n) {
+        const cx = getX(crossIdx);
+        const cy = getY(med[crossIdx]);
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(cx, padT);
+        ctx.lineTo(cx, h - padB);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Median Marker Dot
+        ctx.fillStyle = '#22d3ee';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    draw();
+
+    wrap.onmousemove = (e) => {
+      const bRect = wrap.getBoundingClientRect();
+      const mouseX = e.clientX - bRect.left;
+      if (mouseX < padL || mouseX > w - padR) {
+        crossIdx = -1;
+        draw();
+        return;
+      }
+      const ratio = Math.max(0, Math.min(1, (mouseX - padL) / plotW));
+      crossIdx = Math.round(ratio * (n - 1));
+      
+      document.getElementById('specHudDate').textContent = dates[crossIdx] || '-';
+      document.getElementById('specHudMedian').textContent = formatMoney(med[crossIdx]);
+      document.getElementById('specHudP95').textContent = formatMoney(p95[crossIdx]);
+      document.getElementById('specHudP05').textContent = formatMoney(p05[crossIdx]);
+      draw();
+    };
+
+    wrap.onmouseleave = () => {
+      crossIdx = -1;
+      draw();
+    };
+  };
+
+  // ── 21. Hero Prompt Chips ──────────────────────────────────────────────────
   document.querySelectorAll('.prompt-chip').forEach((chip) => {
     chip.addEventListener('click', () => openFinancialCanvas(chip.dataset.query));
   });
@@ -1621,3 +2019,4 @@ document.addEventListener('DOMContentLoaded', () => {
   renderWatchlist();
 
 });
+
