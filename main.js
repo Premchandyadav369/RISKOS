@@ -1410,6 +1410,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sumRiskRating').textContent = (sec.beta || 1.0).toString();
     document.getElementById('sumVol').textContent = `${((sec.volatility || 0.18) * 100).toFixed(1)}%`;
     document.getElementById('sumRoe').textContent = `${sec.roe}%`;
+
+    const labBtn = document.getElementById('compOpenLabBtn');
+    if (labBtn) {
+      const epsVal = ((sec.priceINR || 100) / (sec.pe || 25)).toFixed(2);
+      labBtn.href = `learn.html?topic=pe_eps&price=${sec.priceINR || 100}&eps=${epsVal}&growthRate=14`;
+    }
   };
 
   document.querySelectorAll('.comp-tab').forEach((tab) => {
