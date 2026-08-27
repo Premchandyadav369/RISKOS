@@ -3274,5 +3274,221 @@ button, select, input {
   box-shadow: 0 0 8px rgba(34, 211, 238, 0.5);
 }
 
+/* ── 23. Modal Hidden Visibility Guarantees ───────────────────────────────── */
+.spec-overlay[hidden],
+.canvas-modal-overlay[hidden],
+.why-modal-overlay[hidden],
+.company-modal-overlay[hidden],
+.palette-overlay[hidden],
+.pm-overlay[hidden],
+.tx-modal-overlay[hidden],
+.universal-drawer-overlay[hidden],
+.market-pulse-drawer[hidden],
+.watchlist-drawer[hidden] {
+  display: none !important;
+}
+
+/* ── 24. Quantitative Methodology & Institutional Architecture Section ───── */
+.methodology-wrapper {
+  width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vh, 80px) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  position: relative;
+  z-index: 10;
+}
+
+.methodology-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.methodology-badge {
+  font-size: 0.675rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-emerald);
+  background: rgba(81, 207, 102, 0.1);
+  border: 1px solid rgba(81, 207, 102, 0.25);
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.methodology-title {
+  font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.methodology-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 720px;
+  line-height: 1.6;
+}
+
+.methodology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.methodology-card {
+  background: rgba(14, 14, 18, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s, border-color 0.25s;
+}
+
+.methodology-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.meth-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.meth-card-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.meth-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.meth-card-desc {
+  font-size: 0.825rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.meth-card-math {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  text-align: center;
+  font-size: 0.95rem;
+  color: #ffffff;
+  overflow-x: auto;
+}
+
+.meth-card-footer {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--panel-border-subtle);
+  padding-top: var(--space-2);
+}
+
+/* Asset Universe Grid Section */
+.universe-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+.universe-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+
+.universe-card {
+  background: rgba(18, 18, 22, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.universe-card:hover {
+  background: rgba(28, 28, 34, 0.95);
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+
+.uc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.uc-sym {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #ffffff;
+}
+
+.uc-name {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uc-metrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: var(--space-1);
+}
+
+.uc-price {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.uc-chg {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.775rem;
+}
+
+.uc-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.675rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  padding-top: var(--space-2);
+}
+
+
 
 
