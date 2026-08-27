@@ -211,6 +211,13 @@ def api_get_sectors():
     """Returns sector performance benchmark metrics."""
     return {"sectors": get_sector_performance()}
 
+# ── 2C. Market Observatory Dynamic Discovery Feed ────────────────────────────
+@app.get("/api/observatory/feed")
+def api_get_observatory_feed():
+    """Returns dynamically discovered market movers, volume surges, regime shifts, and events."""
+    from engine.observatory import generate_observatory_feed
+    return {"observations": generate_observatory_feed()}
+
 @app.get("/api/securities/{symbol}")
 def api_get_single_security(symbol: str, db: Session = Depends(get_db)):
     """Fetches full security profile, historical bars, and live fundamentals."""
