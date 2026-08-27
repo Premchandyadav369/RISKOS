@@ -86,15 +86,41 @@ def generate_synthetic_ohlcv(ticker: str, period: str = '1y') -> dict:
         'volume': volumes
     }
 
+import time
+
+_CACHE_STORE: Dict[str, Any] = {}
+_CACHE_EXPIRY: Dict[str, float] = {}
+DEFAULT_CACHE_TTL = 60.0  # 60s cache TTL
+
+def _get_from_cache(key: str) -> Optional[Any]:
+    if key in _CACHE_STORE and time.time() < _CACHE_EXPIRY.get(key, 0):
+        return _CACHE_STORE[key]
+    return None
+
+def _set_in_cache(key: str, val: Any, ttl: float = DEFAULT_CACHE_TTL):
+    _CACHE_STORE[key] = val
+    _CACHE_EXPIRY[key] = time.time() + ttl
+
 def get_prices(tickers: list[str], period: str = '1y') -> dict:
+    cache_key = f"prices_{','.join(sorted(tickers))}_{period}"
+    cached = _get_from_cache(cache_key)
+    if cached is not None:
+        return cached
+
     result = {}
     for raw_ticker in tickers:
         mapped_t = clean_ticker(raw_ticker)
+        single_key = f"price_{mapped_t}_{period}"
+        cached_single = _get_from_cache(single_key)
+        if cached_single is not None:
+            result[raw_ticker] = cached_single
+            continue
+
         try:
             data = yf.Ticker(mapped_t).history(period=period)
             if not data.empty and len(data) >= 5:
                 dates = data.index.strftime('%Y-%m-%d').tolist()
-                result[raw_ticker] = {
+                item = {
                     'dates': dates,
                     'open': [round(x, 2) for x in data['Open'].tolist()],
                     'high': [round(x, 2) for x in data['High'].tolist()],
@@ -102,13 +128,26 @@ def get_prices(tickers: list[str], period: str = '1y') -> dict:
                     'close': [round(x, 2) for x in data['Close'].tolist()],
                     'volume': [int(x) for x in data['Volume'].tolist()]
                 }
+                result[raw_ticker] = item
+                _set_in_cache(single_key, item)
             else:
-                result[raw_ticker] = generate_synthetic_ohlcv(raw_ticker, period)
+                synth = generate_synthetic_ohlcv(raw_ticker, period)
+                result[raw_ticker] = synth
+                _set_in_cache(single_key, synth)
         except Exception:
-            result[raw_ticker] = generate_synthetic_ohlcv(raw_ticker, period)
+            synth = generate_synthetic_ohlcv(raw_ticker, period)
+            result[raw_ticker] = synth
+            _set_in_cache(single_key, synth)
+
+    _set_in_cache(cache_key, result)
     return result
 
 def get_returns(tickers: list[str], period: str = '1y') -> pd.DataFrame:
+    cache_key = f"returns_{','.join(sorted(tickers))}_{period}"
+    cached = _get_from_cache(cache_key)
+    if cached is not None:
+        return cached
+
     df = pd.DataFrame()
     prices_dict = get_prices(tickers, period)
     
@@ -117,11 +156,18 @@ def get_returns(tickers: list[str], period: str = '1y') -> pd.DataFrame:
             series = pd.Series(data['close'], index=pd.to_datetime(data['dates']))
             df[ticker] = np.log(series / series.shift(1))
             
-    return df.dropna()
+    res = df.dropna()
+    _set_in_cache(cache_key, res)
+    return res
 
 def get_live_quote(ticker: str) -> dict:
     """Fetches real-time price quote and daily change."""
     mapped_t = clean_ticker(ticker)
+    cache_key = f"quote_{mapped_t}"
+    cached = _get_from_cache(cache_key)
+    if cached is not None:
+        return cached
+
     base_p = BASE_PRICES.get(ticker.upper(), 100.0)
     try:
         t = yf.Ticker(mapped_t)
@@ -130,7 +176,7 @@ def get_live_quote(ticker: str) -> dict:
             latest_close = float(hist['Close'].iloc[-1])
             prev_close = float(hist['Close'].iloc[-2]) if len(hist) >= 2 else latest_close
             chg_pct = round(((latest_close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0.0
-            return {
+            out = {
                 'symbol': ticker.upper(),
                 'price': round(latest_close, 2),
                 'change_percent': chg_pct,
@@ -139,10 +185,12 @@ def get_live_quote(ticker: str) -> dict:
                 'volume': int(hist['Volume'].iloc[-1]),
                 'source': 'LIVE_FEED'
             }
+            _set_in_cache(cache_key, out, ttl=15.0)
+            return out
     except Exception:
         pass
         
-    return {
+    out = {
         'symbol': ticker.upper(),
         'price': base_p,
         'change_percent': 0.85,
@@ -151,15 +199,22 @@ def get_live_quote(ticker: str) -> dict:
         'volume': 4850000,
         'source': 'SYNTHETIC_REALTIME'
     }
+    _set_in_cache(cache_key, out, ttl=15.0)
+    return out
 
 def get_live_fundamentals(ticker: str) -> dict:
     """Fetches live corporate fundamentals (PE, PB, ROE, Beta, Market Cap)."""
     mapped_t = clean_ticker(ticker)
+    cache_key = f"fund_{mapped_t}"
+    cached = _get_from_cache(cache_key)
+    if cached is not None:
+        return cached
+
     try:
         t = yf.Ticker(mapped_t)
         info = t.info or {}
         if info:
-            return {
+            out = {
                 'symbol': ticker.upper(),
                 'market_cap': info.get('marketCap', 0),
                 'pe': round(float(info.get('trailingPE', info.get('forwardPE', 25.0))), 2),
@@ -171,10 +226,12 @@ def get_live_fundamentals(ticker: str) -> dict:
                 '52w_low': round(float(info.get('fiftyTwoWeekLow', 0)), 2),
                 'dividend_yield': round(float(info.get('dividendYield', 0.015)) * 100, 2)
             }
+            _set_in_cache(cache_key, out, ttl=300.0)
+            return out
     except Exception:
         pass
         
-    return {
+    out = {
         'symbol': ticker.upper(),
         'market_cap': 20000000000000,
         'pe': 25.5,
@@ -186,10 +243,17 @@ def get_live_fundamentals(ticker: str) -> dict:
         '52w_low': 2300.0,
         'dividend_yield': 1.2
     }
+    _set_in_cache(cache_key, out, ttl=300.0)
+    return out
 
 def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
     """Returns OHLC candlestick series with volume and computed SMA(20) / EMA(50)."""
     mapped_t = clean_ticker(ticker)
+    cache_key = f"candles_{mapped_t}_{timeframe.lower()}"
+    cached = _get_from_cache(cache_key)
+    if cached is not None:
+        return cached
+
     tf_map = {
         '1d': ('1d', '5m'),
         '1w': ('5d', '15m'),
@@ -229,7 +293,7 @@ def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
                 ema50.append(round(val, 2) if i >= 20 else None)
                 prev_ema = val
                 
-            return {
+            out = {
                 'symbol': ticker.upper(),
                 'timeframe': timeframe.upper(),
                 'count': len(closes),
@@ -243,6 +307,8 @@ def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
                 'ema50': ema50,
                 'source': 'LIVE_EXCHANGE_FEED'
             }
+            _set_in_cache(cache_key, out, ttl=60.0)
+            return out
     except Exception:
         pass
         
@@ -257,7 +323,7 @@ def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
         ema50.append(round(val, 2) if i >= 20 else None)
         prev_ema = val
         
-    return {
+    out = {
         'symbol': ticker.upper(),
         'timeframe': timeframe.upper(),
         'count': len(closes),
@@ -271,4 +337,6 @@ def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
         'ema50': ema50,
         'source': 'MODELLED_SERIES'
     }
+    _set_in_cache(cache_key, out, ttl=60.0)
+    return out
 
