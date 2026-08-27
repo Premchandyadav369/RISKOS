@@ -905,5 +905,217 @@ function getMockFallback(endpoint) {
     if (endpoint.includes('/signals/execute')) {
         return { avg_fill_price: 185.25, vwap_benchmark: 185.00, implementation_shortfall_bps: 1.65, status: 'FILLED' };
     }
+    if (endpoint.includes('/quant/speculations')) {
+        const s0 = 2984.5;
+        const horizon = 90;
+        const p05 = [], p25 = [], median = [], p75 = [], p95 = [], dates = [];
+        const dStart = new Date();
+        for (let i = 0; i <= horizon; i++) {
+            const d = new Date(dStart);
+            d.setDate(d.getDate() + Math.round(i * 1.45));
+            dates.push(d.toISOString().split('T')[0]);
+            const t = i / 252.0;
+            const expD = s0 * Math.exp(0.12 * t);
+            const sp = expD * 0.22 * Math.sqrt(Math.max(0.01, t));
+            p05.push(expD - 1.96 * sp);
+            p25.push(expD - 0.67 * sp);
+            median.push(expD);
+            p75.push(expD + 0.67 * sp);
+            p95.push(expD + 1.96 * sp);
+        }
+        return {
+            symbol: 'RELIANCE',
+            current_price: s0,
+            dates,
+            fan_chart: { p05, p25, median, p75, p95 },
+            terminal_metrics: {
+                expected_price: median[median.length - 1] * 1.02,
+                median_price: median[median.length - 1],
+                p05_worst_case: p05[p05.length - 1],
+                p95_best_case: p95[p95.length - 1]
+            }
+        };
+    }
     return { error: true, message: 'Endpoint not found' };
 }
+
+// ── Speculations Desk Controller in Terminal ──────────────────────────────────
+let appSpecState = {
+    ticker: 'AAPL',
+    model: 'gbm',
+    horizon: 90,
+    drift: 0.12,
+    volMult: 1.0
+};
+
+function initAppSpeculationsDesk() {
+    const sel = document.getElementById('app-spec-ticker-select');
+    const btnGbm = document.getElementById('app-spec-btn-gbm');
+    const btnProphet = document.getElementById('app-spec-btn-prophet');
+    const sHorizon = document.getElementById('app-spec-slider-horizon');
+    const sDrift = document.getElementById('app-spec-slider-drift');
+    const sVol = document.getElementById('app-spec-slider-vol');
+
+    if (!sel) return;
+
+    const sampleTickers = ['AAPL', 'MSFT', 'NVDA', 'GOOGL', 'AMZN', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'GOLDBEES'];
+    sel.innerHTML = sampleTickers.map(t => `<option value="${t}">${t}</option>`).join('');
+    sel.value = appSpecState.ticker;
+
+    sel.addEventListener('change', (e) => {
+        appSpecState.ticker = e.target.value;
+        renderAppSpeculations();
+    });
+
+    if (btnGbm && btnProphet) {
+        btnGbm.addEventListener('click', () => {
+            btnGbm.style.background = '#22d3ee';
+            btnGbm.style.color = '#000';
+            btnProphet.style.background = 'transparent';
+            btnProphet.style.color = '#aaa';
+            appSpecState.model = 'gbm';
+            renderAppSpeculations();
+        });
+        btnProphet.addEventListener('click', () => {
+            btnProphet.style.background = '#22d3ee';
+            btnProphet.style.color = '#000';
+            btnGbm.style.background = 'transparent';
+            btnGbm.style.color = '#aaa';
+            appSpecState.model = 'prophet';
+            renderAppSpeculations();
+        });
+    }
+
+    if (sHorizon) {
+        sHorizon.addEventListener('input', (e) => {
+            appSpecState.horizon = parseInt(e.target.value, 10);
+            document.getElementById('app-spec-val-horizon').textContent = `${appSpecState.horizon} Days`;
+            renderAppSpeculations();
+        });
+    }
+
+    if (sDrift) {
+        sDrift.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            appSpecState.drift = val / 100.0;
+            document.getElementById('app-spec-val-drift').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+            renderAppSpeculations();
+        });
+    }
+
+    if (sVol) {
+        sVol.addEventListener('input', (e) => {
+            appSpecState.volMult = parseFloat(e.target.value);
+            document.getElementById('app-spec-val-vol').textContent = `${appSpecState.volMult.toFixed(1)}x`;
+            renderAppSpeculations();
+        });
+    }
+
+    renderAppSpeculations();
+}
+
+async function renderAppSpeculations() {
+    const { ticker, model, horizon, drift, volMult } = appSpecState;
+    const url = model === 'gbm' 
+        ? `/quant/speculations?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}&drift=${drift}&vol_mult=${volMult}`
+        : `/quant/prophet?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}`;
+
+    const data = await fetchAPI(url);
+    if (!data) return;
+
+    const s0 = data.current_price || 100;
+    const tm = data.terminal_metrics || {};
+
+    const spotEl = document.getElementById('app-spec-spot');
+    const expEl = document.getElementById('app-spec-exp');
+    const p95El = document.getElementById('app-spec-p95');
+    const p05El = document.getElementById('app-spec-p05');
+
+    const fmt = (v) => typeof v === 'number' ? `$${v.toFixed(2)}` : '--';
+    if (spotEl) spotEl.textContent = fmt(s0);
+    if (expEl) expEl.textContent = fmt(tm.expected_price || (s0 * 1.05));
+    if (p95El) p95El.textContent = fmt(tm.p95_best_case || (s0 * 1.25));
+    if (p05El) p05El.textContent = fmt(tm.p05_worst_case || (s0 * 0.85));
+
+    // Render Canvas Fan Chart
+    const canvas = document.getElementById('appSpecCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * (window.devicePixelRatio || 1);
+    canvas.height = rect.height * (window.devicePixelRatio || 1);
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+    const w = rect.width;
+    const h = rect.height;
+    const padL = 60, padR = 20, padT = 20, padB = 30;
+    const plotW = w - padL - padR;
+    const plotH = h - padT - padB;
+
+    const fan = data.fan_chart || {};
+    const p05 = fan.p05 || [];
+    const p25 = fan.p25 || [];
+    const med = fan.median || [];
+    const p75 = fan.p75 || [];
+    const p95 = fan.p95 || [];
+    const n = med.length;
+
+    if (n < 2) return;
+
+    const minP = Math.min(...p05) * 0.95;
+    const maxP = Math.max(...p95) * 1.05;
+
+    const getX = (i) => padL + (i / (n - 1)) * plotW;
+    const getY = (p) => padT + plotH - ((p - minP) / (maxP - minP)) * plotH;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Gridlines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.fillStyle = '#71717a';
+    ctx.font = '10px Inter, sans-serif';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= 4; i++) {
+        const p = minP + (i / 4) * (maxP - minP);
+        const y = getY(p);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(w - padR, y);
+        ctx.stroke();
+        ctx.fillText(`$${p.toFixed(1)}`, padL - 6, y + 3);
+    }
+
+    // Outer Fan (P05 to P95)
+    ctx.fillStyle = 'rgba(34, 211, 238, 0.1)';
+    ctx.beginPath();
+    ctx.moveTo(getX(0), getY(p95[0]));
+    for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p95[i]));
+    for (let i = n - 1; i >= 0; i--) ctx.lineTo(getX(i), getY(p05[i]));
+    ctx.closePath();
+    ctx.fill();
+
+    // Inner Fan (P25 to P75)
+    ctx.fillStyle = 'rgba(34, 211, 238, 0.2)';
+    ctx.beginPath();
+    ctx.moveTo(getX(0), getY(p75[0]));
+    for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(p75[i]));
+    for (let i = n - 1; i >= 0; i--) ctx.lineTo(getX(i), getY(p25[i]));
+    ctx.closePath();
+    ctx.fill();
+
+    // Median Line
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(getX(0), getY(med[0]));
+    for (let i = 1; i < n; i++) ctx.lineTo(getX(i), getY(med[i]));
+    ctx.stroke();
+}
+
+// Hook into DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initAppSpeculationsDesk, 200);
+});
