@@ -231,13 +231,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const findBestSecurityMatch = (str) => {
     if (!str) return null;
     const s = str.toLowerCase().trim();
-    return SECURITIES_DATABASE.find((sec) =>
-      sec.symbol.toLowerCase() === s ||
+    
+    // 1. Exact Symbol Match
+    const exactSym = SECURITIES_DATABASE.find(sec => sec.symbol.toLowerCase() === s);
+    if (exactSym) return exactSym;
+
+    // 2. Exact Alias Match
+    const exactAlias = SECURITIES_DATABASE.find(sec => sec.aliases && sec.aliases.some(a => a.toLowerCase() === s));
+    if (exactAlias) return exactAlias;
+
+    // 3. Exact Common Name
+    const exactCommon = SECURITIES_DATABASE.find(sec => sec.commonName.toLowerCase() === s);
+    if (exactCommon) return exactCommon;
+
+    // 4. Exact ISIN or BSE code
+    const exactCode = SECURITIES_DATABASE.find(sec => sec.isin.toLowerCase() === s || (sec.bseCode && sec.bseCode.toLowerCase() === s));
+    if (exactCode) return exactCode;
+
+    // 5. Partial String Match (Word boundaries / prefix)
+    return SECURITIES_DATABASE.find(sec =>
       sec.name.toLowerCase().includes(s) ||
       sec.commonName.toLowerCase().includes(s) ||
-      sec.isin.toLowerCase() === s ||
-      (sec.bseCode && sec.bseCode === s) ||
-      sec.aliases.some((a) => a.toLowerCase().includes(s) || s.includes(a.toLowerCase()))
+      (sec.aliases && sec.aliases.some(a => a.toLowerCase().includes(s)))
     );
   };
 
@@ -1427,6 +1442,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const compOpenSpecBtn = document.getElementById('compOpenSpecBtn');
+  if (compOpenSpecBtn) {
+    compOpenSpecBtn.addEventListener('click', () => {
+      if (appState.activeSecurity) {
+        openSpeculationsDesk(appState.activeSecurity.symbol);
+      }
+    });
+  }
+
   // ── 16. Financial Intelligence Canvas ──────────────────────────────────────
   const financialCanvasOverlay = document.getElementById('financialCanvasOverlay');
   const canvasCloseBtn = document.getElementById('canvasCloseBtn');
@@ -1640,12 +1664,55 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const updateMarketClocks = () => {
+    const now = new Date();
+    const istTimeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+    const estTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+
+    const badgeDot = document.getElementById('marketStatusDot');
+    const badgeName = document.getElementById('marketName');
+    const badgeState = document.getElementById('marketState');
+    const badgeTime = document.getElementById('marketTime');
+
+    if (badgeName && badgeState && badgeDot && badgeTime) {
+      if (appState.marketRegion === 'BSE') {
+        badgeName.textContent = 'BSE';
+        badgeTime.textContent = `${istTimeStr} IST`;
+        badgeState.textContent = 'OPEN';
+        badgeDot.className = 'market-status-dot dot--open';
+      } else if (appState.marketRegion === 'US') {
+        badgeName.textContent = 'NYSE/US';
+        badgeTime.textContent = `${estTimeStr} EST`;
+        badgeState.textContent = 'OPEN';
+        badgeDot.className = 'market-status-dot dot--open';
+      } else {
+        badgeName.textContent = 'NSE';
+        badgeTime.textContent = `${istTimeStr} IST`;
+        badgeState.textContent = 'OPEN';
+        badgeDot.className = 'market-status-dot dot--open';
+      }
+    }
+  };
+
+  updateMarketClocks();
+  setInterval(updateMarketClocks, 1000);
+
   const marketClockBadge = document.getElementById('marketClockBadge');
   if (marketClockBadge) {
     marketClockBadge.addEventListener('click', () => {
-      appState.marketRegion = appState.marketRegion === 'IN' ? 'US' : 'IN';
+      const regions = ['NSE', 'BSE', 'US'];
+      const current = appState.marketRegion || 'NSE';
+      const nextIdx = (regions.indexOf(current) + 1) % regions.length;
+      appState.marketRegion = regions[nextIdx];
       document.body.dataset.marketRegion = appState.marketRegion;
       localStorage.setItem('riskos_market_region', appState.marketRegion);
+
+      if (appState.marketRegion === 'US' && appState.currency !== 'USD') {
+        setCurrency('USD');
+      } else if ((appState.marketRegion === 'NSE' || appState.marketRegion === 'BSE') && appState.currency !== 'INR') {
+        setCurrency('INR');
+      }
+
       updateMarketClocks();
       renderWatchlist();
     });
@@ -1678,16 +1745,23 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const openSpeculationsDesk = (ticker = null) => {
-    if (ticker) activeSpecState.ticker = ticker;
-    else if (appState.activeSecurity) activeSpecState.ticker = appState.activeSecurity.symbol;
-    
+    let targetTicker = 'RELIANCE';
+    if (ticker) {
+      targetTicker = ticker;
+    } else if (appState.activeSecurity) {
+      targetTicker = appState.activeSecurity.symbol;
+    }
+
+    activeSpecState.ticker = targetTicker;
     populateSpecTickers();
-    if (specSelectTicker) specSelectTicker.value = activeSpecState.ticker;
+    if (specSelectTicker) specSelectTicker.value = targetTicker;
     
     renderSpeculationsDesk();
     speculationsOverlay.removeAttribute('hidden');
     document.body.classList.add('modal-open');
   };
+
+  window.openSpeculationsDesk = openSpeculationsDesk;
 
   const closeSpeculationsDesk = () => {
     speculationsOverlay.setAttribute('hidden', '');

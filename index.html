@@ -98,12 +98,10 @@
         <nav class="nav-pill" aria-label="Main Navigation">
           <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Ask Anything (⌘K)">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <span>Search or Ask (⌘K)...</span>
+            <span>Search (⌘K)...</span>
             <kbd class="kbd-pill">⌘K</kbd>
           </button>
-          <a href="#home" class="nav-link active" id="navHome">Home</a>
-          <button class="nav-link nav-link--btn" id="navOpenCanvas" title="Open Financial Intelligence Canvas">Canvas</button>
-          <button class="nav-link nav-link--btn" id="navOpenPulse" title="Open Market Pulse">Market Pulse</button>
+          <button class="nav-link nav-link--btn" id="navOpenPulse" title="Open Market Pulse">Pulse</button>
           <button class="nav-link nav-link--btn" id="navOpenPortfolio" title="Open Real Transaction-Based Portfolio Manager">Portfolio (<span id="navPortCount">₹0</span>)</button>
           <button class="nav-link nav-link--btn" id="navOpenSpeculations" title="Monte Carlo & Prophet Future Price Projections">Speculations</button>
           <button class="nav-link nav-link--btn" id="navOpenObs" title="Open Quantitative Observatory">Observatory</button>
@@ -114,7 +112,7 @@
         <div class="header-actions">
           
           <!-- Universal "Explain Like Me" Mode Selector (BEGINNER | INVESTOR | QUANT) -->
-          <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth: Beginner (simple) / Investor (context) / Quant (mathematical)">
+          <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth: Beginner / Investor / Quant">
             <button class="mode-btn active" data-mode="beginner">Beginner</button>
             <button class="mode-btn" data-mode="investor">Investor</button>
             <button class="mode-btn" data-mode="quant">Quant</button>
@@ -125,11 +123,6 @@
             <span class="curr-opt active" data-curr="INR">₹ INR</span>
             <span class="curr-opt" data-curr="USD">$ USD</span>
           </span>
-
-          <button class="icon-nav-btn" id="btnOpenAlerts" title="Filings & Surveillance Alerts">
-            <i class="fa-solid fa-bell"></i>
-            <span class="nav-badge nav-badge--pulse" id="alertCount">3</span>
-          </button>
 
           <a href="app.html" class="terminal-btn-link" title="Launch Full Institutional Quant Terminal">Terminal</a>
 
@@ -421,6 +414,11 @@
           <button class="comp-action-btn primary" id="compAddTxBtn" title="Add Shares to Your Portfolio" style="background:var(--accent-emerald);color:#000;border:none;font-weight:700;">
             <i class="fa-solid fa-plus"></i>
             <span>Add to Portfolio</span>
+          </button>
+
+          <button class="comp-action-btn" id="compOpenSpecBtn" title="Launch Monte Carlo & Prophet Future Price Predictions" style="background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.3);color:var(--accent-cyan);font-weight:700;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>AI Prediction</span>
           </button>
 
           <button class="comp-action-btn" id="compWatchlistToggleBtn" title="Toggle Watchlist">

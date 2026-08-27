@@ -229,17 +229,18 @@ button, select, input {
 }
 
 .header-inner {
-  width: min(1280px, 100%);
+  width: min(1380px, 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: clamp(10px, 1.8vw, 20px);
+  gap: clamp(6px, 1.2vw, 14px);
+  padding: 0 var(--space-3);
 }
 
 .header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
@@ -247,11 +248,11 @@ button, select, input {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   background: #09090c;
   border: 1px solid rgba(81, 207, 102, 0.25);
-  border-radius: 10px;
+  border-radius: 9px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 12px rgba(81, 207, 102, 0.12);
   transition: transform 0.25s var(--easing-smooth), border-color 0.25s, box-shadow 0.25s;
   flex-shrink: 0;
@@ -265,9 +266,9 @@ button, select, input {
 }
 
 .logo-img {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
   object-fit: cover;
 }
 
@@ -276,17 +277,18 @@ button, select, input {
   display: flex;
   transition: all 0.25s var(--easing-smooth);
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: rgba(24, 24, 28, 0.85);
   border: 1px solid var(--panel-border);
   backdrop-filter: blur(10px);
-  padding: 4px 9px;
+  padding: 3px 8px;
   border-radius: 100px;
-  font-size: 0.675rem;
+  font-size: 0.65rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s, border-color 0.2s;
   user-select: none;
+  flex-shrink: 0;
 }
 
 .market-clock-badge:hover {
@@ -305,8 +307,8 @@ button, select, input {
 .dot--pre { background: var(--accent-amber); box-shadow: 0 0 6px var(--accent-amber); }
 
 .market-name { color: #ffffff; font-weight: 700; }
-.market-state { color: var(--accent-emerald); font-size: 0.65rem; }
-.market-time { color: var(--text-muted); font-family: monospace; font-size: 0.65rem; }
+.market-state { color: var(--accent-emerald); font-size: 0.625rem; }
+.market-time { color: var(--text-muted); font-family: monospace; font-size: 0.625rem; }
 
 /* Center Navigation Pill */
 .nav-pill {
@@ -316,25 +318,27 @@ button, select, input {
   border: 1px solid var(--nav-pill-border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 3px 6px;
+  padding: 2px 4px;
   border-radius: 100px;
-  gap: 4px;
+  gap: 2px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  flex-shrink: 1;
 }
 
 .nav-search-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-secondary);
-  font-size: 0.725rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 100px;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
+  white-space: nowrap;
 }
 
 .nav-search-trigger:hover {
@@ -343,20 +347,20 @@ button, select, input {
 }
 
 .kbd-pill {
-  font-size: 0.6rem;
+  font-size: 0.575rem;
   font-weight: 700;
   color: var(--text-muted);
   background: rgba(255, 255, 255, 0.08);
-  padding: 1px 4px;
+  padding: 1px 3px;
   border-radius: 3px;
   font-family: monospace;
 }
 
 .nav-link {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 500;
   color: var(--nav-link-color);
-  padding: 5px 11px;
+  padding: 4px 8px;
   border-radius: 100px;
   transition: color 0.2s, background-color 0.2s;
   white-space: nowrap;

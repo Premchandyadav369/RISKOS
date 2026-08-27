@@ -13,13 +13,22 @@ def monte_carlo_gbm_simulation(
     use_jumps: bool = True
 ) -> dict:
     """Simulates 10,000 Monte Carlo price paths using Geometric Brownian Motion with Merton Jump Diffusion."""
-    quote = get_live_quote(ticker)
-    s0 = float(quote.get("price", BASE_PRICES.get(ticker.upper(), 100.0)))
+    t_clean = ticker.strip().upper()
+    quote = get_live_quote(t_clean)
+    s0 = float(quote.get("price", BASE_PRICES.get(t_clean, 100.0)))
+    if s0 <= 0:
+        s0 = BASE_PRICES.get(t_clean, 100.0)
     
     # Get historical volatility
-    returns = get_returns([ticker], period="1y")
-    if not returns.empty and ticker in returns:
-        hist_vol = float(returns[ticker].std() * np.sqrt(252))
+    returns = get_returns([t_clean], period="1y")
+    matched_col = None
+    for col in returns.columns:
+        if col.upper() == t_clean:
+            matched_col = col
+            break
+            
+    if matched_col is not None and not returns.empty:
+        hist_vol = float(returns[matched_col].std() * np.sqrt(252))
     else:
         hist_vol = 0.22
         
