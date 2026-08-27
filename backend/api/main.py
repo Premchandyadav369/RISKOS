@@ -45,6 +45,11 @@ from engine.derivatives import analyze_derivatives
 from engine.attribution import analyze_attribution_and_parity
 from engine.speculations import monte_carlo_gbm_simulation, prophet_trend_decomposition
 from engine.intelligence import resolve_query, get_math_explanation, get_market_pulse, SECURITIES_MASTER
+from engine.instruments import (
+    search_instruments, resolve_symbol_format, get_quote,
+    get_historical_ohlcv, get_fundamentals, get_news,
+    get_market_breadth, get_sector_performance
+)
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
@@ -164,6 +169,47 @@ def api_securities_master(q: Optional[str] = None, db: Session = Depends(get_db)
         return {"securities": securities_out}
     except Exception as e:
         return {"error": str(e), "securities": SECURITIES_MASTER}
+
+# ── 2B. Universal Instrument Registry & Provider-Agnostic Endpoints ──────────
+@app.get("/api/instruments/search")
+def api_search_instruments(query: str = Query("", description="Symbol, name, ISIN, or BSE code"), limit: int = 15):
+    """Dynamic multi-field fuzzy search across NSE, BSE, US, Indices, ETFs and Funds."""
+    return {"results": search_instruments(query, limit=limit)}
+
+@app.get("/api/instruments/resolve")
+def api_resolve_symbol(query: str = Query(..., description="Query to resolve")):
+    """Resolves arbitrary ticker names/aliases/ISINs to normalized provider symbols."""
+    return {"resolved_symbol": resolve_symbol_format(query)}
+
+@app.get("/api/instruments/quote")
+def api_get_instrument_quote(symbol: str = Query(..., description="Ticker symbol")):
+    """Retrieves live / delayed quote for any security with status classification."""
+    return get_quote(symbol)
+
+@app.get("/api/instruments/history")
+def api_get_instrument_history(symbol: str = Query(..., description="Ticker symbol"), timeframe: str = Query("1Y", description="1D, 1W, 1M, 3M, 6M, 1Y, 5Y, MAX")):
+    """Returns multi-timeframe OHLCV bars for Candlestick rendering."""
+    return get_historical_ohlcv(symbol, timeframe=timeframe)
+
+@app.get("/api/instruments/fundamentals")
+def api_get_instrument_fundamentals(symbol: str = Query(..., description="Ticker symbol")):
+    """Fetches dynamically retrieved financial multiples and balance sheet figures."""
+    return get_fundamentals(symbol)
+
+@app.get("/api/instruments/news")
+def api_get_instrument_news(symbol: str = Query(..., description="Ticker symbol")):
+    """Fetches deduplicated company news stories with timestamps and publishers."""
+    return {"news": get_news(symbol)}
+
+@app.get("/api/instruments/market-breadth")
+def api_get_market_breadth():
+    """Returns advance/decline market breadth metrics."""
+    return get_market_breadth()
+
+@app.get("/api/instruments/sectors")
+def api_get_sectors():
+    """Returns sector performance benchmark metrics."""
+    return {"sectors": get_sector_performance()}
 
 @app.get("/api/securities/{symbol}")
 def api_get_single_security(symbol: str, db: Session = Depends(get_db)):
