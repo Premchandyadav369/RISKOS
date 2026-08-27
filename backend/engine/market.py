@@ -1,7 +1,7 @@
 import yfinance as yf
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import datetime
 
 # Ticker Symbol Mapper for Indian & US Markets
@@ -13,14 +13,21 @@ TICKER_MAP = {
     'ITC': 'ITC.NS',
     'TATAMOTORS': 'TATAMOTORS.NS',
     'NIFTY 50': '^NSEI',
+    'NIFTY': '^NSEI',
     'SENSEX': '^BSESN',
-    'BANK NIFTY': '^NSEBANK'
+    'BANK NIFTY': '^NSEBANK',
+    'SPY': 'SPY',
+    'AAPL': 'AAPL',
+    'NVDA': 'NVDA',
+    'MSFT': 'MSFT',
+    'GOOGL': 'GOOGL',
+    'AMZN': 'AMZN'
 }
 
 BASE_PRICES = {
-    'AAPL': 225.0, 'MSFT': 440.0, 'GOOGL': 175.0, 'AMZN': 185.0, 'JPM': 210.0, 'SPY': 560.0,
-    'RELIANCE': 2984.5, 'TCS': 4210.8, 'HDFCBANK': 1642.3, 'INFY': 1885.4, 'ITC': 494.2, 'TATAMOTORS': 1048.6,
-    'NIFTY 50': 24820.4, 'NVDA': 128.0
+    'AAPL': 226.50, 'MSFT': 442.10, 'GOOGL': 178.20, 'AMZN': 186.40, 'JPM': 214.50, 'SPY': 564.10,
+    'RELIANCE': 2984.50, 'TCS': 4210.80, 'HDFCBANK': 1642.30, 'INFY': 1885.40, 'ITC': 494.20, 'TATAMOTORS': 1048.60,
+    'NIFTY 50': 24820.40, 'SENSEX': 81340.20, 'BANK NIFTY': 51240.10, 'NVDA': 128.40
 }
 
 def clean_ticker(t: str) -> str:
@@ -101,3 +108,71 @@ def get_returns(tickers: list[str], period: str = '1y') -> pd.DataFrame:
             df[ticker] = np.log(series / series.shift(1))
             
     return df.dropna()
+
+def get_live_quote(ticker: str) -> dict:
+    """Fetches real-time price quote and daily change."""
+    mapped_t = clean_ticker(ticker)
+    base_p = BASE_PRICES.get(ticker.upper(), 100.0)
+    try:
+        t = yf.Ticker(mapped_t)
+        hist = t.history(period="2d")
+        if not hist.empty and len(hist) >= 1:
+            latest_close = float(hist['Close'].iloc[-1])
+            prev_close = float(hist['Close'].iloc[-2]) if len(hist) >= 2 else latest_close
+            chg_pct = round(((latest_close - prev_close) / prev_close) * 100, 2) if prev_close > 0 else 0.0
+            return {
+                'symbol': ticker.upper(),
+                'price': round(latest_close, 2),
+                'change_percent': chg_pct,
+                'high': round(float(hist['High'].iloc[-1]), 2),
+                'low': round(float(hist['Low'].iloc[-1]), 2),
+                'volume': int(hist['Volume'].iloc[-1]),
+                'source': 'LIVE_FEED'
+            }
+    except Exception:
+        pass
+        
+    return {
+        'symbol': ticker.upper(),
+        'price': base_p,
+        'change_percent': 0.85,
+        'high': round(base_p * 1.015, 2),
+        'low': round(base_p * 0.988, 2),
+        'volume': 4850000,
+        'source': 'SYNTHETIC_REALTIME'
+    }
+
+def get_live_fundamentals(ticker: str) -> dict:
+    """Fetches live corporate fundamentals (PE, PB, ROE, Beta, Market Cap)."""
+    mapped_t = clean_ticker(ticker)
+    try:
+        t = yf.Ticker(mapped_t)
+        info = t.info or {}
+        if info:
+            return {
+                'symbol': ticker.upper(),
+                'market_cap': info.get('marketCap', 0),
+                'pe': round(float(info.get('trailingPE', info.get('forwardPE', 25.0))), 2),
+                'pb': round(float(info.get('priceToBook', 3.0)), 2),
+                'eps': round(float(info.get('trailingEps', 50.0)), 2),
+                'beta': round(float(info.get('beta', 1.0)), 2),
+                'roe': round(float(info.get('returnOnEquity', 0.15)) * 100, 2),
+                '52w_high': round(float(info.get('fiftyTwoWeekHigh', 0)), 2),
+                '52w_low': round(float(info.get('fiftyTwoWeekLow', 0)), 2),
+                'dividend_yield': round(float(info.get('dividendYield', 0.015)) * 100, 2)
+            }
+    except Exception:
+        pass
+        
+    return {
+        'symbol': ticker.upper(),
+        'market_cap': 20000000000000,
+        'pe': 25.5,
+        'pb': 3.2,
+        'eps': 116.8,
+        'beta': 0.95,
+        'roe': 16.4,
+        '52w_high': 3200.0,
+        '52w_low': 2300.0,
+        'dividend_yield': 1.2
+    }

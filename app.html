@@ -392,6 +392,33 @@
                 </div>
                 <div id="exec-result" class="exec-result mt-4"></div>
             </div>
+
+            <!-- Database-Backed Executed Orders History -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-database"></i> Persistent Database Trade History (SQLite)</h2>
+                    <span class="badge" style="background:rgba(81,207,102,0.15);color:#51CF66;">Live SQLite ORM Record</span>
+                </div>
+                <table class="data-table" id="db-orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Qty</th>
+                            <th>Type</th>
+                            <th>Avg Fill</th>
+                            <th>VWAP Bench</th>
+                            <th>Slippage</th>
+                            <th>Total Cost</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="10" class="text-center">Loading trade log from database...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
     </main>

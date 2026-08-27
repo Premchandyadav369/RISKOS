@@ -65,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initial fetch
     fetchAllQuantData();
+    fetchOrdersHistory();
 });
 
 async function fetchAllQuantData() {
@@ -733,6 +734,36 @@ function renderSignals(data, tickers) {
     }
 }
 
+async function fetchOrdersHistory() {
+    const tb = document.querySelector('#db-orders-table tbody');
+    if (!tb) return;
+    
+    try {
+        const data = await fetchAPI('/orders');
+        const orders = data.orders || [];
+        if (orders.length === 0) {
+            tb.innerHTML = '<tr><td colspan="10" class="text-center muted">No executed orders found in database.</td></tr>';
+            return;
+        }
+        tb.innerHTML = orders.map(o => `
+            <tr>
+                <td><code style="color:#a1a1aa">${o.order_id}</code></td>
+                <td><strong>${o.symbol}</strong></td>
+                <td><span class="badge ${o.direction === 'BUY' ? 'bull' : 'bear'}">${o.direction}</span></td>
+                <td>${o.quantity.toLocaleString()}</td>
+                <td>${o.order_type}</td>
+                <td>$${(o.avg_fill_price || 0).toFixed(2)}</td>
+                <td>$${(o.vwap_benchmark || 0).toFixed(2)}</td>
+                <td class="${(o.slippage_bps || 0) > 5 ? 'text-sell' : 'text-buy'}">${(o.slippage_bps || 0).toFixed(2)} bps</td>
+                <td>$${(o.total_cost || 0).toLocaleString()}</td>
+                <td><span class="badge bull">${o.status}</span></td>
+            </tr>
+        `).join('');
+    } catch (e) {
+        tb.innerHTML = '<tr><td colspan="10" class="text-center text-sell">Failed to load trade log.</td></tr>';
+    }
+}
+
 async function executeTrade(ticker, direction, qty) {
     const resDiv = document.getElementById('exec-result');
     if(!resDiv) return;
@@ -755,6 +786,9 @@ async function executeTrade(ticker, direction, qty) {
             <div><div class="stat-label">Pre-Trade Risk Gate</div><div class="stat-value" style="color:#51CF66">APPROVED (&lt;5ms)</div></div>
         </div>
     `;
+    
+    // Refresh persistent database trade history
+    fetchOrdersHistory();
 }
 
 // Fallback generator if backend is starting up
