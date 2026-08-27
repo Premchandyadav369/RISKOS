@@ -36,10 +36,35 @@
   --accent-red: #FF6B6B;
   --accent-cyan: #22d3ee;
   
+  /* Precision Spacing Scale (4, 8, 12, 16, 20, 24, 32, 40, 48, 64) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Standard Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Animation Discipline */
+  --motion-fast: 140ms;
+  --motion-normal: 240ms;
+  --motion-slow: 360ms;
+  --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: "BubbledotICG-FinePos", "Geist Pixel Circle", monospace;
-  
-  --easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* ── Global Reset ─────────────────────────────────────────────────────────── */
@@ -2369,7 +2394,269 @@ button, select, input {
   width: 100%;
 }
 
-/* ── 16. Reduced Motion Accessibility ────────────────────────────────────── */
+/* ── Tabular Numerals on all Financial Numbers ────────────────────────────── */
+.metric-value, .stat-value, .wic-price, .comp-price, .palette-item strong, .data-table td, #liveTickerText {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ── 17. Universal Detail Drawer (Single Unified Modal Architecture) ─────── */
+.universal-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.universal-drawer-overlay:not([hidden]) {
+  pointer-events: auto;
+}
+
+.universal-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity var(--motion-slow) var(--easing-smooth);
+}
+
+.universal-drawer-overlay.is-open .universal-drawer-backdrop {
+  opacity: 1;
+}
+
+.universal-drawer-panel {
+  position: relative;
+  width: min(520px, 100vw);
+  height: 100%;
+  background: #09090c;
+  border-left: 1px solid var(--panel-border);
+  box-shadow: -12px 0 48px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform var(--motion-slow) var(--easing-smooth);
+  z-index: 2;
+  overflow: hidden;
+}
+
+.universal-drawer-overlay.is-open .universal-drawer-panel {
+  transform: translateX(0);
+}
+
+.ud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--panel-border);
+  background: rgba(13, 13, 16, 0.9);
+  backdrop-filter: blur(12px);
+  flex-shrink: 0;
+}
+
+.ud-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ud-breadcrumb {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.ud-breadcrumb:hover {
+  color: var(--accent-emerald);
+}
+
+.ud-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.ud-close-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--motion-fast);
+}
+
+.ud-close-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.ud-tabs-row {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  background: rgba(18, 18, 22, 0.6);
+  border-bottom: 1px solid var(--panel-border-subtle);
+  flex-shrink: 0;
+}
+
+.ud-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--motion-fast);
+}
+
+.ud-tab.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.ud-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  -webkit-overflow-scrolling: touch;
+}
+
+.ud-audit-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.ud-audit-step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  border-left: 2px solid var(--accent-emerald);
+  padding-left: var(--space-3);
+}
+
+.ud-audit-step-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+  letter-spacing: 0.04em;
+}
+
+.ud-provenance-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── Math Variable Tooltip Highlight ──────────────────────────────────────── */
+.math-var-clickable {
+  color: var(--accent-cyan);
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(34, 211, 238, 0.5);
+  transition: color var(--motion-fast);
+}
+
+.math-var-clickable:hover {
+  color: #ffffff;
+}
+
+/* ── Intent Preview Card in Command Palette ──────────────────────────────── */
+.intent-preview-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(81, 207, 102, 0.08);
+  border: 1px solid rgba(81, 207, 102, 0.2);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-3);
+}
+
+.intent-preview-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+  font-family: var(--font-mono);
+}
+
+.intent-preview-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ── Disambiguation Grid ─────────────────────────────────────────────────── */
+.disambiguate-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.disambiguate-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.disambiguate-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-blue);
+}
+
+/* Mobile Bottom Sheet Adaptor */
+@media (max-width: 768px) {
+  .universal-drawer-panel {
+    width: 100vw;
+    height: 88vh;
+    border-left: none;
+    border-top: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    transform: translateY(100%);
+    align-self: flex-end;
+  }
+  .universal-drawer-overlay.is-open .universal-drawer-panel {
+    transform: translateY(0);
+  }
+}
+
+/* ── 18. Reduced Motion Accessibility ────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -2379,3 +2666,4 @@ button, select, input {
   .status-pulse-dot { animation: none; }
   .cta-btn, .trust-avatar, .metric-item { transform: none !important; }
 }
+

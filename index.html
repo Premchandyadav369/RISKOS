@@ -1230,6 +1230,29 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════ UNIVERSAL DETAIL DRAWER ═══════════════════════ -->
+  <div class="universal-drawer-overlay" id="universalDrawerOverlay" hidden>
+    <div class="universal-drawer-backdrop" id="universalDrawerBackdrop"></div>
+    <div class="universal-drawer-panel" id="universalDrawerPanel">
+      <div class="ud-header">
+        <div class="ud-header-left">
+          <button class="ud-breadcrumb" id="udBreadcrumbBtn">← Back to Company</button>
+          <h3 class="ud-title" id="udTitle">Metric Details</h3>
+        </div>
+        <button class="ud-close-btn" id="udCloseBtn" aria-label="Close Drawer">&times;</button>
+      </div>
+      <div class="ud-tabs-row" id="udTabsRow">
+        <button class="ud-tab active" data-tab="overview">Overview</button>
+        <button class="ud-tab" data-tab="audit">Calculation Audit</button>
+        <button class="ud-tab" data-tab="math">Mathematics</button>
+        <button class="ud-tab" data-tab="provenance">Data Source</button>
+      </div>
+      <div class="ud-body" id="udBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
   <script src="main.js"></script>
 </body>
 </html>

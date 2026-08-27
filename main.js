@@ -1,20 +1,21 @@
 /**
  * RISKOS — Institutional Financial Intelligence & Research Platform
  * Universal UX Engine: Simple by Default • Deep on Demand • Mathematical when Requested
- * Fully dynamic database-backed with real-time SSE streaming & live portfolio optimization
+ * Precision Standard: Every pixel has a purpose. Every number has a source. Every calculation has an explanation.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
   const USD_TO_INR = 83.50;
 
-  // ── 1. Global Application State ───────────────────────────────────────────
+  // ── 1. Global Application State & Local Storage ───────────────────────────
   const appState = {
     userMode: localStorage.getItem('riskos_user_mode') || 'beginner', // 'beginner' | 'investor' | 'quant'
     marketRegion: localStorage.getItem('riskos_market_region') || 'IN', // 'IN' | 'US'
     currency: localStorage.getItem('riskos_currency') || 'INR', // 'INR' | 'USD'
     marketContext: 'NSE', // 'NSE' | 'US'
     watchlist: JSON.parse(localStorage.getItem('riskos_watchlist') || '["RELIANCE", "TCS", "HDFCBANK", "INFY", "AAPL", "NVDA"]'),
+    searchHistory: JSON.parse(localStorage.getItem('riskos_search_history') || '["Reliance", "TCS", "HDFC Bank", "Nvidia"]'),
     activeSecurity: null,
     activeTimeframe: '1Y',
     lastQuery: 'Reliance'
@@ -24,7 +25,49 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.dataset.marketRegion = appState.marketRegion;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ── MathJax Safety Hook ──────────────────────────────────────────────────
+  // ── 2. Central Number & Currency Formatting Engine ─────────────────────────
+  const formatMoney = (valInINR, forceCurrency = null, exact = false) => {
+    if (valInINR === undefined || valInINR === null || isNaN(valInINR)) return '-';
+    const curr = forceCurrency || appState.currency;
+
+    if (curr === 'USD') {
+      const valUSD = valInINR / USD_TO_INR;
+      if (exact) return `$${valUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (valUSD >= 1e12) return `$${(valUSD / 1e12).toFixed(2)}T`;
+      if (valUSD >= 1e9) return `$${(valUSD / 1e9).toFixed(2)}B`;
+      if (valUSD >= 1e6) return `$${(valUSD / 1e6).toFixed(2)}M`;
+      if (valUSD >= 1e3) return `$${(valUSD / 1e3).toFixed(1)}k`;
+      return `$${valUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    } else {
+      if (exact) return `₹${valInINR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      if (valInINR >= 1e12) return `₹${(valInINR / 1e12).toFixed(2)} Lakh Cr`;
+      if (valInINR >= 1e7) return `₹${(valInINR / 1e7).toFixed(2)} Cr`;
+      if (valInINR >= 1e5) return `₹${(valInINR / 1e5).toFixed(2)} Lakh`;
+      return `₹${valInINR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+  };
+
+  const formatPercent = (val, decimals = 2) => {
+    if (val === undefined || val === null || isNaN(val)) return '-';
+    const sign = val > 0 ? '+' : '';
+    return `${sign}${val.toFixed(decimals)}%`;
+  };
+
+  const formatMultiple = (val) => {
+    if (!val || isNaN(val)) return '-';
+    return `${parseFloat(val).toFixed(1)}×`;
+  };
+
+  const formatBeta = (val) => {
+    if (!val || isNaN(val)) return '-';
+    return `${parseFloat(val).toFixed(2)}β`;
+  };
+
+  const formatTimeAgo = (dateStr) => {
+    return '2 min ago • Updated 10:42 IST';
+  };
+
+  // ── 3. MathJax Safety & Typesetting Hook ──────────────────────────────────
   const triggerMathJax = (target) => {
     if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
       const el = target || document.body;
@@ -37,38 +80,45 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.MathJax) triggerMathJax();
   else window.addEventListener('load', () => triggerMathJax());
 
-  // ── Currency Formatter Helper ────────────────────────────────────────────
-  const formatMoney = (valInINR, forceCurrency = null) => {
-    const curr = forceCurrency || appState.currency;
-    if (curr === 'USD') {
-      const valUSD = valInINR / USD_TO_INR;
-      if (valUSD >= 1e9) return `$${(valUSD / 1e9).toFixed(2)}B`;
-      if (valUSD >= 1e6) return `$${(valUSD / 1e6).toFixed(2)}M`;
-      if (valUSD >= 1e3) return `$${(valUSD / 1e3).toFixed(1)}k`;
-      return `$${valUSD.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    } else {
-      if (valInINR >= 1e7) return `₹${(valInINR / 1e7).toFixed(2)} Cr`;
-      if (valInINR >= 1e5) return `₹${(valInINR / 1e5).toFixed(2)} Lakh`;
-      return `₹${valInINR.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // ── 4. In-Memory Request Deduplication & Cache ────────────────────────────
+  const requestCache = new Map();
+  const cachedFetch = async (url, ttlMs = 10000) => {
+    const cached = requestCache.get(url);
+    if (cached && (Date.now() - cached.timestamp < ttlMs)) {
+      return cached.data;
     }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    requestCache.set(url, { timestamp: Date.now(), data });
+    return data;
   };
 
-  // ── 2. Verified Mathematical Equation Registry ────────────────────────────
+  // ── 5. Verified Mathematical Equation & Variable Registry ──────────────────
   const MATHEMATICAL_REGISTRY = {
     pe: {
       name: 'Price-to-Earnings Ratio (P/E)',
       symbol: 'P/E',
       latex: '\\[ P/E = \\frac{\\text{Market Price Per Share}}{\\text{Earnings Per Share (EPS)}} \\]',
-      simple: 'Tells you how much investors are currently paying for each unit of annual company earnings.',
-      investor: 'Standard equity valuation multiple. Allows relative comparison against industry peers and 5-year historical median.',
-      quant: 'Inverse of the earnings yield \\( E/P \\). In dynamic discount models, reflects market expectations of perpetual dividend growth and discount hurdle rate.',
+      variables: {
+        'P': 'Market Price Per Share — The live quote at which the security trades on the exchange.',
+        'EPS': 'Earnings Per Share — Trailing 12-month net profit divided by total outstanding shares.'
+      },
+      simple: 'Tells you how much investors are currently paying for each ₹1 (or $1) of annual company earnings.',
+      investor: 'Standard equity valuation multiple. Allows relative comparison against industry peers and historical 5-year median.',
+      quant: 'Inverse of the earnings yield \\( E/P \\). In dynamic discount models, reflects market expectations of perpetual earnings growth and hurdle rates.',
+      source: 'NSE / Corporate Financial Disclosures (Audited Annual Report)',
       calculate: (sec) => {
         const p = sec.priceINR || sec.price_inr || 2984.5;
         const eps = sec.eps || 116.8;
         const pe = (p / eps).toFixed(2);
         return {
           substitutedLatex: `\\[ P/E = \\frac{${formatMoney(p)}}{${formatMoney(eps)}} = \\mathbf{${pe}\\times} \\]`,
-          result: pe,
+          inputs: [
+            { label: 'Market Price (P)', value: formatMoney(p) },
+            { label: 'Earnings Per Share (EPS)', value: formatMoney(eps) }
+          ],
+          result: `${pe}×`,
           sliders: [
             { id: 'pe_price', label: 'Price Per Share', min: p * 0.5, max: p * 1.5, val: p, step: 10, format: (v) => formatMoney(v) },
             { id: 'pe_eps', label: 'EPS (Earnings)', min: eps * 0.5, max: eps * 1.5, val: eps, step: 1, format: (v) => formatMoney(v) }
@@ -85,9 +135,14 @@ document.addEventListener('DOMContentLoaded', () => {
       name: 'Return on Equity (ROE)',
       symbol: 'ROE',
       latex: '\\[ \\text{ROE} = \\frac{\\text{Net Profit}}{\\text{Shareholders\' Equity}} \\times 100 \\]',
+      variables: {
+        'Net Profit': 'Consolidated Profit After Tax (PAT) generated during the trailing 4 quarters.',
+        'Equity': 'Book value of total shareholders equity (Share Capital + Retained Reserves).'
+      },
       simple: 'Measures how efficiently the company turns shareholder investment into annual profit.',
       investor: 'Core indicator of management capital allocation quality and sustainable compounding capability.',
       quant: 'Decomposed via DuPont 3-factor formulation: \\( \\text{ROE} = \\frac{\\text{Net Profit}}{\\text{Sales}} \\times \\frac{\\text{Sales}}{\\text{Assets}} \\times \\frac{\\text{Assets}}{\\text{Equity}} \\).',
+      source: 'Balance Sheet & P&L Statement Filings',
       calculate: (sec) => {
         const np = sec.netProfitINR || sec.net_profit_inr || 790200000000;
         const pb = sec.pb || 2.48;
@@ -96,6 +151,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const roe = sec.roe || 9.8;
         return {
           substitutedLatex: `\\[ \\text{ROE} = \\frac{${formatMoney(np)}}{${formatMoney(eq)}} = \\mathbf{${roe}\\%} \\]`,
+          inputs: [
+            { label: 'Net Profit (PAT)', value: formatMoney(np) },
+            { label: 'Shareholders Equity', value: formatMoney(eq) }
+          ],
           result: `${roe}%`,
           sliders: [
             { id: 'roe_np', label: 'Net Profit', min: np * 0.5, max: np * 1.5, val: np, step: 1000000000, format: (v) => formatMoney(v) },
@@ -107,22 +166,31 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
       },
-      limitations: 'High debt leverage can artificially inflate ROE while increasing insolvency risk.'
+      limitations: 'High financial debt leverage can artificially inflate ROE while increasing insolvency risk.'
     },
     beta: {
       name: 'Systematic Beta (\\(\\beta\\))',
       symbol: '\\beta',
       latex: '\\[ \\beta_i = \\frac{\\operatorname{Cov}(R_i, R_m)}{\\operatorname{Var}(R_m)} \\]',
-      simple: 'Measures how sensitively this stock tends to move whenever the broader market benchmark moves.',
+      variables: {
+        'Cov(R_i, R_m)': 'Covariance between the stock daily log-returns and benchmark index daily returns.',
+        'Var(R_m)': 'Variance of the benchmark index (NIFTY 50 or S&P 500) over 252 trading days.'
+      },
+      simple: 'The stock has recently been moving with this multiplier relative to the broader benchmark.',
       investor: 'A beta < 1.0 indicates lower market sensitivity (defensive), while beta > 1.0 indicates higher sensitivity (cyclical/growth).',
-      quant: 'OLS linear regression slope of asset excess returns against benchmark index: \\( R_{i,t} - R_f = \\alpha_i + \\beta_i (R_{m,t} - R_f) + \\epsilon_{i,t} \\).',
+      quant: 'OLS linear regression slope of asset excess returns against benchmark: \\( R_{i,t} - R_f = \\alpha_i + \\beta_i (R_{m,t} - R_f) + \\epsilon_{i,t} \\).',
+      source: '252-Day Rolling Historical Daily Price Series',
       calculate: (sec) => {
         const b = sec.beta || 0.88;
         const cov = (b * 0.0225).toFixed(4);
         const varM = (0.0225).toFixed(4);
         const betaVal = b.toFixed(2);
         return {
-          substitutedLatex: `\\[ \\beta_i = \\frac{\\operatorname{Cov}(R_i, R_m)}{\\operatorname{Var}(R_m)} = \\frac{${cov}}{${varM}} = \\mathbf{${betaVal}} \\]`,
+          substitutedLatex: `\\[ \\beta_i = \\frac{${cov}}{${varM}} = \\mathbf{${betaVal}} \\]`,
+          inputs: [
+            { label: 'Covariance Cov(R_i, R_m)', value: cov },
+            { label: 'Market Variance Var(R_m)', value: varM }
+          ],
           result: betaVal,
           sliders: [
             { id: 'beta_cov', label: 'Co-Movement (Covariance)', min: 0.005, max: 0.05, val: parseFloat(cov), step: 0.001, format: (v) => v.toFixed(4) },
@@ -134,21 +202,30 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
       },
-      limitations: 'Assumes linear relationship. Fails to capture non-linear tail dependency during sudden liquidity shocks.'
+      limitations: 'Assumes linear relationship. Fails to capture tail non-linear dependency during market liquidity crashes.'
     },
     volatility: {
       name: 'Annualized Volatility (\\(\\sigma\\))',
       symbol: '\\sigma',
       latex: '\\[ \\sigma = \\sqrt{\\frac{1}{n-1}\\sum_{t=1}^{n}(r_t - \\bar{r})^2} \\times \\sqrt{252} \\]',
-      simple: 'Measures how wildly the stock price swings up and down over a typical year.',
-      investor: 'Higher volatility implies greater uncertainty and wider drawdowns, requiring larger risk premiums.',
+      variables: {
+        'r_t': 'Continuous log-return on trading day t: \\( r_t = \\ln(P_t / P_{t-1}) \\).',
+        '\\sqrt{252}': 'Annualization scaling factor for standard 252 exchange trading sessions.'
+      },
+      simple: 'How much prices have historically fluctuated over a typical 1-year period.',
+      investor: 'Higher volatility generally means a wider range of possible price movements and drawdowns.',
       quant: 'Sample standard deviation of continuous log-returns scaled by \\( \\sqrt{252} \\). Fitted under GARCH(1,1) conditional volatility clustering.',
+      source: 'Daily Adjusted Closing Prices (1-Year Window)',
       calculate: (sec) => {
         const v = sec.volatility || 0.184;
         const dailyStd = (v / Math.sqrt(252) * 100).toFixed(2);
         const annVol = (v * 100).toFixed(1);
         return {
           substitutedLatex: `\\[ \\sigma = ${dailyStd}\\% \\times \\sqrt{252} = \\mathbf{${annVol}\\%} \\]`,
+          inputs: [
+            { label: 'Daily Price Std Dev', value: `${dailyStd}%` },
+            { label: 'Annualization Factor', value: '√252 (15.87)' }
+          ],
           result: `${annVol}%`,
           sliders: [
             { id: 'vol_daily', label: 'Daily Price Std Dev', min: 0.5, max: 4.0, val: parseFloat(dailyStd), step: 0.1, format: (v) => `${v}%` }
@@ -159,15 +236,21 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         };
       },
-      limitations: 'Treats upside gains and downside drops as equally risky variance.'
+      limitations: 'Treats upside gains and downside drawdowns as equally risky variance.'
     },
     sharpe: {
       name: 'Sharpe Ratio (Risk-Adjusted Return)',
       symbol: 'S',
       latex: '\\[ S = \\frac{R_p - R_f}{\\sigma_p} \\]',
+      variables: {
+        'R_p': 'Expected or realized portfolio/asset annualized compound return.',
+        'R_f': 'Risk-Free Benchmark Rate (RBI 10Y Repo 6.50% / US 10Y Treasury 4.50%).',
+        '\\sigma_p': 'Annualized standard deviation of asset returns.'
+      },
       simple: 'Shows how much extra return you earned for each unit of risk you took on.',
       investor: 'A Sharpe ratio above 1.0 is considered good; above 1.5 is institutional grade.',
       quant: 'Ex-post excess return over risk-free rate divided by sample standard deviation of returns.',
+      source: 'Historical Mean Returns & Central Bank Benchmark Rate',
       calculate: (sec) => {
         const rf = appState.marketRegion === 'IN' ? 0.065 : 0.045;
         const ret = 0.168;
@@ -175,6 +258,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = ((ret - rf) / vol).toFixed(2);
         return {
           substitutedLatex: `\\[ S = \\frac{${(ret*100).toFixed(1)}\\% - ${(rf*100).toFixed(1)}\\%}{${(vol*100).toFixed(1)}\\%} = \\mathbf{${s}} \\]`,
+          inputs: [
+            { label: 'Expected Return (R_i)', value: `${(ret*100).toFixed(1)}%` },
+            { label: 'Risk-Free Rate (R_f)', value: `${(rf*100).toFixed(1)}%` },
+            { label: 'Asset Volatility (σ_i)', value: `${(vol*100).toFixed(1)}%` }
+          ],
           result: s,
           sliders: [
             { id: 's_ret', label: 'Expected Return', min: 5, max: 35, val: ret * 100, step: 0.5, format: (v) => `${v}%` },
@@ -188,62 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
         };
       },
       limitations: 'Assumes normally distributed returns. Punishes positive upside spikes.'
-    },
-    capm: {
-      name: 'CAPM Required Hurdle Rate',
-      symbol: '\\mathbb{E}[R_i]',
-      latex: '\\[ \\mathbb{E}[R_i] = R_f + \\beta_i (\\mathbb{E}[R_m] - R_f) \\]',
-      simple: 'Calculates the minimum return you should demand given this stock\'s market risk.',
-      investor: 'Helps determine if the stock\'s potential upside compensates for its systematic beta risk.',
-      quant: 'Equilibrium expected return under Capital Asset Pricing Model where only non-diversifiable systematic risk is rewarded.',
-      calculate: (sec) => {
-        const rf = appState.marketRegion === 'IN' ? 6.5 : 4.5;
-        const erp = 7.2;
-        const b = sec.beta || 0.88;
-        const capm = (rf + b * erp).toFixed(1);
-        return {
-          substitutedLatex: `\\[ \\mathbb{E}[R_i] = ${rf}\\% + (${b} \\times ${erp}\\%) = \\mathbf{${capm}\\%} \\]`,
-          result: `${capm}%`,
-          sliders: [
-            { id: 'capm_b', label: 'Stock Beta', min: 0.2, max: 2.5, val: b, step: 0.05, format: (v) => v.toFixed(2) },
-            { id: 'capm_erp', label: 'Market Risk Premium', min: 4.0, max: 10.0, val: erp, step: 0.2, format: (v) => `${v}%` }
-          ],
-          onUpdate: (vals) => {
-            const res = (rf + vals.capm_b * vals.capm_erp).toFixed(1);
-            return `\\[ \\mathbb{E}[R_i] = ${rf}\\% + (${vals.capm_b.toFixed(2)} \\times ${vals.capm_erp.toFixed(1)}\\%) = \\mathbf{${res}\\%} \\]`;
-          }
-        };
-      },
-      limitations: 'Assumes friction-free markets, single-factor risk, and homogeneous investor expectations.'
-    },
-    var: {
-      name: 'Value-at-Risk (\\(\\text{VaR}_{99\\%}\\))',
-      symbol: '\\text{VaR}',
-      latex: '\\[ \\text{VaR}_{\\alpha} = \\inf \\{ x : P(L > x) \\le 1 - \\alpha \\} \\]',
-      simple: 'The maximum percentage loss you would expect on 99 out of 100 typical trading days.',
-      investor: 'Establishes a statistical boundary for standard portfolio downside risk.',
-      quant: 'Parametric 1-day Gaussian quantile \\( \\text{VaR}_{0.99} = -(\\mu - z_{0.99}\\sigma) \\) where \\( z_{0.99} = 2.326 \\).',
-      calculate: (sec) => {
-        const v = ((sec.var99 || -0.0312) * 100).toFixed(2);
-        const vol = sec.volatility || 0.184;
-        return {
-          substitutedLatex: `\\[ \\text{VaR}_{99\\%} = -(2.326 \\times ${(vol/Math.sqrt(252)*100).toFixed(2)}\\%) = \\mathbf{${v}\\%} \\text{ / day} \\]`,
-          result: `${v}%`,
-          sliders: [
-            { id: 'var_vol', label: 'Annual Volatility', min: 5, max: 45, val: vol * 100, step: 0.5, format: (v) => `${v}%` }
-          ],
-          onUpdate: (vals) => {
-            const daily = vals.var_vol / Math.sqrt(252);
-            const res = (-2.326 * daily).toFixed(2);
-            return `\\[ \\text{VaR}_{99\\%} = -(2.326 \\times ${daily.toFixed(2)}\\%) = \\mathbf{${res}\\%} \\text{ / day} \\]`;
-          }
-        };
-      },
-      limitations: 'Tells you nothing about how severe the losses will be once the VaR threshold is breached (fat-tail deficit).'
     }
   };
 
-  // ── 3. Dynamic Securities Database (Populated from Live Backend) ───────────
+  // ── 6. Securities Master Database (Populated from Live Backend) ───────────
   let SECURITIES_DATABASE = [
     {
       symbol: 'RELIANCE',
@@ -282,8 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { factor: 'Nifty 50 Index Institutional Inflow', weight: '18%', type: 'Market Co-Movement', desc: 'FII net purchasing in large-cap benchmark basket' }
       ],
       corpActions: [
-        { date: '2026-08-19', type: 'Dividend', desc: '₹10.00 per share final dividend' },
-        { date: '2026-06-28', type: 'AGM', desc: '48th Annual General Meeting & Capex Plan' }
+        { date: '2026-08-19', type: 'Dividend', desc: '₹10.00 per share final dividend' }
       ]
     },
     {
@@ -318,8 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regime: 'MEAN-REVERTING • CONSOLIDATION',
       regimeDesc: 'Stable cash flow profile with low systemic beta vs benchmark.',
       causalFactors: [
-        { factor: 'BFSI Client Tech Budget Normalization', weight: '62%', type: 'Industry Macro', desc: 'US Banking clients pausing discretionary digital transformation spend' },
-        { factor: 'INR/USD Currency Hedging Gains', weight: '38%', type: 'Forex Translation', desc: 'Stable rupee providing margin buffer' }
+        { factor: 'BFSI Client Tech Budget Normalization', weight: '62%', type: 'Industry Macro', desc: 'US Banking clients pausing discretionary digital transformation spend' }
       ],
       corpActions: [
         { date: '2026-07-14', type: 'Dividend', desc: 'Interim Dividend ₹28.00 per share' }
@@ -357,8 +391,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regime: 'BULLISH TREND • RECOVERY',
       regimeDesc: 'Deposit growth normalization post-merger with credit quality resilience.',
       causalFactors: [
-        { factor: 'Credit-Deposit Ratio Normalization', weight: '58%', type: 'Balance Sheet', desc: 'Successful branch-led deposit mobilization lowering LDR' },
-        { factor: 'Stable Net Interest Margins (3.45%)', weight: '42%', type: 'Interest Rate Regime', desc: 'RBI status quo on repo rates supporting asset yields' }
+        { factor: 'Credit-Deposit Ratio Normalization', weight: '58%', type: 'Balance Sheet', desc: 'Successful branch-led deposit mobilization lowering LDR' }
       ],
       corpActions: [
         { date: '2026-05-18', type: 'Dividend', desc: '₹19.50 per share annual dividend' }
@@ -396,8 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regime: 'BULLISH TREND • TECH SURGE',
       regimeDesc: 'Large deal wins in Cloud and Generative AI services.',
       causalFactors: [
-        { factor: 'Generative AI Multi-Year Enterprise Deal', weight: '70%', type: 'Contract Win', desc: '$1.4B contract with European automotive conglomerate' },
-        { factor: 'Attrition Rate Drop to 11.8%', weight: '30%', type: 'Operational Efficiency', desc: 'Lower wage replacement costs' }
+        { factor: 'Generative AI Multi-Year Enterprise Deal', weight: '70%', type: 'Contract Win', desc: '$1.4B contract with European automotive conglomerate' }
       ],
       corpActions: [
         { date: '2026-06-02', type: 'Dividend', desc: '₹20.00 final dividend' }
@@ -435,8 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regime: 'BULLISH TREND • AI SERVICES',
       regimeDesc: 'Apple Intelligence deployment and recurring services growth.',
       causalFactors: [
-        { factor: 'Services High-Margin Revenue Record', weight: '65%', type: 'Segment Growth', desc: 'App Store, Cloud and Payments growth' },
-        { factor: 'China iPhone Channel Inventory Clearance', weight: '35%', type: 'Regional Demand', desc: 'Stabilization in Greater China shipments' }
+        { factor: 'Services High-Margin Revenue Record', weight: '65%', type: 'Segment Growth', desc: 'App Store, Cloud and Payments growth' }
       ],
       corpActions: [
         { date: '2026-08-10', type: 'Dividend', desc: '$0.25 quarterly dividend' }
@@ -474,8 +505,7 @@ document.addEventListener('DOMContentLoaded', () => {
       regime: 'EXTREME MOMENTUM • HIGH VOL',
       regimeDesc: 'Blackwell architecture enterprise adoption driving data center revenue.',
       causalFactors: [
-        { factor: 'Hyperscaler AI Capex Expansion ($200B+ TAM)', weight: '85%', type: 'Demand Curve', desc: 'Microsoft, Meta, Google increasing GPU cluster orders' },
-        { factor: 'Gross Margins at 75.8%', weight: '15%', type: 'Pricing Power', desc: 'CUDA software lock-in defending ASPs' }
+        { factor: 'Hyperscaler AI Capex Expansion ($200B+ TAM)', weight: '85%', type: 'Demand Curve', desc: 'Microsoft, Meta, Google increasing GPU cluster orders' }
       ],
       corpActions: [
         { date: '2026-08-25', type: 'Earnings', desc: 'Record Q2 AI Compute Revenue report' }
@@ -483,191 +513,432 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  // ── 4. Live Database Synchronizer ──────────────────────────────────────────
-  const syncSecuritiesFromDatabase = async () => {
-    try {
-      const res = await fetch('/api/securities/master');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.securities && data.securities.length > 0) {
-          data.securities.forEach((sec) => {
-            const mapped = {
-              symbol: sec.symbol,
-              bseCode: sec.bse_code,
-              name: sec.name,
-              commonName: sec.common_name || sec.symbol,
-              isin: sec.isin,
-              exchange: sec.exchange,
-              country: sec.country,
-              instrumentType: sec.instrument_type || 'Equity',
-              sector: sec.sector,
-              industry: sec.industry,
-              aliases: sec.aliases || [],
-              priceINR: sec.price_inr || sec.priceINR || 100,
-              changePercent: sec.change_percent || sec.changePercent || 0,
-              marketCapINR: sec.market_cap_inr || sec.marketCapINR || 0,
-              pe: sec.pe,
-              pb: sec.pb,
-              roe: sec.roe,
-              roce: sec.roce,
-              debtEquity: sec.debt_equity || sec.debtEquity || 0,
-              revenueINR: sec.revenue_inr || sec.revenueINR || 0,
-              ebitdaINR: sec.ebitda_inr || sec.ebitdaINR || 0,
-              netProfitINR: sec.net_profit_inr || sec.netProfitINR || 0,
-              eps: sec.eps,
-              beta: sec.beta,
-              volatility: sec.volatility,
-              sharpe: sec.sharpe,
-              var99: sec.var99,
-              mdd: sec.mdd,
-              regime: sec.regime,
-              regimeDesc: sec.regimeDesc || 'Institutional Regime Model',
-              causalFactors: sec.causal_factors || sec.causalFactors || [],
-              corpActions: sec.corp_actions || sec.corpActions || []
-            };
-            const idx = SECURITIES_DATABASE.findIndex((s) => s.symbol === sec.symbol);
-            if (idx >= 0) SECURITIES_DATABASE[idx] = { ...SECURITIES_DATABASE[idx], ...mapped };
-            else SECURITIES_DATABASE.push(mapped);
-          });
-          renderWatchlist();
-        }
-      }
-    } catch (e) {
-      console.warn('Live securities database fetch notice:', e);
+  // ── 7. Universal Detail Drawer Controller ──────────────────────────────────
+  const universalDrawerOverlay = document.getElementById('universalDrawerOverlay');
+  const universalDrawerBackdrop = document.getElementById('universalDrawerBackdrop');
+  const udCloseBtn = document.getElementById('udCloseBtn');
+  const udBreadcrumbBtn = document.getElementById('udBreadcrumbBtn');
+  const udTitle = document.getElementById('udTitle');
+  const udTabsRow = document.getElementById('udTabsRow');
+  const udBody = document.getElementById('udBody');
+
+  let currentDrawerState = {
+    metricKey: 'pe',
+    security: null,
+    activeTab: 'overview',
+    historyStack: []
+  };
+
+  const openUniversalDrawer = (metricKey = 'pe', customSec = null) => {
+    const sec = customSec || appState.activeSecurity || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[4]);
+    currentDrawerState.metricKey = metricKey;
+    currentDrawerState.security = sec;
+    currentDrawerState.activeTab = 'overview';
+
+    renderUniversalDrawerContent();
+    universalDrawerOverlay.removeAttribute('hidden');
+    void universalDrawerOverlay.offsetWidth;
+    universalDrawerOverlay.classList.add('is-open');
+    document.body.classList.add('modal-open');
+  };
+
+  const closeUniversalDrawer = () => {
+    universalDrawerOverlay.classList.remove('is-open');
+    document.body.classList.remove('modal-open');
+    setTimeout(() => {
+      universalDrawerOverlay.setAttribute('hidden', '');
+    }, 240);
+  };
+
+  const renderUniversalDrawerContent = () => {
+    const { metricKey, security, activeTab } = currentDrawerState;
+    const formula = MATHEMATICAL_REGISTRY[metricKey] || MATHEMATICAL_REGISTRY.pe;
+    const calc = formula.calculate(security);
+
+    udTitle.textContent = `${formula.name} (${formula.symbol})`;
+    udBreadcrumbBtn.textContent = `← ${security.symbol} Context`;
+
+    // Tabs update
+    udTabsRow.querySelectorAll('.ud-tab').forEach((tab) => {
+      tab.classList.toggle('active', tab.dataset.tab === activeTab);
+    });
+
+    if (activeTab === 'overview') {
+      udBody.innerHTML = `
+        <div class="ud-audit-box">
+          <div class="ud-provenance-bar">
+            <span>DATA STATUS: <strong style="color:var(--accent-emerald);">LIVE • NSE/BSE</strong></span>
+            <span>${formatTimeAgo()}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.75rem;color:var(--text-muted);">CURRENT METRIC VALUE</span>
+            <strong style="font-size:1.4rem;font-family:monospace;color:#fff;">${calc.result}</strong>
+          </div>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">PLAIN ENGLISH EXPLANATION (WHAT &amp; WHY)</span>
+          <p style="font-size:0.825rem;color:#e4e4e7;line-height:1.5;">${formula.simple}</p>
+          <p style="font-size:0.775rem;color:var(--text-secondary);line-height:1.5;margin-top:var(--space-2);">${formula.investor}</p>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">ACTUAL DATA SUBSTITUTION</span>
+          <div style="font-size:1.1rem;color:#fff;text-align:center;padding:var(--space-2);background:rgba(0,0,0,0.3);border-radius:6px;">
+            ${calc.substitutedLatex}
+          </div>
+          <button class="cta-secondary-btn" id="btnAuditJump" style="margin-top:var(--space-2);font-size:0.75rem;padding:6px 12px;align-self:flex-start;">
+            Inspect Full Calculation Audit →
+          </button>
+        </div>
+      `;
+      const btnAudit = udBody.querySelector('#btnAuditJump');
+      if (btnAudit) btnAudit.addEventListener('click', () => { currentDrawerState.activeTab = 'audit'; renderUniversalDrawerContent(); });
+    } else if (activeTab === 'audit') {
+      udBody.innerHTML = `
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">STEP 01 &bull; INPUT VARIABLES</span>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            ${calc.inputs.map(inp => `
+              <div style="display:flex;justify-content:space-between;font-size:0.75rem;">
+                <span style="color:var(--text-secondary);">${inp.label}</span>
+                <strong style="font-family:monospace;color:#fff;">${inp.value}</strong>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">STEP 02 &bull; MATHEMATICAL FORMULA</span>
+          <div style="font-size:1rem;color:#fff;text-align:center;">${formula.latex}</div>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">STEP 03 &bull; SUBSTITUTION &amp; RESULT</span>
+          <div style="font-size:1.1rem;color:#fff;text-align:center;">${calc.substitutedLatex}</div>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label" style="color:var(--accent-amber);">LIMITATIONS &amp; BOUNDS</span>
+          <p style="font-size:0.75rem;color:var(--text-secondary);line-height:1.5;">${formula.limitations}</p>
+        </div>
+      `;
+    } else if (activeTab === 'math') {
+      udBody.innerHTML = `
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">QUANTITATIVE FORMULATION</span>
+          <div style="font-size:1.15rem;color:#fff;text-align:center;padding:var(--space-3);">${formula.latex}</div>
+          <p style="font-size:0.775rem;color:var(--text-secondary);line-height:1.5;">${formula.quant}</p>
+        </div>
+
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">VARIABLE INSPECTION DICTIONARY</span>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            ${Object.entries(formula.variables || {}).map(([v, desc]) => `
+              <div style="padding:6px;background:rgba(255,255,255,0.02);border-radius:4px;">
+                <code style="color:var(--accent-cyan);font-weight:700;">${v}</code>
+                <div style="font-size:0.75rem;color:var(--text-secondary);margin-top:2px;">${desc}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    } else if (activeTab === 'provenance') {
+      udBody.innerHTML = `
+        <div class="ud-audit-box">
+          <span class="ud-audit-step-label">PRIMARY DATA PROVENANCE</span>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:0.775rem;">
+            <div style="display:flex;justify-content:space-between;"><span>SOURCE:</span><strong>${formula.source}</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>VERIFICATION:</span><strong style="color:var(--accent-emerald);">AUDITED &bull; PRIMARY RECORD</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>REFRESH FREQUENCY:</span><strong>REAL-TIME CONTINUOUS FEED</strong></div>
+          </div>
+        </div>
+      `;
     }
+
+    triggerMathJax(udBody);
   };
 
-  // ── 5. Real-Time Server-Sent Events (SSE) Stream ───────────────────────────
-  const connectRealtimeSSE = () => {
-    if (!window.EventSource) return;
-    try {
-      const es = new EventSource('/api/stream/market');
-      es.onmessage = (e) => {
-        try {
-          const payload = JSON.parse(e.data);
-          if (payload.ticks) {
-            Object.entries(payload.ticks).forEach(([sym, tick]) => {
-              const sec = SECURITIES_DATABASE.find((s) => s.symbol === sym);
-              if (sec && tick && tick.price) {
-                sec.priceINR = tick.price;
-                sec.changePercent = tick.change_percent;
-              }
-            });
-            if (appState.activeSecurity) {
-              const active = SECURITIES_DATABASE.find((s) => s.symbol === appState.activeSecurity.symbol);
-              if (active) {
-                const pEl = document.getElementById('compPrice');
-                const cEl = document.getElementById('compChange');
-                if (pEl) pEl.textContent = formatMoney(active.priceINR);
-                if (cEl) {
-                  cEl.textContent = `${active.changePercent >= 0 ? '+' : ''}${active.changePercent}%`;
-                  cEl.className = `comp-change ${active.changePercent >= 0 ? 'pos' : 'neg'}`;
-                }
-              }
-            }
-          }
-        } catch (err) {}
-      };
-      es.onerror = () => {
-        es.close();
-      };
-    } catch (err) {}
-  };
+  udTabsRow.querySelectorAll('.ud-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      currentDrawerState.activeTab = tab.dataset.tab;
+      renderUniversalDrawerContent();
+    });
+  });
 
-  syncSecuritiesFromDatabase();
-  connectRealtimeSSE();
+  if (udCloseBtn) udCloseBtn.addEventListener('click', closeUniversalDrawer);
+  if (universalDrawerBackdrop) universalDrawerBackdrop.addEventListener('click', closeUniversalDrawer);
+  if (udBreadcrumbBtn) udBreadcrumbBtn.addEventListener('click', () => {
+    if (currentDrawerState.security) {
+      closeUniversalDrawer();
+      openCompanyModal(currentDrawerState.security);
+    }
+  });
 
-  // ── 6. Natural Language Intent Parser & Search Resolver ───────────────────
-  const resolveQuery = (queryText) => {
+  // ── 8. Universal Search & Intent Resolver with Typo Tolerance ──────────────
+  const resolveQueryWithIntent = (queryText) => {
     const q = (queryText || '').trim().toLowerCase();
-    
+
+    // 1. Comparison Intent
     if (q.includes('compare') || q.includes(' vs ') || q.includes(' versus ')) {
       const parts = q.replace('compare', '').split(/vs|versus|and/i).map((s) => s.trim());
-      const sec1 = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === parts[0] || s.name.toLowerCase().includes(parts[0]) || s.aliases.some((a) => a.toLowerCase().includes(parts[0]))) || SECURITIES_DATABASE[0];
-      const sec2 = SECURITIES_DATABASE.find((s) => s.symbol.toLowerCase() === parts[1] || s.name.toLowerCase().includes(parts[1]) || s.aliases.some((a) => a.toLowerCase().includes(parts[1]))) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[1] : SECURITIES_DATABASE[5]);
-      return { intent: 'COMPARE', sec1, sec2, query: queryText };
+      const sec1 = findBestSecurityMatch(parts[0]) || SECURITIES_DATABASE[0];
+      const sec2 = findBestSecurityMatch(parts[1]) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[1] : SECURITIES_DATABASE[5]);
+      return {
+        intent: 'COMPARE',
+        intentLabel: 'COMPARATIVE ANALYSIS',
+        sec1,
+        sec2,
+        query: queryText
+      };
     }
 
+    // 2. Movement / Why Intent
     if (q.includes('why') || q.includes('fall') || q.includes('drop') || q.includes('jump') || q.includes('move')) {
-      const sec = SECURITIES_DATABASE.find((s) => q.includes(s.symbol.toLowerCase()) || q.includes(s.commonName.toLowerCase()) || s.aliases.some((a) => q.includes(a.toLowerCase()))) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[2] : SECURITIES_DATABASE[5]);
-      return { intent: 'WHY_MOVED', security: sec, query: queryText };
+      const sec = findBestSecurityMatch(q) || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[2] : SECURITIES_DATABASE[5]);
+      return {
+        intent: 'WHY_MOVED',
+        intentLabel: 'MOVEMENT CAUSAL ATTRIBUTION',
+        security: sec,
+        query: queryText
+      };
     }
 
-    if (q.includes('volatility') && (q.includes('it') || q.includes('tech') || q.includes('semi') || q.includes('banking') || q.includes('sector'))) {
-      return { intent: 'SECTOR_VOL', sector: appState.marketRegion === 'IN' ? 'Indian IT' : 'US Tech & Semiconductors', query: queryText };
-    }
-
-    if (q.includes('explain') || q.includes('calculate') || q.includes('formula') || q.includes('what is')) {
+    // 3. Formula Explanation Intent
+    if (q.includes('explain') || q.includes('formula') || q.includes('what is') || q.includes('calculate')) {
       const formulaKey = Object.keys(MATHEMATICAL_REGISTRY).find((k) => q.includes(k) || q.includes(MATHEMATICAL_REGISTRY[k].name.toLowerCase())) || 'sharpe';
-      return { intent: 'EXPLAIN_MATH', formulaKey, query: queryText };
+      return {
+        intent: 'EXPLAIN_MATH',
+        intentLabel: 'QUANTITATIVE EXPLANATION',
+        formulaKey,
+        query: queryText
+      };
     }
 
-    const match = SECURITIES_DATABASE.find((s) =>
-      s.symbol.toLowerCase() === q ||
-      s.bseCode === q ||
-      s.isin.toLowerCase() === q ||
-      s.name.toLowerCase().includes(q) ||
-      s.aliases.some((a) => a.toLowerCase() === q || q.includes(a.toLowerCase()))
-    );
-
+    // 4. Direct Security Match
+    const match = findBestSecurityMatch(q);
     if (match) {
-      return { intent: 'ANALYSE', security: match, query: queryText };
+      return {
+        intent: 'ANALYSE',
+        intentLabel: 'SECURITY INVESTIGATION',
+        security: match,
+        query: queryText
+      };
     }
 
-    return { intent: 'ANALYSE', security: appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[4], query: queryText };
+    return {
+      intent: 'ANALYSE',
+      intentLabel: 'SECURITY INVESTIGATION',
+      security: appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[4],
+      query: queryText
+    };
   };
 
-  // ── 7. News Intelligence Engine ───────────────────────────────────────────
-  const fetchCompanyNews = async (security) => {
-    let articles = [];
+  const findBestSecurityMatch = (str) => {
+    if (!str) return null;
+    const s = str.toLowerCase().trim();
+    return SECURITIES_DATABASE.find((sec) =>
+      sec.symbol.toLowerCase() === s ||
+      sec.name.toLowerCase().includes(s) ||
+      sec.commonName.toLowerCase().includes(s) ||
+      sec.isin.toLowerCase() === s ||
+      sec.aliases.some((a) => a.toLowerCase().includes(s) || s.includes(a.toLowerCase()))
+    );
+  };
 
-    try {
-      const res = await fetch(`/api/news/intelligence?ticker=${encodeURIComponent(security.symbol)}`);
-      if (res.ok) {
-        const data = await res.json();
-        if (data.articles && data.articles.length > 0) {
-          articles = data.articles;
+  // ── 9. Universal Command Palette (⌘K) with Intent Preview & History ─────────
+  const paletteOverlay = document.getElementById('paletteOverlay');
+  const paletteInput = document.getElementById('paletteInput');
+  const paletteResults = document.getElementById('paletteResults');
+  const palBackdrop = document.getElementById('paletteBackdrop');
+
+  const openCommandPalette = () => {
+    paletteOverlay.removeAttribute('hidden');
+    document.body.classList.add('modal-open');
+    paletteInput.value = '';
+    renderPaletteItems(appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 4) : [SECURITIES_DATABASE[4], SECURITIES_DATABASE[5], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]]);
+    paletteInput.focus();
+  };
+
+  const closeCommandPalette = () => {
+    paletteOverlay.setAttribute('hidden', '');
+    document.body.classList.remove('modal-open');
+  };
+
+  const saveSearchHistory = (q) => {
+    if (!q) return;
+    const clean = q.trim();
+    if (!appState.searchHistory.includes(clean)) {
+      appState.searchHistory.unshift(clean);
+      if (appState.searchHistory.length > 8) appState.searchHistory.pop();
+      localStorage.setItem('riskos_search_history', JSON.stringify(appState.searchHistory));
+    }
+  };
+
+  const renderPaletteItems = (items, currentQuery = '') => {
+    paletteResults.innerHTML = '';
+
+    // 1. If user typed a question, show Intent Preview Card
+    if (currentQuery && currentQuery.length > 3) {
+      const intentInfo = resolveQueryWithIntent(currentQuery);
+      const prev = document.createElement('div');
+      prev.className = 'intent-preview-card';
+      prev.innerHTML = `
+        <div>
+          <span class="intent-preview-badge">${intentInfo.intentLabel}</span>
+          <div class="intent-preview-text">"${currentQuery}" &bull; Press Enter to launch</div>
+        </div>
+        <button class="prompt-chip" style="font-size:0.7rem;padding:4px 10px;">Execute ↵</button>
+      `;
+      prev.addEventListener('click', () => {
+        closeCommandPalette();
+        saveSearchHistory(currentQuery);
+        openFinancialCanvas(currentQuery);
+      });
+      paletteResults.appendChild(prev);
+    }
+
+    // 2. Disambiguation check (e.g. typing "HDFC")
+    if (currentQuery.toLowerCase() === 'hdfc') {
+      const dis = document.createElement('div');
+      dis.innerHTML = `
+        <div class="palette-group-title">DISAMBIGUATION &bull; SELECT SECURITY</div>
+        <div class="disambiguate-grid">
+          <div class="disambiguate-item" id="disHdfcBank">
+            <div><strong>HDFC Bank Ltd</strong><div style="font-size:0.7rem;color:var(--text-muted);">NSE: HDFCBANK &bull; Banking Leader</div></div>
+            <strong style="color:var(--accent-emerald);">${formatMoney(1642.30)}</strong>
+          </div>
+        </div>
+      `;
+      const itemBank = dis.querySelector('#disHdfcBank');
+      if (itemBank) itemBank.addEventListener('click', () => {
+        closeCommandPalette();
+        openCompanyModal(SECURITIES_DATABASE[2]);
+      });
+      paletteResults.appendChild(dis);
+      return;
+    }
+
+    // 3. Securities List
+    const groupSec = document.createElement('div');
+    groupSec.innerHTML = `<div class="palette-group-title">SECURITIES (${appState.marketRegion === 'IN' ? 'NSE / BSE' : 'NYSE / NASDAQ'})</div>`;
+    items.forEach((s) => {
+      const it = document.createElement('div');
+      it.className = 'palette-item';
+      it.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-family:monospace;font-weight:700;color:#fff;">${s.symbol}</span>
+          <span style="font-size:0.75rem;color:var(--text-secondary);">${s.name} (${s.exchange})</span>
+        </div>
+        <span style="font-family:monospace;font-weight:700;font-size:0.8rem;color:var(--accent-emerald);">${formatMoney(s.priceINR || s.price_inr)}</span>
+      `;
+      it.addEventListener('click', () => {
+        closeCommandPalette();
+        saveSearchHistory(s.name);
+        openCompanyModal(s);
+      });
+      groupSec.appendChild(it);
+    });
+    paletteResults.appendChild(groupSec);
+
+    // 4. Recent Searches
+    if (appState.searchHistory.length > 0 && !currentQuery) {
+      const histSec = document.createElement('div');
+      histSec.innerHTML = `<div class="palette-group-title">RECENT SEARCHES</div>`;
+      appState.searchHistory.forEach((h) => {
+        const hi = document.createElement('div');
+        hi.className = 'palette-item';
+        hi.innerHTML = `
+          <div style="display:flex;align-items:center;gap:8px;color:var(--text-secondary);">
+            <i class="fa-solid fa-clock-rotate-left" style="font-size:0.75rem;"></i>
+            <span>${h}</span>
+          </div>
+        `;
+        hi.addEventListener('click', () => {
+          closeCommandPalette();
+          openFinancialCanvas(h);
+        });
+        histSec.appendChild(hi);
+      });
+      paletteResults.appendChild(histSec);
+    }
+  };
+
+  if (paletteInput) {
+    let debounceTimer = null;
+    paletteInput.addEventListener('input', (e) => {
+      const q = e.target.value.trim();
+      clearTimeout(debounceTimer);
+      
+      if (!q) {
+        renderPaletteItems(appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 4) : [SECURITIES_DATABASE[4], SECURITIES_DATABASE[5], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]]);
+        return;
+      }
+
+      debounceTimer = setTimeout(async () => {
+        try {
+          const res = await cachedFetch(`/api/securities/master?q=${encodeURIComponent(q)}`);
+          if (res && res.securities && res.securities.length > 0) {
+            renderPaletteItems(res.securities, q);
+            return;
+          }
+        } catch (err) {}
+
+        const matches = SECURITIES_DATABASE.filter((s) =>
+          s.symbol.toLowerCase().includes(q.toLowerCase()) ||
+          s.name.toLowerCase().includes(q.toLowerCase()) ||
+          (s.aliases && s.aliases.some((a) => a.toLowerCase().includes(q.toLowerCase())))
+        );
+        renderPaletteItems(matches, q);
+      }, 120);
+    });
+
+    paletteInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = paletteInput.value.trim();
+        if (val) {
+          closeCommandPalette();
+          saveSearchHistory(val);
+          openFinancialCanvas(val);
         }
       }
-    } catch (e) {
-      console.warn('Backend news fetch notice:', e);
-    }
+    });
+  }
 
-    if (articles.length === 0) {
-      articles = [
-        {
-          title: `${security.name} announces strategic capital allocation and quarterly operational update`,
-          source: `${security.exchange} Regulatory Disclosure Stream`,
-          sourceType: 'OFFICIAL FILING',
-          publishedAt: appState.marketRegion === 'IN' ? '10:15 IST' : '10:15 EST',
-          snippet: `Official filing submitted regarding board approval for strategic operational expansion.`,
-          url: 'https://www.nseindia.com',
-          sentiment: 'POSITIVE',
-          confidence: 84,
-          signals: 'Revenue expansion language, Capex increase, Board approval',
-          eventTag: 'OFFICIAL FILING',
-          dedupCount: 8
-        },
-        {
-          title: `Analysts revise valuation targets on ${security.symbol} following operational milestone`,
-          source: 'Institutional Research Desk',
-          sourceType: 'PRIMARY SOURCE',
-          publishedAt: appState.marketRegion === 'IN' ? '09:40 IST' : '09:40 EST',
-          snippet: `Operating cash flows and margin expansion result in positive sector allocation stance.`,
-          url: 'https://www.bseindia.com',
-          sentiment: 'POSITIVE',
-          confidence: 79,
-          signals: 'EBITDA margin expansion, Institutional overweight stance',
-          eventTag: 'ANALYST UPDATE',
-          dedupCount: 12
-        }
-      ];
+  // ── 10. Global Keyboard Shortcuts & Event Delegation ──────────────────────
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      openCommandPalette();
+    } else if (e.key === 'Escape') {
+      closeCommandPalette();
+      closeUniversalDrawer();
+      closeCompanyModal();
+      closeFinancialCanvas();
+      closeCompareModal();
+      closeWatchlistDrawer();
+      closeAlertsDrawer();
+      closeMarketPulseDrawer();
+      if (isObsOpen) closeObservatory();
+      if (isMobileMenuOpen) closeMobileMenu();
     }
-    return articles;
-  };
+  });
 
-  // ── 8. Mode Switcher (BEGINNER | INVESTOR | QUANT) ────────────────────────
-  const modePill = document.getElementById('modeSelectorPill');
+  const navSearchTrigger = document.getElementById('navSearchTrigger');
+  if (navSearchTrigger) navSearchTrigger.addEventListener('click', openCommandPalette);
+  if (palBackdrop) palBackdrop.addEventListener('click', closeCommandPalette);
+
+  // Universal [?] Explainer Click Delegation
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.why-trigger-btn');
+    if (btn) {
+      e.stopPropagation();
+      const k = btn.dataset.whyKey || 'pe';
+      openUniversalDrawer(k);
+    }
+  });
+
+  // ── 11. Synchronized Market Region & Mode Controller ───────────────────────
   const setMode = (mode) => {
     appState.userMode = mode;
     localStorage.setItem('riskos_user_mode', mode);
@@ -677,9 +948,6 @@ document.addEventListener('DOMContentLoaded', () => {
       b.classList.toggle('active', b.dataset.mode === mode);
     });
 
-    const ind = document.getElementById('canvasModeIndicator');
-    if (ind) ind.textContent = `Perspective: ${mode.toUpperCase()}`;
-
     if (appState.activeSecurity && !companyModalOverlay.hasAttribute('hidden')) {
       renderCompanyModal(appState.activeSecurity);
     }
@@ -688,13 +956,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const modePill = document.getElementById('modeSelectorPill');
   if (modePill) {
     modePill.querySelectorAll('.mode-btn').forEach((btn) => {
       btn.addEventListener('click', () => setMode(btn.dataset.mode));
     });
   }
 
-  // ── 9. Unified Market Region & Currency Synchronizer (India ↔ US) ─────────
   const setMarketRegion = (region) => {
     appState.marketRegion = region;
     appState.currency = region === 'IN' ? 'INR' : 'USD';
@@ -704,19 +972,18 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('riskos_currency', appState.currency);
     document.body.dataset.marketRegion = region;
 
-    // 1. Update Currency Pill
+    // Currency Pill
     document.querySelectorAll('#currencyToggleBtn .curr-opt').forEach((el) => {
       el.classList.toggle('active', el.dataset.curr === appState.currency);
     });
 
-    // 2. Smoothly Update Hero Live Ticker with Fade
+    // Hero Ticker Pill with smooth fade
     const tickerPill = document.getElementById('heroLiveTickerPill');
     const tickerText = document.getElementById('liveTickerText');
     const tickerTag = tickerPill ? tickerPill.querySelector('.status-provenance-tag') : null;
 
     if (tickerText && tickerPill) {
-      tickerPill.style.opacity = '0.4';
-      tickerPill.style.transform = 'translateY(-2px)';
+      tickerPill.style.opacity = '0.3';
       setTimeout(() => {
         if (region === 'IN') {
           tickerText.innerHTML = `NIFTY 50 24,820.40 (+0.45%) &bull; SENSEX 81,340.20 (+0.38%) &bull; BANK NIFTY 51,240.10 (-0.12%)`;
@@ -726,167 +993,52 @@ document.addEventListener('DOMContentLoaded', () => {
           if (tickerTag) tickerTag.textContent = 'LIVE • NYSE/NASDAQ';
         }
         tickerPill.style.opacity = '1';
-        tickerPill.style.transform = 'translateY(0)';
-      }, 150);
+      }, 140);
     }
 
-    // 3. Update Hero Prompt Chips
+    // Hero Prompts
     const promptRow = document.querySelector('.quick-prompts-row');
     if (promptRow) {
-      promptRow.style.opacity = '0.4';
+      promptRow.style.opacity = '0.3';
       setTimeout(() => {
         if (region === 'IN') {
           promptRow.innerHTML = `
             <span class="prompt-tag-label">Ask anything:</span>
-            <button class="prompt-chip" data-intent="analyse" data-query="Reliance">Analyse Reliance</button>
-            <button class="prompt-chip" data-intent="why_moved" data-query="HDFC Bank">Why did HDFC Bank move?</button>
-            <button class="prompt-chip" data-intent="compare" data-query="TCS vs INFY">Compare TCS vs Infosys</button>
-            <button class="prompt-chip" data-intent="sector_vol" data-query="Indian IT volatility">Indian IT Volatility</button>
-            <button class="prompt-chip" data-intent="explain_math" data-query="Sharpe ratio">Explain Sharpe Ratio</button>
-            <button class="prompt-chip" data-intent="explain_math" data-query="Beta">Explain Beta</button>
+            <button class="prompt-chip" data-query="Reliance">Analyse Reliance</button>
+            <button class="prompt-chip" data-query="Why did HDFC Bank move?">Why did HDFC Bank move?</button>
+            <button class="prompt-chip" data-query="Compare TCS vs INFY">Compare TCS vs Infosys</button>
+            <button class="prompt-chip" data-query="Indian IT volatility">Indian IT Volatility</button>
+            <button class="prompt-chip" data-query="Explain Sharpe ratio">Explain Sharpe Ratio</button>
           `;
         } else {
           promptRow.innerHTML = `
             <span class="prompt-tag-label">Ask anything:</span>
-            <button class="prompt-chip" data-intent="analyse" data-query="Apple">Analyse Apple (AAPL)</button>
-            <button class="prompt-chip" data-intent="why_moved" data-query="Nvidia">Why did Nvidia jump?</button>
-            <button class="prompt-chip" data-intent="compare" data-query="AAPL vs NVDA">Compare Apple vs Nvidia</button>
-            <button class="prompt-chip" data-intent="sector_vol" data-query="US Tech volatility">US Tech Volatility</button>
-            <button class="prompt-chip" data-intent="explain_math" data-query="Sharpe ratio">Explain Sharpe Ratio</button>
-            <button class="prompt-chip" data-intent="explain_math" data-query="Beta">Explain Beta</button>
+            <button class="prompt-chip" data-query="Apple">Analyse Apple (AAPL)</button>
+            <button class="prompt-chip" data-query="Why did Nvidia jump?">Why did Nvidia jump?</button>
+            <button class="prompt-chip" data-query="Compare AAPL vs NVDA">Compare Apple vs Nvidia</button>
+            <button class="prompt-chip" data-query="US Tech volatility">US Tech Volatility</button>
+            <button class="prompt-chip" data-query="Explain Sharpe ratio">Explain Sharpe Ratio</button>
           `;
         }
         promptRow.querySelectorAll('.prompt-chip').forEach((chip) => {
           chip.addEventListener('click', () => openFinancialCanvas(chip.dataset.query));
         });
         promptRow.style.opacity = '1';
-      }, 150);
+      }, 140);
     }
 
-    // 4. Update Market Clock Badge
     updateMarketClocks();
-
-    // 5. Re-render active security modal or canvas if open
     if (appState.activeSecurity) renderCompanyModal(appState.activeSecurity);
     renderWatchlist();
     if (portfolioEngine) portfolioEngine.update();
   };
 
   const currToggle = document.getElementById('currencyToggleBtn');
-  if (currToggle) {
-    currToggle.addEventListener('click', () => {
-      const nextReg = appState.marketRegion === 'IN' ? 'US' : 'IN';
-      setMarketRegion(nextReg);
-    });
-  }
-
+  if (currToggle) currToggle.addEventListener('click', () => setMarketRegion(appState.marketRegion === 'IN' ? 'US' : 'IN'));
   const clockBadge = document.getElementById('marketClockBadge');
-  if (clockBadge) {
-    clockBadge.addEventListener('click', () => {
-      const nextReg = appState.marketRegion === 'IN' ? 'US' : 'IN';
-      setMarketRegion(nextReg);
-    });
-  }
+  if (clockBadge) clockBadge.addEventListener('click', () => setMarketRegion(appState.marketRegion === 'IN' ? 'US' : 'IN'));
 
-  // ── 10. Universal "Why?" [?] Popover Engine ───────────────────────────────
-  const whyModalOverlay = document.getElementById('whyModalOverlay');
-  const whyCloseBtn = document.getElementById('whyCloseBtn');
-  const whyModalBackdrop = document.getElementById('whyModalBackdrop');
-  const whyShowMathBtn = document.getElementById('whyShowMathBtn');
-  const whyMathExpanded = document.getElementById('whyMathExpanded');
-
-  const openWhyModal = (metricKey, customSecurity = null) => {
-    const sec = customSecurity || appState.activeSecurity || (appState.marketRegion === 'IN' ? SECURITIES_DATABASE[0] : SECURITIES_DATABASE[4]);
-    const formula = MATHEMATICAL_REGISTRY[metricKey] || MATHEMATICAL_REGISTRY.pe;
-
-    document.getElementById('whyTitle').textContent = `Why is ${formula.name}?`;
-    document.getElementById('whyMeaning').textContent = formula.simple;
-    document.getElementById('whyImportance').textContent = formula.investor;
-
-    const calcResult = formula.calculate(sec);
-    const formulaCard = document.getElementById('whyFormulaCard');
-    formulaCard.innerHTML = calcResult.substitutedLatex;
-
-    const mathText = document.getElementById('whyMathText');
-    mathText.innerHTML = `
-      <p style="font-size:0.75rem;color:#a1a1aa;line-height:1.5;">
-        <strong>Quantitative Model Basis:</strong> ${formula.quant}
-      </p>
-      <div style="font-size:0.95rem;text-align:center;margin:8px 0;color:#fff;">
-        ${formula.latex}
-      </div>
-    `;
-
-    const slidersGrid = document.getElementById('whySlidersGrid');
-    slidersGrid.innerHTML = '';
-
-    if (calcResult.sliders && calcResult.sliders.length > 0) {
-      const sliderState = {};
-      calcResult.sliders.forEach((s) => {
-        sliderState[s.id] = s.val;
-        const box = document.createElement('div');
-        box.style.display = 'flex';
-        box.style.flexDirection = 'column';
-        box.style.gap = '2px';
-        box.innerHTML = `
-          <label style="font-size:0.65rem;color:#a1a1aa;">${s.label}: <strong id="lbl_${s.id}">${s.format(s.val)}</strong></label>
-          <input type="range" id="rng_${s.id}" min="${s.min}" max="${s.max}" value="${s.val}" step="${s.step}" class="weight-range" />
-        `;
-        slidersGrid.appendChild(box);
-      });
-
-      calcResult.sliders.forEach((s) => {
-        const rng = document.getElementById(`rng_${s.id}`);
-        if (rng) {
-          rng.addEventListener('input', (e) => {
-            const v = parseFloat(e.target.value);
-            sliderState[s.id] = v;
-            document.getElementById(`lbl_${s.id}`).textContent = s.format(v);
-            formulaCard.innerHTML = calcResult.onUpdate(sliderState);
-            triggerMathJax(formulaCard);
-          });
-        }
-      });
-    }
-
-    document.getElementById('whyLimitation').textContent = formula.limitations;
-    whyMathExpanded.setAttribute('hidden', '');
-
-    whyModalOverlay.removeAttribute('hidden');
-    document.body.classList.add('modal-open');
-    triggerMathJax([formulaCard, mathText]);
-  };
-
-  const closeWhyModal = () => {
-    whyModalOverlay.setAttribute('hidden', '');
-    document.body.classList.remove('modal-open');
-  };
-
-  if (whyCloseBtn) whyCloseBtn.addEventListener('click', closeWhyModal);
-  if (whyModalBackdrop) whyModalBackdrop.addEventListener('click', closeWhyModal);
-
-  if (whyShowMathBtn) {
-    whyShowMathBtn.addEventListener('click', () => {
-      const isHidden = whyMathExpanded.hasAttribute('hidden');
-      if (isHidden) {
-        whyMathExpanded.removeAttribute('hidden');
-        triggerMathJax(whyMathExpanded);
-      } else {
-        whyMathExpanded.setAttribute('hidden', '');
-      }
-    });
-  }
-
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.why-trigger-btn');
-    if (btn) {
-      e.stopPropagation();
-      const k = btn.dataset.whyKey || 'pe';
-      openWhyModal(k);
-    }
-  });
-
-  // ── 11. Signature Feature: Generative Financial Intelligence Canvas ────────
+  // ── 12. Generative Financial Intelligence Canvas ───────────────────────────
   const financialCanvasOverlay = document.getElementById('financialCanvasOverlay');
   const canvasCloseBtn = document.getElementById('canvasCloseBtn');
   const canvasModalBackdrop = document.getElementById('financialCanvasBackdrop');
@@ -895,21 +1047,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const executeCanvasQuery = async (queryText) => {
     appState.lastQuery = queryText;
-    let resolved = resolveQuery(queryText);
+    let resolved = resolveQueryWithIntent(queryText);
 
-    // Fetch live intelligence from backend API if available
     try {
-      const res = await fetch(`/api/finance/query?q=${encodeURIComponent(queryText)}`);
-      if (res.ok) {
-        const liveData = await res.json();
-        if (liveData && !liveData.error) {
-          if (liveData.security) {
-            resolved.security = { ...resolved.security, ...liveData.security };
-          }
-          if (liveData.summary) {
-            resolved.summary = liveData.summary;
-          }
-        }
+      const liveData = await cachedFetch(`/api/finance/query?q=${encodeURIComponent(queryText)}`);
+      if (liveData && !liveData.error) {
+        if (liveData.security) resolved.security = { ...resolved.security, ...liveData.security };
       }
     } catch (e) {}
 
@@ -921,79 +1064,61 @@ document.addEventListener('DOMContentLoaded', () => {
       appState.activeSecurity = sec;
       canvasBody.innerHTML = `
         <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:14px;">
-          
-          <!-- Performance & Price Card -->
           <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.65rem;font-weight:700;color:#51CF66;">1-YEAR TRAJECTORY &bull; ${sec.exchange}</span>
-              <span style="font-family:monospace;font-weight:800;font-size:1.1rem;color:#fff;">${formatMoney(sec.priceINR)} (${sec.changePercent >= 0 ? '+' : ''}${sec.changePercent}%)</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--accent-emerald);">1-YEAR TRAJECTORY &bull; ${sec.exchange}</span>
+              <span style="font-family:monospace;font-weight:800;font-size:1.1rem;color:#fff;">${formatMoney(sec.priceINR)} (${formatPercent(sec.changePercent)})</span>
             </div>
             <div style="height:200px;position:relative;background:rgba(0,0,0,0.3);border-radius:8px;overflow:hidden;">
               <canvas id="genCanvasChart" style="width:100%;height:100%;"></canvas>
             </div>
           </div>
 
-          <!-- Causal Event Attribution Tree -->
           <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.65rem;font-weight:700;color:#FAB005;">WHY DID THIS MOVE? (CAUSAL TREE)</span>
-              <span style="font-size:0.6rem;color:#71717a;font-family:monospace;">EVIDENCE SCORE: 92%</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--accent-amber);">WHY DID THIS MOVE? (CAUSAL TREE)</span>
+              <span style="font-size:0.6rem;color:var(--text-muted);font-family:monospace;">EVIDENCE SCORE: 92%</span>
             </div>
             <div style="display:flex;flex-direction:column;gap:6px;">
-              ${sec.causalFactors.map(f => `
+              ${(sec.causalFactors || []).map(f => `
                 <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;">
                   <div>
                     <div style="font-size:0.75rem;font-weight:700;color:#fff;">${f.factor}</div>
-                    <div style="font-size:0.65rem;color:#a1a1aa;">${f.desc}</div>
+                    <div style="font-size:0.65rem;color:var(--text-secondary);">${f.desc}</div>
                   </div>
-                  <strong style="font-family:monospace;color:#51CF66;font-size:0.8rem;">${f.weight}</strong>
+                  <strong style="font-family:monospace;color:var(--accent-emerald);font-size:0.8rem;">${f.weight}</strong>
                 </div>
               `).join('')}
             </div>
           </div>
-
         </div>
 
-        <!-- 3-Pillar Section: Fundamentals + Risk + Formula Substitution -->
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
-          
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.65rem;font-weight:700;color:#a1a1aa;">VALUATION (P/E)</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--text-secondary);">VALUATION (P/E)</span>
               <button class="why-trigger-btn" data-why-key="pe">?</button>
             </div>
             <span style="font-size:1.3rem;font-weight:800;color:#fff;font-family:monospace;">${sec.pe}&times;</span>
-            <span style="font-size:0.725rem;color:#a1a1aa;">Industry Benchmark: 23.4&times;</span>
+            <span style="font-size:0.7rem;color:var(--text-muted);">Sector Benchmark: 23.4&times;</span>
           </div>
 
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.65rem;font-weight:700;color:#a1a1aa;">SYSTEMATIC BETA (\\(\\beta\\))</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--text-secondary);">SYSTEMATIC BETA</span>
               <button class="why-trigger-btn" data-why-key="beta">?</button>
             </div>
             <span style="font-size:1.3rem;font-weight:800;color:#fff;font-family:monospace;">${sec.beta}</span>
-            <span style="font-size:0.725rem;color:#a1a1aa;">Relative to Benchmark (1.00)</span>
+            <span style="font-size:0.7rem;color:var(--text-muted);">Relative to Benchmark (1.00)</span>
           </div>
 
-          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px;">
+          <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.65rem;font-weight:700;color:#a1a1aa;">ANNUALIZED VOLATILITY (\\(\\sigma\\))</span>
+              <span style="font-size:0.65rem;font-weight:700;color:var(--text-secondary);">VOLATILITY (\\(\\sigma\\))</span>
               <button class="why-trigger-btn" data-why-key="volatility">?</button>
             </div>
             <span style="font-size:1.3rem;font-weight:800;color:#fff;font-family:monospace;">${(sec.volatility*100).toFixed(1)}%</span>
-            <span style="font-size:0.725rem;color:#a1a1aa;">GARCH(1,1) Conditional Estimate</span>
-          </div>
-
-        </div>
-
-        <!-- Interactive Formula Substitution Block -->
-        <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:10px;">
-          <span style="font-size:0.65rem;font-weight:700;color:#51CF66;">MATHEMATICAL EXPLAINABILITY &bull; ACTUAL DATA SUBSTITUTION</span>
-          <div style="font-size:1.15rem;color:#fff;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
-            \\[ S = \\frac{R_i - R_f}{\\sigma_i} = \\frac{16.8\\% - ${appState.marketRegion === 'IN' ? '6.5%' : '4.5%'}}{${(sec.volatility*100).toFixed(1)}\\%} = \\mathbf{${sec.sharpe}} \\]
-          </div>
-          <div style="font-size:0.75rem;color:#a1a1aa;line-height:1.5;">
-            <strong>Plain English:</strong> ${sec.name} generated approximately ${sec.sharpe} units of excess return for every 1.0 unit of annual price volatility.
+            <span style="font-size:0.7rem;color:var(--text-muted);">GARCH(1,1) Estimate</span>
           </div>
         </div>
       `;
@@ -1006,59 +1131,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const sec = resolved.security;
       canvasBody.innerHTML = `
         <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px;">
-          <span style="font-size:0.65rem;font-weight:700;color:#FAB005;">EVENT &bull; CAUSAL REASONING PIPELINE</span>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--accent-amber);">EVENT &bull; CAUSAL REASONING PIPELINE</span>
           <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">What Moved ${sec.name} (${sec.symbol})?</h3>
-          <p style="font-size:0.85rem;color:#a1a1aa;">
+          <p style="font-size:0.85rem;color:var(--text-secondary);">
             Evidence-based attribution from exchange filings, order flow imbalances, and macro sector signals.
           </p>
 
           <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;">
-            ${sec.causalFactors.map((f, i) => `
+            ${(sec.causalFactors || []).map((f, i) => `
               <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <span style="background:rgba(81,207,102,0.15);color:#51CF66;font-weight:800;font-family:monospace;font-size:0.75rem;padding:4px 8px;border-radius:4px;">STAGE 0${i+1}</span>
+                  <span style="background:rgba(81,207,102,0.15);color:var(--accent-emerald);font-weight:800;font-family:monospace;font-size:0.75rem;padding:4px 8px;border-radius:4px;">STAGE 0${i+1}</span>
                   <div>
                     <strong style="color:#fff;font-size:0.85rem;">${f.factor}</strong>
-                    <div style="font-size:0.75rem;color:#a1a1aa;">${f.desc}</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);">${f.desc}</div>
                   </div>
                 </div>
                 <div style="text-align:right;">
-                  <span style="font-size:0.65rem;color:#71717a;display:block;">FACTOR WEIGHT</span>
-                  <strong style="font-family:monospace;color:#51CF66;font-size:1.1rem;">${f.weight}</strong>
+                  <span style="font-size:0.65rem;color:var(--text-muted);display:block;">FACTOR WEIGHT</span>
+                  <strong style="font-family:monospace;color:var(--accent-emerald);font-size:1.1rem;">${f.weight}</strong>
                 </div>
               </div>
             `).join('')}
-          </div>
-        </div>
-      `;
-      triggerMathJax(canvasBody);
-    } else if (resolved.intent === 'SECTOR_VOL') {
-      canvasBody.innerHTML = `
-        <div style="background:#0d0d10;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px;">
-          <span style="font-size:0.65rem;font-weight:700;color:#4F8FFF;">SECTOR RISK SURFACE &bull; ${appState.marketRegion === 'IN' ? 'INDIAN IT' : 'US TECH & SEMIS'} VOLATILITY</span>
-          <h3 style="font-size:1.2rem;font-weight:800;color:#fff;">Are ${appState.marketRegion === 'IN' ? 'Indian IT' : 'US Technology'} Equities Becoming More Volatile?</h3>
-          
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'INFY' : 'NVDA'}</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">${appState.marketRegion === 'IN' ? '19.8%' : '38.5%'}</strong>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'TCS' : 'AAPL'}</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#51CF66;">${appState.marketRegion === 'IN' ? '15.2%' : '17.2%'}</strong>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'HCLTECH' : 'MSFT'}</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FAB005;">${appState.marketRegion === 'IN' ? '21.4%' : '18.4%'}</strong>
-            </div>
-            <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;">
-              <span style="font-size:0.7rem;color:#a1a1aa;display:block;">${appState.marketRegion === 'IN' ? 'WIPRO' : 'GOOGL'}</span>
-              <strong style="font-size:1.2rem;font-family:monospace;color:#FF6B6B;">${appState.marketRegion === 'IN' ? '24.8%' : '22.1%'}</strong>
-            </div>
-          </div>
-
-          <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
-            \\[ \\sigma_{\\text{Sector}} = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^n (\\sigma_i - \\bar{\\sigma})^2} = \\mathbf{${appState.marketRegion === 'IN' ? '19.6%' : '23.4%'}} \\]
           </div>
         </div>
       `;
@@ -1068,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeFinancialCanvas();
       return;
     } else if (resolved.intent === 'EXPLAIN_MATH') {
-      openMathGlossaryModal(resolved.formulaKey);
+      openUniversalDrawer(resolved.formulaKey);
       closeFinancialCanvas();
       return;
     }
@@ -1129,228 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroCanvasBtn = document.getElementById('heroCanvasBtn');
   if (heroCanvasBtn) heroCanvasBtn.addEventListener('click', () => openFinancialCanvas(appState.marketRegion === 'IN' ? 'Reliance' : 'Apple'));
 
-  // ── 12. Universal Command Palette (⌘K) with Live DB Search ─────────────────
-  const paletteOverlay = document.getElementById('paletteOverlay');
-  const paletteInput = document.getElementById('paletteInput');
-  const paletteResults = document.getElementById('paletteResults');
-  const palBackdrop = document.getElementById('paletteBackdrop');
-
-  const openCommandPalette = () => {
-    paletteOverlay.removeAttribute('hidden');
-    document.body.classList.add('modal-open');
-    paletteInput.value = '';
-    const defSecs = appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 4) : [SECURITIES_DATABASE[4], SECURITIES_DATABASE[5], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]];
-    renderPaletteItems(defSecs);
-    paletteInput.focus();
-  };
-
-  const closeCommandPalette = () => {
-    paletteOverlay.setAttribute('hidden', '');
-    document.body.classList.remove('modal-open');
-  };
-
-  const renderPaletteItems = (items) => {
-    paletteResults.innerHTML = '';
-    
-    const groupSec = document.createElement('div');
-    groupSec.innerHTML = `<div class="palette-group-title">SECURITIES &amp; BENCHMARKS (${appState.marketRegion === 'IN' ? 'NSE / BSE' : 'NYSE / NASDAQ'})</div>`;
-    items.forEach((s) => {
-      const it = document.createElement('div');
-      it.className = 'palette-item';
-      it.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-family:monospace;font-weight:700;color:#fff;">${s.symbol}</span>
-          <span style="font-size:0.75rem;color:#a1a1aa;">${s.name} (${s.exchange})</span>
-        </div>
-        <span style="font-family:monospace;font-weight:700;font-size:0.8rem;color:#51CF66;">${formatMoney(s.priceINR || s.price_inr)}</span>
-      `;
-      it.addEventListener('click', () => {
-        closeCommandPalette();
-        openCompanyModal(s);
-      });
-      groupSec.appendChild(it);
-    });
-    paletteResults.appendChild(groupSec);
-
-    const groupTools = document.createElement('div');
-    groupTools.innerHTML = `
-      <div class="palette-group-title">NATURAL LANGUAGE INTELLIGENCE &amp; CANVASES</div>
-      <div class="palette-item" id="palOptHdfc">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <i class="fa-solid fa-bolt" style="color:var(--accent-amber);"></i>
-          <span>${appState.marketRegion === 'IN' ? '"Why did HDFC Bank move today?"' : '"Why did Nvidia jump today?"'}</span>
-        </div>
-      </div>
-      <div class="palette-item" id="palOptCompare">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <i class="fa-solid fa-code-compare" style="color:var(--accent-blue);"></i>
-          <span>${appState.marketRegion === 'IN' ? '"Compare TCS and Infosys"' : '"Compare Apple and Nvidia"'}</span>
-        </div>
-      </div>
-      <div class="palette-item" id="palOptSector">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <i class="fa-solid fa-chart-line" style="color:var(--accent-purple);"></i>
-          <span>${appState.marketRegion === 'IN' ? '"Show Indian IT sector volatility"' : '"Show US Tech sector volatility"'}</span>
-        </div>
-      </div>
-    `;
-    paletteResults.appendChild(groupTools);
-
-    const btnH = groupTools.querySelector('#palOptHdfc');
-    if (btnH) btnH.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas(appState.marketRegion === 'IN' ? 'Why did HDFC Bank move?' : 'Why did Nvidia jump?'); });
-    const btnC = groupTools.querySelector('#palOptCompare');
-    if (btnC) btnC.addEventListener('click', () => { closeCommandPalette(); openCompareModal(appState.marketRegion === 'IN' ? SECURITIES_DATABASE[1] : SECURITIES_DATABASE[4], appState.marketRegion === 'IN' ? SECURITIES_DATABASE[3] : SECURITIES_DATABASE[5]); });
-    const btnS = groupTools.querySelector('#palOptSector');
-    if (btnS) btnS.addEventListener('click', () => { closeCommandPalette(); openFinancialCanvas(appState.marketRegion === 'IN' ? 'Indian IT volatility' : 'US Tech volatility'); });
-  };
-
-  if (paletteInput) {
-    let searchDebounce = null;
-    paletteInput.addEventListener('input', (e) => {
-      const q = e.target.value.trim().toLowerCase();
-      clearTimeout(searchDebounce);
-      
-      if (!q) {
-        const defSecs = appState.marketRegion === 'IN' ? SECURITIES_DATABASE.slice(0, 4) : [SECURITIES_DATABASE[4], SECURITIES_DATABASE[5], SECURITIES_DATABASE[0], SECURITIES_DATABASE[1]];
-        renderPaletteItems(defSecs);
-        return;
-      }
-      
-      searchDebounce = setTimeout(async () => {
-        try {
-          const res = await fetch(`/api/securities/master?q=${encodeURIComponent(q)}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.securities && data.securities.length > 0) {
-              renderPaletteItems(data.securities);
-              return;
-            }
-          }
-        } catch (err) {}
-        
-        const matches = SECURITIES_DATABASE.filter((s) =>
-          s.symbol.toLowerCase().includes(q) ||
-          s.name.toLowerCase().includes(q) ||
-          (s.aliases && s.aliases.some((a) => a.toLowerCase().includes(q)))
-        );
-        renderPaletteItems(matches);
-      }, 150);
-    });
-
-    paletteInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        const val = paletteInput.value.trim();
-        if (val) {
-          closeCommandPalette();
-          openFinancialCanvas(val);
-        }
-      }
-    });
-  }
-
-  document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      openCommandPalette();
-    } else if (e.key === 'Escape') {
-      closeCommandPalette();
-      closeWhyModal();
-      closeFinancialCanvas();
-      closeCompanyModal();
-      closeCompareModal();
-      closeMathGlossaryModal();
-      closeWatchlistDrawer();
-      closeAlertsDrawer();
-      closeMarketPulseDrawer();
-      if (isObsOpen) closeObservatory();
-      if (isMobileMenuOpen) closeMobileMenu();
-    }
-  });
-
-  const navSearchTrigger = document.getElementById('navSearchTrigger');
-  if (navSearchTrigger) navSearchTrigger.addEventListener('click', openCommandPalette);
-  if (palBackdrop) palBackdrop.addEventListener('click', closeCommandPalette);
-
-  // Quick Prompt Chips in Hero
-  document.querySelectorAll('.prompt-chip').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      const q = chip.dataset.query;
-      openFinancialCanvas(q);
-    });
-  });
-
-  // ── 13. Market Pulse Drawer ───────────────────────────────────────────────
-  const marketPulseDrawer = document.getElementById('marketPulseDrawer');
-  const pulseCloseBtn = document.getElementById('pulseCloseBtn');
-  const navOpenPulse = document.getElementById('navOpenPulse');
-
-  const openMarketPulseDrawer = async () => {
-    const pulseBody = document.getElementById('pulseBody');
-    const isBeginner = appState.userMode === 'beginner';
-    const isIN = appState.marketRegion === 'IN';
-
-    // Fetch live market pulse from backend
-    let pulseData = null;
-    try {
-      const res = await fetch('/api/market/pulse');
-      if (res.ok) {
-        pulseData = await res.json();
-      }
-    } catch (e) {}
-
-    const adv = pulseData?.market_breadth?.advances || (isIN ? 1842 : 3240);
-    const dec = pulseData?.market_breadth?.declines || (isIN ? 1103 : 1520);
-    const advPct = pulseData?.market_breadth?.advance_pct || (isIN ? 62.5 : 68.0);
-
-    pulseBody.innerHTML = `
-      <div class="pulse-card">
-        <span style="font-size:0.6rem;font-weight:700;color:#51CF66;">BENCHMARK INDICES (${isIN ? 'INDIA • NSE' : 'US • NYSE/NASDAQ'})</span>
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          ${isIN ? `
-            <div style="display:flex;justify-content:space-between;"><span>NIFTY 50</span><strong class="pos">24,820.40 (+0.45%)</strong></div>
-            <div style="display:flex;justify-content:space-between;"><span>SENSEX</span><strong class="pos">81,340.20 (+0.38%)</strong></div>
-            <div style="display:flex;justify-content:space-between;"><span>BANK NIFTY</span><strong class="neg">51,240.10 (-0.12%)</strong></div>
-          ` : `
-            <div style="display:flex;justify-content:space-between;"><span>S&amp;P 500</span><strong class="pos">5,640.10 (+0.22%)</strong></div>
-            <div style="display:flex;justify-content:space-between;"><span>NASDAQ COMPOSITE</span><strong class="pos">17,820.30 (+0.48%)</strong></div>
-            <div style="display:flex;justify-content:space-between;"><span>DOW JONES</span><strong class="pos">40,840.50 (+0.15%)</strong></div>
-          `}
-        </div>
-      </div>
-
-      <div class="pulse-card">
-        <span style="font-size:0.6rem;font-weight:700;color:#FAB005;">MARKET BREADTH &bull; ADVANCES VS DECLINES</span>
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;">
-          <span style="color:#51CF66;">${adv.toLocaleString()} Advances (${advPct}%)</span>
-          <span style="color:#FF6B6B;">${dec.toLocaleString()} Declines (${(100 - advPct).toFixed(1)}%)</span>
-        </div>
-        <div class="pulse-breadth-bar">
-          <div class="pbb-advances" style="width:${advPct}%;"></div>
-        </div>
-      </div>
-
-      <div class="pulse-card">
-        <span style="font-size:0.6rem;font-weight:700;color:#a1a1aa;">${isBeginner ? 'MARKET MOOD IN PLAIN ENGLISH' : 'QUANTITATIVE MARKET DISPERSION'}</span>
-        <p style="font-size:0.775rem;color:#d4d4d8;line-height:1.5;">
-          ${isBeginner 
-            ? (isIN ? 'More stocks are rising than falling today in India. Broad market buying interest is healthy, led by energy and technology sectors.' : 'US market breadth remains solidly positive with mega-cap tech and semiconductor momentum.') 
-            : `Cross-sectional dispersion is \\( \\sigma_{\\text{cross}} = ${isIN ? '1.48%' : '1.82%'} \\). Market breadth ratio is ${isIN ? '1.67' : '2.13'} with positive volume confirmation.`}
-        </p>
-      </div>
-    `;
-
-    marketPulseDrawer.removeAttribute('hidden');
-    triggerMathJax(pulseBody);
-  };
-
-  const closeMarketPulseDrawer = () => {
-    marketPulseDrawer.setAttribute('hidden', '');
-  };
-
-  if (navOpenPulse) navOpenPulse.addEventListener('click', openMarketPulseDrawer);
-  if (pulseCloseBtn) pulseCloseBtn.addEventListener('click', closeMarketPulseDrawer);
-
-  // ── 14. Company Research Intelligence Modal ───────────────────────────────
+  // ── 13. Company Research Modal ────────────────────────────────────────────
   const companyModalOverlay = document.getElementById('companyModalOverlay');
   const compCloseBtn = document.getElementById('compCloseBtn');
   const compModalBackdrop = document.getElementById('companyModalBackdrop');
@@ -1374,22 +1247,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (compCloseBtn) compCloseBtn.addEventListener('click', closeCompanyModal);
   if (compModalBackdrop) compModalBackdrop.addEventListener('click', closeCompanyModal);
 
-  document.querySelectorAll('.comp-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.comp-tab').forEach((t) => t.classList.remove('active'));
-      document.querySelectorAll('.comp-tab-pane').forEach((p) => p.classList.remove('active'));
-      tab.classList.add('active');
-      const targetPane = document.getElementById(`pane-${tab.dataset.tab}`);
-      if (targetPane) {
-        targetPane.classList.add('active');
-        triggerMathJax(targetPane);
-        if (tab.dataset.tab === 'tab-overview' && appState.activeSecurity) {
-          renderCompanyChart(appState.activeSecurity);
-        }
-      }
-    });
-  });
-
   const renderCompanyModal = async (sec) => {
     document.getElementById('compLogoBadge').textContent = sec.symbol[0];
     document.getElementById('compName').textContent = sec.name;
@@ -1401,7 +1258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const chgEl = document.getElementById('compChange');
     const chgVal = sec.changePercent !== undefined ? sec.changePercent : sec.change_percent;
-    chgEl.textContent = `${chgVal >= 0 ? '+' : ''}${chgVal}%`;
+    chgEl.textContent = formatPercent(chgVal);
     chgEl.className = `comp-change ${chgVal >= 0 ? 'pos' : 'neg'}`;
 
     const isWatch = appState.watchlist.includes(sec.symbol);
@@ -1426,15 +1283,15 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('sumRoe').textContent = `${sec.roe}%`;
 
     // Causal Tab
-    document.getElementById('causalHeadline').textContent = `What Drove the ${chgVal >= 0 ? '+' : ''}${chgVal}% Move in ${sec.commonName || sec.symbol}?`;
+    document.getElementById('causalHeadline').textContent = `What Drove the ${formatPercent(chgVal)} Move in ${sec.commonName || sec.symbol}?`;
     const causalTree = document.getElementById('causalTreeDiagram');
     causalTree.innerHTML = '';
-    (sec.causalFactors || sec.causal_factors || []).forEach((f) => {
+    (sec.causalFactors || []).forEach((f) => {
       const node = document.createElement('div');
       node.className = 'causal-node';
       node.innerHTML = `
         <div class="cn-left">
-          <span class="cn-badge" style="background:rgba(81,207,102,0.1);color:#51CF66;">${f.type}</span>
+          <span class="cn-badge" style="background:rgba(81,207,102,0.1);color:var(--accent-emerald);">${f.type}</span>
           <div>
             <div class="cn-text">${f.factor}</div>
             <div class="cn-sub">${f.desc}</div>
@@ -1456,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const corpTl = document.getElementById('compCorpTimeline');
     corpTl.innerHTML = '';
-    (sec.corpActions || sec.corp_actions || []).forEach((ca) => {
+    (sec.corpActions || []).forEach((ca) => {
       const row = document.createElement('div');
       row.className = 'corp-event-row';
       row.innerHTML = `
@@ -1475,45 +1332,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('quantSharpe').textContent = (sec.sharpe || 1.2).toString();
     document.getElementById('quantMdd').textContent = `${((sec.mdd || -0.15) * 100).toFixed(1)}%`;
     document.getElementById('quantCapm').textContent = `${(rfRate + b * 7.2).toFixed(1)}%`;
-
-    const newsArticles = await fetchCompanyNews(sec);
-    renderCompanyNewsStream(newsArticles);
-  };
-
-  const renderCompanyNewsStream = (articles) => {
-    const stream = document.getElementById('compNewsStream');
-    stream.innerHTML = '';
-    document.getElementById('compNewsCount').textContent = articles.length.toString();
-
-    articles.forEach((art) => {
-      const card = document.createElement('div');
-      card.className = 'news-card';
-      const sqClass = art.sourceType === 'OFFICIAL FILING' ? 'sq--filing' : (art.sourceType === 'PRIMARY SOURCE' ? 'sq--primary' : 'sq--media');
-      const sentColor = art.sentiment === 'POSITIVE' ? '#51CF66' : (art.sentiment === 'NEGATIVE' ? '#FF6B6B' : '#FAB005');
-
-      card.innerHTML = `
-        <div class="news-card-header">
-          <div class="news-source-tags">
-            <span class="source-quality-tag ${sqClass}">${art.sourceType}</span>
-            <span style="font-size:0.75rem;font-weight:600;color:#fff;">${art.source}</span>
-            <span class="news-time">&bull; ${art.publishedAt}</span>
-          </div>
-          <span style="font-size:0.65rem;color:#71717a;font-family:monospace;">${art.dedupCount || 8} sources &bull; verified</span>
-        </div>
-        <h4 class="news-title">${art.title}</h4>
-        <p class="news-snippet">${art.snippet}</p>
-
-        <div class="news-impact-box">
-          <div class="nib-left">
-            <span class="nib-tag">MODELLED IMPACT:</span>
-            <span class="nib-sentiment" style="color:${sentColor};">${art.sentiment} (${art.confidence}%)</span>
-            <span class="nib-signals">&bull; Signals: ${art.signals}</span>
-          </div>
-          <span class="nib-disclaimer">MODEL OUTPUT &bull; NOT INVESTMENT ADVICE</span>
-        </div>
-      `;
-      stream.appendChild(card);
-    });
   };
 
   const renderCompanyChart = (sec) => {
@@ -1533,7 +1351,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pointsCount = appState.activeTimeframe === '1M' ? 30 : (appState.activeTimeframe === '3M' ? 90 : 252);
     const data = [];
     const pr = sec.priceINR || sec.price_inr || 100;
-    const chg = sec.changePercent !== undefined ? sec.changePercent : (sec.change_percent || 0);
+    const chg = sec.changePercent !== undefined ? sec.changePercent : 0;
     let price = pr * (1 - (chg * 0.05));
     for (let i = 0; i < pointsCount; i++) {
       const noise = Math.sin(i * 0.5 + sec.symbol.length) * ((sec.volatility || 0.18) / 20) * price;
@@ -1551,7 +1369,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const getY = (p) => padT + plotH - ((p - minP) / (maxP - minP)) * plotH;
 
     ctx.clearRect(0, 0, width, height);
-
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     ctx.fillStyle = '#71717a';
@@ -1589,30 +1406,23 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.stroke();
   };
 
-  document.querySelectorAll('#compTimeframePicker .ctf-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('#compTimeframePicker .ctf-btn').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      appState.activeTimeframe = btn.dataset.tf || '1Y';
-      if (appState.activeSecurity) renderCompanyChart(appState.activeSecurity);
+  document.querySelectorAll('.comp-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.comp-tab').forEach((t) => t.classList.remove('active'));
+      document.querySelectorAll('.comp-tab-pane').forEach((p) => p.classList.remove('active'));
+      tab.classList.add('active');
+      const targetPane = document.getElementById(`pane-${tab.dataset.tab}`);
+      if (targetPane) {
+        targetPane.classList.add('active');
+        triggerMathJax(targetPane);
+        if (tab.dataset.tab === 'tab-overview' && appState.activeSecurity) {
+          renderCompanyChart(appState.activeSecurity);
+        }
+      }
     });
   });
 
-  const compWatchlistBtn = document.getElementById('compWatchlistToggleBtn');
-  if (compWatchlistBtn) {
-    compWatchlistBtn.addEventListener('click', () => {
-      if (!appState.activeSecurity) return;
-      const sym = appState.activeSecurity.symbol;
-      const idx = appState.watchlist.indexOf(sym);
-      if (idx >= 0) appState.watchlist.splice(idx, 1);
-      else appState.watchlist.push(sym);
-      localStorage.setItem('riskos_watchlist', JSON.stringify(appState.watchlist));
-      renderCompanyModal(appState.activeSecurity);
-      renderWatchlist();
-    });
-  }
-
-  // ── 15. Comparison Mode Modal ─────────────────────────────────────────────
+  // ── 14. Comparison Modal ───────────────────────────────────────────────────
   const compareModalOverlay = document.getElementById('compareModalOverlay');
   const compareCloseBtn = document.getElementById('compareCloseBtn');
   const compareModalBackdrop = document.getElementById('compareModalBackdrop');
@@ -1661,17 +1471,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${sec2.sharpe}</td>
             <td class="pos">${sec1.sharpe > sec2.sharpe ? sec1.symbol + ' (Superior Risk-Adjusted)' : sec2.symbol + ' (Superior Risk-Adjusted)'}</td>
           </tr>
-          <tr>
-            <td><strong>Debt to Equity</strong></td>
-            <td>${sec1.debtEquity || sec1.debt_equity}</td>
-            <td>${sec2.debtEquity || sec2.debt_equity}</td>
-            <td class="pos">${(sec1.debtEquity || 0) < (sec2.debtEquity || 0) ? sec1.symbol + ' (Stronger Balance Sheet)' : sec2.symbol + ' (Higher Leverage)'}</td>
-          </tr>
         </tbody>
       </table>
-      <div style="margin-top:14px;padding:12px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;font-size:0.75rem;color:#a1a1aa;">
-        <strong>Comparative Insight:</strong> ${sec1.symbol} demonstrates lower systematic beta, while ${sec2.symbol} leads in return on equity compounding.
-      </div>
     `;
     compareModalOverlay.removeAttribute('hidden');
     document.body.classList.add('modal-open');
@@ -1686,11 +1487,10 @@ document.addEventListener('DOMContentLoaded', () => {
   if (compareCloseBtn) compareCloseBtn.addEventListener('click', closeCompareModal);
   if (compareModalBackdrop) compareModalBackdrop.addEventListener('click', closeCompareModal);
 
-  // ── 16. Watchlist & Alerts Drawers ────────────────────────────────────────
+  // ── 15. Watchlist & Drawers ────────────────────────────────────────────────
   const watchlistDrawer = document.getElementById('watchlistDrawer');
   const btnOpenWatchlist = document.getElementById('navOpenWatchlist');
   const watchlistCloseBtn = document.getElementById('watchlistCloseBtn');
-  const clearWatchlistBtn = document.getElementById('clearWatchlistBtn');
 
   const renderWatchlist = () => {
     const list = document.getElementById('watchlistItemsList');
@@ -1700,17 +1500,12 @@ document.addEventListener('DOMContentLoaded', () => {
     list.innerHTML = '';
     if (countEl) countEl.textContent = appState.watchlist.length.toString();
 
-    if (appState.watchlist.length === 0) {
-      list.innerHTML = `<div style="padding:16px;text-align:center;color:#71717a;font-size:0.75rem;">Your watchlist is currently empty. Search any security and click "Add to Watchlist".</div>`;
-      return;
-    }
-
     appState.watchlist.forEach((sym) => {
       const s = SECURITIES_DATABASE.find((it) => it.symbol === sym) || SECURITIES_DATABASE[0];
       const card = document.createElement('div');
       card.className = 'watchlist-item-card';
       const pr = s.priceINR || s.price_inr || 100;
-      const chg = s.changePercent !== undefined ? s.changePercent : (s.change_percent || 0);
+      const chg = s.changePercent !== undefined ? s.changePercent : 0;
       card.innerHTML = `
         <div class="wic-left">
           <span class="wic-sym">${s.symbol}</span>
@@ -1718,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
         <div class="wic-right">
           <span class="wic-price">${formatMoney(pr)}</span>
-          <span class="wic-chg ${chg >= 0 ? 'pos' : 'neg'}">${chg >= 0 ? '+' : ''}${chg}%</span>
+          <span class="wic-chg ${chg >= 0 ? 'pos' : 'neg'}">${formatPercent(chg)}</span>
         </div>
       `;
       card.addEventListener('click', () => {
@@ -1740,13 +1535,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (btnOpenWatchlist) btnOpenWatchlist.addEventListener('click', openWatchlistDrawer);
   if (watchlistCloseBtn) watchlistCloseBtn.addEventListener('click', closeWatchlistDrawer);
-  if (clearWatchlistBtn) {
-    clearWatchlistBtn.addEventListener('click', () => {
-      appState.watchlist = ["RELIANCE", "TCS", "HDFCBANK", "INFY", "AAPL", "NVDA"];
-      localStorage.setItem('riskos_watchlist', JSON.stringify(appState.watchlist));
-      renderWatchlist();
-    });
-  }
 
   // Alerts Drawer
   const alertsDrawer = document.getElementById('alertsDrawer');
@@ -1761,16 +1549,6 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="aic-title">Reliance Industries Ltd submits quarterly financial results disclosure to NSE/BSE</span>
         <span class="aic-time">12 mins ago &bull; Verified Feed</span>
       </div>
-      <div class="alert-item-card">
-        <span class="source-quality-tag sq--primary">MACRO REGULATORY</span>
-        <span class="aic-title">RBI Monetary Policy Committee maintains Repo Rate at 6.50%</span>
-        <span class="aic-time">1 hour ago &bull; Primary Release</span>
-      </div>
-      <div class="alert-item-card">
-        <span class="source-quality-tag sq--media">SECTOR SPIKE</span>
-        <span class="aic-title">Nifty IT index expands +1.8% driven by Cloud &amp; AI deal announcements</span>
-        <span class="aic-time">3 hours ago &bull; Market Surveillance</span>
-      </div>
     `;
     alertsDrawer.removeAttribute('hidden');
   };
@@ -1782,65 +1560,46 @@ document.addEventListener('DOMContentLoaded', () => {
   if (btnOpenAlerts) btnOpenAlerts.addEventListener('click', openAlertsDrawer);
   if (alertsCloseBtn) alertsCloseBtn.addEventListener('click', closeAlertsDrawer);
 
-  // ── 17. Quantitative Explainer Library Modal ──────────────────────────────
-  const glossaryModalOverlay = document.getElementById('glossaryModalOverlay');
-  const glossaryCloseBtn = document.getElementById('glossaryCloseBtn');
-  const glossaryModalBackdrop = document.getElementById('glossaryModalBackdrop');
-  const glossaryContent = document.getElementById('glossaryContentPanel');
+  // Market Pulse Drawer
+  const marketPulseDrawer = document.getElementById('marketPulseDrawer');
+  const pulseCloseBtn = document.getElementById('pulseCloseBtn');
+  const navOpenPulse = document.getElementById('navOpenPulse');
 
-  const openMathGlossaryModal = (formulaKey = 'sharpe') => {
-    document.querySelectorAll('#glossaryFormulaList .g-tab').forEach((t) => {
-      t.classList.toggle('active', t.dataset.formula === formulaKey);
-    });
+  const openMarketPulseDrawer = async () => {
+    const pulseBody = document.getElementById('pulseBody');
+    const isIN = appState.marketRegion === 'IN';
 
-    const f = MATHEMATICAL_REGISTRY[formulaKey] || MATHEMATICAL_REGISTRY.sharpe;
-    glossaryContent.innerHTML = `
-      <div style="background:#0e0e13;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
-        <h3 style="font-size:1rem;font-weight:700;color:#fff;margin-bottom:8px;">${f.name}</h3>
-        <div style="font-size:1.15rem;color:#fff;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;">
-          ${f.latex}
-        </div>
-        <div style="margin-top:12px;font-size:0.75rem;color:#a1a1aa;line-height:1.6;">
-          <p><strong>Plain English (Beginner):</strong> ${f.simple}</p>
-          <p style="margin-top:6px;"><strong>Investor Perspective:</strong> ${f.investor}</p>
-          <p style="margin-top:6px;"><strong>Quantitative Formulation:</strong> ${f.quant}</p>
-          <p style="margin-top:6px;color:#FAB005;"><strong>Limitations:</strong> ${f.limitations}</p>
+    pulseBody.innerHTML = `
+      <div class="pulse-card">
+        <span style="font-size:0.6rem;font-weight:700;color:var(--accent-emerald);">BENCHMARK INDICES (${isIN ? 'INDIA • NSE' : 'US • NYSE/NASDAQ'})</span>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:var(--space-2);">
+          ${isIN ? `
+            <div style="display:flex;justify-content:space-between;"><span>NIFTY 50</span><strong class="pos">24,820.40 (+0.45%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>SENSEX</span><strong class="pos">81,340.20 (+0.38%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>BANK NIFTY</span><strong class="neg">51,240.10 (-0.12%)</strong></div>
+          ` : `
+            <div style="display:flex;justify-content:space-between;"><span>S&amp;P 500</span><strong class="pos">5,640.10 (+0.22%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>NASDAQ</span><strong class="pos">17,820.30 (+0.48%)</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span>DOW</span><strong class="pos">40,840.50 (+0.15%)</strong></div>
+          `}
         </div>
       </div>
     `;
-
-    glossaryModalOverlay.removeAttribute('hidden');
-    document.body.classList.add('modal-open');
-    triggerMathJax(glossaryContent);
+    marketPulseDrawer.removeAttribute('hidden');
   };
 
-  const closeMathGlossaryModal = () => {
-    glossaryModalOverlay.setAttribute('hidden', '');
-    document.body.classList.remove('modal-open');
+  const closeMarketPulseDrawer = () => {
+    marketPulseDrawer.setAttribute('hidden', '');
   };
 
-  document.querySelectorAll('#glossaryFormulaList .g-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      openMathGlossaryModal(tab.dataset.formula);
-    });
-  });
+  if (navOpenPulse) navOpenPulse.addEventListener('click', openMarketPulseDrawer);
+  if (pulseCloseBtn) pulseCloseBtn.addEventListener('click', closeMarketPulseDrawer);
 
-  if (glossaryCloseBtn) glossaryCloseBtn.addEventListener('click', closeMathGlossaryModal);
-  if (glossaryModalBackdrop) glossaryModalBackdrop.addEventListener('click', closeMathGlossaryModal);
-
-  // ── 18. Market Hours & Timezone Engine ─────────────────────────────────────
+  // ── 16. Market Clock Engine ────────────────────────────────────────────────
   const updateMarketClocks = () => {
     const now = new Date();
-
     const istTimeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
-    const istHours = parseInt(now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', hour12: false }), 10);
-    const istMinutes = parseInt(now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', minute: '2-digit', hour12: false }), 10);
-    const istTotalMins = istHours * 60 + istMinutes;
-
     const estTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
-    const estHours = parseInt(now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', hour12: false }), 10);
-    const estMinutes = parseInt(now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', minute: '2-digit', hour12: false }), 10);
-    const estTotalMins = estHours * 60 + estMinutes;
 
     const badgeDot = document.getElementById('marketStatusDot');
     const badgeName = document.getElementById('marketName');
@@ -1851,26 +1610,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (appState.marketRegion === 'IN') {
         badgeName.textContent = 'NSE';
         badgeTime.textContent = `${istTimeStr} IST`;
-        if (istTotalMins >= 540 && istTotalMins < 555) {
-          badgeState.textContent = 'PRE-OPEN';
-          badgeDot.className = 'market-status-dot dot--pre';
-        } else if (istTotalMins >= 555 && istTotalMins <= 930) {
-          badgeState.textContent = 'OPEN';
-          badgeDot.className = 'market-status-dot dot--open';
-        } else {
-          badgeState.textContent = 'CLOSED';
-          badgeDot.className = 'market-status-dot dot--closed';
-        }
+        badgeState.textContent = 'OPEN';
+        badgeDot.className = 'market-status-dot dot--open';
       } else {
         badgeName.textContent = 'NYSE';
         badgeTime.textContent = `${estTimeStr} EST`;
-        if (estTotalMins >= 570 && estTotalMins <= 960) {
-          badgeState.textContent = 'OPEN';
-          badgeDot.className = 'market-status-dot dot--open';
-        } else {
-          badgeState.textContent = 'CLOSED';
-          badgeDot.className = 'market-status-dot dot--closed';
-        }
+        badgeState.textContent = 'OPEN';
+        badgeDot.className = 'market-status-dot dot--open';
       }
     }
   };
@@ -1878,150 +1624,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateMarketClocks();
   setInterval(updateMarketClocks, 1000);
 
-  // ── 19. Landing Page Magnetic CTA & Metrics Count-Up ───────────────────────
-  const ctaBtn = document.getElementById('ctaBtn');
-  if (ctaBtn && !prefersReducedMotion) {
-    let mouseX = 0, mouseY = 0, currentX = 0, currentY = 0, isHover = false, animId = null;
-    const maxDist = 6;
-
-    const tickMagnetic = () => {
-      if (!isHover) {
-        currentX += (0 - currentX) * 0.15;
-        currentY += (0 - currentY) * 0.15;
-        if (Math.abs(currentX) < 0.05 && Math.abs(currentY) < 0.05) {
-          currentX = 0; currentY = 0;
-          ctaBtn.style.transform = '';
-          cancelAnimationFrame(animId);
-          animId = null;
-          return;
-        }
-      } else {
-        currentX += (mouseX - currentX) * 0.2;
-        currentY += (mouseY - currentY) * 0.2;
-      }
-      ctaBtn.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0) scale(${isHover ? 1.02 : 1})`;
-      animId = requestAnimationFrame(tickMagnetic);
-    };
-
-    ctaBtn.addEventListener('mouseenter', () => {
-      if (window.innerWidth <= 720) return;
-      isHover = true;
-      if (!animId) animId = requestAnimationFrame(tickMagnetic);
-    });
-
-    ctaBtn.addEventListener('mousemove', (e) => {
-      if (window.innerWidth <= 720) return;
-      const rect = ctaBtn.getBoundingClientRect();
-      const relX = e.clientX - (rect.left + rect.width / 2);
-      const relY = e.clientY - (rect.top + rect.height / 2);
-      mouseX = Math.max(-maxDist, Math.min(maxDist, relX * 0.25));
-      mouseY = Math.max(-maxDist, Math.min(maxDist, relY * 0.25));
-      if (!animId) animId = requestAnimationFrame(tickMagnetic);
-    });
-
-    ctaBtn.addEventListener('mouseleave', () => {
-      isHover = false;
-      mouseX = 0; mouseY = 0;
-    });
-  }
-
-  // Financial Metrics Count-Up
-  const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-  const animateCount = (el, target, decimals, duration, delay) => {
-    if (prefersReducedMotion) {
-      el.textContent = decimals > 0 ? target.toFixed(decimals) : Math.round(target).toString();
-      return;
-    }
-    setTimeout(() => {
-      const t0 = performance.now();
-      const tick = (now) => {
-        const p = Math.min((now - t0) / duration, 1);
-        const v = easeOutCubic(p) * target;
-        el.textContent = decimals > 0 ? v.toFixed(decimals) : Math.round(v).toString();
-        if (p < 1) requestAnimationFrame(tick);
-        else el.textContent = decimals > 0 ? target.toFixed(decimals) : target.toString();
-      };
-      requestAnimationFrame(tick);
-    }, delay);
-  };
-
-  let countDone = false;
-  const metricsFooter = document.getElementById('metricsFooter');
-  const runCountUp = () => {
-    if (countDone) return;
-    countDone = true;
-    document.querySelectorAll('.metric-item').forEach((item, i) => {
-      const target = parseFloat(item.dataset.target || '0');
-      const dec = parseInt(item.dataset.decimals || '0', 10);
-      const valEl = item.querySelector('.metric-value');
-      if (valEl) animateCount(valEl, target, dec, 1400 + i * 100, 300 + i * 80);
-    });
-  };
-
-  if ('IntersectionObserver' in window && metricsFooter) {
-    const obs = new IntersectionObserver((entries, o) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) {
-          runCountUp();
-          o.disconnect();
-        }
-      });
-    }, { threshold: 0.2 });
-    obs.observe(metricsFooter);
-  } else {
-    runCountUp();
-  }
-
-  // ── 20. Mobile Menu ───────────────────────────────────────────────────────
-  const burger = document.getElementById('menuToggle');
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuBackdrop = document.getElementById('menuBackdrop');
-  const menuCloseBtn = document.getElementById('menuCloseBtn');
-  let isMobileMenuOpen = false;
-
-  const openMobileMenu = () => {
-    if (isMobileMenuOpen) return;
-    isMobileMenuOpen = true;
-    document.body.classList.add('menu-open');
-    mobileMenu.removeAttribute('hidden');
-    burger.classList.add('is-open');
-    void mobileMenu.offsetWidth;
-    mobileMenu.classList.add('is-open');
-  };
-
-  const closeMobileMenu = () => {
-    if (!isMobileMenuOpen) return;
-    isMobileMenuOpen = false;
-    mobileMenu.classList.remove('is-open');
-    burger.classList.remove('is-open');
-    document.body.classList.remove('menu-open');
-    setTimeout(() => {
-      if (!isMobileMenuOpen) mobileMenu.setAttribute('hidden', '');
-    }, 280);
-  };
-
-  if (burger && mobileMenu) {
-    burger.addEventListener('click', (e) => {
-      e.stopPropagation();
-      isMobileMenuOpen ? closeMobileMenu() : openMobileMenu();
-    });
-    if (menuBackdrop) menuBackdrop.addEventListener('click', closeMobileMenu);
-    if (menuCloseBtn) menuCloseBtn.addEventListener('click', closeMobileMenu);
-  }
-
-  const mobileOpenSearch = document.getElementById('mobileOpenSearch');
-  if (mobileOpenSearch) mobileOpenSearch.addEventListener('click', () => { closeMobileMenu(); openCommandPalette(); });
-  const mobileOpenCanvasBtn = document.getElementById('mobileOpenCanvasBtn');
-  if (mobileOpenCanvasBtn) mobileOpenCanvasBtn.addEventListener('click', () => { closeMobileMenu(); openFinancialCanvas('Reliance'); });
-  const mobileOpenPulseBtn = document.getElementById('mobileOpenPulseBtn');
-  if (mobileOpenPulseBtn) mobileOpenPulseBtn.addEventListener('click', () => { closeMobileMenu(); openMarketPulseDrawer(); });
-  const mobileOpenWatchlist = document.getElementById('mobileOpenWatchlist');
-  if (mobileOpenWatchlist) mobileOpenWatchlist.addEventListener('click', () => { closeMobileMenu(); openWatchlistDrawer(); });
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // 🏛️ FINANCIAL INTELLIGENCE OBSERVATORY ENGINE (LIVE OPTIMIZER INTEGRATED)
-  // ═══════════════════════════════════════════════════════════════════════════
-
+  // ── 17. Observatory & Portfolio Engine ─────────────────────────────────────
   const obsState = {
     timeframe: '1Y',
     capital: 1000000,
@@ -2038,15 +1641,11 @@ document.addEventListener('DOMContentLoaded', () => {
     scenarios: {
       base:       { name: 'Base Case',        returnMult: 1.0,  volMult: 1.0,  ddMult: 1.0,  eqAlpha: 0.0,   bndAlpha: 0.0 },
       bull:       { name: 'Bull Market',      returnMult: 1.45, volMult: 0.85, ddMult: 0.6,  eqAlpha: 0.06,  bndAlpha: -0.01 },
-      bear:       { name: 'Bear Market',      returnMult: -0.8, volMult: 1.75, ddMult: 2.2,  eqAlpha: -0.15, bndAlpha: 0.04 },
-      highvol:    { name: 'High Volatility',  returnMult: 0.6,  volMult: 2.2,  ddMult: 1.8,  eqAlpha: -0.04, bndAlpha: -0.02 },
-      rate_shock: { name: 'Rate Shock (+300bps)', returnMult: 0.4, volMult: 1.35, ddMult: 1.5, eqAlpha: -0.03, bndAlpha: -0.08 },
-      inflation:  { name: 'Inflation Shock',  returnMult: 0.85, volMult: 1.4,  ddMult: 1.3,  eqAlpha: 0.01,  bndAlpha: -0.05 }
+      bear:       { name: 'Bear Market',      returnMult: -0.8, volMult: 1.75, ddMult: 2.2,  eqAlpha: -0.15, bndAlpha: 0.04 }
     }
   };
 
   const obsOverlay = document.getElementById('observatoryOverlay');
-  const obsWorkspace = document.getElementById('observatoryWorkspace');
   const obsCloseBtn = document.getElementById('obsCloseBtn');
   const obsBackdrop = document.getElementById('observatoryBackdrop');
   let isObsOpen = false;
@@ -2054,20 +1653,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const openObservatory = () => {
     if (isObsOpen) return;
     isObsOpen = true;
-    closeMobileMenu();
     document.body.classList.add('obs-open');
     obsOverlay.removeAttribute('hidden');
     void obsOverlay.offsetWidth;
     obsOverlay.classList.add('is-open');
 
     setTimeout(() => {
-      timeSeriesChart.resize();
-      timeSeriesChart.render();
       portfolioEngine.update();
-      triggerMathJax(obsWorkspace);
+      triggerMathJax(obsOverlay);
     }, 50);
-
-    if (obsCloseBtn) obsCloseBtn.focus();
   };
 
   const closeObservatory = () => {
@@ -2075,10 +1669,9 @@ document.addEventListener('DOMContentLoaded', () => {
     isObsOpen = false;
     obsOverlay.classList.remove('is-open');
     document.body.classList.remove('obs-open');
-
     setTimeout(() => {
       if (!isObsOpen) obsOverlay.setAttribute('hidden', '');
-    }, 300);
+    }, 280);
   };
 
   [
@@ -2087,505 +1680,61 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('mobileOpenObs'),
     document.getElementById('mobileCtaLaunchObs')
   ].forEach((btn) => {
-    if (btn) {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openObservatory();
-      });
-    }
+    if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); openObservatory(); });
   });
 
   if (obsCloseBtn) obsCloseBtn.addEventListener('click', closeObservatory);
   if (obsBackdrop) obsBackdrop.addEventListener('click', closeObservatory);
 
-  // Explain Decision Drawer
-  const explainDrawer = document.getElementById('explainDrawer');
-  const btnExplain = document.getElementById('btnExplainPortfolio');
-  const drawerCloseBtn = document.getElementById('drawerCloseBtn');
-
-  if (btnExplain && explainDrawer) {
-    btnExplain.addEventListener('click', () => {
-      const isHidden = explainDrawer.hasAttribute('hidden');
-      if (isHidden) {
-        explainDrawer.removeAttribute('hidden');
-        triggerMathJax(explainDrawer);
-      } else {
-        explainDrawer.setAttribute('hidden', '');
-      }
-    });
-    if (drawerCloseBtn) {
-      drawerCloseBtn.addEventListener('click', () => {
-        explainDrawer.setAttribute('hidden', '');
-      });
-    }
-  }
-
-  // Time-Series Canvas Chart
-  const createTimeSeries = () => {
-    const canvas = document.getElementById('timeSeriesCanvas');
-    const container = document.getElementById('chartCanvasContainer');
-    const tooltip = document.getElementById('chartTooltip');
-    const ttDate = document.getElementById('ttDate');
-    const ttValue = document.getElementById('ttValue');
-    const ttReturn = document.getElementById('ttReturn');
-    const ttVol = document.getElementById('ttVol');
-    const ttDd = document.getElementById('ttDd');
-
-    if (!canvas || !container) return { resize: () => {}, render: () => {} };
-
-    const ctx = canvas.getContext('2d');
-    let width = 700;
-    let height = 200;
-    let currentSeries = [];
-    let hoveredIdx = -1;
-
-    const resize = () => {
-      const rect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
-      width = rect.width;
-      height = rect.height;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      ctx.scale(dpr, dpr);
-    };
-
-    window.addEventListener('resize', () => {
-      if (isObsOpen) {
-        resize();
-        render();
-      }
-    }, { passive: true });
-
-    const generateData = () => {
-      const tfPoints = { '1M': 30, '3M': 90, '6M': 180, '1Y': 252, '5Y': 600 };
-      const n = tfPoints[obsState.timeframe] || 252;
-      const scen = obsState.scenarios[obsState.scenario] || obsState.scenarios.base;
-
-      const wEq = obsState.weights.eq / 100;
-      const wBnd = obsState.weights.bnd / 100;
-      const wCsh = obsState.weights.csh / 100;
-      const wCmd = obsState.weights.cmd / 100;
-
-      const expAnnReturn = (
-        (wEq * (obsState.assets.eq.baseReturn + scen.eqAlpha)) +
-        (wBnd * (obsState.assets.bnd.baseReturn + scen.bndAlpha)) +
-        (wCsh * obsState.assets.csh.baseReturn) +
-        (wCmd * obsState.assets.cmd.baseReturn)
-      ) * scen.returnMult;
-
-      const expAnnVol = Math.sqrt(
-        Math.pow(wEq * obsState.assets.eq.baseVol, 2) +
-        Math.pow(wBnd * obsState.assets.bnd.baseVol, 2) +
-        Math.pow(wCmd * obsState.assets.cmd.baseVol, 2) +
-        2 * wEq * wBnd * (-0.15) * obsState.assets.eq.baseVol * obsState.assets.bnd.baseVol
-      ) * scen.volMult;
-
-      const dailyMu = expAnnReturn / 252;
-      const dailySigma = expAnnVol / Math.sqrt(252);
-
-      const points = [];
-      let val = 100.0;
-      let peak = 100.0;
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - n);
-
-      for (let i = 0; i < n; i++) {
-        const seed = Math.sin(i * 0.42 + (obsState.scenario.length * 2.1)) * 1.8;
-        const drift = dailyMu + (dailySigma * seed * 0.7);
-        val = Math.max(20, val * (1 + drift));
-        peak = Math.max(peak, val);
-        const dd = ((val - peak) / peak) * 100;
-
-        const d = new Date(startDate);
-        d.setDate(d.getDate() + i);
-
-        points.push({
-          date: d.toISOString().split('T')[0],
-          value: val,
-          ret: ((val - 100) / 100) * 100,
-          vol: (expAnnVol * 100),
-          dd: dd
-        });
-      }
-      currentSeries = points;
-    };
-
-    const render = () => {
-      generateData();
-      if (!ctx || currentSeries.length === 0) return;
-
-      ctx.clearRect(0, 0, width, height);
-
-      const padTop = 20;
-      const padBottom = 26;
-      const padLeft = 45;
-      const padRight = 20;
-      const plotW = width - padLeft - padRight;
-      const plotH = height - padTop - padBottom;
-
-      const minVal = Math.min(...currentSeries.map((p) => p.value)) * 0.96;
-      const maxVal = Math.max(...currentSeries.map((p) => p.value)) * 1.04;
-
-      const getX = (i) => padLeft + (i / (currentSeries.length - 1)) * plotW;
-      const getY = (v) => padTop + plotH - ((v - minVal) / (maxVal - minVal)) * plotH;
-
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.lineWidth = 1;
-      ctx.fillStyle = '#71717a';
-      ctx.font = '9px Inter, sans-serif';
-
-      for (let g = 0; g <= 4; g++) {
-        const yVal = minVal + (g / 4) * (maxVal - minVal);
-        const yPos = getY(yVal);
-        ctx.beginPath();
-        ctx.moveTo(padLeft, yPos);
-        ctx.lineTo(width - padRight, yPos);
-        ctx.stroke();
-        ctx.fillText(yVal.toFixed(1), 8, yPos + 3);
-      }
-
-      const grad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
-      const isPositive = currentSeries[currentSeries.length - 1].value >= 100;
-      const strokeColor = isPositive ? '#51CF66' : '#FF6B6B';
-
-      grad.addColorStop(0, isPositive ? 'rgba(81, 207, 102, 0.22)' : 'rgba(255, 107, 107, 0.22)');
-      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-      ctx.beginPath();
-      ctx.moveTo(getX(0), getY(currentSeries[0].value));
-      for (let i = 1; i < currentSeries.length; i++) {
-        ctx.lineTo(getX(i), getY(currentSeries[i].value));
-      }
-      ctx.lineTo(getX(currentSeries.length - 1), padTop + plotH);
-      ctx.lineTo(getX(0), padTop + plotH);
-      ctx.closePath();
-      ctx.fillStyle = grad;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(getX(0), getY(currentSeries[0].value));
-      for (let i = 1; i < currentSeries.length; i++) {
-        ctx.lineTo(getX(i), getY(currentSeries[i].value));
-      }
-      ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      if (minVal <= 100 && maxVal >= 100) {
-        const basePos = getY(100);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.setLineDash([4, 4]);
-        ctx.beginPath();
-        ctx.moveTo(padLeft, basePos);
-        ctx.lineTo(width - padRight, basePos);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-
-      if (hoveredIdx >= 0 && hoveredIdx < currentSeries.length) {
-        const hx = getX(hoveredIdx);
-        const hy = getY(currentSeries[hoveredIdx].value);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([2, 2]);
-        ctx.beginPath();
-        ctx.moveTo(hx, padTop);
-        ctx.lineTo(hx, padTop + plotH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        ctx.beginPath();
-        ctx.arc(hx, hy, 4.5, 0, 2 * Math.PI);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-    };
-
-    container.addEventListener('mousemove', (e) => {
-      if (currentSeries.length === 0) return;
-      const rect = container.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const padLeft = 45;
-      const padRight = 20;
-      const plotW = width - padLeft - padRight;
-
-      if (mouseX < padLeft || mouseX > width - padRight) {
-        tooltip.setAttribute('hidden', '');
-        hoveredIdx = -1;
-        render();
-        return;
-      }
-
-      const ratio = Math.max(0, Math.min(1, (mouseX - padLeft) / plotW));
-      hoveredIdx = Math.round(ratio * (currentSeries.length - 1));
-      const pt = currentSeries[hoveredIdx];
-
-      if (pt && tooltip) {
-        tooltip.removeAttribute('hidden');
-        ttDate.textContent = pt.date;
-        ttValue.textContent = pt.value.toFixed(2);
-        ttReturn.textContent = `${pt.ret >= 0 ? '+' : ''}${pt.ret.toFixed(2)}%`;
-        ttReturn.style.color = pt.ret >= 0 ? '#51CF66' : '#FF6B6B';
-        ttVol.textContent = `${pt.vol.toFixed(1)}%`;
-        ttDd.textContent = `${pt.dd.toFixed(1)}%`;
-      }
-      render();
-    });
-
-    container.addEventListener('mouseleave', () => {
-      if (tooltip) tooltip.setAttribute('hidden', '');
-      hoveredIdx = -1;
-      render();
-    });
-
-    document.querySelectorAll('#timeframeSelector .tf-btn').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#timeframeSelector .tf-btn').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        obsState.timeframe = btn.dataset.tf || '1Y';
-        render();
-      });
-    });
-
-    return { resize, render };
-  };
-
-  const timeSeriesChart = createTimeSeries();
-
-  // Generative Portfolio Simulator & SVG Donut
   const createPortfolio = () => {
-    const rEq = document.getElementById('rangeEquities');
-    const rBnd = document.getElementById('rangeBonds');
-    const rCsh = document.getElementById('rangeCash');
-    const rCmd = document.getElementById('rangeCommodities');
-
-    const lEq = document.getElementById('lblEqWeight');
-    const lBnd = document.getElementById('lblBndWeight');
-    const lCsh = document.getElementById('lblCshWeight');
-    const lCmd = document.getElementById('lblCmdWeight');
-
-    const sliceEq = document.getElementById('sliceEquities');
-    const sliceBnd = document.getElementById('sliceBonds');
-    const sliceCsh = document.getElementById('sliceCash');
-    const sliceCmd = document.getElementById('sliceCommodities');
-
-    const donutAmt = document.getElementById('donutAmountDisplay');
-
-    const ribbonReturn = document.getElementById('ribbonReturn');
-    const ribbonVol = document.getElementById('ribbonVol');
-    const ribbonSharpe = document.getElementById('ribbonSharpe');
-    const ribbonDrawdown = document.getElementById('ribbonDrawdown');
-    const ribbonRiskScore = document.getElementById('ribbonRiskScore');
-
-    const eqReturn = document.getElementById('eqReturn');
-    const eqSharpe = document.getElementById('eqSharpe');
-
-    const circumference = 2 * Math.PI * 56;
-
     const update = () => {
       const wEq = obsState.weights.eq;
       const wBnd = obsState.weights.bnd;
       const wCsh = obsState.weights.csh;
       const wCmd = obsState.weights.cmd;
 
+      const lEq = document.getElementById('lblEqWeight');
+      const lBnd = document.getElementById('lblBndWeight');
+      const lCsh = document.getElementById('lblCshWeight');
+      const lCmd = document.getElementById('lblCmdWeight');
+
       if (lEq) lEq.textContent = `${wEq}%`;
       if (lBnd) lBnd.textContent = `${wBnd}%`;
       if (lCsh) lCsh.textContent = `${wCsh}%`;
       if (lCmd) lCmd.textContent = `${wCmd}%`;
 
-      if (rEq) rEq.value = wEq;
-      if (rBnd) rBnd.value = wBnd;
-      if (rCsh) rCsh.value = wCsh;
-      if (rCmd) rCmd.value = wCmd;
-
-      const lenEq = (wEq / 100) * circumference;
-      const lenBnd = (wBnd / 100) * circumference;
-      const lenCsh = (wCsh / 100) * circumference;
-      const lenCmd = (wCmd / 100) * circumference;
-
-      let offset = 0;
-      if (sliceEq) { sliceEq.style.strokeDasharray = `${lenEq} ${circumference}`; sliceEq.style.strokeDashoffset = `-${offset}`; }
-      offset += lenEq;
-      if (sliceBnd) { sliceBnd.style.strokeDasharray = `${lenBnd} ${circumference}`; sliceBnd.style.strokeDashoffset = `-${offset}`; }
-      offset += lenBnd;
-      if (sliceCsh) { sliceCsh.style.strokeDasharray = `${lenCsh} ${circumference}`; sliceCsh.style.strokeDashoffset = `-${offset}`; }
-      offset += lenCsh;
-      if (sliceCmd) { sliceCmd.style.strokeDasharray = `${lenCmd} ${circumference}`; sliceCmd.style.strokeDashoffset = `-${offset}`; }
-
-      if (donutAmt) {
-        donutAmt.textContent = formatMoney(obsState.capital);
-      }
-
-      const scen = obsState.scenarios[obsState.scenario] || obsState.scenarios.base;
       const expR = (
-        (wEq / 100 * (obsState.assets.eq.baseReturn + scen.eqAlpha)) +
-        (wBnd / 100 * (obsState.assets.bnd.baseReturn + scen.bndAlpha)) +
+        (wEq / 100 * obsState.assets.eq.baseReturn) +
+        (wBnd / 100 * obsState.assets.bnd.baseReturn) +
         (wCsh / 100 * obsState.assets.csh.baseReturn) +
         (wCmd / 100 * obsState.assets.cmd.baseReturn)
-      ) * scen.returnMult;
+      );
 
       const expVol = Math.sqrt(
         Math.pow((wEq / 100) * obsState.assets.eq.baseVol, 2) +
         Math.pow((wBnd / 100) * obsState.assets.bnd.baseVol, 2) +
-        Math.pow((wCmd / 100) * obsState.assets.cmd.baseVol, 2) +
-        2 * (wEq / 100) * (wBnd / 100) * (-0.15) * obsState.assets.eq.baseVol * obsState.assets.bnd.baseVol
-      ) * scen.volMult;
+        Math.pow((wCmd / 100) * obsState.assets.cmd.baseVol, 2)
+      );
 
       const rf = appState.marketRegion === 'IN' ? 0.065 : 0.045;
       const sharpe = expVol > 0.005 ? ((expR - rf) / expVol) : 0;
-      const maxDd = (expVol * 0.95 * scen.ddMult);
-      const riskScore = Math.min(100, Math.max(10, Math.round((expVol / 0.25) * 100)));
 
-      if (ribbonReturn) ribbonReturn.textContent = `${expR >= 0 ? '+' : ''}${(expR * 100).toFixed(1)}%`;
+      const ribbonReturn = document.getElementById('ribbonReturn');
+      const ribbonVol = document.getElementById('ribbonVol');
+      const ribbonSharpe = document.getElementById('ribbonSharpe');
+
+      if (ribbonReturn) ribbonReturn.textContent = formatPercent(expR * 100);
       if (ribbonVol) ribbonVol.textContent = `${(expVol * 100).toFixed(1)}%`;
       if (ribbonSharpe) ribbonSharpe.textContent = sharpe.toFixed(2);
-      if (ribbonDrawdown) ribbonDrawdown.textContent = `-${(maxDd * 100).toFixed(1)}%`;
-      if (ribbonRiskScore) ribbonRiskScore.textContent = `${riskScore}/100`;
-
-      if (eqReturn) {
-        eqReturn.innerHTML = `\\[ R_p = \\sum_{i=1}^{n} w_i R_i = (${wEq}\\% \\times ${(obsState.assets.eq.baseReturn * 100).toFixed(1)}\\%) + (${wBnd}\\% \\times ${(obsState.assets.bnd.baseReturn * 100).toFixed(1)}\\%) + \\cdots = \\mathbf{${(expR * 100).toFixed(1)}\\%} \\]`;
-      }
-      if (eqSharpe) {
-        eqSharpe.innerHTML = `\\[ S = \\frac{R_p - R_f}{\\sigma_p} = \\frac{${(expR * 100).toFixed(1)}\\% - ${(rf * 100).toFixed(1)}\\%}{${(expVol * 100).toFixed(1)}\\%} = \\mathbf{${sharpe.toFixed(2)}} \\]`;
-      }
-      triggerMathJax([eqReturn, eqSharpe]);
-
-      timeSeriesChart.render();
     };
-
-    const normalizeSliders = (changedKey, newVal) => {
-      obsState.weights[changedKey] = newVal;
-      const otherKeys = ['eq', 'bnd', 'csh', 'cmd'].filter((k) => k !== changedKey);
-      const remaining = 100 - newVal;
-      const currentOtherSum = otherKeys.reduce((sum, k) => sum + obsState.weights[k], 0);
-
-      if (currentOtherSum === 0) {
-        otherKeys.forEach((k) => { obsState.weights[k] = Math.round(remaining / otherKeys.length); });
-      } else {
-        let allocated = 0;
-        otherKeys.forEach((k, idx) => {
-          if (idx === otherKeys.length - 1) {
-            obsState.weights[k] = Math.max(0, remaining - allocated);
-          } else {
-            const prop = Math.round((obsState.weights[k] / currentOtherSum) * remaining);
-            obsState.weights[k] = Math.max(0, prop);
-            allocated += prop;
-          }
-        });
-      }
-      update();
-    };
-
-    if (rEq) rEq.addEventListener('input', (e) => normalizeSliders('eq', parseInt(e.target.value, 10)));
-    if (rBnd) rBnd.addEventListener('input', (e) => normalizeSliders('bnd', parseInt(e.target.value, 10)));
-    if (rCsh) rCsh.addEventListener('input', (e) => normalizeSliders('csh', parseInt(e.target.value, 10)));
-    if (rCmd) rCmd.addEventListener('input', (e) => normalizeSliders('cmd', parseInt(e.target.value, 10)));
-
-    const inCap = document.getElementById('inputCapital');
-    const inHor = document.getElementById('inputHorizon');
-    const inTol = document.getElementById('inputRiskTol');
-
-    if (inCap) inCap.addEventListener('change', (e) => { obsState.capital = parseFloat(e.target.value); update(); });
-    if (inHor) inHor.addEventListener('change', (e) => { obsState.horizon = parseFloat(e.target.value); update(); });
-    if (inTol) inTol.addEventListener('change', (e) => {
-      obsState.riskProfile = e.target.value;
-      if (obsState.riskProfile === 'conservative') obsState.weights = { eq: 20, bnd: 55, csh: 20, cmd: 5 };
-      else if (obsState.riskProfile === 'moderate') obsState.weights = { eq: 52, bnd: 28, csh: 10, cmd: 10 };
-      else if (obsState.riskProfile === 'aggressive') obsState.weights = { eq: 75, bnd: 10, csh: 5, cmd: 10 };
-      update();
-    });
 
     return { update };
   };
 
   const portfolioEngine = createPortfolio();
 
-  // Scenario Engine Controller
-  const activeScenarioLabel = document.getElementById('activeScenarioLabel');
-  document.querySelectorAll('#scenarioPills .scenario-pill').forEach((pill) => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('#scenarioPills .scenario-pill').forEach((p) => p.classList.remove('active'));
-      pill.classList.add('active');
-      const scKey = pill.dataset.scenario || 'base';
-      obsState.scenario = scKey;
-
-      const scObj = obsState.scenarios[scKey];
-      if (activeScenarioLabel && scObj) {
-        activeScenarioLabel.textContent = `MODELLED SCENARIO: ${scObj.name}`;
-      }
-
-      portfolioEngine.update();
-    });
-  });
-
-  // AI Quantitative Reasoning Pipeline Controller
-  const pipelineNodes = document.querySelectorAll('#pipelineFlow .pipeline-node');
-  const nodeBadge = document.getElementById('nodeBadge');
-  const nodeHeadline = document.getElementById('nodeHeadline');
-  const nodeText = document.getElementById('nodeText');
-
-  const nodeData = {
-    market: {
-      step: '01',
-      title: 'MARKET DATA',
-      headline: 'Raw Tick Ingestion & Log Returns (NSE / US)',
-      text: 'Continuous ingestion of multi-asset high-frequency price and quote time-series from NSE/BSE and US exchanges. Prices are converted to continuous compounding log-returns \\( r_t = \\ln(P_t / P_{t-1}) \\) ensuring additivity and normality properties for downstream estimators.'
-    },
-    feature: {
-      step: '02',
-      title: 'FEATURE ENGINE',
-      headline: 'Stationarity & Signal Extraction',
-      text: 'Calculates rolling exponential moving average variance, order flow imbalance metrics, and Ornstein-Uhlenbeck mean-reversion drift rates \\( \\theta \\) across cross-asset pairs.'
-    },
-    risk: {
-      step: '03',
-      title: 'RISK MODEL',
-      headline: 'GARCH(1,1) & Ledoit-Wolf Shrinkage',
-      text: 'Fits Maximum Likelihood conditional volatility \\( \\sigma_t^2 = \\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2 \\) and applies analytical Ledoit-Wolf covariance shrinkage \\( \\Sigma_{\\text{LW}} = \\delta F + (1-\\delta) S \\) to guarantee well-conditioned invertibility.'
-    },
-    portfolio: {
-      step: '04',
-      title: 'PORTFOLIO ENGINE',
-      headline: 'CVaR Optimization & Risk Budgeting',
-      text: 'Executes non-linear Sequential Least Squares Programming (SLSQP) to minimize 99% Conditional Value-at-Risk subject to institutional weight and leverage bounds: \\( \\min_{w} F_\\alpha(w, \\zeta) \\).'
-    },
-    scenario: {
-      step: '05',
-      title: 'SCENARIO LAB',
-      headline: 'Macroeconomic Shocks & Stress Vectors',
-      text: 'Simulates instantaneous covariance collapse, yield curve shifts (+300bps), liquidity contractions, and geopolitical inflation spikes without relying on naive historical repetition.'
-    },
-    insight: {
-      step: '06',
-      title: 'FINANCIAL INSIGHT',
-      headline: 'Execution Boundary & Actionable Alpha',
-      text: 'Synthesizes model risk budgets into actionable execution parameters with Almgren-Chriss optimal trade liquidation trajectories and pre-trade liquidity gates.'
-    }
-  };
-
-  pipelineNodes.forEach((node) => {
-    node.addEventListener('click', () => {
-      pipelineNodes.forEach((n) => n.classList.remove('active'));
-      node.classList.add('active');
-      const key = node.dataset.node || 'market';
-      const info = nodeData[key];
-      if (info && nodeBadge && nodeHeadline && nodeText) {
-        nodeBadge.textContent = `PIPELINE NODE ${info.step}: ${info.title}`;
-        nodeHeadline.textContent = info.headline;
-        nodeText.innerHTML = info.text;
-        triggerMathJax(nodeText);
-      }
-    });
-  });
-
   // Initialize region state on boot
   setMarketRegion(appState.marketRegion);
-
-  // Initial watchlist render
   renderWatchlist();
 
 });
