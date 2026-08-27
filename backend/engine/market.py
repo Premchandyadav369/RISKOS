@@ -12,6 +12,14 @@ TICKER_MAP = {
     'INFY': 'INFY.NS',
     'ITC': 'ITC.NS',
     'TATAMOTORS': 'TATAMOTORS.NS',
+    'ICICIBANK': 'ICICIBANK.NS',
+    'LT': 'LT.NS',
+    'BHARTIARTL': 'BHARTIARTL.NS',
+    'SBIN': 'SBIN.NS',
+    'NIFTYBEES': 'NIFTYBEES.NS',
+    'GOLDBEES': 'GOLDBEES.NS',
+    'SILVERBEES': 'SILVERBEES.NS',
+    'ITBEES': 'ITBEES.NS',
     'NIFTY 50': '^NSEI',
     'NIFTY': '^NSEI',
     'SENSEX': '^BSESN',
@@ -27,6 +35,8 @@ TICKER_MAP = {
 BASE_PRICES = {
     'AAPL': 226.50, 'MSFT': 442.10, 'GOOGL': 178.20, 'AMZN': 186.40, 'JPM': 214.50, 'SPY': 564.10,
     'RELIANCE': 2984.50, 'TCS': 4210.80, 'HDFCBANK': 1642.30, 'INFY': 1885.40, 'ITC': 494.20, 'TATAMOTORS': 1048.60,
+    'ICICIBANK': 1218.40, 'LT': 3680.00, 'BHARTIARTL': 1542.00, 'SBIN': 815.00,
+    'NIFTYBEES': 268.40, 'GOLDBEES': 65.80, 'SILVERBEES': 88.50, 'ITBEES': 42.60,
     'NIFTY 50': 24820.40, 'SENSEX': 81340.20, 'BANK NIFTY': 51240.10, 'NVDA': 128.40
 }
 
@@ -176,3 +186,89 @@ def get_live_fundamentals(ticker: str) -> dict:
         '52w_low': 2300.0,
         'dividend_yield': 1.2
     }
+
+def get_candlesticks(ticker: str, timeframe: str = '1y') -> dict:
+    """Returns OHLC candlestick series with volume and computed SMA(20) / EMA(50)."""
+    mapped_t = clean_ticker(ticker)
+    tf_map = {
+        '1d': ('1d', '5m'),
+        '1w': ('5d', '15m'),
+        '1m': ('1mo', '1d'),
+        '3m': ('3mo', '1d'),
+        '1y': ('1y', '1d'),
+        '5y': ('5y', '1wk'),
+        'all': ('max', '1mo')
+    }
+    period, interval = tf_map.get(timeframe.lower(), ('1y', '1d'))
+    
+    try:
+        t = yf.Ticker(mapped_t)
+        hist = t.history(period=period, interval=interval)
+        if not hist.empty and len(hist) >= 5:
+            dates = [d.strftime('%Y-%m-%d %H:%M') if 'm' in interval else d.strftime('%Y-%m-%d') for d in hist.index]
+            opens = [round(float(x), 2) for x in hist['Open']]
+            highs = [round(float(x), 2) for x in hist['High']]
+            lows = [round(float(x), 2) for x in hist['Low']]
+            closes = [round(float(x), 2) for x in hist['Close']]
+            volumes = [int(x) for x in hist['Volume']]
+            
+            # SMA 20
+            sma20 = []
+            for i in range(len(closes)):
+                if i < 19:
+                    sma20.append(None)
+                else:
+                    sma20.append(round(sum(closes[i-19:i+1]) / 20.0, 2))
+                    
+            # EMA 50
+            ema50 = []
+            k = 2.0 / 51.0
+            prev_ema = closes[0]
+            for i in range(len(closes)):
+                val = (closes[i] * k) + (prev_ema * (1.0 - k))
+                ema50.append(round(val, 2) if i >= 20 else None)
+                prev_ema = val
+                
+            return {
+                'symbol': ticker.upper(),
+                'timeframe': timeframe.upper(),
+                'count': len(closes),
+                'dates': dates,
+                'open': opens,
+                'high': highs,
+                'low': lows,
+                'close': closes,
+                'volume': volumes,
+                'sma20': sma20,
+                'ema50': ema50,
+                'source': 'LIVE_EXCHANGE_FEED'
+            }
+    except Exception:
+        pass
+        
+    synth = generate_synthetic_ohlcv(ticker, timeframe)
+    closes = synth['close']
+    sma20 = [round(sum(closes[i-19:i+1])/20.0, 2) if i >= 19 else None for i in range(len(closes))]
+    k = 2.0 / 51.0
+    ema50 = []
+    prev_ema = closes[0]
+    for i in range(len(closes)):
+        val = (closes[i] * k) + (prev_ema * (1.0 - k))
+        ema50.append(round(val, 2) if i >= 20 else None)
+        prev_ema = val
+        
+    return {
+        'symbol': ticker.upper(),
+        'timeframe': timeframe.upper(),
+        'count': len(closes),
+        'dates': synth['dates'],
+        'open': synth['open'],
+        'high': synth['high'],
+        'low': synth['low'],
+        'close': synth['close'],
+        'volume': synth['volume'],
+        'sma20': sma20,
+        'ema50': ema50,
+        'source': 'MODELLED_SERIES'
+    }
+

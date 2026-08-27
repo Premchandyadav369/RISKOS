@@ -124,3 +124,19 @@ class MarketSnapshotModel(Base):
     advance_pct = Column(Float, default=62.5)
     cross_dispersion = Column(Float, default=1.48)
     snapshot_time = Column(DateTime, default=datetime.utcnow)
+
+class TransactionModel(Base):
+    __tablename__ = "transactions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tx_id = Column(String(64), unique=True, index=True, nullable=False)
+    symbol = Column(String(32), index=True, nullable=False)
+    type = Column(String(8), nullable=False) # 'BUY' | 'SELL'
+    quantity = Column(Integer, nullable=False)
+    price = Column(Float, nullable=False)
+    fees = Column(Float, default=0.0)
+    date = Column(String(16), nullable=False)
+    currency = Column(String(8), default="INR")
+    notes = Column(Text, default="")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
