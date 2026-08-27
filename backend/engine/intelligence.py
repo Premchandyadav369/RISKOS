@@ -1,21 +1,17 @@
 """
 RISKOS Backend — Financial Intelligence & Entity Resolution Engine
 Supports Indian (NSE/BSE) & US Markets, Natural Language Intent Detection,
-Groq AI Orchestration, News Causality Trees, Deterministic Math Substitution & Market Pulse
+Groq AI (OpenAI-compatible) Orchestration, News Causality Trees, Deterministic Math Substitution & Market Pulse
 """
 
 import os
 import json
 import math
-import numpy as np
-import pandas as pd
+import requests
 from typing import Optional, Dict, Any, List
 
-try:
-    import urllib.request
-    import urllib.parse
-except ImportError:
-    pass
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # ── 1. Normalized Security Master Database ───────────────────────────────────
 SECURITIES_MASTER = [
@@ -287,7 +283,6 @@ SECURITIES_MASTER = [
     }
 ]
 
-# ── 2. Natural Language Intent & Entity Resolver ─────────────────────────────
 def resolve_security(query: str) -> Optional[Dict[str, Any]]:
     q = query.strip().lower()
     for sec in SECURITIES_MASTER:
@@ -299,10 +294,76 @@ def resolve_security(query: str) -> Optional[Dict[str, Any]]:
             return sec
     return None
 
+def call_groq_ai(query: str, api_key: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Calls Groq AI with model fallback and returns structured financial insights."""
+    key = api_key or GROQ_API_KEY
+    if not key:
+        return None
+        
+    models = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b", "groq/compound"]
+    
+    headers = {
+        "Authorization": f"Bearer {key}",
+        "Content-Type": "application/json"
+    }
+    
+    system_prompt = (
+        "You are RISKOS, an institutional financial intelligence reasoning engine. "
+        "Analyze the user query and output a strict JSON object with: "
+        "1. 'intent' (one of: 'company_analysis', 'causality_tree', 'comparison', 'sector_volatility', 'math_explainer', 'portfolio_simulation'). "
+        "2. 'security_symbol' (e.g. RELIANCE, TCS, HDFCBANK, INFY, AAPL, NVDA). "
+        "3. 'summary' object with 'simple', 'investor', 'quant' fields. "
+        "4. 'causal_tree' array of objects with 'factor', 'weight', 'type', 'desc'. "
+        "Output valid JSON only without markdown code fence."
+    )
+    
+    for model in models:
+        try:
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": query}
+                ],
+                "response_format": {"type": "json_object"},
+                "temperature": 0.1
+            }
+            r = requests.post(GROQ_API_URL, json=payload, headers=headers, timeout=8)
+            if r.status_code == 200:
+                data = r.json()
+                content = data["choices"][0]["message"]["content"]
+                return json.loads(content)
+        except Exception:
+            continue
+            
+    return None
+
 def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, Any]:
     q = (query or "").strip().lower()
     
-    # 1. Compare Intent
+    # 1. Try Groq AI reasoning if available
+    ai_response = call_groq_ai(query, groq_api_key)
+    if ai_response and isinstance(ai_response, dict):
+        sym = ai_response.get("security_symbol", "RELIANCE")
+        sec = resolve_security(sym) or SECURITIES_MASTER[0]
+        return {
+            "intent": ai_response.get("intent", "company_analysis"),
+            "query": query,
+            "security": sec,
+            "visualization": {"type": "financial_canvas"},
+            "summary": ai_response.get("summary", {
+                "simple": f"{sec['name']} is trading at ₹{sec['price_inr']:,.2f}.",
+                "investor": f"Valuation P/E is {sec['pe']}x with an ROE of {sec['roe']}%.",
+                "quant": f"Regime: {sec['regime']}. Beta: {sec['beta']:.2f}."
+            }),
+            "causal_tree": ai_response.get("causal_tree", sec["causal_factors"]),
+            "equations": [
+                {"name": "Sharpe Ratio", "latex": rf"S = \frac{{R_i - R_f}}{{\sigma_i}} = \frac{{16.8\% - 6.5\%}}{{{sec['volatility']*100:.1f}\%}} = \mathbf{{{sec['sharpe']:.2f}}}"}
+            ],
+            "data_status": "AI_ENHANCED_GROQ"
+        }
+    
+    # 2. Deterministic Intent Detection & Rule Engine Fallback
     if "compare" in q or " vs " in q or " versus " in q:
         parts = q.replace("compare", "").split("vs") if "vs" in q else q.replace("compare", "").split("and")
         sec1 = resolve_security(parts[0].strip()) if len(parts) > 0 else SECURITIES_MASTER[0]
@@ -323,9 +384,8 @@ def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, A
             "data_status": "VERIFIED_HISTORICAL"
         }
     
-    # 2. Causality / Why Moved Intent
     if any(k in q for k in ["why", "fall", "drop", "jump", "move", "down", "up"]):
-        sec = resolve_security(q) or SECURITIES_MASTER[2] # Default HDFC Bank
+        sec = resolve_security(q) or SECURITIES_MASTER[2]
         return {
             "intent": "causality_tree",
             "query": query,
@@ -340,7 +400,6 @@ def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, A
             "data_status": "MODEL_OUTPUT"
         }
     
-    # 3. Sector Volatility Intent
     if "volatility" in q and any(k in q for k in ["it", "tech", "bank", "sector"]):
         return {
             "intent": "sector_volatility",
@@ -364,7 +423,6 @@ def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, A
             "data_status": "LIVE_CALCULATION"
         }
     
-    # 4. Math Explainer Intent
     if any(k in q for k in ["explain", "calculate", "formula", "what is", "math"]):
         formula_key = "sharpe"
         for k in ["beta", "volatility", "cagr", "capm", "var", "pe", "roe"]:
@@ -373,7 +431,6 @@ def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, A
                 break
         return get_math_explanation(formula_key)
     
-    # 5. Default Company Analysis
     sec = resolve_security(q) or SECURITIES_MASTER[0]
     return {
         "intent": "company_analysis",
@@ -391,12 +448,11 @@ def resolve_query(query: str, groq_api_key: Optional[str] = None) -> Dict[str, A
         "data_status": "DELAYED_15M"
     }
 
-# ── 3. Deterministic Mathematical Explainer Engine ───────────────────────────
 def get_math_explanation(formula_name: str, ticker: Optional[str] = None) -> Dict[str, Any]:
     sec = resolve_security(ticker) if ticker else SECURITIES_MASTER[0]
     sec = sec or SECURITIES_MASTER[0]
-    
     k = formula_name.lower().strip()
+    
     if "beta" in k:
         cov = (sec["beta"] * 0.0225)
         var_m = 0.0225
@@ -422,7 +478,6 @@ def get_math_explanation(formula_name: str, ticker: Optional[str] = None) -> Dic
             "data_status": "DETERMINISTIC_FORMULA"
         }
     else:
-        # Sharpe Default
         rf = 0.065
         ret = 0.168
         vol = sec["volatility"]
@@ -437,7 +492,6 @@ def get_math_explanation(formula_name: str, ticker: Optional[str] = None) -> Dic
             "data_status": "DETERMINISTIC_FORMULA"
         }
 
-# ── 4. Indian & US Market Pulse Engine ───────────────────────────────────────
 def get_market_pulse() -> Dict[str, Any]:
     return {
         "indices": [
