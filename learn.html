@@ -172,137 +172,153 @@
       </div>
     </nav>
 
-    <!-- ═══════════════════════ 4. MAIN LAB CANVAS WORKSPACE ═══════════════════════ -->
+    <!-- ═══════════════════════ 4. MAIN CONTINUOUS LAB WORKSPACE ═══════════════════════ -->
     <main class="lab-main-canvas" id="labMainCanvas">
       
-      <!-- Primary Active Concept Card -->
-      <article class="lab-concept-card" id="activeConceptCard">
+      <!-- Module Header & Action Bar -->
+      <header class="lab-module-header">
+        <div class="module-header-left">
+          <span class="concept-category-tag" id="activeCatTag">RETURNS &amp; GROWTH &bull; GROWTH METRIC</span>
+          <h2 class="concept-title" id="activeTitle">CAGR (Compounded Annual Growth Rate)</h2>
+          <p class="concept-lead-text" id="activeLeadText">Steady annualized growth rate smoothing out volatility.</p>
+        </div>
+
+        <!-- Action Bar: Reset, Save, Compare, Export, Explain -->
+        <div class="lab-action-bar">
+          <button class="lab-act-btn" id="btnResetInputs" title="Reset to default parameters"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          <button class="lab-act-btn" id="btnSaveScenario" title="Save current simulation scenario"><i class="fa-regular fa-bookmark"></i> Save Scenario</button>
+          <button class="lab-act-btn" id="btnCompareScenario" title="Compare against saved scenarios"><i class="fa-solid fa-code-compare"></i> Compare</button>
+          <button class="lab-act-btn" id="btnExportResults" title="Export simulation report"><i class="fa-solid fa-download"></i> Export</button>
+          <button class="lab-act-btn primary" id="btnExplainAi" title="Ask AI for deep natural-language explanation"><i class="fa-solid fa-brain"></i> Explain This</button>
+        </div>
+      </header>
+
+      <!-- ── STEP 1 & 2: WHAT IS IT & WHY IT MATTERS ── -->
+      <section class="lab-step-card step-intuition">
+        <div class="step-header">
+          <span class="step-badge">01 &bull; CONCEPT INTUITION</span>
+          <h3 class="step-title">What is it &amp; Why does it matter?</h3>
+        </div>
         
-        <!-- Concept Top Header Row -->
-        <div class="concept-header-row">
-          <div class="concept-title-group">
-            <span class="concept-category-tag" id="activeCatTag">RETURNS &amp; GROWTH &bull; GROWTH METRIC</span>
-            <h2 class="concept-title" id="activeTitle">CAGR (Compounded Annual Growth Rate)</h2>
+        <div class="intuition-grid">
+          <div class="intuition-text-box">
+            <p class="understand-lead-text" id="understandLead"></p>
+            <p class="understand-body-text" id="understandBody"></p>
+            <div class="why-matters-box">
+              <span class="why-matters-tag"><i class="fa-solid fa-lightbulb"></i> Practical Application</span>
+              <p id="whyMattersText"></p>
+            </div>
           </div>
 
-          <!-- Three Mode Switcher: UNDERSTAND | EXPERIMENT | PROVE -->
-          <div class="three-mode-nav" id="threeModeNav">
-            <button class="mode-tab-btn active" data-pane="pane-understand"><i class="fa-solid fa-book-open"></i> Understand</button>
-            <button class="mode-tab-btn" data-pane="pane-experiment"><i class="fa-solid fa-sliders"></i> Experiment</button>
-            <button class="mode-tab-btn" data-pane="pane-prove"><i class="fa-solid fa-square-root-variable"></i> Prove (Math)</button>
+          <div class="intuition-stat-box">
+            <span class="focal-symbol" id="focalSymbol">CAGR</span>
+            <span class="focal-value" id="focalValue">+20.11%</span>
+            <span class="focal-label" id="focalLabel">Annual Compound Rate</span>
+            <div class="mode-depth-indicator">
+              <span>Active Depth:</span> <strong id="currentDepthBadge">Beginner</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STEP 3: INTERACTIVE SIMULATOR (SLIDERS + LIVE CHART) ── -->
+      <section class="lab-step-card step-simulator">
+        <div class="step-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="step-badge">02 &bull; INTERACTIVE EXPERIMENT</span>
+            <h3 class="step-title">Simulate &amp; Watch Live Market Dynamics</h3>
+          </div>
+
+          <!-- Source Toggle: Simulation vs Real Security -->
+          <div class="sim-source-toggle" id="simSourceToggle">
+            <button class="sim-source-btn active" data-source="custom"><i class="fa-solid fa-sliders"></i> Simulation Mode</button>
+            <button class="sim-source-btn" data-source="security"><i class="fa-solid fa-building-columns"></i> Real Security</button>
           </div>
         </div>
 
-        <!-- ── PANE 1: UNDERSTAND (Plain English Intuition) ── -->
-        <div class="lab-mode-pane active" id="pane-understand">
-          <div class="understand-focal-box">
-            <div class="understand-text-col">
-              <div class="understand-lead" id="understandLead">
-                <!-- Dynamically populated -->
-              </div>
-              <div class="understand-body" id="understandBody">
-                <!-- Dynamically populated -->
-              </div>
-            </div>
-
-            <div class="understand-visual-col">
-              <span class="focal-symbol" id="focalSymbol">CAGR</span>
-              <span class="focal-value" id="focalValue">+20.11%</span>
-              <span class="focal-label" id="focalLabel">Annual Compound Rate</span>
-            </div>
-          </div>
-
-          <div class="why-matters-card">
-            <span class="why-matters-title"><i class="fa-solid fa-lightbulb"></i> Why does this matter to your money?</span>
-            <p class="why-matters-text" id="whyMattersText">
-              <!-- Dynamically populated -->
-            </p>
-          </div>
+        <!-- Real Security Search Bar -->
+        <div class="sim-real-security-bar" id="simRealSecurityBar">
+          <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-cyan);"></i>
+          <input type="text" id="simSecurityInput" class="sim-security-input" placeholder="Search real security (e.g. RELIANCE, TCS, NVDA, AAPL, 500570, ^NSEI)..." />
+          <span style="font-size:0.75rem;color:var(--text-muted);">Loads real market fundamentals &amp; beta</span>
         </div>
 
-        <!-- ── PANE 2: EXPERIMENT (Interactive Simulator) ── -->
-        <div class="lab-mode-pane" id="pane-experiment">
-          
-          <!-- Simulation vs Real Security Mode Toolbar -->
-          <div class="sim-mode-toolbar">
-            <div class="sim-source-toggle" id="simSourceToggle">
-              <button class="sim-source-btn active" data-source="custom"><i class="fa-solid fa-sliders"></i> Custom Simulation</button>
-              <button class="sim-source-btn" data-source="security"><i class="fa-solid fa-building-columns"></i> Real Security</button>
+        <!-- Presets Bar -->
+        <div class="preset-pill-group" id="labPresetPills"></div>
+
+        <div class="sim-workspace-grid">
+          <!-- Sliders & Direct Numeric Inputs Panel -->
+          <div class="sim-controls-panel" id="simControlsPanel"></div>
+
+          <!-- Dynamic Chart.js Visualizer -->
+          <div class="sim-chart-wrapper">
+            <div class="sim-chart-header">
+              <span class="sim-chart-title" id="simChartTitle"><i class="fa-solid fa-chart-line"></i> Dynamic Laboratory Visualization</span>
+              <span class="lab-badge" id="simChartBadge">Live Simulation</span>
             </div>
-
-            <div class="preset-pill-group" id="labPresetPills">
-              <!-- Preset chips injected dynamically -->
-            </div>
-          </div>
-
-          <!-- Real Security Quick Search (Visible only in Real Security mode) -->
-          <div class="sim-real-security-bar" id="simRealSecurityBar">
-            <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-cyan);"></i>
-            <input type="text" id="simSecurityInput" class="sim-security-input" placeholder="Search real security (e.g., 'RELIANCE', 'TCS', 'NVDA', 'AAPL', '500570', '^NSEI')..." />
-            <span style="font-size:0.7rem;color:var(--text-muted);">Loads live verified market data</span>
-          </div>
-
-          <!-- Simulator Grid: Sliders on Left, Chart on Right -->
-          <div class="sim-workspace-grid">
-            
-            <div class="sim-controls-panel" id="simControlsPanel">
-              <!-- Injected dynamically from module metadata -->
-            </div>
-
-            <!-- Visualization Canvas Box -->
-            <div class="sim-chart-wrapper">
-              <div class="sim-chart-header">
-                <span class="sim-chart-title" id="simChartTitle"><i class="fa-solid fa-chart-line"></i> Dynamic Laboratory Visualization</span>
-                <span class="lab-badge" id="simChartBadge">Growth Trajectory</span>
-              </div>
-              <div class="sim-chart-canvas-box">
-                <canvas id="simChartCanvas"></canvas>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Plain-English Real-Time Result Box -->
-          <div class="sim-result-box">
-            <i class="fa-solid fa-circle-check sim-result-icon"></i>
-            <div class="sim-result-text" id="simResultText">
-              <!-- Result string injected dynamically -->
+            <div class="sim-chart-canvas-box">
+              <canvas id="simChartCanvas"></canvas>
             </div>
           </div>
         </div>
 
-        <!-- ── PANE 3: PROVE (Equations, Proofs & Limitations) ── -->
-        <div class="lab-mode-pane" id="pane-prove">
-          <div class="prove-section-grid">
-            
-            <!-- Mathematical Formula Card -->
-            <div class="equation-card">
-              <span class="equation-card-title"><i class="fa-solid fa-square-root-variable"></i> General Closed-Form Equation</span>
-              <div class="mathjax-display-wrapper" id="proveMathEquation">
-                <!-- MathJax injected -->
-              </div>
-            </div>
+        <!-- Plain-English Real-Time Result Banner -->
+        <div class="sim-result-box">
+          <i class="fa-solid fa-circle-check sim-result-icon"></i>
+          <div class="sim-result-text" id="simResultText"></div>
+        </div>
+      </section>
 
-            <!-- Actual Live Substituted Calculation -->
-            <div class="equation-card">
-              <span class="equation-card-title"><i class="fa-solid fa-calculator"></i> Actual Evaluated Calculation</span>
-              <div class="substituted-calc-wrapper" id="proveSubstitutedMath">
-                <!-- Substituted MathJax injected -->
-              </div>
-            </div>
+      <!-- ── STEP 4 & 5: MATHEMATICAL EQUATION & ACTUAL CALCULATION ── -->
+      <section class="lab-step-card step-mathematics">
+        <div class="step-header">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span class="step-badge">03 &bull; MATHEMATICAL PROOF</span>
+            <h3 class="step-title">Equations, Live Substitution &amp; Proofs</h3>
+          </div>
+          <button class="toggle-math-btn" id="btnToggleMathDetails"><i class="fa-solid fa-chevron-down"></i> <span id="mathToggleText">Detailed Proof</span></button>
+        </div>
 
-            <!-- Limitations & Edge Cases Alert Card -->
-            <div class="limitations-alert-card">
-              <span class="limitations-title"><i class="fa-solid fa-triangle-exclamation"></i> Model Limitations &amp; Real-World Caveats</span>
-              <p class="limitations-text" id="proveLimitations">
-                <!-- Limitations injected -->
-              </p>
-            </div>
+        <div class="math-proof-grid">
+          <!-- General Closed-Form Equation -->
+          <div class="equation-card">
+            <span class="equation-card-title"><i class="fa-solid fa-square-root-variable"></i> Closed-Form General Equation</span>
+            <div class="mathjax-display-wrapper" id="proveMathEquation"></div>
+          </div>
 
+          <!-- Actual Live Substituted Calculation -->
+          <div class="equation-card">
+            <span class="equation-card-title"><i class="fa-solid fa-calculator"></i> Actual Evaluated Calculation (Your Inputs)</span>
+            <div class="substituted-calc-wrapper" id="proveSubstitutedMath"></div>
           </div>
         </div>
 
-      </article>
+        <!-- Collapsible Deep Mathematical Breakdown & Assumptions -->
+        <div class="math-deep-proof-box" id="mathDeepProofBox" hidden>
+          <div class="deep-proof-header"><i class="fa-solid fa-flask-vial"></i> Quantitative Formulation &amp; Step-by-Step Arithmetic</div>
+          <div class="deep-proof-content" id="mathDeepProofContent"></div>
+        </div>
+      </section>
+
+      <!-- ── STEP 6 & 7: PLAIN-ENGLISH RESULT & LIMITATIONS ── -->
+      <section class="lab-step-card step-limitations">
+        <div class="step-header">
+          <span class="step-badge">04 &bull; BOUNDARIES &amp; LIMITATIONS</span>
+          <h3 class="step-title">Model Assumptions &amp; Real-World Caveats</h3>
+        </div>
+
+        <div class="limitations-grid">
+          <div class="limitations-alert-box">
+            <span class="limitations-alert-title"><i class="fa-solid fa-triangle-exclamation"></i> Critical Model Constraints</span>
+            <p class="limitations-text" id="proveLimitations"></p>
+          </div>
+
+          <div class="key-takeaways-box">
+            <span class="takeaways-title"><i class="fa-solid fa-bookmark"></i> Key Takeaway</span>
+            <p class="takeaways-text" id="keyTakeawayText"></p>
+          </div>
+        </div>
+      </section>
 
       <!-- Horizontal Quick Concept Switcher Tray -->
       <section class="lab-tray-wrapper">
@@ -320,6 +336,20 @@
 
   </div>
 
+  <!-- ═══════════════════════ SLIDE-OVER DRAWER (AI EXPLAIN & SCENARIOS) ═══════════════════════ -->
+  <div class="lab-drawer-overlay" id="labDrawerOverlay" hidden>
+    <div class="lab-drawer-backdrop" id="labDrawerBackdrop"></div>
+    <aside class="lab-drawer-panel" id="labDrawerPanel">
+      <div class="lab-drawer-header">
+        <h3 class="lab-drawer-title" id="labDrawerTitle"><i class="fa-solid fa-brain"></i> AI Quantitative Explainer</h3>
+        <button class="lab-drawer-close" id="labDrawerCloseBtn">&times;</button>
+      </div>
+      <div class="lab-drawer-body" id="labDrawerBody">
+        <!-- Content dynamically populated -->
+      </div>
+    </aside>
+  </div>
+
   <!-- Mobile Menu Overlay -->
   <div class="lab-mobile-menu-overlay" id="mobileMenuOverlay" hidden>
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -328,7 +358,7 @@
     </div>
     <div style="display:flex;flex-direction:column;gap:12px;margin-top:16px;">
       <a href="index.html" class="nav-link-btn"><i class="fa-solid fa-house"></i> Home Dashboard</a>
-      <a href="learn.html" class="nav-link-btn" style="color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Learn &amp; Lab</a>
+      <a href="learn.html" class="nav-link-btn" style="color:var(--accent-cyan);"><i class="fa-solid fa-flask"></i> Learn &amp; Simulate</a>
       <a href="app.html" class="nav-link-btn"><i class="fa-solid fa-terminal"></i> Institutional Terminal</a>
     </div>
   </div>
