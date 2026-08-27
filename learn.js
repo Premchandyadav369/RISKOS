@@ -604,6 +604,35 @@
       });
     }
 
+    // 4.5 Live Market Clocks
+    const updateMarketClock = () => {
+      const now = new Date();
+      const istStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
+      const estStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
+      const timeEl = document.getElementById('marketTime');
+      const nameEl = document.getElementById('marketName');
+      if (timeEl && nameEl) {
+        if (nameEl.textContent.includes('US') || nameEl.textContent.includes('NYSE')) {
+          timeEl.textContent = `${estStr} EST`;
+        } else {
+          timeEl.textContent = `${istStr} IST`;
+        }
+      }
+    };
+    updateMarketClock();
+    setInterval(updateMarketClock, 1000);
+
+    const clockBadge = document.getElementById('marketClockBadge');
+    if (clockBadge) {
+      clockBadge.addEventListener('click', () => {
+        const nameEl = document.getElementById('marketName');
+        if (nameEl) {
+          nameEl.textContent = nameEl.textContent === 'NSE' ? 'NYSE/US' : 'NSE';
+          updateMarketClock();
+        }
+      });
+    }
+
     // 5. Simulation vs Real Security Toggle
     document.querySelectorAll('.sim-source-btn').forEach(btn => {
       btn.addEventListener('click', () => {
