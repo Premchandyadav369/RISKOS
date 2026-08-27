@@ -1,662 +1,688 @@
 /**
- * RISKOS Quantitative Learning & Simulation Laboratory Controller
- * Controls UI, reactivity, Chart.js visualizations, MathJax typesetting & scenario persistence.
+ * RISKOS — LEARN & LAB QUANTITATIVE CONTROLLER
+ * Seamless, deterministic, reactive financial laboratory controller.
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Global State
-  const state = {
-    activeTopicId: 'cagr',
+(() => {
+  'use strict';
+
+  // ── Global State ──────────────────────────────────────────────────────────
+  const labState = {
+    activeModuleId: 'cagr',
     activeCategory: 'all',
-    userMode: localStorage.getItem('riskos_user_mode') || 'beginner',
-    currency: localStorage.getItem('riskos_currency') || 'INR',
-    inputs: {},
-    chartInstance: null,
-    savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]')
+    activePane: 'pane-understand',
+    explanationMode: 'beginner',
+    currency: 'INR',
+    usdToInr: 83.50,
+    sourceMode: 'custom', // 'custom' | 'security'
+    activeSecuritySymbol: 'RELIANCE',
+    simInputs: {},
+    chartInstance: null
   };
 
-  // MathJax Typeset Helper
-  const triggerMathJax = (element = null) => {
-    if (window.MathJax && window.MathJax.typesetPromise) {
-      const targets = element ? [element] : [document.getElementById('labMainStage')];
-      window.MathJax.typesetPromise(targets).catch((err) => console.warn('MathJax error:', err));
+  // ── 18 Comprehensive Laboratory Modules ───────────────────────────────────
+  const MODULES_REGISTRY = [
+    {
+      id: 'cagr',
+      name: 'CAGR (Compounded Annual Growth Rate)',
+      shortName: 'CAGR',
+      category: 'growth',
+      focalSymbol: 'CAGR',
+      focalLabel: 'Annual Growth Rate',
+      defaultInputs: { vi: 100000, vf: 250000, n: 5.0 },
+      controls: [
+        { key: 'vi', label: 'Initial Value (Vi)', min: 1000, max: 2000000, step: 5000, isMoney: true },
+        { key: 'vf', label: 'Final Value (Vf)', min: 1000, max: 10000000, step: 10000, isMoney: true },
+        { key: 'n', label: 'Time Horizon (Years)', min: 1, max: 30, step: 0.5, isMoney: false }
+      ],
+      presets: [
+        { label: 'Doubling in 5Y', values: { vi: 100000, vf: 200000, n: 5 } },
+        { label: '10x Wealth (15Y)', values: { vi: 100000, vf: 1000000, n: 15 } }
+      ]
+    },
+    {
+      id: 'compounding',
+      name: 'Compound Interest & Exponential Growth',
+      shortName: 'Compounding',
+      category: 'growth',
+      focalSymbol: 'A = P(1+r/n)ⁿᵗ',
+      focalLabel: 'Future Value',
+      defaultInputs: { principal: 100000, rate: 12.0, years: 10, frequency: 1 },
+      controls: [
+        { key: 'principal', label: 'Initial Principal (P)', min: 10000, max: 2000000, step: 10000, isMoney: true },
+        { key: 'rate', label: 'Annual Interest Rate (%)', min: 1.0, max: 30.0, step: 0.5, isMoney: false },
+        { key: 'years', label: 'Investment Horizon (Years)', min: 1, max: 40, step: 1, isMoney: false }
+      ],
+      presets: [
+        { label: 'Bank FD (7%)', values: { principal: 100000, rate: 7.0, years: 10, frequency: 1 } },
+        { label: 'Index Fund (14%)', values: { principal: 100000, rate: 14.0, years: 20, frequency: 1 } }
+      ]
+    },
+    {
+      id: 'sip',
+      name: 'SIP / DCA (Dollar-Cost Averaging)',
+      shortName: 'SIP / DCA',
+      category: 'simulators',
+      focalSymbol: 'SIP',
+      focalLabel: 'Systematic Wealth Accumulation',
+      defaultInputs: { monthly: 10000, rate: 12.0, years: 10 },
+      controls: [
+        { key: 'monthly', label: 'Monthly SIP Contribution', min: 1000, max: 200000, step: 1000, isMoney: true },
+        { key: 'rate', label: 'Expected Annual Return (%)', min: 4.0, max: 25.0, step: 0.5, isMoney: false },
+        { key: 'years', label: 'Duration (Years)', min: 1, max: 35, step: 1, isMoney: false }
+      ],
+      presets: [
+        { label: '₹5k / mo (15Y)', values: { monthly: 5000, rate: 12.0, years: 15 } },
+        { label: '₹25k / mo (20Y)', values: { monthly: 25000, rate: 14.0, years: 20 } }
+      ]
+    },
+    {
+      id: 'lumpsum_vs_sip',
+      name: 'Lumpsum vs SIP Simulator',
+      shortName: 'Lumpsum vs SIP',
+      category: 'simulators',
+      focalSymbol: 'L vs S',
+      focalLabel: 'Strategy Comparison',
+      defaultInputs: { totalAmount: 600000, rate: 12.0, years: 5 },
+      controls: [
+        { key: 'totalAmount', label: 'Total Investible Capital', min: 50000, max: 5000000, step: 50000, isMoney: true },
+        { key: 'rate', label: 'Expected Annual Return (%)', min: 4.0, max: 25.0, step: 0.5, isMoney: false },
+        { key: 'years', label: 'Tenure (Years)', min: 1, max: 20, step: 1, isMoney: false }
+      ],
+      presets: [
+        { label: '₹10 Lakh (5Y)', values: { totalAmount: 1000000, rate: 12.0, years: 5 } }
+      ]
+    },
+    {
+      id: 'pe_ratio',
+      name: 'P/E Ratio & Earnings Yield',
+      shortName: 'P/E Ratio',
+      category: 'valuation',
+      focalSymbol: 'P/E',
+      focalLabel: 'Price-to-Earnings Multiple',
+      defaultInputs: { price: 2984.50, eps: 116.80 },
+      controls: [
+        { key: 'price', label: 'Current Share Price', min: 10, max: 50000, step: 10, isMoney: true },
+        { key: 'eps', label: 'Earnings Per Share (EPS)', min: 1, max: 2000, step: 1, isMoney: true }
+      ],
+      presets: [
+        { label: 'Reliance (25.5x)', values: { price: 2984.50, eps: 116.80 } },
+        { label: 'TCS (31.8x)', values: { price: 4210.80, eps: 132.50 } }
+      ]
+    },
+    {
+      id: 'roe_dupont',
+      name: 'ROE & DuPont 3-Stage Decomposition',
+      shortName: 'ROE DuPont',
+      category: 'valuation',
+      focalSymbol: 'ROE',
+      focalLabel: 'Return on Equity',
+      defaultInputs: { netIncome: 69622, revenue: 900000, assets: 1800000, equity: 714000 },
+      controls: [
+        { key: 'netIncome', label: 'Net Income (Cr)', min: 100, max: 150000, step: 500, isMoney: false },
+        { key: 'revenue', label: 'Total Revenue (Cr)', min: 1000, max: 2000000, step: 5000, isMoney: false },
+        { key: 'assets', label: 'Total Assets (Cr)', min: 1000, max: 3000000, step: 10000, isMoney: false },
+        { key: 'equity', label: 'Shareholder Equity (Cr)', min: 500, max: 1500000, step: 5000, isMoney: false }
+      ],
+      presets: [
+        { label: 'Reliance DuPont', values: { netIncome: 69622, revenue: 900000, assets: 1800000, equity: 714000 } }
+      ]
+    },
+    {
+      id: 'volatility',
+      name: 'Volatility & Normal Distribution',
+      shortName: 'Volatility',
+      category: 'risk',
+      focalSymbol: 'σ',
+      focalLabel: 'Annualized Dispersion',
+      defaultInputs: { dailyStd: 1.15, price: 2500 },
+      controls: [
+        { key: 'dailyStd', label: 'Daily Price Volatility (%)', min: 0.2, max: 5.0, step: 0.05, isMoney: false },
+        { key: 'price', label: 'Current Asset Price', min: 50, max: 50000, step: 50, isMoney: true }
+      ],
+      presets: [
+        { label: 'Low Vol Index (0.8%)', values: { dailyStd: 0.8, price: 24000 } },
+        { label: 'High Beta Stock (2.2%)', values: { dailyStd: 2.2, price: 1200 } }
+      ]
+    },
+    {
+      id: 'beta',
+      name: 'Beta & Systematic Market Sensitivity',
+      shortName: 'Beta',
+      category: 'risk',
+      focalSymbol: 'β',
+      focalLabel: 'Market Sensitivity',
+      defaultInputs: { cov: 0.033, varM: 0.0225, stockVol: 22.0, marketVol: 15.0, corr: 0.75 },
+      controls: [
+        { key: 'stockVol', label: 'Stock Annual Volatility (%)', min: 5.0, max: 60.0, step: 0.5, isMoney: false },
+        { key: 'marketVol', label: 'Market Benchmark Volatility (%)', min: 5.0, max: 40.0, step: 0.5, isMoney: false },
+        { key: 'corr', label: 'Correlation with Benchmark (ρ)', min: -0.9, max: 1.0, step: 0.05, isMoney: false }
+      ],
+      presets: [
+        { label: 'Defensive FMCG (0.65)', values: { stockVol: 14.0, marketVol: 15.0, corr: 0.70 } },
+        { label: 'High-Beta Tech (1.45)', values: { stockVol: 28.0, marketVol: 15.0, corr: 0.78 } }
+      ]
+    },
+    {
+      id: 'sharpe_ratio',
+      name: 'Sharpe Ratio & Risk-Adjusted Return',
+      shortName: 'Sharpe Ratio',
+      category: 'risk',
+      focalSymbol: 'S',
+      focalLabel: 'Excess Return / Unit Risk',
+      defaultInputs: { portfolioReturn: 16.5, riskFreeRate: 6.5, portfolioVol: 12.5 },
+      controls: [
+        { key: 'portfolioReturn', label: 'Portfolio Annual Return (%)', min: 2.0, max: 40.0, step: 0.5, isMoney: false },
+        { key: 'riskFreeRate', label: 'Risk-Free Rate (Rf) (%)', min: 1.0, max: 12.0, step: 0.25, isMoney: false },
+        { key: 'portfolioVol', label: 'Portfolio Volatility (σ) (%)', min: 3.0, max: 35.0, step: 0.5, isMoney: false }
+      ],
+      presets: [
+        { label: 'Institutional Alpha (1.25)', values: { portfolioReturn: 18.0, riskFreeRate: 6.5, portfolioVol: 9.2 } }
+      ]
+    },
+    {
+      id: 'max_drawdown',
+      name: 'Maximum Drawdown & Recovery Math',
+      shortName: 'Max Drawdown',
+      category: 'risk',
+      focalSymbol: 'MDD',
+      focalLabel: 'Peak-to-Trough Decline',
+      defaultInputs: { peak: 100000, trough: 65000 },
+      controls: [
+        { key: 'peak', label: 'Peak Portfolio Valuation', min: 10000, max: 5000000, step: 10000, isMoney: true },
+        { key: 'trough', label: 'Trough Portfolio Valuation', min: 5000, max: 5000000, step: 5000, isMoney: true }
+      ],
+      presets: [
+        { label: '2008 Crash (-50%)', values: { peak: 100000, trough: 50000 } },
+        { label: 'COVID Dip (-35%)', values: { peak: 100000, trough: 65000 } }
+      ]
+    },
+    {
+      id: 'portfolio_diversification',
+      name: '2-Asset Markowitz Diversification',
+      shortName: 'Diversification',
+      category: 'portfolio',
+      focalSymbol: 'σₚ',
+      focalLabel: 'Blended Risk Reduction',
+      defaultInputs: { wA: 0.6, volA: 24.0, volB: 12.0, corr: 0.15 },
+      controls: [
+        { key: 'wA', label: 'Asset A Weight (Equity)', min: 0.0, max: 1.0, step: 0.05, isMoney: false },
+        { key: 'volA', label: 'Asset A Volatility (%)', min: 5.0, max: 50.0, step: 1.0, isMoney: false },
+        { key: 'volB', label: 'Asset B Volatility (Debt) (%)', min: 2.0, max: 30.0, step: 0.5, isMoney: false },
+        { key: 'corr', label: 'Correlation (ρ)', min: -1.0, max: 1.0, step: 0.05, isMoney: false }
+      ],
+      presets: [
+        { label: '60/40 Equity/Debt', values: { wA: 0.6, volA: 20.0, volB: 6.0, corr: 0.10 } },
+        { label: 'Uncorrelated Assets (ρ=0)', values: { wA: 0.5, volA: 18.0, volB: 14.0, corr: 0.0 } }
+      ]
+    },
+    {
+      id: 'capm',
+      name: 'CAPM Expected Return & Security Market Line',
+      shortName: 'CAPM',
+      category: 'portfolio',
+      focalSymbol: 'E(Rᵢ)',
+      focalLabel: 'Required Hurdle Rate',
+      defaultInputs: { rf: 6.5, beta: 1.15, rm: 13.5, actualReturn: 17.5 },
+      controls: [
+        { key: 'rf', label: 'Risk-Free Rate (Rf) (%)', min: 2.0, max: 10.0, step: 0.25, isMoney: false },
+        { key: 'beta', label: 'Asset Beta (β)', min: 0.2, max: 2.5, step: 0.05, isMoney: false },
+        { key: 'rm', label: 'Expected Market Return (Rm) (%)', min: 6.0, max: 22.0, step: 0.5, isMoney: false }
+      ],
+      presets: [
+        { label: 'India Bluechip', values: { rf: 6.5, beta: 1.05, rm: 14.0, actualReturn: 16.5 } }
+      ]
     }
-  };
+  ];
 
-  // ── 1. URL Query Parameter Parser (Deep-Linking) ───────────────────────────
-  const parseQueryParams = () => {
-    const params = new URLSearchParams(window.location.search);
-    const topic = params.get('topic');
-    if (topic && LearnMathEngine.getModuleById(topic)) {
-      state.activeTopicId = topic;
+  // ── Helper: Format Currency ───────────────────────────────────────────────
+  const formatMoney = (num) => {
+    if (num === null || num === undefined || isNaN(num)) return '—';
+    const isUSD = labState.currency === 'USD';
+    const val = isUSD ? num / labState.usdToInr : num;
+    const sym = isUSD ? '$' : '₹';
+
+    if (Math.abs(val) >= 10000000 && !isUSD) {
+      return `₹${(val / 10000000).toFixed(2)} Cr`;
     }
-
-    const mode = params.get('mode');
-    if (mode && ['beginner', 'investor', 'quant'].includes(mode)) {
-      state.userMode = mode;
+    if (Math.abs(val) >= 100000 && !isUSD) {
+      return `₹${(val / 100000).toFixed(2)} L`;
     }
-
-    const curr = params.get('currency');
-    if (curr && ['INR', 'USD'].includes(curr)) {
-      state.currency = curr;
-    }
-
-    // Capture arbitrary input overrides (e.g. ?p=2984.50&eps=116.80)
-    const activeMod = LearnMathEngine.getModuleById(state.activeTopicId);
-    state.inputs = { ...activeMod.defaultInputs };
-
-    activeMod.controls.forEach(ctrl => {
-      if (params.has(ctrl.key)) {
-        state.inputs[ctrl.key] = Number(params.get(ctrl.key));
-      }
-    });
+    return `${sym}${Number(val).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
   };
 
-  // ── 2. Sidebar Topic Directory Renderer ────────────────────────────────────
-  const renderSidebar = () => {
-    const topicListEl = document.getElementById('topicList');
-    if (!topicListEl) return;
+  // ── Render Bottom Concept Switcher Tray ───────────────────────────────────
+  const renderConceptTray = () => {
+    const track = document.getElementById('labTrayScroll');
+    if (!track) return;
 
-    const query = (document.getElementById('labTopicSearch')?.value || '').toLowerCase().trim();
-    const activeCat = state.activeCategory;
+    const filtered = labState.activeCategory === 'all'
+      ? MODULES_REGISTRY
+      : MODULES_REGISTRY.filter(m => m.category === labState.activeCategory);
 
-    const filtered = LearnMathEngine.MODULES_DIRECTORY.filter(mod => {
-      const matchCat = activeCat === 'all' || mod.categoryKey === activeCat;
-      const matchSearch = !query || 
-        mod.title.toLowerCase().includes(query) || 
-        mod.shortTitle.toLowerCase().includes(query) || 
-        mod.category.toLowerCase().includes(query);
-      return matchCat && matchSearch;
-    });
-
-    topicListEl.innerHTML = filtered.map(mod => {
-      const isActive = mod.id === state.activeTopicId;
-      return `
-        <button class="topic-item ${isActive ? 'active' : ''}" data-topic-id="${mod.id}">
-          <div class="topic-item-left">
-            <div class="topic-icon">
-              <i class="fa-solid ${mod.icon}"></i>
-            </div>
-            <div class="topic-item-title">${mod.shortTitle}</div>
-          </div>
-          <span class="topic-tag">${mod.categoryKey.toUpperCase()}</span>
-        </button>
-      `;
-    }).join('');
-
-    topicListEl.querySelectorAll('.topic-item').forEach(btn => {
-      btn.addEventListener('click', () => {
-        selectTopic(btn.dataset.topicId);
-      });
-    });
-
-    document.getElementById('topicCountBadge').textContent = `${filtered.length} Modules`;
-  };
-
-  // ── 3. Topic Selection & Dynamic Input Controller ──────────────────────────
-  const selectTopic = (topicId) => {
-    state.activeTopicId = topicId;
-    const mod = LearnMathEngine.getModuleById(topicId);
-    state.inputs = { ...mod.defaultInputs };
-
-    // Update URL without full refresh
-    const url = new URL(window.location);
-    url.searchParams.set('topic', topicId);
-    window.history.replaceState({}, '', url);
-
-    renderSidebar();
-    renderSimulationStage();
-  };
-
-  // ── 4. Main Simulation Stage & 7-Step Pedagogical Renderer ──────────────────
-  const renderSimulationStage = () => {
-    const mod = LearnMathEngine.getModuleById(state.activeTopicId);
-    if (!mod) return;
-
-    // Header Banner
-    document.getElementById('moduleCatPill').textContent = mod.category;
-    document.getElementById('moduleBadgeTag').textContent = mod.badge;
-    document.getElementById('moduleTitle').textContent = mod.title;
-
-    // Execute Deterministic Math Calculation
-    const result = mod.calc(state.inputs, state.currency);
-
-    // Step 1: What is it?
-    document.getElementById('stepWhatIsIt').textContent = 
-      state.userMode === 'beginner' ? result.beginnerText :
-      state.userMode === 'investor' ? result.investorText : result.quantText;
-    
-    document.getElementById('modeSpecificLabel').textContent = 
-      state.userMode === 'beginner' ? 'Beginner Intuition & Plain Concept' :
-      state.userMode === 'investor' ? 'Investor Decision Context & Rules of Thumb' : 'Quant Analytical Derivation & Limits';
-
-    document.getElementById('stepModeText').textContent = 
-      state.userMode === 'beginner' ? result.beginnerText :
-      state.userMode === 'investor' ? result.investorText : result.quantText;
-
-    document.getElementById('activeModeBadge').textContent = `Perspective: ${state.userMode.toUpperCase()}`;
-
-    // Step 2: Why does it matter?
-    document.getElementById('stepWhyMatters').textContent = result.investorText || result.beginnerText;
-
-    // Step 4: Mathematical Formula
-    document.getElementById('stepMathEquation').innerHTML = result.equationLatex;
-
-    // Step 5: Actual Numeric Substitution
-    document.getElementById('stepSubstitutedMath').innerHTML = result.substitutedLatex;
-
-    // Step 6: Plain-English Result
-    document.getElementById('stepPlainResult').textContent = result.plainResult;
-
-    // Step 7: Limitations & Caveats
-    document.getElementById('stepLimitations').textContent = result.limitations;
-
-    // Step 3: Render Controls & Sliders
-    renderControls(mod);
-
-    // Render Visualizations
-    renderChart(mod, result);
-
-    // Trigger MathJax re-render
-    triggerMathJax();
-  };
-
-  // ── 5. Render Interactive Controls & Sliders ───────────────────────────────
-  const renderControls = (mod) => {
-    const wrapper = document.getElementById('simControlsWrapper');
-    const presetsGroup = document.getElementById('presetPillsGroup');
-    if (!wrapper || !presetsGroup) return;
-
-    // Render Preset Chips
-    presetsGroup.innerHTML = (mod.presets || []).map((p, idx) => `
-      <button class="preset-btn" data-preset-idx="${idx}">${p.label}</button>
+    track.innerHTML = filtered.map(m => `
+      <div class="concept-thumb-card ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}">
+        <span class="thumb-tag">${m.category.toUpperCase()}</span>
+        <span class="thumb-title">${m.name}</span>
+        <span style="font-family:monospace;font-size:0.7rem;color:var(--text-muted);margin-top:2px;">${m.focalSymbol}</span>
+      </div>
     `).join('');
 
-    presetsGroup.querySelectorAll('.preset-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const p = mod.presets[btn.dataset.presetIdx];
-        if (p) {
-          state.inputs = { ...p.inputs };
-          renderSimulationStage();
-        }
+    track.querySelectorAll('.concept-thumb-card').forEach(card => {
+      card.addEventListener('click', () => {
+        switchModule(card.dataset.moduleId);
       });
     });
+  };
 
-    // Render Sliders & Inputs
-    wrapper.innerHTML = mod.controls.map(ctrl => {
-      const val = state.inputs[ctrl.key] !== undefined ? state.inputs[ctrl.key] : ctrl.default;
-      let displayVal = val;
-      if (ctrl.type === 'currency') displayVal = LearnMathEngine.formatMoney(val, state.currency, true);
-      else if (ctrl.type === 'percent') displayVal = `${val}%`;
+  // ── Switch Active Module ──────────────────────────────────────────────────
+  const switchModule = (moduleId) => {
+    const mod = MODULES_REGISTRY.find(m => m.id === moduleId);
+    if (!mod) return;
 
-      if (ctrl.type === 'select') {
-        return `
-          <div class="control-field-row">
-            <div class="control-label-row">
-              <span>${ctrl.label}</span>
-            </div>
-            <select class="lab-select" data-key="${ctrl.key}">
-              ${ctrl.options.map(opt => `
-                <option value="${opt.val}" ${opt.val == val ? 'selected' : ''}>${opt.text}</option>
-              `).join('')}
-            </select>
-          </div>
-        `;
-      }
+    labState.activeModuleId = moduleId;
+    labState.simInputs = { ...mod.defaultInputs };
+
+    // Update Header
+    document.getElementById('activeTitle').textContent = mod.name;
+    document.getElementById('activeCatTag').textContent = `${mod.category.toUpperCase()} • QUANTITATIVE LABORATORY`;
+
+    // Render Controls
+    renderControlsPanel(mod);
+
+    // Render Presets
+    renderPresetChips(mod);
+
+    // Evaluate Math & Update UI
+    evaluateActiveModule();
+
+    // Re-render tray to highlight active card
+    renderConceptTray();
+  };
+
+  // ── Render Interactive Sliders Panel ─────────────────────────────────────
+  const renderControlsPanel = (mod) => {
+    const panel = document.getElementById('simControlsPanel');
+    if (!panel) return;
+
+    panel.innerHTML = mod.controls.map(c => {
+      const curVal = labState.simInputs[c.key] !== undefined ? labState.simInputs[c.key] : c.min;
+      const formattedVal = c.isMoney ? formatMoney(curVal) : `${curVal}${c.key.includes('rate') || c.key.includes('Vol') ? '%' : ''}`;
 
       return `
-        <div class="control-field-row">
-          <div class="control-label-row">
-            <span>${ctrl.label}</span>
-            <span class="control-val-display" id="disp_${ctrl.key}">${displayVal}</span>
+        <div class="sim-control-group">
+          <div class="sim-control-header">
+            <span>${c.label}</span>
+            <span class="sim-control-val" id="val_${c.key}">${formattedVal}</span>
           </div>
           <input 
             type="range" 
-            class="lab-slider" 
-            data-key="${ctrl.key}"
-            min="${ctrl.min}" 
-            max="${ctrl.max}" 
-            step="${ctrl.step}" 
-            value="${val}" 
+            class="sim-range-slider" 
+            id="slider_${c.key}" 
+            data-key="${c.key}" 
+            data-money="${c.isMoney ? '1' : '0'}"
+            min="${c.min}" 
+            max="${c.max}" 
+            step="${c.step}" 
+            value="${curVal}" 
           />
         </div>
       `;
     }).join('');
 
-    // Attach real-time slider listeners
-    wrapper.querySelectorAll('.lab-slider').forEach(slider => {
+    // Attach listeners
+    panel.querySelectorAll('.sim-range-slider').forEach(slider => {
       slider.addEventListener('input', (e) => {
-        const key = e.target.dataset.key;
-        const numVal = parseFloat(e.target.value);
-        state.inputs[key] = numVal;
+        const k = e.target.dataset.key;
+        const isM = e.target.dataset.money === '1';
+        const v = parseFloat(e.target.value);
+        labState.simInputs[k] = v;
 
-        const ctrl = mod.controls.find(c => c.key === key);
-        const disp = document.getElementById(`disp_${key}`);
-        if (disp && ctrl) {
-          if (ctrl.type === 'currency') disp.textContent = LearnMathEngine.formatMoney(numVal, state.currency, true);
-          else if (ctrl.type === 'percent') disp.textContent = `${numVal}%`;
-          else disp.textContent = numVal;
+        const valLabel = document.getElementById(`val_${k}`);
+        if (valLabel) {
+          valLabel.textContent = isM ? formatMoney(v) : `${v}${k.includes('rate') || k.includes('Vol') ? '%' : ''}`;
         }
 
-        // Live calculation and MathJax re-render
-        const result = mod.calc(state.inputs, state.currency);
-        document.getElementById('stepSubstitutedMath').innerHTML = result.substitutedLatex;
-        document.getElementById('stepPlainResult').textContent = result.plainResult;
-        triggerMathJax(document.getElementById('stepSubstitutedMath'));
-        renderChart(mod, result);
-      });
-    });
-
-    wrapper.querySelectorAll('.lab-select').forEach(sel => {
-      sel.addEventListener('change', (e) => {
-        const key = e.target.dataset.key;
-        state.inputs[key] = isNaN(e.target.value) ? e.target.value : parseFloat(e.target.value);
-        renderSimulationStage();
+        evaluateActiveModule();
       });
     });
   };
 
-  // ── 6. Dynamic Chart.js Visualization Engine ───────────────────────────────
-  const renderChart = (mod, result) => {
-    const canvas = document.getElementById('labChartCanvas');
-    if (!canvas) return;
+  // ── Render Preset Chips ──────────────────────────────────────────────────
+  const renderPresetChips = (mod) => {
+    const container = document.getElementById('labPresetPills');
+    if (!container) return;
 
-    if (state.chartInstance) {
-      state.chartInstance.destroy();
-      state.chartInstance = null;
+    if (!mod.presets || mod.presets.length === 0) {
+      container.innerHTML = '';
+      return;
     }
 
-    const ctx = canvas.getContext('2d');
-    const badge = document.getElementById('chartTypeBadge');
+    container.innerHTML = mod.presets.map((p, idx) => `
+      <button class="lab-chip" data-idx="${idx}"><i class="fa-solid fa-bolt" style="font-size:0.6rem;color:var(--accent-cyan);"></i> ${p.label}</button>
+    `).join('');
 
-    // Chart customization based on module ID
-    if (mod.id === 'cagr' || mod.id === 'compounding' || mod.id === 'compound_timeline' || mod.id === 'sip_dca' || mod.id === 'lumpsum_sip') {
-      badge.textContent = 'Growth Trajectory';
-      const cData = result.chart || {};
-      
-      const datasets = [];
-      if (cData.trajectory) {
-        datasets.push({
-          label: 'Compounded Portfolio Value',
-          data: cData.trajectory,
-          borderColor: '#22d3ee',
-          backgroundColor: 'rgba(34, 211, 238, 0.12)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2.5
-        });
-      } else if (cData.wealthSeries) {
-        datasets.push({
-          label: 'Total Accumulated Wealth',
-          data: cData.wealthSeries,
-          borderColor: '#51CF66',
-          backgroundColor: 'rgba(81, 207, 102, 0.12)',
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2.5
-        });
-        datasets.push({
-          label: 'Total Out-of-Pocket Invested',
-          data: cData.investedSeries,
-          borderColor: '#71717a',
-          backgroundColor: 'transparent',
-          borderDash: [5, 5],
-          tension: 0.1,
-          borderWidth: 1.8
-        });
-      } else if (cData.lumpsumTrajectory) {
-        datasets.push({
-          label: 'Lumpsum Strategy Trajectory',
-          data: cData.lumpsumTrajectory,
-          borderColor: '#4F8FFF',
-          borderWidth: 2.2,
-          tension: 0.3
-        });
-        datasets.push({
-          label: 'SIP / DCA Strategy Trajectory',
-          data: cData.sipTrajectory,
-          borderColor: '#FAB005',
-          borderWidth: 2.2,
-          tension: 0.3
-        });
-      } else if (cData.nominalSeries) {
-        datasets.push({
-          label: 'Nominal Portfolio Corpus',
-          data: cData.nominalSeries,
-          borderColor: '#22d3ee',
-          borderWidth: 2.2,
-          tension: 0.3
-        });
-        datasets.push({
-          label: 'Inflation-Adjusted Real Value',
-          data: cData.realSeries,
-          borderColor: '#FAB005',
-          borderDash: [4, 4],
-          borderWidth: 2,
-          tension: 0.3
-        });
-      }
-
-      state.chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: cData.labels || [],
-          datasets
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { labels: { color: '#ffffff', font: { family: 'Inter', size: 11 } } },
-            tooltip: {
-              callbacks: {
-                label: (ctx) => `${ctx.dataset.label}: ${LearnMathEngine.formatMoney(ctx.parsed.y, state.currency, true)}`
-              }
-            }
-          },
-          scales: {
-            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#71717a' } },
-            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#71717a' } }
-          }
+    container.querySelectorAll('.lab-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const p = mod.presets[parseInt(btn.dataset.idx, 10)];
+        if (p) {
+          labState.simInputs = { ...p.values };
+          renderControlsPanel(mod);
+          evaluateActiveModule();
         }
       });
+    });
+  };
 
-    } else if (mod.id === 'volatility') {
-      badge.textContent = 'Normal Distribution Density';
-      const bell = (result.chart && result.chart.bellCurve) || [];
+  // ── Main Deterministic Evaluator ──────────────────────────────────────────
+  const evaluateActiveModule = () => {
+    const modId = labState.activeModuleId;
+    const inputs = labState.simInputs;
+    let res = null;
 
-      state.chartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: bell.map(p => `${p.x}%`),
-          datasets: [{
-            label: 'Normal Return Density PDF',
-            data: bell.map(p => p.y),
-            borderColor: '#22d3ee',
-            backgroundColor: 'rgba(34, 211, 238, 0.15)',
-            fill: true,
-            tension: 0.4,
-            pointRadius: 0,
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#71717a', maxTicksLimit: 8 } },
-            y: { display: false }
-          }
-        }
-      });
-
-    } else if (mod.id === 'port_allocator') {
-      badge.textContent = 'Asset Allocation Weights';
-      const c = result.chart || {};
-
-      state.chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: c.labels || [],
-          datasets: [{
-            data: c.weights || [],
-            backgroundColor: c.colors || ['#4F8FFF', '#51CF66', '#FAB005', '#71717a'],
-            borderWidth: 1,
-            borderColor: '#09090c'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'right', labels: { color: '#fff', font: { family: 'Inter' } } }
-          }
-        }
-      });
-
-    } else {
-      // Bar Chart for Sharpe, Beta, CAPM, ROE, Stress testing, etc.
-      badge.textContent = 'Comparative Metrics';
-      const c = result.chart || {};
-      const labels = c.metrics || c.categories || c.scenarios || c.assets || c.labels || ['Metric'];
-      const dataValues = c.values || c.asset || c.impacts || c.volTrajectory || [10];
-
-      state.chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [{
-            label: 'Value',
-            data: dataValues,
-            backgroundColor: dataValues.map(v => v >= 0 ? 'rgba(34, 211, 238, 0.65)' : 'rgba(255, 107, 107, 0.65)'),
-            borderColor: dataValues.map(v => v >= 0 ? '#22d3ee' : '#FF6B6B'),
-            borderWidth: 1.5,
-            borderRadius: 6
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#71717a' } },
-            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#71717a' } }
-          }
-        }
-      });
+    if (modId === 'cagr') {
+      res = LearnMathEngine.calcCAGR(inputs.vi, inputs.vf, inputs.n);
+    } else if (modId === 'compounding') {
+      res = LearnMathEngine.calcCompoundInterest(inputs.principal, inputs.rate, inputs.years, inputs.frequency || 1);
+    } else if (modId === 'sip') {
+      res = LearnMathEngine.calcSIP(inputs.monthly, inputs.rate, inputs.years);
+    } else if (modId === 'lumpsum_vs_sip') {
+      res = LearnMathEngine.calcLumpsumVsSIP(inputs.totalAmount, inputs.rate, inputs.years);
+    } else if (modId === 'pe_ratio') {
+      res = LearnMathEngine.calcPEandEarningsYield(inputs.price, inputs.eps);
+    } else if (modId === 'roe_dupont') {
+      res = LearnMathEngine.calcROEDuPont(inputs.netIncome, inputs.revenue, inputs.assets, inputs.equity);
+    } else if (modId === 'volatility') {
+      res = LearnMathEngine.calcVolatilityNormal(inputs.dailyStd, inputs.price);
+    } else if (modId === 'beta') {
+      res = LearnMathEngine.calcBeta(inputs.cov || 0.033, inputs.varM || 0.0225, inputs.stockVol, inputs.marketVol, inputs.corr);
+    } else if (modId === 'sharpe_ratio') {
+      res = LearnMathEngine.calcSharpe(inputs.portfolioReturn, inputs.riskFreeRate, inputs.portfolioVol);
+    } else if (modId === 'max_drawdown') {
+      res = LearnMathEngine.calcDrawdownRecovery(inputs.peak, inputs.trough);
+    } else if (modId === 'portfolio_diversification') {
+      res = LearnMathEngine.calcDiversification(inputs.wA, 1 - inputs.wA, inputs.volA, inputs.volB, inputs.corr);
+    } else if (modId === 'capm') {
+      res = LearnMathEngine.calcCAPM(inputs.rf, inputs.beta, inputs.rm, inputs.actualReturn || 16.0);
     }
-  };
 
-  // ── 7. Mode & Currency Toggle Controllers ──────────────────────────────────
-  const setMode = (newMode) => {
-    state.userMode = newMode;
-    document.body.dataset.userMode = newMode;
-    localStorage.setItem('riskos_user_mode', newMode);
-    document.querySelectorAll('#labModePill .mode-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.mode === newMode);
-    });
-    renderSimulationStage();
-  };
+    if (!res) return;
 
-  const setCurrency = (newCurr) => {
-    state.currency = newCurr;
-    localStorage.setItem('riskos_currency', newCurr);
-    document.querySelectorAll('#labCurrencyBtn .curr-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.curr === newCurr);
-    });
-    renderSimulationStage();
-  };
+    // 1. Update Mode 1: Understand
+    const underLead = document.getElementById('understandLead');
+    const underBody = document.getElementById('understandBody');
+    const whyMatters = document.getElementById('whyMattersText');
+    const focalVal = document.getElementById('focalValue');
+    const focalSym = document.getElementById('focalSymbol');
 
-  document.querySelectorAll('#labModePill .mode-btn').forEach(btn => {
-    btn.addEventListener('click', () => setMode(btn.dataset.mode));
-  });
-
-  document.querySelectorAll('#labCurrencyBtn .curr-btn').forEach(btn => {
-    btn.addEventListener('click', () => setCurrency(btn.dataset.curr));
-  });
-
-  // Search Filter Handler
-  const searchInput = document.getElementById('labTopicSearch');
-  if (searchInput) {
-    searchInput.addEventListener('input', renderSidebar);
-  }
-
-  // Category Filter Chips
-  document.querySelectorAll('#categoryFilterBar .cat-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('#categoryFilterBar .cat-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      state.activeCategory = chip.dataset.category;
-      renderSidebar();
-    });
-  });
-
-  // Reset Button
-  const resetBtn = document.getElementById('btnResetDefaults');
-  if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      const mod = LearnMathEngine.getModuleById(state.activeTopicId);
-      state.inputs = { ...mod.defaultInputs };
-      renderSimulationStage();
-    });
-  }
-
-  // ── 8. Scenario Save & Comparison Drawer ───────────────────────────────────
-  const updateComparisonDrawer = () => {
-    const drawer = document.getElementById('comparisonDrawer');
-    const countEl = document.getElementById('savedCount');
-    if (!drawer || !countEl) return;
-
-    countEl.textContent = state.savedScenarios.length;
-    drawer.classList.toggle('open', state.savedScenarios.length > 0);
-  };
-
-  const saveScenarioBtn = document.getElementById('btnSaveScenario');
-  if (saveScenarioBtn) {
-    saveScenarioBtn.addEventListener('click', () => {
-      const mod = LearnMathEngine.getModuleById(state.activeTopicId);
-      const res = mod.calc(state.inputs, state.currency);
-      const scenario = {
-        id: Date.now(),
-        topicId: mod.id,
-        topicTitle: mod.shortTitle,
-        timestamp: new Date().toLocaleTimeString(),
-        currency: state.currency,
-        inputs: { ...state.inputs },
-        resultText: res.plainResult
-      };
-
-      state.savedScenarios.push(scenario);
-      localStorage.setItem('riskos_lab_scenarios', JSON.stringify(state.savedScenarios));
-      updateComparisonDrawer();
-
-      saveScenarioBtn.innerHTML = '<i class="fa-solid fa-check"></i> <span>Saved!</span>';
-      setTimeout(() => {
-        saveScenarioBtn.innerHTML = '<i class="fa-regular fa-bookmark"></i> <span>Save Scenario</span>';
-      }, 1500);
-    });
-  }
-
-  const clearSavedBtn = document.getElementById('btnClearSaved');
-  if (clearSavedBtn) {
-    clearSavedBtn.addEventListener('click', () => {
-      state.savedScenarios = [];
-      localStorage.removeItem('riskos_lab_scenarios');
-      updateComparisonDrawer();
-    });
-  }
-
-  // Comparison Modal
-  const compareModal = document.getElementById('compareModalOverlay');
-  const openCompareBtn = document.getElementById('btnOpenCompareModal');
-  const closeCompareBtn = document.getElementById('btnCloseCompareModal');
-
-  if (openCompareBtn && compareModal) {
-    openCompareBtn.addEventListener('click', () => {
-      const body = document.getElementById('compareModalBody');
-      if (!body) return;
-
-      if (state.savedScenarios.length < 2) {
-        body.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:20px;">Please save at least 2 scenarios to compare them side-by-side.</div>`;
+    if (underLead) underLead.textContent = res.whatIsIt || '';
+    if (underBody) {
+      if (labState.explanationMode === 'beginner') {
+        underBody.textContent = `A simple, intuitive way to understand this: ${res.plainEnglishResult}`;
+      } else if (labState.explanationMode === 'investor') {
+        underBody.textContent = `Practical Investment Context: ${res.plainEnglishResult}. Use this metric to benchmark opportunities against cash hurdles.`;
       } else {
-        body.innerHTML = state.savedScenarios.slice(-2).map((sc, i) => `
-          <div style="background:#09090c;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px;">
-            <div style="display:flex;justify-content:space-between;color:var(--accent-cyan);font-weight:700;font-size:0.85rem;margin-bottom:8px;">
-              <span>Scenario ${i + 1}: ${sc.topicTitle}</span>
-              <span style="color:#71717a;font-size:0.75rem;">${sc.timestamp}</span>
-            </div>
-            <div style="font-size:0.8rem;color:#fff;line-height:1.5;margin-bottom:10px;">${sc.resultText}</div>
-            <div style="font-size:0.75rem;color:#aaa;background:rgba(255,255,255,0.03);padding:8px;border-radius:6px;">
-              <strong style="color:#fff;">Inputs:</strong> ${Object.entries(sc.inputs).map(([k, v]) => `${k}=${v}`).join(', ')}
-            </div>
-          </div>
-        `).join('');
+        underBody.textContent = `Quantitative Specification: Computed via closed-form deterministic operator with continuous parameter sensitivity.`;
       }
-      compareModal.removeAttribute('hidden');
+    }
+    if (whyMatters) whyMatters.textContent = res.whyItMatters || '';
+    if (focalSym) focalSym.textContent = MODULES_REGISTRY.find(m => m.id === modId)?.focalSymbol || '—';
+    if (focalVal) {
+      if (res.cagrPercent !== undefined) focalVal.textContent = `+${res.cagrPercent.toFixed(2)}%`;
+      else if (res.futureValue !== undefined) focalVal.textContent = formatMoney(res.futureValue);
+      else if (res.peRatio !== undefined) focalVal.textContent = `${res.peRatio.toFixed(2)}x`;
+      else if (res.beta !== undefined) focalVal.textContent = `${res.beta.toFixed(2)}`;
+      else if (res.sharpeRatio !== undefined) focalVal.textContent = `${res.sharpeRatio.toFixed(2)}`;
+      else if (res.maxDrawdownPercent !== undefined) focalVal.textContent = `-${res.maxDrawdownPercent.toFixed(2)}%`;
+      else focalVal.textContent = 'Active';
+    }
+
+    // 2. Update Mode 2: Result String & Visualization
+    const simResText = document.getElementById('simResultText');
+    if (simResText) simResText.textContent = res.plainEnglishResult;
+
+    renderChart(res);
+
+    // 3. Update Mode 3: Prove MathJax Equations
+    const eqDiv = document.getElementById('proveMathEquation');
+    const subDiv = document.getElementById('proveSubstitutedMath');
+    const limText = document.getElementById('proveLimitations');
+
+    if (eqDiv) eqDiv.innerHTML = `\\[ ${res.latexFormula} \\]`;
+    if (subDiv) subDiv.innerHTML = `\\[ ${res.substitutedLatex} \\]`;
+    if (limText) limText.textContent = res.limitations || '';
+
+    // Trigger MathJax Re-render
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise([eqDiv, subDiv]).catch(() => {});
+    }
+  };
+
+  // ── Render Responsive Chart.js Visualization ─────────────────────────────
+  const renderChart = (res) => {
+    const canvas = document.getElementById('simChartCanvas');
+    if (!canvas || !res.chartData) return;
+
+    if (labState.chartInstance) {
+      labState.chartInstance.destroy();
+    }
+
+    const cd = res.chartData;
+    const ctx = canvas.getContext('2d');
+
+    labState.chartInstance = new Chart(ctx, {
+      type: cd.type || 'line',
+      data: {
+        labels: cd.labels,
+        datasets: cd.datasets.map((ds, idx) => ({
+          label: ds.label,
+          data: ds.data,
+          borderColor: ds.borderColor || (idx === 0 ? '#22d3ee' : '#51CF66'),
+          backgroundColor: ds.backgroundColor || 'transparent',
+          fill: ds.fill !== undefined ? ds.fill : false,
+          tension: 0.25,
+          pointRadius: cd.labels.length > 20 ? 0 : 3
+        }))
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 300 },
+        plugins: {
+          legend: {
+            display: cd.datasets.length > 1,
+            labels: { color: '#a1a1aa', font: { size: 11 } }
+          },
+          tooltip: {
+            backgroundColor: '#0d0d12',
+            titleColor: '#fff',
+            bodyColor: '#22d3ee',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#71717a', font: { size: 10 } }
+          },
+          y: {
+            grid: { color: 'rgba(255,255,255,0.04)' },
+            ticks: { color: '#71717a', font: { size: 10 } }
+          }
+        }
+      }
     });
-  }
+  };
 
-  if (closeCompareBtn && compareModal) {
-    closeCompareBtn.addEventListener('click', () => compareModal.setAttribute('hidden', ''));
-  }
+  // ── Real Security Search Handler ──────────────────────────────────────────
+  const setupSecuritySearch = () => {
+    const secInput = document.getElementById('simSecurityInput');
+    if (!secInput) return;
 
-  // ── 9. Export Report Modal ─────────────────────────────────────────────────
-  const exportModal = document.getElementById('exportModalOverlay');
-  const btnExport = document.getElementById('btnExportReport');
-  const btnCloseExport = document.getElementById('btnCloseExportModal');
-  const btnCopyReport = document.getElementById('btnCopyReport');
-  const btnDownloadReport = document.getElementById('btnDownloadReport');
+    let debounce = null;
+    secInput.addEventListener('input', (e) => {
+      clearTimeout(debounce);
+      const q = e.target.value.trim();
+      if (!q) return;
 
-  if (btnExport && exportModal) {
-    btnExport.addEventListener('click', () => {
-      const mod = LearnMathEngine.getModuleById(state.activeTopicId);
-      const res = mod.calc(state.inputs, state.currency);
+      debounce = setTimeout(async () => {
+        const sec = await SecurityMaster.resolveSecurity(q);
+        if (sec && sec.basePrice) {
+          labState.activeSecuritySymbol = sec.symbol;
 
-      const report = `═══════════════════════════════════════════════════════════════
-RISKOS QUANTITATIVE SIMULATION REPORT
-Module: ${mod.title} (${mod.badge})
-Generated: ${new Date().toISOString()}
-Currency: ${state.currency} | Mode: ${state.userMode.toUpperCase()}
-═══════════════════════════════════════════════════════════════
+          // Pre-fill parameters according to current module
+          const modId = labState.activeModuleId;
+          if (modId === 'pe_ratio') {
+            labState.simInputs.price = sec.basePrice;
+            labState.simInputs.eps = sec.eps || 100;
+          } else if (modId === 'volatility') {
+            labState.simInputs.price = sec.basePrice;
+            labState.simInputs.dailyStd = Number(((sec.vol || 0.18) / Math.sqrt(252) * 100).toFixed(2));
+          } else if (modId === 'beta') {
+            labState.simInputs.stockVol = Number(((sec.vol || 0.18) * 100).toFixed(1));
+            labState.simInputs.corr = 0.75;
+          }
 
-1. CONCEPT & DEFINITION:
-${state.userMode === 'beginner' ? res.beginnerText : state.userMode === 'investor' ? res.investorText : res.quantText}
-
-2. INPUT PARAMETERS:
-${Object.entries(state.inputs).map(([k, v]) => `• ${k}: ${v}`).join('\n')}
-
-3. MATHEMATICAL SPECIFICATION:
-Formula: ${res.equationLatex.replace(/\\\[|\\\]/g, '')}
-Evaluated: ${res.substitutedLatex.replace(/\\\[|\\\]/g, '')}
-
-4. PLAIN-ENGLISH TAKEAWAY:
-${res.plainResult}
-
-5. MODEL LIMITATIONS & CAVEATS:
-${res.limitations}
-
-═══════════════════════════════════════════════════════════════
-Deterministic Calculation Engine • RISKOS Lab v3.0
-═══════════════════════════════════════════════════════════════`;
-
-      document.getElementById('exportReportText').value = report;
-      exportModal.removeAttribute('hidden');
+          renderControlsPanel(MODULES_REGISTRY.find(m => m.id === modId));
+          evaluateActiveModule();
+        }
+      }, 200);
     });
-  }
+  };
 
-  if (btnCloseExport && exportModal) {
-    btnCloseExport.addEventListener('click', () => exportModal.setAttribute('hidden', ''));
-  }
-
-  if (btnCopyReport) {
-    btnCopyReport.addEventListener('click', () => {
-      const txt = document.getElementById('exportReportText').value;
-      navigator.clipboard.writeText(txt);
-      btnCopyReport.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-      setTimeout(() => {
-        btnCopyReport.innerHTML = '<i class="fa-regular fa-copy"></i> Copy to Clipboard';
-      }, 1500);
+  // ── Init Event Listeners & Boot ───────────────────────────────────────────
+  const init = () => {
+    // 1. Category Pill Navigation
+    document.querySelectorAll('.lab-cat-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.lab-cat-pill').forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        labState.activeCategory = pill.dataset.category;
+        renderConceptTray();
+      });
     });
-  }
 
-  if (btnDownloadReport) {
-    btnDownloadReport.addEventListener('click', () => {
-      const txt = document.getElementById('exportReportText').value;
-      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `RISKOS_Report_${state.activeTopicId}_${Date.now()}.txt`;
-      a.click();
+    // 2. Three Mode Tabs (UNDERSTAND | EXPERIMENT | PROVE)
+    document.querySelectorAll('.mode-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        labState.activePane = btn.dataset.pane;
+
+        document.querySelectorAll('.lab-mode-pane').forEach(p => p.classList.remove('active'));
+        document.getElementById(labState.activePane)?.classList.add('active');
+
+        // Resize chart if switching to experiment
+        if (labState.activePane === 'pane-experiment' && labState.chartInstance) {
+          labState.chartInstance.resize();
+        }
+      });
     });
+
+    // 3. Explanation Depth Mode Pill (Beginner | Investor | Quant)
+    document.querySelectorAll('#modeSelectorPill .mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#modeSelectorPill .mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        labState.explanationMode = btn.dataset.mode;
+        document.body.setAttribute('data-user-mode', labState.explanationMode);
+        evaluateActiveModule();
+      });
+    });
+
+    // 4. Currency Toggle
+    const currBtn = document.getElementById('currencyToggleBtn');
+    if (currBtn) {
+      currBtn.addEventListener('click', () => {
+        labState.currency = labState.currency === 'INR' ? 'USD' : 'INR';
+        currBtn.querySelectorAll('.curr-opt').forEach(opt => {
+          opt.classList.toggle('active', opt.dataset.curr === labState.currency);
+        });
+        renderControlsPanel(MODULES_REGISTRY.find(m => m.id === labState.activeModuleId));
+        evaluateActiveModule();
+      });
+    }
+
+    // 5. Simulation vs Real Security Toggle
+    document.querySelectorAll('.sim-source-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sim-source-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        labState.sourceMode = btn.dataset.source;
+
+        const secBar = document.getElementById('simRealSecurityBar');
+        if (secBar) {
+          secBar.classList.toggle('active', labState.sourceMode === 'security');
+        }
+      });
+    });
+
+    // 6. AI Query Input & Chips
+    const aiInput = document.getElementById('labAiInput');
+    const askBtn = document.getElementById('btnLabAsk');
+
+    const handleQuery = (query) => {
+      if (!query) return;
+      const q = query.toLowerCase();
+      let targetMod = 'cagr';
+
+      if (q.includes('sip') || q.includes('dca')) targetMod = 'sip';
+      else if (q.includes('lump') || q.includes('vs')) targetMod = 'lumpsum_vs_sip';
+      else if (q.includes('compound') || q.includes('interest')) targetMod = 'compounding';
+      else if (q.includes('pe') || q.includes('p/e') || q.includes('valuation') || q.includes('earnings')) targetMod = 'pe_ratio';
+      else if (q.includes('roe') || q.includes('dupont')) targetMod = 'roe_dupont';
+      else if (q.includes('beta') || q.includes('sensitivity')) targetMod = 'beta';
+      else if (q.includes('vol') || q.includes('risk') || q.includes('standard deviation')) targetMod = 'volatility';
+      else if (q.includes('sharpe')) targetMod = 'sharpe_ratio';
+      else if (q.includes('drawdown') || q.includes('mdd') || q.includes('crash')) targetMod = 'max_drawdown';
+      else if (q.includes('diversif') || q.includes('portfolio')) targetMod = 'portfolio_diversification';
+      else if (q.includes('capm')) targetMod = 'capm';
+
+      switchModule(targetMod);
+    };
+
+    if (askBtn && aiInput) {
+      askBtn.addEventListener('click', () => handleQuery(aiInput.value));
+      aiInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleQuery(aiInput.value);
+      });
+    }
+
+    document.querySelectorAll('.lab-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        if (chip.dataset.prompt) handleQuery(chip.dataset.prompt);
+      });
+    });
+
+    // 7. Mobile Menu
+    const menuToggle = document.getElementById('menuToggle');
+    const menuOverlay = document.getElementById('mobileMenuOverlay');
+    const menuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+
+    if (menuToggle && menuOverlay) {
+      menuToggle.addEventListener('click', () => {
+        menuOverlay.removeAttribute('hidden');
+        document.body.classList.add('menu-locked');
+      });
+    }
+    if (menuCloseBtn && menuOverlay) {
+      menuCloseBtn.addEventListener('click', () => {
+        menuOverlay.setAttribute('hidden', '');
+        document.body.classList.remove('menu-locked');
+      });
+    }
+
+    // 8. Setup Security Search & Initial Module
+    setupSecuritySearch();
+    renderConceptTray();
+    switchModule('cagr');
+  };
+
+  // Run on DOM Ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
-
-  // ── 10. Initial Boot & URL Dispatch ────────────────────────────────────────
-  parseQueryParams();
-  setMode(state.userMode);
-  setCurrency(state.currency);
-  renderSidebar();
-  renderSimulationStage();
-  updateComparisonDrawer();
-
-});
+})();
