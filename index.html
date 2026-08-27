@@ -104,6 +104,7 @@
           <a href="#home" class="nav-link active" id="navHome">Home</a>
           <button class="nav-link nav-link--btn" id="navOpenCanvas" title="Open Financial Intelligence Canvas">Canvas</button>
           <button class="nav-link nav-link--btn" id="navOpenPulse" title="Open Market Pulse">Market Pulse</button>
+          <button class="nav-link nav-link--btn" id="navOpenPortfolio" title="Open Real Transaction-Based Portfolio Manager">Portfolio (<span id="navPortCount">₹0</span>)</button>
           <button class="nav-link nav-link--btn" id="navOpenObs" title="Open Quantitative Observatory">Observatory</button>
           <button class="nav-link nav-link--btn" id="navOpenWatchlist" title="View Watchlist">Watchlist (<span id="navWatchCount">6</span>)</button>
         </nav>
@@ -416,6 +417,11 @@
             </div>
           </div>
 
+          <button class="comp-action-btn primary" id="compAddTxBtn" title="Add Shares to Your Portfolio" style="background:var(--accent-emerald);color:#000;border:none;font-weight:700;">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add to Portfolio</span>
+          </button>
+
           <button class="comp-action-btn" id="compWatchlistToggleBtn" title="Toggle Watchlist">
             <i class="fa-regular fa-star" id="compStarIcon"></i>
             <span id="compWatchlistBtnText">Add to Watchlist</span>
@@ -429,7 +435,7 @@
 
       <!-- 5-Tab Navigation Bar -->
       <div class="comp-nav-tabs" role="tablist">
-        <button class="comp-tab active" data-tab="tab-overview">Overview &amp; Chart</button>
+        <button class="comp-tab active" data-tab="tab-overview">Overview &amp; Candlesticks</button>
         <button class="comp-tab" data-tab="tab-causal">Why Did It Move? (Causal Tree)</button>
         <button class="comp-tab" data-tab="tab-news">News &amp; Filings (<span id="compNewsCount">4</span>)</button>
         <button class="comp-tab" data-tab="tab-fundamentals">Fundamentals &amp; Valuation</button>
@@ -439,7 +445,7 @@
       <!-- Tab Content Area -->
       <div class="comp-body">
         
-        <!-- Tab 1: Overview & Price Chart -->
+        <!-- Tab 1: Overview & Candlestick / OHLC Chart -->
         <div class="comp-tab-pane active" id="pane-tab-overview">
           <div class="pane-overview-grid">
             
@@ -451,18 +457,37 @@
                   <span class="cs-item">Volume: <strong id="csVolume">4.82M</strong></span>
                   <span class="cs-item">Market Cap: <strong id="csMarketCap">₹20.18 Lakh Cr</strong></span>
                 </div>
-                <div class="chart-tf-picker" id="compTimeframePicker">
-                  <button class="ctf-btn" data-tf="1M">1M</button>
-                  <button class="ctf-btn" data-tf="3M">3M</button>
-                  <button class="ctf-btn" data-tf="6M">6M</button>
-                  <button class="ctf-btn active" data-tf="1Y">1Y</button>
-                  <button class="ctf-btn" data-tf="5Y">5Y</button>
-                </div>
               </div>
 
-              <div class="comp-canvas-container" id="compCanvasContainer">
-                <canvas id="compPriceCanvas"></canvas>
-                <div class="comp-tooltip" id="compChartTooltip" hidden></div>
+              <!-- Professional Candlestick Canvas Component -->
+              <div class="candle-chart-container" id="candleChartContainer">
+                <div class="candle-toolbar">
+                  <div class="candle-tf-group" id="candleTfPicker">
+                    <button class="candle-btn" data-tf="1D">1D</button>
+                    <button class="candle-btn" data-tf="1W">1W</button>
+                    <button class="candle-btn" data-tf="1M">1M</button>
+                    <button class="candle-btn" data-tf="3M">3M</button>
+                    <button class="candle-btn active" data-tf="1Y">1Y</button>
+                    <button class="candle-btn" data-tf="5Y">5Y</button>
+                    <button class="candle-btn" data-tf="ALL">All</button>
+                  </div>
+                  <div class="candle-ind-group">
+                    <button class="candle-btn ind--active" id="btnToggleSMA" title="20-Day Simple Moving Average">SMA(20)</button>
+                    <button class="candle-btn ema--active" id="btnToggleEMA" title="50-Day Exponential Moving Average">EMA(50)</button>
+                    <button class="candle-btn active" id="btnToggleVol" title="Volume Sub-Pane">VOL</button>
+                  </div>
+                </div>
+                <div class="candle-hud" id="candleHud">
+                  <span>O: <span class="candle-hud-val" id="hudOpen">-</span></span>
+                  <span>H: <span class="candle-hud-val" id="hudHigh">-</span></span>
+                  <span>L: <span class="candle-hud-val" id="hudLow">-</span></span>
+                  <span>C: <span class="candle-hud-val" id="hudClose">-</span></span>
+                  <span>CHG: <span class="candle-hud-val" id="hudChg">-</span></span>
+                  <span>VOL: <span class="candle-hud-val" id="hudVol">-</span></span>
+                </div>
+                <div class="candle-canvas-wrap" id="candleCanvasWrap">
+                  <canvas id="candlestickCanvas"></canvas>
+                </div>
               </div>
             </div>
 
@@ -1227,6 +1252,179 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ REAL TRANSACTION-BASED PORTFOLIO MANAGER DRAWER ═══════════════════════ -->
+  <div class="pm-overlay" id="portfolioManagerOverlay" hidden>
+    <div class="pm-backdrop" id="pmBackdrop"></div>
+    <div class="pm-panel" id="pmPanel">
+      <div class="pm-header">
+        <div>
+          <span style="font-size:0.65rem;font-weight:700;color:var(--accent-emerald);letter-spacing:0.04em;">TRANSACTION-BASED ACCOUNTING ENGINE</span>
+          <h2 style="font-size:1.25rem;font-weight:800;color:#fff;">Portfolio Manager</h2>
+        </div>
+        <button class="ud-close-btn" id="pmCloseBtn" aria-label="Close Portfolio Manager">&times;</button>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="pm-ribbon">
+        <div class="pm-stat-box">
+          <span class="pm-stat-label">TOTAL INVESTED</span>
+          <span class="pm-stat-num" id="pmTotalInvested">₹0.00</span>
+        </div>
+        <div class="pm-stat-box">
+          <span class="pm-stat-label">CURRENT VALUE</span>
+          <span class="pm-stat-num" id="pmCurrentValue">₹0.00</span>
+        </div>
+        <div class="pm-stat-box">
+          <span class="pm-stat-label">UNREALIZED P&amp;L</span>
+          <span class="pm-stat-num" id="pmUnrealizedPnL">₹0.00 (+0.00%)</span>
+        </div>
+        <div class="pm-stat-box">
+          <span class="pm-stat-label">REALIZED P&amp;L</span>
+          <span class="pm-stat-num" id="pmRealizedPnL">₹0.00</span>
+        </div>
+      </div>
+
+      <!-- Toolbar with Actions & Backup / Restore -->
+      <div class="pm-toolbar">
+        <div class="pm-btn-group">
+          <button class="pm-action-btn primary" id="pmAddTxBtn"><i class="fa-solid fa-plus"></i> Add Transaction</button>
+          <button class="pm-action-btn" id="pmExportJsonBtn"><i class="fa-solid fa-download"></i> Backup JSON</button>
+          <button class="pm-action-btn" id="pmExportCsvBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+          <button class="pm-action-btn" id="pmImportBtn"><i class="fa-solid fa-upload"></i> Restore File</button>
+          <input type="file" id="pmFileInput" accept=".json,.csv" hidden />
+        </div>
+        <div style="font-size:0.725rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+          <i class="fa-solid fa-shield-halved" style="color:var(--accent-emerald);"></i>
+          <span>Auto-Persisted Locally &amp; DB Sync</span>
+        </div>
+      </div>
+
+      <div class="pm-body">
+        <!-- Holdings Section -->
+        <div>
+          <div class="pm-section-title">
+            <span>CURRENT HOLDINGS (WEIGHTED AVERAGE COST)</span>
+            <span id="pmHoldingsCount" style="color:var(--accent-emerald);">0 Assets</span>
+          </div>
+          <table class="pm-table" id="pmHoldingsTable">
+            <thead>
+              <tr>
+                <th>Security</th>
+                <th>Qty</th>
+                <th>Avg Buy Price</th>
+                <th>Current Price</th>
+                <th>Invested</th>
+                <th>Current Value</th>
+                <th>Unrealized P&amp;L</th>
+                <th>Allocation</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Transactions History Section -->
+        <div>
+          <div class="pm-section-title">
+            <span>TRANSACTION HISTORY (FIFO AUDIT LOG)</span>
+            <span id="pmTxCount">0 Transactions</span>
+          </div>
+          <table class="pm-table" id="pmTransactionsTable">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Ticker</th>
+                <th>Type</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>Fees</th>
+                <th>Total Outflow</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Transaction Timeline Feed -->
+        <div>
+          <div class="pm-section-title">
+            <span>CHRONOLOGICAL TIMELINE FEED</span>
+          </div>
+          <div id="pmTimelineContainer">
+            <!-- Timeline items injected dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ ADD / EDIT TRANSACTION MODAL ═══════════════════════ -->
+  <div class="tx-modal-overlay" id="txModalOverlay" hidden>
+    <div class="tx-modal-backdrop" id="txModalBackdrop"></div>
+    <div class="tx-modal-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--panel-border);padding-bottom:var(--space-3);">
+        <h3 id="txModalTitle" style="font-size:1.1rem;font-weight:700;color:#fff;">Add Transaction</h3>
+        <button class="ud-close-btn" id="txModalCloseBtn">&times;</button>
+      </div>
+
+      <input type="hidden" id="txEditId" value="" />
+
+      <div class="tx-form-row">
+        <label class="tx-form-label">Order Side</label>
+        <div class="tx-type-toggle">
+          <button type="button" class="tx-type-btn active buy" id="txBtnBuy" data-side="BUY">BUY</button>
+          <button type="button" class="tx-type-btn sell" id="txBtnSell" data-side="SELL">SELL</button>
+        </div>
+      </div>
+
+      <div class="tx-form-row">
+        <label class="tx-form-label">Security / Ticker</label>
+        <select class="tx-form-select" id="txSelectSymbol">
+          <!-- Dynamically populated from SECURITIES_DATABASE -->
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);">
+        <div class="tx-form-row">
+          <label class="tx-form-label">Quantity (Shares)</label>
+          <input type="number" class="tx-form-input" id="txInputQty" min="1" step="1" value="10" required />
+        </div>
+        <div class="tx-form-row">
+          <label class="tx-form-label">Price Per Share</label>
+          <input type="number" class="tx-form-input" id="txInputPrice" min="0.01" step="0.05" value="2984.50" required />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);">
+        <div class="tx-form-row">
+          <label class="tx-form-label">Brokerage / STT Fees</label>
+          <input type="number" class="tx-form-input" id="txInputFees" min="0" step="1" value="20.00" />
+        </div>
+        <div class="tx-form-row">
+          <label class="tx-form-label">Execution Date</label>
+          <input type="date" class="tx-form-input" id="txInputDate" required />
+        </div>
+      </div>
+
+      <div class="tx-form-row">
+        <label class="tx-form-label">Notes (Optional)</label>
+        <input type="text" class="tx-form-input" id="txInputNotes" placeholder="e.g. Long term accumulation, monthly SIP" />
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:var(--space-2);margin-top:var(--space-2);">
+        <button type="button" class="pm-action-btn" id="txBtnCancel">Cancel</button>
+        <button type="button" class="pm-action-btn primary" id="txBtnSave">Save Transaction</button>
+      </div>
     </div>
   </div>
 
