@@ -101,10 +101,12 @@
             <span>Search (⌘K)...</span>
             <kbd class="kbd-pill">⌘K</kbd>
           </button>
-          <button class="nav-link nav-link--btn" id="navOpenPulse" title="Open Market Pulse">Pulse</button>
+          <a href="index.html" class="nav-link active">Dashboard</a>
+          <a href="learn.html" class="nav-link">Learn &amp; Lab</a>
+          <a href="observatory.html" class="nav-link">Observatory</a>
+          <a href="app.html" class="nav-link">Terminal</a>
           <button class="nav-link nav-link--btn" id="navOpenPortfolio" title="Open Real Transaction-Based Portfolio Manager">Portfolio (<span id="navPortCount">₹0</span>)</button>
           <button class="nav-link nav-link--btn" id="navOpenSpeculations" title="Monte Carlo & Prophet Future Price Projections">Speculations</button>
-          <button class="nav-link nav-link--btn" id="navOpenObs" title="Open Quantitative Observatory">Observatory</button>
           <button class="nav-link nav-link--btn" id="navOpenWatchlist" title="View Watchlist">Watchlist (<span id="navWatchCount">6</span>)</button>
         </nav>
 
@@ -177,10 +179,10 @@
 
         <!-- 5. Interactive Action CTAs -->
         <div class="hero-cta-group">
-          <button class="cta-btn" id="ctaBtn" aria-label="Launch Financial Intelligence Observatory">
+          <a href="observatory.html" class="cta-btn" id="ctaBtn" aria-label="Launch Financial Intelligence Observatory">
             <span>Explore Observatory</span>
-            <i class="fa-solid fa-atom cta-icon" aria-hidden="true"></i>
-          </button>
+            <i class="fa-solid fa-satellite-dish cta-icon" aria-hidden="true"></i>
+          </a>
           
           <button class="cta-secondary-btn" id="heroCanvasBtn">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -800,40 +802,40 @@
 
       <nav class="mobile-menu__nav">
         <a href="index.html" class="mobile-nav-link active">
-          <i class="fa-solid fa-house"></i>
-          <span>Home</span>
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="learn.html" class="mobile-nav-link">
+          <i class="fa-solid fa-flask"></i>
+          <span>Learn &amp; Lab</span>
+        </a>
+        <a href="observatory.html" class="mobile-nav-link">
+          <i class="fa-solid fa-satellite-dish"></i>
+          <span>Observatory</span>
+        </a>
+        <a href="app.html" class="mobile-nav-link">
+          <i class="fa-solid fa-terminal"></i>
+          <span>Quant Terminal</span>
         </a>
         <button class="mobile-nav-link" id="mobileOpenSearch" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
           <i class="fa-solid fa-magnifying-glass"></i>
           <span>Command Palette (⌘K)</span>
         </button>
-        <button class="mobile-nav-link" id="mobileOpenCanvasBtn" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span>Financial Canvas</span>
-        </button>
         <button class="mobile-nav-link" id="mobileOpenPulseBtn" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
           <i class="fa-solid fa-heart-pulse"></i>
           <span>Market Pulse</span>
-        </button>
-        <button class="mobile-nav-link" id="mobileOpenObs" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
-          <i class="fa-solid fa-atom"></i>
-          <span>Observatory</span>
         </button>
         <button class="mobile-nav-link" id="mobileOpenWatchlist" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">
           <i class="fa-solid fa-star"></i>
           <span>My Watchlist</span>
         </button>
-        <a href="app.html" class="mobile-nav-link">
-          <i class="fa-solid fa-terminal"></i>
-          <span>Quant Terminal</span>
-        </a>
       </nav>
 
       <div class="mobile-menu__footer">
-        <button class="mobile-cta-btn" id="mobileCtaLaunchObs">
+        <a href="observatory.html" class="mobile-cta-btn" id="mobileCtaLaunchObs" style="text-decoration:none;">
           <span>Launch Observatory</span>
           <i class="fa-solid fa-arrow-right"></i>
-        </button>
+        </a>
       </div>
     </div>
   </div>

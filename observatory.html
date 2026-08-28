@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  
+  <title>Observatory — Market Intelligence &amp; Discovery | RISKOS</title>
+  <meta name="description" content="Continuously discover market movers, unusual volume surges, volatility breakouts, sector rotation, 52-week anomalies, and macro spillovers." />
+  <meta name="theme-color" content="#000000" />
+
+  <!-- Preconnect & Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <!-- Font Awesome Icons 6.5.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- MathJax for Mathematical Proofs -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Chart.js 4.4.1 -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="observatory.css" />
+</head>
+<body class="observatory-page" data-user-mode="investor">
+
+  <!-- ═══════════════════════ APPLICATION SHELL HEADER ═══════════════════════ -->
+  <header class="app-header">
+    <div class="header-inner">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+        <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" />
+        <div class="logo-text-block">
+          <span class="logo-title font-display">RISKOS</span>
+          <span class="logo-badge">QUANT LAB</span>
+        </div>
+      </a>
+
+      <!-- Primary Application Navigation Pills -->
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Ask Anything (⌘K)">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <span class="search-placeholder">Search markets, anomalies, tickers...</span>
+          <kbd class="kbd-shortcut">⌘K</kbd>
+        </button>
+        
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="learn.html" class="nav-link">Learn &amp; Lab</a>
+        <a href="observatory.html" class="nav-link active">Observatory</a>
+        <a href="app.html" class="nav-link">Terminal</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-right">
+        <!-- Explanation Depth Mode Switcher -->
+        <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth across all observations">
+          <button class="mode-btn" data-mode="beginner">Beginner</button>
+          <button class="mode-btn active" data-mode="investor">Investor</button>
+          <button class="mode-btn" data-mode="quant">Quant</button>
+        </div>
+
+        <!-- Live Market Clock Badge -->
+        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle between NSE (IST) and NYSE (EST)">
+          <span class="status-dot"></span>
+          <span class="market-name" id="marketName">NSE</span>
+          <span class="market-time" id="marketTime">--:-- IST</span>
+        </div>
+
+        <!-- Launch Terminal Button -->
+        <a href="app.html" class="terminal-btn-link" title="Launch Full Institutional Quant Terminal">
+          <i class="fa-solid fa-terminal" style="margin-right:4px;"></i> Terminal
+        </a>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenuOverlay">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ MAIN OBSERVATORY CONTAINER ═══════════════════════ -->
+  <main class="obs-container" id="mainObsContent">
+
+    <!-- ── 1. HERO SECTION ────────────────────────────────────────────────── -->
+    <section class="obs-hero-section">
+      <div class="obs-hero-tag">
+        <span class="chip-dot chip-dot--cyan"></span>
+        <span>REAL-TIME MARKET ANOMALY RADAR</span>
+      </div>
+      
+      <h1 class="obs-hero-title font-display">MARKET INTELLIGENCE OBSERVATORY</h1>
+      <p class="obs-hero-subtitle">
+        Continuously discover what is moving, surging, changing, diverging, and becoming statistically interesting across Indian and global capital markets.
+      </p>
+
+      <!-- AI Natural Language Prompt Bar -->
+      <div class="obs-ai-bar">
+        <div class="obs-ai-input-wrap">
+          <i class="fa-solid fa-sparkles ai-sparkle-icon"></i>
+          <input type="text" id="obsAiInput" class="obs-ai-input" placeholder="Ask Observatory: What is unusual in Indian markets today? Which sectors have momentum?" aria-label="Ask Observatory anything" />
+        </div>
+        <button class="obs-ai-submit-btn" id="btnObsAsk">
+          <span>Ask Observatory</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- Quick Discovery Chips -->
+      <div class="obs-chips-row" id="obsPromptChips">
+        <button class="obs-prompt-chip" data-query="unusual volume">🔥 Unusual Volume Surges</button>
+        <button class="obs-prompt-chip" data-query="sector rotation">🔄 Sector Capital Rotation</button>
+        <button class="obs-prompt-chip" data-query="volatility shifts">⚡ Volatility Regime Shifts</button>
+        <button class="obs-prompt-chip" data-query="52w breakouts">📈 52-Week Breakouts</button>
+        <button class="obs-prompt-chip" data-query="why reliance moved">🔍 Why RELIANCE is interesting?</button>
+        <button class="obs-prompt-chip" data-query="macro spillovers">🌐 Cross-Market Spillovers</button>
+      </div>
+    </section>
+
+    <!-- ── 2. GLOBAL CONTROLS & REFRESH BAR ─────────────────────────────────── -->
+    <section class="obs-controls-bar">
+      <!-- Market Scope Filter -->
+      <div class="obs-filter-group">
+        <span class="obs-filter-label">Market:</span>
+        <div class="obs-pill-toggle" id="marketScopeToggle">
+          <button class="obs-scope-btn active" data-market="india">🇮🇳 India (NSE/BSE)</button>
+          <button class="obs-scope-btn" data-market="global">🌐 Global (US/Macro)</button>
+          <button class="obs-scope-btn" data-market="all">All Markets</button>
+        </div>
+      </div>
+
+      <!-- Time Horizon Filter -->
+      <div class="obs-filter-group">
+        <span class="obs-filter-label">Timeframe:</span>
+        <div class="obs-pill-toggle" id="timeHorizonToggle">
+          <button class="obs-time-btn active" data-time="live">⚡ Live / Now</button>
+          <button class="obs-time-btn" data-time="today">Today</button>
+          <button class="obs-time-btn" data-time="1w">1 Week</button>
+          <button class="obs-time-btn" data-time="1m">1 Month</button>
+          <button class="obs-time-btn" data-time="3m">3 Months</button>
+        </div>
+      </div>
+
+      <!-- Polling Status & Refresh Actions -->
+      <div class="obs-actions-group">
+        <div class="obs-auto-refresh-pill" id="autoRefreshPill" title="Toggle automatic 30s background intelligence updates">
+          <span class="auto-dot active"></span>
+          <span>Auto: <strong id="autoRefreshText">ON</strong></span>
+        </div>
+        <button class="obs-refresh-btn" id="btnManualRefresh" title="Refresh market intelligence stream">
+          <i class="fa-solid fa-arrows-rotate" id="refreshIcon"></i>
+          <span>Refresh</span>
+        </button>
+        <span class="obs-last-updated" id="obsLastUpdated">Updated just now</span>
+      </div>
+    </section>
+
+    <!-- ── 3. MACRO MARKET PULSE & BREADTH RADAR STRIP ─────────────────────── -->
+    <section class="obs-macro-grid">
+      
+      <!-- Market Breadth Card -->
+      <div class="macro-card breadth-card">
+        <div class="macro-card-header">
+          <span class="macro-card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-cyan);margin-right:6px;"></i> NSE Market Breadth</span>
+          <span class="badge-tag" id="breadthTag">EXPANDING</span>
+        </div>
+        <div class="breadth-ratio-row">
+          <div class="breadth-stat">
+            <span class="breadth-label">Advances</span>
+            <strong class="breadth-val text-emerald" id="breadthAdvCount">1,482</strong>
+          </div>
+          <div class="breadth-stat">
+            <span class="breadth-label">Declines</span>
+            <strong class="breadth-val text-red" id="breadthDecCount">894</strong>
+          </div>
+          <div class="breadth-stat">
+            <span class="breadth-label">A/D Ratio</span>
+            <strong class="breadth-val" id="breadthRatio">1.66x</strong>
+          </div>
+          <div class="breadth-stat">
+            <span class="breadth-label">52W High / Low</span>
+            <strong class="breadth-val" id="breadth52w">28 / 4</strong>
+          </div>
+        </div>
+        <div class="breadth-bar-track">
+          <div class="breadth-bar-adv" id="breadthBarAdv" style="width: 62%;"></div>
+          <div class="breadth-bar-dec" id="breadthBarDec" style="width: 38%;"></div>
+        </div>
+      </div>
+
+      <!-- Cross-Market Macro Tape Card -->
+      <div class="macro-card macro-tape-card">
+        <div class="macro-card-header">
+          <span class="macro-card-title"><i class="fa-solid fa-globe" style="color:var(--accent-amber);margin-right:6px;"></i> Cross-Market Asset Overview</span>
+          <span class="provenance-tag">MULTI-ASSET FEED</span>
+        </div>
+        <div class="macro-assets-row" id="macroAssetsRow">
+          <div class="macro-asset-item">
+            <span class="asset-symbol">NIFTY 50</span>
+            <span class="asset-price" id="macroNiftyPrice">24,840.50</span>
+            <span class="asset-chg text-emerald" id="macroNiftyChg">+0.82%</span>
+          </div>
+          <div class="macro-asset-item">
+            <span class="asset-symbol">BANK NIFTY</span>
+            <span class="asset-price" id="macroBankPrice">51,320.10</span>
+            <span class="asset-chg text-emerald" id="macroBankChg">+1.14%</span>
+          </div>
+          <div class="macro-asset-item">
+            <span class="asset-symbol">S&amp;P 500</span>
+            <span class="asset-price" id="macroSpPrice">5,892.40</span>
+            <span class="asset-chg text-emerald" id="macroSpChg">+0.42%</span>
+          </div>
+          <div class="macro-asset-item">
+            <span class="asset-symbol">USD / INR</span>
+            <span class="asset-price" id="macroUsdInrPrice">₹86.74</span>
+            <span class="asset-chg text-emerald" id="macroUsdInrChg">-0.12%</span>
+          </div>
+          <div class="macro-asset-item">
+            <span class="asset-symbol">BRENT CRUDE</span>
+            <span class="asset-price" id="macroCrudePrice">$76.20</span>
+            <span class="asset-chg text-red" id="macroCrudeChg">+1.35%</span>
+          </div>
+          <div class="macro-asset-item">
+            <span class="asset-symbol">INDIA 10Y</span>
+            <span class="asset-price" id="macroYieldPrice">6.78%</span>
+            <span class="asset-chg text-emerald" id="macroYieldChg">-2 bps</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── 4. DYNAMIC SECTOR ROTATION RADAR ────────────────────────────────── -->
+    <section class="obs-sector-radar-card">
+      <div class="sector-radar-header">
+        <div>
+          <h3 class="sector-radar-title"><i class="fa-solid fa-arrows-spin" style="color:var(--accent-cyan);margin-right:8px;"></i> Tactical Sector Capital Rotation</h3>
+          <p class="sector-radar-sub">Real-time relative strength and volume momentum ranking across major market sectors.</p>
+        </div>
+        <div class="sector-radar-legend">
+          <span class="legend-item"><span class="chip-dot chip-dot--emerald"></span> Leading (Strong Flow)</span>
+          <span class="legend-item"><span class="chip-dot chip-dot--amber"></span> Neutral (Consolidating)</span>
+          <span class="legend-item"><span class="chip-dot chip-dot--red"></span> Lagging (Outflow)</span>
+        </div>
+      </div>
+
+      <div class="sector-columns-grid">
+        <!-- Leading Column -->
+        <div class="sector-col sector-col--strong">
+          <div class="sector-col-header">
+            <span><i class="fa-solid fa-arrow-trend-up"></i> LEADING / ACCUMULATION</span>
+            <span class="col-count" id="strongSectorCount">3</span>
+          </div>
+          <div class="sector-list" id="strongSectorList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Neutral Column -->
+        <div class="sector-col sector-col--neutral">
+          <div class="sector-col-header">
+            <span><i class="fa-solid fa-arrow-right"></i> CONSOLIDATION</span>
+            <span class="col-count" id="neutralSectorCount">2</span>
+          </div>
+          <div class="sector-list" id="neutralSectorList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Lagging Column -->
+        <div class="sector-col sector-col--weak">
+          <div class="sector-col-header">
+            <span><i class="fa-solid fa-arrow-trend-down"></i> LAGGING / DISTRIBUTION</span>
+            <span class="col-count" id="weakSectorCount">2</span>
+          </div>
+          <div class="sector-list" id="weakSectorList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── 5. MAIN OBSERVATORY INTELLIGENCE STREAM ──────────────────────────── -->
+    <section class="obs-main-section">
+      <div class="obs-section-header">
+        <div>
+          <h2 class="obs-section-title font-display">LIVE INTELLIGENCE STREAM</h2>
+          <p class="obs-section-desc">Statistically verified market anomalies, volume surges, price breakouts, and corporate catalyst events.</p>
+        </div>
+
+        <!-- Anomaly Type Filter Tabs -->
+        <div class="obs-anomaly-nav" id="anomalyNavTabs">
+          <button class="obs-nav-btn active" data-filter="all">All Anomalies (<span id="countAll">8</span>)</button>
+          <button class="obs-nav-btn" data-filter="volume">Unusual Volume</button>
+          <button class="obs-nav-btn" data-filter="momentum">Price Momentum</button>
+          <button class="obs-nav-btn" data-filter="volatility">Volatility Shifts</button>
+          <button class="obs-nav-btn" data-filter="breakout">52W Breakouts</button>
+          <button class="obs-nav-btn" data-filter="rotation">Sector Rotation</button>
+          <button class="obs-nav-btn" data-filter="corporate">Corporate &amp; News</button>
+          <button class="obs-nav-btn" data-filter="macro">Cross-Market</button>
+        </div>
+      </div>
+
+      <!-- Loading State Banner -->
+      <div class="obs-loading-state" id="obsLoadingState" hidden>
+        <div class="obs-spinner"></div>
+        <div class="obs-loading-text">
+          <strong id="obsLoadingStep">Scanning universal securities...</strong>
+          <span>Checking volume anomalies and calculating cross-market dispersion</span>
+        </div>
+      </div>
+
+      <!-- Empty State Banner -->
+      <div class="obs-empty-state" id="obsEmptyState" hidden>
+        <i class="fa-solid fa-satellite-dish empty-icon"></i>
+        <h3>THE OBSERVATORY IS QUIET</h3>
+        <p>No statistical market anomalies exceeding 2.0σ were detected for the selected filter and timeframe.</p>
+        <button class="cta-btn" id="btnResetFilters"><span>Reset Timeframe &amp; Filters</span></button>
+      </div>
+
+      <!-- Flowing Anomaly Feed Stream -->
+      <div class="obs-stream-track" id="obsStreamTrack">
+        <!-- Rendered dynamically by observatory.js -->
+      </div>
+    </section>
+
+    <!-- ── 6. UNUSUAL ACTIVITY DISCOVERY LEADERBOARD ───────────────────────── -->
+    <section class="obs-table-section">
+      <div class="obs-section-header">
+        <div>
+          <h3 class="obs-section-title font-display">UNUSUAL ACTIVITY RADAR MATRIX</h3>
+          <p class="obs-section-desc">Ranked leaderboard of securities demonstrating significant statistical variance from 20-day baselines.</p>
+        </div>
+      </div>
+
+      <div class="obs-table-wrap">
+        <table class="obs-table" id="unusualActivityTable">
+          <thead>
+            <tr>
+              <th>Security</th>
+              <th>Signal Type</th>
+              <th>Magnitude</th>
+              <th>Direction</th>
+              <th>Baseline (20D)</th>
+              <th>Current Obs</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="unusualTableBody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── 7. INTRADAY MARKET TIMELINE ──────────────────────────────────────── -->
+    <section class="obs-timeline-section">
+      <div class="obs-section-header">
+        <div>
+          <h3 class="obs-section-title font-display">MARKET CATALYST TIMELINE</h3>
+          <p class="obs-section-desc">Chronological sequence of market moves, corporate disclosures, and volume bursts.</p>
+        </div>
+      </div>
+
+      <div class="obs-timeline-track" id="obsTimelineTrack">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+    <!-- ── 8. PERSISTENT SAVED OBSERVATIONS SHELF ───────────────────────────── -->
+    <section class="obs-saved-section" id="savedObservationsSection">
+      <div class="obs-section-header">
+        <div>
+          <h3 class="obs-section-title font-display">MY SAVED OBSERVATIONS</h3>
+          <p class="obs-section-desc">Bookmarked anomalies and trading intelligence persisted across sessions.</p>
+        </div>
+        <button class="obs-btn-subtle" id="btnClearSavedObs">Clear All</button>
+      </div>
+
+      <div class="saved-obs-grid" id="savedObsGrid">
+        <!-- Populated dynamically -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════ UNIVERSAL DETAIL DRAWER ═══════════════════════ -->
+  <div class="obs-drawer-overlay" id="obsDetailDrawerOverlay" hidden>
+    <div class="obs-drawer-backdrop" id="obsDrawerBackdrop"></div>
+    <div class="obs-drawer-panel" id="obsDrawerPanel" role="dialog" aria-modal="true" aria-label="Observation Deep Dive">
+      
+      <!-- Drawer Header -->
+      <div class="obs-drawer-header">
+        <div class="drawer-header-left">
+          <div class="drawer-icon-badge" id="drawerIconBadge">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <div>
+            <div class="drawer-sec-line">
+              <h3 class="drawer-sec-symbol" id="drawerSecSymbol">RELIANCE</h3>
+              <span class="drawer-sec-name" id="drawerSecName">Reliance Industries &bull; NSE</span>
+            </div>
+            <div class="drawer-type-line" id="drawerObsType">UNUSUAL VOLUME SURGE</div>
+          </div>
+        </div>
+
+        <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close Observation Drawer">&times;</button>
+      </div>
+
+      <!-- Drawer Body -->
+      <div class="obs-drawer-body">
+        
+        <!-- Live Price & Metric Ribbon -->
+        <div class="drawer-metric-ribbon">
+          <div class="drawer-m-card">
+            <span class="drawer-m-label">Current Spot</span>
+            <strong class="drawer-m-val" id="drawerSpotPrice">₹2,984.50</strong>
+          </div>
+          <div class="drawer-m-card">
+            <span class="drawer-m-label">Session Change</span>
+            <strong class="drawer-m-val text-emerald" id="drawerSpotChg">+2.35%</strong>
+          </div>
+          <div class="drawer-m-card">
+            <span class="drawer-m-label">Observed Metric</span>
+            <strong class="drawer-m-val text-cyan" id="drawerObsMetricVal">12.42M (2.76x)</strong>
+          </div>
+          <div class="drawer-m-card">
+            <span class="drawer-m-label">Statistical Z-Score</span>
+            <strong class="drawer-m-val text-amber" id="drawerZScoreVal">+3.24σ</strong>
+          </div>
+        </div>
+
+        <!-- Portfolio Ownership Context Banner -->
+        <div class="drawer-portfolio-banner" id="drawerPortfolioBanner">
+          <div class="port-banner-left">
+            <i class="fa-solid fa-wallet port-icon"></i>
+            <div>
+              <strong id="drawerPortStatusTitle">YOUR PORTFOLIO HOLDING</strong>
+              <div id="drawerPortStatusDesc">You hold 15 shares of RELIANCE (12.4% portfolio weight). Day impact: +₹820.00.</div>
+            </div>
+          </div>
+          <a href="index.html?portfolio=true" class="obs-btn-link" id="drawerPortActionBtn">Open Ledger</a>
+        </div>
+
+        <!-- Interactive Chart Canvas -->
+        <div class="drawer-chart-card">
+          <div class="drawer-chart-header">
+            <strong id="drawerChartTitle">RELIANCE &bull; Intraday Price &amp; Volume Spike</strong>
+            <div class="candle-tf-group">
+              <button class="candle-btn active drawer-tf-btn" data-tf="1d">1D</button>
+              <button class="candle-btn drawer-tf-btn" data-tf="5d">5D</button>
+              <button class="candle-btn drawer-tf-btn" data-tf="1m">1M</button>
+              <button class="candle-btn drawer-tf-btn" data-tf="1y">1Y</button>
+            </div>
+          </div>
+          <div class="drawer-canvas-wrap">
+            <canvas id="drawerChartCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Detailed Evidence & Provenance -->
+        <div class="drawer-section-card">
+          <h4 class="drawer-sub-title"><i class="fa-solid fa-fingerprint" style="color:var(--accent-cyan);margin-right:6px;"></i> Quantitative Evidence</h4>
+          <p class="drawer-evidence-text" id="drawerEvidenceText">
+            Trading volume reached 12.42M shares compared to the 20-day historical moving average of 4.50M shares, exceeding normal dispersion boundaries by 3.24 standard deviations.
+          </p>
+        </div>
+
+        <!-- Why It Matters / Plain English Intuition -->
+        <div class="drawer-section-card">
+          <h4 class="drawer-sub-title"><i class="fa-solid fa-lightbulb" style="color:var(--accent-amber);margin-right:6px;"></i> Why It Matters &amp; Interpretation</h4>
+          <p class="drawer-why-text" id="drawerWhyText">
+            Substantial abnormal trading volume accompanied by positive price expansion typically reflects institutional accumulation or block deal execution prior to quarterly earnings announcements.
+          </p>
+        </div>
+
+        <!-- Mathematical Proof & Equation (MathJax) -->
+        <div class="drawer-section-card" id="drawerMathCard">
+          <h4 class="drawer-sub-title"><i class="fa-solid fa-calculator" style="color:var(--accent-cyan);margin-right:6px;"></i> Mathematical Formulation</h4>
+          <div class="drawer-math-wrap" id="drawerMathContainer">
+            \[ \text{Volume Ratio} = \frac{V_{\text{current}}}{\bar{V}_{20\text{D}}} = \frac{12.42\text{M}}{4.50\text{M}} = 2.76\times \]
+          </div>
+          <div class="drawer-math-sub">
+            \[ Z = \frac{V - \mu}{\sigma} = \frac{12.42\text{M} - 4.50\text{M}}{2.44\text{M}} = +3.24\sigma \]
+          </div>
+        </div>
+
+        <!-- Related News & Event Disclosures -->
+        <div class="drawer-section-card">
+          <h4 class="drawer-sub-title"><i class="fa-solid fa-newspaper" style="color:var(--accent-emerald);margin-right:6px;"></i> Related Market Disclosures &amp; News</h4>
+          <div class="drawer-news-list" id="drawerNewsList">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Action Buttons Bar -->
+        <div class="drawer-actions-bar">
+          <a href="#" class="cta-btn drawer-cta" id="drawerOpenCompanyBtn">
+            <span>Open in Company Workspace</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+          <button class="obs-btn-secondary" id="drawerWatchlistBtn">
+            <i class="fa-regular fa-star" id="drawerWatchIcon"></i>
+            <span id="drawerWatchText">Add to Watchlist</span>
+          </button>
+          <button class="obs-btn-secondary" id="drawerSaveObsBtn">
+            <i class="fa-regular fa-bookmark" id="drawerSaveIcon"></i>
+            <span id="drawerSaveText">Save Observation</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ UNIVERSAL COMMAND PALETTE (CMD+K) ═══════════════════════ -->
+  <div class="palette-overlay" id="paletteOverlay" hidden>
+    <div class="palette-backdrop" id="paletteBackdrop"></div>
+    <div class="palette-modal" role="dialog" aria-modal="true">
+      <div class="palette-search-box">
+        <i class="fa-solid fa-magnifying-glass palette-icon"></i>
+        <input type="text" id="paletteInput" class="palette-input" placeholder="Search any ticker, company, sector or anomaly (e.g. RELIANCE, TCS, INFY)..." autocomplete="off" spellcheck="false" />
+        <kbd class="palette-kbd">ESC to Close</kbd>
+      </div>
+      <div class="palette-results" id="paletteResults"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MOBILE MENU OVERLAY ═══════════════════════ -->
+  <div class="mobile-menu-overlay" id="mobileMenuOverlay" hidden>
+    <div class="mobile-menu-panel">
+      <div class="mobile-menu-header">
+        <span class="logo-title font-display">RISKOS</span>
+        <button class="modal-close-btn" id="mobileMenuCloseBtn">&times;</button>
+      </div>
+      <div class="mobile-menu-links">
+        <a href="index.html" class="mobile-link"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+        <a href="learn.html" class="mobile-link"><i class="fa-solid fa-flask"></i> Learn &amp; Lab</a>
+        <a href="observatory.html" class="mobile-link active"><i class="fa-solid fa-satellite-dish"></i> Observatory</a>
+        <a href="app.html" class="mobile-link"><i class="fa-solid fa-terminal"></i> Terminal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Core Scripts -->
+  <script src="securityMaster.js"></script>
+  <script src="observatory.js"></script>
+</body>
+</html>
