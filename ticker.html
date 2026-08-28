@@ -28,22 +28,21 @@
 <body class="ticker-page">
 
   <!-- ═══════════════════════ 1. UNIVERSAL APPLICATION HEADER ═══════════════════════ -->
-  <header class="site-header" id="siteHeader">
+  <header class="header" id="siteHeader">
     <div class="header-inner">
       
-      <!-- Brand Logo -->
+      <!-- Brand Logo & Market Clock -->
       <div class="header-left">
-        <a href="index.html" class="brand-logo" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" class="brand-mark-img" onerror="this.style.display='none'; document.getElementById('headerFallbackSvg').style.display='inline-block';">
-          <svg class="brand-mark-fallback" id="headerFallbackSvg" viewBox="0 0 32 32" fill="none" style="display:none;" aria-hidden="true">
-            <rect width="32" height="32" rx="16" fill="#ffffff" />
-            <path d="M16 8L24 22H8L16 8Z" fill="#000000" />
-          </svg>
-          <div class="brand-text-block">
-            <span class="brand-name">RISKOS</span>
-            <span class="brand-tag">TICKER LIBRARY</span>
-          </div>
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" />
         </a>
+        
+        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
+          <span class="market-status-dot dot--open"></span>
+          <span class="market-name" id="marketName">NSE</span>
+          <span class="market-state">OPEN</span>
+          <span class="market-time" id="marketTime">09:15 IST</span>
+        </div>
       </div>
 
       <!-- Center Navigation Pill Bar -->
@@ -62,13 +61,6 @@
 
       <!-- Right Header Actions -->
       <div class="header-actions">
-        <!-- Live Market Clock -->
-        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
-          <span class="clock-live-dot"></span>
-          <span class="market-clock-label" id="marketName">NSE</span>
-          <span class="market-clock-time" id="marketTime">--:-- IST</span>
-        </div>
-
         <!-- Mode Switcher -->
         <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth">
           <button class="mode-btn active" data-mode="beginner">Beginner</button>
