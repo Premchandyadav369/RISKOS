@@ -94,7 +94,7 @@
           </div>
         </div>
 
-        <!-- Center: Navigation Pill with Universal Command Trigger & Links -->
+        <!-- Center: Clean Primary Navigation Pill -->
         <nav class="nav-pill" aria-label="Main Navigation">
           <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Ask Anything (⌘K)">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -102,19 +102,22 @@
             <kbd class="kbd-pill">⌘K</kbd>
           </button>
           <a href="index.html" class="nav-link active">Dashboard</a>
-          <a href="ticker.html" class="nav-link">Ticker Library</a>
+          <a href="ticker.html" class="nav-link">Tickers</a>
           <a href="learn.html" class="nav-link">Learn &amp; Lab</a>
           <a href="observatory.html" class="nav-link">Observatory</a>
           <a href="app.html" class="nav-link">Terminal</a>
-          <button class="nav-link nav-link--btn" id="navOpenPortfolio" title="Open Real Transaction-Based Portfolio Manager">Portfolio (<span id="navPortCount">₹0</span>)</button>
-          <button class="nav-link nav-link--btn" id="navOpenSpeculations" title="Monte Carlo & Prophet Future Price Projections">Speculations</button>
-          <button class="nav-link nav-link--btn" id="navOpenWatchlist" title="View Watchlist">Watchlist (<span id="navWatchCount">6</span>)</button>
         </nav>
 
-        <!-- Right: Mode Switcher, Currency & Action Buttons -->
+        <!-- Right: Actions, Mode Switcher, Currency & Quick Utilities -->
         <div class="header-actions">
-          
-          <!-- Universal "Explain Like Me" Mode Selector (BEGINNER | INVESTOR | QUANT) -->
+          <button class="header-quick-btn" id="navOpenPortfolio" title="Open Real Transaction-Based Portfolio Manager">
+            <i class="fa-solid fa-briefcase"></i> <span id="navPortCount">₹0</span>
+          </button>
+          <button class="header-quick-btn" id="navOpenWatchlist" title="View Watchlist">
+            <i class="fa-solid fa-star"></i> <span id="navWatchCount">6</span>
+          </button>
+
+          <!-- Universal Mode Selector (BEGINNER | INVESTOR | QUANT) -->
           <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth: Beginner / Investor / Quant">
             <button class="mode-btn active" data-mode="beginner">Beginner</button>
             <button class="mode-btn" data-mode="investor">Investor</button>
@@ -126,9 +129,6 @@
             <span class="curr-opt active" data-curr="INR">₹ INR</span>
             <span class="curr-opt" data-curr="USD">$ USD</span>
           </span>
-
-          <a href="learn.html" class="terminal-btn-link" title="Open Interactive Financial Learning & Simulation Laboratory" style="background:rgba(34,211,238,0.12);border-color:rgba(34,211,238,0.35);color:var(--accent-cyan);"><i class="fa-solid fa-flask" style="margin-right:4px;"></i> Learn &amp; Lab</a>
-          <a href="app.html" class="terminal-btn-link" title="Launch Full Institutional Quant Terminal">Terminal</a>
 
           <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
             <span class="bar"></span>
