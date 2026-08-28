@@ -694,25 +694,54 @@
     const aiInput = document.getElementById('labAiInput');
     const askBtn = document.getElementById('btnLabAsk');
 
-    const handleQuery = (query) => {
+    const handleQuery = async (query) => {
       if (!query) return;
       const q = query.toLowerCase();
       let targetMod = 'cagr';
+      let secName = null;
+
+      if (q.includes('reliance') || q.includes('ril')) secName = 'RELIANCE';
+      else if (q.includes('hdfc')) secName = 'HDFCBANK';
+      else if (q.includes('tcs')) secName = 'TCS';
+      else if (q.includes('infosys') || q.includes('infy')) secName = 'INFY';
+      else if (q.includes('icici')) secName = 'ICICIBANK';
+      else if (q.includes('sbi') || q.includes('sbin')) secName = 'SBIN';
+      else if (q.includes('tata motors') || q.includes('tatamotors')) secName = 'TATAMOTORS';
+      else if (q.includes('zomato')) secName = 'ZOMATO';
+      else if (q.includes('nvidia') || q.includes('nvda')) secName = 'NVDA';
+      else if (q.includes('apple') || q.includes('aapl')) secName = 'AAPL';
 
       if (q.includes('sip') || q.includes('dca')) targetMod = 'sip_dca';
       else if (q.includes('lump') || q.includes('vs')) targetMod = 'lumpsum_vs_sip';
       else if (q.includes('compound') || q.includes('interest')) targetMod = 'compounding';
-      else if (q.includes('pe') || q.includes('p/e') || q.includes('valuation')) targetMod = 'pe_valuation';
+      else if (q.includes('pe') || q.includes('p/e') || q.includes('valuation') || q.includes('analyse')) targetMod = 'pe_valuation';
       else if (q.includes('roe') || q.includes('roce') || q.includes('dupont')) targetMod = 'roe_roce';
-      else if (q.includes('beta') || q.includes('correlation')) targetMod = 'beta_corr';
+      else if (q.includes('beta') || q.includes('correlation') || q.includes('move')) targetMod = 'beta_corr';
       else if (q.includes('vol') || q.includes('bell') || q.includes('deviation')) targetMod = 'volatility';
       else if (q.includes('sharpe') || q.includes('sortino')) targetMod = 'sharpe';
-      else if (q.includes('drawdown') || q.includes('mdd')) targetMod = 'mdd';
+      else if (q.includes('drawdown') || q.includes('mdd') || q.includes('loss')) targetMod = 'mdd';
       else if (q.includes('diversif')) targetMod = 'diversification';
-      else if (q.includes('variance') || q.includes('markowitz')) targetMod = 'port_variance';
-      else if (q.includes('capm')) targetMod = 'capm';
+      else if (q.includes('variance') || q.includes('markowitz') || q.includes('compare')) targetMod = 'port_variance';
+      else if (q.includes('capm') || q.includes('asset pricing')) targetMod = 'capm';
 
       switchModule(targetMod);
+
+      if (secName && typeof SecurityMaster !== 'undefined') {
+        const sec = await SecurityMaster.resolveSecurity(secName);
+        if (sec && (sec.basePrice || sec.price_inr)) {
+          const pr = sec.basePrice || sec.price_inr;
+          if (targetMod === 'pe_valuation') {
+            labState.simInputs.price = pr;
+            labState.simInputs.eps = Number((pr / (sec.pe || 25)).toFixed(2));
+          } else if (targetMod === 'volatility') {
+            labState.simInputs.dailyStdDev = Number(((sec.vol || 0.18) * 100 / Math.sqrt(252)).toFixed(2));
+          } else if (targetMod === 'beta_corr') {
+            labState.simInputs.assetVol = Number(((sec.vol || 0.18) * 100).toFixed(1));
+          }
+          renderControlsPanel(LearnMathEngine.getModuleById(targetMod));
+          evaluateActiveModule();
+        }
+      }
     };
 
     if (askBtn && aiInput) {
