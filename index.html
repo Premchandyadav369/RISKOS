@@ -178,6 +178,26 @@
           Turn market data into understanding with an AI-native financial intelligence platform built for equity research, event-driven causality, risk analytics, and mathematical explainability.
         </p>
 
+        <!-- Live Real-Time Benchmark Ribbon -->
+        <div class="market-ribbon-card" id="globalMarketRibbon" style="margin: 4px 0; width: 100%;">
+          <div class="market-ribbon-track" id="globalRibbonTrack">
+            <!-- Populated dynamically by SecurityMaster -->
+          </div>
+        </div>
+
+        <!-- Real-Time Institutional Trade Tape Strip -->
+        <div class="live-tape-strip" id="liveTradeTapeStrip" style="width: 100%; max-width: 820px; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="tape-live-dot"></span>
+            <span style="font-weight: 800; color: #fff; font-size: 0.65rem;">LIVE ORDER FLOW</span>
+            <span id="tapeTradeDetail" style="color: var(--text-secondary);">RELIANCE • 500 shares @ ₹2,984.50</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="tape-side-buy" id="tapeTradeSide">BUY BLOCK</span>
+            <span style="font-size: 0.6rem; color: var(--text-muted);" id="tapeTradeTime">10:42:15 IST</span>
+          </div>
+        </div>
+
         <!-- 5. Interactive Action CTAs -->
         <div class="hero-cta-group">
           <a href="observatory.html" class="cta-btn" id="ctaBtn" aria-label="Launch Financial Intelligence Observatory">

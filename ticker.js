@@ -775,6 +775,25 @@
       const match = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol.toLowerCase() === targetSymbol.toLowerCase());
       if (match) openSecurityDrawer(match);
     }
+
+    // 10. Live Trade Tape Stream
+    setupLiveTradeTape();
+  };
+
+  const setupLiveTradeTape = () => {
+    if (typeof SecurityMaster === 'undefined') return;
+    const detailEl = document.getElementById('tickerTapeTradeDetail');
+    const sideEl = document.getElementById('tickerTapeTradeSide');
+    const timeEl = document.getElementById('tickerTapeTradeTime');
+
+    if (!detailEl || !sideEl) return;
+
+    SecurityMaster.subscribeLiveTape((trade) => {
+      detailEl.innerHTML = `<strong>${trade.symbol}</strong> &bull; ${trade.size.toLocaleString('en-IN')} shares @ ${formatMoney(trade.price, trade.currency)} [${trade.venue}]`;
+      sideEl.textContent = `${trade.side} ${trade.condition === 'BLOCK DEAL' ? '• BLOCK DEAL' : ''}`;
+      sideEl.className = trade.side === 'BUY' ? 'tape-side-buy' : 'tape-side-sell';
+      if (timeEl) timeEl.textContent = `${trade.time} IST`;
+    });
   };
 
   if (document.readyState === 'loading') {

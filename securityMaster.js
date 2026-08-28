@@ -63,10 +63,15 @@ const SecurityMaster = (() => {
     { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR'], currency: 'INR', basePrice: 86.74, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' }
   ];
 
-  // ── 2. Live Dynamic Quote & Price Simulator ───────────────────────────────
+  // ── 2. Live Dynamic Quote, Tape & Price Simulator ──────────────────────────
   const _liveQuotes = new Map();
   const _subscribers = new Set();
+  const _tapeSubscribers = new Set();
   let _tickTimer = null;
+  let _tapeTimer = null;
+
+  // Cross-Tab Real-Time Sync Channel
+  const _channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('riskos_realtime_network') : null;
 
   LOCAL_REGISTRY.forEach(item => {
     _liveQuotes.set(item.symbol, {
@@ -85,6 +90,7 @@ const SecurityMaster = (() => {
       pe: item.pe,
       beta: item.beta,
       eps: item.eps,
+      roe: item.roe || 15.0,
       marketCap: item.marketCap,
       sector: item.sector,
       isin: item.isin,
@@ -133,10 +139,65 @@ const SecurityMaster = (() => {
       _subscribers.forEach(cb => {
         try { cb(updates); } catch (e) {}
       });
-    }, 1200);
+
+      if (_channel) {
+        try { _channel.postMessage({ type: 'TICK_UPDATE', payload: updates }); } catch (e) {}
+      }
+    }, 1100);
+  };
+
+  const _startTapePipeline = () => {
+    if (_tapeTimer) return;
+    const venues = ['NSE', 'BSE', 'NASDAQ', 'DARK_POOL'];
+    const tradeTypes = ['REGULAR', 'BLOCK DEAL', 'INSTITUTIONAL VWAP', 'CROSS TRADE'];
+
+    _tapeTimer = setInterval(() => {
+      const randIdx = Math.floor(Math.random() * LOCAL_REGISTRY.length);
+      const item = LOCAL_REGISTRY[randIdx];
+      const quote = _liveQuotes.get(item.symbol) || item;
+      const isBuy = Math.random() > 0.45;
+      const sizeMult = Math.random() > 0.88 ? Math.floor(1000 + Math.random() * 9000) : Math.floor(25 + Math.random() * 450);
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+      const trade = {
+        id: `TX-${Date.now()}-${Math.floor(Math.random()*1000)}`,
+        symbol: item.symbol,
+        name: item.name,
+        price: quote.price || item.basePrice,
+        currency: item.currency || 'INR',
+        size: sizeMult,
+        side: isBuy ? 'BUY' : 'SELL',
+        venue: venues[Math.floor(Math.random() * venues.length)],
+        condition: sizeMult >= 1000 ? 'BLOCK DEAL' : tradeTypes[Math.floor(Math.random() * tradeTypes.length)],
+        time: timeStr,
+        timestamp: Date.now()
+      };
+
+      _tapeSubscribers.forEach(cb => {
+        try { cb(trade); } catch (e) {}
+      });
+
+      if (_channel) {
+        try { _channel.postMessage({ type: 'TRADE_EXECUTED', payload: trade }); } catch (e) {}
+      }
+    }, 1350);
   };
 
   _startTickPipeline();
+  _startTapePipeline();
+
+  // Listen to incoming cross-tab messages
+  if (_channel) {
+    _channel.onmessage = (e) => {
+      const { type, payload } = e.data || {};
+      if (type === 'TICK_UPDATE' && Array.isArray(payload)) {
+        _subscribers.forEach(cb => { try { cb(payload); } catch(err){} });
+      } else if (type === 'ACTIVE_SECURITY_CHANGED') {
+        MarketStore.setActiveSecurity(payload, false);
+      }
+    };
+  }
 
   // ── 3. Universal Instrument Resolver & Search Engine ──────────────────────
   const searchSecurities = async (query = '', limit = 20) => {
@@ -275,8 +336,143 @@ const SecurityMaster = (() => {
       pe: sec.pe,
       beta: sec.beta,
       eps: sec.eps,
+      roe: sec.roe || 15.0,
       status: 'LIVE'
     };
+  };
+
+  // ── 4. Dynamic OHLC Candles Generator ─────────────────────────────────────
+  const getOHLC = async (symbol, tf = '1Y') => {
+    const sec = await resolveSecurity(symbol);
+    const baseP = sec.basePrice || 1000.0;
+    const days = tf === '1D' ? 24 : (tf === '1W' ? 35 : (tf === '1M' ? 30 : (tf === '3M' ? 65 : (tf === '1Y' ? 120 : 250))));
+    const bars = [];
+    let cur = baseP * 0.88;
+    const now = new Date();
+
+    for (let i = days; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const drift = (Math.random() - 0.475) * (baseP * 0.02);
+      const o = cur;
+      const c = Math.max(1, cur + drift);
+      const hVal = Math.max(o, c) + Math.random() * (baseP * 0.015);
+      const lVal = Math.min(o, c) - Math.random() * (baseP * 0.015);
+      const vol = Math.floor(450000 + Math.random() * 3200000);
+
+      bars.push({
+        date: d.toISOString().split('T')[0],
+        open: Number(o.toFixed(2)),
+        high: Number(hVal.toFixed(2)),
+        low: Number(lVal.toFixed(2)),
+        close: Number(c.toFixed(2)),
+        volume: vol
+      });
+      cur = c;
+    }
+
+    return { symbol: sec.symbol, tf, bars };
+  };
+
+  // ── 5. Real-Time Order Book Depth with OFI ─────────────────────────────────
+  const getOrderBook = async (symbol) => {
+    const sec = await resolveSecurity(symbol);
+    const quote = await getQuote(sec.symbol);
+    const mid = quote.price;
+    const tick = mid > 1000 ? 0.50 : (mid > 100 ? 0.05 : 0.01);
+
+    const bids = [];
+    const asks = [];
+    let totalBidQty = 0;
+    let totalAskQty = 0;
+
+    for (let i = 1; i <= 5; i++) {
+      const bPrice = Number((mid - (i * tick)).toFixed(2));
+      const aPrice = Number((mid + (i * tick)).toFixed(2));
+      const bQty = Math.floor(250 + Math.random() * 1500 * (6 - i));
+      const aQty = Math.floor(250 + Math.random() * 1500 * (6 - i));
+
+      totalBidQty += bQty;
+      totalAskQty += aQty;
+
+      bids.push({ price: bPrice, quantity: bQty, orders: Math.floor(3 + Math.random() * 15) });
+      asks.push({ price: aPrice, quantity: aQty, orders: Math.floor(3 + Math.random() * 15) });
+    }
+
+    const ofi = Number((((totalBidQty - totalAskQty) / (totalBidQty + totalAskQty)) * 100).toFixed(1));
+
+    return {
+      symbol: sec.symbol,
+      midPrice: mid,
+      spread: Number(((asks[0].price - bids[0].price) / mid * 10000).toFixed(1)),
+      bids,
+      asks,
+      totalBidQty,
+      totalAskQty,
+      ofi,
+      ofiRegime: ofi > 15 ? 'STRONG BUY PRESSURE' : (ofi < -15 ? 'STRONG SELL PRESSURE' : 'BALANCED LIQUIDITY')
+    };
+  };
+
+  // ── 6. Real-Time Market Breadth Barometer ──────────────────────────────────
+  const getMarketBreadth = () => {
+    let advances = 0;
+    let declines = 0;
+    let unchanged = 0;
+
+    _liveQuotes.forEach(q => {
+      const chg = q.price - q.previousClose;
+      if (chg > 0.01) advances++;
+      else if (chg < -0.01) declines++;
+      else unchanged++;
+    });
+
+    const advDecRatio = Number((advances / Math.max(1, declines)).toFixed(2));
+    const breadthIndex = Number((((advances - declines) / Math.max(1, advances + declines)) * 100).toFixed(1));
+
+    return {
+      advances: advances * 72,
+      declines: declines * 72,
+      unchanged: unchanged * 15,
+      advDecRatio,
+      breadthIndex,
+      indiaVix: 13.45,
+      usVix: 15.20,
+      marketRegime: breadthIndex > 10 ? 'BULLISH BREADTH' : (breadthIndex < -10 ? 'BEARISH BREADTH' : 'NEUTRAL ROTATION')
+    };
+  };
+
+  // ── 7. Universal Cross-Feature Navigation Router ───────────────────────────
+  const navigateTo = (feature, symbol = 'RELIANCE', extraParams = {}) => {
+    const sym = encodeURIComponent(symbol.toUpperCase());
+    const params = new URLSearchParams(extraParams);
+
+    switch (feature) {
+      case 'learn':
+      case 'lab':
+        params.set('sec', sym);
+        window.location.href = `learn.html?${params.toString()}`;
+        break;
+      case 'observatory':
+        params.set('ticker', sym);
+        window.location.href = `observatory.html?${params.toString()}`;
+        break;
+      case 'terminal':
+      case 'app':
+        params.set('tickers', sym);
+        window.location.href = `app.html?${params.toString()}`;
+        break;
+      case 'ticker':
+      case 'tickers':
+        params.set('search', sym);
+        window.location.href = `ticker.html?${params.toString()}`;
+        break;
+      case 'dashboard':
+      default:
+        params.set('sec', sym);
+        window.location.href = `index.html?${params.toString()}`;
+        break;
+    }
   };
 
   return {
@@ -286,14 +482,22 @@ const SecurityMaster = (() => {
     searchSecurities,
     resolveSecurity,
     getQuote,
+    getOHLC,
+    getOrderBook,
+    getMarketBreadth,
+    navigateTo,
     subscribeLiveTicks: (cb) => {
       _subscribers.add(cb);
       return () => _subscribers.delete(cb);
+    },
+    subscribeLiveTape: (cb) => {
+      _tapeSubscribers.add(cb);
+      return () => _tapeSubscribers.delete(cb);
     }
   };
 })();
 
-// ── 4. Unified Central Market Store ─────────────────────────────────────────
+// ── 8. Unified Central Market Store ─────────────────────────────────────────
 const MarketStore = (() => {
   const STORAGE_ACTIVE_SEC = 'riskos_active_security';
   const STORAGE_WATCHLIST = 'riskos_watchlist';
@@ -339,6 +543,14 @@ const MarketStore = (() => {
   };
 
   const getWatchlist = () => watchlist;
+  const setWatchlist = (list, notify = true) => {
+    watchlist = list;
+    localStorage.setItem(STORAGE_WATCHLIST, JSON.stringify(watchlist));
+    if (notify) {
+      listeners.watchlist.forEach(cb => { try { cb(watchlist); } catch(e){} });
+    }
+  };
+
   const toggleWatchlist = (symbol) => {
     const sym = symbol.toUpperCase();
     if (watchlist.includes(sym)) {
@@ -346,10 +558,7 @@ const MarketStore = (() => {
     } else {
       watchlist.push(sym);
     }
-    localStorage.setItem(STORAGE_WATCHLIST, JSON.stringify(watchlist));
-    listeners.watchlist.forEach(cb => {
-      try { cb(watchlist); } catch (e) {}
-    });
+    setWatchlist(watchlist, true);
     return watchlist.includes(sym);
   };
 
@@ -413,6 +622,7 @@ const MarketStore = (() => {
     getActiveSecurity,
     setActiveSecurity,
     getWatchlist,
+    setWatchlist,
     toggleWatchlist,
     getFavorites,
     toggleFavorite,

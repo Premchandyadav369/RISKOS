@@ -1109,11 +1109,83 @@
     }
   };
 
+  const initLearnMarketRibbon = () => {
+    const track = document.getElementById('learnRibbonTrack');
+    if (!track || typeof SecurityMaster === 'undefined') return;
+
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+
+    const renderRibbon = () => {
+      track.innerHTML = benchmarks.map(sym => {
+        const live = SecurityMaster._liveQuotes.get(sym);
+        if (!live) return '';
+        const chg = Number((live.price - live.previousClose).toFixed(2));
+        const chgPct = Number(((chg / live.previousClose) * 100).toFixed(2));
+        const isUp = chg >= 0;
+
+        return `
+          <div class="ribbon-item" data-symbol="${sym}" id="learn_ribbon_${sym.replace(/[\^=]/g, '')}">
+            <span class="ribbon-symbol">${sym.replace('^', '')}</span>
+            <span class="ribbon-price">${LearnMathEngine.formatMoney(live.price, live.currency, true)}</span>
+            <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
+          </div>
+        `;
+      }).join('');
+
+      track.querySelectorAll('.ribbon-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const sym = item.dataset.symbol;
+          SecurityMaster.resolveSecurity(sym).then(sec => {
+            if (sec) {
+              labState.activeSecuritySymbol = sec.symbol;
+              const pr = sec.basePrice || 1000;
+              if (labState.simInputs.price !== undefined) labState.simInputs.price = pr;
+              if (labState.simInputs.eps !== undefined) labState.simInputs.eps = Number((pr / (sec.pe || 25)).toFixed(2));
+              if (labState.simInputs.pv !== undefined) labState.simInputs.pv = pr;
+              if (labState.simInputs.pe !== undefined) labState.simInputs.pe = sec.pe || 25;
+              if (labState.simInputs.beta !== undefined) labState.simInputs.beta = sec.beta || 1.0;
+              if (labState.simInputs.volatility !== undefined) labState.simInputs.volatility = (sec.vol || 0.20) * 100;
+              renderControlsPanel(LearnMathEngine.getModuleById(labState.activeModuleId));
+              evaluateActiveModule();
+            }
+          });
+        });
+      });
+    };
+
+    renderRibbon();
+
+    SecurityMaster.subscribeLiveTicks((updates) => {
+      updates.forEach(u => {
+        const cleanSym = u.symbol.replace(/[\^=]/g, '');
+        const el = document.getElementById(`learn_ribbon_${cleanSym}`);
+        if (el) {
+          const pEl = el.querySelector('.ribbon-price');
+          const cEl = el.querySelector('.ribbon-chg');
+          if (pEl) {
+            pEl.textContent = LearnMathEngine.formatMoney(u.price, u.currency, true);
+            pEl.classList.remove('price-flash-up', 'price-flash-down');
+            void pEl.offsetWidth;
+            pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+          }
+          if (cEl) {
+            cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+            cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+          }
+        }
+      });
+    });
+  };
+
   // Run on DOM Ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      initLearnMarketRibbon();
+    });
   } else {
     init();
+    initLearnMarketRibbon();
   }
 })();
 

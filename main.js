@@ -3464,10 +3464,86 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── 27. Universal Real-Time Market Ribbon & Live Trade Tape ───────────────
+  const initGlobalMarketRibbon = () => {
+    const track = document.getElementById('globalRibbonTrack');
+    if (!track || typeof SecurityMaster === 'undefined') return;
+
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+
+    const renderRibbon = () => {
+      track.innerHTML = benchmarks.map(sym => {
+        const live = SecurityMaster._liveQuotes.get(sym);
+        if (!live) return '';
+        const chg = Number((live.price - live.previousClose).toFixed(2));
+        const chgPct = Number(((chg / live.previousClose) * 100).toFixed(2));
+        const isUp = chg >= 0;
+
+        return `
+          <div class="ribbon-item" data-symbol="${sym}" id="dash_ribbon_${sym.replace(/[\^=]/g, '')}">
+            <span class="ribbon-symbol">${sym.replace('^', '')}</span>
+            <span class="ribbon-price">${formatMoney(live.price, live.currency)}</span>
+            <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
+          </div>
+        `;
+      }).join('');
+
+      track.querySelectorAll('.ribbon-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const sym = item.dataset.symbol;
+          SecurityMaster.resolveSecurity(sym).then(sec => {
+            if (sec) openCompanyModal(sec);
+          });
+        });
+      });
+    };
+
+    renderRibbon();
+
+    SecurityMaster.subscribeLiveTicks((updates) => {
+      updates.forEach(u => {
+        const cleanSym = u.symbol.replace(/[\^=]/g, '');
+        const el = document.getElementById(`dash_ribbon_${cleanSym}`);
+        if (el) {
+          const pEl = el.querySelector('.ribbon-price');
+          const cEl = el.querySelector('.ribbon-chg');
+          if (pEl) {
+            pEl.textContent = formatMoney(u.price, u.currency);
+            pEl.classList.remove('price-flash-up', 'price-flash-down');
+            void pEl.offsetWidth;
+            pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+          }
+          if (cEl) {
+            cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+            cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+          }
+        }
+      });
+    });
+  };
+
+  const initLiveTradeTape = () => {
+    if (typeof SecurityMaster === 'undefined') return;
+    const detailEl = document.getElementById('tapeTradeDetail');
+    const sideEl = document.getElementById('tapeTradeSide');
+    const timeEl = document.getElementById('tapeTradeTime');
+
+    if (!detailEl || !sideEl) return;
+
+    SecurityMaster.subscribeLiveTape((trade) => {
+      detailEl.innerHTML = `<strong>${trade.symbol}</strong> &bull; ${trade.size.toLocaleString('en-IN')} shares @ ${formatMoney(trade.price, trade.currency)} [${trade.venue}]`;
+      sideEl.textContent = `${trade.side} ${trade.condition === 'BLOCK DEAL' ? '• BLOCK DEAL' : ''}`;
+      sideEl.className = trade.side === 'BUY' ? 'tape-side-buy' : 'tape-side-sell';
+      if (timeEl) timeEl.textContent = `${trade.time} IST`;
+    });
+  };
+
   // Initialize state
   updateNavbarPortfolioCount();
   renderWatchlist();
   initMetricCounters();
+  initGlobalMarketRibbon();
+  initLiveTradeTape();
 
 });
 
