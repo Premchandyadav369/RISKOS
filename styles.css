@@ -92,19 +92,9 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body:not(.learn-page) {
-  height: 100%;
-  overflow: hidden;
-}
-
-body.learn-page {
   min-height: 100vh;
   min-height: 100dvh;
-  height: auto !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow-y: auto;
   position: relative;
 }
 
@@ -218,19 +208,16 @@ button, select, input {
 .page {
   position: relative;
   width: 100%;
-  height: 100vh;
-  height: 100dvh;
-  overflow: hidden;
-
+  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-
+  gap: 16px;
   padding:
     max(10px, env(safe-area-inset-top))
     max(16px, env(safe-area-inset-right))
     max(10px, env(safe-area-inset-bottom))
     max(16px, env(safe-area-inset-left));
-
   box-sizing: border-box;
   z-index: 2;
 }
