@@ -1,10 +1,21 @@
 /**
  * RISKOS — LEARN & SIMULATE QUANTITATIVE LABORATORY CONTROLLER
  * Fully reactive, deterministic, zero-hallucination interactive controller.
+ * Manages 18 quantitative modules, MathJax re-typesetting, responsive Chart.js visualizer,
+ * persistent saved scenarios, command palette, and deep-linking.
  */
 
 (() => {
   'use strict';
+
+  // ── Centralized Scroll Management ─────────────────────────────────────────
+  const lockScroll = () => {
+    document.body.classList.add('menu-locked');
+  };
+
+  const unlockScroll = () => {
+    document.body.classList.remove('menu-locked');
+  };
 
   // ── Global Lab State ──────────────────────────────────────────────────────
   const labState = {
@@ -19,35 +30,42 @@
     savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]')
   };
 
-  // ── Bottom Concept Tray ───────────────────────────────────────────────────
-  const renderConceptTray = () => {
-    const track = document.getElementById('labTrayScroll');
-    if (!track || typeof LearnMathEngine === 'undefined') return;
+  // ── Render All 18 Laboratory Modules Grid ─────────────────────────────────
+  const renderAllModulesGrid = () => {
+    const grid = document.getElementById('allLabModulesGrid');
+    if (!grid || typeof LearnMathEngine === 'undefined') return;
 
     const allMods = LearnMathEngine.MODULES_DIRECTORY;
     const filtered = labState.activeCategory === 'all'
       ? allMods
-      : allMods.filter(m => m.categoryKey === labState.activeCategory);
+      : (labState.activeCategory === 'mathematics'
+          ? allMods.filter(m => m.categoryKey === 'risk' || m.categoryKey === 'portfolio')
+          : allMods.filter(m => m.categoryKey === labState.activeCategory));
 
-    track.innerHTML = filtered.map(m => `
-      <div class="concept-thumb-card ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}">
-        <span class="thumb-tag">${m.badge || m.categoryKey.toUpperCase()}</span>
-        <span class="thumb-title">${m.shortTitle || m.title}</span>
-        <span style="font-family:monospace;font-size:0.7rem;color:var(--text-muted);margin-top:2px;">
-          <i class="fa-solid ${m.icon || 'fa-chart-line'}" style="font-size:0.65rem;color:var(--accent-cyan);"></i> ${m.categoryKey.toUpperCase()}
-        </span>
+    grid.innerHTML = filtered.map(m => `
+      <div class="module-card-item ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}">
+        <div class="card-top-row">
+          <span class="card-tag">${m.badge || m.category.toUpperCase()}</span>
+          <i class="fa-solid ${m.icon || 'fa-chart-line'} card-icon"></i>
+        </div>
+        <h4 class="card-title">${m.title}</h4>
+        <span class="card-formula">${m.shortTitle} &bull; ${m.category.toUpperCase()}</span>
       </div>
     `).join('');
 
-    track.querySelectorAll('.concept-thumb-card').forEach(card => {
+    grid.querySelectorAll('.module-card-item').forEach(card => {
       card.addEventListener('click', () => {
         switchModule(card.dataset.moduleId);
+        const targetEl = document.getElementById('activeLabWorkspace');
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       });
     });
   };
 
   // ── Switch Active Module ──────────────────────────────────────────────────
-  const switchModule = (moduleId) => {
+  const switchModule = (moduleId, updateUrl = true) => {
     if (typeof LearnMathEngine === 'undefined') return;
     const mod = LearnMathEngine.getModuleById(moduleId);
     if (!mod) return;
@@ -71,8 +89,15 @@
     // Evaluate Math & Update UI
     evaluateActiveModule();
 
-    // Refresh Tray
-    renderConceptTray();
+    // Refresh Modules Directory Grid
+    renderAllModulesGrid();
+
+    // Update URL query state for deep-linking
+    if (updateUrl && window.history && window.history.pushState) {
+      const url = new URL(window.location);
+      url.searchParams.set('lab', mod.id);
+      window.history.pushState({ lab: mod.id }, '', url);
+    }
   };
 
   // ── Render Interactive Controls Panel ─────────────────────────────────────
@@ -98,7 +123,7 @@
             <div class="sim-control-header">
               <span>${c.label}</span>
             </div>
-            <select class="sim-security-input" data-key="${c.key}" style="background:#0d0d12;border:1px solid rgba(255,255,255,0.1);padding:6px;border-radius:6px;color:#fff;margin-top:4px;">
+            <select class="sim-security-input" data-key="${c.key}" style="background:#0d0d12;border:1px solid rgba(255,255,255,0.1);padding:8px;border-radius:6px;color:#fff;margin-top:4px;width:100%;">
               ${(c.options || []).map(opt => `<option value="${opt.val}" ${opt.val === curVal ? 'selected' : ''}>${opt.text}</option>`).join('')}
             </select>
           </div>
@@ -167,7 +192,7 @@
     }
 
     container.innerHTML = mod.presets.map((p, idx) => `
-      <button class="lab-chip" data-idx="${idx}"><i class="fa-solid fa-bolt" style="font-size:0.6rem;color:var(--accent-cyan);"></i> ${p.label}</button>
+      <button class="lab-chip" data-idx="${idx}"><i class="fa-solid fa-bolt" style="font-size:0.6rem;color:var(--accent-cyan);margin-right:3px;"></i> ${p.label}</button>
     `).join('');
 
     container.querySelectorAll('.lab-chip').forEach(btn => {
@@ -202,17 +227,20 @@
 
     if (underLead) underLead.textContent = res.whatIsIt || res.beginnerText || '';
     if (underBody) {
-      if (labState.explanationMode === 'beginner') {
-        underBody.textContent = res.beginnerText || res.plainResult;
+      if (labState.explanationMode === 'quant') {
+        underBody.textContent = res.quantText || res.plainResult;
       } else if (labState.explanationMode === 'investor') {
         underBody.textContent = res.investorText || res.plainResult;
       } else {
-        underBody.textContent = res.quantText || res.plainResult;
+        // Beginner mode: avoid duplicate of underLead
+        underBody.textContent = (res.beginnerText && res.beginnerText !== res.whatIsIt)
+          ? res.beginnerText
+          : `Adjust the sliders in the experiment panel below to observe the immediate effect on the ${mod.shortTitle} calculation.`;
       }
     }
-    if (whyMatters) whyMatters.textContent = res.whyItMatters || '';
-    if (focalSym) focalSym.textContent = res.focalSymbol || mod.badge || 'PROOFS';
-    if (focalLbl) focalLbl.textContent = res.focalLabel || 'Metric Value';
+    if (whyMatters) whyMatters.textContent = res.whyItMatters || res.investorText || '';
+    if (focalSym) focalSym.textContent = res.focalSymbol || mod.badge || 'METRIC';
+    if (focalLbl) focalLbl.textContent = res.focalLabel || 'Evaluated Value';
     if (focalVal) {
       if (res.focalValue !== undefined) focalVal.textContent = res.focalValue;
       else if (res.cagr !== undefined) focalVal.textContent = `${res.cagr >= 0 ? '+' : ''}${res.cagr}%`;
@@ -241,7 +269,10 @@
     if (deepProofContent) {
       deepProofContent.innerHTML = `
         <p style="margin-top:0;"><strong>Model Spec:</strong> ${res.quantText || res.whatIsIt}</p>
-        <p><strong>Step-by-Step Proof:</strong> Evaluated using deterministic floating-point precision on real/synthetic parameter sets. No interpolation approximations used.</p>
+        <p><strong>Interactive Variables &amp; Parameters:</strong></p>
+        <ul style="margin:8px 0 0 16px;padding:0;color:var(--text-secondary);font-size:0.8rem;line-height:1.6;">
+          ${Object.entries(labState.simInputs).map(([k, v]) => `<li><code style="color:var(--accent-cyan);">${k}</code> = <strong>${v}</strong></li>`).join('')}
+        </ul>
       `;
     }
 
@@ -265,6 +296,7 @@
 
     if (labState.chartInstance) {
       labState.chartInstance.destroy();
+      labState.chartInstance = null;
     }
 
     const c = res.chart;
@@ -383,7 +415,6 @@
       });
       return;
     } else {
-      // Fallback simple line
       datasets.push({
         label: 'Simulation Path',
         data: c.trajectory || [100, 120, 150, 190, 250],
@@ -401,7 +432,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 250 },
+        animation: { duration: 200 },
         plugins: {
           legend: {
             display: datasets.length > 1,
@@ -429,6 +460,60 @@
     });
   };
 
+  // ── Render Saved Scenarios Shelf ──────────────────────────────────────────
+  const renderSavedScenariosShelf = () => {
+    const container = document.getElementById('savedScenariosContainer');
+    if (!container) return;
+
+    if (labState.savedScenarios.length === 0) {
+      container.innerHTML = `
+        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:0.85rem;grid-column:1/-1;">
+          No saved scenarios yet. Use <strong>Save Scenario</strong> in the workspace toolbar to store snapshot records for comparison.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = labState.savedScenarios.map(sc => `
+      <div class="saved-scenario-card" data-scenario-id="${sc.id}">
+        <div class="scenario-card-header">
+          <strong style="color:#fff;font-size:0.85rem;">${sc.name}</strong>
+          <span class="step-badge" style="font-size:0.6rem;">${sc.moduleId.toUpperCase()}</span>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);">
+          Saved ${new Date(sc.date).toLocaleDateString()} at ${new Date(sc.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <button class="lab-act-btn btn-load-sc" data-load-id="${sc.id}" style="font-size:0.68rem;padding:3px 8px;"><i class="fa-solid fa-play"></i> Load</button>
+          <button class="lab-act-btn btn-del-sc" data-del-id="${sc.id}" style="font-size:0.68rem;padding:3px 8px;color:var(--accent-red);"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+
+    container.querySelectorAll('.btn-load-sc').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const sc = labState.savedScenarios.find(s => s.id === parseInt(btn.dataset.loadId, 10));
+        if (sc) {
+          switchModule(sc.moduleId);
+          labState.simInputs = { ...sc.inputs };
+          renderControlsPanel(LearnMathEngine.getModuleById(sc.moduleId));
+          evaluateActiveModule();
+          const targetEl = document.getElementById('activeLabWorkspace');
+          if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    container.querySelectorAll('.btn-del-sc').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.dataset.delId, 10);
+        labState.savedScenarios = labState.savedScenarios.filter(s => s.id !== id);
+        localStorage.setItem('riskos_lab_scenarios', JSON.stringify(labState.savedScenarios));
+        renderSavedScenariosShelf();
+      });
+    });
+  };
+
   // ── Action Bar: Reset, Save, Compare, Export, Explain ─────────────────────
   const setupActionBar = () => {
     // 1. Reset Inputs
@@ -449,7 +534,7 @@
     if (btnSave) {
       btnSave.addEventListener('click', () => {
         const mod = LearnMathEngine.getModuleById(labState.activeModuleId);
-        const name = prompt('Name this simulation scenario:', `${mod.shortTitle} - ${new Date().toLocaleTimeString()}`);
+        const name = prompt('Name this simulation scenario:', `${mod.shortTitle} - ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`);
         if (!name) return;
 
         const scenario = {
@@ -463,11 +548,24 @@
 
         labState.savedScenarios.push(scenario);
         localStorage.setItem('riskos_lab_scenarios', JSON.stringify(labState.savedScenarios));
-        alert(`Scenario "${name}" saved! You can compare it anytime.`);
+        renderSavedScenariosShelf();
+        alert(`Scenario "${name}" saved! View it in the Saved Simulation Scenarios shelf below.`);
       });
     }
 
-    // 3. Compare Scenarios Drawer
+    // 3. Clear All Scenarios
+    const btnClear = document.getElementById('btnClearScenarios');
+    if (btnClear) {
+      btnClear.addEventListener('click', () => {
+        if (confirm('Clear all saved simulation scenarios?')) {
+          labState.savedScenarios = [];
+          localStorage.removeItem('riskos_lab_scenarios');
+          renderSavedScenariosShelf();
+        }
+      });
+    }
+
+    // 4. Compare Scenarios Drawer
     const btnCompare = document.getElementById('btnCompareScenario');
     if (btnCompare) {
       btnCompare.addEventListener('click', () => {
@@ -475,7 +573,7 @@
       });
     }
 
-    // 4. Export Results
+    // 5. Export Results
     const btnExport = document.getElementById('btnExportResults');
     if (btnExport) {
       btnExport.addEventListener('click', () => {
@@ -500,7 +598,7 @@
       });
     }
 
-    // 5. Explain This (AI Explainer)
+    // 6. Explain This (AI Explainer)
     const btnExplain = document.getElementById('btnExplainAi');
     if (btnExplain) {
       btnExplain.addEventListener('click', () => {
@@ -508,7 +606,7 @@
       });
     }
 
-    // 6. Detailed Proof Toggle
+    // 7. Detailed Proof Toggle
     const btnToggleMath = document.getElementById('btnToggleMathDetails');
     const proofBox = document.getElementById('mathDeepProofBox');
     const toggleText = document.getElementById('mathToggleText');
@@ -553,14 +651,14 @@
         </div>
 
         <div style="background:#111115;border:1px solid rgba(255,255,255,0.06);padding:14px;border-radius:10px;">
-          <span style="font-size:0.7rem;font-weight:700;color:var(--accent-crimson);text-transform:uppercase;">Boundary Caveats</span>
+          <span style="font-size:0.7rem;font-weight:700;color:var(--accent-red);text-transform:uppercase;">Boundary Caveats &amp; Limitations</span>
           <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.5;margin-top:6px;">${res.limitations}</p>
         </div>
       `;
     } else if (mode === 'compare') {
       titleEl.innerHTML = `<i class="fa-solid fa-code-compare" style="color:var(--accent-cyan);"></i> Saved Scenarios (${labState.savedScenarios.length})`;
       if (labState.savedScenarios.length === 0) {
-        bodyEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:32px 0;">No saved scenarios yet. Click <strong>Save Scenario</strong> in the action bar to store snapshots.</div>`;
+        bodyEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:32px 0;">No saved scenarios yet. Click <strong>Save Scenario</strong> in the workspace action bar to store snapshots.</div>`;
       } else {
         bodyEl.innerHTML = labState.savedScenarios.map(sc => `
           <div style="background:#111115;border:1px solid rgba(255,255,255,0.08);padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
@@ -568,11 +666,11 @@
               <div style="font-weight:700;color:#fff;font-size:0.85rem;">${sc.name}</div>
               <div style="font-size:0.7rem;color:var(--text-muted);">${new Date(sc.date).toLocaleDateString()} &bull; ${sc.moduleId}</div>
             </div>
-            <button class="lab-act-btn" data-load-id="${sc.id}" style="font-size:0.7rem;">Load</button>
+            <button class="lab-act-btn btn-drawer-load" data-load-id="${sc.id}" style="font-size:0.7rem;">Load</button>
           </div>
         `).join('');
 
-        bodyEl.querySelectorAll('[data-load-id]').forEach(btn => {
+        bodyEl.querySelectorAll('.btn-drawer-load').forEach(btn => {
           btn.addEventListener('click', () => {
             const sc = labState.savedScenarios.find(s => s.id === parseInt(btn.dataset.loadId, 10));
             if (sc) {
@@ -581,6 +679,8 @@
               renderControlsPanel(LearnMathEngine.getModuleById(sc.moduleId));
               evaluateActiveModule();
               closeDrawer();
+              const targetEl = document.getElementById('activeLabWorkspace');
+              if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
           });
         });
@@ -588,14 +688,14 @@
     }
 
     overlay.removeAttribute('hidden');
-    document.body.classList.add('menu-locked');
+    lockScroll();
   };
 
   const closeDrawer = () => {
     const overlay = document.getElementById('labDrawerOverlay');
     if (overlay) {
       overlay.setAttribute('hidden', '');
-      document.body.classList.remove('menu-locked');
+      unlockScroll();
     }
   };
 
@@ -618,7 +718,6 @@
           const pe = sec.pe || 25;
           const eps = pr / pe;
           const vol = (sec.vol || 0.18) * 100;
-          const beta = sec.beta || 1.1;
 
           const modId = labState.activeModuleId;
           if (modId === 'pe_valuation') {
@@ -630,13 +729,94 @@
             labState.simInputs.assetVol = Number(vol.toFixed(1));
             labState.simInputs.correlation = 0.75;
           } else if (modId === 'cagr') {
-            labState.simInputs.finalValue = pr * 1.5;
+            labState.simInputs.finalVal = pr * 1.5;
           }
 
           renderControlsPanel(LearnMathEngine.getModuleById(modId));
           evaluateActiveModule();
         }
       }, 200);
+    });
+  };
+
+  // ── Universal Command Palette (CMD+K) ─────────────────────────────────────
+  const setupCommandPalette = () => {
+    const paletteOverlay = document.getElementById('paletteOverlay');
+    const paletteBackdrop = document.getElementById('paletteBackdrop');
+    const paletteInput = document.getElementById('paletteInput');
+    const paletteResults = document.getElementById('paletteResults');
+    const navSearchTrigger = document.getElementById('navSearchTrigger');
+
+    const openPalette = () => {
+      if (!paletteOverlay) return;
+      paletteOverlay.removeAttribute('hidden');
+      lockScroll();
+      if (paletteInput) {
+        paletteInput.value = '';
+        paletteInput.focus();
+        renderPaletteResults('');
+      }
+    };
+
+    const closePalette = () => {
+      if (!paletteOverlay) return;
+      paletteOverlay.setAttribute('hidden', '');
+      unlockScroll();
+    };
+
+    const renderPaletteResults = (q) => {
+      if (!paletteResults) return;
+      const query = q.toLowerCase().trim();
+      const mods = LearnMathEngine.MODULES_DIRECTORY;
+      
+      const matchedMods = query 
+        ? mods.filter(m => m.title.toLowerCase().includes(query) || m.shortTitle.toLowerCase().includes(query) || m.category.toLowerCase().includes(query))
+        : mods.slice(0, 6);
+
+      paletteResults.innerHTML = `
+        <div style="font-size:0.68rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">
+          ${query ? 'Matched Laboratory Modules' : 'Popular Quantitative Modules'}
+        </div>
+        ${matchedMods.map(m => `
+          <div class="palette-item" data-mod="${m.id}" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:8px;cursor:pointer;background:rgba(255,255,255,0.02);margin-bottom:6px;">
+            <div>
+              <strong style="color:#fff;font-size:0.85rem;">${m.title}</strong>
+              <div style="font-size:0.72rem;color:var(--text-muted);">${m.category} &bull; ${m.shortTitle}</div>
+            </div>
+            <span class="step-badge" style="font-size:0.6rem;">SIMULATE</span>
+          </div>
+        `).join('')}
+      `;
+
+      paletteResults.querySelectorAll('.palette-item').forEach(item => {
+        item.addEventListener('click', () => {
+          switchModule(item.dataset.mod);
+          closePalette();
+          const targetEl = document.getElementById('activeLabWorkspace');
+          if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      });
+    };
+
+    if (navSearchTrigger) navSearchTrigger.addEventListener('click', openPalette);
+    if (paletteBackdrop) paletteBackdrop.addEventListener('click', closePalette);
+    if (paletteInput) {
+      paletteInput.addEventListener('input', (e) => renderPaletteResults(e.target.value));
+      paletteInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closePalette();
+      });
+    }
+
+    // Global Keydown Shortcut
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        if (paletteOverlay && !paletteOverlay.hasAttribute('hidden')) closePalette();
+        else openPalette();
+      } else if (e.key === 'Escape') {
+        closePalette();
+        closeDrawer();
+      }
     });
   };
 
@@ -648,7 +828,7 @@
         document.querySelectorAll('.lab-cat-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         labState.activeCategory = pill.dataset.category;
-        renderConceptTray();
+        renderAllModulesGrid();
       });
     });
 
@@ -742,6 +922,9 @@
           evaluateActiveModule();
         }
       }
+
+      const targetEl = document.getElementById('activeLabWorkspace');
+      if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     if (askBtn && aiInput) {
@@ -759,12 +942,15 @@
 
     // 6. Action Bar & Drawer Handlers
     setupActionBar();
+    renderSavedScenariosShelf();
+    setupCommandPalette();
+
     const drawerCloseBtn = document.getElementById('labDrawerCloseBtn');
     const drawerBackdrop = document.getElementById('labDrawerBackdrop');
     if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
     if (drawerBackdrop) drawerBackdrop.addEventListener('click', closeDrawer);
 
-    // 7. Mobile Menu
+    // 7. Mobile Navigation Menu
     const menuToggle = document.getElementById('menuToggle');
     const menuOverlay = document.getElementById('mobileMenuOverlay');
     const menuCloseBtn = document.getElementById('mobileMenuCloseBtn');
@@ -772,13 +958,13 @@
     if (menuToggle && menuOverlay) {
       menuToggle.addEventListener('click', () => {
         menuOverlay.removeAttribute('hidden');
-        document.body.classList.add('menu-locked');
+        lockScroll();
       });
     }
     if (menuCloseBtn && menuOverlay) {
       menuCloseBtn.addEventListener('click', () => {
         menuOverlay.setAttribute('hidden', '');
-        document.body.classList.remove('menu-locked');
+        unlockScroll();
       });
     }
 
@@ -810,10 +996,10 @@
     // 9. Setup Security Search
     setupSecuritySearch();
 
-    // 10. URL Query Param Synchronization (Deep-linking)
+    // 10. URL Query Param Synchronization & History API (Deep-linking)
     const urlParams = new URLSearchParams(window.location.search);
     const targetSec = urlParams.get('sec') || urlParams.get('ticker') || urlParams.get('symbol');
-    let targetMod = urlParams.get('module') || urlParams.get('metric') || 'cagr';
+    let targetMod = urlParams.get('lab') || urlParams.get('module') || urlParams.get('metric') || 'cagr';
 
     const metricMap = {
       'pe': 'pe_valuation',
@@ -841,8 +1027,14 @@
       targetMod = metricMap[targetMod.toLowerCase()];
     }
 
-    renderConceptTray();
-    switchModule(targetMod || 'cagr');
+    renderAllModulesGrid();
+    switchModule(targetMod || 'cagr', false);
+
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.lab) {
+        switchModule(e.state.lab, false);
+      }
+    });
 
     if (targetSec && typeof SecurityMaster !== 'undefined') {
       SecurityMaster.resolveSecurity(targetSec).then(sec => {
