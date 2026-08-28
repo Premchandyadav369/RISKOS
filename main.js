@@ -1958,14 +1958,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const specHorizonSlider = document.getElementById('specHorizonSlider');
   const specDriftSlider = document.getElementById('specDriftSlider');
   const specVolSlider = document.getElementById('specVolSlider');
+  const specRateShiftSlider = document.getElementById('specRateShiftSlider');
+  const specInflationSlider = document.getElementById('specInflationSlider');
+  const specEarningsSlider = document.getElementById('specEarningsSlider');
+  const specJumpFreqSlider = document.getElementById('specJumpFreqSlider');
+  const specJumpSizeSlider = document.getElementById('specJumpSizeSlider');
   const navOpenSpeculations = document.getElementById('navOpenSpeculations');
 
   let activeSpecState = {
     ticker: 'RELIANCE',
-    model: 'gbm', // 'gbm' | 'prophet'
+    model: 'gbm', // 'gbm' | 'merton' | 'prophet'
+    stance: 'long', // 'long' | 'short'
     horizon: 90,
     drift: 0.12,
-    volMult: 1.0
+    volMult: 1.0,
+    rateShift: 0,
+    inflationShock: 0,
+    earningsGrowth: 0,
+    jumpFreq: 0,
+    jumpSize: 0
   };
 
   const populateSpecTickers = () => {
@@ -1987,6 +1998,12 @@ document.addEventListener('DOMContentLoaded', () => {
     activeSpecState.ticker = targetTicker;
     populateSpecTickers();
     if (specSelectTicker) specSelectTicker.value = targetTicker;
+
+    const sec = findBestSecurityMatch(targetTicker) || SECURITIES_DATABASE[0];
+    const tickerText = document.getElementById('specActiveTickerText');
+    const nameText = document.getElementById('specActiveNameText');
+    if (tickerText) tickerText.textContent = sec.symbol;
+    if (nameText) nameText.textContent = `${sec.name} • ${sec.exchange}`;
     
     renderSpeculationsDesk();
     speculationsOverlay.removeAttribute('hidden');
@@ -2007,19 +2024,78 @@ document.addEventListener('DOMContentLoaded', () => {
   if (specSelectTicker) {
     specSelectTicker.addEventListener('change', (e) => {
       activeSpecState.ticker = e.target.value;
+      const sec = findBestSecurityMatch(activeSpecState.ticker) || SECURITIES_DATABASE[0];
+      const tickerText = document.getElementById('specActiveTickerText');
+      const nameText = document.getElementById('specActiveNameText');
+      if (tickerText) tickerText.textContent = sec.symbol;
+      if (nameText) nameText.textContent = `${sec.name} • ${sec.exchange}`;
       renderSpeculationsDesk();
     });
   }
 
+  // Model Switcher (GBM vs Merton vs Prophet)
   document.querySelectorAll('.spec-model-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.spec-model-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       activeSpecState.model = btn.dataset.model;
+
+      const jumpBox1 = document.getElementById('specJumpBox1');
+      const jumpBox2 = document.getElementById('specJumpBox2');
+      const jumpWrap = document.getElementById('specHudJumpWrap');
+      const isMerton = activeSpecState.model === 'merton';
+
+      if (jumpBox1) jumpBox1.style.display = isMerton ? 'flex' : 'none';
+      if (jumpBox2) jumpBox2.style.display = isMerton ? 'flex' : 'none';
+      if (jumpWrap) jumpWrap.style.display = isMerton ? 'inline' : 'none';
+
+      if (isMerton && activeSpecState.jumpFreq === 0) {
+        activeSpecState.jumpFreq = 2;
+        activeSpecState.jumpSize = 0.12;
+        if (specJumpFreqSlider) specJumpFreqSlider.value = "2";
+        if (specJumpSizeSlider) specJumpSizeSlider.value = "12";
+        document.getElementById('specJumpFreqVal').textContent = '2 jumps/yr';
+        document.getElementById('specJumpSizeVal').textContent = '+12.0%';
+      }
+
       renderSpeculationsDesk();
     });
   });
 
+  // Stance Switcher (Long vs Short)
+  document.querySelectorAll('.spec-stance-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.spec-stance-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeSpecState.stance = btn.dataset.stance;
+
+      // Update UI labels for Stance
+      const isShort = activeSpecState.stance === 'short';
+      const expLabel = document.getElementById('specExpPriceLabel');
+      const p95Label = document.getElementById('specP95Label');
+      const p05Label = document.getElementById('specP05Label');
+      const varLabel = document.getElementById('specVarLabel');
+      const gain10Label = document.getElementById('specLabelGain10');
+      const gain25Label = document.getElementById('specLabelGain25');
+      const loss10Label = document.getElementById('specLabelLoss10');
+      const loss25Label = document.getElementById('specLabelLoss25');
+      const posLabel = document.getElementById('specLabelPositive');
+
+      if (expLabel) expLabel.textContent = isShort ? 'Expected Short Payoff' : 'Expected Terminal Price';
+      if (p95Label) p95Label.textContent = isShort ? '95th %ile (Short Squeeze Risk)' : '95th %ile (Bull Case)';
+      if (p05Label) p05Label.textContent = isShort ? '5th %ile (Bull Target for Short)' : '5th %ile (Bear Case)';
+      if (varLabel) varLabel.textContent = isShort ? 'Short Squeeze VaR (99%)' : 'Terminal VaR (99%)';
+      if (gain10Label) gain10Label.textContent = isShort ? 'Short Profit ≥ +10%' : 'Gain ≥ +10%';
+      if (gain25Label) gain25Label.textContent = isShort ? 'Short Profit ≥ +25%' : 'Gain ≥ +25%';
+      if (loss10Label) loss10Label.textContent = isShort ? 'Short Loss ≥ -10%' : 'Loss ≥ -10%';
+      if (loss25Label) loss25Label.textContent = isShort ? 'Short Squeeze ≥ -25%' : 'Loss ≥ -25%';
+      if (posLabel) posLabel.textContent = isShort ? 'Short Win Probability' : 'Overall Positive Return';
+
+      renderSpeculationsDesk();
+    });
+  });
+
+  // Slider Listeners
   if (specHorizonSlider) {
     specHorizonSlider.addEventListener('input', (e) => {
       activeSpecState.horizon = parseInt(e.target.value, 10);
@@ -2045,182 +2121,271 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const renderSpeculationsDesk = async () => {
-    const { ticker, horizon, drift, volMult, model } = activeSpecState;
-    const sec = findBestSecurityMatch(ticker) || SECURITIES_DATABASE[0];
-    
-    document.getElementById('specChartTickerTitle').textContent = `${sec.symbol} (${horizon}-Day ${model === 'gbm' ? 'Monte Carlo Fan' : 'Prophet Forecast'})`;
-    document.getElementById('specHudDrift').textContent = `${drift >= 0 ? '+' : ''}${(drift * 100).toFixed(1)}%`;
-    document.getElementById('specHudVol').textContent = `${((sec.volatility || 0.22) * volMult * 100).toFixed(1)}%`;
+  if (specRateShiftSlider) {
+    specRateShiftSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      activeSpecState.rateShift = val;
+      document.getElementById('specRateShiftVal').textContent = `${val >= 0 ? '+' : ''}${val} bps`;
+      renderSpeculationsDesk();
+    });
+  }
 
-    let specData = null;
+  if (specInflationSlider) {
+    specInflationSlider.addEventListener('input', (e) => {
+      const val = parseFloat(e.target.value);
+      activeSpecState.inflationShock = val;
+      document.getElementById('specInflationVal').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+      renderSpeculationsDesk();
+    });
+  }
 
-    if (model === 'gbm') {
-      try {
-        specData = await cachedFetch(`/api/quant/speculations?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}&drift=${drift}&vol_mult=${volMult}`);
-      } catch (e) {}
+  if (specEarningsSlider) {
+    specEarningsSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      activeSpecState.earningsGrowth = val;
+      document.getElementById('specEarningsVal').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+      renderSpeculationsDesk();
+    });
+  }
 
-      if (!specData || !specData.fan_chart) {
-        // High-precision local simulation fallback
-        const s0 = sec.priceINR || 100;
-        const sigma = (sec.volatility || 0.22) * volMult;
-        const dt = 1.0 / 252.0;
-        const days = horizon;
-        const dates = [];
-        const p05 = [], p25 = [], median = [], p75 = [], p95 = [];
-        const dStart = new Date();
+  if (specJumpFreqSlider) {
+    specJumpFreqSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      activeSpecState.jumpFreq = val;
+      document.getElementById('specJumpFreqVal').textContent = `${val} jumps/yr`;
+      document.getElementById('specHudJump').textContent = `${val}/yr`;
+      renderSpeculationsDesk();
+    });
+  }
 
-        for (let i = 0; i <= days; i++) {
-          const d = new Date(dStart);
-          d.setDate(d.getDate() + Math.round(i * 1.45));
-          dates.push(d.toISOString().split('T')[0]);
-          
-          const t_yr = (i / 252.0);
-          const expDrift = s0 * Math.exp(drift * t_yr);
-          const spread = expDrift * sigma * Math.sqrt(Math.max(0.01, t_yr));
-          
-          p05.push(Math.max(1, expDrift - 1.96 * spread));
-          p25.push(Math.max(1, expDrift - 0.67 * spread));
-          median.push(expDrift);
-          p75.push(expDrift + 0.67 * spread);
-          p95.push(expDrift + 1.96 * spread);
-        }
+  if (specJumpSizeSlider) {
+    specJumpSizeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      activeSpecState.jumpSize = val / 100.0;
+      document.getElementById('specJumpSizeVal').textContent = `${val >= 0 ? '+' : ''}${val.toFixed(1)}%`;
+      renderSpeculationsDesk();
+    });
+  }
 
-        specData = {
-          symbol: sec.symbol,
-          current_price: s0,
-          horizon_days: horizon,
-          dates,
-          fan_chart: { p05, p25, median, p75, p95 },
-          probabilities: {
-            prob_positive: Math.min(99, Math.max(1, Math.round(50 + (drift / sigma) * 20))),
-            prob_gain_10: Math.min(95, Math.max(1, Math.round(45 + (drift / sigma) * 18))),
-            prob_gain_25: Math.min(85, Math.max(1, Math.round(25 + (drift / sigma) * 15))),
-            prob_loss_10: Math.min(80, Math.max(1, Math.round(25 - (drift / sigma) * 10))),
-            prob_loss_25: Math.min(60, Math.max(1, Math.round(10 - (drift / sigma) * 8)))
-          },
-          terminal_metrics: {
-            expected_price: median[median.length - 1] * 1.02,
-            median_price: median[median.length - 1],
-            p05_worst_case: p05[p05.length - 1],
-            p95_best_case: p95[p95.length - 1],
-            var_99: -0.224
-          }
-        };
+  // Preset Scenario Chips
+  document.querySelectorAll('.spec-preset-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const p = chip.dataset.preset;
+      if (p === 'baseline') {
+        activeSpecState.drift = 0.12;
+        activeSpecState.volMult = 1.0;
+        activeSpecState.rateShift = 0;
+        activeSpecState.inflationShock = 0;
+        activeSpecState.earningsGrowth = 0;
+        activeSpecState.jumpFreq = 0;
+        activeSpecState.jumpSize = 0;
+      } else if (p === 'short_squeeze') {
+        activeSpecState.stance = 'short';
+        activeSpecState.drift = 0.28;
+        activeSpecState.volMult = 2.2;
+        activeSpecState.jumpFreq = 4;
+        activeSpecState.jumpSize = 0.15;
+        document.querySelectorAll('.spec-stance-btn').forEach(b => b.classList.toggle('active', b.dataset.stance === 'short'));
+      } else if (p === 'recession') {
+        activeSpecState.drift = -0.22;
+        activeSpecState.volMult = 1.8;
+        activeSpecState.rateShift = 200;
+        activeSpecState.inflationShock = 2.5;
+        activeSpecState.earningsGrowth = -20;
+      } else if (p === 'breakout') {
+        activeSpecState.drift = 0.35;
+        activeSpecState.volMult = 1.4;
+        activeSpecState.earningsGrowth = 25;
+        activeSpecState.jumpFreq = 2;
+        activeSpecState.jumpSize = 0.10;
+      } else if (p === 'black_swan') {
+        activeSpecState.drift = -0.40;
+        activeSpecState.volMult = 2.8;
+        activeSpecState.jumpFreq = 5;
+        activeSpecState.jumpSize = -0.25;
+      } else if (p === 'rate_shock') {
+        activeSpecState.rateShift = 300;
+        activeSpecState.drift = -0.15;
+        activeSpecState.volMult = 1.5;
+        activeSpecState.inflationShock = 3.0;
       }
-    } else {
-      // Prophet mode (Trend + Fourier Seasonality + Bayesian Confidence Interval)
-      try {
-        const pData = await cachedFetch(`/api/quant/prophet?ticker=${encodeURIComponent(ticker)}&horizon_days=${horizon}`);
-        if (pData && pData.forecast) {
-          specData = {
-            symbol: sec.symbol,
-            current_price: sec.priceINR || 100,
-            dates: pData.forecast.dates,
-            fan_chart: {
-              p05: pData.forecast.lower_95,
-              p25: pData.forecast.point_forecast.map((p, i) => (p + pData.forecast.lower_95[i]) / 2),
-              median: pData.forecast.point_forecast,
-              p75: pData.forecast.point_forecast.map((p, i) => (p + pData.forecast.upper_95[i]) / 2),
-              p95: pData.forecast.upper_95
-            },
-            probabilities: {
-              prob_positive: 68.4,
-              prob_gain_10: 55.2,
-              prob_gain_25: 32.1,
-              prob_loss_10: 16.4,
-              prob_loss_25: 5.2
-            },
-            terminal_metrics: {
-              expected_price: pData.forecast.point_forecast[pData.forecast.point_forecast.length - 1],
-              median_price: pData.forecast.point_forecast[pData.forecast.point_forecast.length - 1],
-              p05_worst_case: pData.forecast.lower_95[pData.forecast.lower_95.length - 1],
-              p95_best_case: pData.forecast.upper_95[pData.forecast.upper_95.length - 1],
-              var_99: -0.185
-            }
-          };
-        }
-      } catch (e) {}
 
-      if (!specData) {
-        // High-precision local Prophet statistical model
-        const s0 = sec.priceINR || sec.price_inr || 100;
-        const sigma = (sec.volatility || 0.20) * volMult;
-        const days = horizon;
-        const dates = [];
-        const p05 = [], p25 = [], median = [], p75 = [], p95 = [];
-        const dStart = new Date();
+      // Sync slider UI elements
+      if (specDriftSlider) specDriftSlider.value = (activeSpecState.drift * 100).toString();
+      if (specVolSlider) specVolSlider.value = activeSpecState.volMult.toString();
+      if (specRateShiftSlider) specRateShiftSlider.value = activeSpecState.rateShift.toString();
+      if (specInflationSlider) specInflationSlider.value = activeSpecState.inflationShock.toString();
+      if (specEarningsSlider) specEarningsSlider.value = activeSpecState.earningsGrowth.toString();
+      if (specJumpFreqSlider) specJumpFreqSlider.value = activeSpecState.jumpFreq.toString();
+      if (specJumpSizeSlider) specJumpSizeSlider.value = (activeSpecState.jumpSize * 100).toString();
 
-        for (let i = 0; i <= days; i++) {
-          const d = new Date(dStart);
-          d.setDate(d.getDate() + Math.round(i * 1.45));
-          dates.push(d.toISOString().split('T')[0]);
+      document.getElementById('specDriftVal').textContent = `${activeSpecState.drift >= 0 ? '+' : ''}${(activeSpecState.drift * 100).toFixed(1)}%`;
+      document.getElementById('specVolVal').textContent = `${activeSpecState.volMult.toFixed(1)}x`;
+      document.getElementById('specRateShiftVal').textContent = `${activeSpecState.rateShift >= 0 ? '+' : ''}${activeSpecState.rateShift} bps`;
+      document.getElementById('specInflationVal').textContent = `${activeSpecState.inflationShock >= 0 ? '+' : ''}${activeSpecState.inflationShock.toFixed(1)}%`;
+      document.getElementById('specEarningsVal').textContent = `${activeSpecState.earningsGrowth >= 0 ? '+' : ''}${activeSpecState.earningsGrowth}%`;
+      document.getElementById('specJumpFreqVal').textContent = `${activeSpecState.jumpFreq} jumps/yr`;
+      document.getElementById('specJumpSizeVal').textContent = `${activeSpecState.jumpSize >= 0 ? '+' : ''}${(activeSpecState.jumpSize * 100).toFixed(1)}%`;
+      document.getElementById('specHudJump').textContent = `${activeSpecState.jumpFreq}/yr`;
 
-          const t_yr = (i / 252.0);
-          // Piecewise polynomial macro trend
-          const trend = s0 * (1 + drift * t_yr + 0.04 * Math.pow(t_yr, 1.5));
-          // Fourier cyclical seasonality (monthly & quarterly harmonics)
-          const seasonality = s0 * (0.018 * Math.sin(2 * Math.PI * i / 30.0) + 0.028 * Math.cos(2 * Math.PI * i / 90.0));
-          const pointForecast = Math.max(1, trend + seasonality);
+      renderSpeculationsDesk();
+    });
+  });
 
-          // Bayesian uncertainty growth cone
-          const uncertainty = pointForecast * sigma * Math.sqrt(Math.max(0.01, t_yr)) * 1.15;
+  const renderSpeculationsDesk = async () => {
+    const { ticker, horizon, drift, volMult, model, stance, rateShift, inflationShock, earningsGrowth, jumpFreq, jumpSize } = activeSpecState;
+    const sec = findBestSecurityMatch(ticker) || SECURITIES_DATABASE[0];
+    const s0 = sec.priceINR || sec.price_inr || 100;
+    const baseSigma = (sec.volatility || 0.22);
+    
+    // Effective Combined Drift & Effective Combined Volatility
+    const effectiveDrift = drift - (rateShift / 10000.0) * 1.2 + (earningsGrowth / 100.0) * 0.8;
+    const effectiveVol = baseSigma * volMult * (1 + Math.abs(inflationShock) * 0.08);
 
-          median.push(Number(pointForecast.toFixed(2)));
-          p05.push(Number(Math.max(1, pointForecast - 1.96 * uncertainty).toFixed(2)));
-          p25.push(Number(Math.max(1, pointForecast - 0.67 * uncertainty).toFixed(2)));
-          p75.push(Number((pointForecast + 0.67 * uncertainty).toFixed(2)));
-          p95.push(Number((pointForecast + 1.96 * uncertainty).toFixed(2)));
-        }
+    const modelName = model === 'gbm' ? 'Monte Carlo GBM' : (model === 'merton' ? 'Merton Jump Diffusion' : 'Prophet Forecast');
+    document.getElementById('specChartTickerTitle').textContent = `${sec.symbol} (${horizon}-Day ${modelName} • ${stance.toUpperCase()})`;
+    document.getElementById('specHudDrift').textContent = `${effectiveDrift >= 0 ? '+' : ''}${(effectiveDrift * 100).toFixed(1)}%`;
+    document.getElementById('specHudVol').textContent = `${(effectiveVol * 100).toFixed(1)}%`;
+    document.getElementById('specHudJump').textContent = `${jumpFreq}/yr`;
 
-        specData = {
-          symbol: sec.symbol,
-          current_price: s0,
-          horizon_days: horizon,
-          dates,
-          fan_chart: { p05, p25, median, p75, p95 },
-          probabilities: {
-            prob_positive: Math.min(99, Math.max(1, Math.round(52 + (drift / sigma) * 22))),
-            prob_gain_10: Math.min(95, Math.max(1, Math.round(48 + (drift / sigma) * 19))),
-            prob_gain_25: Math.min(85, Math.max(1, Math.round(28 + (drift / sigma) * 16))),
-            prob_loss_10: Math.min(80, Math.max(1, Math.round(22 - (drift / sigma) * 11))),
-            prob_loss_25: Math.min(60, Math.max(1, Math.round(8 - (drift / sigma) * 7)))
-          },
-          terminal_metrics: {
-            expected_price: median[median.length - 1],
-            median_price: median[median.length - 1],
-            p05_worst_case: p05[p05.length - 1],
-            p95_best_case: p95[p95.length - 1],
-            var_99: -0.192
-          }
-        };
+    const days = horizon;
+    const dates = [];
+    const p05 = [], p25 = [], median = [], p75 = [], p95 = [];
+    const dStart = new Date();
+
+    for (let i = 0; i <= days; i++) {
+      const d = new Date(dStart);
+      d.setDate(d.getDate() + Math.round(i * 1.45));
+      dates.push(d.toISOString().split('T')[0]);
+
+      const t_yr = Math.max(0.001, i / 252.0);
+
+      if (model === 'gbm') {
+        const expPrice = s0 * Math.exp(effectiveDrift * t_yr);
+        const spread = expPrice * effectiveVol * Math.sqrt(t_yr);
+        p05.push(Number(Math.max(1, expPrice - 1.96 * spread).toFixed(2)));
+        p25.push(Number(Math.max(1, expPrice - 0.67 * spread).toFixed(2)));
+        median.push(Number(expPrice.toFixed(2)));
+        p75.push(Number((expPrice + 0.67 * spread).toFixed(2)));
+        p95.push(Number((expPrice + 1.96 * spread).toFixed(2)));
+      } else if (model === 'merton') {
+        const jumpDrift = effectiveDrift + jumpFreq * jumpSize;
+        const jumpVol = Math.sqrt(Math.pow(effectiveVol, 2) + jumpFreq * Math.pow(jumpSize, 2));
+        const expPrice = s0 * Math.exp(jumpDrift * t_yr);
+        const spread = expPrice * jumpVol * Math.sqrt(t_yr);
+        // Merton fat tails
+        p05.push(Number(Math.max(1, expPrice - 2.15 * spread).toFixed(2)));
+        p25.push(Number(Math.max(1, expPrice - 0.70 * spread).toFixed(2)));
+        median.push(Number(expPrice.toFixed(2)));
+        p75.push(Number((expPrice + 0.70 * spread).toFixed(2)));
+        p95.push(Number((expPrice + 2.15 * spread).toFixed(2)));
+      } else {
+        // Prophet mode (Piecewise trend + Fourier seasonality + uncertainty)
+        const trend = s0 * (1 + effectiveDrift * t_yr + 0.04 * Math.pow(t_yr, 1.5));
+        const seasonality = s0 * (0.018 * Math.sin(2 * Math.PI * i / 30.0) + 0.028 * Math.cos(2 * Math.PI * i / 90.0));
+        const pointForecast = Math.max(1, trend + seasonality);
+        const uncertainty = pointForecast * effectiveVol * Math.sqrt(t_yr) * 1.15;
+        p05.push(Number(Math.max(1, pointForecast - 1.96 * uncertainty).toFixed(2)));
+        p25.push(Number(Math.max(1, pointForecast - 0.67 * uncertainty).toFixed(2)));
+        median.push(Number(pointForecast.toFixed(2)));
+        p75.push(Number((pointForecast + 0.67 * uncertainty).toFixed(2)));
+        p95.push(Number((pointForecast + 1.96 * uncertainty).toFixed(2)));
       }
     }
 
-    if (!specData) return;
+    const termMedian = median[median.length - 1];
+    const termP95 = p95[p95.length - 1];
+    const termP05 = p05[p05.length - 1];
 
-    // Update Ribbon Metrics
-    document.getElementById('specSpotPrice').textContent = formatMoney(specData.current_price || sec.priceINR);
-    document.getElementById('specExpPrice').textContent = formatMoney(specData.terminal_metrics.expected_price);
-    document.getElementById('specMedianPrice').textContent = formatMoney(specData.terminal_metrics.median_price);
-    document.getElementById('specP95Price').textContent = formatMoney(specData.terminal_metrics.p95_best_case);
-    document.getElementById('specP05Price').textContent = formatMoney(specData.terminal_metrics.p05_worst_case);
-    document.getElementById('specVar99').textContent = formatPercent(specData.terminal_metrics.var_99 * 100);
+    let probPositive, probGain10, probGain25, probLoss10, probLoss25, var99, expDisplayPrice, p95Display, p05Display;
+
+    if (stance === 'long') {
+      const zScore = (effectiveDrift) / Math.max(0.05, effectiveVol);
+      probPositive = Math.min(99, Math.max(1, Math.round(50 + zScore * 20)));
+      probGain10 = Math.min(96, Math.max(1, Math.round(45 + zScore * 18)));
+      probGain25 = Math.min(88, Math.max(1, Math.round(25 + zScore * 15)));
+      probLoss10 = Math.min(85, Math.max(1, Math.round(25 - zScore * 12)));
+      probLoss25 = Math.min(65, Math.max(1, Math.round(10 - zScore * 8)));
+      var99 = ((termP05 - s0) / s0);
+      expDisplayPrice = termMedian;
+      p95Display = termP95;
+      p05Display = termP05;
+    } else {
+      // Short position: profit when price falls!
+      const zScoreShort = (-effectiveDrift) / Math.max(0.05, effectiveVol);
+      probPositive = Math.min(99, Math.max(1, Math.round(50 + zScoreShort * 20)));
+      probGain10 = Math.min(96, Math.max(1, Math.round(45 + zScoreShort * 18))); // Price drops >= 10%
+      probGain25 = Math.min(88, Math.max(1, Math.round(25 + zScoreShort * 15))); // Price drops >= 25%
+      probLoss10 = Math.min(85, Math.max(1, Math.round(25 - zScoreShort * 12))); // Price rises >= 10% (Short squeeze)
+      probLoss25 = Math.min(65, Math.max(1, Math.round(10 - zScoreShort * 8)));  // Price rises >= 25% (Violent squeeze)
+      var99 = ((s0 - termP95) / s0); // Squeeze loss
+      expDisplayPrice = s0 + (s0 - termMedian); // Short payoff
+      p95Display = termP05; // Target price for short
+      p05Display = termP95; // Squeeze risk price
+    }
+
+    const specData = {
+      symbol: sec.symbol,
+      current_price: s0,
+      dates,
+      fan_chart: { p05, p25, median, p75, p95 },
+      stance,
+      probabilities: { prob_positive: probPositive, prob_gain_10: probGain10, prob_gain_25: probGain25, prob_loss_10: probLoss10, prob_loss_25: probLoss25 },
+      terminal_metrics: { expected_price: expDisplayPrice, median_price: termMedian, p95_best_case: p95Display, p05_worst_case: p05Display, var_99: var99 }
+    };
+
+    // Update Ribbon
+    document.getElementById('specSpotPrice').textContent = formatMoney(s0);
+    document.getElementById('specExpPrice').textContent = formatMoney(expDisplayPrice);
+    document.getElementById('specMedianPrice').textContent = formatMoney(termMedian);
+    document.getElementById('specP95Price').textContent = formatMoney(p95Display);
+    document.getElementById('specP05Price').textContent = formatMoney(p05Display);
+    document.getElementById('specVar99').textContent = `${(var99 * 100).toFixed(1)}%`;
 
     // Update Probability Bars
-    const probs = specData.probabilities;
-    document.getElementById('specProbGain10').textContent = `${probs.prob_gain_10}%`;
-    document.getElementById('specProbBarGain10').style.width = `${probs.prob_gain_10}%`;
-    document.getElementById('specProbGain25').textContent = `${probs.prob_gain_25}%`;
-    document.getElementById('specProbBarGain25').style.width = `${probs.prob_gain_25}%`;
-    document.getElementById('specProbLoss10').textContent = `${probs.prob_loss_10}%`;
-    document.getElementById('specProbBarLoss10').style.width = `${probs.prob_loss_10}%`;
-    document.getElementById('specProbLoss25').textContent = `${probs.prob_loss_25}%`;
-    document.getElementById('specProbBarLoss25').style.width = `${probs.prob_loss_25}%`;
-    document.getElementById('specProbPositive').textContent = `${probs.prob_positive}%`;
-    document.getElementById('specProbBarPositive').style.width = `${probs.prob_positive}%`;
+    document.getElementById('specProbGain10').textContent = `${probGain10}%`;
+    document.getElementById('specProbBarGain10').style.width = `${probGain10}%`;
+    document.getElementById('specProbGain25').textContent = `${probGain25}%`;
+    document.getElementById('specProbBarGain25').style.width = `${probGain25}%`;
+    document.getElementById('specProbLoss10').textContent = `${probLoss10}%`;
+    document.getElementById('specProbBarLoss10').style.width = `${probLoss10}%`;
+    document.getElementById('specProbLoss25').textContent = `${probLoss25}%`;
+    document.getElementById('specProbBarLoss25').style.width = `${probLoss25}%`;
+    document.getElementById('specProbPositive').textContent = `${probPositive}%`;
+    document.getElementById('specProbBarPositive').style.width = `${probPositive}%`;
 
-    // Render Fan Chart on Canvas
+    // Update Formula Banner & Plain English
+    const formulaEl = document.getElementById('specMathFormula');
+    const plainEl = document.getElementById('scenarioPlainEnglish');
+    const badgeEl = document.getElementById('specProcessBadge');
+
+    if (badgeEl) badgeEl.textContent = `${model.toUpperCase()} ${stance.toUpperCase()} PROCESS SPECIFICATION`;
+
+    if (formulaEl) {
+      if (model === 'gbm') {
+        formulaEl.innerHTML = stance === 'long'
+          ? `\\[ dS_t = \\mu S_t dt + \\sigma S_t dW_t \\]`
+          : `\\[ \\Pi_{\\text{short}} = S_0 - S_t, \\quad dS_t = \\mu S_t dt + \\sigma S_t dW_t \\]`;
+      } else if (model === 'merton') {
+        formulaEl.innerHTML = stance === 'long'
+          ? `\\[ dS_t = (\\mu - \\lambda k) S_t dt + \\sigma S_t dW_t + J_t dN_t \\]`
+          : `\\[ \\Pi_{\\text{short}} = S_0 - S_t, \\quad dS_t = (\\mu - \\lambda k) S_t dt + \\sigma S_t dW_t + J_t dN_t \\]`;
+      } else {
+        formulaEl.innerHTML = `\\[ y(t) = g(t) + s(t) + h(t) + \\epsilon_t \\]`;
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([formulaEl]).catch(() => {});
+      }
+    }
+
+    if (plainEl) {
+      const roi = (((expDisplayPrice - s0) / s0) * 100).toFixed(1);
+      plainEl.textContent = stance === 'long'
+        ? `Under current parameters (${horizon}D, μ = ${(effectiveDrift*100).toFixed(1)}%, σ = ${(effectiveVol*100).toFixed(1)}%), Long probability of profit is ${probPositive}% with an expected return of ${roi >= 0 ? '+' : ''}${roi}% and tail VaR of ${(var99*100).toFixed(1)}%.`
+        : `Under current Bearish stance (${horizon}D, μ = ${(effectiveDrift*100).toFixed(1)}%, σ = ${(effectiveVol*100).toFixed(1)}%), Short win probability is ${probPositive}%. Short Squeeze risk (95th %ile upside) is capped at ${formatMoney(termP95)} (Max Squeeze VaR: ${(var99*100).toFixed(1)}%).`;
+    }
+
     renderSpecFanCanvas(specData);
   };
 
@@ -2238,6 +2403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.height = h * dpr;
     ctx.scale(dpr, dpr);
 
+    const s0 = data.current_price;
     const dates = data.dates || [];
     const p05 = data.fan_chart.p05;
     const p25 = data.fan_chart.p25;
@@ -2245,6 +2411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const p75 = data.fan_chart.p75;
     const p95 = data.fan_chart.p95;
     const n = dates.length;
+    const isShort = data.stance === 'short';
 
     const padL = 60, padR = 25, padT = 20, padB = 24;
     const plotW = w - padL - padR;
@@ -2293,7 +2460,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const visibleN = Math.max(2, Math.round(n * animProgress));
 
       // Outer Fan (P05 to P95)
-      ctx.fillStyle = 'rgba(34, 211, 238, 0.08)';
+      ctx.fillStyle = isShort ? 'rgba(255, 107, 107, 0.08)' : 'rgba(34, 211, 238, 0.08)';
       ctx.beginPath();
       ctx.moveTo(getX(0), getY(p95[0]));
       for (let i = 1; i < visibleN; i++) ctx.lineTo(getX(i), getY(p95[i]));
@@ -2302,7 +2469,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fill();
 
       // Inner Fan (P25 to P75)
-      ctx.fillStyle = 'rgba(34, 211, 238, 0.16)';
+      ctx.fillStyle = isShort ? 'rgba(255, 107, 107, 0.16)' : 'rgba(34, 211, 238, 0.16)';
       ctx.beginPath();
       ctx.moveTo(getX(0), getY(p75[0]));
       for (let i = 1; i < visibleN; i++) ctx.lineTo(getX(i), getY(p75[i]));
@@ -2311,7 +2478,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fill();
 
       // P95 Curve
-      ctx.strokeStyle = 'rgba(34, 211, 238, 0.6)';
+      ctx.strokeStyle = isShort ? 'rgba(255, 107, 107, 0.6)' : 'rgba(34, 211, 238, 0.6)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(getX(0), getY(p95[0]));
@@ -2319,17 +2486,17 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.stroke();
 
       // P05 Curve
-      ctx.strokeStyle = 'rgba(255, 107, 107, 0.6)';
+      ctx.strokeStyle = isShort ? 'rgba(81, 207, 102, 0.6)' : 'rgba(255, 107, 107, 0.6)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(getX(0), getY(p05[0]));
       for (let i = 1; i < visibleN; i++) ctx.lineTo(getX(i), getY(p05[i]));
       ctx.stroke();
 
-      // Median Expected Trajectory (P50)
+      // Median Line (P50)
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 2.4;
-      ctx.shadowColor = 'rgba(34, 211, 238, 0.4)';
+      ctx.shadowColor = isShort ? 'rgba(255, 107, 107, 0.4)' : 'rgba(34, 211, 238, 0.4)';
       ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.moveTo(getX(0), getY(med[0]));
@@ -2339,7 +2506,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Flowing Stochastic Particles
       if (animProgress >= 0.95) {
-        ctx.fillStyle = 'rgba(34, 211, 238, 0.75)';
+        ctx.fillStyle = isShort ? 'rgba(255, 107, 107, 0.75)' : 'rgba(34, 211, 238, 0.75)';
         particles.forEach(pt => {
           pt.xRatio = (pt.xRatio + pt.speed) % 1.0;
           const idx = Math.min(n - 1, Math.floor(pt.xRatio * (n - 1)));
@@ -2354,10 +2521,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      // Crosshair & On-Canvas HUD Tooltip
+      // Crosshair & Tooltip
       if (crossIdx >= 0 && crossIdx < n) {
         const cx = getX(crossIdx);
         const cy = getY(med[crossIdx]);
+        const pSlice = med[crossIdx];
+        const pnl = isShort ? ((s0 - pSlice) / s0 * 100) : ((pSlice - s0) / s0 * 100);
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
         ctx.setLineDash([3, 3]);
@@ -2367,20 +2536,19 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // Median Marker Dot
-        ctx.fillStyle = '#22d3ee';
+        ctx.fillStyle = isShort ? '#FF6B6B' : '#22d3ee';
         ctx.beginPath();
         ctx.arc(cx, cy, 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // On-Canvas HUD Box
-        const tooltipW = 160;
-        const tooltipH = 65;
+        // On-Canvas HUD Tooltip Box
+        const tooltipW = 175;
+        const tooltipH = 68;
         const tooltipX = cx + 15 + tooltipW > w - padR ? cx - tooltipW - 15 : cx + 15;
         const tooltipY = Math.max(padT + 10, Math.min(h - padB - tooltipH - 10, cy - 30));
 
-        ctx.fillStyle = 'rgba(9, 9, 12, 0.92)';
-        ctx.strokeStyle = 'rgba(34, 211, 238, 0.35)';
+        ctx.fillStyle = 'rgba(9, 9, 12, 0.94)';
+        ctx.strokeStyle = isShort ? 'rgba(255, 107, 107, 0.4)' : 'rgba(34, 211, 238, 0.4)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.roundRect(tooltipX, tooltipY, tooltipW, tooltipH, 6);
@@ -2394,20 +2562,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 11px Inter, sans-serif';
-        ctx.fillText(`Median: ${formatMoney(med[crossIdx])}`, tooltipX + 8, tooltipY + 32);
+        ctx.fillText(`Price: ${formatMoney(med[crossIdx])}`, tooltipX + 8, tooltipY + 32);
 
-        ctx.fillStyle = '#22d3ee';
-        ctx.font = '10px Inter, sans-serif';
-        ctx.fillText(`P95: ${formatMoney(p95[crossIdx])}`, tooltipX + 8, tooltipY + 46);
+        ctx.fillStyle = pnl >= 0 ? '#51CF66' : '#FF6B6B';
+        ctx.font = 'bold 10px Inter, sans-serif';
+        ctx.fillText(`${isShort ? 'Short' : 'Long'} P&L: ${pnl >= 0 ? '+' : ''}${pnl.toFixed(1)}%`, tooltipX + 8, tooltipY + 48);
 
-        ctx.fillStyle = '#FF6B6B';
-        ctx.fillText(`P05: ${formatMoney(p05[crossIdx])}`, tooltipX + 85, tooltipY + 46);
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9px Inter, sans-serif';
+        ctx.fillText(`P95: ${formatMoney(p95[crossIdx])} • P05: ${formatMoney(p05[crossIdx])}`, tooltipX + 8, tooltipY + 60);
       }
     };
 
-    // Smooth Entrance Animation
     const animate = () => {
-      animProgress += 0.05;
+      animProgress += 0.06;
       if (animProgress > 1.0) animProgress = 1.0;
       draw();
       if (animProgress < 1.0) {
@@ -2418,7 +2586,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (animId) cancelAnimationFrame(animId);
     animate();
 
-    // Loop particle movement when idle
     let particleLoop = null;
     const runParticleLoop = () => {
       if (animProgress >= 1.0 && crossIdx === -1) {
@@ -2839,38 +3006,6 @@ document.addEventListener('DOMContentLoaded', () => {
       renderObservatoryDiscoveryFeed();
     });
   });
-
-  // ── 23. Macro Driver Sliders for Scenario Desk ─────────────────────────────
-  const specRateShiftSlider = document.getElementById('specRateShiftSlider');
-  const specInflationSlider = document.getElementById('specInflationSlider');
-  const specEarningsSlider = document.getElementById('specEarningsSlider');
-
-  if (specRateShiftSlider) {
-    specRateShiftSlider.addEventListener('input', (e) => {
-      const v = parseInt(e.target.value, 10);
-      document.getElementById('specRateShiftVal').textContent = `${v >= 0 ? '+' : ''}${v} bps`;
-      activeSpecState.drift = 0.12 - (v / 10000.0) * 1.5;
-      renderSpeculationsDesk();
-    });
-  }
-
-  if (specInflationSlider) {
-    specInflationSlider.addEventListener('input', (e) => {
-      const v = parseFloat(e.target.value);
-      document.getElementById('specInflationVal').textContent = `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
-      activeSpecState.volMult = 1.0 + Math.abs(v) * 0.15;
-      renderSpeculationsDesk();
-    });
-  }
-
-  if (specEarningsSlider) {
-    specEarningsSlider.addEventListener('input', (e) => {
-      const v = parseInt(e.target.value, 10);
-      document.getElementById('specEarningsVal').textContent = `${v >= 0 ? '+' : ''}${v}%`;
-      activeSpecState.drift = 0.12 + (v / 100.0) * 0.8;
-      renderSpeculationsDesk();
-    });
-  }
 
   // ── 24. Hero Prompt Chips & Counters ───────────────────────────────────────
   document.querySelectorAll('.prompt-chip').forEach((chip) => {
