@@ -37,14 +37,21 @@ class MarketAggregator:
 
     def _is_indian_symbol(self, symbol: str) -> bool:
         sym = symbol.upper().replace(".NS", "").replace("^", "").strip()
-        indian_known = [
-            "RELIANCE", "TCS", "HDFCBANK", "INFY", "ICICIBANK", "SBIN", "BHARTIARTL",
-            "ITC", "TATAMOTORS", "LT", "HINDUNILVR", "AXISBANK", "MARUTI", "SUNPHARMA",
-            "BAJFINANCE", "TITAN", "ASIANPAINT", "KOTAKBANK", "ZOMATO", "PAYTM", "ADANIENT",
-            "WIPRO", "HCLTECH", "NIFTYBEES", "GOLDBEES", "SILVERBEES", "ITBEES",
-            "NSEI", "NIFTY", "NIFTY 50", "BSESN", "SENSEX", "NSEBANK", "BANKNIFTY", "CNXIT"
-        ]
-        return sym in indian_known or symbol.upper().endswith(".NS") or symbol.upper().endswith(".BO") or symbol.upper().startswith("^NSE")
+        us_known = {
+            "AAPL", "NVDA", "MSFT", "GOOGL", "GOOG", "AMZN", "META", "TSLA", "NFLX", "AMD",
+            "INTC", "QCOM", "AVGO", "TXN", "MU", "ARM", "JPM", "V", "MA", "BAC", "WFC",
+            "GS", "MS", "BRK-B", "BRK-A", "WMT", "COST", "TGT", "HD", "MCD", "NKE", "SBUX",
+            "DIS", "KO", "PEP", "PG", "JNJ", "PFE", "UNH", "LLY", "ABBV", "MRK", "XOM",
+            "CVX", "COP", "SLB", "BA", "CAT", "GE", "HON", "UPS", "SPY", "QQQ", "DIA",
+            "IWM", "VOO", "IVV", "VTI", "GLD", "SLV", "USO", "TLT", "BND", "BABA", "PDD",
+            "NIO", "PLTR", "UBER", "ABNB", "COIN", "SNOW", "PANW", "CRWD", "NOW", "SHOP",
+            "GSPC", "IXIC", "DJI", "RUT"
+        }
+        if sym in us_known:
+            return False
+        if symbol.upper().startswith("^GSPC") or symbol.upper().startswith("^IXIC") or symbol.upper().startswith("^DJI"):
+            return False
+        return True
 
     def get_quote(self, symbol: str) -> Dict[str, Any]:
         """
