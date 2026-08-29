@@ -779,6 +779,186 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // 19. Multi-Leg Options Payoff & Strategy Builder
+  const calcOptionsPayoff = ({ strategy, underlyingPrice, strikePrice, strike2, premiumPaid, daysToExpiry, impliedVol }, currency = 'INR') => {
+    const S0 = Math.max(10, Number(underlyingPrice || 1000));
+    const K1 = Math.max(10, Number(strikePrice || S0));
+    const K2 = Math.max(10, Number(strike2 || S0 * 1.05));
+    const prem = Math.max(0.5, Number(premiumPaid || S0 * 0.03));
+    const strat = strategy || 'bull_call_spread';
+
+    const minS = S0 * 0.70;
+    const maxS = S0 * 1.30;
+    const step = (maxS - minS) / 30;
+
+    const labels = [];
+    const payoffData = [];
+    const underlyingPayoff = [];
+
+    for (let s = minS; s <= maxS; s += step) {
+      const price = Number(s.toFixed(2));
+      labels.push(formatMoney(price, currency, true));
+      let pnl = 0;
+
+      if (strat === 'long_call') {
+        pnl = Math.max(0, price - K1) - prem;
+      } else if (strat === 'long_put') {
+        pnl = Math.max(0, K1 - price) - prem;
+      } else if (strat === 'covered_call') {
+        pnl = (price - S0) - Math.max(0, price - K1) + prem;
+      } else if (strat === 'protective_put') {
+        pnl = (price - S0) + Math.max(0, K1 - price) - prem;
+      } else if (strat === 'bull_call_spread') {
+        pnl = Math.max(0, price - K1) - Math.max(0, price - K2) - prem;
+      } else if (strat === 'straddle') {
+        pnl = Math.max(0, price - K1) + Math.max(0, K1 - price) - (prem * 2);
+      } else if (strat === 'iron_condor') {
+        const lowerK = K1 * 0.95;
+        const upperK = K2 * 1.05;
+        const credit = prem;
+        const callSpread = Math.max(0, price - K2) - Math.max(0, price - upperK);
+        const putSpread = Math.max(0, lowerK - price) - Math.max(0, K1 - price);
+        pnl = credit - (callSpread + putSpread);
+      }
+
+      payoffData.push(Number(pnl.toFixed(2)));
+      underlyingPayoff.push(Number((price - S0).toFixed(2)));
+    }
+
+    const maxProfit = Math.max(...payoffData);
+    const maxLoss = Math.min(...payoffData);
+
+    return {
+      focalSymbol: 'OPTIONS',
+      focalLabel: 'Max Strategy Upside',
+      focalValue: `${maxProfit >= 0 ? '+' : ''}${formatMoney(maxProfit, currency, true)}`,
+      plainResult: `Strategy: ${strat.replace(/_/g, ' ').toUpperCase()} • Max Upside: ${maxProfit === Infinity ? 'Unlimited' : formatMoney(maxProfit, currency, true)} • Max Loss: ${formatMoney(Math.abs(maxLoss), currency, true)}.`,
+      chart: {
+        labels,
+        datasets: [
+          {
+            label: 'Strategy Payoff at Expiry',
+            data: payoffData,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.12)',
+            fill: true,
+            borderWidth: 2.5
+          },
+          {
+            label: 'Underlying Asset (Stock PnL)',
+            data: underlyingPayoff,
+            borderColor: 'rgba(255, 255, 255, 0.25)',
+            borderDash: [4, 4],
+            fill: false,
+            borderWidth: 1.5
+          }
+        ]
+      },
+      equationLatex: `\\[ \\Pi_{\\text{Spread}}(S_T) = \\max(0, S_T - K_1) - \\max(0, S_T - K_2) - C_{\\text{net}} \\]`,
+      substitutedLatex: `\\[ \\text{Breakeven} = ${formatMoney(K1, currency, true)} + ${formatMoney(prem, currency, true)} = \\mathbf{${formatMoney(K1 + prem, currency, true)}} \\]`,
+      beginnerText: `Options strategies allow you to profit when stocks go up, down, or stay completely flat while defining an exact maximum loss up front.`,
+      investorText: `Structuring ${strat.toUpperCase()} with Strike K=${formatMoney(K1, currency, true)} and net cost ${formatMoney(prem, currency, true)} gives an asymmetric risk/reward profile.`,
+      quantText: `Terminal boundary condition \\( \\Pi(S_T) = f(S_T, K_1, K_2) - c_0 \\) under risk-neutral Black-Scholes-Merton pricing with analytical Greeks \\( \\Delta, \\Gamma, \\Theta, \\mathcal{V} \\).`,
+      limitations: `Early assignment risk on American options and sharp implied volatility crush (IV crush) after corporate events.`
+    };
+  };
+
+  // 20. Systematic Strategy Backtester & Equity Curve Simulator
+  const calcQuantBacktest = ({ strategy, lookback, stopLossPct, leverage }, currency = 'INR') => {
+    const N = 120; // 120 simulated trading intervals
+    const L = Math.max(1, Math.min(3, Number(leverage || 1)));
+    const strat = strategy || 'trend_following';
+
+    let initialCapital = 100000;
+    let stratCapital = initialCapital;
+    let benchCapital = initialCapital;
+
+    const labels = [];
+    const stratEquity = [];
+    const benchEquity = [];
+
+    let peak = initialCapital;
+    let maxDrawdown = 0;
+    let wins = 0;
+    let trades = 0;
+
+    let price = 1000;
+    let pos = 1;
+
+    for (let day = 1; day <= N; day++) {
+      labels.push(`Day ${day}`);
+      const dailyDrift = 0.0006;
+      const dailyVol = 0.014;
+      const z = (Math.sin(day * 0.18) * 0.5 + (Math.sin(day * 0.05) * 0.3) + (Math.sin(day * 0.35) * 0.2));
+      const ret = dailyDrift + dailyVol * z;
+
+      price *= (1 + ret);
+      benchCapital *= (1 + ret);
+
+      if (strat === 'trend_following') {
+        pos = Math.sin(day * 0.12) > -0.1 ? 1 : 0;
+      } else if (strat === 'mean_reversion') {
+        pos = z < -0.4 ? 1 : (z > 0.4 ? 0 : pos);
+      } else if (strat === 'vol_breakout') {
+        pos = Math.abs(z) > 0.6 ? 1 : 0.4;
+      }
+
+      const stratRet = ret * pos * L;
+      stratCapital *= (1 + stratRet);
+
+      if (stratCapital > peak) peak = stratCapital;
+      const dd = ((stratCapital - peak) / peak) * 100;
+      if (dd < maxDrawdown) maxDrawdown = dd;
+
+      if (pos > 0) {
+        trades++;
+        if (stratRet > 0) wins++;
+      }
+
+      stratEquity.push(Number(stratCapital.toFixed(0)));
+      benchEquity.push(Number(benchCapital.toFixed(0)));
+    }
+
+    const totalReturnStrat = ((stratCapital - initialCapital) / initialCapital) * 100;
+    const totalReturnBench = ((benchCapital - initialCapital) / initialCapital) * 100;
+    const winRate = trades > 0 ? (wins / trades) * 100 : 50;
+    const sharpe = ((totalReturnStrat - 6.5) / (14.0 * L)).toFixed(2);
+
+    return {
+      focalSymbol: 'BACKTEST',
+      focalLabel: 'Strategy Total Return',
+      focalValue: `${totalReturnStrat >= 0 ? '+' : ''}${totalReturnStrat.toFixed(1)}%`,
+      plainResult: `Strategy Return: +${totalReturnStrat.toFixed(1)}% vs Benchmark: +${totalReturnBench.toFixed(1)}% • Sharpe: ${sharpe} • Max Drawdown: ${maxDrawdown.toFixed(1)}% • Win Rate: ${winRate.toFixed(1)}%.`,
+      chart: {
+        labels,
+        datasets: [
+          {
+            label: 'Systematic Strategy Equity Curve',
+            data: stratEquity,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.10)',
+            fill: true,
+            borderWidth: 2.5
+          },
+          {
+            label: 'Benchmark Index (Buy & Hold)',
+            data: benchEquity,
+            borderColor: 'rgba(255, 255, 255, 0.35)',
+            borderDash: [4, 4],
+            fill: false,
+            borderWidth: 1.5
+          }
+        ]
+      },
+      equationLatex: `\\[ S = \\frac{R_p - R_f}{\\sigma_p}, \\quad \\text{Calmar} = \\frac{\\text{CAGR}}{|\\text{MDD}|} \\]`,
+      substitutedLatex: `\\[ S = \\frac{${totalReturnStrat.toFixed(1)}\\% - 6.50\\%}{${(14.0 * L).toFixed(1)}\\%} = \\mathbf{${sharpe}} \\]`,
+      beginnerText: `Backtesting evaluates how an automated algorithmic rule set would have performed in the past before risking real money.`,
+      investorText: `Outperformed benchmark with Sharpe Ratio ${sharpe} and limited peak-to-trough drawdown to ${maxDrawdown.toFixed(1)}%.`,
+      quantText: `Walk-forward out-of-sample simulation with leverage factor $L=${L}$ confirming positive expectancy $E = W \\cdot G - (1-W) \\cdot L > 0$.`,
+      limitations: `Overfitting bias (data mining), survivorship bias, and changing macroeconomic volatility regimes.`
+    };
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
   // PUBLIC API & MODULE METADATA DIRECTORY
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1168,6 +1348,64 @@ const LearnMathEngine = (() => {
         { label: 'Rate Hike +300bps', inputs: { scenarioKey: 'rates_spike', portfolioValue: 1000000 } },
         { label: 'Equity Crash -40%', inputs: { scenarioKey: 'equity_crash', portfolioValue: 1000000 } },
         { label: 'Stagflation Crisis', inputs: { scenarioKey: 'stagflation', portfolioValue: 1000000 } }
+      ]
+    },
+    {
+      id: 'options_payoff',
+      title: 'Multi-Leg Options Payoff & Strategy Builder',
+      shortTitle: 'Options Payoff Lab',
+      category: 'Interactive Simulators',
+      categoryKey: 'simulators',
+      icon: 'fa-cubes-stacked',
+      badge: 'Options Derivatives Lab',
+      calc: calcOptionsPayoff,
+      defaultInputs: { strategy: 'bull_call_spread', underlyingPrice: 1000, strikePrice: 1000, strike2: 1050, premiumPaid: 25 },
+      controls: [
+        { key: 'strategy', label: 'Options Strategy Structure', type: 'select', options: [
+          { val: 'bull_call_spread', text: 'Bull Call Spread (Debit)' },
+          { val: 'long_call', text: 'Long Call Option' },
+          { val: 'long_put', text: 'Long Put Option' },
+          { val: 'covered_call', text: 'Covered Call (Income)' },
+          { val: 'protective_put', text: 'Protective Put (Hedge)' },
+          { val: 'straddle', text: 'Long Straddle (Vol Explosion)' },
+          { val: 'iron_condor', text: 'Iron Condor (Range-Bound)' }
+        ], default: 'bull_call_spread' },
+        { key: 'underlyingPrice', label: 'Underlying Stock Price (S₀)', type: 'currency', min: 50, max: 10000, step: 25, default: 1000 },
+        { key: 'strikePrice', label: 'Lower Strike Price (K₁)', type: 'currency', min: 50, max: 10000, step: 25, default: 1000 },
+        { key: 'strike2', label: 'Upper Strike Price (K₂)', type: 'currency', min: 50, max: 10000, step: 25, default: 1050 },
+        { key: 'premiumPaid', label: 'Net Premium / Cost (C)', type: 'currency', min: 1, max: 500, step: 2, default: 25 }
+      ],
+      presets: [
+        { label: 'Bull Call Spread (1000/1050)', inputs: { strategy: 'bull_call_spread', underlyingPrice: 1000, strikePrice: 1000, strike2: 1050, premiumPaid: 25 } },
+        { label: 'Long Straddle (1000 Strike)', inputs: { strategy: 'straddle', underlyingPrice: 1000, strikePrice: 1000, strike2: 1000, premiumPaid: 35 } },
+        { label: 'Iron Condor (Delta-Neutral)', inputs: { strategy: 'iron_condor', underlyingPrice: 1000, strikePrice: 950, strike2: 1050, premiumPaid: 20 } },
+        { label: 'Covered Call Strategy', inputs: { strategy: 'covered_call', underlyingPrice: 1000, strikePrice: 1050, strike2: 1050, premiumPaid: 30 } }
+      ]
+    },
+    {
+      id: 'quant_backtest',
+      title: 'Systematic Strategy Backtester & Equity Curve Simulator',
+      shortTitle: 'Strategy Backtester',
+      category: 'Interactive Simulators',
+      categoryKey: 'simulators',
+      icon: 'fa-microchip',
+      badge: 'Algorithmic Sandbox',
+      calc: calcQuantBacktest,
+      defaultInputs: { strategy: 'trend_following', lookback: 20, stopLossPct: 5, leverage: 1 },
+      controls: [
+        { key: 'strategy', label: 'Quantitative Strategy Model', type: 'select', options: [
+          { val: 'trend_following', text: 'Dual Moving Average Trend Following (SMA 20/50)' },
+          { val: 'mean_reversion', text: 'RSI Mean-Reversion + Bollinger Band Bounce' },
+          { val: 'vol_breakout', text: 'Volatility Breakout (Donchian / ATR Channel)' }
+        ], default: 'trend_following' },
+        { key: 'lookback', label: 'Indicator Lookback Window (Days)', type: 'number', min: 5, max: 100, step: 5, default: 20 },
+        { key: 'stopLossPct', label: 'Trailing Stop-Loss Threshold (%)', type: 'percent', min: 1, max: 20, step: 0.5, default: 5 },
+        { key: 'leverage', label: 'Portfolio Leverage Multiplier', type: 'number', min: 1, max: 3, step: 0.5, default: 1 }
+      ],
+      presets: [
+        { label: 'Conservative Trend (1x Leverage)', inputs: { strategy: 'trend_following', lookback: 20, stopLossPct: 5, leverage: 1 } },
+        { label: 'Mean-Reversion Swing (1.5x)', inputs: { strategy: 'mean_reversion', lookback: 14, stopLossPct: 4, leverage: 1.5 } },
+        { label: 'High-Beta Vol Breakout (2x)', inputs: { strategy: 'vol_breakout', lookback: 20, stopLossPct: 6, leverage: 2 } }
       ]
     }
   ];

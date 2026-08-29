@@ -1032,9 +1032,10 @@
       });
     }
 
-    // 12. Setup AI and Command Palette
+    // 12. Setup AI, Command Palette and Macro Shock Slider
     setupAiObservatory();
     setupCommandPalette();
+    initMacroShockSlider();
 
     // 13. Deep linking check (e.g. ?symbol=RELIANCE or ?view=volume)
     const urlParams = new URLSearchParams(window.location.search);
@@ -1053,6 +1054,28 @@
         openDetailDrawer(match);
       }
     }
+  };
+
+  const initMacroShockSlider = () => {
+    const slider = document.getElementById('obsMacroRateSlider');
+    const valLabel = document.getElementById('obsMacroRateShockVal');
+    const peImpact = document.getElementById('obsMacroPeImpact');
+    const yieldImpact = document.getElementById('obsMacroYieldImpact');
+
+    if (!slider || !valLabel || !peImpact || !yieldImpact) return;
+
+    slider.addEventListener('input', (e) => {
+      const bps = parseInt(e.target.value, 10);
+      valLabel.textContent = `${bps >= 0 ? '+' : ''}${bps} bps`;
+
+      const peDelta = -(bps * 0.064);
+      peImpact.textContent = `${peDelta >= 0 ? '+' : ''}${peDelta.toFixed(1)}%`;
+      peImpact.className = peDelta >= 0 ? 'text-emerald' : 'text-red';
+
+      const yDelta = Math.round(bps * 0.76);
+      yieldImpact.textContent = `${yDelta >= 0 ? '+' : ''}${yDelta} bps`;
+      yieldImpact.className = yDelta <= 0 ? 'text-emerald' : 'text-red';
+    });
   };
 
   const initObsMarketRibbon = () => {
