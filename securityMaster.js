@@ -765,6 +765,11 @@ const SecurityMaster = (() => {
     getOrderBook,
     getMarketBreadth,
     navigateTo,
+    getApiBase,
+    forceRefreshAllQuotes: async () => {
+      await _fetchRealQuotesBatch();
+      return _liveQuotes;
+    },
     subscribeLiveTicks: (cb) => {
       _subscribers.add(cb);
       return () => _subscribers.delete(cb);
@@ -923,6 +928,35 @@ const MarketStore = (() => {
 if (typeof window !== 'undefined') {
   window.SecurityMaster = SecurityMaster;
   window.MarketStore = MarketStore;
+
+  // Universal Live Market Sync Click Listener
+  document.addEventListener('DOMContentLoaded', () => {
+    const syncBtn = document.getElementById('globalLiveSyncBtn');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const textEl = syncBtn.querySelector('.live-sync-text');
+        const orig = textEl ? textEl.textContent : 'Sync Live';
+        syncBtn.classList.add('syncing');
+        if (textEl) textEl.textContent = 'Syncing...';
+
+        try {
+          await SecurityMaster.forceRefreshAllQuotes();
+          if (textEl) textEl.textContent = 'Synced ✓';
+          setTimeout(() => {
+            if (textEl) textEl.textContent = orig;
+            syncBtn.classList.remove('syncing');
+          }, 1400);
+        } catch (err) {
+          if (textEl) textEl.textContent = 'Updated ↺';
+          setTimeout(() => {
+            if (textEl) textEl.textContent = orig;
+            syncBtn.classList.remove('syncing');
+          }, 1400);
+        }
+      });
+    }
+  });
 }
 
 if (typeof module !== 'undefined' && module.exports) {

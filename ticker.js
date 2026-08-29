@@ -776,8 +776,15 @@
       if (match) openSecurityDrawer(match);
     }
 
-    // 10. Live Trade Tape Stream
+    // 10. Live Trade Tape & Tick Stream
     setupLiveTradeTape();
+
+    if (typeof SecurityMaster !== 'undefined') {
+      SecurityMaster.subscribeLiveTicks((updates) => {
+        renderMarketRibbon();
+        renderTable();
+      });
+    }
   };
 
   const setupLiveTradeTape = () => {
