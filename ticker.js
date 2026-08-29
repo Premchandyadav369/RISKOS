@@ -50,9 +50,10 @@
     const track = document.getElementById('marketRibbonTrack');
     if (!track) return;
 
-    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT'];
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+    const renderList = [...benchmarks, ...benchmarks];
     
-    track.innerHTML = benchmarks.map(sym => {
+    track.innerHTML = renderList.map((sym, idx) => {
       const live = SecurityMaster._liveQuotes.get(sym);
       if (!live) return '';
       const chg = Number((live.price - live.previousClose).toFixed(2));
@@ -60,7 +61,7 @@
       const isUp = chg >= 0;
 
       return `
-        <div class="ribbon-item" data-symbol="${sym}" id="ribbon_${sym.replace(/[\^=]/g, '')}">
+        <div class="ribbon-item" data-symbol="${sym}" data-idx="${idx}">
           <span class="ribbon-symbol">${sym.replace('^', '')}</span>
           <span class="ribbon-price">${formatMoney(live.price, live.currency)}</span>
           <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>

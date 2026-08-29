@@ -1113,10 +1113,11 @@
     const track = document.getElementById('learnRibbonTrack');
     if (!track || typeof SecurityMaster === 'undefined') return;
 
-    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
+    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', 'MSFT', 'TSLA', 'SUZLON', 'IRFC'];
+    const renderList = [...benchmarks, ...benchmarks];
 
     const renderRibbon = () => {
-      track.innerHTML = benchmarks.map(sym => {
+      track.innerHTML = renderList.map((sym, idx) => {
         const live = SecurityMaster._liveQuotes.get(sym);
         if (!live) return '';
         const chg = Number((live.price - live.previousClose).toFixed(2));
@@ -1124,9 +1125,9 @@
         const isUp = chg >= 0;
 
         return `
-          <div class="ribbon-item" data-symbol="${sym}" id="learn_ribbon_${sym.replace(/[\^=]/g, '')}">
+          <div class="ribbon-item" data-symbol="${sym}" data-idx="${idx}">
             <span class="ribbon-symbol">${sym.replace('^', '')}</span>
-            <span class="ribbon-price">${LearnMathEngine.formatMoney(live.price, live.currency, true)}</span>
+            <span class="ribbon-price">${LearnMathEngine.formatMoney(live.price, live.currency, false)}</span>
             <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
           </div>
         `;
@@ -1157,13 +1158,12 @@
 
     SecurityMaster.subscribeLiveTicks((updates) => {
       updates.forEach(u => {
-        const cleanSym = u.symbol.replace(/[\^=]/g, '');
-        const el = document.getElementById(`learn_ribbon_${cleanSym}`);
-        if (el) {
+        const items = track.querySelectorAll(`.ribbon-item[data-symbol="${u.symbol}"]`);
+        items.forEach(el => {
           const pEl = el.querySelector('.ribbon-price');
           const cEl = el.querySelector('.ribbon-chg');
           if (pEl) {
-            pEl.textContent = LearnMathEngine.formatMoney(u.price, u.currency, true);
+            pEl.textContent = LearnMathEngine.formatMoney(u.price, u.currency, false);
             pEl.classList.remove('price-flash-up', 'price-flash-down');
             void pEl.offsetWidth;
             pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
@@ -1172,7 +1172,7 @@
             cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
             cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
           }
-        }
+        });
       });
     });
   };
