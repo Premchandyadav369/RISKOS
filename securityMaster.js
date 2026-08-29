@@ -100,50 +100,132 @@ const SecurityMaster = (() => {
     });
   });
 
-  const _startTickPipeline = () => {
-    if (_tickTimer) return;
-    _tickTimer = setInterval(() => {
-      const batchCount = 4 + Math.floor(Math.random() * 4);
+  const _fetchRealQuotesBatch = async () => {
+    try {
+      const symbols = LOCAL_REGISTRY.slice(0, 16).map(s => s.symbol).join(',');
+      const res = await fetch(`/api/market/quotes?symbols=${encodeURIComponent(symbols)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const updates = [];
+
+        Object.keys(data).forEach(sym => {
+          const q = data[sym];
+          if (!q || q.price === undefined || q.price === null) return;
+          
+          const oldQuote = _liveQuotes.get(sym) || _liveQuotes.get(q.symbol);
+          const oldP = oldQuote ? oldQuote.price : q.price;
+          const newP = q.price;
+          const delta = Number((newP - oldP).toFixed(2));
+
+          const updatedQuote = {
+            id: oldQuote ? oldQuote.id : `SEC:${sym}`,
+            symbol: q.symbol || sym,
+            name: q.name || (oldQuote ? oldQuote.name : sym),
+            exchange: q.exchange || (oldQuote ? oldQuote.exchange : 'NSE'),
+            assetType: q.asset_type || (oldQuote ? oldQuote.assetType : 'EQUITY'),
+            currency: q.currency || (oldQuote ? oldQuote.currency : 'INR'),
+            price: newP,
+            price_inr: q.price_inr || (q.currency === 'USD' ? Number((newP * USD_TO_INR).toFixed(2)) : newP),
+            previousClose: q.previous_close || (oldQuote ? oldQuote.previousClose : newP),
+            open: q.open || newP,
+            high: q.high || newP,
+            low: q.low || newP,
+            change: q.change !== undefined ? q.change : delta,
+            changePercent: q.change_percent !== undefined ? q.change_percent : (oldQuote && oldQuote.previousClose ? Number(((delta / oldQuote.previousClose) * 100).toFixed(2)) : 0),
+            change_percent: q.change_percent !== undefined ? q.change_percent : 0,
+            volume: q.volume || (oldQuote ? oldQuote.volume : 0),
+            provider: q.provider || 'Live Market Feed',
+            marketStatus: q.market_status || 'OPEN',
+            lastUpdated: Date.now(),
+            status: 'LIVE'
+          };
+
+          _liveQuotes.set(sym, updatedQuote);
+          _liveQuotes.set(updatedQuote.symbol, updatedQuote);
+
+          updates.push({
+            id: updatedQuote.id,
+            symbol: updatedQuote.symbol,
+            price: newP,
+            oldPrice: oldP,
+            delta: delta,
+            change: updatedQuote.change,
+            changePercent: updatedQuote.changePercent,
+            volume: updatedQuote.volume,
+            currency: updatedQuote.currency,
+            provider: updatedQuote.provider
+          });
+        });
+
+        if (updates.length > 0) {
+          _subscribers.forEach(cb => {
+            try { cb(updates); } catch (e) {}
+          });
+
+          if (_channel) {
+            try { _channel.postMessage({ type: 'TICK_UPDATE', payload: updates }); } catch (e) {}
+          }
+        }
+      }
+    } catch (e) {
+      // Offline fallback: gentle micro-tick jitter
       const updates = [];
-
-      for (let i = 0; i < batchCount; i++) {
-        const randIdx = Math.floor(Math.random() * LOCAL_REGISTRY.length);
-        const item = LOCAL_REGISTRY[randIdx];
-        const quote = _liveQuotes.get(item.symbol);
-        if (!quote) continue;
-
-        const sigma = item.vol || 0.20;
-        const deltaShock = (Math.random() - 0.495) * (sigma / Math.sqrt(252 * 6.5 * 3600)) * 14;
-        const newP = Math.max(0.1, Number((quote.price * (1 + deltaShock)).toFixed(2)));
+      const randIdx = Math.floor(Math.random() * LOCAL_REGISTRY.length);
+      const item = LOCAL_REGISTRY[randIdx];
+      const quote = _liveQuotes.get(item.symbol);
+      if (quote) {
+        const deltaShock = (Math.random() - 0.495) * 0.002;
+        const newP = Number((quote.price * (1 + deltaShock)).toFixed(2));
         const oldP = quote.price;
         quote.price = newP;
-        quote.volume += Math.floor(100 + Math.random() * 1200);
         quote.lastUpdated = Date.now();
-
-        const chg = Number((quote.price - quote.previousClose).toFixed(2));
-        const chgPct = Number(((chg / quote.previousClose) * 100).toFixed(2));
-
         updates.push({
           id: quote.id,
           symbol: quote.symbol,
           price: quote.price,
           oldPrice: oldP,
           delta: Number((newP - oldP).toFixed(2)),
-          change: chg,
-          changePercent: chgPct,
+          change: quote.change,
+          changePercent: quote.changePercent,
           volume: quote.volume,
           currency: quote.currency
         });
+        _subscribers.forEach(cb => { try { cb(updates); } catch (err) {} });
       }
+    }
+  };
 
-      _subscribers.forEach(cb => {
-        try { cb(updates); } catch (e) {}
-      });
+  const _startTickPipeline = () => {
+    if (_tickTimer) return;
+    // Initial fetch
+    _fetchRealQuotesBatch();
+    _tickTimer = setInterval(_fetchRealQuotesBatch, 2500);
 
-      if (_channel) {
-        try { _channel.postMessage({ type: 'TICK_UPDATE', payload: updates }); } catch (e) {}
-      }
-    }, 1100);
+    // Also connect to Server-Sent Events stream if available
+    if (typeof EventSource !== 'undefined') {
+      try {
+        const sse = new EventSource('/api/stream/market');
+        sse.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data && data.ticks) {
+              const updates = [];
+              Object.keys(data.ticks).forEach(sym => {
+                const q = data.ticks[sym];
+                if (q && q.price) {
+                  _liveQuotes.set(sym, { ..._liveQuotes.get(sym), ...q });
+                  updates.push({ symbol: sym, price: q.price, change: q.change, changePercent: q.change_percent });
+                }
+              });
+              if (updates.length > 0) {
+                _subscribers.forEach(cb => { try { cb(updates); } catch(e){} });
+              }
+            }
+          } catch(err) {}
+        };
+        sse.onerror = () => { sse.close(); };
+      } catch (e) {}
+    }
   };
 
   const _startTapePipeline = () => {
@@ -256,7 +338,7 @@ const SecurityMaster = (() => {
 
     // Call backend
     try {
-      const res = await fetch(`/api/instruments/quote?symbol=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/market/quote?symbol=${encodeURIComponent(query)}`);
       if (res.ok) {
         const qData = await res.json();
         if (qData && qData.price) {
@@ -265,8 +347,8 @@ const SecurityMaster = (() => {
             symbol: qData.symbol.replace('.NS', '').replace('.BO', ''),
             symbolNS: qData.symbol,
             name: qData.name || qData.symbol,
-            exchange: qData.symbol.endsWith('.NS') ? 'NSE' : (qData.symbol.endsWith('.BO') ? 'BSE' : 'US'),
-            assetType: 'EQUITY',
+            exchange: qData.exchange || 'NSE',
+            assetType: qData.asset_type || 'EQUITY',
             currency: qData.currency || 'INR',
             basePrice: qData.price,
             beta: 1.0,
@@ -285,7 +367,7 @@ const SecurityMaster = (() => {
       id: `DYNAMIC:${q}`,
       symbol: q,
       symbolNS: q.includes('.') ? q : (isUS ? q : `${q}.NS`),
-      name: `${q} Corporation`,
+      name: `${q}`,
       exchange: isUS ? 'NASDAQ' : (q.endsWith('.BO') ? 'BSE' : 'NSE'),
       assetType: 'EQUITY',
       currency: isUS ? 'USD' : 'INR',
@@ -303,6 +385,50 @@ const SecurityMaster = (() => {
 
   const getQuote = async (symbol) => {
     const sym = String(symbol).trim().toUpperCase();
+
+    // Query backend real-time multi-provider aggregator
+    try {
+      const res = await fetch(`/api/market/quote?symbol=${encodeURIComponent(sym)}`);
+      if (res.ok) {
+        const q = await res.json();
+        if (q && q.price !== undefined && q.price !== null) {
+          const regItem = LOCAL_REGISTRY.find(r => r.symbol === sym) || {};
+          const normalized = {
+            id: regItem.id || `SEC:${sym}`,
+            symbol: q.symbol || sym,
+            name: q.name || regItem.name || sym,
+            exchange: q.exchange || regItem.exchange || 'NSE',
+            assetType: q.asset_type || regItem.assetType || 'EQUITY',
+            currency: q.currency || regItem.currency || 'INR',
+            price: Number(q.price),
+            price_inr: q.price_inr || (q.currency === 'USD' ? Number((q.price * USD_TO_INR).toFixed(2)) : Number(q.price)),
+            open: Number(q.open || q.price),
+            high: Number(q.high || q.price),
+            low: Number(q.low || q.price),
+            previousClose: Number(q.previous_close || q.previousClose || q.price),
+            change: Number(q.change || 0),
+            changePercent: Number(q.change_percent || q.changePercent || 0),
+            change_percent: Number(q.change_percent || q.changePercent || 0),
+            volume: Number(q.volume || 0),
+            provider: q.provider || 'Live Market Feed',
+            marketStatus: q.market_status || 'OPEN',
+            pe: regItem.pe || 24.5,
+            beta: regItem.beta || 1.0,
+            eps: regItem.eps || 42.0,
+            roe: regItem.roe || 15.0,
+            sector: q.sector || regItem.sector || 'Equities',
+            isin: q.isin || regItem.isin || '-',
+            timestamp: q.timestamp || new Date().toISOString(),
+            status: 'LIVE'
+          };
+
+          _liveQuotes.set(sym, normalized);
+          return normalized;
+        }
+      }
+    } catch (e) {}
+
+    // In-memory cache fallback
     const live = _liveQuotes.get(sym);
     if (live) {
       const chg = Number((live.price - live.previousClose).toFixed(2));
@@ -337,13 +463,35 @@ const SecurityMaster = (() => {
       beta: sec.beta,
       eps: sec.eps,
       roe: sec.roe || 15.0,
+      provider: 'Baseline Registry',
       status: 'LIVE'
     };
   };
 
-  // ── 4. Dynamic OHLC Candles Generator ─────────────────────────────────────
+  // ── 4. Dynamic OHLC Candles Generator & Real-Data Historical Fetcher ───────
   const getOHLC = async (symbol, tf = '1Y') => {
     const sec = await resolveSecurity(symbol);
+    
+    // Try to fetch real candlestick bars from backend aggregator
+    try {
+      const res = await fetch(`/api/market/candles?symbol=${encodeURIComponent(sec.symbol)}&tf=${encodeURIComponent(tf)}&period=1Y`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.bars) && data.bars.length > 0) {
+          const mappedBars = data.bars.map(b => ({
+            date: b.time || b.date,
+            open: Number(b.open),
+            high: Number(b.high),
+            low: Number(b.low),
+            close: Number(b.close),
+            volume: Number(b.volume || 0)
+          }));
+          return { symbol: sec.symbol, tf, bars: mappedBars, provider: data.provider || 'Yahoo Finance' };
+        }
+      }
+    } catch (e) {}
+
+    // High-fidelity fallback
     const baseP = sec.basePrice || 1000.0;
     const days = tf === '1D' ? 24 : (tf === '1W' ? 35 : (tf === '1M' ? 30 : (tf === '3M' ? 65 : (tf === '1Y' ? 120 : 250))));
     const bars = [];
@@ -371,7 +519,7 @@ const SecurityMaster = (() => {
       cur = c;
     }
 
-    return { symbol: sec.symbol, tf, bars };
+    return { symbol: sec.symbol, tf, bars, provider: 'Generated Historical Corridor' };
   };
 
   // ── 5. Real-Time Order Book Depth with OFI ─────────────────────────────────

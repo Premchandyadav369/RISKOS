@@ -39,6 +39,12 @@ let charts = {
 
 // Utilities
 const formatCurrency = (val) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(val);
+const formatMoney = (val, currency = 'INR') => {
+    if (val === undefined || val === null || isNaN(val)) return ' - ';
+    const num = Number(val);
+    const sym = currency === 'USD' ? '$' : '₹';
+    return `${sym}${num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
 const formatPercent = (val) => ((val || 0) * 100).toFixed(2) + '%';
 const getWeights = (tickers) => tickers.map(() => 1 / tickers.length).join(',');
 
@@ -94,7 +100,7 @@ function initTerminalMarketRibbon() {
             return `
                 <div class="ribbon-item" data-symbol="${sym}" id="term_ribbon_${sym.replace(/[\^=]/g, '')}">
                     <span class="ribbon-symbol">${sym.replace('^', '')}</span>
-                    <span class="ribbon-price">${formatCurrency(live.price)}</span>
+                    <span class="ribbon-price">${formatMoney(live.price, live.currency)}</span>
                     <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
                 </div>
             `;
@@ -122,7 +128,7 @@ function initTerminalMarketRibbon() {
                 const pEl = el.querySelector('.ribbon-price');
                 const cEl = el.querySelector('.ribbon-chg');
                 if (pEl) {
-                    pEl.textContent = formatCurrency(u.price);
+                    pEl.textContent = formatMoney(u.price, u.currency);
                     pEl.classList.remove('price-flash-up', 'price-flash-down');
                     void pEl.offsetWidth;
                     pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
