@@ -754,6 +754,54 @@ const SecurityMaster = (() => {
     }
   };
 
+  // ── Web Audio Institutional Sound Synthesizer ─────────────────────────────
+  let _audioCtx = null;
+  const getAudioContext = () => {
+    if (typeof window === 'undefined') return null;
+    if (!_audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_audioCtx && _audioCtx.state === 'suspended') {
+      _audioCtx.resume();
+    }
+    return _audioCtx;
+  };
+
+  const playTickSound = (isUp = true) => {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(isUp ? 880 : 520, ctx.currentTime);
+      gain.gain.setValueAtTime(0.015, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.06);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.06);
+    } catch (e) {}
+  };
+
+  const playExecutionSound = () => {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    try {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.04, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.14);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.14);
+    } catch (e) {}
+  };
+
   return {
     USD_TO_INR,
     LOCAL_REGISTRY,
@@ -766,6 +814,8 @@ const SecurityMaster = (() => {
     getMarketBreadth,
     navigateTo,
     getApiBase,
+    playTickSound,
+    playExecutionSound,
     forceRefreshAllQuotes: async () => {
       await _fetchRealQuotesBatch();
       return _liveQuotes;

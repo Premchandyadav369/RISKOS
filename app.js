@@ -867,6 +867,9 @@ async function executeTrade(ticker, direction, qty) {
     
     // Refresh persistent database trade history
     fetchOrdersHistory();
+    if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+        SecurityMaster.playExecutionSound();
+    }
 }
 
 // Fallback generator if backend is starting up
