@@ -396,13 +396,34 @@
     }
   };
 
-  const renderDrawerChart = (sec) => {
+  const renderDrawerChart = async (sec) => {
     const canvas = document.getElementById('drawerCanvas');
     if (!canvas) return;
 
     if (state.drawerChart) {
-      state.drawerChart.destroy();
+      if (typeof state.drawerChart.destroy === 'function') state.drawerChart.destroy();
       state.drawerChart = null;
+    }
+
+    // Load real OHLC historical candles
+    let bars = [];
+    try {
+      const ohlc = await SecurityMaster.getOHLC(sec.symbol, '1M');
+      if (ohlc && Array.isArray(ohlc.bars) && ohlc.bars.length > 0) {
+        bars = ohlc.bars;
+      }
+    } catch (e) {}
+
+    if (bars.length > 0 && typeof FinancialChart !== 'undefined') {
+      state.drawerChart = new FinancialChart({
+        canvas: canvas,
+        bars: bars,
+        mode: 'candle',
+        currency: sec.currency || 'INR',
+        volume: true,
+        sma20: true
+      });
+      return;
     }
 
     const ctx = canvas.getContext('2d');
@@ -413,51 +434,53 @@
       baseP * 1.014, baseP * 1.018, baseP * 1.022, baseP * 1.025, baseP * 1.028
     ];
 
-    state.drawerChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: `${sec.symbol} Price`,
-          data: prices,
-          borderColor: '#22d3ee',
-          backgroundColor: 'rgba(34, 211, 238, 0.08)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.35,
-          pointRadius: 0,
-          pointHoverRadius: 5
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            mode: 'index',
-            intersect: false,
-            callbacks: {
-              label: (ctx) => `Price: ${formatMoney(ctx.raw, sec.currency)}`
-            }
-          }
+    if (typeof Chart !== 'undefined') {
+      state.drawerChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: `${sec.symbol} Price`,
+            data: prices,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.08)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.35,
+            pointRadius: 0,
+            pointHoverRadius: 5
+          }]
         },
-        scales: {
-          x: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#71717a', font: { size: 10 } }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              callbacks: {
+                label: (ctx) => `Price: ${formatMoney(ctx.raw, sec.currency)}`
+              }
+            }
           },
-          y: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: {
-              color: '#71717a',
-              font: { size: 10 },
-              callback: (v) => formatMoney(v, sec.currency)
+          scales: {
+            x: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#71717a', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: {
+                color: '#71717a',
+                font: { size: 10 },
+                callback: (v) => formatMoney(v, sec.currency)
+              }
             }
           }
         }
-      }
-    });
+      });
+    }
   };
 
   // ── 6. Live Tick Engine Subscription ──────────────────────────────────────
