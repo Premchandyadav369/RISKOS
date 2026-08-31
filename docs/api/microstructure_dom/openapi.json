@@ -1,0 +1,13 @@
+{
+  "api": "microstructure_dom",
+  "title": "Level-2 DOM Ladder & OFI Feed Provider",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/microstructure_dom/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
