@@ -1,0 +1,13 @@
+{
+  "symbol": "META",
+  "exchange": "NASDAQ",
+  "name": "Meta Platforms Inc",
+  "sector": "Digital Media",
+  "currency": "USD",
+  "base_price": 518.2,
+  "beta": 1.38,
+  "pe_ratio": 26.8,
+  "schema_type": "institutional_security_peers",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
