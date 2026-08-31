@@ -1,0 +1,13 @@
+{
+  "symbol": "TATAMOTORS",
+  "exchange": "NSE",
+  "name": "Tata Motors Ltd",
+  "sector": "Automotive",
+  "currency": "INR",
+  "base_price": 1048.6,
+  "beta": 1.35,
+  "pe_ratio": 16.2,
+  "schema_type": "institutional_security_orderbook",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
