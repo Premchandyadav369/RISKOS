@@ -30,6 +30,8 @@
                 <i class="fa-solid fa-bolt" style="color:var(--accent-cyan);"></i>
                 <span class="live-sync-text">Sync Live</span>
             </button>
+            <button id="btnOpenPalette" title="Search Securities & Commands (Cmd+K)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i> <kbd style="font-size:0.65rem;background:rgba(255,255,255,0.12);padding:2px 5px;border-radius:4px;">⌘K</kbd></button>
+            <button id="btnToggleAudio" title="Toggle Institutional Sound Effects" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#22d3ee;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-volume-high" id="audioIcon"></i></button>
             <button id="analyze-btn"><i class="fa-solid fa-play" style="margin-right:6px"></i> Run Models</button>
             <button id="btnExportTearSheet" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-file-invoice"></i> Tear Sheet</button>
             <a href="index.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
@@ -129,6 +131,28 @@
                     <strong>CVaR Optimizer:</strong> Allocates capital to specifically minimize your loss during market crashes (rather than classical Markowitz which treats good gains as risk). 
                     <strong>Kupiec & Christoffersen:</strong> Basel III statistical tests verifying that your risk model is accurate and tail breaches do not clump together.
                 </p>
+            </div>
+
+            <!-- Interactive Dynamic Risk Simulator Bar -->
+            <div class="card mt-4" style="padding: 16px 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                    <div style="flex:1; min-width:260px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:6px;">
+                            <span style="color:#a1a1aa;"><i class="fa-solid fa-vault" style="color:#22d3ee; margin-right:6px;"></i> Portfolio Base Capital:</span>
+                            <strong id="riskBaseCapVal" style="color:#22d3ee; font-size:0.95rem;">₹1,00,00,000 (₹1 Cr)</strong>
+                        </div>
+                        <input type="range" id="riskBaseCapSlider" min="1000000" max="1000000000" step="1000000" value="10000000" style="width:100%; accent-color:#22d3ee; cursor:pointer;">
+                    </div>
+                    <div style="min-width:240px;">
+                        <span style="display:block; font-size:0.75rem; color:#a1a1aa; margin-bottom:6px;"><i class="fa-solid fa-shield-halved" style="color:#fab005; margin-right:6px;"></i> Tail Confidence Level (α):</span>
+                        <div style="display:flex; gap:6px;" id="riskConfSelector">
+                            <button class="risk-conf-btn" data-conf="0.90" style="flex:1; padding:5px 8px; font-size:0.75rem; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer; font-weight:600;">90%</button>
+                            <button class="risk-conf-btn" data-conf="0.95" style="flex:1; padding:5px 8px; font-size:0.75rem; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer; font-weight:600;">95%</button>
+                            <button class="risk-conf-btn active" data-conf="0.99" style="flex:1; padding:5px 8px; font-size:0.75rem; border-radius:6px; background:rgba(34,211,238,0.15); border:1px solid rgba(34,211,238,0.4); color:#22d3ee; cursor:pointer; font-weight:700;">99%</button>
+                            <button class="risk-conf-btn" data-conf="0.999" style="flex:1; padding:5px 8px; font-size:0.75rem; border-radius:6px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); color:#aaa; cursor:pointer; font-weight:600;">99.9%</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="grid-2-col mt-4">
@@ -265,7 +289,11 @@
                 <div class="card">
                     <div class="card-header">
                         <h2><i class="fa-solid fa-list-ol"></i> Level-2 Order Book (DOM Ladder)</h2>
-                        <span class="badge" id="dom-ticker-label">Top 10 Bids & Asks</span>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <button id="btnDomQuickBuy" class="btn-dom-buy"><i class="fa-solid fa-arrow-up"></i> BUY 100</button>
+                            <button id="btnDomQuickSell" class="btn-dom-sell"><i class="fa-solid fa-arrow-down"></i> SELL 100</button>
+                            <span class="badge" id="dom-ticker-label">Top 10 Bids & Asks</span>
+                        </div>
                     </div>
                     <div id="dom-ladder-container" class="dom-table-wrap">
                         <div class="loading">Loading Depth of Market...</div>
@@ -311,6 +339,38 @@
                     <strong>Cross-Greeks (Vanna, Volga, Charm):</strong> Vanna measures how your Delta shifts when volatility moves; Volga measures your exposure to Volatility Smile convexity; Charm is Delta decay per day. 
                     <strong>Delta-Hedging Simulator:</strong> Shows how continuous stock rebalancing replicates an option payoff and locks in theoretical PnL after transaction costs.
                 </p>
+            </div>
+
+            <!-- Interactive Greeks Sandbox Sliders -->
+            <div class="card mt-4" style="padding: 16px 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h3 style="font-size:0.9rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-sliders" style="color:#22d3ee;"></i> Real-Time Analytical Black-Scholes Greeks Sandbox
+                    </h3>
+                    <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Continuous SDE Model</span>
+                </div>
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div class="greek-slider-box">
+                        <div class="greek-slider-header"><span>Spot Price (\(S_0\)):</span><strong id="gSpotVal">$185.00</strong></div>
+                        <input type="range" id="gSpotSlider" min="50" max="500" step="1" value="185" class="greek-slider">
+                    </div>
+                    <div class="greek-slider-box">
+                        <div class="greek-slider-header"><span>Strike Price (\(K\)):</span><strong id="gStrikeVal">$185.00</strong></div>
+                        <input type="range" id="gStrikeSlider" min="50" max="500" step="1" value="185" class="greek-slider">
+                    </div>
+                    <div class="greek-slider-box">
+                        <div class="greek-slider-header"><span>Implied Vol (\(\sigma\)):</span><strong id="gVolVal">25.0%</strong></div>
+                        <input type="range" id="gVolSlider" min="5" max="100" step="1" value="25" class="greek-slider">
+                    </div>
+                    <div class="greek-slider-box">
+                        <div class="greek-slider-header"><span>Days to Expiry (\(T\)):</span><strong id="gDaysVal">30 Days</strong></div>
+                        <input type="range" id="gDaysSlider" min="1" max="180" step="1" value="30" class="greek-slider">
+                    </div>
+                    <div class="greek-slider-box">
+                        <div class="greek-slider-header"><span>Risk-Free Rate (\(r\)):</span><strong id="gRateVal">5.0%</strong></div>
+                        <input type="range" id="gRateSlider" min="1" max="12" step="0.5" value="5" class="greek-slider">
+                    </div>
+                </div>
             </div>
 
             <div class="grid-2-col mt-4">
@@ -537,6 +597,21 @@
 
             <div id="tearSheetContent" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;font-size:0.85rem;">
                 <!-- Filled dynamically by app.js -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════ UNIVERSAL COMMAND PALETTE (CMD+K) ═══════════ -->
+    <div class="palette-overlay" id="paletteOverlay" aria-hidden="true" hidden>
+        <div class="palette-backdrop" id="paletteBackdrop"></div>
+        <div class="palette-modal" role="dialog" aria-modal="true" aria-label="Universal Financial Command Bar">
+            <div class="palette-search-box">
+                <i class="fa-solid fa-wand-magic-sparkles palette-icon"></i>
+                <input type="text" id="paletteInput" class="palette-input" placeholder="Search securities, run risk models, or navigate desks (e.g. 'RELIANCE', 'Desk 2', 'Tear Sheet')..." autocomplete="off">
+                <kbd class="palette-kbd">ESC</kbd>
+            </div>
+            <div class="palette-suggestions" id="paletteSuggestions">
+                <!-- Dynamically populated by app.js -->
             </div>
         </div>
     </div>

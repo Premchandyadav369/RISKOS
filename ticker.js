@@ -805,8 +805,61 @@
 
     if (typeof SecurityMaster !== 'undefined') {
       SecurityMaster.subscribeLiveTicks((updates) => {
-        renderMarketRibbon();
-        renderTable();
+        // 1. Update ribbon items
+        const track = document.getElementById('marketRibbonTrack');
+        if (track) {
+          updates.forEach(u => {
+            const items = track.querySelectorAll(`.ribbon-item[data-symbol="${u.symbol}"]`);
+            items.forEach(el => {
+              const pEl = el.querySelector('.ribbon-price');
+              const cEl = el.querySelector('.ribbon-chg');
+              if (pEl) {
+                pEl.textContent = formatMoney(u.price, u.currency);
+                pEl.classList.remove('price-flash-up', 'price-flash-down');
+                void pEl.offsetWidth;
+                pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+              }
+              if (cEl) {
+                cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+                cEl.className = `ribbon-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+              }
+            });
+          });
+        }
+
+        // 2. Update matching rows in table with flash animation
+        updates.forEach(u => {
+          const rowId = `row_${u.symbol.replace(/[\^=]/g, '')}`;
+          const row = document.getElementById(rowId);
+          if (row) {
+            const priceEl = row.querySelector('.sec-price-val');
+            const chgEl = row.querySelector('.sec-chg-pill');
+            if (priceEl) {
+              priceEl.textContent = formatMoney(u.price, u.currency);
+              priceEl.classList.remove('price-flash-up', 'price-flash-down');
+              void priceEl.offsetWidth;
+              priceEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+            }
+            if (chgEl) {
+              chgEl.textContent = `${u.change >= 0 ? '+' : ''}${u.changePercent.toFixed(2)}%`;
+              chgEl.className = `sec-chg-pill ${u.change >= 0 ? 'pos' : 'neg'}`;
+            }
+          }
+        });
+
+        // 3. Update drawer if open
+        if (state.activeDrawerSec) {
+          const matching = updates.find(u => u.symbol === state.activeDrawerSec.symbol);
+          if (matching) {
+            const dPrice = document.getElementById('drawerLivePrice');
+            const dChg = document.getElementById('drawerLiveChg');
+            if (dPrice) dPrice.textContent = formatMoney(matching.price, matching.currency);
+            if (dChg) {
+              dChg.textContent = `${matching.change >= 0 ? '+' : ''}${matching.changePercent.toFixed(2)}%`;
+              dChg.className = `drawer-stat-val ${matching.change >= 0 ? 'text-emerald' : 'text-red'}`;
+            }
+          }
+        }
       });
     }
   };

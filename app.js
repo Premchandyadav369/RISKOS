@@ -1371,8 +1371,436 @@ const initTearSheetModal = () => {
     });
 };
 
+// ═══════════════════ INTERACTIVE RISK CONTROLLER (DESK 2) ═══════════════════
+let _activeRiskConf = 0.99;
+function initRiskSimulatorControls() {
+    const slider = document.getElementById('riskBaseCapSlider');
+    const valLabel = document.getElementById('riskBaseCapVal');
+    const confBtns = document.querySelectorAll('.risk-conf-btn');
+
+    if (slider && valLabel) {
+        slider.addEventListener('input', () => {
+            const cap = Number(slider.value);
+            BASE_CAPITAL = cap;
+            let capStr = formatMoney(cap, 'INR');
+            if (cap >= 10000000) {
+                capStr += ` (₹${(cap / 10000000).toFixed(1)} Cr)`;
+            } else if (cap >= 100000) {
+                capStr += ` (₹${(cap / 100000).toFixed(1)} L)`;
+            }
+            valLabel.textContent = capStr;
+            updateRiskMetricsDynamically();
+        });
+    }
+
+    confBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            confBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.04)';
+                b.style.borderColor = 'rgba(255,255,255,0.1)';
+                b.style.color = '#aaa';
+                b.style.fontWeight = '600';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'rgba(34,211,238,0.15)';
+            btn.style.borderColor = 'rgba(34,211,238,0.4)';
+            btn.style.color = '#22d3ee';
+            btn.style.fontWeight = '700';
+
+            _activeRiskConf = Number(btn.dataset.conf || 0.99);
+            updateRiskMetricsDynamically();
+        });
+    });
+}
+
+function updateRiskMetricsDynamically() {
+    const zScore = _activeRiskConf === 0.90 ? 1.282 : (_activeRiskConf === 0.95 ? 1.645 : (_activeRiskConf === 0.99 ? 2.326 : 3.090));
+    const baseDailyVol = 0.011;
+
+    const pVarPct = Number((zScore * baseDailyVol * 100).toFixed(2));
+    const hVarPct = Number((pVarPct * 1.05).toFixed(2));
+    const mVarPct = Number((pVarPct * 1.08).toFixed(2));
+
+    const pCVarPct = Number((pVarPct * 1.35).toFixed(2));
+    const hCVarPct = Number((hVarPct * 1.38).toFixed(2));
+    const mCVarPct = Number((mVarPct * 1.40).toFixed(2));
+
+    if (charts.var) {
+        charts.var.data.datasets[0].data = [hVarPct, pVarPct, mVarPct];
+        charts.var.data.datasets[1].data = [hCVarPct, pCVarPct, mCVarPct];
+        charts.var.update();
+    }
+
+    const stressRows = document.querySelectorAll('#stress-table tbody tr');
+    stressRows.forEach(row => {
+        const pctCell = row.cells[2];
+        const absCell = row.cells[3];
+        if (pctCell && absCell) {
+            const rawPct = parseFloat(pctCell.textContent.replace('%', '')) / 100;
+            if (!isNaN(rawPct)) {
+                const absVal = BASE_CAPITAL * rawPct;
+                absCell.innerHTML = `<strong>${formatCurrency(absVal)}</strong>`;
+            }
+        }
+    });
+}
+
+// ═══════════════════ LIVE LEVEL-2 DOM SIMULATOR (DESK 4) ═══════════════════
+let _liveDomTimer = null;
+let _currentDomMid = 185.00;
+let _domBids = [];
+let _domAsks = [];
+
+function initMicrostructureSimulator() {
+    const buyBtn = document.getElementById('btnDomQuickBuy');
+    const sellBtn = document.getElementById('btnDomQuickSell');
+
+    const executeQuickTrade = (side, qty) => {
+        const isBuy = side === 'BUY';
+        const price = isBuy ? (_domAsks[0]?.price || _currentDomMid) : (_domBids[0]?.price || _currentDomMid);
+        const slippageBps = Number((Math.random() * 3.5 + 1.0).toFixed(1));
+        const total = price * qty;
+
+        if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+            SecurityMaster.playExecutionSound();
+        }
+
+        showExecutionToast(isBuy, qty, price, slippageBps, total);
+
+        const rowId = isBuy ? 'domAskRow0' : 'domBidRow0';
+        const el = document.getElementById(rowId);
+        if (el) {
+            el.classList.add(isBuy ? 'price-flash-up' : 'price-flash-down');
+            setTimeout(() => el.classList.remove('price-flash-up', 'price-flash-down'), 800);
+        }
+    };
+
+    if (buyBtn) buyBtn.addEventListener('click', () => executeQuickTrade('BUY', 100));
+    if (sellBtn) sellBtn.addEventListener('click', () => executeQuickTrade('SELL', 100));
+
+    startLiveDomLoop();
+}
+
+function startLiveDomLoop() {
+    if (_liveDomTimer) return;
+
+    _liveDomTimer = setInterval(() => {
+        const drift = (Math.random() - 0.49) * 0.15;
+        _currentDomMid = Number(Math.max(10, _currentDomMid + drift).toFixed(2));
+        const tick = _currentDomMid > 500 ? 0.50 : 0.05;
+
+        _domBids = [];
+        _domAsks = [];
+        let totalBidQty = 0;
+        let totalAskQty = 0;
+
+        for (let i = 1; i <= 5; i++) {
+            const bP = Number((_currentDomMid - i * tick).toFixed(2));
+            const aP = Number((_currentDomMid + i * tick).toFixed(2));
+            const bQ = Math.floor(150 + Math.random() * 1200 * (6 - i));
+            const aQ = Math.floor(150 + Math.random() * 1200 * (6 - i));
+
+            totalBidQty += bQ;
+            totalAskQty += aQ;
+            _domBids.push({ price: bP, qty: bQ });
+            _domAsks.push({ price: aP, qty: aQ });
+        }
+
+        const ofi = Number((((totalBidQty - totalAskQty) / (totalBidQty + totalAskQty)) * 100).toFixed(1));
+        const microPrice = Number(((_domBids[0].qty * _domAsks[0].price + _domAsks[0].qty * _domBids[0].price) / (_domBids[0].qty + _domAsks[0].qty)).toFixed(2));
+
+        const ladderContainer = document.getElementById('dom-ladder-container');
+        if (ladderContainer) {
+            ladderContainer.innerHTML = `
+                <table class="dom-table">
+                    <thead>
+                        <tr><th>Bid Qty</th><th>Bid Price</th><th>Ask Price</th><th>Ask Qty</th></tr>
+                    </thead>
+                    <tbody>
+                        ${_domBids.map((b, idx) => `
+                            <tr>
+                                <td class="dom-bid-row" id="domBidRow${idx}">${b.qty.toLocaleString()}</td>
+                                <td class="dom-bid-price">$${b.price.toFixed(2)}</td>
+                                <td class="dom-ask-price">$${_domAsks[idx].price.toFixed(2)}</td>
+                                <td class="dom-ask-row" id="domAskRow${idx}">${_domAsks[idx].qty.toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        const microStats = document.getElementById('micro-price-stats');
+        if (microStats) {
+            microStats.innerHTML = `
+                <div class="stat-box"><div class="stat-label">Micro-Price (Fair)</div><div class="stat-value" style="color:#20C997">$${microPrice.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Mid Price</div><div class="stat-value">$${_currentDomMid.toFixed(2)}</div></div>
+                <div class="stat-box"><div class="stat-label">Order Flow Imbalance</div><div class="stat-value ${ofi > 0 ? 'text-buy' : 'text-sell'}">${ofi > 0 ? '+' : ''}${ofi}%</div></div>
+            `;
+        }
+    }, 1200);
+}
+
+function showExecutionToast(isBuy, qty, price, slippage, total) {
+    let toast = document.getElementById('tradeToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'tradeToast';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:#0d1117;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:14px 20px;box-shadow:0 10px 40px rgba(0,0,0,0.8);display:flex;align-items:center;gap:12px;transform:translateY(100px);opacity:0;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);font-family:Inter,sans-serif;';
+        document.body.appendChild(toast);
+    }
+
+    toast.innerHTML = `
+        <div style="width:36px;height:36px;border-radius:8px;background:${isBuy ? 'rgba(81,207,102,0.15)' : 'rgba(255,107,107,0.15)'};display:flex;align-items:center;justify-content:center;color:${isBuy ? '#51CF66' : '#FF6B6B'};font-size:1.1rem;">
+            <i class="fa-solid ${isBuy ? 'fa-arrow-up' : 'fa-arrow-down'}"></i>
+        </div>
+        <div>
+            <div style="font-size:0.85rem;font-weight:700;color:#fff;">ORDER FILLED: ${isBuy ? 'BUY' : 'SELL'} ${qty} Shares</div>
+            <div style="font-size:0.75rem;color:#a1a1aa;">Avg Fill: $${price.toFixed(2)} &bull; Slippage: ${slippage} bps &bull; Total: $${total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</div>
+        </div>
+    `;
+
+    toast.style.transform = 'translateY(0)';
+    toast.style.opacity = '1';
+
+    setTimeout(() => {
+        toast.style.transform = 'translateY(100px)';
+        toast.style.opacity = '0';
+    }, 3200);
+}
+
+// ═══════════════════ INTERACTIVE GREEKS SIMULATOR (DESK 5) ═══════════════════
+function initGreeksSimulator() {
+    const sSlider = document.getElementById('gSpotSlider');
+    const kSlider = document.getElementById('gStrikeSlider');
+    const vSlider = document.getElementById('gVolSlider');
+    const dSlider = document.getElementById('gDaysSlider');
+    const rSlider = document.getElementById('gRateSlider');
+
+    const sVal = document.getElementById('gSpotVal');
+    const kVal = document.getElementById('gStrikeVal');
+    const vVal = document.getElementById('gVolVal');
+    const dVal = document.getElementById('gDaysVal');
+    const rVal = document.getElementById('gRateVal');
+
+    const updateGreeks = () => {
+        if (!sSlider || !kSlider || !vSlider || !dSlider || !rSlider) return;
+
+        const S = Number(sSlider.value);
+        const K = Number(kSlider.value);
+        const sigma = Number(vSlider.value) / 100;
+        const days = Number(dSlider.value);
+        const r = Number(rSlider.value) / 100;
+        const T = days / 365;
+
+        if (sVal) sVal.textContent = `$${S.toFixed(2)}`;
+        if (kVal) kVal.textContent = `$${K.toFixed(2)}`;
+        if (vVal) vVal.textContent = `${(sigma * 100).toFixed(1)}%`;
+        if (dVal) dVal.textContent = `${days} Days`;
+        if (rVal) rVal.textContent = `${(r * 100).toFixed(1)}%`;
+
+        let greeks;
+        if (typeof QuantEngine !== 'undefined' && QuantEngine.blackScholes) {
+            greeks = QuantEngine.blackScholes({ S, K, T, r, sigma });
+        } else {
+            const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+            const nd1 = 0.5 * (1 + Math.erf(d1 / Math.sqrt(2)));
+            const nd2 = 0.5 * (1 + Math.erf(d2 / Math.sqrt(2)));
+            const pdf_d1 = (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * d1 * d1);
+
+            const callP = S * nd1 - K * Math.exp(-r * T) * nd2;
+            const putP = K * Math.exp(-r * T) * (1 - nd2) - S * (1 - nd1);
+            const gamma = pdf_d1 / (S * sigma * Math.sqrt(T));
+            const vega = (S * pdf_d1 * Math.sqrt(T)) / 100;
+            const thetaCall = (- (S * sigma * pdf_d1) / (2 * Math.sqrt(T)) - r * K * Math.exp(-r * T) * nd2) / 365;
+            const thetaPut = (- (S * sigma * pdf_d1) / (2 * Math.sqrt(T)) + r * K * Math.exp(-r * T) * (1 - nd2)) / 365;
+
+            greeks = {
+                call: { price: callP, delta: nd1, theta: thetaCall, rho: (K * T * Math.exp(-r * T) * nd2) / 100 },
+                put: { price: putP, delta: nd1 - 1, theta: thetaPut, rho: (-K * T * Math.exp(-r * T) * (1 - nd2)) / 100 },
+                gamma,
+                vega
+            };
+        }
+
+        const tableContainer = document.getElementById('greeks-table-container');
+        if (tableContainer && greeks) {
+            tableContainer.innerHTML = `
+                <table class="greeks-table">
+                    <thead>
+                        <tr><th>Greek / Metric</th><th>Formula / Role</th><th>Call Option ($${greeks.call.price.toFixed(2)})</th><th>Put Option ($${greeks.put.price.toFixed(2)})</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><strong>Delta (Δ)</strong></td><td class="muted">∂V / ∂S (Directional Hedge)</td><td class="text-buy"><strong>${greeks.call.delta.toFixed(4)}</strong></td><td class="text-sell"><strong>${greeks.put.delta.toFixed(4)}</strong></td></tr>
+                        <tr><td><strong>Gamma (Γ)</strong></td><td class="muted">∂²V / ∂S² (Convexity)</td><td colspan="2" class="text-center text-primary"><strong>${greeks.gamma.toFixed(5)}</strong></td></tr>
+                        <tr><td><strong>Vega (ν)</strong></td><td class="muted">∂V / ∂σ (1% Vol Sensitivity)</td><td colspan="2" class="text-center" style="color:#fab005;"><strong>$${greeks.vega.toFixed(4)}</strong></td></tr>
+                        <tr><td><strong>Theta (Θ)</strong></td><td class="muted">∂V / ∂t (1-Day Time Decay)</td><td class="text-sell">${greeks.call.theta.toFixed(4)}/d</td><td class="text-sell">${greeks.put.theta.toFixed(4)}/d</td></tr>
+                        <tr><td><strong>Rho (ρ)</strong></td><td class="muted">∂V / ∂r (100bps Rate Shift)</td><td>${greeks.call.rho.toFixed(4)}</td><td>${greeks.put.rho.toFixed(4)}</td></tr>
+                    </tbody>
+                </table>
+            `;
+        }
+    };
+
+    [sSlider, kSlider, vSlider, dSlider, rSlider].forEach(sl => {
+        if (sl) sl.addEventListener('input', updateGreeks);
+    });
+
+    updateGreeks();
+}
+
+// ═══════════════════ UNIVERSAL COMMAND PALETTE (CMD+K) ═══════════════════
+function initAppPalette() {
+    const overlay = document.getElementById('paletteOverlay');
+    const backdrop = document.querySelector('.palette-backdrop');
+    const input = document.getElementById('paletteInput');
+    const suggestions = document.getElementById('paletteSuggestions');
+    const triggerBtn = document.getElementById('btnOpenPalette');
+
+    if (!overlay || !input || !suggestions) return;
+
+    const openPalette = () => {
+        overlay.removeAttribute('hidden');
+        input.value = '';
+        input.focus();
+        renderPaletteItems('');
+    };
+
+    const closePalette = () => {
+        overlay.setAttribute('hidden', '');
+    };
+
+    if (triggerBtn) triggerBtn.addEventListener('click', openPalette);
+    if (backdrop) backdrop.addEventListener('click', closePalette);
+
+    document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            if (overlay.hasAttribute('hidden')) openPalette();
+            else closePalette();
+        }
+        if (e.key === 'Escape' && !overlay.hasAttribute('hidden')) {
+            closePalette();
+        }
+    });
+
+    const commands = [
+        { id: 'desk1', title: 'Desk 1: Market Intelligence & Volatility', desc: 'Jump to GARCH, EWMA and HMM regimes', badge: 'DESK', icon: 'fa-chart-line', action: () => switchTab('tab-market') },
+        { id: 'desk2', title: 'Desk 2: Tail Risk & CVaR Optimization', desc: 'Jump to VaR, CVaR and Walk-forward backtest', badge: 'DESK', icon: 'fa-shield-halved', action: () => switchTab('tab-risk') },
+        { id: 'desk3', title: 'Desk 3: Futures & Sovereign Yield Curve', desc: 'Jump to Kalman Beta and Nelson-Siegel curve', badge: 'DESK', icon: 'fa-arrow-trend-up', action: () => switchTab('tab-spreads') },
+        { id: 'desk4', title: 'Desk 4: Microstructure & Order Book (DOM)', desc: 'Jump to Level-2 DOM, OFI and Almgren-Chriss', badge: 'DESK', icon: 'fa-bars-staggered', action: () => switchTab('tab-micro') },
+        { id: 'desk5', title: 'Desk 5: Derivatives & Volatility Lab', desc: 'Jump to SVI Smile, Delta-Hedging and Greeks', badge: 'DESK', icon: 'fa-wave-square', action: () => switchTab('tab-options') },
+        { id: 'desk6', title: 'Desk 6: Signals & Risk Parity Allocation', desc: 'Jump to Kelly sizing and Execution simulator', badge: 'DESK', icon: 'fa-bolt', action: () => switchTab('tab-signals') },
+        { id: 'desk7', title: 'Desk 7: AI Speculations & Quantile Fan', desc: 'Jump to 10,000-Path Monte Carlo fan forecasting', badge: 'DESK', icon: 'fa-wand-magic-sparkles', action: () => switchTab('tab-speculations') },
+        { id: 'tearsheet', title: 'Export Institutional Quant Tear Sheet', desc: 'Generate printable A4 factsheet for investors', badge: 'ACTION', icon: 'fa-file-invoice', action: () => document.getElementById('btnExportTearSheet')?.click() },
+        { id: 'sync', title: 'Sync Live Market Quotes', desc: 'Force refresh prices across global exchanges', badge: 'ACTION', icon: 'fa-bolt', action: () => document.getElementById('globalLiveSyncBtn')?.click() },
+        { id: 'dashboard', title: 'Go to Executive Dashboard', desc: 'Return to the main overview screen', badge: 'PAGE', icon: 'fa-chart-pie', action: () => window.location.href = 'index.html' },
+        { id: 'observatory', title: 'Go to Market Observatory', desc: 'Open macro causality network & sector radar', badge: 'PAGE', icon: 'fa-satellite-dish', action: () => window.location.href = 'observatory.html' },
+        { id: 'learn', title: 'Go to Learn & Lab Suite', desc: 'Launch 20 interactive quantitative labs', badge: 'PAGE', icon: 'fa-flask', action: () => window.location.href = 'learn.html' },
+        { id: 'tickers', title: 'Go to Ticker Screener', desc: 'Search 100+ global instruments', badge: 'PAGE', icon: 'fa-layer-group', action: () => window.location.href = 'ticker.html' }
+    ];
+
+    const renderPaletteItems = (query) => {
+        const q = query.trim().toLowerCase();
+        let html = '';
+
+        const matchedCmds = commands.filter(c => c.title.toLowerCase().includes(q) || c.desc.toLowerCase().includes(q) || c.badge.toLowerCase().includes(q));
+        if (matchedCmds.length > 0) {
+            html += `<div class="palette-group-title">COMMANDS &amp; DESKS</div>`;
+            html += matchedCmds.map(c => `
+                <div class="palette-item" data-id="${c.id}">
+                    <div class="palette-item-left">
+                        <div class="palette-item-icon"><i class="fa-solid ${c.icon}"></i></div>
+                        <div>
+                            <div class="palette-item-title">${c.title}</div>
+                            <div class="palette-item-sub">${c.desc}</div>
+                        </div>
+                    </div>
+                    <span class="palette-item-badge">${c.badge}</span>
+                </div>
+            `).join('');
+        }
+
+        if (typeof SecurityMaster !== 'undefined' && SecurityMaster.LOCAL_REGISTRY) {
+            const matchedSecs = SecurityMaster.LOCAL_REGISTRY.filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)).slice(0, 6);
+            if (matchedSecs.length > 0) {
+                html += `<div class="palette-group-title">SECURITIES &amp; ASSETS</div>`;
+                html += matchedSecs.map(s => `
+                    <div class="palette-item" data-symbol="${s.symbol}">
+                        <div class="palette-item-left">
+                            <div class="palette-item-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                            <div>
+                                <div class="palette-item-title">${s.symbol} &bull; ${s.name}</div>
+                                <div class="palette-item-sub">${s.exchange} &bull; ${s.assetType} &bull; ${s.sector}</div>
+                            </div>
+                        </div>
+                        <span class="palette-item-badge">${s.currency === 'USD' ? '$' : '₹'}${s.basePrice}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        suggestions.innerHTML = html || `<div style="padding:20px;text-align:center;color:#71717a;font-size:0.85rem;">No matching commands or securities</div>`;
+
+        suggestions.querySelectorAll('.palette-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const cmdId = item.dataset.id;
+                const sym = item.dataset.symbol;
+
+                closePalette();
+
+                if (cmdId) {
+                    const cmd = commands.find(c => c.id === cmdId);
+                    if (cmd && cmd.action) cmd.action();
+                } else if (sym) {
+                    const input = document.getElementById('ticker-input');
+                    if (input) {
+                        const current = input.value.split(',').map(t => t.trim().toUpperCase()).filter(Boolean);
+                        if (!current.includes(sym)) {
+                            input.value = [sym, ...current].slice(0, 5).join(',');
+                            document.getElementById('analyze-btn')?.click();
+                        }
+                    }
+                }
+            });
+        });
+    };
+
+    input.addEventListener('input', () => renderPaletteItems(input.value));
+}
+
+// ═══════════════════ AUDIO TOGGLE HANDLER ═══════════════════
+let _soundEnabled = true;
+function initAudioToggle() {
+    const btn = document.getElementById('btnToggleAudio');
+    const icon = document.getElementById('audioIcon');
+    if (!btn || !icon) return;
+
+    btn.addEventListener('click', () => {
+        _soundEnabled = !_soundEnabled;
+        if (_soundEnabled) {
+            icon.className = 'fa-solid fa-volume-high';
+            btn.style.color = '#22d3ee';
+            if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playTickSound) {
+                SecurityMaster.playTickSound(true);
+            }
+        } else {
+            icon.className = 'fa-solid fa-volume-xmark';
+            btn.style.color = '#71717a';
+        }
+    });
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
     setTimeout(initTearSheetModal, 250);
+    setTimeout(initRiskSimulatorControls, 300);
+    setTimeout(initMicrostructureSimulator, 350);
+    setTimeout(initGreeksSimulator, 400);
+    setTimeout(initAppPalette, 450);
+    setTimeout(initAudioToggle, 500);
 });
+
