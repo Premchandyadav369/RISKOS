@@ -1252,14 +1252,121 @@
     });
   };
 
+  /* ══════════════════════════════════════════════════════════════════════════
+     TAYLOR RULE MONETARY POLICY FORECASTER
+     ══════════════════════════════════════════════════════════════════════════ */
+  const initTaylorRuleForecaster = () => {
+    const btnRbi = document.getElementById('btnBankRbi');
+    const btnFed = document.getElementById('btnBankFed');
+    const cpiSlider = document.getElementById('obsTaylorCpiSlider');
+    const cpiVal = document.getElementById('obsTaylorCpiVal');
+    const gapSlider = document.getElementById('obsTaylorGapSlider');
+    const gapVal = document.getElementById('obsTaylorGapVal');
+    const offRateEl = document.getElementById('obsOfficialRate');
+    const bankNameEl = document.getElementById('obsBankName');
+    const targetRateEl = document.getElementById('obsTaylorTargetRate');
+    const stanceEl = document.getElementById('obsPolicyStance');
+    const probEl = document.getElementById('obsHoldProb');
+
+    if (!cpiSlider || !targetRateEl) return;
+
+    let currentBank = 'rbi';
+
+    const BANK_CONFIG = {
+      rbi: {
+        name: 'Reserve Bank of India',
+        officialRate: 6.50,
+        rStar: 1.25,
+        piStar: 4.00,
+        defaultCpi: 4.85,
+        defaultGap: 0.60
+      },
+      fed: {
+        name: 'US Federal Reserve (FOMC)',
+        officialRate: 5.25,
+        rStar: 0.75,
+        piStar: 2.00,
+        defaultCpi: 2.90,
+        defaultGap: 0.40
+      }
+    };
+
+    const recalculateTaylor = () => {
+      const cfg = BANK_CONFIG[currentBank];
+      const pi = parseFloat(cpiSlider.value);
+      const gap = parseFloat(gapSlider.value);
+
+      if (cpiVal) cpiVal.textContent = `${pi.toFixed(2)}%`;
+      if (gapVal) gapVal.textContent = `${gap >= 0 ? '+' : ''}${gap.toFixed(2)}%`;
+
+      // Taylor (1993) Rule: i = r* + pi + 0.5*(pi - pi*) + 0.5*(y - y*)
+      const targetRate = cfg.rStar + pi + 0.5 * (pi - cfg.piStar) + 0.5 * gap;
+      const diffBps = Math.round((targetRate - cfg.officialRate) * 100);
+
+      if (offRateEl) offRateEl.textContent = `${cfg.officialRate.toFixed(2)}%`;
+      if (bankNameEl) bankNameEl.textContent = cfg.name;
+      if (targetRateEl) targetRateEl.textContent = `${targetRate.toFixed(2)}%`;
+
+      if (stanceEl) {
+        if (diffBps > 20) {
+          stanceEl.textContent = `TIGHTENING BIAS (+${diffBps} bps)`;
+          stanceEl.style.color = '#FAB005';
+        } else if (diffBps < -20) {
+          stanceEl.textContent = `EASING ROOM (${diffBps} bps)`;
+          stanceEl.style.color = '#51CF66';
+        } else {
+          stanceEl.textContent = `NEUTRAL EQUILIBRIUM (±0 bps)`;
+          stanceEl.style.color = '#22d3ee';
+        }
+      }
+
+      if (probEl) {
+        if (diffBps > 25) {
+          probEl.innerHTML = 'Hold: 65% | Hike: 28% | Cut: 7%';
+        } else if (diffBps < -25) {
+          probEl.innerHTML = 'Hold: 55% | Cut: 38% | Hike: 7%';
+        } else {
+          probEl.innerHTML = 'Hold: 82% | Cut: 12% | Hike: 6%';
+        }
+      }
+    };
+
+    if (btnRbi && btnFed) {
+      btnRbi.addEventListener('click', () => {
+        btnRbi.classList.add('active');
+        btnFed.classList.remove('active');
+        currentBank = 'rbi';
+        cpiSlider.value = BANK_CONFIG.rbi.defaultCpi;
+        gapSlider.value = BANK_CONFIG.rbi.defaultGap;
+        recalculateTaylor();
+      });
+
+      btnFed.addEventListener('click', () => {
+        btnFed.classList.add('active');
+        btnRbi.classList.remove('active');
+        currentBank = 'fed';
+        cpiSlider.value = BANK_CONFIG.fed.defaultCpi;
+        gapSlider.value = BANK_CONFIG.fed.defaultGap;
+        recalculateTaylor();
+      });
+    }
+
+    cpiSlider.addEventListener('input', recalculateTaylor);
+    gapSlider.addEventListener('input', recalculateTaylor);
+
+    recalculateTaylor();
+  };
+
   // Run on DOM Ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       init();
       initObsMarketRibbon();
+      initTaylorRuleForecaster();
     });
   } else {
     init();
     initObsMarketRibbon();
+    initTaylorRuleForecaster();
   }
 })();

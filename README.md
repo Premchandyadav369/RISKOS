@@ -238,18 +238,42 @@ $$\text{VPIN} = \frac{\sum_{\tau=1}^N |V_{\tau}^B - V_{\tau}^S|}{N \cdot V}$$
 
 where $V_{\tau}^B$ and $V_{\tau}^S$ are the buyer and seller-initiated volumes in bucket $\tau$ estimated via the BVC (Bulk Volume Classification) normal CDF kernel.
 
-#### 3. Almgren-Chriss Optimal Execution Framework
-To liquidate $X_0$ shares across $N$ discrete intervals over horizon $T$, with trading trajectory $x_k = x(t_k)$ and trade sizes $n_k = x_{k-1} - x_k$:
+#### 4. Transaction Cost Analysis (TCA) & Implementation Shortfall
+Perold (1988) implementation shortfall decomposes total frictional execution loss into 4 constituent components:
 
-$$\min_{\{n_k\}} \mathbb{E}[x] + \lambda \mathbb{V}[x]$$
+$$\text{IS}_{bps} = \underbrace{\frac{P_{\text{arrival}} - P_0}{P_0} \times 10^4}_{\text{Delay / Execution Drag}} + \underbrace{\frac{\text{Spread}}{2 P_0} \times 10^4}_{\text{Half-Spread Liquidity}} + \underbrace{\eta \left(\frac{v_t}{V_t}\right)^\alpha}_{\text{Temporary Market Impact}} + \underbrace{\gamma \left(\frac{X_0}{V_{\text{day}}}\right)}_{\text{Permanent Price Impact}}$$
 
-$$\mathbb{E}[x] = \frac{1}{2}\gamma X_0^2 + \epsilon \sum_{k=1}^N |n_k| + \frac{\eta}{\tau} \sum_{k=1}^N n_k^2, \qquad \mathbb{V}[x] = \sigma^2 \tau \sum_{k=1}^N x_k^2$$
+---
 
-The Euler-Lagrange calculus of variations yields the optimal hyperbolic inventory decay trajectory:
+## 🧮 Desk 2B: Black-Litterman Global Bayesian View Integrator
 
-$$x_j = \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)} X_0, \qquad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
+### 🎓 In Layman Terms
+- **Reverse Optimization Equilibrium**: Instead of guessing stock returns, Black-Litterman asks the market: "Given the current prices and size of all companies, what returns is the world collectively expecting?"
+- **Investor View Matrix**: You can express specific subjective quantitative views (e.g., *"We believe TCS will outperform INFY by +4.5% with 80% confidence"*).
+- **Posterior Bayesian Blending**: Black-Litterman combines the market equilibrium with your subjective views, adjusting portfolio weights smoothly without creating extreme corner bets.
 
-where $\kappa$ represents the **urgency parameter**, $\eta$ is temporary market impact, $\gamma$ is permanent market impact, and $\lambda$ is institutional risk aversion.
+### ⚡ Mathematical Formulation
+
+$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right]$$
+
+$$\boldsymbol{\Pi} = \lambda \mathbf{\Sigma} \mathbf{w}_{\text{mkt}}, \qquad \mathbf{\Omega} = \text{diag}\left(\mathbf{P} (\tau \mathbf{\Sigma}) \mathbf{P}^T\right)$$
+
+$$\mathbf{w}_{\text{BL}}^* = (\lambda \mathbf{\Sigma})^{-1} \boldsymbol{\mu}_{\text{BL}}$$
+
+---
+
+## 📈 Desk 3B: Statistical Arbitrage & Cointegration Pairs Screener
+
+### 🎓 In Layman Terms
+- **Cointegrated Spread (ADF Test)**: Even if two correlated stocks wander randomly, their spread is tied by a theoretical equilibrium leash. When the Augmented Dickey-Fuller test yields $p < 0.05$, the spread is mathematically stationary.
+- **Dynamic Kalman Hedge Ratio**: Tracks the exact number of shares of Stock B to short for every 1 share of Stock A you hold.
+- **Ornstein-Uhlenbeck Half-Life**: Calculates the exact number of calendar days it takes for the spread to mean-revert 50% back toward fair value.
+
+### ⚡ Mathematical Formulation
+
+$$\Delta \epsilon_t = \gamma \epsilon_{t-1} + \sum_{i=1}^p \psi_i \Delta \epsilon_{t-i} + u_t, \qquad H_0: \gamma = 0 \quad (\text{Non-Stationary})$$
+
+$$dX_t = \kappa (\theta - X_t) dt + \sigma dW_t \implies \text{Mean-Reversion Half-Life: } \tau_{1/2} = \frac{\ln 2}{\kappa}$$
 
 ---
 
