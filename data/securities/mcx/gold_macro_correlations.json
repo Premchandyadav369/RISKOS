@@ -1,0 +1,13 @@
+{
+  "symbol": "GOLD",
+  "exchange": "MCX",
+  "name": "Gold Bullion 999 Fine",
+  "sector": "Precious Metals",
+  "currency": "USD",
+  "base_price": 2480.0,
+  "beta": 0.08,
+  "pe_ratio": 0.0,
+  "schema_type": "institutional_security_macro_correlations",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
