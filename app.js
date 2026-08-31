@@ -1793,6 +1793,104 @@ function initAudioToggle() {
     });
 }
 
+// ═══════════════════ ENTERPRISE CRISIS REPLAY SUITE ═══════════════════
+function initCrisisReplaySuite() {
+    const crisisBtns = document.querySelectorAll('#crisisSelector .crisis-btn');
+    const customSliders = document.getElementById('customStressSliders');
+
+    const eqSlider = document.getElementById('customEqSlider');
+    const rateSlider = document.getElementById('customRateSlider');
+    const commSlider = document.getElementById('customCommSlider');
+    const fxSlider = document.getElementById('customFxSlider');
+
+    const eqVal = document.getElementById('customEqVal');
+    const rateVal = document.getElementById('customRateVal');
+    const commVal = document.getElementById('customCommVal');
+    const fxVal = document.getElementById('customFxVal');
+
+    const presets = {
+        gfc2008: { eq: -0.45, rate: 150, comm: -0.50, fx: 0.18, vuln: 'Banking & Financial Solvency', hedge: 'Long Cash & Sovereign Bonds' },
+        covid2020: { eq: -0.34, rate: -100, comm: -0.65, fx: 0.08, vuln: 'Global Supply Chain & Energy', hedge: 'Long Quality Large-Cap Tech' },
+        rate2022: { eq: -0.22, rate: 500, comm: 0.40, fx: 0.12, vuln: 'High-Multiple Growth Tech & Long Duration', hedge: 'Short Duration Floating & Energy' },
+        energy2024: { eq: -0.14, rate: 75, comm: 0.65, fx: 0.06, vuln: 'Import-Dependent Manufacturing & Auto', hedge: 'Long Upstream Energy (BRENT/ONGC)' },
+        custom: { eq: -0.25, rate: 200, comm: 0.35, fx: 0.05, vuln: 'High-Beta Equities', hedge: 'Diversified Multi-Asset Hedge' }
+    };
+
+    let activeCrisis = 'gfc2008';
+
+    const recalculateCrisis = () => {
+        let params = presets[activeCrisis];
+        if (activeCrisis === 'custom' && eqSlider) {
+            const eq = Number(eqSlider.value) / 100;
+            const rate = Number(rateSlider.value);
+            const comm = Number(commSlider.value) / 100;
+            const fx = Number(fxSlider.value) / 100;
+
+            if (eqVal) eqVal.textContent = `${(eq * 100).toFixed(0)}%`;
+            if (rateVal) rateVal.textContent = `+${rate} bps`;
+            if (commVal) commVal.textContent = `${comm >= 0 ? '+' : ''}${(comm * 100).toFixed(0)}%`;
+            if (fxVal) fxVal.textContent = `${fx >= 0 ? '+' : ''}${(fx * 100).toFixed(1)}%`;
+
+            params = { eq, rate, comm, fx, vuln: 'Custom Multi-Factor Stress', hedge: 'Dynamic Portfolio Tail Hedge' };
+        }
+
+        const eqImpact = params.eq * 0.70;
+        const rateImpact = -(params.rate / 10000) * 4.5 * 0.20;
+        const commImpact = params.comm * 0.10;
+
+        const totalDrawdownPct = Math.min(-0.01, eqImpact + rateImpact + commImpact);
+        const totalDrawdownAbs = BASE_CAPITAL * totalDrawdownPct;
+        const remainingCap = BASE_CAPITAL + totalDrawdownAbs;
+
+        const lossFrac = Math.abs(totalDrawdownPct);
+        const reqGainPct = lossFrac < 0.99 ? ((1 / (1 - lossFrac)) - 1) * 100 : 999;
+
+        const monthlyHurdle = 0.12 / 12;
+        const monthsReq = Math.round(Math.log(1 + reqGainPct / 100) / Math.log(1 + monthlyHurdle));
+
+        const ddPctEl = document.getElementById('stressDrawdownPct');
+        const ddAbsEl = document.getElementById('stressDrawdownAbs');
+        const remCapEl = document.getElementById('stressRemainingCap');
+        const reqGainEl = document.getElementById('stressRequiredGain');
+        const recMonthsEl = document.getElementById('stressRecoveryMonths');
+        const vulnEl = document.getElementById('stressPrimaryVuln');
+
+        if (ddPctEl) ddPctEl.textContent = `${(totalDrawdownPct * 100).toFixed(2)}%`;
+        if (ddAbsEl) ddAbsEl.textContent = formatMoney(totalDrawdownAbs, 'INR');
+        if (remCapEl) remCapEl.textContent = formatMoney(remainingCap, 'INR');
+        if (reqGainEl) reqGainEl.textContent = `+${reqGainPct.toFixed(2)}%`;
+        if (recMonthsEl) recMonthsEl.textContent = `~${monthsReq} Months @ 12% Hurdle`;
+        if (vulnEl) vulnEl.textContent = params.vuln;
+    };
+
+    crisisBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            crisisBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.04)';
+                b.style.borderColor = 'rgba(255,255,255,0.1)';
+                b.style.color = '#aaa';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'rgba(255,107,107,0.15)';
+            btn.style.borderColor = 'rgba(255,107,107,0.4)';
+            btn.style.color = '#FF6B6B';
+
+            activeCrisis = btn.dataset.crisis;
+            if (customSliders) {
+                customSliders.style.display = activeCrisis === 'custom' ? 'grid' : 'none';
+            }
+            recalculateCrisis();
+        });
+    });
+
+    [eqSlider, rateSlider, commSlider, fxSlider].forEach(sl => {
+        if (sl) sl.addEventListener('input', recalculateCrisis);
+    });
+
+    recalculateCrisis();
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
@@ -1802,5 +1900,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initGreeksSimulator, 400);
     setTimeout(initAppPalette, 450);
     setTimeout(initAudioToggle, 500);
+    setTimeout(initCrisisReplaySuite, 550);
 });
 

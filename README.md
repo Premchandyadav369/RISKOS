@@ -149,6 +149,15 @@ Tests the null hypothesis $H_0: p = p_0 = 1 - \alpha$ against the alternative $H
 
 $$\text{LR}_{\text{POF}} = -2 \ln \left[ \frac{p_0^x (1 - p_0)^{N-x}}{\left(\frac{x}{N}\right)^x \left(1 - \frac{x}{N}\right)^{N-x}} \right] \sim \chi^2(1)$$
 
+#### 6. Multi-Factor Crisis Replay & Drawdown Recovery Horizon
+Simulates portfolio capital destruction under historical and synthetic macro dislocations:
+
+$$\Delta V_p = V_0 \cdot \left[ w_{\text{eq}} \cdot \Delta_{\text{eq}} - w_{\text{fi}} \cdot D^* \cdot \frac{\Delta y}{10000} + w_{\text{comm}} \cdot \Delta_{\text{comm}} \right]$$
+
+The required percentage capital return $R_{\text{req}}$ to restore original principal from loss fraction $L = |\Delta V_p| / V_0$, and the compound recovery horizon $n$ (months) at annualized hurdle rate $r_h$:
+
+$$R_{\text{req}} = \frac{1}{1 - L} - 1, \qquad n_{\text{months}} = \frac{\ln(1 + R_{\text{req}})}{\ln\left(1 + \frac{r_h}{12}\right)}$$
+
 ---
 
 ## 📈 Desk 3: Derivatives & Volatility Lab
