@@ -1,0 +1,13 @@
+{
+  "symbol": "JPM",
+  "exchange": "NYSE",
+  "name": "JPMorgan Chase & Co",
+  "sector": "Global Banking",
+  "currency": "USD",
+  "base_price": 218.4,
+  "beta": 1.08,
+  "pe_ratio": 12.4,
+  "schema_type": "institutional_security_esg_scores",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
