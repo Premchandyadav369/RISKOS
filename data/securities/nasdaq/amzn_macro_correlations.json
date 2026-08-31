@@ -1,0 +1,13 @@
+{
+  "symbol": "AMZN",
+  "exchange": "NASDAQ",
+  "name": "Amazon.com Inc",
+  "sector": "E-Commerce & Cloud",
+  "currency": "USD",
+  "base_price": 186.4,
+  "beta": 1.25,
+  "pe_ratio": 41.2,
+  "schema_type": "institutional_security_macro_correlations",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
