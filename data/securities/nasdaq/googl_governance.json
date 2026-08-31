@@ -1,0 +1,13 @@
+{
+  "symbol": "GOOGL",
+  "exchange": "NASDAQ",
+  "name": "Alphabet Inc",
+  "sector": "Internet & AI",
+  "currency": "USD",
+  "base_price": 176.8,
+  "beta": 1.12,
+  "pe_ratio": 24.5,
+  "schema_type": "institutional_security_governance",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
