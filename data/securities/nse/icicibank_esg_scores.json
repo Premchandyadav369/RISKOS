@@ -1,0 +1,13 @@
+{
+  "symbol": "ICICIBANK",
+  "exchange": "NSE",
+  "name": "ICICI Bank Ltd",
+  "sector": "Financial Services",
+  "currency": "INR",
+  "base_price": 1218.4,
+  "beta": 1.02,
+  "pe_ratio": 19.4,
+  "schema_type": "institutional_security_esg_scores",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
