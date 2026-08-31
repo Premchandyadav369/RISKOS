@@ -1,0 +1,13 @@
+{
+  "api": "attribution_engine",
+  "title": "Brinson-Fachler Multi-Currency Performance Attribution API",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/attribution_engine/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
