@@ -1,0 +1,13 @@
+{
+  "api": "trade_blotter",
+  "title": "Persistent Database Order Ledger & Fill Repository",
+  "spec_type": "openapi",
+  "version": "v2.5.0",
+  "endpoints": [
+    {
+      "path": "/api/v2/trade_blotter/query",
+      "method": "GET",
+      "auth": "Bearer JWT"
+    }
+  ]
+}
