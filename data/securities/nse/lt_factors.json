@@ -1,0 +1,13 @@
+{
+  "symbol": "LT",
+  "exchange": "NSE",
+  "name": "Larsen & Toubro Ltd",
+  "sector": "Capital Goods",
+  "currency": "INR",
+  "base_price": 3680.0,
+  "beta": 1.1,
+  "pe_ratio": 34.8,
+  "schema_type": "institutional_security_factors",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
