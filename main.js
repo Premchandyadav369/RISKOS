@@ -3588,6 +3588,22 @@ document.addEventListener('DOMContentLoaded', () => {
   initLiveTradeTape();
   initCurrencyToggle();
 
+  setTimeout(() => {
+    if (typeof renderMathInElement !== 'undefined') {
+      try {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      } catch(e) {}
+    }
+  }, 300);
+
 });
 
 

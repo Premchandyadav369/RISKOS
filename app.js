@@ -2293,6 +2293,27 @@ function initFeatureExplainability() {
 
     if (!modal) return;
 
+    function renderLatex(container, latexString, displayMode = false) {
+        if (!container || !latexString) return;
+        if (typeof katex !== 'undefined' && katex.render) {
+            try {
+                katex.render(latexString, container, {
+                    displayMode: displayMode,
+                    throwOnError: false
+                });
+                return;
+            } catch (e) {
+                console.warn("KaTeX render error:", e);
+            }
+        }
+        if (window.MathJax && window.MathJax.typesetPromise) {
+            container.innerHTML = displayMode ? `\\[${latexString}\\]` : `\\(${latexString}\\)`;
+            window.MathJax.typesetPromise([container]).catch(() => {});
+            return;
+        }
+        container.textContent = latexString;
+    }
+
     function renderExplainDrawer() {
         const data = EXPLAIN_KNOWLEDGE_BASE[currentExplainKey] || EXPLAIN_KNOWLEDGE_BASE['var_cvar'];
         
@@ -2308,7 +2329,7 @@ function initFeatureExplainability() {
         const traceList = document.getElementById('expTraceList');
 
         if (titleEl) titleEl.textContent = data.title;
-        if (symbolEl) symbolEl.textContent = data.symbol;
+        if (symbolEl) renderLatex(symbolEl, data.symbol, false);
         if (badgeEl) badgeEl.textContent = data.category.toUpperCase();
 
         depthBtns.forEach(btn => {
@@ -2329,7 +2350,7 @@ function initFeatureExplainability() {
             if (textEl) textEl.textContent = data.investor.text;
             if (formulaSec) {
                 formulaSec.style.display = 'block';
-                if (formulaBox) formulaBox.textContent = data.quant.formula;
+                if (formulaBox) renderLatex(formulaBox, data.quant.formula, true);
                 if (assumptionsEl) assumptionsEl.innerHTML = `<strong>Institutional Rule-of-Thumb:</strong> ${data.investor.heading}`;
             }
             if (traceSec) traceSec.style.display = 'none';
@@ -2338,7 +2359,7 @@ function initFeatureExplainability() {
             if (textEl) textEl.textContent = `Rigorous analytical derivation and computational invariants for ${data.title}.`;
             if (formulaSec) {
                 formulaSec.style.display = 'block';
-                if (formulaBox) formulaBox.textContent = data.quant.formula;
+                if (formulaBox) renderLatex(formulaBox, data.quant.formula, true);
                 if (assumptionsEl) assumptionsEl.innerHTML = `<strong>Invariants &amp; Assumptions:</strong> ${data.quant.assumptions}`;
             }
             if (traceSec) {
@@ -2351,6 +2372,21 @@ function initFeatureExplainability() {
                     `).join('');
                 }
             }
+        }
+
+        // Auto-render any inline math in the drawer
+        if (typeof renderMathInElement !== 'undefined') {
+            try {
+                renderMathInElement(modal, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            } catch (e) {}
         }
     }
 
@@ -2572,6 +2608,21 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initFeatureExplainability, 600);
     setTimeout(initBlackLitterman, 650);
     setTimeout(initCointegrationScreener, 700);
+    setTimeout(() => {
+        if (typeof renderMathInElement !== 'undefined') {
+            try {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ],
+                    throwOnError: false
+                });
+            } catch(e) {}
+        }
+    }, 750);
 });
 
 

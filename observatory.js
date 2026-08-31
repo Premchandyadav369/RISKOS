@@ -1357,16 +1357,34 @@
     recalculateTaylor();
   };
 
+  const triggerMathRendering = () => {
+    if (typeof renderMathInElement !== 'undefined') {
+      try {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false},
+            {left: '\\(', right: '\\)', display: false},
+            {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError: false
+        });
+      } catch(e) {}
+    }
+  };
+
   // Run on DOM Ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       init();
       initObsMarketRibbon();
       initTaylorRuleForecaster();
+      setTimeout(triggerMathRendering, 250);
     });
   } else {
     init();
     initObsMarketRibbon();
     initTaylorRuleForecaster();
+    setTimeout(triggerMathRendering, 250);
   }
 })();
