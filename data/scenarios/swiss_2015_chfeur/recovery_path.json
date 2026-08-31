@@ -1,0 +1,16 @@
+{
+  "crisis_id": "swiss_2015_chfeur",
+  "title": "2015 Swiss National Bank EUR/CHF Floor Removal",
+  "phase": "recovery_path",
+  "max_drawdown_pct": -38.5,
+  "peak_vix": 68.2,
+  "spread_widening_bps": 340,
+  "recovery_months": 28,
+  "asset_impacts": {
+    "equities": -42.0,
+    "commodities": -28.0,
+    "high_yield_credit": -18.5,
+    "sovereign_bonds": 12.4,
+    "cash": 0.0
+  }
+}
