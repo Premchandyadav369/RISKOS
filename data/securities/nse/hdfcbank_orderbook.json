@@ -1,0 +1,13 @@
+{
+  "symbol": "HDFCBANK",
+  "exchange": "NSE",
+  "name": "HDFC Bank Ltd",
+  "sector": "Financial Services",
+  "currency": "INR",
+  "base_price": 1642.3,
+  "beta": 1.08,
+  "pe_ratio": 18.6,
+  "schema_type": "institutional_security_orderbook",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
