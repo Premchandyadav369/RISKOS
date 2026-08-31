@@ -1,0 +1,13 @@
+{
+  "symbol": "BRENT",
+  "exchange": "ICE",
+  "name": "Brent Crude Oil Benchmark",
+  "sector": "Energy Commodities",
+  "currency": "USD",
+  "base_price": 84.5,
+  "beta": 0.45,
+  "pe_ratio": 0.0,
+  "schema_type": "institutional_security_macro_correlations",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
