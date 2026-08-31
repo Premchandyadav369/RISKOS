@@ -341,25 +341,41 @@
     const chgPct = Number(((chg / q.previousClose) * 100).toFixed(2));
     const isUp = chg >= 0;
 
-    document.getElementById('drawerAssetBadge').textContent = sec.assetType;
-    document.getElementById('drawerSecTitle').textContent = sec.symbol;
-    document.getElementById('drawerSecSubtitle').textContent = `${sec.name} • ${sec.exchange}`;
-
-    document.getElementById('drawerPrice').textContent = formatMoney(q.price, sec.currency);
+    const badgeEl = document.getElementById('drawerAssetBadge');
+    const titleEl = document.getElementById('drawerSecTitle');
+    const subEl = document.getElementById('drawerSecSubtitle');
+    const priceEl = document.getElementById('drawerPrice');
     const chgEl = document.getElementById('drawerChange');
-    chgEl.textContent = `${isUp ? '+' : ''}${formatMoney(chg, sec.currency)} (${isUp ? '+' : ''}${chgPct.toFixed(2)}%)`;
-    chgEl.className = `quote-change ${isUp ? 'text-emerald' : 'text-red'}`;
+    const peEl = document.getElementById('drawerPE');
+    const betaEl = document.getElementById('drawerBeta');
+    const volEl = document.getElementById('drawerVol');
+    const high52El = document.getElementById('drawer52WHigh');
 
-    document.getElementById('drawerPE').textContent = sec.pe ? sec.pe.toFixed(2) : '—';
-    document.getElementById('drawerBeta').textContent = sec.beta ? sec.beta.toFixed(2) : '—';
-    document.getElementById('drawerVol').textContent = sec.vol ? `${(sec.vol * 100).toFixed(1)}%` : '—';
-    document.getElementById('drawer52WHigh').textContent = formatMoney(q.high52w, sec.currency);
+    if (badgeEl) badgeEl.textContent = sec.assetType;
+    if (titleEl) titleEl.textContent = sec.symbol;
+    if (subEl) subEl.textContent = `${sec.name} • ${sec.exchange}`;
+
+    if (priceEl) priceEl.textContent = formatMoney(q.price, sec.currency);
+    if (chgEl) {
+      chgEl.textContent = `${isUp ? '+' : ''}${formatMoney(chg, sec.currency)} (${isUp ? '+' : ''}${chgPct.toFixed(2)}%)`;
+      chgEl.className = `quote-change ${isUp ? 'text-emerald' : 'text-red'}`;
+    }
+
+    if (peEl) peEl.textContent = sec.pe ? sec.pe.toFixed(2) : '—';
+    if (betaEl) betaEl.textContent = sec.beta ? sec.beta.toFixed(2) : '—';
+    if (volEl) volEl.textContent = sec.vol ? `${(sec.vol * 100).toFixed(1)}%` : '—';
+    if (high52El) high52El.textContent = formatMoney(q.high52w, sec.currency);
 
     // Cross-Platform Links
-    document.getElementById('drawerGoDashboard').href = `index.html?symbol=${sec.symbol}`;
-    document.getElementById('drawerGoObservatory').href = `observatory.html?symbol=${sec.symbol}`;
-    document.getElementById('drawerGoLearnLab').href = `learn.html?sec=${sec.symbol}`;
-    document.getElementById('drawerGoTerminal').href = `app.html?tickers=${sec.symbol}`;
+    const linkDash = document.getElementById('drawerGoDashboard');
+    const linkObs = document.getElementById('drawerGoObservatory');
+    const linkLab = document.getElementById('drawerGoLearnLab');
+    const linkTerm = document.getElementById('drawerGoTerminal');
+
+    if (linkDash) linkDash.href = `index.html?symbol=${sec.symbol}`;
+    if (linkObs) linkObs.href = `observatory.html?symbol=${sec.symbol}`;
+    if (linkLab) linkLab.href = `learn.html?sec=${sec.symbol}`;
+    if (linkTerm) linkTerm.href = `app.html?tickers=${sec.symbol}`;
 
     // Watchlist & Pin buttons in drawer
     const isWatch = MarketStore.getWatchlist().includes(sec.symbol);
@@ -907,15 +923,14 @@
         // 3. Update drawer if open
         if (state.activeDrawerSec) {
           const matching = updates.find(u => u.symbol === state.activeDrawerSec.symbol);
-          if (matching) {
-            const dPrice = document.getElementById('drawerLivePrice');
-            const dChg = document.getElementById('drawerLiveChg');
+            const dPrice = document.getElementById('drawerPrice') || document.getElementById('drawerLivePrice');
+            const dChg = document.getElementById('drawerChange') || document.getElementById('drawerLiveChg');
             if (dPrice) dPrice.textContent = formatMoney(matching.price, matching.currency);
             if (dChg) {
-              dChg.textContent = `${matching.change >= 0 ? '+' : ''}${matching.changePercent.toFixed(2)}%`;
-              dChg.className = `drawer-stat-val ${matching.change >= 0 ? 'text-emerald' : 'text-red'}`;
+              const sign = matching.change >= 0 ? '+' : '';
+              dChg.textContent = `${sign}${formatMoney(matching.change, matching.currency)} (${sign}${matching.changePercent.toFixed(2)}%)`;
+              dChg.className = `quote-change ${matching.change >= 0 ? 'text-emerald' : 'text-red'}`;
             }
-          }
         }
       });
     }
