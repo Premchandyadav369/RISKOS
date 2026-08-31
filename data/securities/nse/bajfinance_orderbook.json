@@ -1,0 +1,13 @@
+{
+  "symbol": "BAJFINANCE",
+  "exchange": "NSE",
+  "name": "Bajaj Finance Ltd",
+  "sector": "Consumer Finance",
+  "currency": "INR",
+  "base_price": 6850.0,
+  "beta": 1.42,
+  "pe_ratio": 32.5,
+  "schema_type": "institutional_security_orderbook",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
