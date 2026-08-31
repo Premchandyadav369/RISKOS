@@ -1,0 +1,13 @@
+{
+  "symbol": "KOTAKBANK",
+  "exchange": "NSE",
+  "name": "Kotak Mahindra Bank Ltd",
+  "sector": "Financial Services",
+  "currency": "INR",
+  "base_price": 1788.0,
+  "beta": 1.05,
+  "pe_ratio": 22.4,
+  "schema_type": "institutional_security_factors",
+  "provenance": "RISKOS Central Financial Registry",
+  "verified_at": "2026-08-31T16:40:00Z"
+}
