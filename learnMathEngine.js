@@ -1247,6 +1247,343 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // 25. Merton Jump-Diffusion & Extreme Crash Simulator
+  const calcMertonJumpDiffusion = ({ spotPrice = 100, drift = 8.0, vol = 18.0, lambdaJumps = 1.2, jumpMean = -12.0, jumpVol = 8.0, timeHorizon = 1.0 }) => {
+    const S0 = Number(spotPrice);
+    const mu = Number(drift) / 100.0;
+    const sigma = Number(vol) / 100.0;
+    const lambda = Number(lambdaJumps);
+    const muJ = Number(jumpMean) / 100.0;
+    const sigmaJ = Number(jumpVol) / 100.0;
+    const T = Number(timeHorizon);
+
+    const k = Math.exp(muJ + 0.5 * sigmaJ * sigmaJ) - 1.0;
+    const driftCompensated = mu - lambda * k - 0.5 * sigma * sigma;
+
+    const nSteps = 50;
+    const dt = T / nSteps;
+    const labels = Array.from({ length: nSteps + 1 }, (_, i) => `t=${(i * dt).toFixed(2)}y`);
+
+    // Deterministic representative jump path vs pure diffusion path
+    const jumpPath = [S0];
+    const pureGBMPath = [S0];
+    let curS_jump = S0;
+    let curS_gbm = S0;
+
+    let jumpOccurred = 0;
+    for (let i = 1; i <= nSteps; i++) {
+      const z = Math.sin(i * 0.45) * 0.85;
+      curS_gbm *= Math.exp((mu - 0.5 * sigma * sigma) * dt + sigma * Math.sqrt(dt) * z);
+      pureGBMPath.push(Number(curS_gbm.toFixed(2)));
+
+      // Deterministic jump trigger at step 18 and step 36
+      let jumpFactor = 1.0;
+      if (i === Math.floor(nSteps * 0.35) || (lambda > 1.5 && i === Math.floor(nSteps * 0.72))) {
+        jumpFactor = Math.exp(muJ);
+        jumpOccurred++;
+      }
+
+      curS_jump *= Math.exp(driftCompensated * dt + sigma * Math.sqrt(dt) * z) * jumpFactor;
+      jumpPath.push(Number(curS_jump.toFixed(2)));
+    }
+
+    const finalJumpPrice = jumpPath[jumpPath.length - 1];
+    const finalGBMPrice = pureGBMPath[pureGBMPath.length - 1];
+    const jumpImpactPct = (((finalJumpPrice - finalGBMPrice) / finalGBMPrice) * 100).toFixed(1);
+
+    return {
+      focalSymbol: 'dS = (μ-λk)S dt + σS dW + (J-1)S dN',
+      focalLabel: 'Jump Intensity / yr',
+      focalValue: `λ = ${lambda.toFixed(1)} (${jumpOccurred} Discontinuous Shocks)`,
+      plainResult: `Merton Jump-Diffusion models continuous volatility (σ=${(sigma * 100).toFixed(0)}%) with sudden Poisson crash jumps (intensity λ=${lambda.toFixed(1)}/yr, average jump size ${jumpMean}%). Resulting final price: $${finalJumpPrice.toFixed(2)} (${jumpImpactPct >= 0 ? '+' : ''}${jumpImpactPct}% relative to smooth Gaussian GBM).`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'Merton Jump-Diffusion Trajectory (with Crash Jumps)', data: jumpPath, borderColor: '#FF6B6B', backgroundColor: 'rgba(255, 107, 107, 0.15)', fill: true, borderWidth: 2.5 },
+          { label: 'Standard Gaussian GBM Benchmark (No Jumps)', data: pureGBMPath, borderColor: 'rgba(255, 255, 255, 0.35)', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: `\\[ dS_t = (\\mu - \\lambda k) S_t dt + \\sigma S_t dW_t + (J - 1) S_t dN_t, \\quad \\ln J \\sim \\mathcal{N}(\\mu_J, \\sigma_J^2), \\quad k = \\mathbb{E}[J - 1] = e^{\\mu_J + \\frac{1}{2}\\sigma_J^2} - 1 \\]`,
+      substitutedLatex: `\\[ k = e^{${muJ.toFixed(2)} + \\frac{1}{2}(${sigmaJ.toFixed(2)})^2} - 1 = ${(k * 100).toFixed(2)}\\% \\implies \\text{Compensated Drift} = ${(driftCompensated * 100).toFixed(2)}\\% \\]`,
+      beginnerText: `Standard models assume stock prices glide smoothly like a car on a road. Merton's model accounts for sudden sinkholes — earnings misses, flash crashes, or geopolitical shocks that gap prices overnight.`,
+      investorText: `Explains why short-dated out-of-the-money put options have enormous implied volatility premiums that standard Black-Scholes cannot justify.`,
+      quantText: `The infinitesimal generator contains an integro-differential operator: $\\mathcal{A} f(S) = \\frac{1}{2}\\sigma^2 S^2 f_{SS} + (r - \\lambda k) S f_S - (r + \\lambda) f + \\lambda \\int_0^\\infty f(S y) g(y) dy$. Option pricing reduces to a weighted sum of Black-Scholes formulas conditional on $n$ Poisson jumps.`,
+      limitations: `Jump intensity $\\lambda$ is assumed constant (independent of volatility state). Jumps are unhedgeable with stock + cash alone, generating an incomplete market.`
+    };
+  };
+
+  // 26. Almgren-Chriss Optimal Execution & Liquidation
+  const calcAlmgrenChriss = ({ totalShares = 100000, targetDays = 5, dailyVol = 2.0, riskAversion = 0.1, tempImpact = 15.0, permImpact = 8.0 }) => {
+    const X0 = Number(totalShares);
+    const T = Number(targetDays);
+    const sigma = Number(dailyVol) / 100.0;
+    const lambda = Number(riskAversion);
+    const eta = Number(tempImpact) / 10000.0;
+    const gamma = Number(permImpact) / 10000.0;
+
+    // Half-life of execution: kappa = sqrt(lambda * sigma^2 / eta)
+    const kappa = Math.max(0.1, Math.sqrt((lambda * sigma * sigma) / Math.max(1e-5, eta)));
+    const halfLifeDays = (Math.log(2) / kappa).toFixed(2);
+
+    const nIntervals = Math.max(5, Math.ceil(T));
+    const labels = Array.from({ length: nIntervals + 1 }, (_, i) => `Day ${i}`);
+
+    const almgrenTrajectory = [];
+    const twapTrajectory = [];
+    const urgentTrajectory = [];
+
+    for (let i = 0; i <= nIntervals; i++) {
+      const t = i * (T / nIntervals);
+      // Almgren-Chriss hyperbolic trajectory: x(t) = X0 * sinh(kappa * (T - t)) / sinh(kappa * T)
+      const sinhDenom = Math.sinh(kappa * T);
+      const acQty = sinhDenom !== 0 ? X0 * (Math.sinh(kappa * (T - t)) / sinhDenom) : X0 * (1.0 - t / T);
+      almgrenTrajectory.push(Number(Math.max(0, acQty).toFixed(0)));
+
+      // Linear TWAP
+      const twapQty = X0 * (1.0 - t / T);
+      twapTrajectory.push(Number(Math.max(0, twapQty).toFixed(0)));
+
+      // Urgent liquidation
+      const urgentQty = X0 * Math.exp(-1.8 * t);
+      urgentTrajectory.push(Number(Math.max(0, urgentQty).toFixed(0)));
+    }
+
+    const expectedCostAlmgrenBps = Number((0.5 * gamma * X0 * 0.001 + 0.5 * eta * (X0 / T) * 0.01 * 100).toFixed(1));
+    const expectedCostTWAPBps = Number((0.5 * gamma * X0 * 0.001 + eta * (X0 / T) * 0.01 * 100).toFixed(1));
+
+    return {
+      focalSymbol: 'κ = √(λσ²/η)',
+      focalLabel: 'Optimal Liquidation Half-Life',
+      focalValue: `τ_{1/2} = ${halfLifeDays} Days`,
+      plainResult: `Almgren-Chriss optimal liquidation schedule for ${X0.toLocaleString()} shares over ${T} days. Optimal decay rate κ = ${kappa.toFixed(3)} balances market impact cost (${expectedCostAlmgrenBps} bps) against inventory timing risk (σ=${dailyVol}%/day).`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'Almgren-Chriss Optimal Inventory Trajectory x(t)', data: almgrenTrajectory, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2.5 },
+          { label: 'Linear TWAP Execution Benchmark', data: twapTrajectory, borderColor: 'rgba(255, 255, 255, 0.4)', borderDash: [4, 4], fill: false, borderWidth: 1.5 },
+          { label: 'Aggressive Urgent Liquidation', data: urgentTrajectory, borderColor: '#FF6B6B', borderDash: [2, 2], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: `\\[ x(t) = X_0 \\frac{\\sinh(\\kappa(T - t))}{\\sinh(\\kappa T)}, \\quad \\kappa = \\sqrt{\\frac{\\lambda \\sigma^2}{\\eta}}, \\quad \\text{Cost} = \\mathbb{E}[x] + \\lambda \\mathbb{V}[x] \\]`,
+      substitutedLatex: `\\[ \\kappa = \\sqrt{\\frac{(${lambda.toFixed(2)})(${sigma.toFixed(3)})^2}{${eta.toFixed(5)}}} = \\mathbf{${kappa.toFixed(3)}} \\implies \\text{Half-Life } \\tau_{1/2} = \\mathbf{${halfLifeDays}\\text{ Days}} \\]`,
+      beginnerText: `If you need to dump 100,000 shares, dumping all at once crashes the price (slippage), but dumping too slowly exposes you to market risk if the stock tanks tomorrow. Almgren-Chriss finds the perfect math balance.`,
+      investorText: `Used by institutional execution algorithms (VWAP/IS algorithms) to save millions of basis points in market impact for large pension fund block liquidations.`,
+      quantText: `Formulated as a calculus of variations Euler-Lagrange optimization: $\\min_{v(t)} \\int_0^T \\left( \\eta v(t)^2 + \\lambda \\sigma^2 x(t)^2 \\right) dt$ subject to boundary conditions $x(0) = X_0$ and $x(T) = 0$.`,
+      limitations: `Assumes linear temporary impact $\\eta v_t$ and linear permanent impact $\\gamma v_t$. Real order book resilience shows non-linear power law decay ($\sim t^{-\alpha}$).`
+    };
+  };
+
+  // 27. Live Kalman Filter State-Space Dynamic Pairs Arbitrage
+  const calcKalmanFilterPairs = ({ betaPrior = 1.15, processNoiseQ = 0.001, measurementNoiseR = 0.05, zScoreThreshold = 2.0 }) => {
+    const qNoise = Number(processNoiseQ);
+    const rNoise = Number(measurementNoiseR);
+    const zThresh = Number(zScoreThreshold);
+
+    const nTicks = 25;
+    const labels = Array.from({ length: nTicks }, (_, i) => `t+${i}`);
+
+    let beta = Number(betaPrior);
+    let P = 0.1; // Error covariance
+
+    const betaHistory = [];
+    const zScoreHistory = [];
+    const upperThresh = [];
+    const lowerThresh = [];
+
+    for (let i = 0; i < nTicks; i++) {
+      // Synthetic true relation drift + noise
+      const trueBeta = Number(betaPrior) + Math.sin(i * 0.3) * 0.15;
+      const x_t = 100 + Math.sin(i * 0.2) * 5;
+      const y_t = trueBeta * x_t + (Math.cos(i * 0.5) * 2.5);
+
+      // 1. Predict step
+      const betaPred = beta;
+      const P_pred = P + qNoise;
+
+      // 2. Innovation / Measurement update
+      const y_pred = betaPred * x_t;
+      const innovation = y_t - y_pred;
+      const innovationCov = x_t * P_pred * x_t + rNoise;
+      const K = (P_pred * x_t) / innovationCov; // Kalman Gain
+
+      beta = betaPred + K * innovation;
+      P = (1.0 - K * x_t) * P_pred;
+
+      const zScore = innovation / Math.sqrt(Math.max(0.01, innovationCov));
+
+      betaHistory.push(Number(beta.toFixed(3)));
+      zScoreHistory.push(Number(zScore.toFixed(2)));
+      upperThresh.push(zThresh);
+      lowerThresh.push(-zThresh);
+    }
+
+    const currentZ = zScoreHistory[zScoreHistory.length - 1];
+    const currentBeta = betaHistory[betaHistory.length - 1];
+    const signalState = currentZ > zThresh ? 'SHORT SPREAD (Overbought)' : currentZ < -zThresh ? 'LONG SPREAD (Oversold)' : 'NEUTRAL / IN-BAND';
+    const signalColor = currentZ > zThresh ? '#FF6B6B' : currentZ < -zThresh ? '#51CF66' : '#FAB005';
+
+    return {
+      focalSymbol: 'β_t = β_{t-1} + K_t(y_t - x_t^T β_{t-1})',
+      focalLabel: 'Dynamic Hedge Ratio & Signal',
+      focalValue: `β = ${currentBeta} (${signalState})`,
+      plainResult: `Kalman Filter dynamically tracked hedge ratio from prior ${betaPrior} to live equilibrium ${currentBeta}. Current measurement residual innovation Z-score: ${currentZ > 0 ? '+' : ''}${currentZ}σ -> Signal: ${signalState}.`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'Spread Residual Z-Score (σ)', data: zScoreHistory, borderColor: signalColor, backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: false, borderWidth: 2.5 },
+          { label: `Upper Entry Trigger (+${zThresh}σ)`, data: upperThresh, borderColor: '#FF6B6B', borderDash: [4, 4], fill: false, borderWidth: 1.5 },
+          { label: `Lower Entry Trigger (-${zThresh}σ)`, data: lowerThresh, borderColor: '#51CF66', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: `\\[ \\begin{aligned} \\text{State Model:} &\\quad \\beta_t = \\beta_{t-1} + w_t, \\quad w_t \\sim \\mathcal{N}(0, Q) \\\\ \\text{Measurement:} &\\quad y_t = \\beta_t x_t + v_t, \\quad v_t \\sim \\mathcal{N}(0, R) \\\\ \\text{Kalman Gain:} &\\quad K_t = P_{t|t-1} x_t (x_t^T P_{t|t-1} x_t + R)^{-1} \\end{aligned} \\]`,
+      substitutedLatex: `\\[ K_t = \\frac{P_{t|t-1} x_t}{x_t^2 P_{t|t-1} + ${rNoise}} \\implies \\beta_t = \\mathbf{${currentBeta}}, \\quad Z = \\mathbf{${currentZ > 0 ? '+' : ''}${currentZ}\\sigma} \\]`,
+      beginnerText: `Unlike simple linear regression which is stuck looking at old data, a Kalman Filter is like a smart financial autopilot that recalibrates the relationship between two stocks with every single live trade tick.`,
+      investorText: `Prevents catastrophic pairs trading losses during regime shifts by updating hedge ratios in real time instead of using rigid 60-day moving averages.`,
+      quantText: `Recursive Bayesian state-space filter that is provably the optimal minimum-variance unbiased estimator for linear Gaussian dynamical systems.`,
+      limitations: `Gaussian noise assumption. If residuals exhibit heavy fat-tails or structural breaks, particle filters or unscented Kalman filters (UKF) are preferred.`
+    };
+  };
+
+  // 28. Black-Litterman Global Bayesian Asset Allocation
+  const calcBlackLitterman = ({ viewSpreadPct = 4.0, confidenceTau = 0.05, marketRiskAversion = 2.5, viewConfidence = 0.85 }) => {
+    const qView = Number(viewSpreadPct) / 100.0;
+    const tau = Number(confidenceTau);
+    const lambda = Number(marketRiskAversion);
+    const conf = Number(viewConfidence);
+
+    // Assets: Asset 1 (Tech), Asset 2 (Banks), Asset 3 (Energy)
+    const marketWeights = [0.45, 0.35, 0.20];
+    const baseVols = [0.22, 0.16, 0.20];
+
+    // Implied equilibrium returns: Pi = lambda * Sigma * w_mkt
+    const eqReturns = [
+      lambda * Math.pow(baseVols[0], 2) * marketWeights[0] * 100 + 4.0,
+      lambda * Math.pow(baseVols[1], 2) * marketWeights[1] * 100 + 3.0,
+      lambda * Math.pow(baseVols[2], 2) * marketWeights[2] * 100 + 2.5
+    ];
+
+    // Investor View: Tech will outperform Banks by +qView%
+    const viewTilt = qView * conf * (1.0 / (tau * lambda + 0.1)) * 100;
+    const blWeights = [
+      Math.min(0.80, Math.max(0.10, marketWeights[0] + viewTilt * 0.01)),
+      Math.min(0.80, Math.max(0.10, marketWeights[1] - viewTilt * 0.01)),
+      marketWeights[2]
+    ];
+
+    // Normalize weights
+    const totalW = blWeights.reduce((a, b) => a + b, 0);
+    const normBLWeights = blWeights.map(w => Number(((w / totalW) * 100).toFixed(1)));
+
+    return {
+      focalSymbol: 'μ_{BL} = [(τΣ)^{-1} + P^T Ω^{-1} P]^{-1} [(τΣ)^{-1} Π + P^T Ω^{-1} Q]',
+      focalLabel: 'Bayesian Optimal Tech Tilt',
+      focalValue: `${normBLWeights[0]}% (${normBLWeights[0] > 45 ? '+' : ''}${(normBLWeights[0] - 45).toFixed(1)}% vs Market Cap)`,
+      plainResult: `Black-Litterman blended global market cap equilibrium with your active subjective view (+${viewSpreadPct}% Tech outperformance at ${(conf * 100).toFixed(0)}% conviction). Optimal Bayesian portfolio weights: Tech ${normBLWeights[0]}%, Banks ${normBLWeights[1]}%, Energy ${normBLWeights[2]}%.`,
+      chart: {
+        labels: ['Asset 1 (Tech)', 'Asset 2 (Banks)', 'Asset 3 (Energy)'],
+        datasets: [
+          { label: 'Black-Litterman Optimal Bayesian Weights (%)', data: normBLWeights, backgroundColor: ['#22d3ee', '#51CF66', '#FAB005'], borderWidth: 1 },
+          { label: 'Global Market Equilibrium Benchmark (%)', data: marketWeights.map(w => w * 100), backgroundColor: 'rgba(255, 255, 255, 0.15)', borderWidth: 1 }
+        ]
+      },
+      equationLatex: `\\[ \\boldsymbol{\\mu}_{BL} = \\left[ (\\tau \\mathbf{\\Sigma})^{-1} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{P} \\right]^{-1} \\left[ (\\tau \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\Pi} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{Q} \\right], \\quad \\boldsymbol{\\Pi} = \\lambda \\mathbf{\\Sigma} \\mathbf{w}_{mkt} \\]`,
+      substitutedLatex: `\\[ \\mathbf{w}_{BL}^* = (\\lambda \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\mu}_{BL} \\implies \\text{Tech Weight} = \\mathbf{${normBLWeights[0]}\\%} \\quad \\text{vs Benchmark } 45.0\\% \\]`,
+      beginnerText: `Standard Markowitz optimization creates crazy extreme bets like 'put 100% in one stock'. Black-Litterman starts from what the entire market owns and gently tilts only where you have true quantitative conviction.`,
+      investorText: `The gold standard for multi-asset institutional portfolio construction across sovereign wealth funds and asset managers.`,
+      quantText: `Combines a Gaussian prior distribution $\\mathbf{r} \\sim \\mathcal{N}(\\boldsymbol{\\Pi}, \\tau \\mathbf{\\Sigma})$ with a Gaussian conditional likelihood $\\mathbf{P} \\mathbf{r} \\mid \\mathbf{Q} \\sim \\mathcal{N}(\\mathbf{Q}, \\mathbf{\\Omega})$ via conjugate Bayesian updating.`,
+      limitations: `Specifying the view uncertainty covariance matrix $\\mathbf{\\Omega}$ requires subjective calibration (often set via He-Litterman $\\mathbf{\\Omega} = \\text{diag}(\\mathbf{P} (\\tau \\mathbf{\\Sigma}) \\mathbf{P}^T)$).`
+    };
+  };
+
+  // 29. Optimal Stopping & Perpetual American Put Free-Boundary Problem
+  const calcPerpetualAmericanPut = ({ strikePrice = 100, riskFreeRate = 5.0, vol = 25.0 }) => {
+    const K = Number(strikePrice);
+    const r = Number(riskFreeRate) / 100.0;
+    const sigma = Number(vol) / 100.0;
+
+    // Parameter: gamma = 2*r / sigma^2
+    const gamma = (2.0 * r) / (sigma * sigma);
+    // Exact critical exercise boundary: S* = (gamma / (gamma + 1)) * K
+    const criticalSpot = (gamma / (gamma + 1.0)) * K;
+
+    const spots = [20, 40, 60, criticalSpot, 80, 100, 120, 140, 160];
+    const sortedSpots = [...new Set(spots.map(s => Number(s.toFixed(2))))].sort((a, b) => a - b);
+
+    const putValues = sortedSpots.map(S => {
+      if (S <= criticalSpot) {
+        // Immediate early exercise region
+        return Number((K - S).toFixed(2));
+      } else {
+        // Continuation region: V(S) = (K - S*) * (S / S*)^(-gamma)
+        const val = (K - criticalSpot) * Math.pow(S / criticalSpot, -gamma);
+        return Number(val.toFixed(2));
+      }
+    });
+
+    const intrinsicValues = sortedSpots.map(S => Number(Math.max(0, K - S).toFixed(2)));
+
+    return {
+      focalSymbol: 'S^* = \\frac{2r}{2r + σ²} K',
+      focalLabel: 'Optimal Early Exercise Boundary',
+      focalValue: `S^* = $${criticalSpot.toFixed(2)}`,
+      plainResult: `Smooth pasting solution to the American Option free-boundary variational inequality. With r=${(r * 100).toFixed(1)}% and σ=${(sigma * 100).toFixed(0)}%, the optimal early exercise trigger is S* = $${criticalSpot.toFixed(2)} (Exercise immediately when spot S ≤ $${criticalSpot.toFixed(2)}; hold in continuation region when S > $${criticalSpot.toFixed(2)}).`,
+      chart: {
+        labels: sortedSpots.map(s => `$${s} ${Math.abs(s - criticalSpot) < 0.1 ? '(S* Trigger)' : ''}`),
+        datasets: [
+          { label: 'American Option Value Profile V(S)', data: putValues, borderColor: '#51CF66', backgroundColor: 'rgba(81, 207, 102, 0.15)', fill: true, borderWidth: 2.5 },
+          { label: 'Immediate Exercise Intrinsic Value (K - S)^+', data: intrinsicValues, borderColor: '#FF6B6B', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: `\\[ \\frac{1}{2}\\sigma^2 S^2 \\frac{d^2 V}{d S^2} + r S \\frac{d V}{d S} - r V = 0, \\quad \\left. \\frac{d V}{d S} \\right|_{S = S^*} = -1, \\quad S^* = \\frac{\\gamma}{\\gamma + 1} K, \\quad \\gamma = \\frac{2r}{\\sigma^2} \\]`,
+      substitutedLatex: `\\[ \\gamma = \\frac{2(${r.toFixed(2)})}{(${sigma.toFixed(2)})^2} = ${gamma.toFixed(2)} \\implies S^* = \\frac{${gamma.toFixed(2)}}{${gamma.toFixed(2)} + 1} (${K.toFixed(0)}) = \\mathbf{\\$${criticalSpot.toFixed(2)}} \\]`,
+      beginnerText: `With American options, you can exercise whenever you want. If you exercise too early, you throw away time value; if you wait too long, the stock might bounce back. Math gives the exact exact dollar price where you must pull the trigger.`,
+      investorText: `Provides the mathematical foundation for pricing real options, corporate default debt equity conversions, and optimal commodity extraction abandonment timing.`,
+      quantText: `The free boundary problem requires solving the obstacle problem variational inequality $\\max\\left( \\mathcal{L} V - r V, K - S - V \\right) = 0$. Smooth pasting $V'(S^*) = -1$ ensures no arbitrage across the free boundary.`,
+      limitations: `Assumes infinite time horizon (perpetual). Finite maturity American options have a time-dependent free boundary $S^*(t)$ requiring numerical binomial trees or Longstaff-Schwartz LSM Monte Carlo.`
+    };
+  };
+
+  // 30. Bachelier (1900) Normal Options Model & Negative Rate Options
+  const calcBachelierModel = ({ spotPrice = 100, strikePrice = 100, normalVol = 20.0, timeToExpiry = 1.0 }) => {
+    const S = Number(spotPrice);
+    const K = Number(strikePrice);
+    const sigmaN = Number(normalVol); // in dollar terms
+    const T = Number(timeToExpiry);
+
+    const d = (S - K) / (sigmaN * Math.sqrt(T));
+    const cdf = (z) => 0.5 * (1.0 + Math.erf(z / Math.sqrt(2.0)));
+    const pdf = (z) => (1.0 / Math.sqrt(2.0 * Math.PI)) * Math.exp(-0.5 * z * z);
+
+    // Bachelier closed-form call price: (S - K)*N(d) + sigmaN*sqrt(T)*n(d)
+    const callPrice = (S - K) * cdf(d) + sigmaN * Math.sqrt(T) * pdf(d);
+    const putPrice = callPrice - (S - K); // Put-Call parity in undiscounted Bachelier
+
+    const strikes = [S - 2 * sigmaN, S - sigmaN, S, S + sigmaN, S + 2 * sigmaN];
+    const bachelierPrices = strikes.map(kNode => {
+      const dNode = (S - kNode) / (sigmaN * Math.sqrt(T));
+      return Number(((S - kNode) * cdf(dNode) + sigmaN * Math.sqrt(T) * pdf(dNode)).toFixed(2));
+    });
+
+    return {
+      focalSymbol: 'C = (S-K)N(d) + σ_N√T n(d)',
+      focalLabel: 'Bachelier Normal Call Price',
+      focalValue: `$${callPrice.toFixed(2)}`,
+      plainResult: `Louis Bachelier's (1900) arithmetic Brownian motion option pricer under normal volatility σ_N = $${sigmaN.toFixed(1)}/yr. ATM Call Price: $${callPrice.toFixed(2)}, ATM Put Price: $${putPrice.toFixed(2)}. Fully handles negative underlying prices (e.g. WTI crude -$37.63/bbl in 2020 and negative Euribor rates).`,
+      chart: {
+        labels: strikes.map(k => `$${k.toFixed(0)} (${k === S ? 'ATM' : k < S ? 'ITM Call' : 'OTM Call'})`),
+        datasets: [
+          { label: 'Bachelier Option Price ($)', data: bachelierPrices, borderColor: '#fab005', backgroundColor: 'rgba(250, 176, 5, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ C(S, K, T) = (S - K) \\mathcal{N}\\left(\\frac{S - K}{\\sigma_N \\sqrt{T}}\\right) + \\sigma_N \\sqrt{T} n\\left(\\frac{S - K}{\\sigma_N \\sqrt{T}}\\right), \\quad dS_t = \\sigma_N dW_t \\]`,
+      substitutedLatex: `\\[ d = \\frac{${S.toFixed(0)} - ${K.toFixed(0)}}{${sigmaN.toFixed(1)} \\sqrt{${T.toFixed(1)}}} = ${d.toFixed(2)} \\implies C = \\mathbf{\\$${callPrice.toFixed(2)}} \\]`,
+      beginnerText: `Louis Bachelier invented option pricing in 1900 — 73 years before Black-Scholes! While Black-Scholes assumes prices can never go below zero, Bachelier's normal model can price assets that trade into negative numbers.`,
+      investorText: `Mandated by the CME and ICE exchanges in April 2020 when crude oil crashed to -$37.63/barrel and Black-Scholes completely failed due to ln(S/K) imaginary domain errors.`,
+      quantText: `Under arithmetic Brownian motion $S_t = S_0 + \\sigma_N W_t$, the transition density is pure Gaussian $S_T \\sim \\mathcal{N}(S_0, \\sigma_N^2 T)$, leading to the exact closed-form integral without log-transformations.`,
+      limitations: `Allows asset prices to become negative with positive probability, which is unrealistic for limited-liability equity securities.`
+    };
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
   // PUBLIC API & MODULE METADATA DIRECTORY
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1833,6 +2170,137 @@ const LearnMathEngine = (() => {
         { label: 'High Crash Contagion (Clayton θ=4.0, λ_L=84%)', inputs: { dependenceTheta: 4.0, copulaType: 'clayton', tailPct: 5.0 } },
         { label: 'Moderate Dependence (Clayton θ=2.0, λ_L=50%)', inputs: { dependenceTheta: 2.0, copulaType: 'clayton', tailPct: 5.0 } },
         { label: 'Upper Boom Bubble (Gumbel θ=3.0)', inputs: { dependenceTheta: 3.0, copulaType: 'gumbel', tailPct: 5.0 } }
+      ]
+    },
+    {
+      id: 'merton_jump_diffusion',
+      title: 'Merton Jump-Diffusion & Poisson Crash Simulator',
+      shortTitle: 'Jump-Diffusion Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-bolt-lightning',
+      badge: 'Crash Jumps SDE',
+      calc: calcMertonJumpDiffusion,
+      defaultInputs: { spotPrice: 100, drift: 8.0, vol: 18.0, lambdaJumps: 1.2, jumpMean: -12.0, jumpVol: 8.0, timeHorizon: 1.0 },
+      controls: [
+        { key: 'spotPrice', label: 'Initial Asset Price (S₀)', type: 'currency', min: 10, max: 1000, step: 10, default: 100 },
+        { key: 'drift', label: 'Expected Continuous Drift (μ %)', type: 'percent', min: -10, max: 30, step: 1, default: 8.0 },
+        { key: 'vol', label: 'Continuous Diffusion Vol (σ %)', type: 'percent', min: 5, max: 60, step: 1, default: 18.0 },
+        { key: 'lambdaJumps', label: 'Poisson Jump Frequency (λ jumps/yr)', type: 'number', min: 0.2, max: 5.0, step: 0.2, default: 1.2 },
+        { key: 'jumpMean', label: 'Mean Jump Size (μ_J %)', type: 'percent', min: -40, max: 20, step: 2, default: -12.0 },
+        { key: 'jumpVol', label: 'Jump Severity Volatility (σ_J %)', type: 'percent', min: 2, max: 25, step: 1, default: 8.0 }
+      ],
+      presets: [
+        { label: 'Crash Jumps (λ=1.5, -15% Shock)', inputs: { spotPrice: 100, drift: 8.0, vol: 18.0, lambdaJumps: 1.5, jumpMean: -15.0, jumpVol: 8.0, timeHorizon: 1.0 } },
+        { label: 'Flash Crash Regime (λ=3.0, -25%)', inputs: { spotPrice: 100, drift: 5.0, vol: 24.0, lambdaJumps: 3.0, jumpMean: -25.0, jumpVol: 12.0, timeHorizon: 1.0 } },
+        { label: 'Earnings Up-Gaps (λ=2.0, +12%)', inputs: { spotPrice: 100, drift: 12.0, vol: 16.0, lambdaJumps: 2.0, jumpMean: 12.0, jumpVol: 6.0, timeHorizon: 1.0 } }
+      ]
+    },
+    {
+      id: 'almgren_chriss',
+      title: 'Almgren-Chriss Optimal Trade Execution & Liquidation',
+      shortTitle: 'Almgren-Chriss Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-gauge-high',
+      badge: 'Optimal Execution',
+      calc: calcAlmgrenChriss,
+      defaultInputs: { totalShares: 100000, targetDays: 5, dailyVol: 2.0, riskAversion: 0.1, tempImpact: 15.0, permImpact: 8.0 },
+      controls: [
+        { key: 'totalShares', label: 'Total Block Liquidation Size (X₀ shares)', type: 'number', min: 10000, max: 2000000, step: 10000, default: 100000 },
+        { key: 'targetDays', label: 'Target Execution Horizon (T days)', type: 'number', min: 1, max: 30, step: 1, default: 5 },
+        { key: 'dailyVol', label: 'Asset Daily Volatility (σ %)', type: 'percent', min: 0.5, max: 8.0, step: 0.25, default: 2.0 },
+        { key: 'riskAversion', label: 'Urgency Risk Aversion (λ)', type: 'number', min: 0.01, max: 1.0, step: 0.02, default: 0.1 },
+        { key: 'tempImpact', label: 'Temporary Market Impact (η bps)', type: 'number', min: 2, max: 100, step: 2, default: 15.0 }
+      ],
+      presets: [
+        { label: 'Standard Pension Liquidation (5 Days)', inputs: { totalShares: 100000, targetDays: 5, dailyVol: 2.0, riskAversion: 0.1, tempImpact: 15.0, permImpact: 8.0 } },
+        { label: 'High Urgency Fire Sale (λ = 0.5)', inputs: { totalShares: 100000, targetDays: 3, dailyVol: 3.5, riskAversion: 0.5, tempImpact: 25.0, permImpact: 12.0 } },
+        { label: 'Patient Low-Impact TWAP (λ = 0.01)', inputs: { totalShares: 100000, targetDays: 10, dailyVol: 1.5, riskAversion: 0.01, tempImpact: 10.0, permImpact: 5.0 } }
+      ]
+    },
+    {
+      id: 'kalman_pairs',
+      title: 'Kalman Filter State-Space Dynamic Pairs Arbitrage',
+      shortTitle: 'Kalman Pairs Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-satellite',
+      badge: 'State-Space Econometrics',
+      calc: calcKalmanFilterPairs,
+      defaultInputs: { betaPrior: 1.15, processNoiseQ: 0.001, measurementNoiseR: 0.05, zScoreThreshold: 2.0 },
+      controls: [
+        { key: 'betaPrior', label: 'Initial Baseline Hedge Ratio (β₀)', type: 'number', min: 0.2, max: 5.0, step: 0.05, default: 1.15 },
+        { key: 'processNoiseQ', label: 'Process Drift Uncertainty (Q)', type: 'number', min: 0.0001, max: 0.02, step: 0.0005, default: 0.001 },
+        { key: 'measurementNoiseR', label: 'Observation Microstructure Noise (R)', type: 'number', min: 0.01, max: 0.5, step: 0.01, default: 0.05 },
+        { key: 'zScoreThreshold', label: 'Trading Signal In-Band Threshold (Z σ)', type: 'number', min: 1.0, max: 3.5, step: 0.25, default: 2.0 }
+      ],
+      presets: [
+        { label: 'Stat-Arb Equities (Z=2.0σ, Fast Tracking)', inputs: { betaPrior: 1.15, processNoiseQ: 0.002, measurementNoiseR: 0.04, zScoreThreshold: 2.0 } },
+        { label: 'Macro Commodities (Z=2.5σ, Slow Stable)', inputs: { betaPrior: 85.0, processNoiseQ: 0.0005, measurementNoiseR: 0.10, zScoreThreshold: 2.5 } }
+      ]
+    },
+    {
+      id: 'black_litterman',
+      title: 'Black-Litterman Global Bayesian Asset Allocator',
+      shortTitle: 'Black-Litterman Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-brain',
+      badge: 'Bayesian Optimization',
+      calc: calcBlackLitterman,
+      defaultInputs: { viewSpreadPct: 4.0, confidenceTau: 0.05, marketRiskAversion: 2.5, viewConfidence: 0.85 },
+      controls: [
+        { key: 'viewSpreadPct', label: 'Active View: Tech Outperformance vs Banks (%)', type: 'percent', min: -10, max: 15, step: 0.5, default: 4.0 },
+        { key: 'viewConfidence', label: 'Subjective View Conviction Level (0 to 1)', type: 'number', min: 0.1, max: 1.0, step: 0.05, default: 0.85 },
+        { key: 'confidenceTau', label: 'Prior Uncertainty Scaling Factor (τ)', type: 'number', min: 0.01, max: 0.25, step: 0.01, default: 0.05 },
+        { key: 'marketRiskAversion', label: 'Global Market Risk Aversion (λ)', type: 'number', min: 1.0, max: 5.0, step: 0.25, default: 2.5 }
+      ],
+      presets: [
+        { label: 'High Conviction Bullish Tech (+5% Spread)', inputs: { viewSpreadPct: 5.0, confidenceTau: 0.05, marketRiskAversion: 2.5, viewConfidence: 0.90 } },
+        { label: 'Defensive Value Rotation (Banks Outperform)', inputs: { viewSpreadPct: -4.0, confidenceTau: 0.05, marketRiskAversion: 3.0, viewConfidence: 0.75 } }
+      ]
+    },
+    {
+      id: 'perpetual_american',
+      title: 'Optimal Stopping & American Option Free-Boundary',
+      shortTitle: 'American Option Boundary',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-arrow-down-wide-short',
+      badge: 'Smooth Pasting',
+      calc: calcPerpetualAmericanPut,
+      defaultInputs: { strikePrice: 100, riskFreeRate: 5.0, vol: 25.0 },
+      controls: [
+        { key: 'strikePrice', label: 'Option Strike Price (K)', type: 'currency', min: 50, max: 500, step: 10, default: 100 },
+        { key: 'riskFreeRate', label: 'Risk-Free Discount Rate (r %)', type: 'percent', min: 1, max: 15, step: 0.5, default: 5.0 },
+        { key: 'vol', label: 'Asset Volatility (σ %)', type: 'percent', min: 10, max: 80, step: 2, default: 25.0 }
+      ],
+      presets: [
+        { label: 'Standard Equity Put (K=100, r=5%, σ=25%)', inputs: { strikePrice: 100, riskFreeRate: 5.0, vol: 25.0 } },
+        { label: 'High Volatility Early Exercise (σ=50%)', inputs: { strikePrice: 100, riskFreeRate: 5.0, vol: 50.0 } },
+        { label: 'High Interest Rate Environment (r=10%)', inputs: { strikePrice: 100, riskFreeRate: 10.0, vol: 20.0 } }
+      ]
+    },
+    {
+      id: 'bachelier_model',
+      title: 'Bachelier (1900) Normal Model & Negative Price Options',
+      shortTitle: 'Bachelier Normal Options',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-calculator',
+      badge: 'Arithmetic Brownian Motion',
+      calc: calcBachelierModel,
+      defaultInputs: { spotPrice: 100, strikePrice: 100, normalVol: 20.0, timeToExpiry: 1.0 },
+      controls: [
+        { key: 'spotPrice', label: 'Underlying Asset Price ($)', type: 'currency', min: -50, max: 300, step: 5, default: 100 },
+        { key: 'strikePrice', label: 'Option Strike Price ($)', type: 'currency', min: -50, max: 300, step: 5, default: 100 },
+        { key: 'normalVol', label: 'Normal Dollar Volatility (σ_N $/yr)', type: 'number', min: 2, max: 100, step: 2, default: 20.0 },
+        { key: 'timeToExpiry', label: 'Time to Expiry (T years)', type: 'number', min: 0.1, max: 3.0, step: 0.1, default: 1.0 }
+      ],
+      presets: [
+        { label: 'Negative Price WTI Crude Crash (Spot -$20)', inputs: { spotPrice: -20, strikePrice: 0, normalVol: 35.0, timeToExpiry: 0.25 } },
+        { label: 'Standard Normal Swaption (ATM $100)', inputs: { spotPrice: 100, strikePrice: 100, normalVol: 20.0, timeToExpiry: 1.0 } }
       ]
     }
   ];
