@@ -1584,6 +1584,112 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // 31. Prediction Markets & Hanson's LMSR Automated Market Maker
+  const calcPredictionMarketsLMSR = ({ qYes = 1200, qNo = 800, liquidityB = 1000, tradeSize = 200, tradeSide = 'YES' }) => {
+    const qY = Number(qYes);
+    const qN = Number(qNo);
+    const b = Number(liquidityB);
+    const dQ = Number(tradeSize);
+    const side = tradeSide;
+
+    // Current State
+    const maxQ = Math.max(qY, qN);
+    const expY = Math.exp((qY - maxQ) / b);
+    const expN = Math.exp((qN - maxQ) / b);
+    const pYesInit = expY / (expY + expN);
+    const pNoInit = expN / (expY + expN);
+
+    // Trade Execution Cost
+    const costBefore = b * Math.log(Math.exp(qY / b) + Math.exp(qN / b));
+    const newQY = side === 'YES' ? qY + dQ : qY;
+    const newQN = side === 'NO' ? qN + dQ : qN;
+    const costAfter = b * Math.log(Math.exp(newQY / b) + Math.exp(newQN / b));
+    const totalTradeCost = costAfter - costBefore;
+    const avgFillPrice = totalTradeCost / dQ;
+
+    // New State After Trade
+    const newMaxQ = Math.max(newQY, newQN);
+    const newExpY = Math.exp((newQY - newMaxQ) / b);
+    const newExpN = Math.exp((newQN - newMaxQ) / b);
+    const pYesFinal = newExpY / (newExpY + newExpN);
+    const pNoFinal = newExpN / (newExpY + newExpN);
+
+    const labels = ['q - 400', 'q - 200', 'Current', 'After Trade', 'q + 200', 'q + 400'];
+    const yesProbCurve = [-400, -200, 0, dQ, 200, 400].map(delta => {
+      const qEval = qY + delta;
+      const mQ = Math.max(qEval, qN);
+      const eY = Math.exp((qEval - mQ) / b);
+      const eN = Math.exp((qN - mQ) / b);
+      return Number(((eY / (eY + eN)) * 100).toFixed(1));
+    });
+
+    return {
+      focalSymbol: 'p_i = \\frac{e^{q_i/b}}{\\sum e^{q_j/b}}',
+      focalLabel: 'LMSR Equilibrium Probability',
+      focalValue: `YES ${(pYesFinal * 100).toFixed(1)}% / NO ${(pNoFinal * 100).toFixed(1)}%`,
+      plainResult: `Robin Hanson's LMSR Market Maker (b=${b}). Buying ${dQ} ${side} contracts moved implied market probability from ${(pYesInit * 100).toFixed(1)}% to ${(pYesFinal * 100).toFixed(1)}%. Total capital required: $${totalTradeCost.toFixed(2)} (Avg execution: $${avgFillPrice.toFixed(3)}/share).`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'LMSR Contract Implied Probability (%)', data: yesProbCurve, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ C(\\mathbf{q}) = b \\ln\\left( \\sum_{i=1}^n e^{q_i / b} \\right), \\quad p_i = \\frac{\\partial C}{\\partial q_i} = \\frac{e^{q_i / b}}{\\sum_{j=1}^n e^{q_j / b}}, \\quad \\text{Cost} = C(\\mathbf{q} + \\Delta \\mathbf{q}) - C(\\mathbf{q}) \\]`,
+      substitutedLatex: `\\[ p_{\\text{YES}} = \\frac{e^{${newQY.toFixed(0)}/${b}}}{e^{${newQY.toFixed(0)}/${b}} + e^{${newQN.toFixed(0)}/${b}}} = \\mathbf{${(pYesFinal * 100).toFixed(1)}\\%} \\implies \\text{Total Cost} = \\mathbf{\\$${totalTradeCost.toFixed(2)}} \\]`,
+      beginnerText: `Prediction markets (like Polymarket or Kalshi) turn real-world events into trading contracts that pay $1.00 if YES happens and $0 if NO happens. The trading price directly reflects the crowd's collective percentage probability.`,
+      investorText: `Institutions use prediction markets to directly hedge binary macro risks (e.g. Fed rate cuts, debt ceiling deadlines, sovereign election outcomes) where equity options are inefficient.`,
+      quantText: `The LMSR scoring rule is strictly proper and guarantees bounded worst-case loss for the market maker ($b \\ln 2$) while providing infinite continuous liquidity and zero bid-ask spread at the margin.`,
+      limitations: `The market maker suffers worst-case subsidization loss bounded by $b \\ln K$ against informed traders when liquidity parameter $b$ is set too high.`
+    };
+  };
+
+  // 32. Futures Market Cost-of-Carry & Cash & Carry Arbitrage
+  const calcFuturesBasisCarry = ({ spotPrice = 24500, futuresPrice = 24680, riskFreeRate = 6.5, divYield = 1.2, daysToExpiry = 30, capital = 10000000 }) => {
+    const S = Number(spotPrice);
+    const F = Number(futuresPrice);
+    const r = Number(riskFreeRate) / 100.0;
+    const q = Number(divYield) / 100.0;
+    const days = Math.max(1, Number(daysToExpiry));
+    const T = days / 365.0;
+    const cap = Number(capital);
+
+    // Fair theoretical futures price: F_fair = S * e^{(r - q) * T}
+    const fairFutures = S * Math.exp((r - q) * T);
+    const basisPoints = F - S;
+    const mispricing = F - fairFutures;
+    const annualizedBasisYield = (basisPoints / S) * (365.0 / days) * 100;
+    const netArbSpreadAnnualized = annualizedBasisYield - (r - q) * 100;
+
+    const isArb = mispricing > (S * 0.001);
+    const contractsTraded = Math.floor(cap / (S * 50));
+    const netProfitINR = isArb ? mispricing * contractsTraded * 50 * 0.85 : 0;
+
+    const tenors = [7, 15, 30, 60, 90, 180];
+    const termCurve = tenors.map(d => {
+      const tExp = d / 365.0;
+      return Number((S * Math.exp((r - q) * tExp)).toFixed(1));
+    });
+
+    return {
+      focalSymbol: 'F = S e^{(r-q+u)T}',
+      focalLabel: 'Annualized Basis Yield',
+      focalValue: `${annualizedBasisYield.toFixed(2)}% / yr (${mispricing >= 0 ? '+' : ''}${mispricing.toFixed(1)} pts)`,
+      plainResult: `Spot $${S.toLocaleString()} vs Futures $${F.toLocaleString()} (${days}D to Expiry). Fair theoretical futures: $${fairFutures.toFixed(1)} (Mispricing: ${mispricing >= 0 ? '+' : ''}${mispricing.toFixed(1)} pts). Annualized basis carry yield: ${annualizedBasisYield.toFixed(2)}% vs hurdle ${( (r - q) * 100 ).toFixed(2)}%. Opportunity: ${isArb ? 'PROFITABLE CASH & CARRY (Short Futures / Long Spot)' : 'FAIR EQUILIBRIUM'}.`,
+      chart: {
+        labels: tenors.map(d => `${d}D (${(d/30).toFixed(1)}M)`),
+        datasets: [
+          { label: 'Theoretical Cost-of-Carry Futures Term Structure Curve', data: termCurve, borderColor: '#51CF66', backgroundColor: 'rgba(81, 207, 102, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ F(t, T) = S_t e^{(r - q + u)(T - t)}, \\quad \\text{Basis} = F - S, \\quad \\text{Yield} = \\frac{F - S}{S} \\frac{365}{\\Delta t} \\]`,
+      substitutedLatex: `\\[ F_{\\text{fair}} = ${S.toFixed(0)} e^{(${r.toFixed(3)} - ${q.toFixed(3)}) \\times \\frac{${days}}{365}} = \\mathbf{\\$${fairFutures.toFixed(2)}} \\implies \\text{Mispricing} = \\mathbf{${mispricing >= 0 ? '+' : ''}${mispricing.toFixed(2)}} \\]`,
+      beginnerText: `A futures contract is an agreement to buy something later. Because you don't have to pay full cash today, you save interest, but you miss out on dividends. The math tells you the exact fair price down to the penny.`,
+      investorText: `Basis trading (Cash & Carry) is the core market-neutral strategy of quant hedge funds: if futures are overpriced, they buy the stock, sell the futures, and lock in a 100% risk-free yield higher than bank deposits.`,
+      quantText: `No-arbitrage replication: Long 1 unit of underlying asset funded at repo rate $r$, collect continuous dividend yield $q$, short 1 forward contract. At maturity $T$, cash flow equals $F - S_0 e^{(r-q)T} = 0$.`,
+      limitations: `Assumes constant borrowing cost $r$ and frictionless short selling without borrow recalls or unexpected dividend surprises.`
+    };
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
   // PUBLIC API & MODULE METADATA DIRECTORY
   // ─────────────────────────────────────────────────────────────────────────────
@@ -2301,6 +2407,55 @@ const LearnMathEngine = (() => {
       presets: [
         { label: 'Negative Price WTI Crude Crash (Spot -$20)', inputs: { spotPrice: -20, strikePrice: 0, normalVol: 35.0, timeToExpiry: 0.25 } },
         { label: 'Standard Normal Swaption (ATM $100)', inputs: { spotPrice: 100, strikePrice: 100, normalVol: 20.0, timeToExpiry: 1.0 } }
+      ]
+    },
+    {
+      id: 'prediction_markets_lmsr',
+      title: 'Prediction Markets & Hanson\'s LMSR Automated Market Maker',
+      shortTitle: 'Prediction Markets Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-square-poll-vertical',
+      badge: 'Probability Derivatives',
+      calc: calcPredictionMarketsLMSR,
+      defaultInputs: { qYes: 1200, qNo: 800, liquidityB: 1000, tradeSize: 200, tradeSide: 'YES' },
+      controls: [
+        { key: 'tradeSide', label: 'Trade Order Side', type: 'select', options: [
+          { val: 'YES', text: 'Buy YES Outcome Shares (Bullish Probability)' },
+          { val: 'NO', text: 'Buy NO Outcome Shares (Bearish Probability)' }
+        ], default: 'YES' },
+        { key: 'tradeSize', label: 'Order Size (Shares)', type: 'number', min: 10, max: 2000, step: 25, default: 200 },
+        { key: 'qYes', label: 'Market Outstanding YES Shares (q_YES)', type: 'number', min: 100, max: 10000, step: 50, default: 1200 },
+        { key: 'qNo', label: 'Market Outstanding NO Shares (q_NO)', type: 'number', min: 100, max: 10000, step: 50, default: 800 },
+        { key: 'liquidityB', label: 'LMSR Liquidity Depth Parameter (b)', type: 'number', min: 100, max: 5000, step: 100, default: 1000 }
+      ],
+      presets: [
+        { label: 'Fed 25bps Rate Cut (60% Implied YES)', inputs: { qYes: 1200, qNo: 800, liquidityB: 1000, tradeSize: 250, tradeSide: 'YES' } },
+        { label: 'US Debt Ceiling Crisis (High Liquidity b=2500)', inputs: { qYes: 3500, qNo: 3500, liquidityB: 2500, tradeSize: 500, tradeSide: 'NO' } },
+        { label: 'Macro Election Outcome (80% Heavy Favorite)', inputs: { qYes: 4200, qNo: 1100, liquidityB: 1500, tradeSize: 300, tradeSide: 'YES' } }
+      ]
+    },
+    {
+      id: 'futures_basis_carry',
+      title: 'Futures Cost-of-Carry & Cash & Carry Basis Arbitrage',
+      shortTitle: 'Futures Basis & Carry',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-arrow-right-arrow-left',
+      badge: 'Basis Arbitrage',
+      calc: calcFuturesBasisCarry,
+      defaultInputs: { spotPrice: 24500, futuresPrice: 24680, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 },
+      controls: [
+        { key: 'spotPrice', label: 'Current Spot Price (S)', type: 'currency', min: 100, max: 100000, step: 50, default: 24500 },
+        { key: 'futuresPrice', label: 'Market Traded Futures Price (F)', type: 'currency', min: 100, max: 100000, step: 50, default: 24680 },
+        { key: 'daysToExpiry', label: 'Days to Expiration (Δt)', type: 'number', min: 1, max: 180, step: 1, default: 30 },
+        { key: 'riskFreeRate', label: 'Financing Borrow Rate (r %)', type: 'percent', min: 1, max: 15, step: 0.25, default: 6.5 },
+        { key: 'divYield', label: 'Continuous Dividend Yield (q %)', type: 'percent', min: 0, max: 8, step: 0.1, default: 1.2 }
+      ],
+      presets: [
+        { label: 'Profitable Cash & Carry (Overpriced Futures)', inputs: { spotPrice: 24500, futuresPrice: 24720, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } },
+        { label: 'Fair Equilibrium Carry (Zero Arb)', inputs: { spotPrice: 24500, futuresPrice: 24606, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } },
+        { label: 'Backwardation Reverse Carry (Deep Discount)', inputs: { spotPrice: 24500, futuresPrice: 24350, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } }
       ]
     }
   ];

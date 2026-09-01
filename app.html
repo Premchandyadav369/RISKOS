@@ -532,6 +532,50 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ═══════════ FUTURES MARKET: COST OF CARRY & CASH & CARRY BASIS ARBITRAGE ═══════════ -->
+            <div class="card mt-4" style="background:#0a0d14; border:1px solid rgba(34,211,238,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-arrow-right-arrow-left" style="color:#22d3ee;"></i> Futures Market: Cost-of-Carry &amp; Cash &amp; Carry Basis Arbitrage
+                            <button class="explain-trigger-btn" data-explain="futures_basis" title="Explain Futures Basis & Cash and Carry">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Live Spot vs Futures Basis (\(F - S\)), Cost-of-Carry Theoretical Fair Value, and Cash &amp; Carry Arbitrage Execution Engine.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button id="btnExecuteCashCarryArb" class="exec-btn" style="background:linear-gradient(135deg, #0ea5e9, #22d3ee); color:#000; font-weight:700; padding:6px 14px; border-radius:6px; border:none; cursor:pointer; font-size:0.75rem;">
+                            <i class="fa-solid fa-bolt"></i> Execute Cash &amp; Carry Arb
+                        </button>
+                        <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Basis Arbitrage Desk</span>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;" id="futuresBasisCardsGrid">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Spot Underlying Index</span>
+                        <div id="futSpotPriceVal" style="font-size:1.3rem; font-weight:800; color:#fff; margin:2px 0;">24,500.00</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">NIFTY 50 Spot Cash</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Current Traded Futures</span>
+                        <div id="futMarketPriceVal" style="font-size:1.3rem; font-weight:800; color:#22d3ee; margin:2px 0;">24,680.00</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Near-Month Future (30D)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Fair Value (Cost of Carry)</span>
+                        <div id="futFairPriceVal" style="font-size:1.3rem; font-weight:800; color:#51CF66; margin:2px 0;">24,606.50</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">\(S \cdot e^{(r-q)T}\) (r=6.5%, q=1.2%)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:12px;">
+                        <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase;">Annualized Basis Carry Yield</span>
+                        <div id="futBasisYieldVal" style="font-size:1.3rem; font-weight:800; color:#fab005; margin:2px 0;">+8.82% / yr</div>
+                        <span style="font-size:0.7rem; color:#a1a1aa;">Mispricing: +73.5 pts (+2.32% Net Arb)</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════ DESK 4: MICROSTRUCTURE & OFI ═══════════ -->
@@ -957,6 +1001,26 @@
                 </div>
                 <div style="height:380px;position:relative;padding:10px;">
                     <canvas id="appSpecCanvas" style="width:100%;height:100%;"></canvas>
+                </div>
+            </div>
+
+            <!-- ═══════════ INSTITUTIONAL PREDICTION MARKETS & PROBABILITY CONTRACTS ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(139,92,246,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-square-poll-vertical" style="color:#a78bfa;"></i> Institutional Prediction Markets &amp; Probability Contracts
+                            <button class="explain-trigger-btn" data-explain="prediction_markets" title="Explain Prediction Markets LMSR">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Hanson LMSR Automated Market Maker (\(C(\mathbf{q}) = b \ln \sum e^{q_i/b}\)), continuous crowd implied probabilities, and direct binary hedging.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(139,92,246,0.15); color:#a78bfa;">Polymarket / Kalshi Engine</span>
+                </div>
+
+                <div id="predictionContractsGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:16px;">
+                    <!-- Populated dynamically by initPredictionMarketsDesk in app.js -->
                 </div>
             </div>
         </section>

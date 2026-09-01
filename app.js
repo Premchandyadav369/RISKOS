@@ -2409,6 +2409,54 @@ const EXPLAIN_KNOWLEDGE_BASE = {
                 "4. Calculate expected geometric growth rate g(f) = p * ln(1 + f*b) + (1-p) * ln(1 - f)"
             ]
         }
+    },
+    futures_basis: {
+        title: "Futures Cost of Carry & Cash & Carry Basis Arbitrage",
+        symbol: "F(t, T) = S_t e^{(r - q + u)(T - t)}",
+        category: "Derivatives & Basis Trading",
+        beginner: {
+            heading: "Why Futures Trade Above or Below Cash Spot Prices",
+            text: "When you buy a futures contract instead of buying a stock with cash today, you save interest on your money. But you give up the dividends the company pays out. The cost of carry model calculates the exact mathematical balance between financing cost, dividend yields, and storage fees."
+        },
+        investor: {
+            heading: "Risk-Free Cash & Carry Yield Harvesting",
+            text: "When market participants push futures prices too high, quant desks execute a Cash & Carry trade: borrow cash at repo rate, buy the spot asset, sell the futures contract, and lock in an annualized yield higher than bank fixed deposits with zero market direction risk."
+        },
+        quant: {
+            heading: "No-Arbitrage Forward Replication Theorem",
+            formula: "F(t, T) - S_t = S_t (e^{(r - q) (T - t)} - 1), \\quad \\text{Basis Yield} = \\frac{F - S_t}{S_t} \\frac{365}{\\Delta t}",
+            assumptions: "Constant risk-free borrowing/lending rate r, continuous dividend yield q, frictionless short selling.",
+            trace: [
+                "1. Observe Spot Price S_t and market Traded Futures Price F_t",
+                "2. Calculate Fair Value F_fair = S_t * exp((r - q) * T)",
+                "3. Compute Basis Points = F_t - S_t and Net Arbitrage Spread = Basis Yield - (r - q)",
+                "4. Execute Long Spot + Short Futures if Net Spread > Transaction Cost Threshold"
+            ]
+        }
+    },
+    prediction_markets: {
+        title: "Hanson's Logarithmic Market Scoring Rule (LMSR)",
+        symbol: "C(\\mathbf{q}) = b \\ln\\left( \\sum_{i=1}^n e^{q_i / b} \\right), \\quad p_i = \\frac{e^{q_i / b}}{\\sum_{j=1}^n e^{q_j / b}}",
+        category: "Prediction Markets & Stochastics",
+        beginner: {
+            heading: "The Wisdom of Crowds Turned into Tradable Probabilities",
+            text: "Prediction markets turn binary real-world questions (like 'Will the Fed cut interest rates?') into digital tokens priced between $0.00 and $1.00. If the YES contract trades at $0.68, the crowd estimates a 68% probability of the event occurring."
+        },
+        investor: {
+            heading: "Pure Macro Event Risk Hedging",
+            text: "Rather than constructing complex multi-leg options spreads on index ETFs to hedge geopolitical or election events, fund managers use binary prediction contracts to directly hedge discontinuous tail risks at fair expected value."
+        },
+        quant: {
+            heading: "Convex Cost Function & Proper Scoring Rule Duality",
+            formula: "p_i = \\frac{\\partial C}{\\partial q_i}, \\quad \\text{Max Market Maker Loss} = b \\ln(K), \\quad \\text{Brier Score} = \\frac{1}{N} \\sum_{t=1}^N (p_t - o_t)^2",
+            assumptions: "Convex potential function C, continuous liquidity parameter b, risk-neutral rational Bayesian crowd aggregation.",
+            trace: [
+                "1. Initialize outstanding shares vector q = [q_YES, q_NO] with liquidity depth b",
+                "2. Calculate instantaneous marginal probabilities p_i = exp(q_i / b) / sum(exp(q_j / b))",
+                "3. Compute trade execution cost Delta C = C(q + Delta q) - C(q)",
+                "4. Update share vector q_new and state probabilities"
+            ]
+        }
     }
 };
 
@@ -3028,6 +3076,172 @@ function initBloombergQuantEngines() {
     }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   FUTURES MARKET & SPOT-FUTURES CASH & CARRY BASIS ARBITRAGE (DESK 3)
+   ══════════════════════════════════════════════════════════════════════════ */
+function initFuturesBasisDesk() {
+    const spotEl = document.getElementById('futSpotPriceVal');
+    const futEl = document.getElementById('futMarketPriceVal');
+    const fairEl = document.getElementById('futFairPriceVal');
+    const yieldEl = document.getElementById('futBasisYieldVal');
+    const executeBtn = document.getElementById('btnExecuteCashCarryArb');
+
+    if (!spotEl) return;
+
+    const S = 24500.00;
+    const r = 0.065;
+    const q = 0.012;
+    const T = 30 / 365;
+    const fairF = Number((S * Math.exp((r - q) * T)).toFixed(2));
+    const marketF = 24680.00;
+    const mispricing = Number((marketF - fairF).toFixed(2));
+    const basisYield = (((marketF - S) / S) * (365 / 30) * 100).toFixed(2);
+
+    spotEl.textContent = S.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    futEl.textContent = marketF.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    fairEl.textContent = fairF.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    yieldEl.innerHTML = `+${basisYield}% / yr <span style="font-size:0.75rem;color:#51CF66;">(+${mispricing} pts Arb)</span>`;
+
+    if (executeBtn) {
+        executeBtn.addEventListener('click', () => {
+            if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+                SecurityMaster.playExecutionSound();
+            }
+            showExecutionToast(true, 500, S, 1.2, S * 500);
+            setTimeout(() => {
+                showExecutionToast(false, 500, marketF, 1.4, marketF * 500);
+            }, 600);
+
+            executeBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Arbitrage Locked (+₹${((mispricing * 500 * 0.85).toFixed(0))} PnL)`;
+            executeBtn.style.background = '#10b981';
+            executeBtn.style.color = '#fff';
+
+            setTimeout(() => {
+                executeBtn.innerHTML = `<i class="fa-solid fa-bolt"></i> Execute Cash &amp; Carry Arb`;
+                executeBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #22d3ee)';
+                executeBtn.style.color = '#000';
+            }, 4000);
+        });
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INSTITUTIONAL PREDICTION MARKETS & PROBABILITY CONTRACTS (DESK 7)
+   ══════════════════════════════════════════════════════════════════════════ */
+const PREDICTION_CONTRACTS = [
+    {
+        id: 'FED_RATE_SEP',
+        title: 'US Federal Reserve cuts Fed Funds Rate by ≥25bps in September 2026',
+        category: 'CENTRAL BANK MACRO',
+        qYes: 1850,
+        qNo: 850,
+        b: 1200,
+        volume24h: '$1.42M',
+        resolutionDate: 'Sep 30, 2026'
+    },
+    {
+        id: 'NIFTY_25500',
+        title: 'NIFTY 50 Index closes above 25,500.00 before Monthly Expiry',
+        category: 'EQUITY INDEX BENCHMARK',
+        qYes: 1250,
+        qNo: 1050,
+        b: 1000,
+        volume24h: '$840k',
+        resolutionDate: 'Month End Expiry'
+    },
+    {
+        id: 'BRENT_85',
+        title: 'Brent Crude Spot reaches > $85.00/bbl before Q4 2026',
+        category: 'COMMODITIES ENERGY',
+        qYes: 650,
+        qNo: 1350,
+        b: 1100,
+        volume24h: '$620k',
+        resolutionDate: 'Dec 31, 2026'
+    },
+    {
+        id: 'RBI_PAUSE',
+        title: 'RBI Monetary Policy Committee maintains Repo Rate at 6.50%',
+        category: 'DOMESTIC MACRO RATES',
+        qYes: 2100,
+        qNo: 600,
+        b: 1000,
+        volume24h: '$480k',
+        resolutionDate: 'Next MPC Meet'
+    }
+];
+
+function initPredictionMarketsDesk() {
+    const grid = document.getElementById('predictionContractsGrid');
+    if (!grid) return;
+
+    function renderContracts() {
+        grid.innerHTML = PREDICTION_CONTRACTS.map(c => {
+            const probs = QuantEngine.predictionMarketLMSR.probabilities(c.qYes, c.qNo, c.b);
+            const yesPct = (probs.probYes * 100).toFixed(1);
+            const noPct = (probs.probNo * 100).toFixed(1);
+
+            return `
+                <div class="card" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <span class="badge" style="background:rgba(139,92,246,0.15); color:#a78bfa; font-size:0.65rem;">${c.category}</span>
+                            <span style="font-size:0.7rem; color:#71717a;"><i class="fa-regular fa-clock"></i> ${c.resolutionDate}</span>
+                        </div>
+                        <h4 style="font-size:0.88rem; font-weight:700; color:#fff; line-height:1.4; margin:0 0 12px 0;">${c.title}</h4>
+
+                        <!-- Probability Bar -->
+                        <div style="margin-bottom:12px;">
+                            <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:4px;">
+                                <span style="color:#22d3ee;">YES ${yesPct}% (¢${probs.priceYesCents})</span>
+                                <span style="color:#FF6B6B;">NO ${noPct}% (¢${probs.priceNoCents})</span>
+                            </div>
+                            <div style="height:8px; border-radius:100px; background:rgba(255,107,107,0.3); overflow:hidden; display:flex;">
+                                <div style="width:${yesPct}%; background:linear-gradient(90deg, #0ea5e9, #22d3ee); transition:width 0.4s ease;"></div>
+                                <div style="width:${noPct}%; background:linear-gradient(90deg, #FF6B6B, #f43f5e); transition:width 0.4s ease;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trading Action Buttons -->
+                    <div style="display:flex; gap:8px; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; margin-top:8px;">
+                        <button class="btn-pred-trade" data-id="${c.id}" data-side="YES" style="flex:1; background:rgba(34,211,238,0.12); border:1px solid rgba(34,211,238,0.35); color:#22d3ee; padding:7px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer; transition:all 0.15s;">
+                            <i class="fa-solid fa-arrow-up"></i> BUY YES ¢${probs.priceYesCents}
+                        </button>
+                        <button class="btn-pred-trade" data-id="${c.id}" data-side="NO" style="flex:1; background:rgba(255,107,107,0.12); border:1px solid rgba(255,107,107,0.35); color:#FF6B6B; padding:7px 10px; border-radius:6px; font-weight:700; font-size:0.75rem; cursor:pointer; transition:all 0.15s;">
+                            <i class="fa-solid fa-arrow-down"></i> BUY NO ¢${probs.priceNoCents}
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        grid.querySelectorAll('.btn-pred-trade').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const contractId = btn.dataset.id;
+                const side = btn.dataset.side;
+                const contract = PREDICTION_CONTRACTS.find(c => c.id === contractId);
+                if (!contract) return;
+
+                const tradeQty = 100;
+                const tradeRes = QuantEngine.predictionMarketLMSR.trade(contract.qYes, contract.qNo, tradeQty, side, contract.b);
+
+                contract.qYes = tradeRes.newQYes;
+                contract.qNo = tradeRes.newQNo;
+
+                if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+                    SecurityMaster.playExecutionSound();
+                }
+
+                showExecutionToast(side === 'YES', tradeQty, tradeRes.avgPricePerShare, 0.5, tradeRes.totalCost);
+                renderContracts();
+            });
+        });
+    }
+
+    renderContracts();
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
@@ -3043,6 +3257,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initCointegrationScreener, 700);
     setTimeout(initBloombergTerminalFeatures, 750);
     setTimeout(initBloombergQuantEngines, 800);
+    setTimeout(initFuturesBasisDesk, 850);
+    setTimeout(initPredictionMarketsDesk, 900);
     setTimeout(() => {
         if (typeof renderMathInElement !== 'undefined') {
             try {
@@ -3057,7 +3273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch(e) {}
         }
-    }, 850);
+    }, 950);
 });
 
 
