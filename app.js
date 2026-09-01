@@ -22,6 +22,36 @@ Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.05)';
 
 const colors = ['#4F8FFF', '#FF6B6B', '#51CF66', '#FAB005', '#CC5DE8', '#20C997', '#339AF0', '#F06595'];
 
+// ── Universal MathJax & KaTeX Typesetting Engine ───────────────────────────
+function triggerMathJax(target = document.body) {
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        const el = target || document.body;
+        window.MathJax.typesetPromise(Array.isArray(el) ? el : [el]).catch((e) => {
+            console.warn('MathJax notice:', e);
+        });
+    } else if (typeof renderMathInElement !== 'undefined') {
+        try {
+            renderMathInElement(target || document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                throwOnError: false
+            });
+        } catch (e) {}
+    }
+}
+window.triggerMathJax = triggerMathJax;
+
+// Trigger MathJax automatically when window finishes loading
+window.addEventListener('load', () => {
+    setTimeout(() => triggerMathJax(document.body), 100);
+    setTimeout(() => triggerMathJax(document.body), 600);
+});
+
+
 // Chart instances registry
 let charts = {
     price: null,
@@ -102,6 +132,10 @@ function switchTab(tabId) {
         if (tabId === 'tab-speculations') {
             if (typeof initAppSpeculationsDesk === 'function') initAppSpeculationsDesk();
             if (typeof initPredictionMarketsDesk === 'function') initPredictionMarketsDesk();
+        }
+        const activeTabEl = document.getElementById(tabId);
+        if (activeTabEl && typeof triggerMathJax === 'function') {
+            triggerMathJax(activeTabEl);
         }
     }, 40);
 }
