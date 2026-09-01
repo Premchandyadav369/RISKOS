@@ -1,0 +1,12 @@
+{
+  "symbol": "AAPL",
+  "name": "Apple Inc",
+  "figi": "BBG000B9XRY4",
+  "isin": "US0378331005",
+  "exchange": "NASDAQ",
+  "sector": "Consumer Electronics",
+  "bloomberg_ticker": "AAPL NASDAQ Equity",
+  "lot_size": 1,
+  "currency": "USD",
+  "version": 76
+}
