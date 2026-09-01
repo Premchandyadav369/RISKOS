@@ -1,0 +1,10 @@
+{
+  "crisis_id": "flash_crash_2010",
+  "title": "2010 Intraday High-Frequency Flash",
+  "equity_shock_pct": -0.09,
+  "rate_shock_bps": 80,
+  "commodity_shock_pct": 0.1,
+  "transmission_mechanism": "Order book liquidity vacuum",
+  "simulation_run": 245,
+  "risk_horizon_days": 20
+}
