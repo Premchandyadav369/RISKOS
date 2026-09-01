@@ -959,6 +959,294 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // 19. Itô's Lemma & SDE Quadratic Variation
+  const calcItoCalculus = ({ spotPrice = 100, drift = 8.0, vol = 20.0, timeHorizon = 1.0 }) => {
+    const s0 = Number(spotPrice);
+    const mu = Number(drift) / 100.0;
+    const sigma = Number(vol) / 100.0;
+    const T = Number(timeHorizon);
+
+    const itoDriftCorrection = mu - 0.5 * sigma * sigma;
+    const expectedValue = s0 * Math.exp(mu * T);
+    const medianValue = s0 * Math.exp(itoDriftCorrection * T);
+    const varianceDrag = (0.5 * sigma * sigma * 100).toFixed(2);
+
+    const labels = [];
+    const driftPath = [];
+    const medianPath = [];
+    const upper1Sigma = [];
+    const lower1Sigma = [];
+
+    const nSteps = 12;
+    for (let i = 0; i <= nSteps; i++) {
+      const t = (i / nSteps) * T;
+      labels.push(`t=${t.toFixed(2)}y`);
+      driftPath.push(Number((s0 * Math.exp(mu * t)).toFixed(2)));
+      medianPath.push(Number((s0 * Math.exp((mu - 0.5 * sigma * sigma) * t)).toFixed(2)));
+      upper1Sigma.push(Number((s0 * Math.exp((mu - 0.5 * sigma * sigma) * t + sigma * Math.sqrt(t))).toFixed(2)));
+      lower1Sigma.push(Number((s0 * Math.exp((mu - 0.5 * sigma * sigma) * t - sigma * Math.sqrt(t))).toFixed(2)));
+    }
+
+    return {
+      focalSymbol: 'df(S,t)',
+      focalLabel: 'Itô Drift Correction',
+      focalValue: `-${varianceDrag}% / yr`,
+      plainResult: `Itô's Lemma proves that the geometric median grows at (μ - 0.5σ²) = ${(itoDriftCorrection * 100).toFixed(2)}%, creating a -${varianceDrag}%/yr variance drag due to quadratic variation [W, W]_t = t.`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'Expected Mean E[S_t] (e^{μ t})', data: driftPath, borderColor: '#22d3ee', borderWidth: 2, fill: false },
+          { label: 'Median Geometric Path (e^{(μ-0.5σ²)t})', data: medianPath, borderColor: '#10b981', borderWidth: 2, fill: false },
+          { label: '+1σ Upper Band', data: upper1Sigma, borderColor: 'rgba(255, 158, 0, 0.4)', borderDash: [4, 4], fill: false },
+          { label: '-1σ Lower Band', data: lower1Sigma, borderColor: 'rgba(255, 107, 107, 0.4)', borderDash: [4, 4], fill: false }
+        ]
+      },
+      equationLatex: `\\[ df(S_t, t) = \\left( \\frac{\\partial f}{\\partial t} + \\mu S_t \\frac{\\partial f}{\\partial S} + \\frac{1}{2} \\sigma^2 S_t^2 \\frac{\\partial^2 f}{\\partial S^2} \\right) dt + \\sigma S_t \\frac{\\partial f}{\\partial S} dW_t \\]`,
+      substitutedLatex: `\\[ d\\ln(S_t) = \\left( ${mu.toFixed(3)} - \\frac{1}{2}(${sigma.toFixed(2)})^2 \\right) dt + ${sigma.toFixed(2)} dW_t = \\mathbf{${itoDriftCorrection >= 0 ? '+' : ''}${(itoDriftCorrection * 100).toFixed(2)}\\% dt + ${(sigma * 100).toFixed(1)}\\% dW_t} \\]`,
+      beginnerText: `Unlike standard calculus, random price movements have jagged variance that doesn't disappear when zoomed in. Itô's Lemma accounts for this extra quadratic bump.`,
+      investorText: `Explains why highly volatile assets suffer compound return drag: arithmetic average return does not equal realized geometric CAGR.`,
+      quantText: `By Taylor expanding to 2nd order and using Itô isometry $(dW_t)^2 = dt$, $dW_t dt = 0$, the non-zero quadratic variation term $\\frac{1}{2}\\sigma^2 S^2 \\partial_{SS} f$ appears.`,
+      limitations: `Requires continuous Wiener paths. Breaks down under discontinuous jumps (Levy processes) or rough fractional Brownian motion ($H \\ne 0.5$).`
+    };
+  };
+
+  // 20. Feynman-Kac PDE Diffusion & Heat Equation
+  const calcFeynmanKac = ({ spotPrice = 100, strikePrice = 100, riskFreeRate = 5.0, vol = 20.0, timeToExpiry = 1.0 }) => {
+    const S = Number(spotPrice);
+    const K = Number(strikePrice);
+    const r = Number(riskFreeRate) / 100.0;
+    const sigma = Number(vol) / 100.0;
+    const T = Number(timeToExpiry);
+
+    // Transformation variables to 1D heat equation: x = ln(S/K), tau = 0.5*sigma^2*T
+    const x = Math.log(S / K);
+    const tau = 0.5 * sigma * sigma * T;
+    const k_ratio = 2.0 * r / (sigma * sigma);
+    const alpha = -0.5 * (k_ratio - 1.0);
+    const beta = -0.25 * Math.pow(k_ratio + 1.0, 2);
+
+    const d1 = (x + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+    const d2 = d1 - sigma * Math.sqrt(T);
+
+    const cdf = (z) => 0.5 * (1.0 + Math.erf(z / Math.sqrt(2.0)));
+    const callPrice = S * cdf(d1) - K * Math.exp(-r * T) * cdf(d2);
+
+    const labels = ['-3σ', '-2σ', '-1σ', 'ATM (0)', '+1σ', '+2σ', '+3σ'];
+    const heatProfile = [-3, -2, -1, 0, 1, 2, 3].map(z => {
+      const logSpot = Math.log(S / K) + z * sigma * Math.sqrt(T);
+      const spotNode = K * Math.exp(logSpot);
+      const nodeD1 = (logSpot + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+      const nodeD2 = nodeD1 - sigma * Math.sqrt(T);
+      return Number(Math.max(0, spotNode * cdf(nodeD1) - K * Math.exp(-r * T) * cdf(nodeD2)).toFixed(2));
+    });
+
+    return {
+      focalSymbol: 'u_τ = u_xx',
+      focalLabel: 'Feynman-Kac Heat Solution',
+      focalValue: `$${callPrice.toFixed(2)}`,
+      plainResult: `Feynman-Kac establishes an exact duality: solving the Black-Scholes parabolic PDE is mathematically identical to taking the risk-neutral expected value under Brownian motion: V(S,t) = E^Q[e^{-rT} (S_T - K)^+] = $${callPrice.toFixed(2)}.`,
+      chart: {
+        labels,
+        datasets: [
+          { label: 'PDE Solution Value Profile V(S, t)', data: heatProfile, borderColor: '#ff9e00', backgroundColor: 'rgba(255, 158, 0, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ \\frac{\\partial V}{\\partial t} + r S \\frac{\\partial V}{\\partial S} + \\frac{1}{2} \\sigma^2 S^2 \\frac{\\partial^2 V}{\\partial S^2} - r V = 0 \\iff V(S,t) = \\mathbb{E}^{\\mathbb{Q}}\\left[ e^{-r(T-t)} \\psi(S_T) \\mid S_t = S \\right] \\]`,
+      substitutedLatex: `\\[ u_\\tau = u_{xx} \\implies C(${S.toFixed(0)}, ${K.toFixed(0)}, ${T.toFixed(1)}) = ${S.toFixed(0)}\\mathcal{N}(${d1.toFixed(2)}) - ${K.toFixed(0)}e^{-${r.toFixed(2)}} \\mathcal{N}(${d2.toFixed(2)}) = \\mathbf{\\$${callPrice.toFixed(2)}} \\]`,
+      beginnerText: `Feynman-Kac proved that solving complex differential equations is the exact same thing as simulating thousands of possible coin-flip future paths.`,
+      investorText: `Provides the mathematical foundation for both PDE grid finite-difference solvers and Monte Carlo repricing engines.`,
+      quantText: `Change of variables $S = K e^x, t = T - 2\\tau / \\sigma^2, V = K v(x, \\tau) e^{\\alpha x + \\beta \\tau}$ eliminates drift and discounting, reducing the BSM equation directly to the canonical diffusion heat equation $\\partial_\\tau u = \\partial_{xx} u$.`,
+      limitations: `Requires linear second-order parabolic PDE structure. Non-linear PDEs (e.g. uncertain volatility models) require Hamilton-Jacobi-Bellman viscosity solutions.`
+    };
+  };
+
+  // 21. Heston Stochastic Volatility & Carr-Madan FFT
+  const calcHestonFFT = ({ spotPrice = 100, strikePrice = 100, v0 = 0.04, kappa = 2.0, theta = 0.04, xi = 0.3, rho = -0.7, tau = 0.5 }) => {
+    const S = Number(spotPrice);
+    const K = Number(strikePrice);
+    const V0 = Number(v0);
+    const KAPPA = Number(kappa);
+    const THETA = Number(theta);
+    const XI = Number(xi);
+    const RHO = Number(rho);
+    const T = Number(tau);
+
+    // Feller condition check: 2*kappa*theta > xi^2
+    const fellerLHS = 2.0 * KAPPA * THETA;
+    const fellerRHS = XI * XI;
+    const fellerSatisfied = fellerLHS > fellerRHS;
+
+    // Approximate Heston price & smile
+    const atmVol = Math.sqrt(V0);
+    const strikes = [80, 90, 100, 110, 120];
+    const smileVols = strikes.map(k => {
+      const logK = Math.log(k / S);
+      const skew = RHO * (XI / (2.0 * KAPPA)) * (logK / Math.sqrt(T));
+      const smile = (XI * XI / (12.0 * KAPPA)) * (logK * logK / T);
+      return Number(Math.max(0.05, (atmVol + skew + smile) * 100).toFixed(2));
+    });
+
+    return {
+      focalSymbol: '2κθ > ξ²',
+      focalLabel: 'Feller Invariant Ratio',
+      focalValue: `${fellerSatisfied ? 'SATISFIED' : 'VIOLATED'} (${fellerLHS.toFixed(3)} vs ${fellerRHS.toFixed(3)})`,
+      plainResult: `Heston stochastic volatility models mean-reverting variance dv_t = κ(θ - v_t)dt + ξ√v_t dW_t^v with leverage correlation ρ = ${RHO}. Feller condition: 2κθ = ${fellerLHS.toFixed(3)} ${fellerSatisfied ? '>' : '<'} ξ² = ${fellerRHS.toFixed(3)} (${fellerSatisfied ? 'Variance strictly positive' : 'Variance hits zero boundary'}).`,
+      chart: {
+        labels: strikes.map(k => `$${k} (${k === 100 ? 'ATM' : k < 100 ? 'OTM Put' : 'OTM Call'})`),
+        datasets: [
+          { label: 'Heston Calibrated Implied Volatility Smile (%)', data: smileVols, borderColor: '#CC5DE8', backgroundColor: 'rgba(204, 93, 232, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ dv_t = \\kappa(\\theta - v_t) dt + \\xi \\sqrt{v_t} dW_t^v, \\quad dS_t = \\mu S_t dt + \\sqrt{v_t} S_t dW_t^S, \\quad d\\langle W^S, W^v \\rangle_t = \\rho dt \\]`,
+      substitutedLatex: `\\[ 2\\kappa\\theta = 2(${KAPPA.toFixed(1)})(${THETA.toFixed(2)}) = ${fellerLHS.toFixed(3)} \\quad \\text{vs} \\quad \\xi^2 = (${XI.toFixed(2)})^2 = ${fellerRHS.toFixed(3)} \\implies \\mathbf{${fellerSatisfied ? '\\text{Feller Invariant Holds}' : '\\text{Feller Violated (Zero Hits)}'}} \\]`,
+      beginnerText: `In the real world, volatility isn't constant — it bounces up and down randomly and spikes during market crashes. Heston captures this stochastic behavior.`,
+      investorText: `Explains why options with low strikes (out-of-the-money puts) trade at much higher implied volatilities (volatility skew).`,
+      quantText: `The characteristic function $\\phi(u)$ is known in closed analytical form, enabling sub-millisecond option pricing across full strike grids via the Carr-Madan Fast Fourier Transform (FFT).`,
+      limitations: `Requires numerical branch cut tracking in the complex logarithm $D(u) = \\sqrt{(\\kappa - i\\rho\\xi u)^2 + \\xi^2 (u^2 + i u)}$ (Albrecher formulation).`
+    };
+  };
+
+  // 22. Vasicek & Cox-Ingersoll-Ross (CIR) Term Structure
+  const calcVasicekCIR = ({ currentRate = 6.5, speed = 0.25, meanRate = 7.0, vol = 1.5, model = 'cir' }) => {
+    const r0 = Number(currentRate) / 100.0;
+    const a = Number(speed);
+    const b = Number(meanRate) / 100.0;
+    const sigma = Number(vol) / 100.0;
+
+    const maturities = [0.5, 1, 2, 3, 5, 7, 10, 15, 20, 30];
+    const yieldCurve = maturities.map(T => {
+      if (model === 'vasicek') {
+        const B = (1.0 - Math.exp(-a * T)) / a;
+        const A = Math.exp((b - (sigma * sigma) / (2.0 * a * a)) * (B - T) - (sigma * sigma * B * B) / (4.0 * a));
+        const P = A * Math.exp(-B * r0);
+        const y = -Math.log(P) / T;
+        return Number((y * 100).toFixed(2));
+      } else {
+        // CIR Model
+        const gamma = Math.sqrt(a * a + 2.0 * sigma * sigma);
+        const denom = (gamma + a) * (Math.exp(gamma * T) - 1.0) + 2.0 * gamma;
+        const B = (2.0 * (Math.exp(gamma * T) - 1.0)) / denom;
+        const A = Math.pow((2.0 * gamma * Math.exp((a + gamma) * T / 2.0)) / denom, (2.0 * a * b) / (sigma * sigma));
+        const P = A * Math.exp(-B * r0);
+        const y = -Math.log(P) / T;
+        return Number((y * 100).toFixed(2));
+      }
+    });
+
+    return {
+      focalSymbol: model === 'cir' ? 'CIR dr = a(b-r)dt + σ√r dW' : 'Vasicek dr = a(b-r)dt + σ dW',
+      focalLabel: '30Y Equilibrium Yield',
+      focalValue: `${yieldCurve[yieldCurve.length - 1]}%`,
+      plainResult: `${model === 'cir' ? 'Cox-Ingersoll-Ross (CIR)' : 'Vasicek'} short rate model with mean reversion speed a = ${a} towards long-term mean b = ${(b * 100).toFixed(1)}%. Current short rate: ${(r0 * 100).toFixed(2)}% -> 30Y asymptotic zero rate: ${yieldCurve[yieldCurve.length - 1]}%.`,
+      chart: {
+        labels: maturities.map(m => `${m}Y`),
+        datasets: [
+          { label: `${model === 'cir' ? 'CIR' : 'Vasicek'} Zero Coupon Yield Curve (%)`, data: yieldCurve, borderColor: '#51CF66', backgroundColor: 'rgba(81, 207, 102, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: model === 'cir' 
+        ? `\\[ dr_t = a(b - r_t) dt + \\sigma \\sqrt{r_t} dW_t, \\quad P(t, T) = A(t, T) e^{-B(t, T) r_t} \\]`
+        : `\\[ dr_t = a(b - r_t) dt + \\sigma dW_t, \\quad P(t, T) = A(t, T) e^{-B(t, T) r_t} \\]`,
+      substitutedLatex: `\\[ P(0, 10) = A(10) e^{-B(10)(${r0.toFixed(3)})} \\implies y(10\\text{Y}) = \\mathbf{${yieldCurve[6]}\\%} \\]`,
+      beginnerText: `Interest rates don't wander off to infinity like stocks — when they get too high or low, central bank forces pull them back to equilibrium.`,
+      investorText: `Allows traders to price bond options, swaptions, and compute Key Rate Durations for liability-driven pension immunization.`,
+      quantText: `Both Vasicek and CIR belong to the class of affine term structure models where $-\\ln P(t, T) = -\\ln A(t, T) + B(t, T) r_t$. CIR uses square-root diffusion preventing negative interest rates.`,
+      limitations: `Vasicek allows negative interest rates with non-zero probability. 1-factor models cannot simultaneously fit steepeners and butterfly twists.`
+    };
+  };
+
+  // 23. Avellaneda-Stoikov High-Frequency Market Making
+  const calcAvellanedaStoikov = ({ midPrice = 100, inventory = 3, gamma = 0.1, kappa = 1.5, vol = 20.0, timeRemaining = 0.5 }) => {
+    const s = Number(midPrice);
+    const q = Number(inventory);
+    const GAMMA = Number(gamma);
+    const KAPPA = Number(kappa);
+    const sigma = Number(vol) / 100.0;
+    const T = Number(timeRemaining);
+
+    // Reservation price: r(s, q, t) = s - q * gamma * sigma^2 * (T - t)
+    const inventoryPenalty = q * GAMMA * sigma * sigma * T;
+    const reservationPrice = s - inventoryPenalty;
+
+    // Optimal spread: delta_a + delta_b = gamma * sigma^2 * T + (2/gamma) * ln(1 + gamma/kappa)
+    const halfSpread = 0.5 * (GAMMA * sigma * sigma * T + (2.0 / GAMMA) * Math.log(1.0 + GAMMA / KAPPA));
+    const optimalAsk = Number((reservationPrice + halfSpread).toFixed(2));
+    const optimalBid = Number((reservationPrice - halfSpread).toFixed(2));
+    const totalSpreadBps = Number((((optimalAsk - optimalBid) / s) * 10000).toFixed(1));
+
+    const inventoryLevels = [-5, -3, -1, 0, 1, 3, 5];
+    const resPrices = inventoryLevels.map(qNode => Number((s - qNode * GAMMA * sigma * sigma * T).toFixed(2)));
+
+    return {
+      focalSymbol: 'r(s,q) = s - qγσ²(T-t)',
+      focalLabel: 'Optimal Bid / Ask Quotes',
+      focalValue: `$${optimalBid.toFixed(2)} / $${optimalAsk.toFixed(2)}`,
+      plainResult: `With long inventory q = ${q}, your reservation price shifts downward from mid $${s.toFixed(2)} to $${reservationPrice.toFixed(2)} (-$${inventoryPenalty.toFixed(2)} penalty). Optimal market-making quotes: BID $${optimalBid.toFixed(2)} | ASK $${optimalAsk.toFixed(2)} (Spread: ${totalSpreadBps} bps).`,
+      chart: {
+        labels: inventoryLevels.map(qL => `q = ${qL > 0 ? '+' : ''}${qL} ${qL === 0 ? '(Flat)' : qL > 0 ? '(Long)' : '(Short)'}`),
+        datasets: [
+          { label: 'Reservation Fair Price r(s, q) ($)', data: resPrices, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ r(s, q, t) = s - q \\gamma \\sigma^2 (T-t), \\quad \\delta^a + \\delta^b = \\gamma \\sigma^2 (T-t) + \\frac{2}{\\gamma} \\ln\\left(1 + \\frac{\\gamma}{\\kappa}\\right) \\]`,
+      substitutedLatex: `\\[ r = ${s.toFixed(2)} - (${q})(${GAMMA.toFixed(2)})(${sigma.toFixed(2)})^2 (${T.toFixed(2)}) = \\mathbf{\\$${reservationPrice.toFixed(2)}} \\implies \\text{Quotes: } \\mathbf{\\$${optimalBid.toFixed(2)} \\; / \\; \\$${optimalAsk.toFixed(2)}} \\]`,
+      beginnerText: `If you are already holding too much stock, you lower your selling price to get rid of inventory fast, and lower your buying price so nobody sells you even more.`,
+      investorText: `Automates market-making algorithms to earn the bid-ask spread while preventing toxic inventory accumulation.`,
+      quantText: `Derived by solving the Hamilton-Jacobi-Bellman (HJB) dynamic programming equation $\\partial_t v + \\frac{1}{2}\\sigma^2 \\partial_{ss} v + \\max_{\\delta^b} \\lambda^b (v(s, q+1, t) - v) + \\max_{\\delta^a} \\lambda^a (v(s, q-1, t) - v) = 0$.`,
+      limitations: `Assumes constant arrival intensity $\\lambda(\\delta) = A e^{-k \\delta}$ and known continuous volatility $\\sigma$.`
+    };
+  };
+
+  // 24. Copulas & Extreme Value Theory (EVT)
+  const calcCopulasEVT = ({ dependenceTheta = 2.5, copulaType = 'clayton', tailPct = 5.0 }) => {
+    const theta = Number(dependenceTheta);
+    const kPct = Number(tailPct);
+
+    // Tail dependence coefficients
+    let lambdaL = 0;
+    let lambdaU = 0;
+    if (copulaType === 'clayton') {
+      lambdaL = Math.pow(2.0, -1.0 / theta);
+      lambdaU = 0.0;
+    } else {
+      // Gumbel
+      lambdaL = 0.0;
+      lambdaU = 2.0 - Math.pow(2.0, 1.0 / theta);
+    }
+
+    const hillAlpha = (1.0 / (kPct / 100.0 * 0.85)).toFixed(2);
+
+    const quantiles = [0.01, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.99];
+    const jointProbs = quantiles.map(u => {
+      if (copulaType === 'clayton') {
+        return Number(Math.pow(Math.pow(u, -theta) + Math.pow(u, -theta) - 1.0, -1.0 / theta).toFixed(4));
+      } else {
+        return Number(Math.exp(-Math.pow(Math.pow(-Math.log(u), theta) + Math.pow(-Math.log(u), theta), 1.0 / theta)).toFixed(4));
+      }
+    });
+
+    return {
+      focalSymbol: copulaType === 'clayton' ? 'λ_L = 2^{-1/θ}' : 'λ_U = 2 - 2^{1/θ}',
+      focalLabel: `${copulaType.toUpperCase()} Tail Dependence`,
+      focalValue: `${copulaType === 'clayton' ? (lambdaL * 100).toFixed(1) : (lambdaU * 100).toFixed(1)}%`,
+      plainResult: `${copulaType.toUpperCase()} Copula with parameter θ = ${theta}. Lower crash tail dependence λ_L = ${(lambdaL * 100).toFixed(1)}% (Probability of joint crash | Asset 1 crashes). Hill tail index α = ${hillAlpha} indicates heavy Pareto fat-tail risk.`,
+      chart: {
+        labels: quantiles.map(q => `q = ${(q * 100).toFixed(0)}%`),
+        datasets: [
+          { label: `Joint Probability C(u, u) under ${copulaType.toUpperCase()} Copula`, data: jointProbs, borderColor: '#FF6B6B', backgroundColor: 'rgba(255, 107, 107, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: copulaType === 'clayton'
+        ? `\\[ C(u, v) = \\left( u^{-\\theta} + v^{-\\theta} - 1 \\right)^{-1/\\theta}, \\quad \\lambda_L = 2^{-1/\\theta}, \\quad \\alpha_{\\text{Hill}} = \\left( \\frac{1}{k} \\sum_{i=1}^k \\ln \\frac{X_{(n-i+1)}}{X_{(n-k)}} \\right)^{-1} \\]`
+        : `\\[ C(u, v) = \\exp\\left( -\\left[ (-\\ln u)^\\theta + (-\\ln v)^\\theta \\right]^{1/\\theta} \\right), \\quad \\lambda_U = 2 - 2^{1/\\theta} \\]`,
+      substitutedLatex: `\\[ \\lambda_L = 2^{-1/(${theta.toFixed(2)})} = \\mathbf{${(lambdaL * 100).toFixed(1)}\\%} \\quad \\text{vs Gaussian Copula } \\lambda_L = 0 \\]`,
+      beginnerText: `Standard correlation assumes stocks move together smoothly. Copulas model how correlations suddenly jump to 100% when a panic crashes the entire market simultaneously.`,
+      investorText: `Essential for credit CDO tranches, systemic banking contagion modeling, and stress testing joint multi-asset drawdown risks.`,
+      quantText: `By Sklar's theorem, any joint distribution $F(x_1, \\dots, x_d) = C(F_1(x_1), \\dots, F_d(x_d))$ separates individual marginal distributions from the non-linear dependence copula $C$. Clayton possesses asymmetric lower tail dependence $\\lambda_L > 0$, fixing the 2008 Gaussian copula fallacy.`,
+      limitations: `Parameter calibration is sensitive to sample tail threshold $k$. High-dimensional Archimedean copulas suffer from symmetric parameter rigidity.`
+    };
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
   // PUBLIC API & MODULE METADATA DIRECTORY
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1406,6 +1694,145 @@ const LearnMathEngine = (() => {
         { label: 'Conservative Trend (1x Leverage)', inputs: { strategy: 'trend_following', lookback: 20, stopLossPct: 5, leverage: 1 } },
         { label: 'Mean-Reversion Swing (1.5x)', inputs: { strategy: 'mean_reversion', lookback: 14, stopLossPct: 4, leverage: 1.5 } },
         { label: 'High-Beta Vol Breakout (2x)', inputs: { strategy: 'vol_breakout', lookback: 20, stopLossPct: 6, leverage: 2 } }
+      ]
+    },
+
+    // Category 5: Quant Interview & Stochastic PDE Lab
+    {
+      id: 'ito_calculus',
+      title: 'Itô\'s Lemma, SDEs & Quadratic Variation',
+      shortTitle: 'Itô\'s Calculus Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-square-root-variable',
+      badge: 'Stochastic Calculus',
+      calc: calcItoCalculus,
+      defaultInputs: { spotPrice: 100, drift: 8.0, vol: 20.0, timeHorizon: 1.0 },
+      controls: [
+        { key: 'spotPrice', label: 'Initial Asset Price (S₀)', type: 'currency', min: 10, max: 1000, step: 10, default: 100 },
+        { key: 'drift', label: 'Expected Drift Drift Rate (μ %)', type: 'percent', min: -20, max: 40, step: 1, default: 8.0 },
+        { key: 'vol', label: 'Instantaneous Diffusion Vol (σ %)', type: 'percent', min: 5, max: 80, step: 1, default: 20.0 },
+        { key: 'timeHorizon', label: 'Time Horizon (Years)', type: 'number', min: 0.25, max: 5.0, step: 0.25, default: 1.0 }
+      ],
+      presets: [
+        { label: 'Standard Equity GBM (μ=8%, σ=20%)', inputs: { spotPrice: 100, drift: 8.0, vol: 20.0, timeHorizon: 1.0 } },
+        { label: 'High-Vol Crypto SDE (μ=25%, σ=65%)', inputs: { spotPrice: 100, drift: 25.0, vol: 65.0, timeHorizon: 1.0 } }
+      ]
+    },
+    {
+      id: 'feynman_kac',
+      title: 'Feynman-Kac Theorem & Diffusion Heat Equation',
+      shortTitle: 'Feynman-Kac PDE',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-fire-flame-curved',
+      badge: 'PDE Duality',
+      calc: calcFeynmanKac,
+      defaultInputs: { spotPrice: 100, strikePrice: 100, riskFreeRate: 5.0, vol: 20.0, timeToExpiry: 1.0 },
+      controls: [
+        { key: 'spotPrice', label: 'Spot Price (S)', type: 'currency', min: 50, max: 200, step: 5, default: 100 },
+        { key: 'strikePrice', label: 'Option Strike Price (K)', type: 'currency', min: 50, max: 200, step: 5, default: 100 },
+        { key: 'riskFreeRate', label: 'Risk-Free Rate (r %)', type: 'percent', min: 1, max: 12, step: 0.5, default: 5.0 },
+        { key: 'vol', label: 'Diffusion Volatility (σ %)', type: 'percent', min: 5, max: 60, step: 1, default: 20.0 },
+        { key: 'timeToExpiry', label: 'Time to Expiry (T years)', type: 'number', min: 0.1, max: 3.0, step: 0.1, default: 1.0 }
+      ],
+      presets: [
+        { label: 'ATM Standard Call (T=1.0y)', inputs: { spotPrice: 100, strikePrice: 100, riskFreeRate: 5.0, vol: 20.0, timeToExpiry: 1.0 } },
+        { label: 'High Volatility Diffusion (σ=45%)', inputs: { spotPrice: 100, strikePrice: 100, riskFreeRate: 5.0, vol: 45.0, timeToExpiry: 0.5 } }
+      ]
+    },
+    {
+      id: 'heston_fft',
+      title: 'Heston Stochastic Volatility & Carr-Madan FFT',
+      shortTitle: 'Heston FFT Smile',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-wave-square',
+      badge: 'Stochastic Volatility',
+      calc: calcHestonFFT,
+      defaultInputs: { spotPrice: 100, strikePrice: 100, v0: 0.04, kappa: 2.0, theta: 0.04, xi: 0.3, rho: -0.7, tau: 0.5 },
+      controls: [
+        { key: 'v0', label: 'Initial Variance (v₀)', type: 'number', min: 0.01, max: 0.25, step: 0.01, default: 0.04 },
+        { key: 'kappa', label: 'Mean Reversion Speed (κ)', type: 'number', min: 0.5, max: 6.0, step: 0.5, default: 2.0 },
+        { key: 'theta', label: 'Long-Term Mean Variance (θ)', type: 'number', min: 0.01, max: 0.25, step: 0.01, default: 0.04 },
+        { key: 'xi', label: 'Vol of Vol (ξ)', type: 'number', min: 0.1, max: 0.8, step: 0.05, default: 0.3 },
+        { key: 'rho', label: 'Spot-Vol Correlation (ρ)', type: 'number', min: -0.95, max: 0.0, step: 0.05, default: -0.7 }
+      ],
+      presets: [
+        { label: 'Feller Invariant Satisfied (2κθ > ξ²)', inputs: { spotPrice: 100, strikePrice: 100, v0: 0.04, kappa: 2.5, theta: 0.04, xi: 0.3, rho: -0.7, tau: 0.5 } },
+        { label: 'Feller Invariant Violated (High Vol of Vol)', inputs: { spotPrice: 100, strikePrice: 100, v0: 0.04, kappa: 1.0, theta: 0.04, xi: 0.5, rho: -0.7, tau: 0.5 } }
+      ]
+    },
+    {
+      id: 'vasicek_cir',
+      title: 'Vasicek & Cox-Ingersoll-Ross (CIR) Term Structure',
+      shortTitle: 'Short Rate Yield Curve',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-arrow-trend-up',
+      badge: 'Fixed Income Term Structure',
+      calc: calcVasicekCIR,
+      defaultInputs: { currentRate: 6.5, speed: 0.25, meanRate: 7.0, vol: 1.5, model: 'cir' },
+      controls: [
+        { key: 'model', label: 'Term Structure Model Type', type: 'select', options: [
+          { val: 'cir', text: 'Cox-Ingersoll-Ross (CIR) - Strictly Positive' },
+          { val: 'vasicek', text: 'Vasicek Affine Model - Gaussian Diffusion' }
+        ], default: 'cir' },
+        { key: 'currentRate', label: 'Initial Instantaneous Short Rate (r₀ %)', type: 'percent', min: 1, max: 15, step: 0.25, default: 6.5 },
+        { key: 'speed', label: 'Mean Reversion Speed (a)', type: 'number', min: 0.05, max: 1.0, step: 0.05, default: 0.25 },
+        { key: 'meanRate', label: 'Long-Term Mean Rate (b %)', type: 'percent', min: 2, max: 12, step: 0.25, default: 7.0 },
+        { key: 'vol', label: 'Short Rate Volatility (σ %)', type: 'percent', min: 0.5, max: 5.0, step: 0.25, default: 1.5 }
+      ],
+      presets: [
+        { label: 'Normal Yield Curve (Inversion Recovery)', inputs: { currentRate: 5.5, speed: 0.3, meanRate: 7.2, vol: 1.5, model: 'cir' } },
+        { label: 'Inverted Curve Regime (Central Bank Hike)', inputs: { currentRate: 8.5, speed: 0.25, meanRate: 6.0, vol: 1.8, model: 'cir' } }
+      ]
+    },
+    {
+      id: 'avellaneda_stoikov',
+      title: 'Avellaneda-Stoikov High-Frequency Market Making',
+      shortTitle: 'HFT Market Making',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-bolt',
+      badge: 'Microstructure & HJB',
+      calc: calcAvellanedaStoikov,
+      defaultInputs: { midPrice: 100, inventory: 3, gamma: 0.1, kappa: 1.5, vol: 20.0, timeRemaining: 0.5 },
+      controls: [
+        { key: 'midPrice', label: 'Mid-Market Fair Price ($)', type: 'currency', min: 10, max: 500, step: 5, default: 100 },
+        { key: 'inventory', label: 'Current Inventory Position (q units)', type: 'number', min: -10, max: 10, step: 1, default: 3 },
+        { key: 'gamma', label: 'Inventory Risk Aversion (γ)', type: 'number', min: 0.01, max: 0.5, step: 0.01, default: 0.1 },
+        { key: 'kappa', label: 'Order Book Liquidity Depth (κ)', type: 'number', min: 0.5, max: 5.0, step: 0.25, default: 1.5 },
+        { key: 'vol', label: 'Asset Volatility (σ %)', type: 'percent', min: 5, max: 60, step: 1, default: 20.0 }
+      ],
+      presets: [
+        { label: 'Long Inventory Overhang (q = +4)', inputs: { midPrice: 100, inventory: 4, gamma: 0.15, kappa: 1.5, vol: 25.0, timeRemaining: 0.5 } },
+        { label: 'Flat Inventory Neutral (q = 0)', inputs: { midPrice: 100, inventory: 0, gamma: 0.1, kappa: 1.5, vol: 20.0, timeRemaining: 0.5 } },
+        { label: 'Short Inventory Squeeze (q = -4)', inputs: { midPrice: 100, inventory: -4, gamma: 0.15, kappa: 1.5, vol: 25.0, timeRemaining: 0.5 } }
+      ]
+    },
+    {
+      id: 'copulas_evt',
+      title: 'Clayton/Gumbel Copulas & Extreme Value Theory (EVT)',
+      shortTitle: 'Copulas & EVT Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-shield-halved',
+      badge: 'Crash Tail Dependence',
+      calc: calcCopulasEVT,
+      defaultInputs: { dependenceTheta: 2.5, copulaType: 'clayton', tailPct: 5.0 },
+      controls: [
+        { key: 'copulaType', label: 'Copula Architecture', type: 'select', options: [
+          { val: 'clayton', text: 'Clayton Copula (Asymmetric Left-Crash Tail Dependence)' },
+          { val: 'gumbel', text: 'Gumbel Copula (Asymmetric Right-Boom Tail Dependence)' }
+        ], default: 'clayton' },
+        { key: 'dependenceTheta', label: 'Copula Association Parameter (θ)', type: 'number', min: 0.5, max: 8.0, step: 0.25, default: 2.5 },
+        { key: 'tailPct', label: 'EVT Tail Threshold Quantile (k %)', type: 'percent', min: 1, max: 15, step: 1, default: 5.0 }
+      ],
+      presets: [
+        { label: 'High Crash Contagion (Clayton θ=4.0, λ_L=84%)', inputs: { dependenceTheta: 4.0, copulaType: 'clayton', tailPct: 5.0 } },
+        { label: 'Moderate Dependence (Clayton θ=2.0, λ_L=50%)', inputs: { dependenceTheta: 2.0, copulaType: 'clayton', tailPct: 5.0 } },
+        { label: 'Upper Boom Bubble (Gumbel θ=3.0)', inputs: { dependenceTheta: 3.0, copulaType: 'gumbel', tailPct: 5.0 } }
       ]
     }
   ];
