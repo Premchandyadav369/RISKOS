@@ -1,0 +1,12 @@
+{
+  "symbol": "INFY",
+  "name": "Infosys Ltd",
+  "figi": "BBG000J7XNP6",
+  "isin": "INE009A01021",
+  "exchange": "NSE",
+  "sector": "Information Technology",
+  "bloomberg_ticker": "INFY NSE Equity",
+  "lot_size": 1,
+  "currency": "INR",
+  "version": 144
+}
