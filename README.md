@@ -1,398 +1,366 @@
-# RISKOS — Institutional Quantitative Intelligence & Risk Analytics Platform
-
-![RISKOS Institutional Platform Banner](assets/banner.jpg)
+﻿# RISKOS — Institutional Quantitative Intelligence & Multi-Asset Risk Operating System
 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Platform: Web & API](https://img.shields.io/badge/Platform-Web%20%7C%20FastAPI%20%7C%20Node.js-10b981.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 [![Math: KaTeX](https://img.shields.io/badge/Math-KaTeX%20LaTeX-22d3ee.svg?style=for-the-badge)](#-mathematical-specifications--formulations)
-[![Coverage: Institutional Quant](https://img.shields.io/badge/Coverage-Equities%20%7C%20Derivatives%20%7C%20Macro%20%7C%20Rates-fab005.svg?style=for-the-badge)](#-live-market-coverage--universal-security-master)
+[![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-35%20Modules-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
 [![Production Status](https://img.shields.io/badge/Deployment-Live%20on%20Vercel-success.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 
-**Turn raw market tick streams into actionable understanding with an AI-native financial intelligence platform built for equity research, event-driven causality, multi-asset risk analytics, options volatility surfaces, order microstructure execution, and deterministic mathematical explainability.**
+**An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, prediction market probability pricing, and deterministic mathematical explainability.**
 
-[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [Learn & Lab Suite](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html)
+[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [35-Module Quant Laboratories](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
 
 </div>
 
 ---
 
-## 🏛️ Executive Summary & Core Philosophy
+## 🏛️ System Overview & Design Philosophy
 
-Traditional financial software presents users with a false dichotomy: consumer trading platforms oversimplify market mechanics into naive line charts, while legacy institutional workstations (Bloomberg, FactSet) confront analysts with dense, fragmented interfaces with opaque pricing black boxes.
+Traditional financial software forces an artificial compromise: retail apps oversimplify financial mechanics into naive charts, while legacy financial terminals (Bloomberg, FactSet, Aladdin) lock users into opaque proprietary systems with black-box calculations.
 
-**RISKOS** bridges this divide by enforcing a tripartite design doctrine:
-1. 💡 **Simple by Default**: High-contrast, dark-mode terminal UI presenting executive metrics, key performance ratios, and intuitive health badges at a glance.
-2. 🔍 **Deep on Demand**: Expandable deep-dive drawers, cross-market causality graphs, multi-factor trade logs, and scenario stress sliders.
-3. 📐 **Mathematical when Requested**: Every metric, risk number, Greek, and signal is accompanied by its underlying **pure LaTeX $\LaTeX$ mathematical proof**, stochastic partial differential equation, and step-by-step numeric calculation trace.
+**RISKOS** eliminates this friction through a foundational tripartite engineering doctrine:
+1. **Simple by Default**: Clean, high-contrast, dark-mode terminal interfaces displaying key risk metrics, tail boundaries, and real-time execution blotters at sub-5ms latency.
+2. **Deep on Demand**: Expandable parameter matrices, cross-asset causality networks, walk-forward out-of-sample backtests, and multi-factor stress scenario sliders.
+3. **Mathematical when Requested**: Every Greek, volatility smile, risk boundary, and pricing model is paired with its **closed-form LaTeX $\LaTeX$ mathematical proof**, continuous stochastic differential equation (SDE), and step-by-step numerical substitution trace.
 
 ---
 
-## 🏗️ End-to-End System Architecture & Ingestion Pipeline
+## 🏗️ End-to-End System Architecture
 
-![RISKOS End-to-End System Architecture](assets/system_architecture_pipeline.jpg)
-
-### 🎓 In Layman Terms
-Imagine a modern airport air traffic control tower for financial markets. Thousands of raw data signals (stock prices, currency exchange rates, commodity barrel costs, government interest rates, and trade orders) stream in every second from exchanges in Mumbai, New York, Tokyo, and London. 
-
-RISKOS takes these incoming price streams, cleans and normalizes them in memory, routes them into specialized mathematical calculators (which compute things like probability of market crashes, volatility spikes, and options fair values), and broadcasts live, visual dashboards directly to your web browser within milliseconds.
-
-### ⚡ Technical Quant Specification
-RISKOS utilizes a decoupled, event-driven hybrid compute architecture designed for low-latency streaming and high-dimensional deterministic matrix operations:
+The RISKOS platform is built as a modular, decoupled, event-driven architecture integrating high-throughput streaming feeds, client-side deterministic mathematical engines, and low-latency visualization layers:
 
 ```mermaid
 flowchart TB
-    subgraph INGESTION["1. Real-Time Data Ingestion Pipeline"]
+    subgraph INGESTION["1. Universal Market Ingestion & OpenBB ODP Hub"]
         direction TB
-        EX1["NSE & BSE Direct Feeds (India)"] --> SM["SecurityMaster Registry"]
-        EX2["NYSE, NASDAQ & CBOE Feeds (US)"] --> SM
-        EX3["Commodities (Brent, Gold, Silver, Copper)"] --> SM
-        EX4["Forex (USD/INR, EUR/USD) & Sovereign Rates"] --> SM
-        WS["Live WebSocket & SSE Streaming Tap"] --> SM
+        F1["NSE & BSE Direct Tick Streams"] --> SM["SecurityMaster Engine & Normalizer"]
+        F2["NYSE, NASDAQ & CBOE Feeds"] --> SM
+        F3["Global Commodities (Brent, Gold, Silver)"] --> SM
+        F4["FX Interbank & Sovereign Rates"] --> SM
+        F5["OpenBB Open Data Platform (ODP Bridge)"] --> SM
+        SM --> PB["Unified Multi-Provider Bus\n(YahooFinance | FMP | Polygon | CBOE | FRED | NSE)"]
     end
 
-    subgraph ENGINE["2. Quantitative Analytics & Risk Engines"]
+    subgraph CORE_ENGINES["2. Quantitative Math & Algorithmic Compute Engines"]
         direction TB
-        SM --> MKT["Market Intelligence Desk\n• GARCH(1,1) Volatility\n• Gaussian HMM Regimes\n• Ledoit-Wolf Covariance"]
-        SM --> RISK["Tail Risk & Portfolio Desk\n• Parametric & Historical VaR\n• Monte Carlo Expected Shortfall\n• Rockafellar-Uryasev CVaR Opt"]
-        SM --> DERIV["Derivatives & Volatility Lab\n• Black-Scholes-Merton PDE\n• Full Greeks (Δ, Γ, ν, θ, ρ, Vanna, Volga)\n• SVI Volatility Smile"]
-        SM --> MICRO["Microstructure & OFI Desk\n• Order Flow Imbalance (OFI)\n• VPIN Toxicity Estimation\n• Almgren-Chriss Liquidation"]
+        PB --> MKT["Market Intelligence Engine\n• GARCH(1,1) Volatility\n• Gaussian HMM Regimes\n• Ledoit-Wolf Shrinkage"]
+        PB --> RISK["Risk & Portfolio Engine\n• Parametric & Historical VaR\n• Rockafellar-Uryasev Min-CVaR\n• Kupiec & Christoffersen Tests"]
+        PB --> DERIV["Derivatives & Greeks Engine\n• Black-Scholes-Merton PDE\n• Heston Stochastic Volatility & FFT\n• SABR & Dupire Local Volatility"]
+        PB --> MICRO["Microstructure & Execution Engine\n• Level-2 DOM Queue Tracking\n• Order Flow Imbalance (OFI)\n• VPIN Toxicity & Almgren-Chriss"]
+        PB --> PREDICT["Prediction Markets AMM Engine\n• Hanson LMSR Potential Function\n• Binary Probability Contracts\n• Brier Score Calibration"]
+        PB --> BACKTEST["Backtrader Cerebro Studio\n• Event-Driven Discrete Simulation\n• Directional Slippage & Commissions\n• Van Tharp SQN & VWR Analyzers"]
+        PB --> PERSPECTIVE["Perspective Streaming Engine\n• WebAssembly Column Memory\n• Multi-Level Hierarchical Pivots\n• 50ms SIMD Diff Cell Flashing"]
     end
 
-    subgraph DESKS["3. Institutional Trading & Research Desks"]
+    subgraph DESKS["3. Bloomberg-Grade Institutional Trading Desks (app.html)"]
         direction TB
-        MKT --> D1["Market Intelligence Desk (app.html)"]
-        RISK --> D2["Risk & Portfolio Engine (app.html)"]
-        DERIV --> D3["Derivatives & Volatility Lab (app.html / learn.html)"]
-        MICRO --> D4["Microstructure & Pre-Trade Risk Gate (app.html)"]
-        ENGINE --> D5["Systematic Strategy Backtester (learn.html)"]
-        ENGINE --> D6["Futures & Sovereign Yield Curve Desk (app.html)"]
-        ENGINE --> D7["Market Observatory & Causality Network (observatory.html)"]
+        MKT --> D1["Desk 1: Market Intelligence & Perspective Grid (F2)"]
+        RISK --> D2["Desk 2: Tail Risk & Black-Litterman Allocator (F3)"]
+        DERIV --> D3["Desk 3: Rates, Yield Curves & Futures Carry (F4)"]
+        MICRO --> D4["Desk 4: Microstructure, OFI & DOM Ladder (F5)"]
+        DERIV --> D5["Desk 5: Derivatives, SVI Smile & Greeks (F6)"]
+        BACKTEST --> D6["Desk 6: Backtrader Cerebro & Signals (F7)"]
+        PREDICT --> D7["Desk 7: AI Speculations & Prediction Markets (F8)"]
     end
 
-    subgraph UI["4. High-Performance Client Presentation Layer"]
+    subgraph PRESENTATION["4. High-Performance Presentation & Explainability Layer"]
         direction TB
-        D1 & D2 & D3 & D4 & D5 & D6 & D7 --> RENDER["Client Rendering Engine\n• Retina HTML5 Canvas ChartSuite\n• MathJax / KaTeX Proof Formulations\n• Real-Time Green/Red Ticking Flash Tape\n• One-Click PDF Quant Tear Sheet Exporter"]
+        D1 & D2 & D3 & D4 & D5 & D6 & D7 --> UI["Client-Side Visual Presentation Engine"]
+        UI --> CANV["Retina HTML5 Canvas ChartSuite Engine"]
+        UI --> MATH["KaTeX / MathJax Real-Time LaTeX Formulator"]
+        UI --> EXP["3-Tier Explainability Engine (Layman | Investor | Quant)"]
+        UI --> TEAR["Automated PDF / Print Institutional Tear Sheet"]
+        UI --> FIX["FIX 4.4 Electronic Order Protocol Router (F12)"]
     end
 ```
 
 ---
 
-## 📡 Live Market Coverage & Universal Security Master
-
-RISKOS embeds a universal [`SecurityMaster`](securityMaster.js) registry managing global multi-asset instruments, tick conversions, live spread tracking, and real-time currency conversions ($₹\text{ INR} \leftrightarrow \$\text{ USD}$):
-
-| Asset Class | Covered Instruments & Symbols | Primary Exchange / Source | Data Refresh Frequency |
-| :--- | :--- | :--- | :--- |
-| **Indian Equities** | `RELIANCE`, `TCS`, `HDFCBANK`, `INFY`, `TATAMOTORS`, `ZOMATO`, `SUZLON`, `IRFC` | NSE / BSE India | Live Real-Time (1.5s Poll / WS) |
-| **US Equities** | `NVDA`, `AAPL`, `MSFT`, `TSLA`, `GOOGL`, `AMZN`, `META`, `JPM` | NASDAQ / NYSE | Live Real-Time (1.5s Poll / WS) |
-| **Benchmark Indices** | `^NSEI` (NIFTY 50), `^BSESN` (SENSEX), `^NSEBANK`, `^CNXIT`, `^GSPC` (S&P 500), `^IXIC` (NASDAQ) | Global Exchanges | Live Real-Time Tick Tape |
-| **Commodities & Metals** | `BRENT` (Crude Oil), `CRUDE` (WTI), `GOLD` (XAU/USD), `SILVER` (XAG/USD), `COPPER`, `NATGAS` | NYMEX / ICE / MCX | Live Spot & Continuous Futures |
-| **Currencies (FX)** | `USDINR=X` (USD/INR), `EURUSD=X`, `GBPUSD=X`, `USDJPY=X` | Global FX Interbank | Live Streaming (with dynamic multiplier) |
-| **Sovereign Yields** | India 10Y Benchmark G-Sec, US 10Y Treasury Note, 2Y/10Y Spread | Central Banks (RBI / Fed) | Real-Time Nelson-Siegel Spline |
-
----
-
-## 🛡️ Desk 1 & 2: Portfolio Tail Risk & CVaR Optimization
-
-![Portfolio Tail Risk & CVaR Optimization Infographic](assets/portfolio_risk_analytics.jpg)
-
-### 🎓 In Layman Terms
-- **Value at Risk (VaR 99%)**: Imagine you run an investment fund with \$10,000,000. VaR tells you: *"On 99 out of 100 normal trading days, your worst loss will not exceed \$248,500."*
-- **Expected Shortfall (CVaR 99%)**: But what happens on that 1 day when the market experiences a black swan catastrophe? CVaR answers the question: *"When disaster strikes and your VaR threshold is breached, what is the average loss you will suffer?"* (e.g., -\$362,100).
-- **Rockafellar-Uryasev CVaR Optimizer**: Traditional portfolio theory (Markowitz) treats upside gains and downside crashes as equal "risk". RISKOS uses modern convex optimization to build portfolios that specifically minimize crash-day losses while maximizing steady compound growth.
-- **Kupiec & Christoffersen Tests**: Strict regulatory tests (mandated by the Basel III banking accords) that continuously check whether our risk calculations are statistically accurate and whether losses clump together in dangerous streaks.
-
----
-
-### ⚡ Technical Quant Specification & Mathematical Formulation
-
-#### 1. Parametric Value-at-Risk (Delta-Normal VaR)
-For a portfolio with weight vector $\mathbf{w} \in \mathbb{R}^N$ and shrinkage covariance matrix $\mathbf{\Sigma} \in \mathbb{R}^{N \times N}$:
-
-$$\sigma_p = \sqrt{\mathbf{w}^T \mathbf{\Sigma} \mathbf{w}}$$
-
-$$\text{VaR}_{\alpha} = -(\mathbf{w}^T \boldsymbol{\mu} + \Phi^{-1}(1 - \alpha) \cdot \sigma_p \sqrt{\Delta t})$$
-
-where $\Phi^{-1}(p)$ is the inverse standard normal cumulative distribution function (Acklam's rational approximation), $\boldsymbol{\mu}$ is the expected return vector, and $\alpha = 0.99$.
-
-#### 2. Conditional Value-at-Risk (CVaR / Expected Shortfall)
-The Rockafellar-Uryasev continuous formulation defines CVaR at confidence level $\alpha$ over loss function $f(\mathbf{w}, \mathbf{y})$ with probability density $p(\mathbf{y})$:
-
-$$\text{CVaR}_{\alpha}(\mathbf{w}) = \min_{\zeta \in \mathbb{R}} \left\{ \zeta + \frac{1}{1 - \alpha} \int_{\mathbf{y} \in \mathbb{R}^M} [f(\mathbf{w}, \mathbf{y}) - \zeta]^+ p(\mathbf{y}) d\mathbf{y} \right\}$$
-
-where $[x]^+ = \max(x, 0)$. In the empirical discrete simulation across $S = 10,000$ Monte Carlo paths:
-
-$$\text{CVaR}_{\alpha}(\mathbf{w}) \approx \zeta^* + \frac{1}{S(1 - \alpha)} \sum_{s=1}^S d_s$$
-
-$$\text{subject to} \quad d_s \ge -\mathbf{w}^T \mathbf{R}_s - \zeta^*, \quad d_s \ge 0, \quad \sum_{i=1}^N w_i = 1, \quad 0 \le w_i \le w_{\max}$$
-
-#### 3. Ledoit-Wolf Covariance Matrix Shrinkage
-To eliminate sample covariance inversion instability in ill-conditioned financial returns matrices, we shrink the sample covariance $\mathbf{S}$ toward an optimal constant correlation target $\mathbf{F}$:
-
-$$\mathbf{\Sigma}_{\text{LW}} = (1 - \delta^*) \mathbf{S} + \delta^* \mathbf{F}$$
-
-where the optimal shrinkage intensity $\delta^* \in [0, 1]$ is computed analytically:
-
-$$\delta^* = \max\left(0, \min\left(1, \frac{\sum_{i=1}^N \sum_{j=1}^N \widehat{\text{Var}}(s_{ij})}{\sum_{i=1}^N \sum_{j=1}^N (s_{ij} - f_{ij})^2}\right)\right)$$
-
-#### 4. GARCH(1,1) Volatility Dynamics
-Asset volatility clusters dynamically according to the generalized autoregressive conditional heteroskedasticity model:
-
-$$\sigma_t^2 = \omega + \alpha \cdot \epsilon_{t-1}^2 + \beta \cdot \sigma_{t-1}^2$$
-
-$$\text{Unconditional Long-Term Volatility: } \sigma_{\infty} = \sqrt{\frac{\omega}{1 - \alpha - \beta}}, \quad \text{Persistence: } \kappa = \alpha + \beta < 1$$
-
-#### 5. Kupiec Proportion of Failures (POF) Likelihood Ratio Test
-Tests the null hypothesis $H_0: p = p_0 = 1 - \alpha$ against the alternative $H_1: p \ne p_0$ over $N$ observations with $x$ empirical tail violations:
-
-$$\text{LR}_{\text{POF}} = -2 \ln \left[ \frac{p_0^x (1 - p_0)^{N-x}}{\left(\frac{x}{N}\right)^x \left(1 - \frac{x}{N}\right)^{N-x}} \right] \sim \chi^2(1)$$
-
-#### 6. Multi-Factor Crisis Replay & Drawdown Recovery Horizon
-Simulates portfolio capital destruction under historical and synthetic macro dislocations:
-
-$$\Delta V_p = V_0 \cdot \left[ w_{\text{eq}} \cdot \Delta_{\text{eq}} - w_{\text{fi}} \cdot D^* \cdot \frac{\Delta y}{10000} + w_{\text{comm}} \cdot \Delta_{\text{comm}} \right]$$
-
-The required percentage capital return $R_{\text{req}}$ to restore original principal from loss fraction $L = |\Delta V_p| / V_0$, and the compound recovery horizon $n$ (months) at annualized hurdle rate $r_h$:
-
-$$R_{\text{req}} = \frac{1}{1 - L} - 1, \qquad n_{\text{months}} = \frac{\ln(1 + R_{\text{req}})}{\ln\left(1 + \frac{r_h}{12}\right)}$$
-
----
-
-## 📈 Desk 3: Derivatives & Volatility Lab
-
-![Derivatives & Volatility Lab Infographic](assets/derivatives_volatility_surface.jpg)
-
-### 🎓 In Layman Terms
-- **Options Contracts**: Financial contracts giving you the right (but not the obligation) to buy (Call) or sell (Put) an underlying stock at an agreed strike price before a deadline.
-- **Option Greeks**: Sensitivity gauges that tell you how your option position changes when market variables move:
-  - $\Delta$ (**Delta**): How much your option price changes when the stock moves by \$1.
-  - $\Gamma$ (**Gamma**): How fast Delta speeds up as the stock moves (the accelerator pedal).
-  - $\mathcal{V}$ (**Vega**): How much you gain or lose when market uncertainty/fear (volatility) shifts by 1%.
-  - $\Theta$ (**Theta**): The daily time-decay cost of holding the option (the ticking clock).
-  - $\text{Vanna}$ & $\text{Volga}$: Second-order institutional Greeks measuring how Delta changes with volatility, and how Vega changes with volatility.
-- **Volatility Smile & Surface**: In reality, deep out-of-the-money crash protection options are priced higher by market makers than simple Black-Scholes predicts, creating a 3D curved "smile" surface across strike prices and expiration dates.
-- **Multi-Leg Payoff Builder**: Visual simulator for complex multi-asset spreads (Bull Call Spread, Iron Condor, Long Straddle) computing exact breakeven points and maximum profit/loss boundaries.
-
----
-
-### ⚡ Technical Quant Specification & Mathematical Formulation
-
-#### 1. Black-Scholes-Merton Partial Differential Equation (PDE)
-Under risk-neutral measure $\mathbb{Q}$ with Geometric Brownian Motion $dS_t = (r - q) S_t dt + \sigma S_t dW_t$:
-
-$$\frac{\partial V}{\partial t} + \frac{1}{2}\sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + (r - q)S \frac{\partial V}{\partial S} - rV = 0$$
-
-Analytical European Call ($C$) and Put ($P$) closed-form solutions:
-
-$$C(S, K, T, r, q, \sigma) = S e^{-qT} \Phi(d_1) - K e^{-rT} \Phi(d_2)$$
-
-$$P(S, K, T, r, q, \sigma) = K e^{-rT} \Phi(-d_2) - S e^{-qT} \Phi(-d_1)$$
-
-where the standardized log-moneyness forward coordinates are:
-
-$$d_1 = \frac{\ln(S / K) + \left(r - q + \frac{1}{2}\sigma^2\right)T}{\sigma \sqrt{T}}, \qquad d_2 = d_1 - \sigma \sqrt{T}$$
-
-#### 2. First, Second, and Third-Order Analytical Greeks
-
-$$\text{Delta } (\Delta_{\text{Call}}) = \frac{\partial C}{\partial S} = e^{-qT} \Phi(d_1), \qquad \Delta_{\text{Put}} = -e^{-qT} \Phi(-d_1)$$
-
-$$\text{Gamma } (\Gamma) = \frac{\partial^2 V}{\partial S^2} = \frac{e^{-qT} \phi(d_1)}{S \sigma \sqrt{T}}$$
-
-$$\text{Vega } (\mathcal{V}) = \frac{\partial V}{\partial \sigma} = S e^{-qT} \sqrt{T} \phi(d_1)$$
-
-$$\text{Theta } (\Theta_{\text{Call}}) = \frac{\partial C}{\partial t} = -\frac{S e^{-qT} \phi(d_1) \sigma}{2 \sqrt{T}} + q S e^{-qT} \Phi(d_1) - r K e^{-rT} \Phi(d_2)$$
-
-$$\text{Rho } (\rho_{\text{Call}}) = \frac{\partial C}{\partial r} = K T e^{-rT} \Phi(d_2), \qquad \rho_{\text{Put}} = -K T e^{-rT} \Phi(-d_2)$$
-
-$$\text{Vanna} = \frac{\partial^2 V}{\partial S \partial \sigma} = -\frac{e^{-qT} d_2}{\sigma} \phi(d_1), \qquad \text{Volga} = \frac{\partial^2 V}{\partial \sigma^2} = \frac{\mathcal{V} d_1 d_2}{\sigma}, \qquad \text{Charm} = -\frac{\partial \Delta}{\partial T}$$
-
----
-
-## ⚡ Desk 4: Limit Order Book Microstructure & Optimal Execution
-
-![Order Microstructure & Execution Infographic](assets/microstructure_optimal_execution.jpg)
-
-### 🎓 In Layman Terms
-- **Limit Order Book (Level-2 DOM)**: The real-time queue of all buyers and sellers waiting at different prices.
-- **Order Flow Imbalance (OFI)**: Measures who is aggressively pushing prices—are buyers rapidly hitting the ask, or are sellers dumping into the bid?
-- **VPIN (Toxicity Detector)**: Gauges whether informed institutional players (like hedge funds with non-public models) are trading heavily in one direction, alerting market makers to widen spreads to avoid getting run over.
-- **Almgren-Chriss Optimal Execution**: When a large institution needs to liquidate \$50,000,000 of stock, dumping it all at once causes severe market crash impact (slippage). Waiting too long exposes the fund to overnight market risk. Almgren-Chriss calculates the exact mathematical trajectory to sell shares smoothly across time to minimize total trading cost.
-
----
-
-### ⚡ Technical Quant Specification & Mathematical Formulation
-
-#### 1. Order Flow Imbalance (OFI) Metric
-Given consecutive Level-1 Limit Order Book states at time $t_{k-1}$ and $t_k$:
-
-$$\text{OFI}_k = I_{\{P_k^b \ge P_{k-1}^b\}} q_k^b - I_{\{P_k^b \le P_{k-1}^b\}} q_{k-1}^b - I_{\{P_k^a \le P_{k-1}^a\}} q_k^a + I_{\{P_k^a \ge P_{k-1}^a\}} q_{k-1}^a$$
-
-$$\text{Micro-Price: } P_t^{\text{micro}} = \frac{q_t^b P_t^a + q_t^a P_t^b}{q_t^b + q_t^a}$$
-
-#### 2. Volume-Synchronized Probability of Toxicity (VPIN)
-Partitioning continuous order flow into constant volume buckets of size $V$:
-
-$$\text{VPIN} = \frac{\sum_{\tau=1}^N |V_{\tau}^B - V_{\tau}^S|}{N \cdot V}$$
-
-where $V_{\tau}^B$ and $V_{\tau}^S$ are the buyer and seller-initiated volumes in bucket $\tau$ estimated via the BVC (Bulk Volume Classification) normal CDF kernel.
-
-#### 4. Transaction Cost Analysis (TCA) & Implementation Shortfall
-Perold (1988) implementation shortfall decomposes total frictional execution loss into 4 constituent components:
-
-$$\text{IS}_{bps} = \underbrace{\frac{P_{\text{arrival}} - P_0}{P_0} \times 10^4}_{\text{Delay / Execution Drag}} + \underbrace{\frac{\text{Spread}}{2 P_0} \times 10^4}_{\text{Half-Spread Liquidity}} + \underbrace{\eta \left(\frac{v_t}{V_t}\right)^\alpha}_{\text{Temporary Market Impact}} + \underbrace{\gamma \left(\frac{X_0}{V_{\text{day}}}\right)}_{\text{Permanent Price Impact}}$$
-
----
-
-## 🧮 Desk 2B: Black-Litterman Global Bayesian View Integrator
-
-### 🎓 In Layman Terms
-- **Reverse Optimization Equilibrium**: Instead of guessing stock returns, Black-Litterman asks the market: "Given the current prices and size of all companies, what returns is the world collectively expecting?"
-- **Investor View Matrix**: You can express specific subjective quantitative views (e.g., *"We believe TCS will outperform INFY by +4.5% with 80% confidence"*).
-- **Posterior Bayesian Blending**: Black-Litterman combines the market equilibrium with your subjective views, adjusting portfolio weights smoothly without creating extreme corner bets.
-
-### ⚡ Mathematical Formulation
-
-$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right]$$
-
-$$\boldsymbol{\Pi} = \lambda \mathbf{\Sigma} \mathbf{w}_{\text{mkt}}, \qquad \mathbf{\Omega} = \text{diag}\left(\mathbf{P} (\tau \mathbf{\Sigma}) \mathbf{P}^T\right)$$
-
-$$\mathbf{w}_{\text{BL}}^* = (\lambda \mathbf{\Sigma})^{-1} \boldsymbol{\mu}_{\text{BL}}$$
-
----
-
-## 📈 Desk 3B: Statistical Arbitrage & Cointegration Pairs Screener
-
-### 🎓 In Layman Terms
-- **Cointegrated Spread (ADF Test)**: Even if two correlated stocks wander randomly, their spread is tied by a theoretical equilibrium leash. When the Augmented Dickey-Fuller test yields $p < 0.05$, the spread is mathematically stationary.
-- **Dynamic Kalman Hedge Ratio**: Tracks the exact number of shares of Stock B to short for every 1 share of Stock A you hold.
-- **Ornstein-Uhlenbeck Half-Life**: Calculates the exact number of calendar days it takes for the spread to mean-revert 50% back toward fair value.
-
-### ⚡ Mathematical Formulation
-
-$$\Delta \epsilon_t = \gamma \epsilon_{t-1} + \sum_{i=1}^p \psi_i \Delta \epsilon_{t-i} + u_t, \qquad H_0: \gamma = 0 \quad (\text{Non-Stationary})$$
-
-$$dX_t = \kappa (\theta - X_t) dt + \sigma dW_t \implies \text{Mean-Reversion Half-Life: } \tau_{1/2} = \frac{\ln 2}{\kappa}$$
-
----
-
-## 🔭 Desk 5 & 6: Macroeconomic Intelligence & Market Observatory
-
-![Market Observatory & Causality Infographic](assets/macro_causality_observatory.jpg)
-
-### 🎓 In Layman Terms
-- **Market Causality Network**: Understands how global events ripple across asset classes—e.g., how a surge in Brent Crude Oil shifts the USD/INR currency exchange rate, raises Indian 10Y bond yields, and triggers capital rotation from Financials into IT compounders.
-- **Hidden Markov Model (HMM)**: Unsupervised machine learning that acts as a market weather detector—automatically categorizing current market conditions into **Bullish** (low vol, steady uptrend), **Bearish** (high vol, sharp downswings), or **Sideways Consolidation** (mean-reverting).
-- **Central Bank Policy & Shock Simulator**: Live probability tracker for US Federal Reserve (FOMC) and Reserve Bank of India (RBI MPC) policy rate decisions, with an interactive slider allowing analysts to simulate what happens to equity P/E valuations and bond yields during a $+100\text{ bps}$ interest rate shock.
-
----
-
-### ⚡ Technical Quant Specification & Mathematical Formulation
-
-#### 1. Gaussian Hidden Markov Model (HMM) Regime Detection
-For unobserved latent market regime state $S_t \in \{1, 2, 3\}$ (Bull, Sideways, Bear) and observed log-returns $y_t$:
-
-$$P(S_t = j \mid S_{t-1} = i) = A_{ij}$$
-
-$$y_t \mid (S_t = k) \sim \mathcal{N}(\mu_k, \sigma_k^2)$$
-
-The optimal hidden state sequence is decoded via the **Viterbi Algorithm**:
-
-$$V_{t,k} = \max_{j} \left( V_{t-1, j} \cdot A_{jk} \right) \cdot \frac{1}{\sqrt{2\pi\sigma_k^2}} \exp\left(-\frac{(y_t - \mu_k)^2}{2\sigma_k^2}\right)$$
-
-#### 2. Ornstein-Uhlenbeck Mean-Reverting Spread SDE
-For cointegrated pair spreads $X_t = S_{1,t} - \beta S_{2,t}$:
-
-$$dX_t = \theta (\mu - X_t) dt + \sigma dW_t$$
-
-$$\text{Estimated Half-Life of Mean Reversion: } \tau_{1/2} = \frac{\ln(2)}{\theta}$$
-
-#### 3. Nelson-Siegel-Svensson Zero-Coupon Yield Curve Spline
-Sovereign bond spot yield $y(m)$ at maturity $m$ is modeled continuously as:
-
-$$y(m) = \beta_0 + \beta_1 \left( \frac{1 - e^{-m/\tau_1}}{m/\tau_1} \right) + \beta_2 \left( \frac{1 - e^{-m/\tau_1}}{m/\tau_1} - e^{-m/\tau_1} \right) + \beta_3 \left( \frac{1 - e^{-m/\tau_2}}{m/\tau_2} - e^{-m/\tau_2} \right)$$
-
-where $\beta_0$ represents the **Level (long-term yield)**, $\beta_1$ governs the **Slope (short-term rate differential)**, $\beta_2$ controls **Curvature (medium-term belly)**, and $\beta_3$ fits the **second curvature hump**.
-
----
-
-## 🧪 Learn & Lab Mathematical Suite (20 In-Browser Labs)
-
-RISKOS embeds a high-performance, deterministic computational laboratory in [`learnMathEngine.js`](learnMathEngine.js) powering 20 interactive modules with zero backend lag:
-
-| ID | Quantitative Module | Core Mathematical Formula | Interactive Sliders & Presets |
-| :--- | :--- | :--- | :--- |
-| `cagr` | Compound Annual Growth Rate | $\text{CAGR} = (V_{\text{final}} / V_{\text{initial}})^{1/T} - 1$ | Initial Capital, Final Capital, Years |
-| `compounding` | Multi-Frequency Compound Interest | $A = P (1 + r/n)^{nt}$ | Principal, Annual Rate %, Compounding Freq |
-| `sip_dca` | Systematic Dollar-Cost Averaging | $M = P \cdot \frac{(1+i)^n - 1}{i} \cdot (1+i)$ | Monthly SIP, Expected Return %, Horizon |
-| `lumpsum_vs_sip` | Capital Deployment Comparison | Opportunity Cost & Volatility Drag Spline | Lump Sum Capital vs Staggered SIP |
-| `compound_interest`| Rule of 72 & Doubling Horizon | $T_{\text{double}} \approx \frac{\ln(2)}{\ln(1+r)} \approx \frac{72}{r}$ | Return Rate %, Target Multiplier |
-| `pe_valuation` | Earnings Multiple & Yield | $\text{Earnings Yield} = E/P = 1 / (\text{P/E})$ | EPS, Share Price, Growth Rate |
-| `roe_roce` | DuPont 3-Way ROE Decomposition | $\text{ROE} = \frac{\text{Net Income}}{\text{Sales}} \times \frac{\text{Sales}}{\text{Assets}} \times \frac{\text{Assets}}{\text{Equity}}$ | Net Margin, Asset Turnover, Equity Multiplier |
-| `volatility` | Annualized Sample Standard Deviation| $\sigma_{\text{ann}} = \sqrt{\frac{\sum (R_t - \bar{R})^2}{N-1}} \cdot \sqrt{252}$ | Daily Returns Volatility, Trading Days |
-| `beta_corr` | Capital Asset Pricing Beta & Corr | $\beta = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)} = \rho_{im} \frac{\sigma_i}{\sigma_m}$ | Benchmark Vol, Asset Vol, Correlation $\rho$ |
-| `sharpe` | Sharpe & Sortino Risk-Adjusted Return| $\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}, \; \text{Sortino} = \frac{R_p - R_f}{\sigma_{\text{down}}}$ | Expected Return, Risk-Free Rate, Volatility |
-| `mdd` | Maximum Peak-to-Trough Drawdown | $\text{MDD}_t = \max_{\tau \in [0, t]} \left( \frac{P_{\tau} - P_t}{P_{\tau}} \right)$ | Price Peak, Trough Low, Recovery Target |
-| `drawdown_recovery`| Asymmetric Loss Recovery Hurdle | $R_{\text{req}} = \frac{1}{1 - L} - 1$ | Drawdown Loss %, Target Recovery Timeline |
-| `diversification` | Markowitz 2-Asset Volatility Benefit | $\sigma_p = \sqrt{w_1^2 \sigma_1^2 + w_2^2 \sigma_2^2 + 2w_1 w_2 \sigma_1 \sigma_2 \rho}$ | Asset Weights, Asset 1/2 Vol, Correlation |
-| `port_variance` | $N$-Asset Matrix Portfolio Risk | $\sigma_p^2 = \mathbf{w}^T \mathbf{\Sigma} \mathbf{w}$ | Weight Vector, Covariance Matrix Sliders |
-| `capm` | Security Market Line Expected Return| $\mathbb{E}[R_i] = R_f + \beta_i (\mathbb{E}[R_m] - R_f)$ | Risk-Free Rate, Market Risk Premium, Beta |
-| `port_allocator` | Rockafellar-Uryasev Mean-Variance| $\min_{\mathbf{w}} \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} - \lambda \mathbf{w}^T \boldsymbol{\mu}$ | Risk Tolerance $\lambda$, Target Return % |
-| `risk_return_scatter`| Capital Allocation Line (CAL) | Efficient Frontier Hyperbolic Envelope | Asset Scatter Points, Optimal Tangency Point |
-| `scenario_stress` | Macro Scenario Tail Impact Engine | Stress Matrix: Rates, Equity Crash, Stagflation | Scenario Selector, Position Sizes |
-| `options_payoff` | Multi-Leg Options Strategy Payoff | Spreads, Straddles, Condors Terminal PnL | Strikes $K_1, K_2$, Premium $C$, Spot $S_0$ |
-| `quant_backtest` | Systematic Strategy Walk-Forward | Trend SMA 20/50, RSI Reversion, Breakout | Lookback Window, Stop-Loss %, Leverage |
-
----
-
-## 📄 Institutional Quantitative Tear Sheet Exporter
-
-RISKOS incorporates an automated, client-ready **Institutional Quantitative Factsheet Generator** accessible in the Quant Terminal:
-
-```
-========================================================================================
-                      RISKOS INSTITUTIONAL QUANTITATIVE TEAR SHEET
-========================================================================================
-Universe Analyzed : RELIANCE, TCS, HDFCBANK, INFY, NVDA, AAPL, MSFT, BRENT, USDINR
-Base Portfolio    : ₹1,00,00,000 INR ($115,280 USD)           Reporting Date: 2026-08-29
-----------------------------------------------------------------------------------------
-[PORTFOLIO RISK & EFFICIENCY]               [STRESS SCENARIOS & BASEL III VALIDATION]
-Parametric VaR (99% 1D) : ₹2,48,500 (2.48%) | Rate Shock (+300 bps) : -₹10,20,000 (-10.2%)
-Expected Shortfall CVaR : ₹3,62,100 (3.62%) | Equity Crash (-40%)   : -₹22,40,000 (-22.4%)
-Portfolio Sharpe Ratio  : 1.84              | Volatility Surge (3x) : -₹11,80,000 (-11.8%)
-Portfolio Sortino Ratio : 2.45              | Kupiec POF Test       : PASSED (p = 0.48)
-Calmar Ratio            : 2.15              | Christoffersen Test   : PASSED (p = 0.62)
-Max Historical Drawdown : -11.20%           | Covariance Estimator  : Ledoit-Wolf Optimal
-----------------------------------------------------------------------------------------
-[CVaR-OPTIMAL ASSET ALLOCATION (Rockafellar-Uryasev Min-CVaR)]
-RELIANCE: 14.2% | TCS: 12.8% | HDFCBANK: 16.5% | INFY: 11.0% | NVDA: 15.5% | AAPL: 15.0%
-========================================================================================
+## 🔬 Master Catalog of 35 Interactive Quantitative Simulation Laboratories
+
+RISKOS embeds a standalone, client-side, zero-latency mathematical simulation library in [`learnMathEngine.js`](learnMathEngine.js) and [`learn.html`](learn.html). Each module contains dynamic parameter sliders, real-time trajectory curves, closed-form equations, and LaTeX substitution traces:
+
+```mermaid
+mindmap
+  root((RISKOS 35 Quant Labs))
+    Quant Interviews & PDEs
+      Itô Calculus & SDEs
+      Feynman-Kac Heat PDE
+      Heston Stochastic Volatility FFT
+      Vasicek & CIR Term Structure
+      Avellaneda-Stoikov HFT
+      Clayton/Gumbel Copulas & EVT
+      Merton Jump-Diffusion
+      Almgren-Chriss Optimal Execution
+      Kalman Filter Pairs Arbitrage
+      Black-Litterman Bayesian Allocator
+      Perpetual American Option Free-Boundary
+      Bachelier Normal Options Model
+      Prediction Markets LMSR
+      Futures Basis & Cash-Carry Arb
+      Backtrader Cerebro Studio
+      OpenBB ODP Universal Ingestion
+      Perspective Streaming Grid
+    Tail Risk & Stochastics
+      Historical & EWMA Volatility
+      Systematic Beta & Covariance
+      Sharpe, Sortino & Calmar
+      Maximum Peak-to-Trough Drawdown
+      Asymmetric Loss Recovery Math
+    Portfolio & Asset Allocation
+      Markowitz Diversification Benefit
+      2-Asset Portfolio Variance
+      CAPM Security Market Line
+      Multi-Asset Portfolio Allocator
+      Risk-Return Opportunity Scatter
+      Macro Shock Stress Testing
+      Multi-Leg Options Payoff Matrix
+      Walk-Forward Strategy Backtest
+    Returns & Growth
+      CAGR Geometric Growth
+      Compounding Multi-Frequency
+      Step-Up SIP & DCA
+      Lumpsum vs SIP Regime Simulator
+    Valuation & Multiples
+      P/E Valuation & Earnings Yield
+      DuPont 3-Way ROE Decomposition
 ```
 
-- **One-Click PDF Export**: Clean, print-styled CSS stylesheet triggering `window.print()` formatted for A4 institutional investor factsheet reports.
-- **Machine-Readable JSON**: One-click JSON data download for quantitative model risk management audits.
+### Complete Mathematical Specifications Table
+
+| # | Module ID | Interactive Laboratory Title | Governing Mathematical Equation | Quant Interview & Institutional Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **1** | `ito_calculus` | **Itô's Lemma & SDEs** | $df = \left(\partial_t f + \mu S \partial_S f + \frac{1}{2}\sigma^2 S^2 \partial_{SS} f\right)dt + \sigma S \partial_S f dW$ | Proves $[W,W]_t = t$ and continuous $-\frac{1}{2}\sigma^2$ variance drag. |
+| **2** | `feynman_kac` | **Feynman-Kac Theorem & Heat PDE** | $\partial_t V + r S \partial_S V + \frac{1}{2}\sigma^2 S^2 \partial_{SS} V - r V = 0 \iff u_\tau = u_{xx}$ | Maps parabolic partial differential equations to risk-neutral expectations. |
+| **3** | `heston_fft` | **Heston Stochastic Volatility & FFT** | $dv_t = \kappa(\theta - v_t)dt + \xi\sqrt{v_t} dW_t^v, \quad 2\kappa\theta > \xi^2$ | Solves option pricing via Carr-Madan characteristic function integration. |
+| **4** | `vasicek_cir` | **Vasicek & CIR Term Structure** | $dr_t = a(b - r_t)dt + \sigma r_t^\gamma dW_t, \quad P(t,T) = A(t,T) e^{-B(t,T) r_t}$ | Generates zero-coupon yield curves and models non-negative interest rates. |
+| **5** | `avellaneda_stoikov` | **Avellaneda-Stoikov HFT Market Making** | $r(s,q,t) = s - q \gamma \sigma^2 (T-t), \quad \delta^a + \delta^b = \gamma \sigma^2(T-t) + \frac{2}{\gamma}\ln\left(1+\frac{\gamma}{\kappa}\right)$ | HJB optimal control for inventory risk and asymmetric bid/ask order quotes. |
+| **6** | `copulas_evt` | **Clayton/Gumbel Copulas & EVT** | $C(u,v) = (u^{-\theta} + v^{-\theta} - 1)^{-1/\theta}, \quad \lambda_L = 2^{-1/\theta}, \quad \hat{\alpha} = \left[\frac{1}{k}\sum_{i=1}^k \ln\frac{X_{(i)}}{X_{(k+1)}}\right]^{-1}$ | Evaluates non-linear tail crash dependence and Pareto fat-tail Hill parameters. |
+| **7** | `merton_jump_diffusion` | **Merton Jump-Diffusion Process** | $dS_t = (\mu - \lambda k)S_t dt + \sigma S_t dW_t + (J-1)S_t dN_t, \quad \ln J \sim \mathcal{N}(\mu_J, \sigma_J^2)$ | Captures discontinuous Poisson crash gaps and OTM implied volatility skews. |
+| **8** | `almgren_chriss` | **Almgren-Chriss Optimal Execution** | $x(t) = X_0 \frac{\sinh(\kappa(T-t))}{\sinh(\kappa T)}, \quad \kappa = \sqrt{\frac{\lambda\sigma^2}{\eta}}$ | Balances temporary market impact slippage against overnight volatility risk. |
+| **9** | `kalman_pairs` | **Kalman Filter Dynamic Pairs Arbitrage** | $\beta_t = \beta_{t-1} + K_t(y_t - x_t \beta_{t-1}), \quad K_t = \frac{P_{t\mid t-1} x_t}{x_t^2 P_{t\mid t-1} + R}$ | Tracks dynamic state-space hedge ratios in real time on streaming ticks. |
+| **10** | `black_litterman` | **Black-Litterman Bayesian Allocator** | $\boldsymbol{\mu}_{BL} = [(\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P}]^{-1} [(\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q}]$ | Blends market equilibrium benchmark with subjective active investor views. |
+| **11** | `perpetual_american` | **Perpetual American Option Free-Boundary** | $\left. \frac{dV}{dS} \right\|_{S=S^*} = -1 \implies S^* = \frac{\gamma}{\gamma+1} K, \quad \gamma = \frac{2r}{\sigma^2}$ | Smooth pasting variational inequality determining optimal early exercise triggers. |
+| **12** | `bachelier_model` | **Bachelier (1900) Normal Options** | $C = (S-K)\mathcal{N}(d) + \sigma_N \sqrt{T} n(d), \quad d = \frac{S-K}{\sigma_N \sqrt{T}}$ | Prices options with negative asset prices (e.g. WTI crude -$37.63/bbl crash). |
+| **13** | `prediction_markets_lmsr` | **Prediction Markets & Hanson LMSR** | $C(\mathbf{q}) = b \ln\left(\sum_{i=1}^n e^{q_i/b}\right), \quad p_i = \frac{e^{q_i/b}}{\sum e^{q_j/b}}$ | Automated market maker for binary probability contracts with bounded loss. |
+| **14** | `futures_basis_carry` | **Futures Basis & Cash-and-Carry Arb** | $F(t,T) = S_t e^{(r-q+u)(T-t)}, \quad \text{Basis Yield} = \frac{F-S}{S}\frac{365}{\Delta t}$ | No-arbitrage forward replication and market-neutral basis carry harvesting. |
+| **15** | `backtrader_cerebro` | **Backtrader Strategy & Cerebro Studio** | $\text{SQN} = \sqrt{N}\frac{\bar{P}}{\sigma_P}, \quad \text{VWR} = R_{\text{total}} \cdot (1+\sigma\sqrt{252})^{-1}$ | Event-driven backtesting with slippage, commissions, and Van Tharp metrics. |
+| **16** | `openbb_odp` | **OpenBB Open Data Platform Hub** | $\text{Raw Provider API} \xrightarrow{\text{Standardizer}} \text{Pydantic Schema} \xrightarrow{\text{Universal OBB}}$ | Type-safe multi-provider financial ingestion across 7 global data sources. |
+| **17** | `perspective_streaming_grid` | **Perspective Streaming Grid Engine** | $\text{Throughput} = \frac{1000}{\Delta t} \times N_{\text{inst}}, \quad \text{SIMD ArrayBuffer Diffing}$ | High-frequency tabular analytics with dynamic pivots and 50ms cell flashes. |
+| **18** | `cagr` | **Compounded Annual Growth Rate** | $\text{CAGR} = (V_f / V_i)^{1/T} - 1$ | Geometric growth smoothing out intermittent volatility cycles. |
+| **19** | `compounding` | **Compound Interest & Compounding Freq** | $A = P (1 + r/n)^{nt} \xrightarrow{n \to \infty} P e^{rt}$ | Continuous compounding limits and frequency drag analysis. |
+| **20** | `sip_dca` | **Step-Up SIP & Dollar-Cost Averaging** | $M \sum_{k=1}^N (1+g)^{\lfloor k/12 \rfloor} (1+r)^{N-k}$ | Realized wealth accumulation under wage escalation paths. |
+| **21** | `lumpsum_vs_sip` | **Lumpsum vs SIP Regime Simulator** | $\mathbb{E}[R_{\text{Lump}}] \text{ vs } \mathbb{E}[R_{\text{SIP}}]$ | Cash drag vs sequence-of-returns drawdown protection. |
+| **22** | `compound_interest` | **Rule of 72 & Doubling Horizon** | $T_{\text{double}} \approx \frac{\ln 2}{\ln(1+r)} \approx \frac{72}{r}$ | Exponential doubling time estimation across return tiers. |
+| **23** | `pe_valuation` | **P/E Multiples & Earnings Yield** | $\text{Earnings Yield} = E/P = 1 / (\text{P/E}) = r - g$ | Gordon growth equity risk premium and multiple compression. |
+| **24** | `roe_roce` | **DuPont 3-Way ROE Decomposition** | $\text{ROE} = \frac{\text{Net Income}}{\text{Sales}} \times \frac{\text{Sales}}{\text{Assets}} \times \frac{\text{Assets}}{\text{Equity}}$ | Net margin vs asset turnover vs financial leverage multiplier. |
+| **25** | `volatility` | **Historical vs EWMA Volatility** | $\sigma_t^2 = (1-\lambda)\sum_{i=1}^\infty \lambda^{i-1} r_{t-i}^2, \quad \lambda = 0.94$ | RiskMetrics dynamic volatility responsiveness and clustering. |
+| **26** | `beta_corr` | **Systematic Beta & Covariance** | $\beta_i = \frac{\operatorname{Cov}(R_i, R_m)}{\operatorname{Var}(R_m)} = \rho_{im} \frac{\sigma_i}{\sigma_m}$ | Systematic market risk vs diversifiable idiosyncratic variance. |
+| **27** | `sharpe` | **Sharpe, Sortino & Calmar Ratios** | $\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}, \quad \text{Sortino} = \frac{R_p - R_f}{\sigma_d}$ | Downside semi-variance vs total risk-adjusted return profiling. |
+| **28** | `mdd` | **Maximum Peak-to-Trough Drawdown** | $\text{MDD} = \min_{t} \left(\frac{V_t - \max_{s \le t} V_s}{\max_{s \le t} V_s}\right)$ | Capital preservation limits and underwater equity duration. |
+| **29** | `drawdown_recovery` | **Asymmetric Drawdown Recovery Math** | $R_{\text{req}} = \frac{L}{1 - L}$ | Asymmetric loss recovery mathematics (50% drop requires +100% gain). |
+| **30** | `diversification` | **Markowitz Diversification Benefit** | $\sigma_p^2 = \frac{1}{N}\bar{\sigma}^2 + \frac{N-1}{N}\bar{\operatorname{Cov}}$ | Asymptotic variance reduction toward systematic covariance floor. |
+| **31** | `port_variance` | **2-Asset Portfolio Variance Frontier** | $\sigma_p = \sqrt{w_A^2 \sigma_A^2 + w_B^2 \sigma_B^2 + 2 w_A w_B \sigma_A \sigma_B \rho}$ | Minimum variance curvature under negative correlation regimes. |
+| **32** | `capm` | **CAPM Expected Return & Jensen's Alpha** | $\mathbb{E}[R_i] = R_f + \beta_i (\mathbb{E}[R_m] - R_f)$ | Security Market Line (SML) pricing and active manager skill. |
+| **33** | `port_allocator` | **Multi-Asset Mean-Variance Optimizer** | $\min_{\mathbf{w}} \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} - \lambda \mathbf{w}^T \boldsymbol{\mu}$ | Quadratic programming portfolio optimization on efficient frontier. |
+| **34** | `risk_return_scatter` | **Capital Allocation Line Opportunity** | $\text{CAL}: \mathbb{E}[R_c] = R_f + \left(\frac{\mathbb{E}[R_p] - R_f}{\sigma_p}\right) \sigma_c$ | Tangency portfolio discovery and investor utility indifference curves. |
+| **35** | `scenario_stress` | **Macro Stress Testing & Contagion** | $\Delta V_p = \mathbf{w}^T \mathbf{S} V_0$ | Simulates 2008 Lehman, 2020 COVID, and stagflation rate shocks. |
 
 ---
 
-## 💻 Tech Stack & Deployment
+## 🔮 Institutional Prediction Markets Engine (Polymarket / Kalshi Style)
 
-### Backend Services (Python & Serverless Node.js)
-- **FastAPI / Uvicorn**: Asynchronous high-throughput REST API with CORS headers.
-- **NumPy, SciPy & Pandas**: High-dimensional vector arithmetic and SLSQP convex optimization.
-- **arch & hmmlearn**: GARCH(1,1) maximum likelihood estimation and Gaussian Hidden Markov Models.
-- **scikit-learn**: Ledoit-Wolf covariance shrinkage matrix estimation.
-- **Serverless API Routes**: `/api/market/quote`, `/api/market/quotes`, `/api/market/candles`, `/api/market/breadth` for real-time edge execution on Vercel.
+RISKOS embeds a full Logarithmic Market Scoring Rule (LMSR) automated market maker in Desk 7 (`tab-speculations`) for trading binary probability contracts:
 
-### Frontend Presentation Layer
-- **Pure Modern JavaScript**: Zero heavy framework overhead; blazing sub-5ms DOM re-renders.
-- **ChartSuite Engine**: Retina-scaled HTML5 Canvas rendering candlestick bars, SMA/EMA overlays, Bollinger Bands, and Monte Carlo quantile fans.
-- **MathJax & KaTeX**: In-browser client LaTeX typesetting for genuine mathematical formulas.
-- **Font Awesome 6 & Google Inter**: Crisp dark-mode financial terminal typography.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Trader as Quant Trader / Fund
+    participant AMM as Hanson LMSR Engine (b=1200)
+    participant Book as Outstanding Shares [q_YES, q_NO]
+    participant Risk as Portfolio Cash & Blotter
+
+    Trader->>AMM: Submit Order: BUY 100 YES on "Fed 25bps Rate Cut"
+    AMM->>Book: Query Current Shares: q_YES=1850, q_NO=850
+    AMM->>AMM: Compute Potential: C(q) = b * ln(exp(q_YES/b) + exp(q_NO/b))
+    AMM->>AMM: Compute New Potential: C(q + Δq) with q_YES=1950
+    AMM->>AMM: Execution Cost: ΔC = C(q + Δq) - C(q) = $72.45 (¢72.5/share)
+    AMM->>Book: Update State: q_YES=1950, q_NO=850
+    AMM->>AMM: Recalculate Probabilities: p_YES = 70.8%, p_NO = 29.2%
+    AMM->>Risk: Deduct Capital, Execute Order, Record in SQLite Blotter
+    AMM-->>Trader: Fill Confirmation: 100 YES @ $0.725 (Slippage: +2.4%)
+```
 
 ---
 
-## 🚀 Quickstart & Local Setup
+## ⚡ Futures Market Cost-of-Carry & Cash & Carry Basis Arbitrage
+
+Integrated into Desk 3 (`tab-spreads`), the futures arbitrage module detects mispricings between spot cash and derivatives:
+
+```mermaid
+flowchart LR
+    subgraph MARKET_OBSERVATION["1. Market Price Observation"]
+        SPOT["Spot Cash Index (S)\n₹24,500.00"]
+        FUT["Traded Futures Price (F)\n₹24,680.00 (30D Expiry)"]
+    end
+
+    subgraph NO_ARB_MODEL["2. Cost-of-Carry Valuation"]
+        R["Repo Borrowing Rate (r = 6.5%)"]
+        Q["Continuous Div Yield (q = 1.2%)"]
+        FAIR["Theoretical Fair Value\nF_fair = S * exp((r - q) * T)\n= ₹24,606.50"]
+        R & Q & SPOT --> FAIR
+    end
+
+    subgraph ARB_ENGINE["3. Arbitrage Detection & Sizing"]
+        MIS["Mispricing Spread\n+73.50 pts (+2.32% Net Arb)"]
+        FAIR & FUT --> MIS
+        DECISION{"Is Spread > Trans Cost?"}
+        MIS --> DECISION
+    end
+
+    subgraph EXECUTION["4. Market-Neutral Execution Blotter"]
+        BUY_SPOT["Long 500 Shares Spot Cash"]
+        SHORT_FUT["Short 10 Lots Futures (500 Qty)"]
+        PROFIT["Lock in +8.82%/yr Risk-Free Yield\n(+₹31,238 Net PnL)"]
+        DECISION -- Yes --> BUY_SPOT & SHORT_FUT --> PROFIT
+    end
+```
+
+---
+
+## 🧠 Backtrader Strategy & Cerebro Execution Architecture
+
+RISKOS embeds a standalone client-side and Python backend implementation of the **Backtrader (mementum/backtrader)** framework:
+
+```mermaid
+classDiagram
+    class Cerebro {
+        +datas: List~DataFeed~
+        +strats: List~Strategy~
+        +broker: Broker
+        +analyzers: List~Analyzer~
+        +adddata(feed)
+        +addstrategy(StrategyClass, params)
+        +setbroker(brokerInstance)
+        +run() Results
+    }
+
+    class Broker {
+        +cash: Float
+        +commission: Float
+        +slippage: Float
+        +positions: Dict
+        +trades: List
+        +executeOrder(order, bar)
+        +getValue(prices) Float
+    }
+
+    class Strategy {
+        +data: Array
+        +indicators: Dict
+        +init()
+        +next(i, bar)
+        +buy(size, symbol)
+        +sell(size, symbol)
+        +close(symbol)
+    }
+
+    class Analyzers {
+        +SharpeRatio(equityCurve)
+        +DrawDown(equityCurve)
+        +SQN(trades) Float
+        +VWR(equityCurve) Float
+        +TradeAnalyzer(trades)
+    }
+
+    Cerebro --> Broker : manages
+    Cerebro --> Strategy : executes
+    Cerebro --> Analyzers : evaluates
+```
+
+---
+
+## ⚡ Perspective WebAssembly High-Performance Streaming Grid
+
+Inspired by JPMorgan's Perspective project, Desk 1 features a high-throughput streaming grid capable of processing 50+ concurrent tickers with sub-millisecond cell flashing:
+
+```mermaid
+flowchart TD
+    TICK["Raw Market Tick Stream (50ms Interval)"] --> BUFFER["SIMD ArrayBuffer Column Memory"]
+    BUFFER --> WASM["WebAssembly Delta Computing Engine"]
+    
+    subgraph PIVOTS["Dynamic Multi-Level Pivoting"]
+        P1["Group by Asset Class (Equities, Rates, FX, Crypto)"]
+        P2["Group by GICS Sector (Tech, Financials, Energy)"]
+        P3["Group by Execution Venue (NSE, NASDAQ, CME)"]
+        P4["Group by Risk Band (Low, Medium, Extreme Tail)"]
+    end
+    
+    WASM --> PIVOTS
+    PIVOTS --> AGG["Real-Time Group Aggregations (Sum, Mean, Weighted Beta)"]
+    AGG --> VDOM["Virtual DOM Delta Patching (60 FPS)"]
+    VDOM --> FLASH["Green / Red Cell Flashing Highlight Fades"]
+```
+
+---
+
+## 🛠️ Microstructure, OFI & Order Execution Gate (Desk 4)
+
+```mermaid
+flowchart LR
+    ORDER["Institutional Block Order\n(e.g., 50,000 Shares)"] --> PRE_TRADE{"Pre-Trade Risk Gate\n• Max Position Limit\n• Margin Adequacy\n• VPIN Toxicity < 0.65"}
+    
+    PRE_TRADE -- Rejected --> REJ["Reject with Tag 58 Error\n(Margin / Toxicity Breach)"]
+    PRE_TRADE -- Approved --> SLICE["Almgren-Chriss Optimal Slicing\nHyperbolic Decay: sinh(κ(T-t)) / sinh(κT)"]
+    
+    SLICE --> L1["Slice 1 (VWAP / Limit)"]
+    SLICE --> L2["Slice 2 (VWAP / Limit)"]
+    SLICE --> LN["Slice N (Arrival Price)"]
+    
+    L1 & L2 & LN --> DOM["Level-2 Order Book DOM Ladder"]
+    DOM --> FILL["Executed Fills Recorded in SQLite ORM"]
+    FILL --> TCA["TCA Implementation Shortfall:\nDelay + Half-Spread + Temp Impact + Perm Impact"]
+```
+
+---
+
+## 💻 Tech Stack & Deployment Architecture
+
+```mermaid
+flowchart TB
+    subgraph FRONTEND["Frontend Client Layer (Static / Zero-Build)"]
+        HTML["Vanilla Modern HTML5 / CSS3 / ES6+"]
+        CS["ChartSuite Retina Canvas Engine"]
+        MATHJ["KaTeX & MathJax Proof Typesetter"]
+        OBB_JS["openbbBridge.js (ODP Universal Bridge)"]
+        BT_JS["backtraderEngine.js (Cerebro Framework)"]
+        PERSP_JS["perspectiveGrid.js (WASM Streaming Grid)"]
+        SEC_JS["securityMaster.js (Universal Master Registry)"]
+    end
+
+    subgraph BACKEND["Backend Compute & API Services (Python & Serverless)"]
+        FA["FastAPI Asynchronous Gateway (0.0.0.0:8000)"]
+        ODP_SRV["OpenBB ODP Server (127.0.0.1:6900)"]
+        NUMPY["NumPy, SciPy & Pandas Matrix Engine"]
+        ARCH["arch (GARCH 1,1) & hmmlearn (Gaussian HMM)"]
+        SKL["scikit-learn (Ledoit-Wolf Shrinkage)"]
+        SQLITE["SQLite ORM Persistent Blotter"]
+    end
+
+    subgraph DEPLOY["Production Edge Deployment"]
+        VERCEL["Vercel Edge Network (Global CDN)"]
+        SERVERLESS["Edge Serverless Functions (/api/market/*)"]
+    end
+
+    FRONTEND <--> BACKEND
+    FRONTEND <--> DEPLOY
+```
+
+---
+
+## 🚀 Quickstart & Local Execution
 
 ### 1. Clone Repository
 ```bash
@@ -400,27 +368,28 @@ git clone https://github.com/Premchandyadav369/RISKOS.git
 cd RISKOS
 ```
 
-### 2. Run Local Python Analytics Backend (Optional)
+### 2. Launch Local Python Analytics Backend (Optional)
 ```bash
 cd backend
 python -m venv venv
-# Windows:
+# On Windows:
 .\venv\Scripts\activate
-# Linux/macOS:
+# On Linux/macOS:
 source venv/bin/activate
 
 pip install -r requirements.txt
 python run.py
 ```
+*Backend initializes FastAPI with CORS at `http://127.0.0.1:8000`.*
 
-### 3. Launch Frontend
-Simply open `index.html` or `app.html` in any modern web browser or serve with:
+### 3. Launch Web Terminal
+Open `index.html` or `app.html` directly in any web browser, or serve with:
 ```bash
 npx serve .
 ```
 
-### 4. Production Deployment (Vercel)
-The repository is preconfigured for zero-configuration Vercel deployment with serverless API functions located in [`api/`](api). Push directly to `main` branch to trigger automated continuous deployment.
+### 4. Production Deployment
+RISKOS is pre-configured for zero-configuration Vercel deployment with serverless API edge handlers in [`api/`](api). Pushing to `main` triggers automated CI/CD builds.
 
 ---
 
