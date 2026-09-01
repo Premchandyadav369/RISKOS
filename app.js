@@ -48,18 +48,30 @@ const formatMoney = (val, currency = 'INR') => {
 const formatPercent = (val) => ((val || 0) * 100).toFixed(2) + '%';
 const getWeights = (tickers) => tickers.map(() => 1 / tickers.length).join(',');
 
-// Global Tab Switching Engine
+// Global Tab & Desk Switching Engine
 function switchTab(tabId) {
+    if (!tabId) return;
+    document.body.classList.remove('quad-grid-active');
+    document.getElementById('btnSingleDeskView')?.classList.add('active');
+    document.getElementById('btnQuadDeskView')?.classList.remove('active');
+
     const tabBtns = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
     const fnBtns = document.querySelectorAll('.bbg-fn-btn');
 
     tabBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabId);
+        const match = btn.dataset.tab === tabId || btn.getAttribute('onclick')?.includes(tabId);
+        btn.classList.toggle('active', match);
     });
 
     tabContents.forEach(content => {
-        content.classList.toggle('active', content.id === tabId);
+        if (content.id === tabId) {
+            content.classList.add('active');
+            content.style.display = 'block';
+        } else {
+            content.classList.remove('active');
+            content.style.display = 'none';
+        }
     });
 
     const tabToFnMap = {
@@ -75,8 +87,74 @@ function switchTab(tabId) {
     if (targetFn) {
         fnBtns.forEach(b => b.classList.toggle('active', b.dataset.fn === targetFn));
     }
+
+    // Trigger chart and canvas redraws
+    setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+        if (typeof charts !== 'undefined') {
+            Object.values(charts).forEach(c => {
+                if (c && typeof c.resize === 'function') c.resize();
+            });
+        }
+        if (tabId === 'tab-spreads' && typeof initFuturesBasisDesk === 'function') initFuturesBasisDesk();
+        if (tabId === 'tab-micro' && typeof initLOBHeatmap === 'function') initLOBHeatmap();
+        if (tabId === 'tab-options' && typeof initVol3DSurface === 'function') initVol3DSurface();
+        if (tabId === 'tab-speculations') {
+            if (typeof initAppSpeculationsDesk === 'function') initAppSpeculationsDesk();
+            if (typeof initPredictionMarketsDesk === 'function') initPredictionMarketsDesk();
+        }
+    }, 40);
 }
 window.switchTab = switchTab;
+
+function executeMnemonic(fnKey) {
+    const fnBtns = document.querySelectorAll('.bbg-fn-btn');
+    fnBtns.forEach(b => b.classList.toggle('active', b.dataset.fn === fnKey));
+    const fixModal = document.getElementById('fixRouterModal');
+
+    switch(fnKey) {
+        case 'help':
+            if (typeof window.openPalette === 'function') window.openPalette();
+            else document.getElementById('btnOpenPalette')?.click();
+            break;
+        case 'desk1': switchTab('tab-market'); break;
+        case 'desk2': switchTab('tab-risk'); break;
+        case 'desk3': switchTab('tab-spreads'); break;
+        case 'desk4': switchTab('tab-micro'); break;
+        case 'desk5': switchTab('tab-options'); break;
+        case 'desk6': switchTab('tab-signals'); break;
+        case 'desk7': switchTab('tab-speculations'); break;
+        case 'tear':
+            if (typeof window.openTearSheetModal === 'function') window.openTearSheetModal();
+            else document.getElementById('btnExportTearSheet')?.click();
+            break;
+        case 'sync':
+            document.getElementById('globalLiveSyncBtn')?.click();
+            break;
+        case 'fix':
+            if (fixModal) {
+                fixModal.hidden = false;
+                fixModal.style.display = 'flex';
+            }
+            break;
+    }
+}
+window.executeMnemonic = executeMnemonic;
+
+// Global Delegated Click Listener for bulletproof switching
+document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('.tab-btn');
+    if (tabBtn && tabBtn.dataset.tab) {
+        e.preventDefault();
+        switchTab(tabBtn.dataset.tab);
+    }
+    const fnBtn = e.target.closest('.bbg-fn-btn');
+    if (fnBtn && fnBtn.dataset.fn) {
+        e.preventDefault();
+        executeMnemonic(fnBtn.dataset.fn);
+    }
+});
+
 
 // Setup UI
 

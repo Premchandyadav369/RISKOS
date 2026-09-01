@@ -60,17 +60,17 @@
     <!-- ═══════════ BLOOMBERG TERMINAL FUNCTION KEY STRIP (F1 - F12) ═══════════ -->
     <div class="bloomberg-function-strip" id="bbgFunctionStrip">
         <div class="bbg-fn-track">
-            <button class="bbg-fn-btn" data-fn="help" title="F1: Help / Keyboard Mnemonics"><kbd>F1</kbd> <span>&lt;HELP&gt;</span></button>
-            <button class="bbg-fn-btn active" data-fn="desk1" title="F2: Desk 1 - Market Intelligence"><kbd>F2</kbd> <span>&lt;DESK1&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk2" title="F3: Desk 2 - Risk & Portfolio"><kbd>F3</kbd> <span>&lt;RISK&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk3" title="F4: Desk 3 - Rates & Yield Curve"><kbd>F4</kbd> <span>&lt;YCRV&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk4" title="F5: Desk 4 - Order Flow & DOM"><kbd>F5</kbd> <span>&lt;DOM&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk5" title="F6: Desk 5 - Derivatives & Greeks"><kbd>F6</kbd> <span>&lt;VOL&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk6" title="F7: Desk 6 - Signals & Allocation"><kbd>F7</kbd> <span>&lt;SIG&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="desk7" title="F8: Desk 7 - Monte Carlo AI"><kbd>F8</kbd> <span>&lt;AI&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="tear" title="F9: Institutional Tear Sheet"><kbd>F9</kbd> <span>&lt;TEAR&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="sync" title="F10: Global Market Quotes Sync"><kbd>F10</kbd> <span>&lt;SYNC&gt;</span></button>
-            <button class="bbg-fn-btn" data-fn="fix" title="F12: FIX 4.4 Order Protocol Router"><kbd>F12</kbd> <span>&lt;FIX&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="help" onclick="executeMnemonic('help')" title="F1: Help / Keyboard Mnemonics"><kbd>F1</kbd> <span>&lt;HELP&gt;</span></button>
+            <button class="bbg-fn-btn active" data-fn="desk1" onclick="executeMnemonic('desk1')" title="F2: Desk 1 - Market Intelligence"><kbd>F2</kbd> <span>&lt;DESK1&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk2" onclick="executeMnemonic('desk2')" title="F3: Desk 2 - Risk & Portfolio"><kbd>F3</kbd> <span>&lt;RISK&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk3" onclick="executeMnemonic('desk3')" title="F4: Desk 3 - Rates & Yield Curve"><kbd>F4</kbd> <span>&lt;YCRV&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk4" onclick="executeMnemonic('desk4')" title="F5: Desk 4 - Order Flow & DOM"><kbd>F5</kbd> <span>&lt;DOM&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk5" onclick="executeMnemonic('desk5')" title="F6: Desk 5 - Derivatives & Greeks"><kbd>F6</kbd> <span>&lt;VOL&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk6" onclick="executeMnemonic('desk6')" title="F7: Desk 6 - Signals & Allocation"><kbd>F7</kbd> <span>&lt;SIG&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="desk7" onclick="executeMnemonic('desk7')" title="F8: Desk 7 - Monte Carlo AI"><kbd>F8</kbd> <span>&lt;AI&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="tear" onclick="executeMnemonic('tear')" title="F9: Institutional Tear Sheet"><kbd>F9</kbd> <span>&lt;TEAR&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="sync" onclick="executeMnemonic('sync')" title="F10: Global Market Quotes Sync"><kbd>F10</kbd> <span>&lt;SYNC&gt;</span></button>
+            <button class="bbg-fn-btn" data-fn="fix" onclick="executeMnemonic('fix')" title="F12: FIX 4.4 Order Protocol Router"><kbd>F12</kbd> <span>&lt;FIX&gt;</span></button>
         </div>
         <div class="bbg-mode-toggle-group">
             <button class="bbg-tile-btn active" id="btnSingleDeskView" title="Single Desk Full View"><i class="fa-solid fa-square"></i> Single</button>
@@ -81,13 +81,13 @@
     <!-- Navigation Tabs (7 Quant Desks) -->
     <nav class="tabs-container" aria-label="Quant Trading Desks">
         <div class="tabs">
-            <button class="tab-btn active" data-tab="tab-market"><i class="fa-solid fa-chart-line"></i> Market Intelligence</button>
-            <button class="tab-btn" data-tab="tab-risk"><i class="fa-solid fa-shield-halved"></i> Risk & Portfolio</button>
-            <button class="tab-btn" data-tab="tab-spreads"><i class="fa-solid fa-arrow-trend-up"></i> Futures & Rates Desk</button>
-            <button class="tab-btn" data-tab="tab-micro"><i class="fa-solid fa-bars-staggered"></i> Microstructure & OFI</button>
-            <button class="tab-btn" data-tab="tab-options"><i class="fa-solid fa-wave-square"></i> Derivatives & Vol Lab</button>
-            <button class="tab-btn" data-tab="tab-signals"><i class="fa-solid fa-bolt"></i> Signals & Allocation</button>
-            <button class="tab-btn" data-tab="tab-speculations"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Speculations & Predictions</button>
+            <button class="tab-btn active" data-tab="tab-market" onclick="switchTab('tab-market')"><i class="fa-solid fa-chart-line"></i> Market Intelligence</button>
+            <button class="tab-btn" data-tab="tab-risk" onclick="switchTab('tab-risk')"><i class="fa-solid fa-shield-halved"></i> Risk & Portfolio</button>
+            <button class="tab-btn" data-tab="tab-spreads" onclick="switchTab('tab-spreads')"><i class="fa-solid fa-arrow-trend-up"></i> Futures & Rates Desk</button>
+            <button class="tab-btn" data-tab="tab-micro" onclick="switchTab('tab-micro')"><i class="fa-solid fa-bars-staggered"></i> Microstructure & OFI</button>
+            <button class="tab-btn" data-tab="tab-options" onclick="switchTab('tab-options')"><i class="fa-solid fa-wave-square"></i> Derivatives & Vol Lab</button>
+            <button class="tab-btn" data-tab="tab-signals" onclick="switchTab('tab-signals')"><i class="fa-solid fa-bolt"></i> Signals & Allocation</button>
+            <button class="tab-btn" data-tab="tab-speculations" onclick="switchTab('tab-speculations')"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Speculations & Predictions</button>
         </div>
     </nav>
 
