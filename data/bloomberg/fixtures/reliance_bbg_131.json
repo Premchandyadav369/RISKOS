@@ -1,0 +1,12 @@
+{
+  "symbol": "RELIANCE",
+  "name": "Reliance Industries Ltd",
+  "figi": "BBG000BH3S32",
+  "isin": "INE002A01018",
+  "exchange": "NSE",
+  "sector": "Energy & Conglomerate",
+  "bloomberg_ticker": "RELIANCE NSE Equity",
+  "lot_size": 1,
+  "currency": "INR",
+  "version": 131
+}
