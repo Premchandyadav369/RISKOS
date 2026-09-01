@@ -1,0 +1,12 @@
+{
+  "symbol": "NVDA",
+  "name": "NVIDIA Corporation",
+  "figi": "BBG000BBJQV0",
+  "isin": "US67066G1040",
+  "exchange": "NASDAQ",
+  "sector": "Semiconductors & AI",
+  "bloomberg_ticker": "NVDA NASDAQ Equity",
+  "lot_size": 1,
+  "currency": "USD",
+  "version": 58
+}
