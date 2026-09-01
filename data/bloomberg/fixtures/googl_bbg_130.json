@@ -1,0 +1,12 @@
+{
+  "symbol": "GOOGL",
+  "name": "Alphabet Inc",
+  "figi": "BBG009S39JX6",
+  "isin": "US02079K3059",
+  "exchange": "NASDAQ",
+  "sector": "Internet & AI",
+  "bloomberg_ticker": "GOOGL NASDAQ Equity",
+  "lot_size": 1,
+  "currency": "USD",
+  "version": 130
+}
