@@ -1,0 +1,10 @@
+{
+  "crisis_id": "ltcm_collapse_1998",
+  "title": "1998 LTCM Liquidity Contagion",
+  "equity_shock_pct": -0.145,
+  "rate_shock_bps": 280,
+  "commodity_shock_pct": 0.35,
+  "transmission_mechanism": "Arbitrage spread divergence",
+  "simulation_run": 58,
+  "risk_horizon_days": 20
+}
