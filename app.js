@@ -2282,6 +2282,102 @@ const EXPLAIN_KNOWLEDGE_BASE = {
                 "4. Selection Effect = w_i^B * (R_i^P - R_i^B) and Interaction Effect = (w_i^P - w_i^B) * (R_i^P - R_i^B)"
             ]
         }
+    },
+    brinson_attr: {
+        title: "Brinson-Fachler Multi-Factor Sector Performance Attribution",
+        symbol: "A_i = (w_i^P - w_i^B)(R_i^B - R^B)",
+        category: "Portfolio Analytics",
+        beginner: {
+            heading: "Pure Allocation vs Stock Selection",
+            text: "Determines whether portfolio outperformance was achieved through sector overweighting/underweighting or by picking superior individual securities."
+        },
+        investor: {
+            heading: "Active Alpha Attribution & Manager Verification",
+            text: "Evaluates institutional manager skill under GIPS compliance by isolating market beta from true security selection alpha."
+        },
+        quant: {
+            heading: "Brinson-Fachler Decomposition",
+            formula: "\\text{Active Return} = \\sum_{i=1}^N \\underbrace{(w_i^P - w_i^B)(R_i^B - R^B)}_{\\text{Allocation}} + \\sum_{i=1}^N \\underbrace{w_i^B (R_i^P - R_i^B)}_{\\text{Selection}} + \\sum_{i=1}^N \\underbrace{(w_i^P - w_i^B)(R_i^P - R_i^B)}_{\\text{Interaction}}",
+            assumptions: "Linear weight additive return aggregation with static single-period benchmark.",
+            trace: [
+                "1. Calculate total benchmark weighted return R^B = sum(w_i^B * R_i^B)",
+                "2. Evaluate differential weights delta_w_i = w_i^P - w_i^B",
+                "3. Calculate Allocation Effect A_i = delta_w_i * (R_i^B - R^B)",
+                "4. Sum total active alpha = sum(A_i + S_i + I_i)"
+            ]
+        }
+    },
+    krd_hazard: {
+        title: "Key Rate Durations (KRD) & CDSW Hazard Intensity",
+        symbol: "DV01_k = -\\frac{\\partial P}{\\partial y_k} \\times 10^{-4}",
+        category: "Fixed Income",
+        beginner: {
+            heading: "Which Year Maturity Threatens Your Bond Portfolio?",
+            text: "Standard duration assumes the whole yield curve shifts together evenly. Key Rate Duration tests what happens if only the 2-year or 10-year rate jumps while others stay still."
+        },
+        investor: {
+            heading: "Non-Parallel Curve Twists & Sovereign Credit Default Swaps",
+            text: "Crucial for immunization against curve steepeners/flatteners and quantifying sovereign default hazard intensity lambda(t)."
+        },
+        quant: {
+            heading: "Localized Yield Curve Sensitivity & Intensity Bootstrapping",
+            formula: "\\text{KRD}_k = -\\frac{1}{P} \\frac{\\Delta P}{\\Delta y_k}, \\quad \\lambda_t = \\frac{s_{\\text{CDS}}(t)}{1 - R}",
+            assumptions: "Piecewise linear or cubic spline discount factor interpolation; constant recovery rate R=40%.",
+            trace: [
+                "1. Perturb zero rate at tenor k by +1 bp",
+                "2. Re-discount all coupon cash flows CF_t",
+                "3. Compute DV01_k = P_base - P_perturbed",
+                "4. Bootstrap survival probability Q(0, t) = exp(-lambda_t * t)"
+            ]
+        }
+    },
+    sabr_dupire: {
+        title: "Hagan SABR Volatility Smile vs Dupire Local Volatility Surface",
+        symbol: "\\sigma_{\\text{loc}}^2(K, T) = \\frac{\\partial_T C + (r-q)K \\partial_K C + qC}{\\frac{1}{2} K^2 \\partial_{KK} C}",
+        category: "Derivatives Pricing",
+        beginner: {
+            heading: "The Shape of Fear: Volatility Smiles & Skew",
+            text: "Options with strikes far away from current prices trade at higher implied volatilities because markets fear sudden market crashes. SABR and Dupire models mathematically capture this exact smile."
+        },
+        investor: {
+            heading: "Accurate Pricing of Out-of-the-Money Crash Hedges",
+            text: "Prevents underpricing tail-risk options by calibrating closed-form SABR stochastic volatility parameters to market quotes."
+        },
+        quant: {
+            heading: "Dupire Forward PDE & Hagan Asymptotic Expansion",
+            formula: "\\sigma_{\\text{SABR}}(K, F) = \\frac{\\alpha}{(FK)^{(1-\\beta)/2}} \\left(\\frac{z}{x(z)}\\right) \\left[1 + \\left(\\frac{(1-\\beta)^2 \\alpha^2}{24(FK)^{1-\\beta}} + \\frac{\\rho\\beta\\nu\\alpha}{4(FK)^{(1-\\beta)/2}} + \\frac{2-3\\rho^2}{24}\\nu^2\\right) T\\right]",
+            assumptions: "Itô driftless forward martingale dF = alpha F^beta dW_1, d_alpha = nu alpha dW_2 with correlation rho.",
+            trace: [
+                "1. Compute moneyness log(F/K)",
+                "2. Evaluate Hagan transformation variable z = (nu/alpha) * (F*K)^((1-beta)/2) * ln(F/K)",
+                "3. Evaluate x(z) = ln((sqrt(1 - 2*rho*z + z^2) + z - rho) / (1 - rho))",
+                "4. Compute Dupire local variance slice sigma_loc^2(K, T)"
+            ]
+        }
+    },
+    kelly_sizing: {
+        title: "Institutional Kelly Criterion & Half-Kelly Capital Sizing",
+        symbol: "f^* = \\frac{p(b+1) - 1}{b} = \\frac{\\mu - r}{\\gamma \\sigma^2}",
+        category: "Quantitative Allocation",
+        beginner: {
+            heading: "How Much Should You Bet on an Edge?",
+            text: "Even if your trading strategy is profitable, betting too much per trade will eventually bankrupt you during inevitable losing streaks. Kelly sizing tells you the mathematically optimal bet size to maximize growth while preventing ruin."
+        },
+        investor: {
+            heading: "Drawdown Control & Geometric Wealth Maximization",
+            text: "Hedge funds use Half-Kelly or Quarter-Kelly to capture 75-90% of maximum compounding growth with only 50% of the drawdown volatility."
+        },
+        quant: {
+            heading: "Continuous Log-Utility Wealth Optimization",
+            formula: "\\max_{f} \\mathbb{E}[\\ln(W_T)] \\implies f^* = \\frac{\\mathbb{E}[R] - r_f}{\\sigma^2}, \\quad f_{\\text{Half}}^* = 0.5 f^*",
+            assumptions: "Reinvestment of all returns; stationary Bernoulli or lognormal return process; zero liquidity bounds.",
+            trace: [
+                "1. Estimate win probability p and win/loss ratio b = avg_win / avg_loss",
+                "2. Compute Full Kelly fraction f* = (p * (b + 1) - 1) / b",
+                "3. Compute Half-Kelly fraction f_half = 0.5 * f*",
+                "4. Calculate expected geometric growth rate g(f) = p * ln(1 + f*b) + (1-p) * ln(1 - f)"
+            ]
+        }
     }
 };
 
@@ -2740,6 +2836,165 @@ function initBloombergTerminalFeatures() {
     }
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   BLOOMBERG QUANTITATIVE ANALYTICAL ENGINES RUNNER
+   ══════════════════════════════════════════════════════════════════════════ */
+function initBloombergQuantEngines() {
+    if (typeof QuantEngine === 'undefined') return;
+
+    // 1. Brinson-Fachler Multi-Sector Attribution & Cornish-Fisher VaR
+    const brinsonBody = document.getElementById('brinsonTableBody');
+    const cfVaREl = document.getElementById('cfVaRVal');
+    const gaussVaREl = document.getElementById('gaussVaRVal');
+    const fatTailEl = document.getElementById('fatTailPremiumVal');
+
+    if (brinsonBody) {
+        const sectors = ['Energy & Oil', 'Technology & Cloud', 'Financials & Banking', 'Consumer Discretionary', 'Automotive'];
+        const portWeights = [0.30, 0.25, 0.20, 0.15, 0.10];
+        const benchWeights = [0.22, 0.18, 0.35, 0.15, 0.10];
+        const portReturns = [0.185, 0.240, 0.125, 0.085, 0.150];
+        const benchReturns = [0.140, 0.210, 0.110, 0.070, 0.120];
+
+        const attrResult = QuantEngine.brinsonAttribution({
+            sectors,
+            portfolioWeights: portWeights,
+            benchmarkWeights: benchWeights,
+            portfolioReturns: portReturns,
+            benchmarkReturns: benchReturns
+        });
+
+        brinsonBody.innerHTML = attrResult.sectors.map(r => `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="padding:6px 8px; font-weight:600; color:#fff;">${r.sector}</td>
+                <td style="padding:6px 8px; color:#a1a1aa;">${r.portfolioWeight}%</td>
+                <td style="padding:6px 8px; color:#71717a;">${r.benchmarkWeight}%</td>
+                <td style="padding:6px 8px; color:${r.allocationBps >= 0 ? '#51CF66' : '#FF6B6B'};">${r.allocationBps > 0 ? '+' : ''}${r.allocationBps}</td>
+                <td style="padding:6px 8px; color:${r.selectionBps >= 0 ? '#51CF66' : '#FF6B6B'};">${r.selectionBps > 0 ? '+' : ''}${r.selectionBps}</td>
+                <td style="padding:6px 8px; font-weight:700; color:${r.totalActiveBps >= 0 ? '#22d3ee' : '#FF6B6B'};">${r.totalActiveBps > 0 ? '+' : ''}${r.totalActiveBps} bps</td>
+            </tr>
+        `).join('') + `
+            <tr style="border-top:1px solid rgba(255,158,0,0.3); font-weight:700; background:rgba(255,158,0,0.05);">
+                <td style="padding:8px; color:#ff9e00;">TOTAL ACTIVE ALPHA</td>
+                <td style="padding:8px; color:#fff;" colspan="4">Allocation: ${attrResult.summary.allocationEffectBps} bps | Selection: ${attrResult.summary.selectionEffectBps} bps</td>
+                <td style="padding:8px; color:#ff9e00; font-size:0.85rem;">+${attrResult.summary.totalActiveAlphaBps} bps</td>
+            </tr>
+        `;
+
+        const cfResult = QuantEngine.cornishFisherVaR({
+            mean: 0.0008,
+            std: 0.0155,
+            skewness: -0.48,
+            kurtosis: 4.35,
+            confidence: 0.99
+        });
+
+        if (cfVaREl) cfVaREl.textContent = `-${cfResult.cornishFisherVaR}%`;
+        if (gaussVaREl) gaussVaREl.textContent = `-${cfResult.parametricVaR}%`;
+        if (fatTailEl) fatTailEl.textContent = `+${cfResult.fatTailPremiumPct}%`;
+    }
+
+    // 2. Key Rate Durations (KRD) & CDSW Hazard Intensity
+    const krdContainer = document.getElementById('krdTableContainer');
+    const cdswContainer = document.getElementById('cdswTableContainer');
+
+    if (krdContainer && cdswContainer) {
+        const cashFlows = [
+            { year: 1, amount: 700000 },
+            { year: 2, amount: 700000 },
+            { year: 5, amount: 700000 },
+            { year: 10, amount: 10700000 }
+        ];
+        const yields = { 1: 0.068, 2: 0.070, 5: 0.0715, 10: 0.0725 };
+        const krdRes = QuantEngine.keyRateDurationConvexity({ cashFlows, curveYields: yields, notional: 10000000 });
+
+        krdContainer.innerHTML = krdRes.keyRateDurations.map(k => `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:8px; text-align:center;">
+                <span style="font-size:0.7rem; color:#71717a; font-weight:700;">${k.keyTenor} KRD</span>
+                <div style="font-size:1.05rem; font-weight:800; color:#22d3ee; margin:2px 0;">${k.durationYears}y</div>
+                <span style="font-size:0.65rem; color:#a1a1aa;">DV01: ₹${k.dv01INR}</span>
+            </div>
+        `).join('');
+
+        const cdswRes = QuantEngine.creditDefaultSwapCurve({
+            parSpreadsBps: [45, 65, 95, 130, 165],
+            tenors: [1, 2, 3, 5, 10],
+            recoveryRate: 0.40
+        });
+
+        cdswContainer.innerHTML = `
+            <table style="width:100%; font-size:0.72rem; border-collapse:collapse;">
+                <thead>
+                    <tr style="color:#71717a; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <th style="padding:4px 6px;">Tenor</th>
+                        <th style="padding:4px 6px;">Par Spread</th>
+                        <th style="padding:4px 6px;">Hazard Rate (\(\lambda_t\))</th>
+                        <th style="padding:4px 6px;">Cumulative PD</th>
+                        <th style="padding:4px 6px;">Survival Prob</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${cdswRes.hazardCurve.map(c => `
+                        <tr style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                            <td style="padding:4px 6px; font-weight:700; color:#fff;">${c.tenor}</td>
+                            <td style="padding:4px 6px; color:#ff9e00;">${c.parSpreadBps} bps</td>
+                            <td style="padding:4px 6px; color:#22d3ee;">${c.hazardRateAnnual}%</td>
+                            <td style="padding:4px 6px; color:#FF6B6B;">${c.cumulativePD}%</td>
+                            <td style="padding:4px 6px; color:#51CF66;">${c.survivalProbPct}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    // 3. Hagan SABR Volatility Smile vs Dupire Local Volatility
+    const sabrContainer = document.getElementById('sabrStrikesContainer');
+    const dupireContainer = document.getElementById('dupireSurfaceContainer');
+
+    if (sabrContainer && dupireContainer) {
+        const strikes = [165, 175, 185, 195, 205];
+        const sabrVols = strikes.map(k => ({
+            strike: k,
+            vol: QuantEngine.sabrVolatilitySmile({ F: 185, K: k, T: 0.25, alpha: 0.25, beta: 0.70, rho: -0.25, nu: 0.40 })
+        }));
+
+        sabrContainer.innerHTML = sabrVols.map(s => `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:6px; padding:8px; text-align:center;">
+                <span style="font-size:0.68rem; color:#71717a; font-weight:700;">$${s.strike} ${s.strike === 185 ? '(ATM)' : s.strike < 185 ? '(OTM Put)' : '(OTM Call)'}</span>
+                <div style="font-size:1.05rem; font-weight:800; color:${s.strike === 185 ? '#22d3ee' : '#ff9e00'}; margin:2px 0;">${(s.vol * 100).toFixed(1)}%</div>
+                <span style="font-size:0.65rem; color:#a1a1aa;">SABR Implied</span>
+            </div>
+        `).join('');
+
+        const dupireSlices = [
+            { label: 'Spot Node (S=185, T=30d)', vol: (QuantEngine.dupireLocalVolatility({ spot: 185, strike: 185, tenor: 0.08, dC_dT: 0.045, dC_dK: -0.45, d2C_dK2: 0.012 }) * 100).toFixed(1) },
+            { label: 'Downside Skew Wing (K=170, T=60d)', vol: (QuantEngine.dupireLocalVolatility({ spot: 185, strike: 170, tenor: 0.16, dC_dT: 0.062, dC_dK: -0.68, d2C_dK2: 0.016 }) * 100).toFixed(1) },
+            { label: 'Upside Wing (K=200, T=90d)', vol: (QuantEngine.dupireLocalVolatility({ spot: 185, strike: 200, tenor: 0.25, dC_dT: 0.035, dC_dK: -0.22, d2C_dK2: 0.009 }) * 100).toFixed(1) }
+        ];
+
+        dupireContainer.innerHTML = dupireSlices.map(d => `
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.03); padding:4px 0;">
+                <span style="color:#e4e4e7;">${d.label}</span>
+                <strong style="color:#51CF66; font-family:monospace;">&sigma;_loc = ${d.vol}%</strong>
+            </div>
+        `).join('');
+    }
+
+    // 4. Institutional Kelly Criterion Capital Sizer
+    const fullKellyEl = document.getElementById('fullKellyVal');
+    const halfKellyEl = document.getElementById('halfKellyVal');
+    const quarterKellyEl = document.getElementById('quarterKellyVal');
+    const kellyGrowthEl = document.getElementById('kellyGrowthVal');
+
+    if (fullKellyEl) {
+        const kellyRes = QuantEngine.kellyOptimalLeverage({ winRate: 0.58, winLossRatio: 1.55 });
+        fullKellyEl.textContent = `${kellyRes.fullKellyLeverage}x`;
+        if (halfKellyEl) halfKellyEl.textContent = `${kellyRes.halfKellyLeverage}x`;
+        if (quarterKellyEl) quarterKellyEl.textContent = `${kellyRes.quarterKellyLeverage}x`;
+        if (kellyGrowthEl) kellyGrowthEl.textContent = `+${(kellyRes.expectedGrowthRate * 100).toFixed(1)}%`;
+    }
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initAppSpeculationsDesk, 200);
@@ -2754,6 +3009,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initBlackLitterman, 650);
     setTimeout(initCointegrationScreener, 700);
     setTimeout(initBloombergTerminalFeatures, 750);
+    setTimeout(initBloombergQuantEngines, 800);
     setTimeout(() => {
         if (typeof renderMathInElement !== 'undefined') {
             try {
@@ -2768,7 +3024,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch(e) {}
         }
-    }, 800);
+    }, 850);
 });
 
 
