@@ -1,0 +1,10 @@
+{
+  "crisis_id": "lehman_gfc_2008",
+  "title": "2008 Lehman Brothers Global Crisis",
+  "equity_shock_pct": -0.485,
+  "rate_shock_bps": 350,
+  "commodity_shock_pct": -0.55,
+  "transmission_mechanism": "Subprime banking insolvency",
+  "simulation_run": 164,
+  "risk_horizon_days": 20
+}
