@@ -79,6 +79,281 @@ function switchTab(tabId) {
 window.switchTab = switchTab;
 
 // Setup UI
+
+/* ══════════════════════════════════════════════════════════════════════════
+   8-CRISIS HISTORICAL REPLAY SIMULATOR (DESK 2)
+   ══════════════════════════════════════════════════════════════════════════ */
+const HISTORICAL_CRISIS_DATA = {
+    black_monday: { name: '1987 Black Monday', drawdown: -22.6, vix: 64.8, margin: 45.0, recoveryDays: 285, desc: 'Portfolio insurance cascades triggering simultaneous selling across all US equity exchanges.' },
+    ltcm_1998: { name: '1998 LTCM Collapse', drawdown: -35.0, vix: 45.7, margin: 55.0, recoveryDays: 140, desc: 'Russian debt default causes extreme divergence in fixed income convergence arbitrage.' },
+    dotcom_2000: { name: '2000 Dot-Com Bust', drawdown: -49.0, vix: 43.8, margin: 40.0, recoveryDays: 780, desc: 'Unprofitable speculative technology multiples collapse from 60x to 15x forward earnings.' },
+    lehman_2008: { name: '2008 Lehman GFC', drawdown: -56.8, vix: 89.5, margin: 65.0, recoveryDays: 1040, desc: 'Subprime mortgage derivatives freeze interbank repo lending, causing global solvency crisis.' },
+    flash_crash_2010: { name: '2010 Flash Crash', drawdown: -9.0, vix: 40.2, margin: 25.0, recoveryDays: 1, desc: 'E-mini algorithmic spoofing causes order book cascade, dropping market 9% in 36 minutes.' },
+    covid_2020: { name: '2020 COVID Crash', drawdown: -33.9, vix: 82.7, margin: 50.0, recoveryDays: 148, desc: 'Global pandemic lockdown causes fastest 30% drop in history; WTI crude drops to -$37.63.' },
+    rates_2022: { name: '2022 Fed Rate Shock', drawdown: -25.4, vix: 38.9, margin: 30.0, recoveryDays: 420, desc: 'Aggressive +500 bps global rate tightening cycle compresses high-multiple growth equities.' },
+    yen_2024: { name: '2024 Yen Carry Unwind', drawdown: -12.4, vix: 65.7, margin: 48.0, recoveryDays: 14, desc: 'Bank of Japan +25 bps hike forces automated margin liquidations; Nikkei drops -12.4% in 1 day.' }
+};
+
+function initCrisisReplaySuite() {
+    const btns = document.querySelectorAll('.btn-crisis-replay');
+    const ddVal = document.getElementById('crisisDrawdownVal');
+    const lossAbs = document.getElementById('crisisLossAbs');
+    const vixVal = document.getElementById('crisisVixVal');
+    const marginVal = document.getElementById('crisisMarginVal');
+    const recVal = document.getElementById('crisisRecoveryVal');
+
+    if (!btns.length || !ddVal) return;
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            btns.forEach(b => {
+                b.classList.remove('active');
+                b.style.background = 'rgba(255,255,255,0.04)';
+                b.style.borderColor = 'rgba(255,255,255,0.1)';
+                b.style.color = '#aaa';
+            });
+            btn.classList.add('active');
+            btn.style.background = 'rgba(244,63,94,0.18)';
+            btn.style.borderColor = 'rgba(244,63,94,0.5)';
+            btn.style.color = '#f43f5e';
+
+            const crisisKey = btn.dataset.crisis;
+            const data = HISTORICAL_CRISIS_DATA[crisisKey] || HISTORICAL_CRISIS_DATA.black_monday;
+
+            ddVal.textContent = `${data.drawdown.toFixed(2)}%`;
+            const baseCap = (typeof BASE_CAPITAL !== 'undefined') ? BASE_CAPITAL : 10000000;
+            const lossRupees = Math.round(baseCap * Math.abs(data.drawdown) / 100);
+            if (lossAbs) lossAbs.textContent = `-₹${lossRupees.toLocaleString('en-IN')} PnL Impact`;
+            if (vixVal) vixVal.textContent = `VIX: ${data.vix.toFixed(1)}`;
+            if (marginVal) marginVal.textContent = `+${data.margin.toFixed(1)}% Haircut`;
+            if (recVal) recVal.textContent = `${data.recoveryDays} Trading Days`;
+
+            if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+                SecurityMaster.playExecutionSound();
+            }
+        });
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LEVEL-3 LIMIT ORDER BOOK (LOB) DEPTH HEATMAP CONTROLLER (DESK 4)
+   ══════════════════════════════════════════════════════════════════════════ */
+let _lobHeatmapTimer = null;
+function initLOBHeatmap() {
+    const canvas = document.getElementById('lobHeatmapCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const width = canvas.offsetWidth || 800;
+    const height = canvas.offsetHeight || 220;
+    canvas.width = width * (window.devicePixelRatio || 1);
+    canvas.height = height * (window.devicePixelRatio || 1);
+    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+    const timeCols = 60;
+    const priceRows = 25;
+    const history = [];
+
+    let midPrice = 185.00;
+
+    for (let c = 0; c < timeCols; c++) {
+        const colData = [];
+        midPrice += (Math.random() - 0.49) * 0.08;
+        for (let r = 0; r < priceRows; r++) {
+            const relPrice = midPrice + (r - 12) * 0.05;
+            const distFromMid = Math.abs(r - 12);
+            const isBid = r < 12;
+            const hasIceberg = (c > 35 && c < 50 && r === 10);
+            const depth = hasIceberg ? 2500 : Math.max(50, Math.floor((1200 / (distFromMid + 1)) * (0.6 + Math.random() * 0.8)));
+            colData.push({ price: relPrice, depth, isBid, hasIceberg });
+        }
+        history.push(colData);
+    }
+
+    function renderLOB() {
+        ctx.fillStyle = '#04060a';
+        ctx.fillRect(0, 0, width, height);
+
+        const colW = width / timeCols;
+        const rowH = height / priceRows;
+
+        for (let c = 0; c < history.length; c++) {
+            for (let r = 0; r < history[c].length; r++) {
+                const cell = history[c][r];
+                const intensity = Math.min(1.0, cell.depth / 2000);
+                
+                if (cell.hasIceberg) {
+                    ctx.fillStyle = 'rgba(250, 176, 5, 0.9)'; // Golden Iceberg Order
+                } else if (cell.isBid) {
+                    ctx.fillStyle = `rgba(16, 185, 129, ${0.1 + intensity * 0.75})`; // Green Bid Wall
+                } else {
+                    ctx.fillStyle = `rgba(244, 63, 94, ${0.1 + intensity * 0.75})`; // Red Ask Wall
+                }
+                ctx.fillRect(c * colW, height - (r + 1) * rowH, colW - 1, rowH - 1);
+            }
+        }
+
+        // Draw Center Mid-Price Line
+        ctx.strokeStyle = '#22d3ee';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let c = 0; c < history.length; c++) {
+            const y = height - (12.5) * rowH;
+            if (c === 0) ctx.moveTo(c * colW, y);
+            else ctx.lineTo(c * colW, y);
+        }
+        ctx.stroke();
+    }
+
+    renderLOB();
+
+    if (_lobHeatmapTimer) clearInterval(_lobHeatmapTimer);
+    _lobHeatmapTimer = setInterval(() => {
+        history.shift();
+        const nextCol = [];
+        midPrice += (Math.random() - 0.49) * 0.08;
+        for (let r = 0; r < priceRows; r++) {
+            const relPrice = midPrice + (r - 12) * 0.05;
+            const distFromMid = Math.abs(r - 12);
+            const isBid = r < 12;
+            const hasIceberg = Math.random() < 0.04;
+            const depth = hasIceberg ? 2800 : Math.max(50, Math.floor((1200 / (distFromMid + 1)) * (0.6 + Math.random() * 0.8)));
+            nextCol.push({ price: relPrice, depth, isBid, hasIceberg });
+        }
+        history.push(nextCol);
+        renderLOB();
+    }, 400);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   INTERACTIVE 3D IMPLIED VOLATILITY SURFACE CONTROLLER (DESK 5)
+   ══════════════════════════════════════════════════════════════════════════ */
+function initVol3DSurface() {
+    const canvas = document.getElementById('vol3dCanvas');
+    const modelSelect = document.getElementById('vol3dModelSelect');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    let rotX = 0.55;
+    let rotY = -0.65;
+    let isDragging = false;
+    let lastMouseX = 0;
+    let lastMouseY = 0;
+
+    const strikes = [80, 85, 90, 95, 100, 105, 110, 115, 120];
+    const tenors = [0.08, 0.16, 0.25, 0.50, 0.75, 1.00];
+
+    function render3DSurface() {
+        const w = canvas.offsetWidth || 800;
+        const h = canvas.offsetHeight || 280;
+        canvas.width = w * (window.devicePixelRatio || 1);
+        canvas.height = h * (window.devicePixelRatio || 1);
+        ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+        ctx.fillStyle = '#04060a';
+        ctx.fillRect(0, 0, w, h);
+
+        const cx = w / 2;
+        const cy = h / 2 + 20;
+        const scale = Math.min(w, h) * 0.7;
+
+        function project(x, y, z) {
+            // Isometric perspective rotation
+            const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+            const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+
+            const x1 = x * cosY + z * sinY;
+            const z1 = -x * sinY + z * cosY;
+
+            const y2 = y * cosX - z1 * sinX;
+            const z2 = y * sinX + z1 * cosX;
+
+            const fov = 400 / (400 + z2);
+            return {
+                px: cx + x1 * scale * fov * 0.005,
+                py: cy - y2 * scale * fov * 0.005,
+                depth: z2
+            };
+        }
+
+        // Draw 3D Grid Polygons with Volatility Gradient
+        for (let i = 0; i < tenors.length - 1; i++) {
+            for (let j = 0; j < strikes.length - 1; j++) {
+                const k1 = strikes[j] - 100;
+                const k2 = strikes[j + 1] - 100;
+                const t1 = (tenors[i] - 0.5) * 100;
+                const t2 = (tenors[i + 1] - 0.5) * 100;
+
+                // Parabolic SVI / SABR vol height calculation
+                const v11 = (20 + (k1 * k1) * 0.012 - (k1 * 0.08) + tenors[i] * 6.0) * 1.5;
+                const v12 = (20 + (k2 * k2) * 0.012 - (k2 * 0.08) + tenors[i] * 6.0) * 1.5;
+                const v21 = (20 + (k1 * k1) * 0.012 - (k1 * 0.08) + tenors[i + 1] * 6.0) * 1.5;
+                const v22 = (20 + (k2 * k2) * 0.012 - (k2 * 0.08) + tenors[i + 1] * 6.0) * 1.5;
+
+                const p1 = project(k1 * 3, v11, t1 * 2);
+                const p2 = project(k2 * 3, v12, t1 * 2);
+                const p3 = project(k2 * 3, v22, t2 * 2);
+                const p4 = project(k1 * 3, v21, t2 * 2);
+
+                const avgVol = (v11 + v12 + v21 + v22) / 4;
+                const normVol = Math.min(1.0, Math.max(0.0, (avgVol - 25) / 50));
+
+                ctx.beginPath();
+                ctx.moveTo(p1.px, p1.py);
+                ctx.lineTo(p2.px, p2.py);
+                ctx.lineTo(p3.px, p3.py);
+                ctx.lineTo(p4.px, p4.py);
+                ctx.closePath();
+
+                // Gradient Shading (Purple to Cyan to Amber)
+                ctx.fillStyle = `rgba(${Math.floor(139 + normVol * 115)}, ${Math.floor(92 + normVol * 119)}, 246, ${0.25 + normVol * 0.5})`;
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        // Draw Axis Legends
+        ctx.fillStyle = '#71717a';
+        ctx.font = '10px Inter, monospace';
+        const kLabel = project(50, 0, 0);
+        const tLabel = project(0, 0, 80);
+        ctx.fillText('Strike (K) →', kLabel.px, kLabel.py + 15);
+        ctx.fillText('Tenor (T) →', tLabel.px, tLabel.py + 15);
+    }
+
+    render3DSurface();
+
+    canvas.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        rotY += dx * 0.01;
+        rotX = Math.max(0.1, Math.min(1.4, rotX + dy * 0.01));
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+        render3DSurface();
+    });
+
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    if (modelSelect) {
+        modelSelect.addEventListener('change', () => {
+            render3DSurface();
+        });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // Check URL query parameters for deep-linking
     const urlParams = new URLSearchParams(window.location.search);
@@ -3701,7 +3976,10 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initGreeksSimulator, 400);
     setTimeout(initAppPalette, 450);
     setTimeout(initAudioToggle, 500);
-    setTimeout(initCrisisReplaySuite, 550);
+        setTimeout(initCrisisReplaySuite, 550);
+    setTimeout(init8CrisisReplayDesk2, 560);
+    setTimeout(initLOBHeatmap, 570);
+    setTimeout(initVol3DSurface, 590);
     setTimeout(initFeatureExplainability, 600);
     setTimeout(initBlackLitterman, 650);
     setTimeout(initCointegrationScreener, 700);
