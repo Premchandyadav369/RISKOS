@@ -2457,6 +2457,54 @@ const EXPLAIN_KNOWLEDGE_BASE = {
                 "4. Update share vector q_new and state probabilities"
             ]
         }
+    },
+    backtrader_cerebro: {
+        title: "Backtrader Cerebro Event-Driven Simulation Engine",
+        symbol: "\\text{SQN} = \\sqrt{N} \\frac{\\bar{P}}{\\sigma_P}, \\quad \\text{VWR} = R_{\\text{total}} \\cdot (1 + \\sigma \\sqrt{252})^{-1}",
+        category: "Systematic Strategy Execution",
+        beginner: {
+            heading: "Testing Trading Rules on Past History Without Guesswork",
+            text: "Backtrader is like a time machine for trading strategies. It feeds past price data day by day into your rules, simulates buying and selling with real broker fees, and tells you whether your idea actually makes money."
+        },
+        investor: {
+            heading: "Van Tharp System Quality & Statistical Significance",
+            text: "Professional quantitative funds use SQN (System Quality Number) and VWR (Variability-Weighted Return) to prove that strategy returns are not a lucky fluke, requiring SQN > 2.0 to allocate institutional capital."
+        },
+        quant: {
+            heading: "Discrete-Time Event Loop & Path-Dependent Analyzers",
+            formula: "\\text{SQN} = \\sqrt{N} \\frac{\\mathbb{E}[\\text{PnL}]}{\\operatorname{Std}(\\text{PnL})}, \\quad \\text{Sharpe} = \\frac{\\mu_p - r_f}{\\sigma_p} \\sqrt{252}",
+            assumptions: "Deterministic chronological bar processing, zero look-ahead bias, explicit slippage and commission models.",
+            trace: [
+                "1. Instantiate Cerebro engine with Broker (cash, commissions, slippage)",
+                "2. Attach DataFeeds and Strategy Class with indicator pipelines (SMA, RSI, BB)",
+                "3. Execute event loop next(i, bar) evaluating signals and order fills",
+                "4. Calculate path-dependent Analyzers: Sharpe, DrawDown, SQN, TradeAnalyzer"
+            ]
+        }
+    },
+    perspective_grid: {
+        title: "Perspective WebAssembly High-Performance Streaming Grid",
+        symbol: "\\text{Throughput} = \\frac{1000}{\\Delta t} \\times N_{\\text{inst}}",
+        category: "Streaming FinTech Analytics",
+        beginner: {
+            heading: "Ultra-Fast Live Financial Spreadsheets",
+            text: "Perspective is high-speed table technology created by JPMorgan. It allows traders to watch hundreds of live stocks flashing green and red with sub-millisecond updates without slowing down the web browser."
+        },
+        investor: {
+            heading: "Instant Multi-Dimensional Risk Aggregation",
+            text: "Allows portfolio managers to group and pivot thousands of live multi-asset positions by Sector, Asset Class, or Risk Band in real time during high-volatility flash crashes."
+        },
+        quant: {
+            heading: "Column-Oriented WebAssembly & SIMD ArrayBuffer Diffing",
+            formula: "\\text{Render Cost} = O(\\Delta \\text{Rows}) \\ll O(N \\times K)",
+            assumptions: "Columnar memory layout (Apache Arrow standard), WebAssembly SIMD acceleration, virtual DOM delta patching.",
+            trace: [
+                "1. Ingest streaming tick buffer into WebAssembly column memory",
+                "2. Compute hierarchical pivot aggregations (Sum, Mean, Weighted Vol)",
+                "3. Patch DOM elements with green/red CSS flash transitions",
+                "4. Maintain 60 FPS UI responsiveness across 50+ concurrent tickers"
+            ]
+        }
     }
 };
 
@@ -3242,8 +3290,183 @@ function initPredictionMarketsDesk() {
     renderContracts();
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   OPENBB OPEN DATA PLATFORM (ODP) PROVIDER PICKER
+   ══════════════════════════════════════════════════════════════════════════ */
+function initOpenBBTopBar() {
+    const select = document.getElementById('openbbProviderSelect');
+    if (!select) return;
+    select.addEventListener('change', (e) => {
+        const prov = e.target.value;
+        if (typeof OpenBBBridge !== 'undefined') {
+            OpenBBBridge.setProvider(prov);
+        }
+        showExecutionToast(true, 1, 0, 0, 0);
+        const toast = document.getElementById('execToast');
+        if (toast) {
+            toast.innerHTML = `<i class="fa-solid fa-cubes"></i> OpenBB ODP Switched to: <strong>${prov.toUpperCase()}</strong>`;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PERSPECTIVE WEBASSEMBLY HIGH-PERFORMANCE STREAMING GRID (DESK 1)
+   ══════════════════════════════════════════════════════════════════════════ */
+let perspectiveGridInstance = null;
+function initPerspectiveDesk() {
+    const container = document.getElementById('perspectiveGridContainerDesk1');
+    if (!container || typeof PerspectiveGrid === 'undefined') return;
+
+    perspectiveGridInstance = new PerspectiveGrid.GridView(container, {
+        groupBy: 'assetClass',
+        sortBy: 'symbol',
+        sortAsc: true,
+        updateIntervalMs: 50
+    });
+
+    const universe = (typeof SecurityMaster !== 'undefined' && SecurityMaster.LOCAL_REGISTRY)
+        ? SecurityMaster.LOCAL_REGISTRY.map(s => ({
+            symbol: s.symbol,
+            name: s.name,
+            assetClass: s.assetClass || (s.symbol.includes('FUT') ? 'Derivatives' : s.symbol.includes('10Y') ? 'Rates' : s.symbol.includes('BTC') ? 'Crypto' : 'Equities'),
+            sector: s.sector || 'Financials & Tech',
+            exchange: s.exchange || 'NSE',
+            price: s.basePrice || 100.0,
+            prevClose: (s.basePrice || 100.0) * 0.99,
+            changePct: 1.01,
+            volume: Math.floor(500000 + Math.random() * 2000000),
+            beta: s.beta || 1.0,
+            volatility: s.volatility || 0.22,
+            riskBand: s.riskCategory || 'Low Risk'
+        }))
+        : PerspectiveGrid.createDefaultUniverse();
+
+    perspectiveGridInstance.setData(universe);
+    perspectiveGridInstance.startStreaming();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   BACKTRADER CEREBRO STRATEGY EXECUTION STUDIO (DESK 6)
+   ══════════════════════════════════════════════════════════════════════════ */
+let cerebroChartInstance = null;
+function initBacktraderDesk() {
+    const runBtn = document.getElementById('btnRunBacktraderCerebro');
+    const stratSelect = document.getElementById('btStrategySelect');
+    const symSelect = document.getElementById('btSymbolSelect');
+    const fastInput = document.getElementById('btFastPeriod');
+    const slowInput = document.getElementById('btSlowPeriod');
+    const commInput = document.getElementById('btCommBps');
+    const slippageInput = document.getElementById('btSlippageBps');
+    const canvas = document.getElementById('btCerebroCanvas');
+
+    if (!runBtn || typeof BacktraderEngine === 'undefined') return;
+
+    function runSimulation() {
+        const symbol = symSelect ? symSelect.value : 'AAPL';
+        const stratName = stratSelect ? stratSelect.value : 'DualSMA';
+        const fast = fastInput ? Number(fastInput.value) : 10;
+        const slow = slowInput ? Number(slowInput.value) : 30;
+        const comm = commInput ? Number(commInput.value) / 10000 : 0.0005;
+        const slip = slippageInput ? Number(slippageInput.value) / 10000 : 0.0002;
+
+        // Generate bars
+        const bars = [];
+        let curPrice = (symbol === 'RELIANCE' ? 2950 : symbol === 'NVDA' ? 125 : symbol === 'BTC-USD' ? 61000 : 185);
+        for (let i = 120; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const ret = Math.sin((120 - i) * 0.1) * 0.015 + (Math.random() - 0.49) * 0.012;
+            curPrice = Math.max(10, curPrice * (1 + ret));
+            bars.push({
+                date: d.toISOString().split('T')[0],
+                open: curPrice * 0.995,
+                high: curPrice * 1.01,
+                low: curPrice * 0.99,
+                close: curPrice,
+                volume: Math.floor(1000000 + Math.random() * 3000000),
+                symbol
+            });
+        }
+
+        const cerebro = new BacktraderEngine.Cerebro();
+        cerebro.adddata(bars);
+        cerebro.broker = new BacktraderEngine.Broker({ cash: 1000000, commission: comm, slippage: slip });
+
+        let StrategyClass = BacktraderEngine.Strategies.DualMovingAverageCrossStrategy;
+        if (stratName === 'BollingerReversion') StrategyClass = BacktraderEngine.Strategies.BollingerMeanReversionStrategy;
+        if (stratName === 'RSIOscillator') StrategyClass = BacktraderEngine.Strategies.RSIOscillatorStrategy;
+
+        cerebro.addstrategy(StrategyClass, { fast, slow, period: fast });
+        const results = cerebro.run();
+
+        // Update UI Metrics
+        const sqnEl = document.getElementById('btSqnVal');
+        const sqnRatingEl = document.getElementById('btSqnRating');
+        const sharpeEl = document.getElementById('btSharpeVal');
+        const mddEl = document.getElementById('btMddVal');
+        const pnlEl = document.getElementById('btPnlVal');
+        const winRateEl = document.getElementById('btWinRateVal');
+
+        if (sqnEl) sqnEl.textContent = results.analyzers.sqn.sqn.toFixed(2);
+        if (sqnRatingEl) sqnRatingEl.textContent = results.analyzers.sqn.rating;
+        if (sharpeEl) sharpeEl.textContent = results.analyzers.sharpe.sharpe.toFixed(2);
+        if (mddEl) mddEl.textContent = `-${results.analyzers.drawdown.maxDrawdownPct}%`;
+        
+        const netPnL = results.finalValue - results.initialCash;
+        if (pnlEl) {
+            pnlEl.textContent = `${netPnL >= 0 ? '+' : ''}₹${netPnL.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
+            pnlEl.style.color = netPnL >= 0 ? '#51CF66' : '#FF6B6B';
+        }
+        if (winRateEl) {
+            winRateEl.textContent = `Win Rate: ${results.analyzers.trades.winRatePct}% (${results.trades.length} Trades)`;
+        }
+
+        // Render Equity Chart
+        if (canvas) {
+            if (cerebroChartInstance) cerebroChartInstance.destroy();
+            const ctx = canvas.getContext('2d');
+            cerebroChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: results.equityHistory.map(h => h.date).filter((_, idx) => idx % 4 === 0),
+                    datasets: [{
+                        label: 'Cerebro Portfolio Equity ($)',
+                        data: results.equityHistory.map(h => h.value).filter((_, idx) => idx % 4 === 0),
+                        borderColor: '#51CF66',
+                        backgroundColor: 'rgba(81, 207, 102, 0.1)',
+                        fill: true,
+                        tension: 0.2,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+    }
+
+    runBtn.addEventListener('click', () => {
+        if (typeof SecurityMaster !== 'undefined' && SecurityMaster.playExecutionSound) {
+            SecurityMaster.playExecutionSound();
+        }
+        runSimulation();
+    });
+
+    runSimulation();
+}
+
 // Hook into DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initOpenBBTopBar, 150);
     setTimeout(initAppSpeculationsDesk, 200);
     setTimeout(initTearSheetModal, 250);
     setTimeout(initRiskSimulatorControls, 300);
@@ -3259,6 +3482,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initBloombergQuantEngines, 800);
     setTimeout(initFuturesBasisDesk, 850);
     setTimeout(initPredictionMarketsDesk, 900);
+    setTimeout(initPerspectiveDesk, 950);
+    setTimeout(initBacktraderDesk, 1000);
     setTimeout(() => {
         if (typeof renderMathInElement !== 'undefined') {
             try {
@@ -3273,7 +3498,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } catch(e) {}
         }
-    }, 950);
+    }, 1050);
 });
 
 

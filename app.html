@@ -37,6 +37,18 @@
             <button id="btnOpenPalette" title="Search Securities & Commands (Cmd+K)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i> <kbd style="font-size:0.65rem;background:rgba(255,255,255,0.12);padding:2px 5px;border-radius:4px;">⌘K</kbd></button>
             <button id="btnToggleAudio" title="Toggle Institutional Sound Effects" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#22d3ee;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-volume-high" id="audioIcon"></i></button>
             <button id="analyze-btn"><i class="fa-solid fa-play" style="margin-right:6px"></i> Run Models</button>
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);border-radius:6px;padding:2px 8px;" title="OpenBB Open Data Platform (ODP) Provider">
+                <i class="fa-solid fa-cubes" style="color:#22d3ee;font-size:0.75rem;"></i>
+                <span style="font-size:0.7rem;color:#71717a;font-weight:700;">ODP:</span>
+                <select id="openbbProviderSelect" style="background:transparent;border:none;color:#22d3ee;font-size:0.7rem;font-weight:700;cursor:pointer;outline:none;">
+                    <option value="yfinance" style="background:#0c0d12;color:#fff;">Yahoo Finance</option>
+                    <option value="fmp" style="background:#0c0d12;color:#fff;">FMP Data</option>
+                    <option value="polygon" style="background:#0c0d12;color:#fff;">Polygon.io</option>
+                    <option value="cboe" style="background:#0c0d12;color:#fff;">CBOE Volatility</option>
+                    <option value="fred" style="background:#0c0d12;color:#fff;">FRED Macro</option>
+                    <option value="nse" style="background:#0c0d12;color:#fff;">NSE India</option>
+                </select>
+            </div>
             <button id="btnExportTearSheet" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-file-invoice"></i> Tear Sheet</button>
             <a href="index.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a href="ticker.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-layer-group"></i> Tickers</a>
@@ -141,6 +153,13 @@
                     <div id="correlation-container" class="correlation-display">
                         <div class="loading">Loading correlation matrix...</div>
                     </div>
+                </div>
+            </div>
+
+            <!-- ═══════════ PERSPECTIVE HIGH-PERFORMANCE STREAMING GRID ═══════════ -->
+            <div class="card mt-4" style="padding:0; overflow:hidden; border:1px solid rgba(34,211,238,0.25);">
+                <div id="perspectiveGridContainerDesk1" style="min-height:380px;">
+                    <!-- Rendered dynamically by PerspectiveGrid.GridView -->
                 </div>
             </div>
         </section>
@@ -926,6 +945,91 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- ═══════════ BACKTRADER CEREBRO STRATEGY EXECUTION STUDIO ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(81,207,102,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-brain" style="color:#51CF66;"></i> Backtrader Cerebro Strategy Studio
+                            <button class="explain-trigger-btn" data-explain="backtrader_cerebro" title="Explain Backtrader Cerebro">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Python Backtrader engine emulator: Strategy lifecycle, slippage, commission drag, and Van Tharp SQN / Sharpe / VWR Analyzers.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button id="btnRunBacktraderCerebro" class="exec-btn" style="background:#51CF66; color:#000; font-weight:700; padding:6px 14px; border-radius:6px; border:none; cursor:pointer; font-size:0.75rem;">
+                            <i class="fa-solid fa-play"></i> Run Cerebro Backtest
+                        </button>
+                        <span class="badge" style="background:rgba(81,207,102,0.15); color:#51CF66;">mementum/backtrader</span>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Strategy Architecture</label>
+                        <select id="btStrategySelect" style="width:100%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.75rem; margin-top:4px;">
+                            <option value="DualSMA">Dual Moving Average Cross (Golden/Death)</option>
+                            <option value="BollingerReversion">Bollinger Band Mean Reversion</option>
+                            <option value="RSIOscillator">RSI Dynamic Oscillator Oversold</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Target Security</label>
+                        <select id="btSymbolSelect" style="width:100%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.75rem; margin-top:4px;">
+                            <option value="AAPL">AAPL (Apple Inc.)</option>
+                            <option value="RELIANCE">RELIANCE (Reliance Ind.)</option>
+                            <option value="NVDA">NVDA (NVIDIA Corp.)</option>
+                            <option value="TCS">TCS (Tata Consultancy)</option>
+                            <option value="BTC-USD">BTC-USD (Bitcoin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Fast MA / Slow MA</label>
+                        <div style="display:flex; gap:6px; margin-top:4px;">
+                            <input type="number" id="btFastPeriod" value="10" style="width:50%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.75rem;" />
+                            <input type="number" id="btSlowPeriod" value="30" style="width:50%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.75rem;" />
+                        </div>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Commission / Slippage</label>
+                        <div style="display:flex; gap:6px; margin-top:4px;">
+                            <input type="number" id="btCommBps" value="5" placeholder="BPS" style="width:50%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.75rem;" />
+                            <input type="number" id="btSlippageBps" value="2" placeholder="BPS" style="width:50%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 8px; border-radius:6px; font-size:0.75rem;" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Backtrader Analyzer Metric Cards -->
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:16px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.65rem; color:#71717a; font-weight:700; text-transform:uppercase;">System Quality (SQN)</span>
+                        <div id="btSqnVal" style="font-size:1.2rem; font-weight:800; color:#51CF66; margin:2px 0;">2.45</div>
+                        <span id="btSqnRating" style="font-size:0.65rem; color:#51CF66;">GOOD (SQN ≥ 2.0)</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.65rem; color:#71717a; font-weight:700; text-transform:uppercase;">Annualized Sharpe</span>
+                        <div id="btSharpeVal" style="font-size:1.2rem; font-weight:800; color:#22d3ee; margin:2px 0;">1.82</div>
+                        <span style="font-size:0.65rem; color:#a1a1aa;">Sortino: 2.34</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.65rem; color:#71717a; font-weight:700; text-transform:uppercase;">Max Drawdown (MDD)</span>
+                        <div id="btMddVal" style="font-size:1.2rem; font-weight:800; color:#FF6B6B; margin:2px 0;">-6.42%</div>
+                        <span style="font-size:0.65rem; color:#a1a1aa;">Duration: 14 Bars</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.65rem; color:#71717a; font-weight:700; text-transform:uppercase;">Total Realized PnL</span>
+                        <div id="btPnlVal" style="font-size:1.2rem; font-weight:800; color:#fab005; margin:2px 0;">+₹1,84,500</div>
+                        <span id="btWinRateVal" style="font-size:0.65rem; color:#a1a1aa;">Win Rate: 62.5% (8 Trades)</span>
+                    </div>
+                </div>
+
+                <!-- Cerebro Equity Chart Canvas -->
+                <div style="height:260px; position:relative; background:#07080c; border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                    <canvas id="btCerebroCanvas" style="width:100%; height:100%;"></canvas>
+                </div>
+            </div>
         </section>
 
         <!-- ═══════════ DESK 7: AI SPECULATIONS & FORECASTING ═══════════ -->
@@ -1155,6 +1259,9 @@
     </div>
 
     <script src="securityMaster.js"></script>
+    <script src="openbbBridge.js"></script>
+    <script src="backtraderEngine.js"></script>
+    <script src="perspectiveGrid.js"></script>
     <script src="engine.js"></script>
     <script src="chartSuite.js"></script>
     <script src="app.js"></script>

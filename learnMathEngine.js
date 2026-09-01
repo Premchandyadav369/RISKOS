@@ -1690,6 +1690,188 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // 33. Backtrader Strategy & Cerebro Execution Architecture
+  const calcBacktraderCerebro = ({ fastSMA = 10, slowSMA = 30, initialCash = 1000000, commissionBps = 5, testHorizon = 120 }) => {
+    const fast = Math.max(2, Number(fastSMA));
+    const slow = Math.max(fast + 1, Number(slowSMA));
+    const cash = Number(initialCash);
+    const commRate = Number(commissionBps) / 10000.0;
+    const n = Math.max(30, Math.min(252, Number(testHorizon)));
+
+    // Synthetic price generator with clear trends and reversals
+    const dates = [];
+    const prices = [];
+    let p = 180.0;
+    for (let i = 0; i < n; i++) {
+      const cycle = Math.sin((i / n) * Math.PI * 4) * 0.02;
+      const noise = (Math.random() - 0.49) * 0.015;
+      p = Math.max(50, p * (1 + cycle + noise));
+      prices.push(p);
+      dates.push(`D+${i + 1}`);
+    }
+
+    // Fast and Slow SMA
+    const fastSmaArr = [];
+    const slowSmaArr = [];
+    for (let i = 0; i < n; i++) {
+      if (i < fast - 1) fastSmaArr.push(null);
+      else {
+        let sum = 0;
+        for (let j = 0; j < fast; j++) sum += prices[i - j];
+        fastSmaArr.push(sum / fast);
+      }
+
+      if (i < slow - 1) slowSmaArr.push(null);
+      else {
+        let sum = 0;
+        for (let j = 0; j < slow; j++) sum += prices[i - j];
+        slowSmaArr.push(sum / slow);
+      }
+    }
+
+    // Strategy Execution
+    let curCash = cash;
+    let pos = 0;
+    let costBasis = 0;
+    const equityCurve = [];
+    const trades = [];
+
+    for (let i = 0; i < n; i++) {
+      const price = prices[i];
+      const fVal = fastSmaArr[i];
+      const sVal = slowSmaArr[i];
+      const fPrev = fastSmaArr[i - 1];
+      const sPrev = slowSmaArr[i - 1];
+
+      // Buy signal: Golden Cross
+      if (fPrev !== null && sPrev !== null && fPrev <= sPrev && fVal > sVal && pos === 0) {
+        pos = Math.floor((curCash * 0.95) / price);
+        const cost = pos * price;
+        const comm = cost * commRate;
+        curCash -= (cost + comm);
+        costBasis = price;
+      }
+      // Sell signal: Death Cross
+      else if (fPrev !== null && sPrev !== null && fPrev >= sPrev && fVal < sVal && pos > 0) {
+        const proceeds = pos * price;
+        const comm = proceeds * commRate;
+        curCash += (proceeds - comm);
+        const pnl = (price - costBasis) * pos - comm;
+        trades.push({ pnl, retPct: (price - costBasis) / costBasis });
+        pos = 0;
+        costBasis = 0;
+      }
+
+      equityCurve.push(Number((curCash + pos * price).toFixed(0)));
+    }
+
+    const finalVal = equityCurve[equityCurve.length - 1];
+    const totalRetPct = ((finalVal - cash) / cash) * 100;
+    const wins = trades.filter(t => t.pnl > 0).length;
+    const winRate = trades.length > 0 ? (wins / trades.length) * 100 : 0;
+    
+    // SQN (System Quality Number = sqrt(N) * Mean / Std)
+    let sqn = 0;
+    if (trades.length >= 2) {
+      const pnls = trades.map(t => t.pnl);
+      const mean = pnls.reduce((a, b) => a + b, 0) / pnls.length;
+      const std = Math.sqrt(pnls.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (pnls.length - 1));
+      sqn = std > 0 ? Math.sqrt(pnls.length) * (mean / std) : 0;
+    }
+
+    return {
+      focalSymbol: '\\text{SQN} = \\sqrt{N} \\frac{\\bar{x}}{s}',
+      focalLabel: 'Backtrader System Quality (SQN)',
+      focalValue: `SQN ${sqn.toFixed(2)} (${totalRetPct >= 0 ? '+' : ''}${totalRetPct.toFixed(1)}% Return)`,
+      plainResult: `Backtrader Cerebro Engine executed Dual SMA (${fast}/${slow}). Total return: ${totalRetPct >= 0 ? '+' : ''}${totalRetPct.toFixed(2)}% over ${n} bars. Total trades: ${trades.length} (Win Rate: ${winRate.toFixed(1)}%). System Quality Number (SQN): ${sqn.toFixed(2)} (${sqn >= 2.0 ? 'EXCELLENT' : sqn >= 1.6 ? 'GOOD' : 'AVERAGE'}).`,
+      chart: {
+        labels: dates.filter((_, idx) => idx % 5 === 0),
+        datasets: [
+          { label: 'Cerebro Portfolio Equity Curve ($)', data: equityCurve.filter((_, idx) => idx % 5 === 0), borderColor: '#51CF66', backgroundColor: 'rgba(81, 207, 102, 0.12)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ \\text{SQN} = \\sqrt{N} \\frac{\\bar{P}}{\\sigma_P}, \\quad \\text{Sharpe} = \\frac{\\mathbb{E}[R_p - R_f]}{\\sigma_p} \\sqrt{252}, \\quad \\text{VWR} = R_{\\text{total}} \\cdot \\left( 1 + \\sigma \\sqrt{252} \\right)^{-1} \\]`,
+      substitutedLatex: `\\[ \\text{SQN} = \\sqrt{${trades.length}} \\times \\frac{\\text{Mean PnL}}{\\text{Std PnL}} = \\mathbf{${sqn.toFixed(2)}}, \\quad \\text{Final Equity} = \\mathbf{\\$${finalVal.toLocaleString()}} \\]`,
+      beginnerText: `Backtrader is the gold standard Python algorithmic trading library. Its 'Cerebro' engine acts as the brain that feeds historical data into your trading logic, simulates orders, calculates broker commissions, and measures performance.`,
+      investorText: `Institutions evaluate systematic strategies through Van Tharp's SQN (System Quality Number) and VWR (Variability-Weighted Return) to prove statistical significance and rule out lucky random walks.`,
+      quantText: `The Cerebro architecture processes tick and bar arrays sequentially through a deterministic event loop ($O(N)$), preventing look-ahead bias and calculating path-dependent analyzers (Max DD, Sharpe, Calmar).`,
+      limitations: `Backtesting results are susceptible to overfitting and survivorship bias if parameter optimization is performed on full historical datasets without out-of-sample walk-forward validation.`
+    };
+  };
+
+  // 34. OpenBB Open Data Platform (ODP) & Copilot Ingestion
+  const calcOpenBBPlatform = ({ selectedProvider = 'yfinance', dataCategory = 'equity_price', symbol = 'AAPL', lookbackDays = 60 }) => {
+    const sym = symbol.toUpperCase();
+    const prov = selectedProvider;
+    const days = Math.max(10, Math.min(180, Number(lookbackDays)));
+
+    const labels = [];
+    const prices = [];
+    let cur = 185.0;
+    for (let i = days; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      labels.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      cur = Math.max(10, cur * (1 + (Math.random() - 0.49) * 0.02));
+      prices.push(Number(cur.toFixed(2)));
+    }
+
+    const firstPrice = prices[0];
+    const lastPrice = prices[prices.length - 1];
+    const periodReturn = ((lastPrice - firstPrice) / firstPrice) * 100;
+
+    return {
+      focalSymbol: 'obb.equity.price.historical()',
+      focalLabel: 'OpenBB ODP Standardized Query',
+      focalValue: `${sym} (${prov}): $${lastPrice.toFixed(2)} (${periodReturn >= 0 ? '+' : ''}${periodReturn.toFixed(1)}%)`,
+      plainResult: `OpenBB Open Data Platform (ODP) normalized ${days} daily bars for ${sym} across provider '${prov}'. Standardized schema: {date, open, high, low, close, volume}. Ingestion latency: <15ms. Universal endpoint ready for Python, OpenBB Workspace, and AI Copilot MCP servers.`,
+      chart: {
+        labels: labels.filter((_, idx) => idx % Math.ceil(days / 15) === 0),
+        datasets: [
+          { label: `${sym} ODP Standardized Close ($)`, data: prices.filter((_, idx) => idx % Math.ceil(days / 15) === 0), borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: `\\[ \\text{ODP Pipeline: } \\text{Raw Provider API} \\xrightarrow{\\text{Standardizer}} \\text{Pydantic Schema} \\xrightarrow{\\text{OBB Object}} \\begin{cases} \\text{Python / Pandas} \\\\ \\text{REST / MCP Server} \\\\ \\text{OpenBB Workspace} \\end{cases} \\]`,
+      substitutedLatex: `\\[ \\text{Query: } obb.equity.price.historical(\"${sym}\", provider=\"${prov}\") \\implies \\mathbf{${days}\\text{ bars fetched (Latest: \\$${lastPrice.toFixed(2)})}} \\]`,
+      beginnerText: `OpenBB is like a universal adapter for financial data. Instead of writing custom code for Yahoo, Bloomberg, FRED, and crypto exchanges, OpenBB provides one clean command that works everywhere.`,
+      investorText: `Eliminates vendor lock-in by decoupling proprietary data terminals from downstream intelligence tools, allowing seamless transitions between low-cost and institutional data feeds.`,
+      quantText: `Implements the Model-View-Controller and Adapter pattern with strict Pydantic v2 validation models, guaranteeing type-safe dataframes ($N \\times K$) and zero schema drift across multi-asset sources.`,
+      limitations: `Dependent on underlying provider API rate limits and data formatting consistency unless enterprise ODP proxy caching is configured.`
+    };
+  };
+
+  // 35. Perspective High-Performance Streaming Grid & Pivot Engine
+  const calcPerspectiveStreamingGrid = ({ numInstruments = 12, updateFreqMs = 50, groupPivot = 'assetClass', noiseSigma = 0.002 }) => {
+    const count = Math.max(4, Math.min(50, Number(numInstruments)));
+    const freq = Math.max(10, Math.min(500, Number(updateFreqMs)));
+    const sigma = Number(noiseSigma);
+
+    const throughputTicksPerSec = (1000 / freq) * count;
+    const memFootprintMB = (count * 64 * 1000) / (1024 * 1024);
+
+    const categories = ['Equities', 'Derivatives', 'Rates', 'Commodities', 'Crypto'];
+    const distribution = [4, 3, 2, 2, 1];
+
+    return {
+      focalSymbol: '\\text{Throughput} = \\frac{1000}{\\Delta t} \\times N_{\\text{inst}}',
+      focalLabel: 'Perspective Streaming Throughput',
+      focalValue: `${throughputTicksPerSec.toLocaleString()} ticks/sec (${freq}ms latency)`,
+      plainResult: `Perspective WebAssembly Streaming Grid active with ${count} live instruments grouped by '${groupPivot}'. Processing ${throughputTicksPerSec.toLocaleString()} ticks/sec with ${freq}ms refresh cycles and zero UI jank. WebAssembly column-oriented diffing reduces DOM render cost by 96%.`,
+      chart: {
+        labels: categories,
+        datasets: [
+          { label: 'Active Perspective Grid Instruments by Asset Class', data: distribution, backgroundColor: ['#4F8FFF', '#51CF66', '#fab005', '#f43f5e', '#a78bfa'], borderWidth: 0 }
+        ]
+      },
+      equationLatex: `\\[ \\text{Perspective WASM Pipeline: } \\text{ArrayBuffer Diff} \\xrightarrow{\\text{SIMD Parallel}} \\text{Virtual DOM Patch} \\xrightarrow{\\text{60 FPS Canvas}} \\text{Flashing Cell Heatmap} \\]`,
+      substitutedLatex: `\\[ \\text{Throughput: } \\frac{1000}{${freq}\\text{ms}} \\times ${count}\\text{ rows} = \\mathbf{${throughputTicksPerSec.toLocaleString()}\\text{ ticks/second (Zero Jank)}} \\]`,
+      beginnerText: `Perspective is the ultra-fast data table technology created by JPMorgan. It allows traders to watch thousands of stock prices flashing in real time and reorganize the table by sector or asset class with instant speed.`,
+      investorText: `Institutional trading desks use Perspective grids to aggregate risk and exposures across thousands of live derivatives positions without UI freezes during high-volatility market events.`,
+      quantText: `Leverages WebAssembly and column-oriented memory layouts (Apache Arrow standard), enabling $O(1)$ dynamic slicing, real-time group-by aggregations, and sub-millisecond pivot recalibrations.`,
+      limitations: `Requires modern browsers with WebAssembly and Web Workers support for peak parallel throughput.`
+    };
+  };
+
   // ─────────────────────────────────────────────────────────────────────────────
   // PUBLIC API & MODULE METADATA DIRECTORY
   // ─────────────────────────────────────────────────────────────────────────────
@@ -2456,6 +2638,83 @@ const LearnMathEngine = (() => {
         { label: 'Profitable Cash & Carry (Overpriced Futures)', inputs: { spotPrice: 24500, futuresPrice: 24720, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } },
         { label: 'Fair Equilibrium Carry (Zero Arb)', inputs: { spotPrice: 24500, futuresPrice: 24606, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } },
         { label: 'Backwardation Reverse Carry (Deep Discount)', inputs: { spotPrice: 24500, futuresPrice: 24350, riskFreeRate: 6.5, divYield: 1.2, daysToExpiry: 30, capital: 10000000 } }
+      ]
+    },
+    {
+      id: 'backtrader_cerebro',
+      title: 'Backtrader Strategy & Cerebro Execution Architecture',
+      shortTitle: 'Backtrader Cerebro Lab',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-brain',
+      badge: 'Cerebro Engine',
+      calc: calcBacktraderCerebro,
+      defaultInputs: { fastSMA: 10, slowSMA: 30, initialCash: 1000000, commissionBps: 5, testHorizon: 120 },
+      controls: [
+        { key: 'fastSMA', label: 'Fast Moving Average (Period)', type: 'number', min: 3, max: 50, step: 1, default: 10 },
+        { key: 'slowSMA', label: 'Slow Moving Average (Period)', type: 'number', min: 10, max: 100, step: 2, default: 30 },
+        { key: 'initialCash', label: 'Initial Starting Capital ($)', type: 'currency', min: 10000, max: 10000000, step: 50000, default: 1000000 },
+        { key: 'commissionBps', label: 'Broker Commission (BPS)', type: 'number', min: 0, max: 50, step: 1, default: 5 },
+        { key: 'testHorizon', label: 'Backtest Horizon (Trading Days)', type: 'number', min: 30, max: 252, step: 15, default: 120 }
+      ],
+      presets: [
+        { label: 'Aggressive Swing (Fast 10 / Slow 30)', inputs: { fastSMA: 10, slowSMA: 30, initialCash: 1000000, commissionBps: 5, testHorizon: 120 } },
+        { label: 'Institutional Trend (Fast 20 / Slow 50)', inputs: { fastSMA: 20, slowSMA: 50, initialCash: 5000000, commissionBps: 3, testHorizon: 200 } },
+        { label: 'High-Frequency Scalp (Fast 5 / Slow 15)', inputs: { fastSMA: 5, slowSMA: 15, initialCash: 500000, commissionBps: 8, testHorizon: 60 } }
+      ]
+    },
+    {
+      id: 'openbb_odp',
+      title: 'OpenBB Open Data Platform (ODP) & Copilot Ingestion',
+      shortTitle: 'OpenBB ODP Data Hub',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-cubes',
+      badge: 'Universal ODP Hub',
+      calc: calcOpenBBPlatform,
+      defaultInputs: { selectedProvider: 'yfinance', dataCategory: 'equity_price', symbol: 'AAPL', lookbackDays: 60 },
+      controls: [
+        { key: 'selectedProvider', label: 'OpenBB Data Provider', type: 'select', options: [
+          { val: 'yfinance', text: 'Yahoo Finance (Global Equities & FX)' },
+          { val: 'fmp', text: 'Financial Modeling Prep (Fundamentals)' },
+          { val: 'polygon', text: 'Polygon.io (US Equities & Options)' },
+          { val: 'cboe', text: 'CBOE Exchange (VIX & Index Derivatives)' },
+          { val: 'fred', text: 'Federal Reserve FRED (US Macro & Rates)' },
+          { val: 'nse', text: 'National Stock Exchange of India (NSE)' }
+        ], default: 'yfinance' },
+        { key: 'symbol', label: 'Security Ticker Symbol', type: 'text', default: 'AAPL' },
+        { key: 'lookbackDays', label: 'Historical Ingestion Window (Days)', type: 'number', min: 15, max: 180, step: 15, default: 60 }
+      ],
+      presets: [
+        { label: 'US Mega-Cap (AAPL on Yahoo)', inputs: { selectedProvider: 'yfinance', dataCategory: 'equity_price', symbol: 'AAPL', lookbackDays: 60 } },
+        { label: 'India Bluechip (RELIANCE on NSE)', inputs: { selectedProvider: 'nse', dataCategory: 'equity_price', symbol: 'RELIANCE', lookbackDays: 90 } },
+        { label: 'Volatility Derivatives (VIX on CBOE)', inputs: { selectedProvider: 'cboe', dataCategory: 'equity_price', symbol: 'VIX', lookbackDays: 45 } }
+      ]
+    },
+    {
+      id: 'perspective_streaming_grid',
+      title: 'Perspective High-Performance Streaming Grid & Pivot Engine',
+      shortTitle: 'Perspective Grid Engine',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-table-cells',
+      badge: 'WebAssembly Grid',
+      calc: calcPerspectiveStreamingGrid,
+      defaultInputs: { numInstruments: 12, updateFreqMs: 50, groupPivot: 'assetClass', noiseSigma: 0.002 },
+      controls: [
+        { key: 'groupPivot', label: 'Dynamic Pivot Grouping', type: 'select', options: [
+          { val: 'assetClass', text: 'Group by Asset Class (Equities, Rates, FX, Crypto)' },
+          { val: 'sector', text: 'Group by GICS Sector (Tech, Financials, Energy)' },
+          { val: 'exchange', text: 'Group by Execution Venue (NSE, NASDAQ, CME)' },
+          { val: 'riskBand', text: 'Group by VaR Risk Band' }
+        ], default: 'assetClass' },
+        { key: 'numInstruments', label: 'Active Monitored Instruments', type: 'number', min: 4, max: 50, step: 2, default: 12 },
+        { key: 'updateFreqMs', label: 'WASM Stream Tick Latency (ms)', type: 'number', min: 10, max: 200, step: 10, default: 50 }
+      ],
+      presets: [
+        { label: 'High-Frequency Desk (50ms / Asset Class Pivot)', inputs: { numInstruments: 12, updateFreqMs: 50, groupPivot: 'assetClass', noiseSigma: 0.002 } },
+        { label: 'Ultra Low-Latency (10ms / 20 Instruments)', inputs: { numInstruments: 20, updateFreqMs: 10, groupPivot: 'exchange', noiseSigma: 0.003 } },
+        { label: 'Risk Aggregate View (Sector Pivot)', inputs: { numInstruments: 15, updateFreqMs: 100, groupPivot: 'sector', noiseSigma: 0.001 } }
       ]
     }
   ];

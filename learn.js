@@ -37,25 +37,25 @@
     if (!categoryKey || categoryKey === 'all') return allMods;
     
     if (categoryKey === 'quant_interview') {
-      return allMods.filter(m => ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry'].includes(m.id) || m.categoryKey === 'quant_interview');
+      return allMods.filter(m => ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id) || m.categoryKey === 'quant_interview');
     }
     if (categoryKey === 'growth') {
       return allMods.filter(m => ['cagr', 'compounding', 'sip_dca', 'lumpsum_vs_sip', 'compound_interest'].includes(m.id));
     }
     if (categoryKey === 'valuation') {
-      return allMods.filter(m => ['pe_valuation', 'roe_roce'].includes(m.id));
+      return allMods.filter(m => ['pe_valuation', 'roe_roce', 'openbb_odp'].includes(m.id));
     }
     if (categoryKey === 'risk') {
       return allMods.filter(m => ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery', 'copulas_evt', 'merton_jump_diffusion'].includes(m.id));
     }
     if (categoryKey === 'portfolio') {
-      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs'].includes(m.id));
+      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs', 'backtrader_cerebro'].includes(m.id));
     }
     if (categoryKey === 'simulators') {
-      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry'].includes(m.id));
+      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
     }
     if (categoryKey === 'mathematics') {
-      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry'].includes(m.id));
+      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
     }
     
     return allMods.filter(m => m.categoryKey === categoryKey);
