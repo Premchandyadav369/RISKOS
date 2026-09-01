@@ -45,25 +45,49 @@
   const lockScroll = () => { document.body.style.overflow = 'hidden'; };
   const unlockScroll = () => { document.body.style.overflow = ''; };
 
-  // ── 2. Render Benchmark Market Overview Ribbon ─────────────────────────────
+    // ── 2. Render Benchmark Market Overview Ribbon ─────────────────────────────
   const renderMarketRibbon = () => {
     const track = document.getElementById('marketRibbonTrack');
     if (!track) return;
 
-    const benchmarks = ['^NSEI', '^BSESN', '^NSEBANK', '^CNXIT', '^GSPC', '^IXIC', 'USDINR', 'BRENT', 'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL'];
-    const renderList = [...benchmarks, ...benchmarks];
-    
-    track.innerHTML = renderList.map((sym, idx) => {
-      const live = SecurityMaster._liveQuotes.get(sym);
-      if (!live) return '';
-      const chg = Number((live.price - live.previousClose).toFixed(2));
-      const chgPct = Number(((chg / live.previousClose) * 100).toFixed(2));
+    // Use full rich 120+ asset universe with diverse rotation
+    const allSecs = SecurityMaster.LOCAL_REGISTRY || [];
+    if (!allSecs.length) return;
+
+    // Build wide seamless conveyor strip
+    track.innerHTML = allSecs.map((sec, idx) => {
+      const live = SecurityMaster._liveQuotes.get(sec.symbol) || {
+        price: sec.basePrice,
+        currency: sec.currency,
+        previousClose: sec.basePrice * 0.99
+      };
+      const prev = live.previousClose || live.price;
+      const chg = Number((live.price - prev).toFixed(2));
+      const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
       const isUp = chg >= 0;
 
       return `
-        <div class="ribbon-item" data-symbol="${sym}" data-idx="${idx}">
-          <span class="ribbon-symbol">${sym.replace('^', '')}</span>
-          <span class="ribbon-price">${formatMoney(live.price, live.currency)}</span>
+        <div class="ribbon-item" data-symbol="${sec.symbol}" data-idx="${idx}">
+          <span class="ribbon-symbol">${sec.symbol.replace('^', '')}</span>
+          <span class="ribbon-price">${formatMoney(live.price, sec.currency)}</span>
+          <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
+        </div>
+      `;
+    }).join('') + allSecs.map((sec, idx) => {
+      const live = SecurityMaster._liveQuotes.get(sec.symbol) || {
+        price: sec.basePrice,
+        currency: sec.currency,
+        previousClose: sec.basePrice * 0.99
+      };
+      const prev = live.previousClose || live.price;
+      const chg = Number((live.price - prev).toFixed(2));
+      const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
+      const isUp = chg >= 0;
+
+      return `
+        <div class="ribbon-item" data-symbol="${sec.symbol}" data-idx="${idx}_dup">
+          <span class="ribbon-symbol">${sec.symbol.replace('^', '')}</span>
+          <span class="ribbon-price">${formatMoney(live.price, sec.currency)}</span>
           <span class="ribbon-chg ${isUp ? 'text-emerald' : 'text-red'}">${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%</span>
         </div>
       `;

@@ -947,3 +947,29 @@ body.ticker-page {
   cursor: pointer;
   margin-top: 6px;
 }
+
+.market-ribbon-card {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
+}
+
+.market-ribbon-track {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: max-content;
+  animation: marketMarqueeScroll 90s linear infinite;
+  will-change: transform;
+}
+
+.market-ribbon-track:hover,
+.market-ribbon-card:hover .market-ribbon-track {
+  animation-play-state: paused;
+}
+
+@keyframes marketMarqueeScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
