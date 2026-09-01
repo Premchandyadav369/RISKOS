@@ -1,0 +1,12 @@
+{
+  "symbol": "MSFT",
+  "name": "Microsoft Corporation",
+  "figi": "BBG000BPH459",
+  "isin": "US5949181045",
+  "exchange": "NASDAQ",
+  "sector": "Enterprise Software",
+  "bloomberg_ticker": "MSFT NASDAQ Equity",
+  "lot_size": 1,
+  "currency": "USD",
+  "version": 7
+}
