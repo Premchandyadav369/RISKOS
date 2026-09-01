@@ -1,0 +1,12 @@
+{
+  "symbol": "HDFCBANK",
+  "name": "HDFC Bank Ltd",
+  "figi": "BBG000BHTD66",
+  "isin": "INE040A01034",
+  "exchange": "NSE",
+  "sector": "Banking & Financials",
+  "bloomberg_ticker": "HDFCBANK NSE Equity",
+  "lot_size": 1,
+  "currency": "INR",
+  "version": 143
+}
