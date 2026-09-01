@@ -1,0 +1,10 @@
+{
+  "crisis_id": "svb_bank_run_2023",
+  "title": "2023 SVB Regional Banking Contagion",
+  "equity_shock_pct": -0.18,
+  "rate_shock_bps": 120,
+  "commodity_shock_pct": 0.05,
+  "transmission_mechanism": "Held-to-maturity duration loss",
+  "simulation_run": 224,
+  "risk_horizon_days": 20
+}
