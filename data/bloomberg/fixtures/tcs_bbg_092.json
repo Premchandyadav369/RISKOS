@@ -1,0 +1,12 @@
+{
+  "symbol": "TCS",
+  "name": "Tata Consultancy Services Ltd",
+  "figi": "BBG000BH86G8",
+  "isin": "INE467B01029",
+  "exchange": "NSE",
+  "sector": "Information Technology",
+  "bloomberg_ticker": "TCS NSE Equity",
+  "lot_size": 1,
+  "currency": "INR",
+  "version": 92
+}
