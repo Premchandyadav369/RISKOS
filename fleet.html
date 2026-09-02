@@ -1,160 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet (20 Bots)</title>
-    
-    <!-- CDNs: Fonts, Icons, Chart.js, MathJax -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet</title>
+  
+  <!-- CDNs: Fonts, FontAwesome 6.5.2, Chart.js 4 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
-    <!-- MathJax 3 SVG Typesetting -->
-    <script>
-      window.MathJax = {
-        tex: {
-          inlineMath: [['$', '$'], ['\\(', '\\)']],
-          displayMath: [['$$', '$$'], ['\\[', '\\]']],
-          processEscapes: true
-        },
-        svg: { fontCache: 'global' }
-      };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <!-- MathJax 3 SVG Typesetting -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-    <!-- Base Styles & Fleet Styles -->
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="app.css">
-    <link rel="stylesheet" href="fleet.css">
+  <!-- Core Stylesheets -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="observatory.css" />
+  <link rel="stylesheet" href="fleet.css" />
 </head>
-<body class="fleet-body">
-    <!-- Top Navigation Header -->
-    <header class="fleet-header">
-        <div class="fleet-header-left">
-            <a href="index.html" class="logo-link">
-                <img src="assets/logo.webp" alt="RISKOS" class="header-logo" onerror="this.style.display='none'">
-                <span class="logo-text">RISK<span class="logo-highlight">OS</span></span>
-            </a>
-            <div class="fleet-title-badge">
-                <i class="fa-solid fa-robot text-cyan"></i>
-                <span>24/7 AUTONOMOUS QUANT FLEET</span>
-                <span class="pulse-indicator"></span>
-            </div>
+<body class="observatory-page fleet-page">
+
+  <!-- ═══════════════════════ APPLICATION SHELL HEADER ═══════════════════════ -->
+  <header class="header">
+    <div class="header-inner">
+      
+      <!-- Brand Logo -->
+      <div class="header-left">
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" style="width:36px; height:36px; object-fit:contain; border-radius:8px;" />
+        </a>
+        <div style="display:flex; flex-direction:column; margin-left:8px;">
+          <span style="font-size:0.92rem; font-weight:800; color:#fff; letter-spacing:0.04em; display:flex; align-items:center; gap:6px;">
+            RISK<span style="color:#22d3ee;">OS</span>
+            <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-size:0.65rem; padding:2px 6px;">FLEET 24/7</span>
+          </span>
+        </div>
+      </div>
+
+      <!-- Primary Application Navigation Pills -->
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link"><i class="fa-solid fa-house" style="margin-right:4px;"></i> Dashboard</a>
+        <a href="app.html" class="nav-link"><i class="fa-solid fa-cubes" style="margin-right:4px;"></i> 7 Desks</a>
+        <a href="observatory.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right:4px;"></i> Observatory</a>
+        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 52 Labs</a>
+        <a href="ticker.html" class="nav-link"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> Screener</a>
+        <a href="fleet.html" class="nav-link active"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
+      </nav>
+
+      <!-- Right Header Status Controls -->
+      <div class="header-right">
+        <div class="market-status-pill" id="globalFleetStatusPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:700;">
+          <span class="status-dot green pulse-dot" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
+          <span id="fleetLiveUptimeText">20 / 20 BOTS ACTIVE</span>
         </div>
 
-        <div class="fleet-nav-links">
-            <a href="index.html" class="nav-item"><i class="fa-solid fa-house"></i> Terminal</a>
-            <a href="app.html" class="nav-item"><i class="fa-solid fa-cubes"></i> 7 Desks</a>
-            <a href="observatory.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Observatory</a>
-            <a href="learn.html" class="nav-item"><i class="fa-solid fa-graduation-cap"></i> 52 Labs</a>
-            <a href="ticker.html" class="nav-item"><i class="fa-solid fa-magnifying-glass"></i> Screener</a>
-            <a href="fleet.html" class="nav-item active"><i class="fa-solid fa-microchip"></i> 24/7 Fleet</a>
-        </div>
+        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" title="Start all 20 bots">
+          <i class="fa-solid fa-play"></i> Start All
+        </button>
+        <button id="btnPauseAllBots" class="fleet-ctrl-btn pause-btn" title="Pause all bots">
+          <i class="fa-solid fa-pause"></i> Pause All
+        </button>
+        <button id="btnFleetKillSwitch" class="fleet-ctrl-btn kill-btn" title="Emergency Liquidation Kill Switch">
+          <i class="fa-solid fa-power-off"></i> Kill Switch
+        </button>
+      </div>
 
-        <div class="fleet-header-right">
-            <button id="btnStartAllBots" class="fleet-btn btn-success"><i class="fa-solid fa-play"></i> Start All (20)</button>
-            <button id="btnPauseAllBots" class="fleet-btn btn-warning"><i class="fa-solid fa-pause"></i> Pause All</button>
-            <button id="btnFleetKillSwitch" class="fleet-btn btn-danger"><i class="fa-solid fa-power-off"></i> Kill Switch</button>
-        </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- Global Telemetry Bar -->
-    <section class="telemetry-bar">
-        <div class="telemetry-card">
-            <span class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Active Fleet Status</span>
-            <div class="tel-val" id="telActiveBots">20 / 20 Running</div>
-            <span class="tel-sub text-green">100% Operational &bull; 0 Errors</span>
-        </div>
-        <div class="telemetry-card">
-            <span class="tel-label"><i class="fa-solid fa-wallet text-green"></i> 24h Realized Fleet P&amp;L</span>
-            <div class="tel-val text-green" id="telDailyPnl">+₹3,42,850 ($4,105)</div>
-            <span class="tel-sub text-green"><i class="fa-solid fa-arrow-up"></i> +3.43% on Allocated ₹1 Cr</span>
-        </div>
-        <div class="telemetry-card">
-            <span class="tel-label"><i class="fa-solid fa-chart-pie text-amber"></i> Fleet Win Rate &bull; Profit Factor</span>
-            <div class="tel-val" id="telWinRate">73.8% &bull; 2.64x PF</div>
-            <span class="tel-sub">342 Wins / 463 Trades</span>
-        </div>
-        <div class="telemetry-card">
-            <span class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Fleet Sharpe &bull; Max Drawdown</span>
-            <div class="tel-val" id="telSharpe">2.84 &bull; -0.82% MDD</div>
-            <span class="tel-sub text-green">Well within 2.0% Circuit Breaker</span>
-        </div>
-        <div class="telemetry-card">
-            <span class="tel-label"><i class="fa-solid fa-bolt text-magenta"></i> Total Executed Fills Today</span>
-            <div class="tel-val" id="telTotalFills">1,894 Orders</div>
-            <span class="tel-sub">Avg Slippage: 1.4 bps (TCA low)</span>
-        </div>
+  <!-- ═══════════════════════ LIVE TICKER MARQUEE RIBBON ═══════════════════════ -->
+  <div class="ticker-ribbon-wrap" style="background:#020306; border-bottom:1px solid rgba(255,255,255,0.06); padding:4px 0; overflow:hidden;">
+    <div id="fleetTickerStrip" style="white-space:nowrap; display:flex; gap:28px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; animation: marqueeScroll 45s linear infinite;">
+      <span style="color:#22d3ee;"><strong>NIFTY 50:</strong> 24,680.40 (+0.42%)</span>
+      <span style="color:#51CF66;"><strong>BANKNIFTY:</strong> 52,140.80 (+0.68%)</span>
+      <span style="color:#22d3ee;"><strong>S&amp;P 500:</strong> 5,648.40 (+0.35%)</span>
+      <span style="color:#51CF66;"><strong>NASDAQ:</strong> 17,890.20 (+0.82%)</span>
+      <span style="color:#fab005;"><strong>BTC-USD:</strong> $64,280.00 (+1.45%)</span>
+      <span style="color:#a78bfa;"><strong>ETH-USD:</strong> $3,450.20 (+2.10%)</span>
+      <span style="color:#51CF66;"><strong>BRENT CRUDE:</strong> $78.40 (-0.24%)</span>
+      <span style="color:#fab005;"><strong>MCX GOLD:</strong> ₹78,420 (+0.38%)</span>
+      <span style="color:#22d3ee;"><strong>USD/INR:</strong> ₹83.92 (-0.05%)</span>
+      <span style="color:#51CF66;"><strong>RELIANCE:</strong> ₹3,010.50 (+0.55%)</span>
+      <span style="color:#22d3ee;"><strong>HDFCBANK:</strong> ₹1,642.00 (+0.40%)</span>
+      <span style="color:#51CF66;"><strong>TCS:</strong> ₹4,480.00 (+1.10%)</span>
+      <span style="color:#fab005;"><strong>NVDA:</strong> $128.50 (+2.40%)</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MAIN VIEWPORT CONTAINER ═══════════════════════ -->
+  <main class="observatory-main" style="padding: 16px 24px; max-width: 1720px; margin: 0 auto;">
+
+    <!-- 1. Executive Global Telemetry Row -->
+    <section class="telemetry-bar-grid">
+      <div class="tel-box">
+        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Health</div>
+        <div class="tel-val" id="telActiveBots">20 / 20 Running</div>
+        <div class="tel-sub text-green"><i class="fa-solid fa-check"></i> 100% Operational &bull; 0 Errors</div>
+      </div>
+      <div class="tel-box">
+        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> 24h Realized Alpha P&amp;L</div>
+        <div class="tel-val text-green" id="telDailyPnl">+₹3,42,850 ($4,105)</div>
+        <div class="tel-sub text-green"><i class="fa-solid fa-arrow-up"></i> +3.43% on Allocated ₹1 Cr</div>
+      </div>
+      <div class="tel-box">
+        <div class="tel-label"><i class="fa-solid fa-chart-pie text-amber"></i> Fleet Win Rate &bull; Profit Factor</div>
+        <div class="tel-val text-amber" id="telWinRate">73.8% &bull; 2.64x PF</div>
+        <div class="tel-sub">342 Wins / 463 Closed Fills</div>
+      </div>
+      <div class="tel-box">
+        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Fleet Sharpe &bull; Max Drawdown</div>
+        <div class="tel-val text-cyan" id="telSharpe">2.84 &bull; -0.82% MDD</div>
+        <div class="tel-sub text-green">Well below -2.0% Circuit Gate</div>
+      </div>
+      <div class="tel-box">
+        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> 24/7 Executed Fills</div>
+        <div class="tel-val" style="color:#a78bfa;" id="telTotalFills">1,894 Orders</div>
+        <div class="tel-sub">Avg Slippage: 1.4 bps (TCA Low)</div>
+      </div>
     </section>
 
-    <!-- Main Container -->
-    <main class="fleet-main">
-        <!-- Market Filter Tabs & Sector Switcher -->
-        <div class="fleet-filter-strip">
-            <div class="market-pills">
-                <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-globe"></i> All 20 Bots (Global)</button>
-                <button class="market-pill-btn" data-filter="india"><i class="fa-solid fa-flag"></i> 🇮🇳 Indian Fleet (10 Sector Bots)</button>
-                <button class="market-pill-btn" data-filter="us"><i class="fa-solid fa-flag-usa"></i> 🇺🇸 US &amp; 24/7 Global (10 Sector Bots)</button>
-            </div>
+    <!-- 2. Sector Filter & Search Strip -->
+    <section class="fleet-control-strip">
+      <div class="market-pills">
+        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-globe"></i> All 20 Quantitative Bots</button>
+        <button class="market-pill-btn" data-filter="india"><i class="fa-solid fa-flag"></i> 🇮🇳 Indian Sector Fleet (10 Bots)</button>
+        <button class="market-pill-btn" data-filter="us"><i class="fa-solid fa-flag-usa"></i> 🇺🇸 US &amp; Global 24/7 (10 Bots)</button>
+      </div>
 
-            <div class="fleet-view-controls">
-                <input type="text" id="botSearchInput" placeholder="Filter by sector, asset, or strategy..." class="bot-search-input">
-                <button id="btnExportFleetReport" class="fleet-action-btn"><i class="fa-solid fa-file-pdf"></i> Export Factsheet</button>
-            </div>
+      <div class="search-filter-wrap">
+        <i class="fa-solid fa-magnifying-glass search-icon-mini"></i>
+        <input type="text" id="botSearchInput" placeholder="Filter by sector, symbol, strategy..." class="bot-filter-input" />
+      </div>
+    </section>
+
+    <!-- 3. The 20-Bot Quantitative Matrix Grid -->
+    <section class="bot-grid" id="botGridContainer">
+      <!-- Injected dynamically by fleet.js with 20 distinct sector bots -->
+    </section>
+
+    <!-- 4. Lower Analytics & Live Execution Blotter -->
+    <section class="fleet-analytics-row">
+      <!-- Cumulative Multi-Strategy Equity Curve -->
+      <div class="obs-card" style="padding:18px;">
+        <div class="obs-card-header">
+          <div class="obs-card-title">
+            <i class="fa-solid fa-chart-line text-cyan"></i>
+            <h3>Fleet Cumulative Multi-Strategy Equity Curve</h3>
+          </div>
+          <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee;">Uncorrelated Multi-Asset Alpha</span>
         </div>
-
-        <!-- 20-Bot Matrix Grid -->
-        <div class="bot-grid" id="botGridContainer">
-            <!-- Rendered dynamically by fleet.js with 20 distinct sector bots -->
+        <div style="position:relative; width:100%; height:260px; margin-top:12px;">
+          <canvas id="fleetEquityCanvas"></canvas>
         </div>
+      </div>
 
-        <!-- Lower Section: Aggregate Fleet Analytics & Live Execution Blotter -->
-        <div class="fleet-analytics-row">
-            <!-- Aggregate Equity Curve -->
-            <div class="fleet-card chart-card">
-                <div class="fleet-card-header">
-                    <h3><i class="fa-solid fa-chart-line text-cyan"></i> Fleet Cumulative Equity Curve &bull; Walk-Forward</h3>
-                    <span class="badge">Multi-Strategy Uncorrelated Alpha</span>
-                </div>
-                <div class="chart-wrap" style="height:260px;">
-                    <canvas id="fleetEquityCanvas"></canvas>
-                </div>
-            </div>
-
-            <!-- Live Streaming Blotter -->
-            <div class="fleet-card blotter-card">
-                <div class="fleet-card-header">
-                    <h3><i class="fa-solid fa-list-check text-green"></i> Live 24/7 Automated Order Execution Tape</h3>
-                    <span class="badge badge-live"><i class="fa-solid fa-circle fa-beat"></i> STREAMING LIVE</span>
-                </div>
-                <div class="blotter-stream" id="fleetBlotterStream">
-                    <!-- Streamed dynamically by fleet.js -->
-                </div>
-            </div>
+      <!-- Live Streaming Execution Blotter -->
+      <div class="obs-card" style="padding:18px;">
+        <div class="obs-card-header">
+          <div class="obs-card-title">
+            <i class="fa-solid fa-list-check text-green"></i>
+            <h3>Live 24/7 Automated Order Execution Tape</h3>
+          </div>
+          <span class="badge" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-circle fa-beat" style="font-size:0.5rem; margin-right:4px;"></i> LIVE FIX 4.4 / SOR TAPE</span>
         </div>
-    </main>
-
-    <!-- Bot Detail Drawer Modal -->
-    <div class="bot-modal-overlay" id="botModalOverlay" hidden>
-        <div class="bot-modal-content">
-            <div class="bot-modal-header">
-                <div id="modalBotTitle">
-                    <h2 id="modalBotName">Bot Details</h2>
-                    <span id="modalBotSector" class="badge">Sector</span>
-                </div>
-                <button id="btnCloseBotModal" class="btn-close">&times;</button>
-            </div>
-            <div class="bot-modal-body" id="modalBotBody">
-                <!-- Populated dynamically -->
-            </div>
+        <div class="blotter-stream" id="fleetBlotterStream" style="margin-top:12px;">
+          <!-- Populated in real-time by fleet.js -->
         </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════ BOT DETAIL MODAL DRAWER ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="botModalOverlay" hidden>
+    <div class="bot-modal-content">
+      <div class="bot-modal-header">
+        <div id="modalBotTitle">
+          <h2 id="modalBotName" style="margin:0; font-size:1.1rem; color:#fff;">Bot Details</h2>
+          <span id="modalBotSector" class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; margin-top:4px; display:inline-block;">Sector</span>
+        </div>
+        <button id="btnCloseBotModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" id="modalBotBody">
+        <!-- Populated dynamically -->
+      </div>
     </div>
+  </div>
 
-    <!-- Core Scripts -->
-    <script src="securityMaster.js"></script>
-    <script src="fleet.js"></script>
+  <!-- Scripts -->
+  <script src="securityMaster.js"></script>
+  <script src="fleet.js"></script>
 </body>
 </html>
