@@ -1154,3 +1154,56 @@ body.quad-grid-active .tab-content {
 }
 
 
+
+
+/* ═══════════════════ COMPLETED INSTITUTIONAL SUITE STYLES ═══════════════════ */
+.opt-strat-btn, .q-strat-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.opt-strat-btn:hover, .q-strat-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.opt-strat-btn.active {
+    background: rgba(167, 139, 250, 0.2);
+    border-color: rgba(167, 139, 250, 0.5);
+    color: #a78bfa;
+    font-weight: 700;
+}
+
+.q-strat-btn.active {
+    background: rgba(81, 207, 102, 0.2);
+    border-color: rgba(81, 207, 102, 0.5);
+    color: #51CF66;
+    font-weight: 700;
+}
+
+.heatmap-cell {
+    padding: 6px 4px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-family: monospace;
+    transition: transform 0.15s ease;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.1);
+    z-index: 2;
+}
+
+.heat-pos-high { background: rgba(16, 185, 129, 0.45); color: #fff; }
+.heat-pos-med { background: rgba(16, 185, 129, 0.25); color: #51CF66; }
+.heat-pos-low { background: rgba(16, 185, 129, 0.12); color: #a7f3d0; }
+.heat-neg-low { background: rgba(244, 63, 94, 0.15); color: #fecdd3; }
+.heat-neg-med { background: rgba(244, 63, 94, 0.3); color: #fda4af; }
+.heat-neg-high { background: rgba(244, 63, 94, 0.55); color: #fff; }

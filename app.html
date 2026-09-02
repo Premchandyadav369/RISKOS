@@ -76,6 +76,15 @@
         </div>
     </header>
 
+    <!-- ═══════════ REAL-TIME BREAKING INSTITUTIONAL NEWS WIRE ═══════════ -->
+    <div style="background:rgba(0,0,0,0.75); border-bottom:1px solid rgba(255,255,255,0.08); padding:4px 20px; font-size:0.72rem; display:flex; align-items:center; gap:12px; overflow:hidden;">
+        <span style="background:#f43f5e; color:#fff; font-weight:800; padding:2px 6px; border-radius:4px; font-size:0.65rem; letter-spacing:0.04em; flex-shrink:0;">WIRE LIVE</span>
+        <div id="bbgNewsTickerStrip" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#ddd; font-family:monospace;">
+            [10:40 IST] RBI MPC leaves Repo Rate unchanged at 6.50% &bull; [10:35 IST] US 10-Year Treasury Yield eases to 4.22% &bull; [10:28 IST] Brent Crude consolidates at $78.40/bbl &bull; [10:15 IST] TCS announces multi-year enterprise generative AI expansion
+        </div>
+    </div>
+
+
     <!-- ═══════════ BLOOMBERG TERMINAL FUNCTION KEY STRIP (F1 - F12) ═══════════ -->
     <div class="bloomberg-function-strip" id="bbgFunctionStrip">
         <div class="bbg-fn-track">
@@ -487,6 +496,82 @@
                     </div>
                 </div>
             </div>
+        
+            <!-- ═══════════ BRINSON-FACHLER ATTRIBUTION & MACRO SHOCK MATRIX ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(34,211,238,0.25); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-diagram-project text-cyan"></i> Brinson-Fachler Factor Attribution &amp; Multi-Asset Alpha Decomposition
+                            <button class="explain-trigger-btn" data-explain="brinson_attribution" title="Explain Brinson-Fachler Attribution">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Decomposes active portfolio return against benchmark into Allocation Effect (\(A_i\)), Selection Effect (\(S_i\)), and Interaction Effect (\(I_i\)).
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Brinson-Fachler Multi-Factor</span>
+                </div>
+
+                <div style="overflow-x:auto; margin-bottom:16px;">
+                    <table class="data-table" id="brinsonAttributionTable" style="width:100%; font-size:0.78rem;">
+                        <thead>
+                            <tr>
+                                <th>Sector / Asset Class</th>
+                                <th>Portfolio Weight (\(w_p\))</th>
+                                <th>Benchmark Weight (\(w_b\))</th>
+                                <th>Portfolio Return (\(r_p\))</th>
+                                <th>Benchmark Return (\(r_b\))</th>
+                                <th>Allocation Effect (\(A_i\))</th>
+                                <th>Selection Effect (\(S_i\))</th>
+                                <th>Total Alpha Contribution</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brinsonTableBody">
+                            <!-- Populated dynamically by initBrinsonAttribution -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Live Macro Scenario Shock Matrix Sliders -->
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:16px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <span style="font-size:0.8rem; font-weight:700; color:#22d3ee; text-transform:uppercase;"><i class="fa-solid fa-sliders"></i> Real-Time Macro Scenario Shock Stress Matrix</span>
+                        <span id="macroNetImpactBadge" class="badge" style="background:rgba(244,63,94,0.15); color:#f43f5e; font-weight:700;">Simulated Impact: -₹4,85,000 (-4.85%)</span>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px;">
+                                <span>Global Rate Shift (Fed/RBI):</span>
+                                <strong id="shockRateVal" style="color:#22d3ee;">+150 bps</strong>
+                            </div>
+                            <input type="range" id="shockRateSlider" min="-300" max="500" step="25" value="150" style="width:100%; accent-color:#22d3ee; cursor:pointer;">
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px;">
+                                <span>Brent Crude Shock ($/bbl):</span>
+                                <strong id="shockOilVal" style="color:#fab005;">+$20.0/bbl</strong>
+                            </div>
+                            <input type="range" id="shockOilSlider" min="-40" max="60" step="5" value="20" style="width:100%; accent-color:#fab005; cursor:pointer;">
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px;">
+                                <span>USD/INR Currency Deval:</span>
+                                <strong id="shockFxVal" style="color:#a78bfa;">+3.5%</strong>
+                            </div>
+                            <input type="range" id="shockFxSlider" min="-5" max="15" step="0.5" value="3.5" style="width:100%; accent-color:#a78bfa; cursor:pointer;">
+                        </div>
+                        <div>
+                            <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#aaa; margin-bottom:4px;">
+                                <span>Credit Spread Blowout:</span>
+                                <strong id="shockCreditVal" style="color:#f43f5e;">+180 bps</strong>
+                            </div>
+                            <input type="range" id="shockCreditSlider" min="0" max="600" step="20" value="180" style="width:100%; accent-color:#f43f5e; cursor:pointer;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <!-- ═══════════ DESK 3: FUTURES & RATES DESK ═══════════ -->
@@ -808,6 +893,69 @@
                     <div id="vpin-container" class="vpin-display"></div>
                 </div>
             </div>
+        
+            <!-- ═══════════ ALGORITHMIC ORDER EXECUTION SLICER (TWAP/VWAP/POV) ═══════════ -->
+            <div class="card mt-4" style="background:#0c0e14; border:1px solid rgba(16,185,129,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-microchip" style="color:#10b981;"></i> Algorithmic Order Execution Slicer (TWAP / VWAP / POV / Almgren-Chriss)
+                            <button class="explain-trigger-btn" data-explain="exec_slicing" title="Explain Algorithmic Order Execution">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Simulate institutional parent-child order splitting, volume-weighted participation rates, and dynamic slippage minimization.
+                        </p>
+                    </div>
+                    <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Smart Order Router (SOR)</span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:16px;">
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Algorithm Profile</label>
+                        <select id="algoProfileSelect" style="width:100%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.75rem; margin-top:4px;">
+                            <option value="vwap">VWAP (Volume-Weighted Profile)</option>
+                            <option value="twap">TWAP (Uniform Time Slices)</option>
+                            <option value="pov10">POV 10% (10% Volume Participation)</option>
+                            <option value="pov20">POV 20% (Aggressive 20% Rate)</option>
+                            <option value="almgren">Almgren-Chriss Optimal Trajectory</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Parent Order Size</label>
+                        <input type="number" id="algoParentQty" value="25000" step="1000" style="width:100%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.75rem; margin-top:4px;" />
+                    </div>
+                    <div>
+                        <label style="font-size:0.7rem; color:#71717a; text-transform:uppercase; font-weight:700;">Execution Window</label>
+                        <select id="algoDurationSelect" style="width:100%; background:#141721; border:1px solid rgba(255,255,255,0.12); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.75rem; margin-top:4px;">
+                            <option value="15">15 Minutes (Fast Urgent)</option>
+                            <option value="30">30 Minutes (Standard Slicing)</option>
+                            <option value="60" selected>60 Minutes (Full Session Slicing)</option>
+                            <option value="120">120 Minutes (Passive Accumulation)</option>
+                        </select>
+                    </div>
+                    <div style="display:flex; align-items:flex-end;">
+                        <button id="btnStartAlgoExecution" style="width:100%; background:#10b981; color:#000; font-weight:700; padding:8px 12px; border-radius:6px; border:none; cursor:pointer; font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <i class="fa-solid fa-play"></i> Start Algo Execution
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Slicing Progress Bar & Execution Stream Log -->
+                <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:14px; margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; margin-bottom:6px;">
+                        <span style="color:#aaa;">Slicing Execution Progress: <strong id="algoTrancheProgressText" style="color:#10b981;">0 / 12 Tranches Filled</strong></span>
+                        <span style="color:#22d3ee; font-weight:700;" id="algoFilledQtyText">0 / 25,000 Shares (0%)</span>
+                    </div>
+                    <div style="width:100%; height:8px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden;">
+                        <div id="algoProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #10b981, #22d3ee); transition:width 0.3s ease;"></div>
+                    </div>
+                </div>
+
+                <div id="algoFillsLogContainer" style="max-height:160px; overflow-y:auto; background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:8px 12px; font-family:monospace; font-size:0.72rem;">
+                    <div style="color:#71717a;">Ready to execute algorithmic order slicing. Select parameters and click Start Algo Execution.</div>
+                </div>
+            </div>
+
         </section>
 
         <!-- ═══════════ DESK 5: DERIVATIVES & VOLATILITY LAB ═══════════ -->
@@ -972,6 +1120,72 @@
                     </div>
                 </div>
             </div>
+        
+            <!-- ═══════════ MULTI-LEG DERIVATIVES STRATEGY STUDIO ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(167,139,250,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-layer-group text-primary" style="color:#a78bfa;"></i> Multi-Leg Derivatives Strategy Studio &amp; Volatility Skew Arbitrage
+                            <button class="explain-trigger-btn" data-explain="options_payoff" title="Explain Multi-Leg Options Payoff">?</button>
+                        </h3>
+                        <p class="muted" style="font-size:0.75rem; margin-top:2px;">
+                            Construct institutional multi-leg structures, evaluate expiration payoff diagrams, aggregated Greeks, and scan for SABR smile arbitrage.
+                        </p>
+                    </div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;" id="optionsStrategyPills">
+                        <button class="opt-strat-btn active" data-strat="condor">Iron Condor</button>
+                        <button class="opt-strat-btn" data-strat="straddle">Straddle</button>
+                        <button class="opt-strat-btn" data-strat="strangle">Strangle</button>
+                        <button class="opt-strat-btn" data-strat="bull_call">Bull Call Spread</button>
+                        <button class="opt-strat-btn" data-strat="bear_put">Bear Put Spread</button>
+                        <button class="opt-strat-btn" data-strat="butterfly">Butterfly</button>
+                        <button class="opt-strat-btn" data-strat="risk_reversal">Risk Reversal</button>
+                    </div>
+                </div>
+
+                <div class="grid-2-col">
+                    <div style="position:relative; width:100%; height:260px; background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden;">
+                        <canvas id="multiLegPayoffCanvas" style="width:100%; height:100%; display:block;"></canvas>
+                    </div>
+
+                    <!-- Aggregated Net Greeks & Payoff Summary Table -->
+                    <div style="display:flex; flex-direction:column; justify-content:space-between;">
+                        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px; margin-bottom:10px;">
+                            <span style="font-size:0.7rem; color:#a78bfa; font-weight:700; text-transform:uppercase;">Strategy Configuration &amp; Net Greeks</span>
+                            <div id="optNetGreeksGrid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-top:8px; font-size:0.75rem;">
+                                <div><span style="color:#71717a;">Net Delta (Δ):</span> <strong id="netDeltaVal" style="color:#22d3ee;">+0.04</strong></div>
+                                <div><span style="color:#71717a;">Net Gamma (Γ):</span> <strong id="netGammaVal" style="color:#a78bfa;">-0.012</strong></div>
+                                <div><span style="color:#71717a;">Net Vega (ν):</span> <strong id="netVegaVal" style="color:#fab005;">-$42.50</strong></div>
+                                <div><span style="color:#71717a;">Net Theta (Θ):</span> <strong id="netThetaVal" style="color:#10b981;">+$24.80/d</strong></div>
+                                <div><span style="color:#71717a;">Max Profit:</span> <strong id="optMaxProfitVal" style="color:#10b981;">+$420.00</strong></div>
+                                <div><span style="color:#71717a;">Max Loss:</span> <strong id="optMaxLossVal" style="color:#f43f5e;">-$580.00</strong></div>
+                            </div>
+                        </div>
+
+                        <!-- SABR Volatility Smile Arbitrage Scanner -->
+                        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                <span style="font-size:0.7rem; color:#ff9e00; font-weight:700; text-transform:uppercase;">SABR Smile Arbitrage Opportunities</span>
+                                <span class="badge" style="background:rgba(255,158,0,0.15); color:#ff9e00; font-size:0.65rem;">Hagan Calibrated</span>
+                            </div>
+                            <div id="sabrArbOpportunitiesList" style="font-size:0.72rem; color:#ccc; display:flex; flex-direction:column; gap:4px;">
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); padding:3px 0;">
+                                    <span>$175 Put (25Δ OTM)</span>
+                                    <span style="color:#f43f5e;">Market IV 29.4% &gt; SABR 26.8%</span>
+                                    <strong style="color:#10b981;">SELL SPREAD (+260 bps)</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.04); padding:3px 0;">
+                                    <span>$195 Call (25Δ OTM)</span>
+                                    <span style="color:#22d3ee;">Market IV 22.1% &lt; SABR 24.3%</span>
+                                    <strong style="color:#22d3ee;">BUY CALL (-220 bps)</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </section>
 
         <!-- ═══════════ DESK 6: SIGNALS & ALLOCATION ═══════════ -->
