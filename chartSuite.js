@@ -63,6 +63,17 @@
       this.render();
     }
 
+    updateLiveTick(price, volume = 0) {
+      if (!this.bars || this.bars.length === 0) return;
+      const last = this.bars[this.bars.length - 1];
+      const p = Number(price);
+      last.close = p;
+      last.high = Math.max(last.high, p);
+      last.low = Math.min(last.low, p);
+      if (volume) last.volume += Number(volume);
+      this.render();
+    }
+
     toggleIndicator(name, active = null) {
       if (this.indicators[name] !== undefined) {
         this.indicators[name] = active !== null ? active : !this.indicators[name];

@@ -811,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── 12. Universal Interactive Dual-Mode Financial Chart & Candlestick Engine ──
   let compActiveChartMode = 'candle'; // 'candle' | 'line'
   let canvasActiveChartMode = 'candle'; // 'candle' | 'line'
+  let _activeChartLiveUnsub = null;
 
   const renderFinancialChart = async ({
     sec,
@@ -823,6 +824,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById(canvasId);
     const wrap = document.getElementById(wrapId);
     if (!canvas || !wrap) return;
+
+    // Clean up previous live tick subscription
+    if (_activeChartLiveUnsub) {
+      _activeChartLiveUnsub();
+      _activeChartLiveUnsub = null;
+    }
 
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
@@ -837,7 +844,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let sma20 = [];
     let ema50 = [];
 
-    // Load real dynamic OHLC data from SecurityMaster
+    // Load real dynamic multi-timeframe OHLC data from SecurityMaster
     try {
       const ohlcData = await SecurityMaster.getOHLC(sec.symbol, tf);
       if (ohlcData && Array.isArray(ohlcData.bars) && ohlcData.bars.length > 0) {
@@ -845,49 +852,27 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (e) {}
 
-    if (!bars || bars.length === 0) {
-      const basePr = sec.priceINR || sec.price_inr || 1000;
-      const days = tf === '1D' ? 24 : (tf === '1W' ? 35 : (tf === '1M' ? 30 : (tf === '3M' ? 65 : (tf === '1Y' ? 120 : 250))));
-      bars = [];
-      let cur = basePr * 0.88;
-      const now = new Date();
-      for (let i = days; i >= 0; i--) {
-        const d = new Date(now);
-        d.setDate(d.getDate() - i);
-        const drift = (Math.random() - 0.47) * (basePr * 0.02);
-        const o = cur;
-        const c = cur + drift;
-        const hVal = Math.max(o, c) + Math.random() * (basePr * 0.015);
-        const lVal = Math.min(o, c) - Math.random() * (basePr * 0.015);
-        const vol = Math.floor(500000 + Math.random() * 2500000);
-        bars.push({
-          date: d.toISOString().split('T')[0],
-          open: Number(o.toFixed(2)),
-          high: Number(hVal.toFixed(2)),
-          low: Number(lVal.toFixed(2)),
-          close: Number(c.toFixed(2)),
-          volume: vol
-        });
-        cur = c;
+    const recomputeIndicators = () => {
+      sma20 = [];
+      ema50 = [];
+      for (let i = 0; i < bars.length; i++) {
+        if (i < 19) sma20.push(null);
+        else {
+          const sum = bars.slice(i - 19, i + 1).reduce((acc, b) => acc + b.close, 0);
+          sma20.push(sum / 20);
+        }
       }
-    }
 
-    // Compute SMA(20) and EMA(50)
-    for (let i = 0; i < bars.length; i++) {
-      if (i < 19) sma20.push(null);
-      else {
-        const sum = bars.slice(i - 19, i + 1).reduce((acc, b) => acc + b.close, 0);
-        sma20.push(sum / 20);
+      const k = 2 / 51;
+      let prevEma = bars[0]?.close || 100;
+      for (let i = 0; i < bars.length; i++) {
+        const e = (bars[i].close * k) + (prevEma * (1 - k));
+        ema50.push(i >= 15 ? e : null);
+        prevEma = e;
       }
-    }
+    };
 
-    const k = 2 / 51;
-    let prevEma = bars[0]?.close || 100;
-    for (let i = 0; i < bars.length; i++) {
-      const e = (bars[i].close * k) + (prevEma * (1 - k));
-      ema50.push(i >= 15 ? e : null);
-      prevEma = e;
-    }
+    recomputeIndicators();
 
     // Layout dimensions
     const padL = 65, padR = 20, padT = 18, padB = 26;
@@ -898,18 +883,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const volPlotY = padT + pricePlotH + 8;
     const chartCurr = sec.currency || (['US', 'NASDAQ', 'NYSE', 'COMEX', 'NYMEX', 'ICE', 'LME', 'CBOT', 'GLOBAL'].includes(sec.exchange) ? 'USD' : 'INR');
 
-    const minP = Math.min(...bars.map((b) => b.low)) * 0.99;
-    const maxP = Math.max(...bars.map((b) => b.high)) * 1.01;
-    const maxVol = Math.max(...bars.map((b) => b.volume)) * 1.15;
-
-    const getX = (idx) => padL + (idx / Math.max(1, bars.length - 1)) * plotW;
-    const getYPrice = (p) => padT + pricePlotH - ((p - minP) / Math.max(0.01, maxP - minP)) * pricePlotH;
-    const getYVol = (v) => volPlotY + volPlotH - (v / Math.max(1, maxVol)) * volPlotH;
-
     let crosshairIdx = -1;
 
     const draw = () => {
+      if (!bars.length) return;
       ctx.clearRect(0, 0, w, h);
+
+      const minP = Math.min(...bars.map((b) => b.low)) * 0.99;
+      const maxP = Math.max(...bars.map((b) => b.high)) * 1.01;
+      const maxVol = Math.max(100, ...bars.map((b) => b.volume)) * 1.15;
+
+      const getX = (idx) => padL + (idx / Math.max(1, bars.length - 1)) * plotW;
+      const getYPrice = (p) => padT + pricePlotH - ((p - minP) / Math.max(0.01, maxP - minP)) * pricePlotH;
+      const getYVol = (v) => volPlotY + volPlotH - (v / Math.max(1, maxVol)) * volPlotH;
 
       // 1. Gridlines & Price Scale
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -939,9 +925,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const candleW = Math.max(2, (plotW / bars.length) * 0.68);
 
-      // 3. Render Chart Data (Line/Area vs Candlesticks)
+      // 3. Render Chart Data (Line/Area vs Japanese Candlesticks)
       if (mode === 'line') {
-        // Line & Gradient Area Mode
         const grad = ctx.createLinearGradient(0, padT, 0, padT + pricePlotH);
         const isOverallPositive = bars[bars.length - 1].close >= bars[0].close;
         const themeColor = isOverallPositive ? '#51CF66' : '#22d3ee';
@@ -989,19 +974,19 @@ document.addEventListener('DOMContentLoaded', () => {
         bars.forEach((b, idx) => {
           const x = getX(idx);
           const isGreen = b.close >= b.open;
-          const color = isGreen ? '#51CF66' : '#FF6B6B';
+          const color = isGreen ? '#10b981' : '#f43f5e';
 
           // Volume bar
           if (hasVol) {
             const yV = getYVol(b.volume);
             const vH = (volPlotY + volPlotH) - yV;
-            ctx.fillStyle = isGreen ? 'rgba(81, 207, 102, 0.25)' : 'rgba(255, 107, 107, 0.25)';
+            ctx.fillStyle = isGreen ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)';
             ctx.fillRect(x - candleW / 2, yV, candleW, vH);
           }
 
           // Upper & Lower Wicks
           ctx.strokeStyle = color;
-          ctx.lineWidth = 1;
+          ctx.lineWidth = 1.2;
           ctx.beginPath();
           ctx.moveTo(x, getYPrice(b.high));
           ctx.lineTo(x, getYPrice(b.low));
@@ -1010,16 +995,23 @@ document.addEventListener('DOMContentLoaded', () => {
           // Candle Body
           const yTop = getYPrice(Math.max(b.open, b.close));
           const yBottom = getYPrice(Math.min(b.open, b.close));
-          const bodyH = Math.max(2, yBottom - yTop);
+          const bodyH = Math.max(2.5, yBottom - yTop);
 
           ctx.fillStyle = color;
           ctx.fillRect(x - candleW / 2, yTop, candleW, bodyH);
+
+          // Highlight live trailing candle with pulse glow
+          if (idx === bars.length - 1) {
+            ctx.strokeStyle = isGreen ? '#34d399' : '#fb7185';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(x - candleW / 2 - 1, yTop - 1, candleW + 2, bodyH + 2);
+          }
         });
       }
 
       // 4. Overlays: SMA(20) Line
       if (appState.candleIndicators.sma) {
-        ctx.strokeStyle = '#FAB005';
+        ctx.strokeStyle = '#f59e0b';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
@@ -1036,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // 5. Overlays: EMA(50) Line
       if (appState.candleIndicators.ema) {
-        ctx.strokeStyle = '#22d3ee';
+        ctx.strokeStyle = '#a855f7';
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
@@ -1076,11 +1068,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Date pill on X-axis
         ctx.fillStyle = '#18181b';
-        ctx.fillRect(hx - 36, h - padB + 2, 72, 18);
+        ctx.fillRect(hx - 42, h - padB + 2, 84, 18);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.strokeRect(hx - 36, h - padB + 2, 72, 18);
+        ctx.strokeRect(hx - 42, h - padB + 2, 84, 18);
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(b.date, hx - 30, h - padB + 14);
+        ctx.fillText(b.date || b.time, hx - 36, h - padB + 14);
 
         // Price badge on Y-axis
         ctx.fillStyle = '#18181b';
@@ -1093,6 +1085,28 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     draw();
+
+    // Subscribe to live tick streamer to update latest candle in real-time
+    _activeChartLiveUnsub = SecurityMaster.subscribeLiveTicks((updates) => {
+      const match = updates.find(u => u.symbol === sec.symbol);
+      if (match && bars.length > 0) {
+        const last = bars[bars.length - 1];
+        last.close = Number(match.price.toFixed(2));
+        last.high = Math.max(last.high, last.close);
+        last.low = Math.min(last.low, last.close);
+        last.volume += Math.floor(100 + Math.random() * 400);
+
+        recomputeIndicators();
+        draw();
+
+        // Flash latest price in HUD
+        const closeEl = document.getElementById(`${hudPrefix}Close`);
+        if (closeEl) {
+          closeEl.textContent = formatMoney(last.close, chartCurr);
+          closeEl.style.color = match.delta >= 0 ? '#10b981' : '#f43f5e';
+        }
+      }
+    });
 
     // Mousemove HUD listener
     wrap.onmousemove = (e) => {
@@ -1121,9 +1135,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (closeEl) closeEl.textContent = formatMoney(b.close, chartCurr);
         if (chgEl) {
           chgEl.textContent = formatPercent(chg);
-          chgEl.style.color = chg >= 0 ? '#51CF66' : '#FF6B6B';
+          chgEl.style.color = chg >= 0 ? '#10b981' : '#f43f5e';
         }
-        if (volEl) volEl.textContent = `${(b.volume / 1000).toFixed(0)}k`;
+        if (volEl) volEl.textContent = b.volume > 1000000 ? `${(b.volume / 1000000).toFixed(2)}M` : `${(b.volume / 1000).toFixed(0)}k`;
       }
       draw();
     };
