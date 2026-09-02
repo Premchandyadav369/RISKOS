@@ -1411,6 +1411,60 @@
 
         <!-- ═══════════ DESK 7: AI SPECULATIONS & FORECASTING ═══════════ -->
         <section id="tab-speculations" class="tab-content">
+
+            <!-- ═══════════ GOOGLE TIMESFM 3.0 TIME SERIES FOUNDATION MODEL ═══════════ -->
+            <div class="card mt-4" style="background:#090d16; border:1px solid rgba(34,211,238,0.3); border-radius:14px; padding:20px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <div>
+                        <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; margin:0;">
+                            <i class="fa-brands fa-google text-cyan"></i> Google Research TimesFM 3.0 &bull; Multi-Quantile Transformer Forecaster
+                            <button class="explain-trigger-btn" data-explain="timesfm_foundation" title="Explain Google TimesFM 3.0 Architecture">?</button>
+                        </h3>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">
+                            Decoder-only Foundation Model for Time Series (arXiv:2310.10688) &bull; Stacked Mixing Transformer, Context Patch=32, Horizon Patch=64, Iterative RevIN.
+                        </span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;"><i class="fa-solid fa-cube"></i> 20 Layers &bull; 1280 Dim &bull; 16 Heads</span>
+                        <select id="timesfmHorizonSelect" style="background:#141721; border:1px solid rgba(34,211,238,0.4); color:#22d3ee; padding:4px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer;">
+                            <option value="32">Horizon: 32 Bars (1 Patch)</option>
+                            <option value="64" selected>Horizon: 64 Bars (2 Patches)</option>
+                            <option value="128">Horizon: 128 Bars (4 Patches)</option>
+                        </select>
+                        <button id="btnRunTimesfmForecast" class="exec-btn" style="background:#22d3ee; color:#000; font-weight:700; padding:5px 12px; border-radius:6px; border:none; cursor:pointer; font-size:0.75rem;">
+                            <i class="fa-solid fa-bolt"></i> Run TimesFM 3.0
+                        </button>
+                    </div>
+                </div>
+
+                <div style="position:relative; width:100%; height:270px; background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; margin-bottom:12px;">
+                    <canvas id="timesfmCanvas" style="width:100%; height:100%; display:block;"></canvas>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:12px;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Median Expected Trajectory (q50)</span>
+                        <div id="timesfmQ50Val" style="font-size:1.2rem; font-weight:800; color:#22d3ee; margin:2px 0;">$188.40 (+1.84%)</div>
+                        <span style="font-size:0.68rem; color:#51CF66;">Central Transformer Path</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Upper Breakout Bound (q90 / q99)</span>
+                        <div id="timesfmQ90Val" style="font-size:1.2rem; font-weight:800; color:#10b981; margin:2px 0;">$196.20 / $204.50</div>
+                        <span style="font-size:0.68rem; color:#10b981;">Target Take-Profit Bound</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Lower Tail Risk (q10 / VaR 99%)</span>
+                        <div id="timesfmQ10Val" style="font-size:1.2rem; font-weight:800; color:#f43f5e; margin:2px 0;">$178.60 / $172.10</div>
+                        <span style="font-size:0.68rem; color:#f43f5e;">Protective Stop Boundary</span>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
+                        <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">Quantile Skewness Index</span>
+                        <div id="timesfmSkewVal" style="font-size:1.2rem; font-weight:800; color:#fab005; margin:2px 0;">+0.218 (Bullish Skew)</div>
+                        <span id="timesfmBiasVal" style="font-size:0.68rem; color:#51CF66;">Asymmetric Upside Expansion</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="desk-primer-card">
                 <div class="primer-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Desk Primer — Monte Carlo Jump Diffusion &amp; Prophet Decomposition</div>
                 <p class="primer-text">
