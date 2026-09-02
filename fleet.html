@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet</title>
+  <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet &amp; Ranker</title>
   
   <!-- CDNs: Fonts, FontAwesome 6.5.2, Chart.js 4 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -105,33 +105,47 @@
     <!-- 1. Executive Global Telemetry Row -->
     <section class="telemetry-bar-grid">
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Health</div>
+        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Health &bull; Continuous Uptime</div>
         <div class="tel-val" id="telActiveBots">20 / 20 Running</div>
-        <div class="tel-sub text-green"><i class="fa-solid fa-check"></i> 100% Operational &bull; 0 Errors</div>
+        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-clock"></i> Persistent Uptime: 92d 14h (24/7 Active)</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> 24h Realized Alpha P&amp;L</div>
+        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> Cumulative Fleet Net Alpha P&amp;L</div>
         <div class="tel-val text-green" id="telDailyPnl">+₹3,42,850 ($4,105)</div>
-        <div class="tel-sub text-green"><i class="fa-solid fa-arrow-up"></i> +3.43% on Allocated ₹1 Cr</div>
+        <div class="tel-sub text-green" id="telPnlReturn"><i class="fa-solid fa-arrow-up"></i> +34.28% on Initial Capital</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-chart-pie text-amber"></i> Fleet Win Rate &bull; Profit Factor</div>
-        <div class="tel-val text-amber" id="telWinRate">73.8% &bull; 2.64x PF</div>
-        <div class="tel-sub">342 Wins / 463 Closed Fills</div>
+        <div class="tel-label"><i class="fa-solid fa-trophy text-amber"></i> Fleet Leaderboard Win Rate</div>
+        <div class="tel-val text-amber" id="telWinRate">77.4% &bull; 2.85x PF</div>
+        <div class="tel-sub" id="telWinFills">1,420 Wins / 1,834 Fills</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Fleet Sharpe &bull; Max Drawdown</div>
-        <div class="tel-val text-cyan" id="telSharpe">2.84 &bull; -0.82% MDD</div>
-        <div class="tel-sub text-green">Well below -2.0% Circuit Gate</div>
+        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Composite Sharpe &bull; Max Drawdown</div>
+        <div class="tel-val text-cyan" id="telSharpe">3.18 &bull; -0.74% MDD</div>
+        <div class="tel-sub text-green">Strict CVaR 99% Hard Gate Verified</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> 24/7 Executed Fills</div>
-        <div class="tel-val" style="color:#a78bfa;" id="telTotalFills">1,894 Orders</div>
-        <div class="tel-sub">Avg Slippage: 1.4 bps (TCA Low)</div>
+        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> Total Automated Executions</div>
+        <div class="tel-val" style="color:#a78bfa;" id="telTotalFills">4,892 Orders</div>
+        <div class="tel-sub">Smart Order Router (SOR) Low Slippage</div>
       </div>
     </section>
 
-    <!-- 2. Sector Filter & Search Strip -->
+    <!-- 2. Time-Travel Persistence & Simulation Accelerator Bar -->
+    <section class="time-travel-bar">
+      <div class="time-travel-left">
+        <div class="time-badge"><i class="fa-solid fa-hourglass-half text-cyan"></i> <strong>24/7 Autonomous Persistent Simulation Engine</strong></div>
+        <span style="font-size:0.75rem; color:#aaa;">Simulates continuous market execution across all elapsed hours, even when offline. Check after 3 months to see full walk-forward track record!</span>
+      </div>
+      <div class="time-travel-buttons">
+        <button class="btn-time-travel" id="btnFf7Days" title="Fast forward 7 days of 24/7 execution"><i class="fa-solid fa-forward"></i> +7 Days</button>
+        <button class="btn-time-travel" id="btnFf30Days" title="Fast forward 30 days (1 month)"><i class="fa-solid fa-forward-fast"></i> +30 Days (1M)</button>
+        <button class="btn-time-travel highlight" id="btnFf90Days" title="Fast forward 90 days (3 months)"><i class="fa-solid fa-angles-right"></i> +90 Days (3M Beast Mode)</button>
+        <button class="btn-time-travel reset" id="btnResetEpoch" title="Reset simulation to initial epoch"><i class="fa-solid fa-rotate-left"></i> Reset Epoch</button>
+      </div>
+    </section>
+
+    <!-- 3. Fleet View Switcher: Matrix Grid vs Performance Ranker Leaderboard -->
     <section class="fleet-control-strip">
       <div class="market-pills">
         <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-globe"></i> All 20 Quantitative Bots</button>
@@ -139,19 +153,74 @@
         <button class="market-pill-btn" data-filter="us"><i class="fa-solid fa-flag-usa"></i> 🇺🇸 US &amp; Global 24/7 (10 Bots)</button>
       </div>
 
-      <div class="search-filter-wrap">
-        <i class="fa-solid fa-magnifying-glass search-icon-mini"></i>
-        <input type="text" id="botSearchInput" placeholder="Filter by sector, symbol, strategy..." class="bot-filter-input" />
+      <div class="view-mode-toggle-group">
+        <div class="view-toggle-pills">
+          <button class="view-btn active" id="btnViewGrid" title="Card Grid View"><i class="fa-solid fa-table-cells-large"></i> Matrix Grid</button>
+          <button class="view-btn" id="btnViewRanker" title="Leaderboard Ranker View"><i class="fa-solid fa-ranking-star"></i> Ranker Leaderboard</button>
+        </div>
+
+        <div class="search-filter-wrap">
+          <i class="fa-solid fa-magnifying-glass search-icon-mini"></i>
+          <input type="text" id="botSearchInput" placeholder="Search strategy, ticker, formula..." class="bot-filter-input" />
+        </div>
       </div>
     </section>
 
-    <!-- 3. The 20-Bot Quantitative Matrix Grid -->
+    <!-- 4.1 View A: 20-Bot Matrix Grid -->
     <section class="bot-grid" id="botGridContainer">
       <!-- Injected dynamically by fleet.js with 20 distinct sector bots -->
     </section>
 
-    <!-- 4. Lower Analytics & Live Execution Blotter -->
-    <section class="fleet-analytics-row">
+    <!-- 4.2 View B: Performance Ranker Leaderboard (Desk Ranker) -->
+    <section class="bot-ranker-container" id="botRankerContainer" style="display:none;">
+      <div class="obs-card" style="padding:18px;">
+        <div class="ranker-header-row">
+          <div>
+            <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; margin:0 0 4px 0;">
+              <i class="fa-solid fa-trophy text-amber"></i> Quantitative Fleet Ranker &amp; Alpha Leaderboard
+            </h3>
+            <span style="font-size:0.75rem; color:#aaa;">Ranked by composite performance score: Sharpe Ratio, Net Realized PnL, Win Rate %, and Maximum Drawdown resiliency.</span>
+          </div>
+          <div class="ranker-sort-controls">
+            <span style="font-size:0.75rem; color:#aaa;">Sort By:</span>
+            <select id="rankerSortSelect" class="ranker-select">
+              <option value="score">Composite Score (S-Tier to B-Tier)</option>
+              <option value="pnl">Net Realized P&amp;L (₹)</option>
+              <option value="sharpe">Sharpe Ratio</option>
+              <option value="winrate">Win Rate %</option>
+              <option value="trades">Total Fills Count</option>
+              <option value="mdd">Lowest Drawdown</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto; margin-top:16px;">
+          <table class="ranker-table" id="rankerTable">
+            <thead>
+              <tr>
+                <th style="width:70px;">Rank</th>
+                <th>Bot Name &amp; Sector</th>
+                <th>Strategy Type</th>
+                <th>Tier Badge</th>
+                <th>Net Realized P&amp;L</th>
+                <th>Sharpe Ratio</th>
+                <th>Win Rate</th>
+                <th>Profit Factor</th>
+                <th>Max Drawdown</th>
+                <th>Active Position</th>
+                <th>Strategy Whitepaper</th>
+              </tr>
+            </thead>
+            <tbody id="rankerTableBody">
+              <!-- Populated dynamically by fleet.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Lower Analytics & Live Execution Blotter -->
+    <section class="fleet-analytics-row mt-4">
       <!-- Cumulative Multi-Strategy Equity Curve -->
       <div class="obs-card" style="padding:18px;">
         <div class="obs-card-header">
@@ -183,18 +252,18 @@
 
   </main>
 
-  <!-- ═══════════════════════ BOT DETAIL MODAL DRAWER ═══════════════════════ -->
+  <!-- ═══════════════════════ DEEP STRATEGY EXPLAINER & WHITEPAPER MODAL ═══════════════════════ -->
   <div class="bot-modal-overlay" id="botModalOverlay" hidden>
     <div class="bot-modal-content">
       <div class="bot-modal-header">
         <div id="modalBotTitle">
-          <h2 id="modalBotName" style="margin:0; font-size:1.1rem; color:#fff;">Bot Details</h2>
+          <h2 id="modalBotName" style="margin:0; font-size:1.15rem; color:#fff;">Bot Strategy Whitepaper &amp; Mathematical Explainer</h2>
           <span id="modalBotSector" class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; margin-top:4px; display:inline-block;">Sector</span>
         </div>
         <button id="btnCloseBotModal" class="btn-close">&times;</button>
       </div>
       <div class="bot-modal-body" id="modalBotBody">
-        <!-- Populated dynamically -->
+        <!-- Populated dynamically with full LaTeX mathematics and layman explanations -->
       </div>
     </div>
   </div>
