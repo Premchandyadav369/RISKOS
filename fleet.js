@@ -1063,8 +1063,9 @@
             <span style="font-size:0.62rem; color:#71717a;"><i class="fa-solid fa-clock"></i> 64-Bar Horizon</span>
           </div>
 
-          <div class="bot-math-badge" title="${bot.mathFormula}">
-            <i class="fa-solid fa-square-root-variable text-cyan"></i> ${bot.mathFormula.substring(0, 46)}...
+          <div class="bot-math-card">
+            <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model</div>
+            <div class="math-jax-block">$$${bot.mathFormula}$$</div>
           </div>
 
           <div class="bot-stats-grid">
@@ -1141,7 +1142,8 @@
             <span style="font-size:0.7rem; color:#22d3ee;">${flag} ${bot.sector}</span>
           </td>
           <td style="color:#aaa;">${bot.strategyType}</td>
-          <td><span class="tier-badge ${tierCls}">${bot.tier}</span></td>
+                    <td><span class="tier-badge ${tierCls}">${bot.tier}</span></td>
+          <td><div class="math-jax-block-mini">$$${bot.mathFormula}$$</div></td>
           <td style="font-family:'JetBrains Mono', monospace; font-weight:800; color:${pnlColor};">
             ${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}
           </td>
@@ -1188,15 +1190,44 @@
     });
   };
 
+  
+  let mathJaxPending = false;
+  const typesetMathJax = (targetEl) => {
+    if (mathJaxPending) return;
+    mathJaxPending = true;
+    setTimeout(() => {
+      mathJaxPending = false;
+      typesetMathJax(bodyEl);
+      if (false) {
+        const targets = targetEl ? [targetEl] : [document.getElementById('botGridContainer'), document.getElementById('botRankerContainer'), document.getElementById('modalBotBody')].filter(Boolean);
+        window.MathJax.typesetPromise(targets).catch(() => {});
+      } else {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          typesetMathJax(bodyEl);
+      if (false) {
+            clearInterval(interval);
+            const targets = targetEl ? [targetEl] : [document.getElementById('botGridContainer'), document.getElementById('botRankerContainer')].filter(Boolean);
+            window.MathJax.typesetPromise(targets).catch(() => {});
+          }
+          if (attempts > 20) clearInterval(interval);
+        }, 250);
+      }
+    }, 80);
+  };
+
   const renderActiveView = () => {
     if (currentViewMode === 'grid') {
       document.getElementById('botGridContainer').style.display = 'grid';
       document.getElementById('botRankerContainer').style.display = 'none';
       renderBotGrid();
+      typesetMathJax(document.getElementById('botGridContainer'));
     } else {
       document.getElementById('botGridContainer').style.display = 'none';
       document.getElementById('botRankerContainer').style.display = 'block';
       renderRankerTable();
+      typesetMathJax(document.getElementById('botRankerContainer'));
     }
   };
 
@@ -1463,7 +1494,8 @@
         </div>
       `;
 
-      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      typesetMathJax(bodyEl);
+      if (false) {
         window.MathJax.typesetPromise([bodyEl]).catch(() => {});
       }
     }
