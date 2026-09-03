@@ -4782,3 +4782,56 @@ function initTimesFM30Forecaster() {
 
     renderTimesFMFan();
 }
+
+
+// ── Bloomberg TerminalBus Cross-App Integration ───────────────────────────
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    // Handle URL parameters for deep linking
+    const urlParams = new URLSearchParams(window.location.search);
+    const secParam = urlParams.get('sec') || urlParams.get('symbol') || urlParams.get('ticker');
+    if (secParam) {
+      const tickerInput = document.getElementById('tickers');
+      if (tickerInput) {
+        const current = tickerInput.value.split(',').map(s => s.trim()).filter(Boolean);
+        tickerInput.value = `${secParam.toUpperCase()},${current.filter(s => s !== secParam.toUpperCase()).slice(0, 4).join(',')}`;
+      }
+      if (typeof TerminalBus !== 'undefined') {
+        TerminalBus.setSecurity(secParam.toUpperCase(), false);
+      }
+    }
+
+    const deskParam = urlParams.get('desk');
+    if (deskParam) {
+      const deskMap = {
+        '1': 'market-intel',
+        '2': 'risk-engine',
+        '3': 'signals-exec',
+        '4': 'algo-slicer',
+        '5': 'options-studio',
+        '6': 'quant-sandbox',
+        '7': 'ai-speculations'
+      };
+      const targetTab = deskMap[deskParam] || deskParam;
+      setTimeout(() => {
+        if (typeof switchTab === 'function') switchTab(targetTab);
+      }, 300);
+    }
+
+    // Listen to real-time security mutations from other tabs via BroadcastChannel
+    if (typeof TerminalBus !== 'undefined') {
+      TerminalBus.onSecurityChange((newSymbol) => {
+        const tickerInput = document.getElementById('tickers');
+        if (tickerInput && newSymbol) {
+          const current = tickerInput.value.split(',').map(s => s.trim()).filter(Boolean);
+          if (current[0] !== newSymbol) {
+            tickerInput.value = `${newSymbol},${current.filter(s => s !== newSymbol).slice(0, 4).join(',')}`;
+            if (typeof fetchAllQuantData === 'function') {
+              fetchAllQuantData();
+            }
+          }
+        }
+      });
+    }
+  });
+}
