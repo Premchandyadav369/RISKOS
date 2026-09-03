@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet &amp; Ranker</title>
+  <title>RISKOS &bull; 24/7 Autonomous Quantitative Bot Fleet &amp; Order Engine</title>
   
   <!-- CDNs: Fonts, FontAwesome 6.5.2, Chart.js 4 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -44,7 +44,7 @@
         <div style="display:flex; flex-direction:column; margin-left:8px;">
           <span style="font-size:0.92rem; font-weight:800; color:#fff; letter-spacing:0.04em; display:flex; align-items:center; gap:6px;">
             RISK<span style="color:#22d3ee;">OS</span>
-            <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-size:0.65rem; padding:2px 6px;">FLEET 24/7</span>
+            <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-size:0.65rem; padding:2px 6px;">24/7 BOT FLEET v3.2</span>
           </span>
         </div>
       </div>
@@ -53,18 +53,22 @@
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="index.html" class="nav-link"><i class="fa-solid fa-house" style="margin-right:4px;"></i> Dashboard</a>
         <a href="app.html" class="nav-link"><i class="fa-solid fa-cubes" style="margin-right:4px;"></i> 7 Desks</a>
+        <a href="fleet.html" class="nav-link active"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
         <a href="observatory.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right:4px;"></i> Observatory</a>
         <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 52 Labs</a>
         <a href="ticker.html" class="nav-link"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> Screener</a>
-        <a href="fleet.html" class="nav-link active"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
         <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:4px;"></i> System Docs</a>
       </nav>
 
-      <!-- Right Header Status Controls -->
+      <!-- Right Header Status Controls & Audio -->
       <div class="header-right">
+        <button id="btnToggleSound" class="fleet-ctrl-btn" style="background:rgba(255,255,255,0.06); color:#22d3ee;" title="Toggle Execution Sound Effects">
+          <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+        </button>
+
         <div class="market-status-pill" id="globalFleetStatusPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:700;">
           <span class="status-dot green pulse-dot" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
-          <span id="fleetLiveUptimeText">20 / 20 BOTS ACTIVE</span>
+          <span id="fleetLiveUptimeText">20 / 20 AUTONOMOUS BOTS ACTIVE</span>
         </div>
 
         <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" title="Start all 20 bots">
@@ -106,7 +110,7 @@
     <!-- 1. Executive Global Telemetry Row -->
     <section class="telemetry-bar-grid">
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Health &bull; Continuous Uptime</div>
+        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Status &bull; Continuous Uptime</div>
         <div class="tel-val" id="telActiveBots">20 / 20 Running</div>
         <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-clock"></i> Persistent Uptime: 92d 14h (24/7 Active)</div>
       </div>
@@ -126,23 +130,39 @@
         <div class="tel-sub text-green">Strict CVaR 99% Hard Gate Verified</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> Total Automated Executions</div>
+        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> Orders Executed (24/7 FIX)</div>
         <div class="tel-val" style="color:#a78bfa;" id="telTotalFills">4,892 Orders</div>
-        <div class="tel-sub">Smart Order Router (SOR) Low Slippage</div>
+        <div class="tel-sub" id="telAvgSlippage">Avg Slippage: 1.2 bps (SOR Routed)</div>
       </div>
     </section>
 
-    <!-- 2. Time-Travel Persistence & Simulation Accelerator Bar -->
+    <!-- 2. Execution Speed Controller & Time-Travel Toolbar -->
     <section class="time-travel-bar">
       <div class="time-travel-left">
-        <div class="time-badge"><i class="fa-solid fa-hourglass-half text-cyan"></i> <strong>24/7 Autonomous Persistent Simulation Engine</strong></div>
-        <span style="font-size:0.75rem; color:#aaa;">Simulates continuous market execution across all elapsed hours, even when offline. Check after 3 months to see full walk-forward track record!</span>
+        <div class="time-badge">
+          <i class="fa-solid fa-gauge-high text-cyan"></i> 
+          <strong>Autonomous Order Execution Engine:</strong> 
+          <span style="color:#a1a1aa; font-size:0.75rem;">All 20 bots independently evaluate L2 order books &amp; mathematical models, placing orders on their own.</span>
+        </div>
       </div>
       <div class="time-travel-buttons">
-        <button class="btn-time-travel" id="btnFf7Days" title="Fast forward 7 days of 24/7 execution"><i class="fa-solid fa-forward"></i> +7 Days</button>
-        <button class="btn-time-travel" id="btnFf30Days" title="Fast forward 30 days (1 month)"><i class="fa-solid fa-forward-fast"></i> +30 Days (1M)</button>
-        <button class="btn-time-travel highlight" id="btnFf90Days" title="Fast forward 90 days (3 months)"><i class="fa-solid fa-angles-right"></i> +90 Days (3M Beast Mode)</button>
-        <button class="btn-time-travel reset" id="btnResetEpoch" title="Reset simulation to initial epoch"><i class="fa-solid fa-rotate-left"></i> Reset Epoch</button>
+        <div class="speed-toggle-group">
+          <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase; margin-right:4px;">Speed:</span>
+          <button class="btn-time-travel speed-btn active" data-speed="1" id="btnSpeed1x">1x Real-Time</button>
+          <button class="btn-time-travel speed-btn" data-speed="5" id="btnSpeed5x">5x Fast Alpha</button>
+          <button class="btn-time-travel speed-btn" data-speed="20" id="btnSpeed20x">20x Turbo HFT</button>
+        </div>
+
+        <button class="btn-time-travel highlight" id="btnBurstAllOrders" title="Forces all 20 bots to place orders simultaneously">
+          <i class="fa-solid fa-bolt"></i> Burst All 20 Orders
+        </button>
+
+        <div style="border-left:1px solid rgba(255,255,255,0.12); margin:0 4px; height:20px;"></div>
+
+        <button class="btn-time-travel" id="btnFf7Days" title="Fast forward 7 days"><i class="fa-solid fa-forward"></i> +7D</button>
+        <button class="btn-time-travel" id="btnFf30Days" title="Fast forward 30 days"><i class="fa-solid fa-forward-fast"></i> +30D</button>
+        <button class="btn-time-travel" id="btnFf90Days" title="Fast forward 90 days"><i class="fa-solid fa-angles-right"></i> +90D (3M)</button>
+        <button class="btn-time-travel reset" id="btnResetEpoch" title="Reset epoch"><i class="fa-solid fa-rotate-left"></i></button>
       </div>
     </section>
 
@@ -162,7 +182,7 @@
 
         <div class="search-filter-wrap">
           <i class="fa-solid fa-magnifying-glass search-icon-mini"></i>
-          <input type="text" id="botSearchInput" placeholder="Search strategy, ticker, formula..." class="bot-filter-input" />
+          <input type="text" id="botSearchInput" placeholder="Search bot, symbol, strategy..." class="bot-filter-input" />
         </div>
       </div>
     </section>
@@ -208,8 +228,8 @@
                 <th>Win Rate</th>
                 <th>Profit Factor</th>
                 <th>Max Drawdown</th>
-                <th>Active Position</th>
-                <th>Strategy Whitepaper</th>
+                <th>Active Order &amp; Position</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody id="rankerTableBody">
@@ -220,7 +240,7 @@
       </div>
     </section>
 
-    <!-- 5. Lower Analytics & Live Execution Blotter -->
+    <!-- 5. Lower Analytics & Comprehensive Live Execution Blotter -->
     <section class="fleet-analytics-row mt-4">
       <!-- Cumulative Multi-Strategy Equity Curve -->
       <div class="obs-card" style="padding:18px;">
@@ -231,40 +251,81 @@
           </div>
           <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee;">Uncorrelated Multi-Asset Alpha</span>
         </div>
-        <div style="position:relative; width:100%; height:260px; margin-top:12px;">
+        <div style="position:relative; width:100%; height:280px; margin-top:12px;">
           <canvas id="fleetEquityCanvas"></canvas>
         </div>
       </div>
 
-      <!-- Live Streaming Execution Blotter -->
+      <!-- Live Execution Blotter (Stream Tape & Detailed Table) -->
       <div class="obs-card" style="padding:18px;">
         <div class="obs-card-header">
           <div class="obs-card-title">
             <i class="fa-solid fa-list-check text-green"></i>
-            <h3>Live 24/7 Automated Order Execution Tape</h3>
+            <h3>Live FIX 4.4 Automated Order Execution Blotter</h3>
           </div>
-          <span class="badge" style="background:rgba(16,185,129,0.12); color:#10b981;"><i class="fa-solid fa-circle fa-beat" style="font-size:0.5rem; margin-right:4px;"></i> LIVE FIX 4.4 / SOR TAPE</span>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="blotter-view-toggle">
+              <button class="blot-toggle-btn active" id="btnBlotterStream"><i class="fa-solid fa-stream"></i> Stream Tape</button>
+              <button class="blot-toggle-btn" id="btnBlotterTable"><i class="fa-solid fa-table"></i> Audit Table</button>
+            </div>
+            <button id="btnExportBlotterCsv" class="bot-btn-mini" title="Export Execution Audit Trail as CSV"><i class="fa-solid fa-download"></i> CSV</button>
+          </div>
         </div>
+
+        <!-- Stream Tape View -->
         <div class="blotter-stream" id="fleetBlotterStream" style="margin-top:12px;">
           <!-- Populated in real-time by fleet.js -->
+        </div>
+
+        <!-- Tabular Audit Table View -->
+        <div id="fleetBlotterTableWrap" style="display:none; overflow-x:auto; max-height:280px; margin-top:12px;">
+          <table class="ranker-table" style="font-size:0.72rem;">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Time (IST)</th>
+                <th>Bot</th>
+                <th>Symbol</th>
+                <th>Side</th>
+                <th>Type</th>
+                <th>Qty</th>
+                <th>Price / Fill</th>
+                <th>Slippage</th>
+                <th>Venue</th>
+                <th>Signal Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="fleetBlotterTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- ═══════════════════════ DEEP STRATEGY EXPLAINER & WHITEPAPER MODAL ═══════════════════════ -->
+  <!-- ═══════════════════════ BOT LIVE TRADING CONSOLE & STRATEGY MODAL ═══════════════════════ -->
   <div class="bot-modal-overlay" id="botModalOverlay" hidden>
     <div class="bot-modal-content">
       <div class="bot-modal-header">
         <div id="modalBotTitle">
-          <h2 id="modalBotName" style="margin:0; font-size:1.15rem; color:#fff;">Bot Strategy Whitepaper &amp; Mathematical Explainer</h2>
+          <h2 id="modalBotName" style="margin:0; font-size:1.15rem; color:#fff;">Bot Console</h2>
           <span id="modalBotSector" class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; margin-top:4px; display:inline-block;">Sector</span>
         </div>
         <button id="btnCloseBotModal" class="btn-close">&times;</button>
       </div>
+
+      <!-- Console Tab Bar -->
+      <div class="modal-tab-bar">
+        <button class="modal-tab-btn active" data-modtab="console"><i class="fa-solid fa-terminal"></i> Live Trading Console &amp; L2 Depth</button>
+        <button class="modal-tab-btn" data-modtab="audit"><i class="fa-solid fa-list-ol"></i> Order Execution Audit Trail</button>
+        <button class="modal-tab-btn" data-modtab="whitepaper"><i class="fa-solid fa-book-open"></i> Quantitative Whitepaper &amp; Math</button>
+      </div>
+
       <div class="bot-modal-body" id="modalBotBody">
-        <!-- Populated dynamically with full LaTeX mathematics and layman explanations -->
+        <!-- Injected dynamically by fleet.js based on active tab -->
       </div>
     </div>
   </div>
