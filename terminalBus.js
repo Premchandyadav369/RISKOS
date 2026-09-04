@@ -272,6 +272,7 @@ const TerminalBus = (() => {
     dock.className = 'bbm-launchpad-dock';
 
     dock.innerHTML = `
+      <button class="launchpad-cmd-trigger" id="btnLaunchpadWorkspaceTrigger" style="background:rgba(255,176,0,0.2); border-color:#ffb000; margin-right:4px;" title="Open Launchpad Mode"><i class="fa-solid fa-layer-group text-amber"></i> Launchpad</button>
       <button class="launchpad-cmd-trigger" id="btnLaunchpadTrigger" title="Press ~ or F12">
         <i class="fa-solid fa-terminal"></i> &lt;CMD&gt; &lt;GO&gt;
       </button>
@@ -302,6 +303,10 @@ const TerminalBus = (() => {
     const resultsList = document.getElementById('bbmResultsList');
     const dockTrigger = document.getElementById('btnLaunchpadTrigger');
 
+    const wsTrigger = document.getElementById('btnLaunchpadWorkspaceTrigger');
+    if (wsTrigger && typeof LaunchpadWorkspace !== 'undefined') {
+      wsTrigger.addEventListener('click', LaunchpadWorkspace.openLaunchpadWorkspace);
+    }
     if (dockTrigger) {
       dockTrigger.addEventListener('click', openCommandPalette);
     }

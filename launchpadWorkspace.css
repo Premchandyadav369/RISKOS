@@ -1,0 +1,101 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   RISKOS BLOOMBERG LAUNCHPAD DOCKABLE WORKSPACE & TELEMETRY HUD (launchpadWorkspace.css)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.launchpad-hud-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(4, 6, 10, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: #a1a1aa;
+}
+
+.launchpad-hud-val {
+  font-weight: 800;
+  color: #fff;
+}
+
+.launchpad-hud-val.good { color: #10b981; }
+.launchpad-hud-val.warn { color: #fab005; }
+.launchpad-hud-val.alert { color: #f43f5e; }
+
+/* Launchpad Modal Workspace Overlay */
+.launchpad-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(2, 4, 8, 0.95);
+  backdrop-filter: blur(12px);
+  z-index: 99998;
+  display: none;
+  flex-direction: column;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.launchpad-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 176, 0, 0.3);
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.launchpad-grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 14px;
+  flex-grow: 1;
+  min-height: 0;
+}
+
+.launchpad-tile {
+  background: #060910;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+.launchpad-tile:hover {
+  border-color: rgba(255, 176, 0, 0.4);
+}
+
+.launchpad-tile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #ffb000;
+}
+
+.launchpad-tile-content {
+  flex-grow: 1;
+  min-height: 0;
+  overflow-y: auto;
+  position: relative;
+}
+
+@media (max-width: 1024px) {
+  .launchpad-grid-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
