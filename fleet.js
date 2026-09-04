@@ -61,7 +61,10 @@
       id: 'BOT-IN-01',
       market: 'india',
       sector: 'Index Derivatives (NSE)',
-      name: 'NIFTY 0DTE Volatility Dispersion & Theta Harvester',
+      name: 'THANATOS 💀 — NIFTY 0DTE Theta Harvester',
+      greekName: 'THANATOS',
+      greekIcon: '💀',
+      greekTitle: 'God of Peaceful Expiration & 0DTE Theta Harvesting',
       primarySymbol: 'NIFTY',
       displayAsset: 'NIFTY 24600 CE/PE',
       venue: 'NSE PRISM',
@@ -88,7 +91,10 @@
       id: 'BOT-IN-02',
       market: 'india',
       sector: 'Banking & Financials',
-      name: 'HDFCBANK vs ICICIBANK Kalman Pairs Stat-Arb',
+      name: 'DIOSCURI ♊ — HDFC & ICICI Kalman Pairs Stat-Arb',
+      greekName: 'DIOSCURI',
+      greekIcon: '♊',
+      greekTitle: 'The Divine Twins of Kalman Pairs Stat-Arb',
       primarySymbol: 'HDFCBANK.NS',
       displayAsset: 'HDFCBANK / ICICIBANK',
       venue: 'NSE COLOCATION',
@@ -115,7 +121,10 @@
       id: 'BOT-IN-03',
       market: 'india',
       sector: 'IT & Software Technology',
-      name: 'TCS / INFY Dual-Momentum Volatility Breakout',
+      name: 'ATHENA 🦉 — IT Dual-Momentum Volatility Breakout',
+      greekName: 'ATHENA',
+      greekIcon: '🦉',
+      greekTitle: 'Goddess of Algorithmic Strategy & Multi-Factor Tech Momentum',
       primarySymbol: 'TCS.NS',
       displayAsset: 'TCS / INFY (NSE)',
       venue: 'NSE PRISM',
@@ -142,7 +151,10 @@
       id: 'BOT-IN-04',
       market: 'india',
       sector: 'Energy & Petrochemicals',
-      name: 'Reliance & ONGC Basis Carry Arbitrageur',
+      name: 'HEPHAESTUS 🔥 — Reliance & ONGC Basis Carry',
+      greekName: 'HEPHAESTUS',
+      greekIcon: '🔥',
+      greekTitle: 'God of Petrochemical Forges & Basis Carry Arbitrage',
       primarySymbol: 'RELIANCE.NS',
       displayAsset: 'RELIANCE Spot / Fut',
       venue: 'NSE PRISM',
@@ -169,7 +181,10 @@
       id: 'BOT-IN-05',
       market: 'india',
       sector: 'Automotive & Mobility',
-      name: 'Tata Motors & Maruti L2 Microstructure Scalper',
+      name: 'AUTOLYCUS 🏎️ — Automotive L2 Microstructure Scalper',
+      greekName: 'AUTOLYCUS',
+      greekIcon: '🏎️',
+      greekTitle: 'Master of Swift Reflexes & Level-2 Microstructure Flow',
       primarySymbol: 'TATAMOTORS.NS',
       displayAsset: 'TATAMOTORS (NSE L2)',
       venue: 'NSE COLOCATION',
@@ -196,7 +211,10 @@
       id: 'BOT-IN-06',
       market: 'india',
       sector: 'Pharma & Life Sciences',
-      name: 'Sun Pharma & Dr Reddy Dynamic Mean-Reversion',
+      name: 'PANACEA 🌿 — Pharma Dynamic Statistical Reversion',
+      greekName: 'PANACEA',
+      greekIcon: '🌿',
+      greekTitle: 'Goddess of Universal Remedies & Mean-Reversion Healing',
       primarySymbol: 'SUNPHARMA.NS',
       displayAsset: 'SUNPHARMA (NSE)',
       venue: 'NSE PRISM',
@@ -223,7 +241,10 @@
       id: 'BOT-IN-07',
       market: 'india',
       sector: 'Metals & Mining',
-      name: 'Tata Steel / JSW Steel Cross-Metal Momentum',
+      name: 'CHALYBS ⚔️ — Metals Cross-Commodity Momentum',
+      greekName: 'CHALYBS',
+      greekIcon: '⚔️',
+      greekTitle: 'Father of Hardened Steel & Cross-Commodity Momentum',
       primarySymbol: 'TATASTEEL.NS',
       displayAsset: 'TATASTEEL (NSE)',
       venue: 'NSE PRISM',
@@ -250,7 +271,10 @@
       id: 'BOT-IN-08',
       market: 'india',
       sector: 'FMCG & Consumer Retail',
-      name: 'ITC / Trent Volume Profile Auction Scalper',
+      name: 'DEMETER 🌾 — Volume Profile Auction Scalper',
+      greekName: 'DEMETER',
+      greekIcon: '🌾',
+      greekTitle: 'Goddess of Bountiful Harvest & FMCG Volume Auction',
       primarySymbol: 'TRENT.NS',
       displayAsset: 'TRENT / ITC (NSE)',
       venue: 'NSE PRISM',
@@ -277,7 +301,10 @@
       id: 'BOT-IN-09',
       market: 'india',
       sector: 'Defense & Infrastructure',
-      name: 'HAL / BEL Avellaneda-Stoikov Market Maker',
+      name: 'ARES 🛡️ — HAL & BEL Defense Market Maker',
+      greekName: 'ARES',
+      greekIcon: '🛡️',
+      greekTitle: 'God of Warfare, Defense Electronics & Market Making',
       primarySymbol: 'HAL.NS',
       displayAsset: 'HAL / BEL (NSE L2)',
       venue: 'NSE COLOCATION',
@@ -304,7 +331,10 @@
       id: 'BOT-IN-10',
       market: 'india',
       sector: 'MCX Commodities (Evening)',
-      name: 'MCX Gold & Crude Multi-Timeframe Trend CTA',
+      name: 'MIDAS 👑 — MCX Gold & Crude Bullion Trend CTA',
+      greekName: 'MIDAS',
+      greekIcon: '👑',
+      greekTitle: 'Sovereign of the Golden Touch & MCX Bullion CTA',
       primarySymbol: 'GOLDBEES.NS',
       displayAsset: 'MCX GOLD & CRUDE',
       venue: 'MCX GTS',
@@ -333,7 +363,10 @@
       id: 'BOT-US-01',
       market: 'us',
       sector: 'Tech Mega-Caps (NASDAQ)',
-      name: 'NVDA / AAPL / MSFT Almgren-Chriss Slicer',
+      name: 'CHRONOS ⏳ — Mega-Cap Almgren-Chriss Slicer',
+      greekName: 'CHRONOS',
+      greekIcon: '⏳',
+      greekTitle: 'Personification of Time & Optimal Almgren-Chriss Slicing',
       primarySymbol: 'NVDA',
       displayAsset: 'NVDA (NASDAQ)',
       venue: 'NASDAQ OUCH',
@@ -360,7 +393,10 @@
       id: 'BOT-US-02',
       market: 'us',
       sector: 'Semiconductors & AI Hardware',
-      name: 'AMD / TSM Volatility Skew Gamma Scalper',
+      name: 'PROMETHEUS ⚡ — Semiconductor Gamma Scalper',
+      greekName: 'PROMETHEUS',
+      greekIcon: '⚡',
+      greekTitle: 'Titan of Silicon Fire & High-Gamma Convexity',
       primarySymbol: 'AMD',
       displayAsset: 'AMD Straddles (CBOE)',
       venue: 'CBOE HYBRID',
@@ -387,7 +423,10 @@
       id: 'BOT-US-03',
       market: 'us',
       sector: 'US Financials & Yield Curve',
-      name: 'JPMorgan / Goldman Sachs Yield Steepener Bot',
+      name: 'PLUTUS 🏛️ — US Financials Yield Curve Steepener',
+      greekName: 'PLUTUS',
+      greekIcon: '🏛️',
+      greekTitle: 'God of Abundant Banking Wealth & Bond Yield Curves',
       primarySymbol: 'JPM',
       displayAsset: 'JPM / 2Y-10Y Curve',
       venue: 'NYSE ARCA',
@@ -414,7 +453,10 @@
       id: 'BOT-US-04',
       market: 'us',
       sector: 'Healthcare & BioTech',
-      name: 'Eli Lilly / Novo Nordisk Jump-Diffusion Bot',
+      name: 'ASCLEPIUS ⚕️ — BioTech Jump-Diffusion Catalyst',
+      greekName: 'ASCLEPIUS',
+      greekIcon: '⚕️',
+      greekTitle: 'God of BioTech Medicine & Jump-Diffusion Discovery',
       primarySymbol: 'LLY',
       displayAsset: 'LLY (NYSE)',
       venue: 'NYSE ARCA',
@@ -441,7 +483,10 @@
       id: 'BOT-US-05',
       market: 'us',
       sector: 'Energy & Global Oil Majors',
-      name: 'Exxon / Chevron Fama-French 5-Factor Bot',
+      name: 'GAIA 🌍 — Fama-French 5-Factor Energy Carry',
+      greekName: 'GAIA',
+      greekIcon: '🌍',
+      greekTitle: 'Primordial Earth Mother of Deep Fossil Energy Reserves',
       primarySymbol: 'XOM',
       displayAsset: 'XOM (NYSE)',
       venue: 'NYSE ARCA',
@@ -468,7 +513,10 @@
       id: 'BOT-US-06',
       market: 'us',
       sector: 'Aerospace & Industrial',
-      name: 'Boeing / GE Kyle-Lambda Informed Order Flow Bot',
+      name: 'DAEDALUS ✈️ — Aerospace Kyle-Lambda Flow Scalper',
+      greekName: 'DAEDALUS',
+      greekIcon: '✈️',
+      greekTitle: 'Master Craftsman of Aviation Wings & Kyle-Lambda Flow',
       primarySymbol: 'BA',
       displayAsset: 'BA / GE (NYSE)',
       venue: 'NYSE ARCA',
@@ -495,7 +543,10 @@
       id: 'BOT-US-07',
       market: 'us',
       sector: 'Crypto 24/7 L1 Layer-1',
-      name: 'BTC / ETH Perpetual Funding Rate Cash & Carry',
+      name: 'HERMES ⚡ — Perp Funding Cash & Carry',
+      greekName: 'HERMES',
+      greekIcon: '⚡',
+      greekTitle: 'God of Commerce, Boundary Crossing & 24/7 Arbitrage',
       primarySymbol: 'BTC-USD',
       displayAsset: 'BTC Spot / Perp Basis',
       venue: 'BINANCE FIX 4.4',
@@ -522,7 +573,10 @@
       id: 'BOT-US-08',
       market: 'us',
       sector: 'Crypto 24/7 Altcoins & DeFi',
-      name: 'SOL / BNB Cross-Exchange Triangular Arb',
+      name: 'HECATE 🔮 — Triangular Cross-Exchange Arb',
+      greekName: 'HECATE',
+      greekIcon: '🔮',
+      greekTitle: 'Goddess of Three Crossroads & Triangular Pathways',
       primarySymbol: 'SOL-USD',
       displayAsset: 'SOL / BNB / USDT Triangle',
       venue: 'BINANCE FIX 4.4',
@@ -549,7 +603,10 @@
       id: 'BOT-US-09',
       market: 'us',
       sector: 'Global Macro FX & Rates',
-      name: 'USD/INR & DXY Volatility-Targeted Macro CTA',
+      name: 'AEOLUS 💨 — Macro FX Volatility-Targeted CTA',
+      greekName: 'AEOLUS',
+      greekIcon: '💨',
+      greekTitle: 'Keeper of Global Winds, FX Currents & Central Bank Storms',
       primarySymbol: 'USDINR=X',
       displayAsset: 'USD/INR Futures',
       venue: 'CME GLOBEX',
@@ -576,7 +633,10 @@
       id: 'BOT-US-10',
       market: 'us',
       sector: 'Prediction Markets 24/7',
-      name: 'Polymarket Hanson LMSR Bayesian Event Bot',
+      name: 'APOLLO ☀️ — Polymarket Bayesian Prediction Bot',
+      greekName: 'APOLLO',
+      greekIcon: '☀️',
+      greekTitle: 'God of Oracles, Prophecy & Bayesian Truth Forecasting',
       primarySymbol: 'PRED-FOMC',
       displayAsset: 'FOMC Rate Outcome Shares',
       venue: 'POLYMARKET AMM',
@@ -654,7 +714,22 @@
     const savedState = localStorage.getItem(STATE_KEY);
     if (savedState) {
       try {
-        botRegistry = JSON.parse(savedState);
+        const parsed = JSON.parse(savedState);
+        botRegistry = INITIAL_BOTS.map(initBot => {
+          const existing = parsed.find(p => p.id === initBot.id);
+          if (!existing) return { ...initBot, status: 'RUNNING' };
+          return {
+            ...initBot,
+            ...existing,
+            name: initBot.name,
+            greekName: initBot.greekName,
+            greekIcon: initBot.greekIcon,
+            greekTitle: initBot.greekTitle,
+            mathFormula: initBot.mathFormula,
+            mathDerivation: initBot.mathDerivation,
+            laymanExplanation: initBot.laymanExplanation
+          };
+        });
       } catch (e) {
         botRegistry = [...INITIAL_BOTS];
       }
@@ -1210,8 +1285,8 @@
           delimiters: [
             { left: '$$', right: '$$', display: true },
             { left: '$', right: '$', display: false },
-            { left: '\(', right: '\)', display: false },
-            { left: '\[', right: '\]', display: true }
+            { left: '\\(', right: '\\)', display: false },
+            { left: '\\[', right: '\\]', display: true }
           ],
           throwOnError: false
         });
@@ -1805,10 +1880,29 @@
       });
     });
 
-    const rankerSortSelect = document.getElementById('rankerSortSelect');
+    // Wire Quick Rank Filter Pills (Profit, Orders, Alpha Score, Sharpe, Win Rate)
+    document.querySelectorAll('.quick-rank-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const sortMode = pill.dataset.sort;
+        currentSort = sortMode;
+        document.querySelectorAll('.quick-rank-pill').forEach(p => {
+          if (p.dataset.sort === sortMode) p.classList.add('active');
+          else p.classList.remove('active');
+        });
+        const sel = document.getElementById('rankerSortSelect');
+        if (sel) sel.value = sortMode;
+        renderActiveView();
+      });
+    });
+
+        const rankerSortSelect = document.getElementById('rankerSortSelect');
     if (rankerSortSelect) {
       rankerSortSelect.addEventListener('change', (e) => {
         currentSort = e.target.value;
+        document.querySelectorAll('.quick-rank-pill').forEach(p => {
+          if (p.dataset.sort === currentSort) p.classList.add('active');
+          else p.classList.remove('active');
+        });
         renderActiveView();
       });
     }
@@ -1879,6 +1973,12 @@
     document.getElementById('botModalOverlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'botModalOverlay') closeBotModal();
     });
+    // Expose on window for external triggers and terminal bus
+    if (typeof window !== 'undefined') {
+      window.INITIAL_BOTS = INITIAL_BOTS;
+      window.botRegistry = botRegistry;
+      window.openBotConsoleModal = openBotConsoleModal;
+    }
   });
 
 })();
