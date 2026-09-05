@@ -199,70 +199,9 @@
   font-weight: 800;
 }
 
-/* Floating Bottom Launchpad Mini-Dock */
+/* Floating Bottom Launchpad Mini-Dock removed per user preference */
 .bbm-launchpad-dock {
-  position: fixed;
-  bottom: 12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(4, 6, 10, 0.92);
-  border: 1px solid rgba(255, 176, 0, 0.35);
-  border-radius: 30px;
-  padding: 6px 16px;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  z-index: 9999;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 12px rgba(255, 176, 0, 0.15);
-  backdrop-filter: blur(10px);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.launchpad-cmd-trigger {
-  background: rgba(255, 176, 0, 0.15);
-  border: 1px solid rgba(255, 176, 0, 0.4);
-  color: #ffb000;
-  padding: 4px 12px;
-  border-radius: 14px;
-  font-size: 0.72rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-}
-
-.launchpad-cmd-trigger:hover {
-  background: #ffb000;
-  color: #000;
-}
-
-.launchpad-sec-display {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.74rem;
-  color: #fff;
-}
-
-.launchpad-portal-links {
-  display: flex;
-  gap: 8px;
-}
-
-.launchpad-portal-btn {
-  color: #a1a1aa;
-  font-size: 0.72rem;
-  text-decoration: none;
-  padding: 3px 8px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.launchpad-portal-btn:hover {
-  color: #22d3ee;
-  background: rgba(34, 211, 238, 0.12);
+  display: none !important;
 }
 
 @media (max-width: 768px) {

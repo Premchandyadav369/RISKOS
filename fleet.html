@@ -209,9 +209,9 @@
     <!-- 3. Fleet View Switcher: Matrix Grid vs Performance Ranker Leaderboard -->
     <section class="fleet-control-strip">
       <div class="market-pills">
-        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-globe"></i> All 20 Quantitative Bots</button>
-        <button class="market-pill-btn" data-filter="india"><i class="fa-solid fa-flag"></i> 🇮🇳 Indian Sector Fleet (10 Bots)</button>
-        <button class="market-pill-btn" data-filter="us"><i class="fa-solid fa-flag-usa"></i> 🇺🇸 US &amp; Global 24/7 (10 Bots)</button>
+        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All 20 Pantheon Bots</button>
+        <button class="market-pill-btn" data-filter="india" style="border-color:rgba(255,176,0,0.4);"><i class="fa-solid fa-landmark text-amber"></i> 🏛️ Mount Olympus Division (10 Greek Bots &bull; 🇮🇳)</button>
+        <button class="market-pill-btn" data-filter="us" style="border-color:rgba(96,165,250,0.4);"><i class="fa-solid fa-shield-halved text-cyan"></i> ⚔️ Valhalla Division (10 Norse Bots &bull; 🇺🇸)</button>
       </div>
 
       <div class="view-mode-toggle-group">
@@ -238,6 +238,57 @@
         <button class="quick-rank-pill" data-sort="score"><i class="fa-solid fa-trophy text-cyan"></i> Composite Alpha Score</button>
         <button class="quick-rank-pill" data-sort="sharpe"><i class="fa-solid fa-chart-line text-purple"></i> Sharpe Ratio</button>
         <button class="quick-rank-pill" data-sort="winrate"><i class="fa-solid fa-bullseye text-green"></i> Win Rate %</button>
+      </div>
+    </section>
+
+        <!-- 3.1 Pantheon Division Telemetry Comparison Scorecard -->
+    <section class="pantheon-scoreboard-strip" id="pantheonScoreboard">
+      <div class="division-score-card olympus-card">
+        <div class="div-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="div-badge olympus-badge"><i class="fa-solid fa-landmark"></i> MOUNT OLYMPUS DIVISION</span>
+            <span style="font-size:0.7rem; color:#aaa;">🇮🇳 10 Greek Quantitative Bots</span>
+          </div>
+          <span class="div-status live-glow"><i class="fa-solid fa-circle fa-beat text-amber"></i> NSE / MCX DESK ACTIVE</span>
+        </div>
+        <div class="div-stats-row">
+          <div class="div-stat">
+            <span class="div-stat-lbl">Division Net Realized P&amp;L</span>
+            <strong class="div-stat-val text-amber" id="olympusPnl">+₹1,88,450</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Win Rate &bull; Avg Sharpe</span>
+            <strong class="div-stat-val text-green" id="olympusWinRate">79.2% &bull; 3.24 Sharpe</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Real-Time Daily Volume</span>
+            <strong class="div-stat-val text-cyan" id="olympusVolume">₹142.8 Cr (L2 Depth)</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="division-score-card valhalla-card">
+        <div class="div-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="div-badge valhalla-badge"><i class="fa-solid fa-shield-halved"></i> VALHALLA DIVISION</span>
+            <span style="font-size:0.7rem; color:#aaa;">🇺🇸 10 Norse Quantitative Bots</span>
+          </div>
+          <span class="div-status live-glow"><i class="fa-solid fa-circle fa-beat text-cyan"></i> NASDAQ / 24/7 GLOBAL ACTIVE</span>
+        </div>
+        <div class="div-stats-row">
+          <div class="div-stat">
+            <span class="div-stat-lbl">Division Net Realized P&amp;L</span>
+            <strong class="div-stat-val text-cyan" id="valhallaPnl">+₹1,96,695 ($2,355)</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Win Rate &bull; Avg Sharpe</span>
+            <strong class="div-stat-val text-green" id="valhallaWinRate">81.8% &bull; 3.52 Sharpe</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Real-Time Daily Volume</span>
+            <strong class="div-stat-val text-purple" id="valhallaVolume">$1.84 Billion (SOR)</strong>
+          </div>
+        </div>
       </div>
     </section>
 
