@@ -1887,14 +1887,20 @@
     const avgSharpe = (botRegistry.reduce((acc, b) => acc + b.sharpe, 0) / botRegistry.length).toFixed(2);
     const avgWinRate = (botRegistry.reduce((acc, b) => acc + b.winRate, 0) / botRegistry.length).toFixed(1);
 
-    const activeEl = document.getElementById('telActiveBots');
+    const activeEl = document.getElementById('telActiveBots') || document.getElementById('telUptimeAge');
     const pnlEl = document.getElementById('telDailyPnl');
     const returnEl = document.getElementById('telPnlReturn');
     const fillsEl = document.getElementById('telTotalFills');
     const sharpeEl = document.getElementById('telSharpe');
     const winRateEl = document.getElementById('telWinRate');
 
-    if (activeEl) activeEl.textContent = `${runningCount} / ${botRegistry.length} Running`;
+    if (activeEl) {
+      if (activeEl.id === 'telUptimeAge') {
+        activeEl.innerHTML = `<i class="fa-solid fa-satellite-dish fa-beat"></i> ${runningCount} / ${botRegistry.length} Autonomous &bull; Zero Manual Downtime`;
+      } else {
+        activeEl.textContent = `${runningCount} / ${botRegistry.length} Running`;
+      }
+    }
     if (pnlEl) {
       const usdVal = (totalLivePnl / 83.5).toFixed(0);
       const sign = totalLivePnl >= 0 ? '+' : '';
@@ -2224,6 +2230,7 @@
   // 8. MULTI-STRATEGY EQUITY CURVE
   // ══════════════════════════════════════════════════════════════════════════
   const initEquityChart = () => {
+    if (typeof Chart === 'undefined') return;
     const canvas = document.getElementById('fleetEquityCanvas');
     if (!canvas) return;
 
@@ -2285,7 +2292,7 @@
   };
 
   const updateEquityChart = () => {
-    if (!fleetEquityChart) return;
+    if (!fleetEquityChart || !fleetEquityChart.data || !fleetEquityChart.data.datasets || !fleetEquityChart.data.datasets[0]) return;
     const totalPnl = botRegistry.reduce((acc, b) => acc + b.realizedPnlINR, 0);
     const days = 30;
     let baseVal = 10000000;
@@ -2319,33 +2326,14 @@
     document.body.removeChild(link);
   };
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // 9. DOM INITIALIZATION
-  // ══════════════════════════════════════════════════════════════════════════
-  document.addEventListener('DOMContentLoaded', () => {
-    initPersistentState();
-    updateMissionRuntimeClock();
-    setInterval(updateMissionRuntimeClock, 1000);
-    startRealTimeTickerEngine();
-
-    // Real-Time live aggregate telemetry tick (every 1s)
-    setInterval(() => {
-      updateGlobalTelemetry();
-    }, 1000);
-
-    renderActiveView();
-    updateGlobalTelemetry();
-    initEquityChart();
-    startAutonomousFleetLoops();
-    startDynamicSentimentEngine();
-
   // ── Dynamic Multi-Source Sentiment Fluctuation Engine (Every 2.5s) ────────
-  const startDynamicSentimentEngine = () => {
+  function startDynamicSentimentEngine() {
     setInterval(() => {
       // Fluctuate 3 to 5 bots' sentiment scores realistically
       const count = 3 + Math.floor(Math.random() * 3);
       for (let i = 0; i < count; i++) {
         const bot = botRegistry[Math.floor(Math.random() * botRegistry.length)];
+        if (!bot) continue;
         const jiggle = (Math.random() - 0.49) * 0.08;
         bot.sentimentScore = Number(Math.max(-0.95, Math.min(0.95, (bot.sentimentScore || 0.4) + jiggle)).toFixed(2));
 
@@ -2380,7 +2368,27 @@
         }
       }
     }, 2500);
-  };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 9. DOM INITIALIZATION
+  // ══════════════════════════════════════════════════════════════════════════
+  document.addEventListener('DOMContentLoaded', () => {
+    initPersistentState();
+    updateMissionRuntimeClock();
+    setInterval(updateMissionRuntimeClock, 1000);
+    startRealTimeTickerEngine();
+
+    // Real-Time live aggregate telemetry tick (every 1s)
+    setInterval(() => {
+      updateGlobalTelemetry();
+    }, 1000);
+
+    renderActiveView();
+    updateGlobalTelemetry();
+    initEquityChart();
+    startAutonomousFleetLoops();
+    startDynamicSentimentEngine();
 
 
     // Auto-re-rank in Ranker view every 6s so leaderboard dynamically reflects live fills
@@ -2650,7 +2658,7 @@
       const copilotFeed = document.getElementById('copilotFeed');
       const openCopilot = () => {
         if (copilotModal) copilotModal.hidden = false;
-        copilotInput?.focus();
+        if (copilotInput && typeof copilotInput.focus === 'function') copilotInput.focus();
       };
       document.getElementById('btnOpenCopilot')?.addEventListener('click', openCopilot);
       document.getElementById('btnCloseCopilotModal')?.addEventListener('click', () => {
@@ -2658,9 +2666,9 @@
       });
 
       const handleCopilotQuery = () => {
-        const text = copilotInput?.value.trim();
+        const text = (copilotInput?.value || '').trim();
         if (!text) return;
-        copilotInput.value = '';
+        if (copilotInput) copilotInput.value = '';
 
         const uDiv = document.createElement('div');
         uDiv.className = 'copilot-bubble user';
@@ -2899,7 +2907,7 @@
 // ── Fleet TerminalBus Integration & Deep-Linking ──────────────────────────
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window.location?.search || '');
     const botParam = urlParams.get('bot');
     const actionParam = urlParams.get('action');
 
