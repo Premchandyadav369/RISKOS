@@ -1454,3 +1454,28 @@ body.observatory-page {
 .text-amber { color: var(--accent-amber, #fab005) !important; }
 .text-red { color: var(--accent-red, #ff6b6b) !important; }
 .text-purple { color: #cc5de8 !important; }
+
+/* ── Real-Time Table Tick Flashing Animations ── */
+@keyframes rowFlashGreen {
+  0% { background-color: rgba(16, 185, 129, 0.35); }
+  100% { background-color: transparent; }
+}
+@keyframes rowFlashRed {
+  0% { background-color: rgba(239, 68, 68, 0.35); }
+  100% { background-color: transparent; }
+}
+.row-flash-green {
+  animation: rowFlashGreen 0.75s ease-out;
+}
+.row-flash-red {
+  animation: rowFlashRed 0.75s ease-out;
+}
+.tick-pulse {
+  display: inline-block;
+  animation: pulseScale 0.4s ease-in-out;
+}
+@keyframes pulseScale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
