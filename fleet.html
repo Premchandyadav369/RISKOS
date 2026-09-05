@@ -206,6 +206,36 @@
       </div>
     </section>
 
+    <!-- 2.5 Institutional Quantum Features Toolbar -->
+    <section class="quantum-feature-strip">
+      <div class="q-feature-group">
+        <button class="btn-quantum-feature" id="btnOpenSynapse">
+          <i class="fa-solid fa-network-wired text-amber"></i> ⚡ Cross-Hedge Synapse
+        </button>
+        <button class="btn-quantum-feature" id="btnToggleVoiceHud">
+          <i class="fa-solid fa-microphone-lines text-cyan" id="voiceHudIcon"></i> <span id="voiceHudLabel">Voice Copilot: OFF</span>
+        </button>
+        <button class="btn-quantum-feature" id="btnOpenCopilot">
+          <i class="fa-solid fa-robot text-purple"></i> 🤖 AI Risk Copilot (/ask)
+        </button>
+        <button class="btn-quantum-feature" id="btnOpenCrisis">
+          <i class="fa-solid fa-clock-rotate-left text-rose"></i> ⏳ Crisis Replay (1987-2023)
+        </button>
+        <button class="btn-quantum-feature" id="btnOpenVol3D">
+          <i class="fa-solid fa-cube text-emerald"></i> 🌊 3D Vol Surface &amp; L2
+        </button>
+        <button class="btn-quantum-feature" id="btnOpenDarkPool">
+          <i class="fa-solid fa-binoculars text-amber"></i> 🐋 Dark Pool &amp; Icebergs
+        </button>
+        <button class="btn-quantum-feature defcon-btn" id="btnOpenDefcon">
+          <i class="fa-solid fa-triangle-exclamation text-emerald" id="defconBtnIcon"></i> <span id="defconBtnLabel">DEFCON 5: NORMAL</span>
+        </button>
+        <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo">
+          <i class="fa-solid fa-file-invoice-dollar text-gold"></i> 📑 LP Risk Memo
+        </button>
+      </div>
+    </section>
+
     <!-- 3. Fleet View Switcher: Matrix Grid vs Performance Ranker Leaderboard -->
     <section class="fleet-control-strip">
       <div class="market-pills">
@@ -445,8 +475,201 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════ 1. CROSS-HEDGING SYNAPSE & CLASH OF PANTHEONS MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="synapseModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:920px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #ffb000;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#ffb000; font-family:'Cinzel', serif;">
+            ⚡ Inter-Bot Cross-Hedging Synapse &amp; Clash of the Pantheons
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa; font-family:'JetBrains Mono', monospace;">
+            Autonomous minimum-variance cross-hedging between Mount Olympus (🇮🇳) &amp; Valhalla (🇺🇸)
+          </span>
+        </div>
+        <button id="btnCloseSynapseModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; background:#18181b; padding:10px 15px; border-radius:6px; font-family:'JetBrains Mono', monospace; font-size:0.75rem;">
+          <div><strong style="color:#ffb000;">OLYMPUS SCORE:</strong> <span id="synapseOlympusScore">1,250</span></div>
+          <div><span class="badge" style="background:rgba(255,176,0,0.15); color:#ffb000;" id="synapseLeaderBadge">VALHALLA LEADING REGIME</span></div>
+          <div><strong style="color:#60a5fa;">VALHALLA SCORE:</strong> <span id="synapseValhallaScore">1,280</span></div>
+        </div>
+        <div style="position:relative; width:100%; height:420px; background:#000; border:1px solid #27272a; border-radius:8px; overflow:hidden;">
+          <canvas id="synapseCanvas" style="width:100%; height:100%;"></canvas>
+        </div>
+        <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+          <button class="btn-quantum-feature" id="btnTriggerManualCrossHedge" style="background:#ffb000; color:#000; font-weight:800;">
+            <i class="fa-solid fa-bolt"></i> Test Fire Cross-Hedge Laser
+          </button>
+          <span style="font-size:0.72rem; color:#71717a; font-family:'JetBrains Mono';">Real-Time WebSocket FIX 4.4 Tag 37=CrossHedge</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 2. QUANT COPILOT & VOICE HUD MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="copilotModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:750px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #a855f7;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#c084fc; font-family:'JetBrains Mono', monospace;">
+            🤖 AI Risk Copilot &amp; Quant Whisperer
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Natural language institutional risk query processor &amp; voice announcer</span>
+        </div>
+        <button id="btnCloseCopilotModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:20px;">
+        <div class="copilot-feed" id="copilotFeed" style="max-height:350px; overflow-y:auto; margin-bottom:15px; display:flex; flex-direction:column; gap:10px;">
+          <div class="copilot-bubble assistant">
+            <strong>QUANT WHISPERER:</strong> Welcome to the RISKOS Quant Whisperer HUD. You can query portfolio VaR, negative delta algorithms, macro rate shocks, or active hedges in plain English.
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="copilotInput" placeholder="Ask e.g. 'which bots have negative delta', 'portfolio VaR', 'rate shock'..." style="flex:1; background:#18181b; border:1px solid #3f3f46; color:#fff; padding:10px 14px; border-radius:6px; font-family:'JetBrains Mono'; font-size:0.82rem;" />
+          <button id="btnSendCopilotQuery" class="btn-quantum-feature" style="background:#a855f7; color:#fff; font-weight:700;">Ask Copilot</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 3. TIME-TRAVEL CRISIS REPLAY MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="crisisModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:880px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #f43f5e;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#f43f5e; font-family:'Cinzel', serif;">
+            ⏳ Time-Travel Crisis Replay Simulator (Black Swan Engine)
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Stress test the 20-bot fleet against the most violent market crashes in financial history</span>
+        </div>
+        <button id="btnCloseCrisisModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:20px;">
+        <div style="display:flex; gap:8px; margin-bottom:15px; flex-wrap:wrap;" id="crisisScenarioPills">
+          <button class="market-pill-btn active crisis-pill" data-crisis="1987_BLACK_MONDAY">1987 Black Monday (-22.6%)</button>
+          <button class="market-pill-btn crisis-pill" data-crisis="1998_LTCM_COLLAPSE">1998 LTCM Default</button>
+          <button class="market-pill-btn crisis-pill" data-crisis="2008_LEHMAN_BROTHERS">2008 Lehman Brothers</button>
+          <button class="market-pill-btn crisis-pill" data-crisis="2010_FLASH_CRASH">2010 Flash Crash</button>
+          <button class="market-pill-btn crisis-pill" data-crisis="2020_COVID_SHOCK">2020 COVID Freeze</button>
+          <button class="market-pill-btn crisis-pill" data-crisis="2023_SVB_BANK_RUN">2023 SVB Run</button>
+        </div>
+        <div id="crisisResultsCard" style="background:#18181b; border:1px solid #27272a; border-radius:8px; padding:18px;">
+          <!-- Injected dynamically by fleet.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 4. 3D VOLATILITY SURFACE & L2 WATERFALL MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="vol3dModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:880px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #10b981;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#10b981; font-family:'JetBrains Mono', monospace;">
+            🌊 3D Implied Volatility Surface &amp; Topographic Order Book
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Interactive 3D Moneyness × Maturity × IV Mesh &bull; Drag to orbit, scroll to zoom</span>
+        </div>
+        <button id="btnCloseVol3dModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:15px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div class="view-toggle-pills">
+            <button class="view-btn active" id="btnVol3dSurfaceMode"><i class="fa-solid fa-chart-area"></i> 3D Vol Surface</button>
+            <button class="view-btn" id="btnVol3dOrderBookMode"><i class="fa-solid fa-mountain"></i> 3D Order Book Waterfall</button>
+          </div>
+          <span style="font-size:0.72rem; color:#71717a; font-family:'JetBrains Mono';">PITCH/YAW 3D PROJECTION MATRIX</span>
+        </div>
+        <div style="position:relative; width:100%; height:420px; background:#000; border:1px solid #27272a; border-radius:8px; overflow:hidden;">
+          <canvas id="vol3dCanvas" style="width:100%; height:100%;"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 5. DARK POOL HUNTER & ICEBERG DETECTOR MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="darkPoolModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:850px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #ffb000;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#ffb000; font-family:'JetBrains Mono', monospace;">
+            🐋 Institutional Dark Pool Hunter &amp; Iceberg Detector
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Algorithmic tape reader detecting off-exchange institutional block prints &amp; hidden depth</span>
+        </div>
+        <button id="btnCloseDarkPoolModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:15px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:15px;">
+          <div style="background:#18181b; padding:12px; border-radius:6px; border:1px solid #27272a;">
+            <div style="font-size:0.7rem; color:#a1a1aa; font-family:'JetBrains Mono';">ACTIVE ICEBERG WALLS</div>
+            <div id="darkPoolIcebergCount" style="font-size:1.4rem; font-weight:800; color:#ffb000; font-family:'JetBrains Mono';">4 Detected</div>
+          </div>
+          <div style="background:#18181b; padding:12px; border-radius:6px; border:1px solid #27272a;">
+            <div style="font-size:0.7rem; color:#a1a1aa; font-family:'JetBrains Mono';">DARK POOL VOLUME (24H)</div>
+            <div id="darkPoolTotalNotional" style="font-size:1.4rem; font-weight:800; color:#10b981; font-family:'JetBrains Mono';">$215.4M</div>
+          </div>
+        </div>
+        <div style="max-height:300px; overflow-y:auto; border:1px solid #27272a; border-radius:6px;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.75rem; font-family:'JetBrains Mono';">
+            <thead>
+              <tr style="background:#27272a; color:#a1a1aa;">
+                <th style="padding:6px 10px;">Time</th>
+                <th style="padding:6px 10px;">Symbol</th>
+                <th style="padding:6px 10px;">Side</th>
+                <th style="padding:6px 10px;">Price</th>
+                <th style="padding:6px 10px;">Notional / Qty</th>
+                <th style="padding:6px 10px;">Venue / Type</th>
+                <th style="padding:6px 10px;">Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="darkPoolTableBody">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 6. SEC RULE 15c3-5 DEFCON RISK MATRIX MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="defconModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:750px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #f43f5e;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#f43f5e; font-family:'JetBrains Mono', monospace;">
+            🛑 SEC Rule 15c3-5 DEFCON Risk Matrix &amp; Dead Man Kill Switch
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Institutional capital preservation postures, rogue bot quarantine &amp; panic liquidation</span>
+        </div>
+        <button id="btnCloseDefconModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:20px;">
+        <div style="font-size:0.8rem; color:#a1a1aa; margin-bottom:12px; font-family:'JetBrains Mono';">SELECT DEFENSE POSTURE:</div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;" id="defconOptionsGroup">
+          <!-- Injected dynamically -->
+        </div>
+        <div style="border-top:1px solid #27272a; padding-top:15px; display:flex; justify-content:space-between; align-items:center;">
+          <button id="btnEmergencyPanicKill" class="btn-quantum-feature" style="background:#f43f5e; color:#fff; font-weight:800; padding:10px 18px;">
+            <i class="fa-solid fa-skull-crossbones"></i> DEAD MAN SWITCH: PANIC LIQUIDATE ALL
+          </button>
+          <span style="font-size:0.72rem; color:#71717a; font-family:'JetBrains Mono';">SHA-256 Tamper-Proof Audit Signatures</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="securityMaster.js"></script>
+  <script src="crossHedgingSynapse.js"></script>
+  <script src="quantWhisperer.js"></script>
+  <script src="crisisReplayEngine.js"></script>
+  <script src="volatilitySurface3D.js"></script>
+  <script src="darkPoolHunter.js"></script>
+  <script src="defconRiskMatrix.js"></script>
+  <script src="executiveReportGenerator.js"></script>
   <script src="fleet.js"></script>
   <script src="microstructureEngine.js"></script>
   <script src="riskGuardrails.js"></script>
