@@ -925,18 +925,362 @@
   let activeModalTab = 'console';
 
   let orderSeqCounter = Math.floor(100000 + Math.random() * 800000);
+  
+  // ══════════════════════════════════════════════════════════════════════════
+  // 2.1 MULTI-ASSET TRADING PROFILES & HISTORICAL EXECUTION BLOTTER ENGINE
+  // ══════════════════════════════════════════════════════════════════════════
+  const BOT_TRADING_PROFILES = {
+    'BOT-IN-01': {
+      primaryStock: 'NIFTY 24600 CE',
+      tradedSymbols: ['NIFTY 24600 CE', 'NIFTY 24600 PE', 'NIFTY FUT'],
+      assetClass: 'NSE Index Options & Futures',
+      lotSize: 25,
+      tickSize: 0.05,
+      unit: 'Lots',
+      currency: 'INR',
+      venue: 'NSE PRISM COLO'
+    },
+    'BOT-IN-02': {
+      primaryStock: 'HDFCBANK.NS',
+      tradedSymbols: ['HDFCBANK.NS', 'ICICIBANK.NS', 'KOTAKBANK.NS'],
+      assetClass: 'Banking Equities (NSE)',
+      lotSize: 150,
+      tickSize: 0.05,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE COLOCATION'
+    },
+    'BOT-IN-03': {
+      primaryStock: 'TCS.NS',
+      tradedSymbols: ['TCS.NS', 'INFY.NS', 'WIPRO.NS'],
+      assetClass: 'Technology Equities (NSE)',
+      lotSize: 75,
+      tickSize: 0.10,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE PRISM'
+    },
+    'BOT-IN-04': {
+      primaryStock: 'RELIANCE.NS',
+      tradedSymbols: ['RELIANCE.NS', 'RELIANCE 2980 CE', 'RELIANCE FUT'],
+      assetClass: 'Energy & Derivatives (NSE)',
+      lotSize: 100,
+      tickSize: 0.05,
+      unit: 'Shares/Lots',
+      currency: 'INR',
+      venue: 'NSE PRISM'
+    },
+    'BOT-IN-05': {
+      primaryStock: 'TATAMOTORS.NS',
+      tradedSymbols: ['TATAMOTORS.NS', 'M&M.NS', 'MARUTI.NS'],
+      assetClass: 'Automotive Equities (NSE L2)',
+      lotSize: 200,
+      tickSize: 0.05,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE COLOCATION'
+    },
+    'BOT-IN-06': {
+      primaryStock: 'SUNPHARMA.NS',
+      tradedSymbols: ['SUNPHARMA.NS', 'CIPLA.NS', 'DRREDDY.NS'],
+      assetClass: 'Pharma & Healthcare (NSE)',
+      lotSize: 120,
+      tickSize: 0.05,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE PRISM'
+    },
+    'BOT-IN-07': {
+      primaryStock: 'TATASTEEL.NS',
+      tradedSymbols: ['TATASTEEL.NS', 'JSWSTEEL.NS', 'HINDALCO.NS'],
+      assetClass: 'Metals & Mining (NSE)',
+      lotSize: 500,
+      tickSize: 0.05,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE PRISM'
+    },
+    'BOT-IN-08': {
+      primaryStock: 'TRENT.NS',
+      tradedSymbols: ['TRENT.NS', 'ITC.NS', 'TITAN.NS'],
+      assetClass: 'Consumer & Retail (NSE)',
+      lotSize: 50,
+      tickSize: 0.10,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE PRISM'
+    },
+    'BOT-IN-09': {
+      primaryStock: 'HAL.NS',
+      tradedSymbols: ['HAL.NS', 'BEL.NS', 'BDL.NS'],
+      assetClass: 'Aerospace & Defense (NSE)',
+      lotSize: 60,
+      tickSize: 0.10,
+      unit: 'Shares',
+      currency: 'INR',
+      venue: 'NSE COLOCATION'
+    },
+    'BOT-IN-10': {
+      primaryStock: 'GOLDBEES.NS',
+      tradedSymbols: ['GOLDBEES.NS', 'MCX GOLD OCT', 'MCX CRUDEOIL'],
+      assetClass: 'Precious Metals & Energy (MCX)',
+      lotSize: 250,
+      tickSize: 0.01,
+      unit: 'Units/Lots',
+      currency: 'INR',
+      venue: 'MCX GTS'
+    },
+    'BOT-US-01': {
+      primaryStock: 'NVDA',
+      tradedSymbols: ['NVDA', 'AAPL', 'MSFT'],
+      assetClass: 'Mega-Cap Semiconductors & Tech',
+      lotSize: 80,
+      tickSize: 0.01,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NASDAQ OUCH'
+    },
+    'BOT-US-02': {
+      primaryStock: 'AMD',
+      tradedSymbols: ['AMD', 'TSM', 'AMD 150 Straddle'],
+      assetClass: 'Semiconductor Volatility & Straddles',
+      lotSize: 40,
+      tickSize: 0.01,
+      unit: 'Contracts',
+      currency: 'USD',
+      venue: 'CBOE HYBRID'
+    },
+    'BOT-US-03': {
+      primaryStock: 'JPM',
+      tradedSymbols: ['JPM', 'TLT', 'IEF'],
+      assetClass: 'Treasury Yield Curve & Financials',
+      lotSize: 100,
+      tickSize: 0.01,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NYSE ARCA'
+    },
+    'BOT-US-04': {
+      primaryStock: 'LLY',
+      tradedSymbols: ['LLY', 'NVO', 'AMGN'],
+      assetClass: 'Biopharma & GLP-1 Equities',
+      lotSize: 30,
+      tickSize: 0.05,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NYSE ARCA'
+    },
+    'BOT-US-05': {
+      primaryStock: 'XOM',
+      tradedSymbols: ['XOM', 'CVX', 'COP'],
+      assetClass: 'Energy & Factor Equities',
+      lotSize: 120,
+      tickSize: 0.01,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NYSE ARCA'
+    },
+    'BOT-US-06': {
+      primaryStock: 'BA',
+      tradedSymbols: ['BA', 'GE', 'RTX'],
+      assetClass: 'Aerospace & Industrial Flow',
+      lotSize: 75,
+      tickSize: 0.01,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NYSE ARCA'
+    },
+    'BOT-US-07': {
+      primaryStock: 'BTC-USD',
+      tradedSymbols: ['BTC-USD', 'ETH-USD', 'BTC/USDT PERP'],
+      assetClass: 'Crypto 24/7 Basis & Perps',
+      lotSize: 1.5,
+      tickSize: 0.10,
+      unit: 'BTC/ETH',
+      currency: 'USD',
+      venue: 'BINANCE FIX 4.4'
+    },
+    'BOT-US-08': {
+      primaryStock: 'SOL-USD',
+      tradedSymbols: ['SOL-USD', 'BNB-USD', 'SOL/USDT PERP'],
+      assetClass: 'Altcoins & Cross-Venue Arb',
+      lotSize: 25,
+      tickSize: 0.01,
+      unit: 'SOL/BNB',
+      currency: 'USD',
+      venue: 'BINANCE FIX 4.4'
+    },
+    'BOT-US-09': {
+      primaryStock: 'USD/INR',
+      tradedSymbols: ['USD/INR', 'EUR/USD', 'GBP/USD'],
+      assetClass: 'G10 & Emerging FX Carry',
+      lotSize: 50000,
+      tickSize: 0.0025,
+      unit: 'Units',
+      currency: 'INR',
+      venue: 'CME GLOBEX'
+    },
+    'BOT-US-10': {
+      primaryStock: 'PRED-FOMC',
+      tradedSymbols: ['PRED-FOMC-50BPS', 'PRED-CPI-SUB3', 'PRED-ELEC-VOL'],
+      assetClass: 'Macro Event Probability Contracts',
+      lotSize: 500,
+      tickSize: 0.005,
+      unit: 'Contracts',
+      currency: 'USD',
+      venue: 'POLYMARKET AMM'
+    }
+  };
+
+  const getExactTimestamp = (d = new Date(), market = 'india') => {
+    const pad = (n, s = 2) => String(n).padStart(s, '0');
+    const yyyy = d.getFullYear();
+    const mm = pad(d.getMonth() + 1);
+    const dd = pad(d.getDate());
+    const hh = pad(d.getHours());
+    const min = pad(d.getMinutes());
+    const ss = pad(d.getSeconds());
+    const ms = pad(d.getMilliseconds(), 3);
+    const tz = market === 'india' ? 'IST' : 'EST';
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}:${ss}.${ms} ${tz}`;
+  };
+
+  const getExactTimeOnly = (d = new Date()) => {
+    const pad = (n, s = 2) => String(n).padStart(s, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
+  };
+
+  const generateHistoricalTradesForBot = (bot) => {
+    const profile = BOT_TRADING_PROFILES[bot.id] || {
+      primaryStock: bot.primarySymbol,
+      tradedSymbols: [bot.primarySymbol, bot.displayAsset],
+      lotSize: 100,
+      unit: 'Units',
+      currency: bot.market === 'india' ? 'INR' : 'USD',
+      venue: bot.venue
+    };
+
+    const trades = [];
+    const now = Date.now();
+    const baseP = bot.basePrice || bot.currentPrice || 1000;
+    const isUSD = profile.currency === 'USD';
+    const fxRate = isUSD ? 83.92 : 1.0;
+
+    // Generate 12 historical round-trip fills (6 buy/sell pairs)
+    const numPairs = 6;
+    let totalBought = 0;
+    let totalSold = 0;
+    let totalBoughtValue = 0;
+    let totalSoldValue = 0;
+
+    for (let i = numPairs; i >= 1; i--) {
+      // Offset backwards in time: from 140 minutes ago up to 4 minutes ago
+      const buyOffsetMs = (i * 22 + Math.floor(Math.random() * 8)) * 60 * 1000 + Math.floor(Math.random() * 45000);
+      const sellOffsetMs = buyOffsetMs - (8 + Math.floor(Math.random() * 6)) * 60 * 1000 - Math.floor(Math.random() * 30000);
+
+      const buyDate = new Date(now - buyOffsetMs);
+      const sellDate = new Date(now - Math.max(120000, sellOffsetMs));
+
+      const sym = profile.tradedSymbols[(i - 1) % profile.tradedSymbols.length];
+      const qtyMultiplier = (1 + ((i % 3) * 0.5));
+      const rawQty = Math.round(profile.lotSize * qtyMultiplier);
+      const qtyStr = `${rawQty} ${profile.unit}`;
+
+      // Buy price with slight variation
+      const priceVariation = (Math.sin(i * 1.5) * 0.012);
+      const buyPrice = Number((baseP * (1 + priceVariation)).toFixed(2));
+      const notionalBuy = rawQty * buyPrice * fxRate;
+
+      // Sell price with alpha gain
+      const alphaReturn = 0.006 + Math.random() * 0.014;
+      const sellPrice = Number((buyPrice * (1 + alphaReturn)).toFixed(2));
+      const notionalSell = rawQty * sellPrice * fxRate;
+      const roundTripPnl = Math.round(notionalSell - notionalBuy);
+
+      totalBought += rawQty;
+      totalSold += rawQty;
+      totalBoughtValue += notionalBuy;
+      totalSoldValue += notionalSell;
+
+      // 1. BUY EXECUTION RECORD
+      trades.push({
+        orderId: `ORD-${bot.id.replace('BOT-', '')}-${9100 + i * 2 - 1}`,
+        clOrdId: `CL-${bot.id}-${4000 + i * 2 - 1}`,
+        date: buyDate.toISOString().slice(0, 10),
+        time: getExactTimeOnly(buyDate),
+        fullTimestamp: getExactTimestamp(buyDate, bot.market),
+        epochMs: buyDate.getTime(),
+        botId: bot.id,
+        botName: bot.name,
+        symbol: sym,
+        assetName: bot.displayAsset,
+        side: 'BUY',
+        action: 'BOUGHT',
+        type: 'SOR_LIMIT_MAKER',
+        qty: qtyStr,
+        rawQty: rawQty,
+        limitPrice: buyPrice,
+        fillPrice: buyPrice,
+        currency: profile.currency,
+        currSymbol: isUSD ? '$' : '₹',
+        notionalINR: Math.round(notionalBuy),
+        slippageBps: Number((0.4 + Math.random() * 0.6).toFixed(1)),
+        venue: profile.venue,
+        triggerMath: `${bot.strategyType}: Signal threshold breached (${sym})`,
+        status: 'FILLED',
+        realizedPnl: 0,
+        pnlPct: 0.0
+      });
+
+      // 2. SELL EXECUTION RECORD
+      trades.push({
+        orderId: `ORD-${bot.id.replace('BOT-', '')}-${9100 + i * 2}`,
+        clOrdId: `CL-${bot.id}-${4000 + i * 2}`,
+        date: sellDate.toISOString().slice(0, 10),
+        time: getExactTimeOnly(sellDate),
+        fullTimestamp: getExactTimestamp(sellDate, bot.market),
+        epochMs: sellDate.getTime(),
+        botId: bot.id,
+        botName: bot.name,
+        symbol: sym,
+        assetName: bot.displayAsset,
+        side: 'SELL',
+        action: 'SOLD',
+        type: 'MARKET_IOC_TAKER',
+        qty: qtyStr,
+        rawQty: rawQty,
+        limitPrice: sellPrice,
+        fillPrice: sellPrice,
+        currency: profile.currency,
+        currSymbol: isUSD ? '$' : '₹',
+        notionalINR: Math.round(notionalSell),
+        slippageBps: Number((0.6 + Math.random() * 0.5).toFixed(1)),
+        venue: profile.venue,
+        triggerMath: `Take-Profit Hit: +${(alphaReturn * 100).toFixed(2)}% Target (${sym})`,
+        status: 'CLOSED',
+        realizedPnl: roundTripPnl,
+        pnlPct: Number((alphaReturn * 100).toFixed(2))
+      });
+    }
+
+    trades.sort((a, b) => b.epochMs - a.epochMs);
+
+    bot.totalBoughtQty = totalBought;
+    bot.totalBoughtINR = Math.round(totalBoughtValue);
+    bot.totalSoldQty = totalSold;
+    bot.totalSoldINR = Math.round(totalSoldValue);
+    bot.tradedStocks = profile.tradedSymbols;
+
+    return trades;
+  };
+
   const generateOrderId = (botId) => {
     orderSeqCounter++;
     const prefix = botId.replace('BOT-', '').replace('-', '');
     return `ORD-${prefix}-${orderSeqCounter}`;
   };
 
-  const getExactTimestamp = () => {
-    const d = new Date();
-    const pad = (n, s = 2) => String(n).padStart(s, '0');
-    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}`;
-  };
-
+  
   
   // ══════════════════════════════════════════════════════════════════════════
   // REAL-TIME STREAMING MARKET DATA FEED (100% LIVE TICKING ASSETS)
@@ -1094,7 +1438,38 @@
           entryTime: Date.now() - (Math.floor(Math.random() * 180) * 1000)
         };
       }
-      if (!bot.botAuditHistory) bot.botAuditHistory = [];
+      const profile = BOT_TRADING_PROFILES[bot.id] || {
+        primaryStock: bot.primarySymbol,
+        tradedSymbols: [bot.primarySymbol, bot.displayAsset],
+        lotSize: 100,
+        unit: 'Shares',
+        currency: bot.market === 'india' ? 'INR' : 'USD',
+        venue: bot.venue
+      };
+      bot.tradedStocks = profile.tradedSymbols;
+
+      if (!bot.botAuditHistory || bot.botAuditHistory.length < 6 || !bot.botAuditHistory[0] || !bot.botAuditHistory[0].fullTimestamp) {
+        bot.botAuditHistory = generateHistoricalTradesForBot(bot);
+      }
+
+      if (!bot.totalBoughtQty) {
+        let bQty = 0, bVal = 0, sQty = 0, sVal = 0;
+        bot.botAuditHistory.forEach(t => {
+          const rq = t.rawQty || 100;
+          const nv = t.notionalINR || (rq * (t.fillPrice || 1000));
+          if (t.side && t.side.includes('BUY')) {
+            bQty += rq;
+            bVal += nv;
+          } else {
+            sQty += rq;
+            sVal += nv;
+          }
+        });
+        bot.totalBoughtQty = bQty;
+        bot.totalBoughtINR = bVal;
+        bot.totalSoldQty = sQty;
+        bot.totalSoldINR = sVal;
+      }
     });
 
     saveState();
@@ -1183,10 +1558,23 @@
   const triggerBotOrderPlacement = (bot, forceSide = null) => {
     if (bot.status !== 'RUNNING') return;
 
+    const profile = BOT_TRADING_PROFILES[bot.id] || {
+      primaryStock: bot.primarySymbol,
+      tradedSymbols: [bot.primarySymbol, bot.displayAsset],
+      lotSize: 100,
+      unit: 'Shares',
+      currency: bot.market === 'india' ? 'INR' : 'USD',
+      venue: bot.venue
+    };
+
     const side = forceSide || (Math.random() > 0.45 ? 'BUY' : 'SELL');
     const orderId = generateOrderId(bot.id);
-        const curPrice = bot.currentPrice || bot.basePrice;
-    const qty = bot.market === 'india' ? (bot.basePrice > 5000 ? 25 : 150) : (bot.primarySymbol.includes('BTC') ? 1.0 : 40);
+    const curPrice = bot.currentPrice || bot.basePrice;
+    const tradedStock = profile.tradedSymbols[Math.floor(Math.random() * profile.tradedSymbols.length)];
+    const rawQty = profile.lotSize;
+    const qty = `${rawQty} ${profile.unit}`;
+    const isUSD = profile.currency === 'USD';
+    const fxRate = isUSD ? 83.92 : 1.0;
     
     // Dynamic Volume-Weighted Slippage Calculation (Order Qty / Available L2 Book Depth)
     const bookDepth = 800 + Math.floor(Math.random() * 1200);
@@ -1208,18 +1596,33 @@
     ];
     const triggerReason = mathReasons[Math.floor(Math.random() * mathReasons.length)];
 
+    const nowD = new Date();
+    const exactTime = getExactTimeOnly(nowD);
+    const fullTs = getExactTimestamp(nowD, bot.market);
+    const notionalINR = Math.round(rawQty * fillPrice * fxRate);
+
     bot.orderState = 'ORDER_ROUTED';
     bot.currentOrder = {
       orderId: orderId,
-      time: getExactTimestamp(),
+      clOrdId: `CL-${bot.id}-${Date.now().toString().slice(-5)}`,
+      date: nowD.toISOString().slice(0, 10),
+      time: exactTime,
+      fullTimestamp: fullTs,
+      epochMs: nowD.getTime(),
       botId: bot.id,
       botName: bot.name,
-      symbol: bot.displayAsset,
+      symbol: tradedStock,
+      assetName: bot.displayAsset,
       side: side,
+      action: isBuy ? 'BOUGHT' : 'SOLD',
       type: 'SOR_SMART_ROUTED',
       qty: qty,
+      rawQty: rawQty,
       limitPrice: curPrice,
       fillPrice: fillPrice,
+      currency: profile.currency,
+      currSymbol: isUSD ? '$' : '₹',
+      notionalINR: notionalINR,
       slippageBps: slippageBps,
       venue: bot.venue,
       triggerMath: triggerReason,
@@ -1233,17 +1636,23 @@
     setTimeout(() => {
       if (!bot.currentOrder || bot.currentOrder.orderId !== orderId) return;
 
+      const fillD = new Date();
       bot.orderState = 'FILLED';
       bot.currentOrder.status = 'FILLED';
-      bot.currentOrder.fillTime = getExactTimestamp();
+      bot.currentOrder.fillTime = getExactTimeOnly(fillD);
+      bot.currentOrder.fullTimestamp = getExactTimestamp(fillD, bot.market);
       playOrderFilledSound();
 
       bot.activePosition = {
-        symbol: bot.displayAsset,
+        symbol: tradedStock,
         side: side,
         qty: qty,
+        rawQty: rawQty,
         entryPrice: fillPrice,
         currentPrice: fillPrice,
+        currency: profile.currency,
+        currSymbol: isUSD ? '$' : '₹',
+        notionalINR: notionalINR,
         unrealizedPnlINR: 0,
         unrealizedPnlPct: 0.0,
         stopLossPrice: Number((isBuy ? fillPrice * 0.988 : fillPrice * 1.012).toFixed(2)),
@@ -1251,8 +1660,17 @@
         entryTime: Date.now()
       };
 
+      if (!bot.botAuditHistory) bot.botAuditHistory = [];
       bot.botAuditHistory.unshift({ ...bot.currentOrder });
-      if (bot.botAuditHistory.length > 50) bot.botAuditHistory.pop();
+      if (bot.botAuditHistory.length > 80) bot.botAuditHistory.pop();
+
+      if (isBuy) {
+        bot.totalBoughtQty = (bot.totalBoughtQty || 0) + rawQty;
+        bot.totalBoughtINR = (bot.totalBoughtINR || 0) + notionalINR;
+      } else {
+        bot.totalSoldQty = (bot.totalSoldQty || 0) + rawQty;
+        bot.totalSoldINR = (bot.totalSoldINR || 0) + notionalINR;
+      }
 
       recordBlotterItem(bot.currentOrder);
       bot.tradesToday += 1;
@@ -1274,33 +1692,60 @@
 
     const pos = bot.activePosition;
     const isBuy = pos.side === 'BUY';
-    const exitSide = isBuy ? 'SELL_CLOSE' : 'COVER_CLOSE';
+    const exitSide = isBuy ? 'SELL' : 'COVER';
     const orderId = generateOrderId(bot.id);
     const exitPrice = pos.currentPrice;
     const pnlINR = Math.round(pos.unrealizedPnlINR);
+    const rawQty = pos.rawQty || (typeof pos.qty === 'number' ? pos.qty : 100);
+    const currSymbol = pos.currSymbol || (bot.market === 'india' ? '₹' : '$');
+    const fxRate = bot.market === 'india' ? 1.0 : 83.92;
+    const notionalINR = Math.round(rawQty * exitPrice * fxRate);
 
     bot.realizedPnlINR += pnlINR;
     if (pnlINR > 0) playProfitExitSound();
 
+    const exitD = new Date();
     const exitOrder = {
       orderId: orderId,
-      time: getExactTimestamp(),
+      clOrdId: `CL-${bot.id}-${Date.now().toString().slice(-5)}`,
+      date: exitD.toISOString().slice(0, 10),
+      time: getExactTimeOnly(exitD),
+      fullTimestamp: getExactTimestamp(exitD, bot.market),
+      epochMs: exitD.getTime(),
       botId: bot.id,
       botName: bot.name,
       symbol: pos.symbol,
+      assetName: bot.displayAsset,
       side: exitSide,
+      action: isBuy ? 'SOLD' : 'BOUGHT_COVER',
       type: 'MARKET_IOC',
       qty: pos.qty,
+      rawQty: rawQty,
       limitPrice: exitPrice,
       fillPrice: exitPrice,
+      currency: bot.market === 'india' ? 'INR' : 'USD',
+      currSymbol: currSymbol,
+      notionalINR: notionalINR,
       slippageBps: 0.8,
       venue: bot.venue,
       triggerMath: `Exit: ${exitReason} | Realized P&L: ${pnlINR >= 0 ? '+' : ''}₹${pnlINR.toLocaleString('en-IN')}`,
       status: 'CLOSED',
-      realizedPnl: pnlINR
+      realizedPnl: pnlINR,
+      pnlPct: pos.unrealizedPnlPct || 0.0
     };
 
+    if (!bot.botAuditHistory) bot.botAuditHistory = [];
     bot.botAuditHistory.unshift(exitOrder);
+    if (bot.botAuditHistory.length > 80) bot.botAuditHistory.pop();
+
+    if (isBuy) {
+      bot.totalSoldQty = (bot.totalSoldQty || 0) + rawQty;
+      bot.totalSoldINR = (bot.totalSoldINR || 0) + notionalINR;
+    } else {
+      bot.totalBoughtQty = (bot.totalBoughtQty || 0) + rawQty;
+      bot.totalBoughtINR = (bot.totalBoughtINR || 0) + notionalINR;
+    }
+
     recordBlotterItem(exitOrder);
 
     bot.activePosition = null;
@@ -1434,7 +1879,37 @@
     }
 
     const tradesEl = document.getElementById(`trades-${bot.id}`);
-    if (tradesEl) tradesEl.textContent = bot.tradesToday.toLocaleString();
+    if (tradesEl) tradesEl.textContent = `${bot.tradesToday.toLocaleString()} Fills`;
+
+    const tallyBuyEl = document.getElementById(`tally-buy-${bot.id}`);
+    if (tallyBuyEl) tallyBuyEl.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> BOUGHT: <strong>${(bot.totalBoughtQty || 0).toLocaleString()}</strong>`;
+
+    const tallySellEl = document.getElementById(`tally-sell-${bot.id}`);
+    if (tallySellEl) tallySellEl.innerHTML = `<i class="fa-solid fa-arrow-trend-down"></i> SOLD: <strong>${(bot.totalSoldQty || 0).toLocaleString()}</strong>`;
+
+    const miniBlotterEl = document.getElementById(`mini-blotter-${bot.id}`);
+    if (miniBlotterEl && bot.botAuditHistory) {
+      miniBlotterEl.innerHTML = (bot.botAuditHistory || []).slice(0, 2).map(trade => {
+        const isBuy = (trade.side || '').includes('BUY');
+        const pnl = trade.realizedPnl;
+        const curr = trade.currency === 'USD' ? '$' : '₹';
+        return `
+          <div class="mini-blotter-row">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
+                ${trade.action || (isBuy ? 'BOUGHT' : 'SOLD')}
+              </span>
+              <strong class="mini-trade-stock">${trade.symbol || bot.primarySymbol}</strong>
+              <span class="mini-trade-qty">${trade.qty} @ ${curr}${Number(trade.fillPrice || trade.limitPrice || 0).toLocaleString('en-IN')}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${pnl ? `<span class="mini-trade-pnl" style="color:${pnl >= 0 ? '#10b981' : '#f43f5e'}; font-weight:800;">${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')}</span>` : ''}
+              <span class="mini-trade-time"><i class="fa-regular fa-clock"></i> ${trade.time || trade.fullTimestamp || ''}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
 
     const posEl = document.getElementById(`pos-${bot.id}`);
     if (posEl) {
@@ -1607,6 +2082,52 @@
           <div class="bot-math-card">
             <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model</div>
             <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
+          </div>
+
+          <!-- Traded Stock & Execution Blotter Box -->
+          <div class="bot-traded-stocks-box">
+            <div class="traded-stocks-header">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                <i class="fa-solid fa-arrow-right-arrow-left text-cyan" style="font-size:0.75rem;"></i>
+                <span class="traded-stocks-label">Traded Asset:</span>
+                <span class="traded-stock-pill"><i class="fa-solid fa-gem text-amber"></i> ${bot.primarySymbol} &bull; ${bot.displayAsset}</span>
+              </div>
+              <div class="traded-vol-tally">
+                <span class="tally-buy" id="tally-buy-${bot.id}"><i class="fa-solid fa-arrow-trend-up"></i> BOUGHT: <strong>${(bot.totalBoughtQty || 12450).toLocaleString()}</strong></span>
+                <span class="tally-divider">&bull;</span>
+                <span class="tally-sell" id="tally-sell-${bot.id}"><i class="fa-solid fa-arrow-trend-down"></i> SOLD: <strong>${(bot.totalSoldQty || 12300).toLocaleString()}</strong></span>
+              </div>
+            </div>
+
+            <!-- Recent Executed Fills Mini-Blotter -->
+            <div class="mini-blotter-container">
+              <div class="mini-blotter-header">
+                <span><i class="fa-solid fa-receipt text-cyan"></i> Recent Executed Fills (Live Ledger):</span>
+                <span style="font-size:0.6rem; color:#71717a;">Microsecond Fills</span>
+              </div>
+              <div id="mini-blotter-${bot.id}">
+                ${(bot.botAuditHistory || []).slice(0, 2).map(trade => {
+                  const isBuy = (trade.side || '').includes('BUY');
+                  const pnl = trade.realizedPnl;
+                  const curr = trade.currency === 'USD' ? '$' : '₹';
+                  return `
+                    <div class="mini-blotter-row">
+                      <div style="display:flex; align-items:center; gap:6px;">
+                        <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
+                          ${trade.action || (isBuy ? 'BOUGHT' : 'SOLD')}
+                        </span>
+                        <strong class="mini-trade-stock">${trade.symbol || bot.primarySymbol}</strong>
+                        <span class="mini-trade-qty">${trade.qty} @ ${curr}${Number(trade.fillPrice || trade.limitPrice || 0).toLocaleString('en-IN')}</span>
+                      </div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        ${pnl ? `<span class="mini-trade-pnl" style="color:${pnl >= 0 ? '#10b981' : '#f43f5e'}; font-weight:800;">${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')}</span>` : ''}
+                        <span class="mini-trade-time"><i class="fa-regular fa-clock"></i> ${trade.time || trade.fullTimestamp || ''}</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
           </div>
 
           <div class="bot-stats-grid">
@@ -2153,40 +2674,111 @@
       `;
     } else if (activeModalTab === 'audit') {
       const history = bot.botAuditHistory || [];
+      const buys = history.filter(h => (h.side || '').includes('BUY'));
+      const sells = history.filter(h => (h.side || '').includes('SELL') || (h.side || '').includes('COVER'));
+      const wins = history.filter(h => (h.realizedPnl || 0) > 0);
+      const isUSD = bot.market === 'us';
+      const curr = isUSD ? '$' : '₹';
+
       bodyEl.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-          <h4 style="font-size:0.82rem; color:#fff; margin:0;">Complete FIX 4.4 Order Audit Log (${history.length} Fills)</h4>
-          <span style="font-size:0.7rem; color:#aaa;">Microsecond Precision Execution Trail</span>
+        <!-- Audit Summary KPIs Ribbon -->
+        <div class="audit-summary-ribbon">
+          <div class="audit-kpi-card">
+            <span class="audit-kpi-label"><i class="fa-solid fa-cube text-cyan"></i> Active Traded Stock</span>
+            <div class="audit-kpi-val text-cyan" style="font-size:0.95rem;">${bot.primarySymbol}</div>
+            <span class="audit-kpi-sub">${bot.displayAsset} &bull; ${bot.venue}</span>
+          </div>
+          <div class="audit-kpi-card">
+            <span class="audit-kpi-label"><i class="fa-solid fa-arrow-trend-up text-green"></i> Total Volume Bought</span>
+            <div class="audit-kpi-val text-green">${(bot.totalBoughtQty || 0).toLocaleString()} <span style="font-size:0.7rem; color:#a1a1aa;">Units</span></div>
+            <span class="audit-kpi-sub">Total Traded: ₹${Math.round((bot.totalBoughtINR || 0) / 100000).toLocaleString('en-IN')} Lakh</span>
+          </div>
+          <div class="audit-kpi-card">
+            <span class="audit-kpi-label"><i class="fa-solid fa-arrow-trend-down text-rose"></i> Total Volume Sold</span>
+            <div class="audit-kpi-val text-rose">${(bot.totalSoldQty || 0).toLocaleString()} <span style="font-size:0.7rem; color:#a1a1aa;">Units</span></div>
+            <span class="audit-kpi-sub">Total Traded: ₹${Math.round((bot.totalSoldINR || 0) / 100000).toLocaleString('en-IN')} Lakh</span>
+          </div>
+          <div class="audit-kpi-card">
+            <span class="audit-kpi-label"><i class="fa-solid fa-coins text-amber"></i> Net Realized Trading Alpha</span>
+            <div class="audit-kpi-val text-amber">${bot.realizedPnlINR >= 0 ? '+' : ''}₹${bot.realizedPnlINR.toLocaleString('en-IN')}</div>
+            <span class="audit-kpi-sub">Sharpe ${bot.sharpe} &bull; Win Rate ${bot.winRate}%</span>
+          </div>
         </div>
-        <div style="overflow-x:auto; max-height:420px;">
-          <table class="ranker-table" style="font-size:0.72rem; font-family:'JetBrains Mono', monospace;">
+
+        <!-- Filter Bar & CSV Export -->
+        <div class="audit-filter-bar">
+          <div class="audit-filter-pills">
+            <button class="audit-filter-btn active" id="filter-all-${bot.id}" onclick="window.filterBotAudit('${bot.id}', 'all')">
+              <i class="fa-solid fa-list"></i> All Fills (${history.length})
+            </button>
+            <button class="audit-filter-btn" id="filter-buy-${bot.id}" onclick="window.filterBotAudit('${bot.id}', 'buy')">
+              <i class="fa-solid fa-arrow-trend-up text-green"></i> Buys Only (${buys.length})
+            </button>
+            <button class="audit-filter-btn" id="filter-sell-${bot.id}" onclick="window.filterBotAudit('${bot.id}', 'sell')">
+              <i class="fa-solid fa-arrow-trend-down text-rose"></i> Sells Only (${sells.length})
+            </button>
+            <button class="audit-filter-btn" id="filter-win-${bot.id}" onclick="window.filterBotAudit('${bot.id}', 'win')">
+              <i class="fa-solid fa-trophy text-amber"></i> Profitable (${wins.length})
+            </button>
+          </div>
+          <button class="fleet-ctrl-btn" style="padding:4px 12px; font-size:0.72rem; background:rgba(34,211,238,0.15); border:1px solid #22d3ee; color:#22d3ee;" onclick="window.exportBotBlotterCSV('${bot.id}')">
+            <i class="fa-solid fa-file-arrow-down"></i> Export CSV Blotter
+          </button>
+        </div>
+
+        <!-- Master Execution Blotter Table -->
+        <div style="overflow-x:auto; max-height:420px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+          <table class="ranker-table" id="audit-table-${bot.id}" style="font-size:0.72rem; font-family:'JetBrains Mono', monospace;">
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Time</th>
-                <th>Side</th>
-                <th>Qty</th>
-                <th>Price / Fill</th>
+                <th>Execution Date &amp; Time</th>
+                <th>Traded Stock</th>
+                <th>Action &amp; Side</th>
+                <th>Qty Executed</th>
+                <th>Fill Price</th>
+                <th>Traded Value</th>
+                <th>Realized P&amp;L</th>
                 <th>Slippage</th>
-                <th>Venue</th>
-                <th>Signal Reason</th>
-                <th>Status</th>
+                <th>Route / Venue</th>
+                <th>Order ID &amp; FIX Tag</th>
+                <th>Quantitative Trigger Signal</th>
               </tr>
             </thead>
-            <tbody>
-              ${history.length ? history.map(item => `
-                <tr>
-                  <td style="color:#22d3ee; font-weight:700;">${item.orderId}</td>
-                  <td style="color:#71717a;">${item.time}</td>
-                  <td style="color:${item.side.includes('BUY') ? '#10b981' : '#f43f5e'}; font-weight:800;">${item.side}</td>
-                  <td style="color:#fff;">${item.qty}</td>
-                  <td style="color:#fff;">₹${item.fillPrice || item.limitPrice}</td>
-                  <td style="color:#fab005;">${item.slippageBps} bps</td>
-                  <td style="color:#71717a;">${item.venue}</td>
-                  <td style="color:#ccc; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.triggerMath}">${item.triggerMath}</td>
-                  <td><span class="order-state-badge ${item.status === 'FILLED' ? 'badge-filled' : 'badge-holding'}">${item.status}</span></td>
-                </tr>
-              `).join('') : '<tr><td colspan="9" style="text-align:center; color:#71717a; padding:20px;">No historical fills recorded yet. Click "Force Trade" to place an order!</td></tr>'}
+            <tbody id="audit-tbody-${bot.id}">
+              ${history.length ? history.map(item => {
+                const isBuy = (item.side || '').includes('BUY');
+                const pnl = item.realizedPnl;
+                const notional = item.notionalINR ? `₹${item.notionalINR.toLocaleString('en-IN')}` : `${curr}${Math.round((item.rawQty || 100) * (item.fillPrice || item.limitPrice || 0)).toLocaleString('en-IN')}`;
+                return `
+                  <tr>
+                    <td style="color:#a1a1aa; white-space:nowrap;">
+                      <i class="fa-regular fa-clock text-cyan"></i> <strong>${item.fullTimestamp || (item.date + ' ' + item.time)}</strong>
+                    </td>
+                    <td style="color:#fff; font-weight:800; white-space:nowrap;">
+                      <span class="traded-stock-pill" style="font-size:0.65rem; padding:1px 5px;">${item.symbol || bot.primarySymbol}</span>
+                    </td>
+                    <td>
+                      <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
+                        ${item.action || (isBuy ? 'BOUGHT' : 'SOLD')}
+                      </span>
+                    </td>
+                    <td style="color:#fff; font-weight:700;">${item.qty}</td>
+                    <td style="color:#fff; font-weight:700;">${item.currSymbol || curr}${Number(item.fillPrice || item.limitPrice || 0).toLocaleString('en-IN')}</td>
+                    <td style="color:#71717a;">${notional}</td>
+                    <td style="font-weight:800; color:${pnl ? (pnl >= 0 ? '#10b981' : '#f43f5e') : '#71717a'};">
+                      ${pnl ? `${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')} (${item.pnlPct || 0}%)` : '--'}
+                    </td>
+                    <td style="color:#fab005;">${item.slippageBps || '0.8'} bps</td>
+                    <td style="color:#71717a; white-space:nowrap;">${item.venue || bot.venue}</td>
+                    <td style="color:#22d3ee; font-weight:700; white-space:nowrap;">
+                      ${item.orderId} <span style="font-size:0.6rem; color:#71717a;">Tag 35=8</span>
+                    </td>
+                    <td style="color:#ccc; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.triggerMath || ''}">
+                      ${item.triggerMath || 'Algorithmic Signal Threshold'}
+                    </td>
+                  </tr>
+                `;
+              }).join('') : '<tr><td colspan="11" style="text-align:center; color:#71717a; padding:20px;">No historical fills recorded yet. Click "Force Trade" to place an order!</td></tr>'}
             </tbody>
           </table>
         </div>
@@ -2301,6 +2893,111 @@
       overlay.hidden = true;
       overlay.style.display = 'none';
     }
+  };
+
+  
+  // ── Global Filter & CSV Export Helpers for Bot Trade Blotters ─────────────
+  window.filterBotAudit = (botId, filterType) => {
+    const bot = botRegistry.find(b => b.id === botId);
+    if (!bot) return;
+
+    // Update active button state
+    ['all', 'buy', 'sell', 'win'].forEach(ft => {
+      const btn = document.getElementById(`filter-${ft}-${botId}`);
+      if (btn) btn.classList.toggle('active', ft === filterType);
+    });
+
+    const tbody = document.getElementById(`audit-tbody-${botId}`);
+    if (!tbody) return;
+
+    let filtered = bot.botAuditHistory || [];
+    if (filterType === 'buy') {
+      filtered = filtered.filter(h => (h.side || '').includes('BUY'));
+    } else if (filterType === 'sell') {
+      filtered = filtered.filter(h => (h.side || '').includes('SELL') || (h.side || '').includes('COVER'));
+    } else if (filterType === 'win') {
+      filtered = filtered.filter(h => (h.realizedPnl || 0) > 0);
+    }
+
+    const isUSD = bot.market === 'us';
+    const curr = isUSD ? '$' : '₹';
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:#71717a; padding:20px;">No executions match the selected filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(item => {
+      const isBuy = (item.side || '').includes('BUY');
+      const pnl = item.realizedPnl;
+      const notional = item.notionalINR ? `₹${item.notionalINR.toLocaleString('en-IN')}` : `${curr}${Math.round((item.rawQty || 100) * (item.fillPrice || item.limitPrice || 0)).toLocaleString('en-IN')}`;
+      return `
+        <tr>
+          <td style="color:#a1a1aa; white-space:nowrap;">
+            <i class="fa-regular fa-clock text-cyan"></i> <strong>${item.fullTimestamp || (item.date + ' ' + item.time)}</strong>
+          </td>
+          <td style="color:#fff; font-weight:800; white-space:nowrap;">
+            <span class="traded-stock-pill" style="font-size:0.65rem; padding:1px 5px;">${item.symbol || bot.primarySymbol}</span>
+          </td>
+          <td>
+            <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
+              ${item.action || (isBuy ? 'BOUGHT' : 'SOLD')}
+            </span>
+          </td>
+          <td style="color:#fff; font-weight:700;">${item.qty}</td>
+          <td style="color:#fff; font-weight:700;">${item.currSymbol || curr}${Number(item.fillPrice || item.limitPrice || 0).toLocaleString('en-IN')}</td>
+          <td style="color:#71717a;">${notional}</td>
+          <td style="font-weight:800; color:${pnl ? (pnl >= 0 ? '#10b981' : '#f43f5e') : '#71717a'};">
+            ${pnl ? `${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')} (${item.pnlPct || 0}%)` : '--'}
+          </td>
+          <td style="color:#fab005;">${item.slippageBps || '0.8'} bps</td>
+          <td style="color:#71717a; white-space:nowrap;">${item.venue || bot.venue}</td>
+          <td style="color:#22d3ee; font-weight:700; white-space:nowrap;">
+            ${item.orderId} <span style="font-size:0.6rem; color:#71717a;">Tag 35=8</span>
+          </td>
+          <td style="color:#ccc; max-width:260px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.triggerMath || ''}">
+            ${item.triggerMath || 'Algorithmic Signal Threshold'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+  };
+
+  window.exportBotBlotterCSV = (botId) => {
+    const bot = botRegistry.find(b => b.id === botId);
+    if (!bot || !bot.botAuditHistory) {
+      alert('No trade history available to export.');
+      return;
+    }
+
+    const headers = ['Order_ID', 'Timestamp', 'Date', 'Time', 'Stock_Symbol', 'Action', 'Side', 'Quantity', 'Fill_Price', 'Currency', 'Notional_INR', 'Realized_PnL_INR', 'Slippage_Bps', 'Venue', 'Trigger_Math', 'Status'];
+    const rows = bot.botAuditHistory.map(t => [
+      t.orderId || '',
+      `"${t.fullTimestamp || ''}"`,
+      t.date || '',
+      t.time || '',
+      t.symbol || bot.primarySymbol,
+      t.action || t.side || '',
+      t.side || '',
+      `"${t.qty || ''}"`,
+      t.fillPrice || t.limitPrice || 0,
+      t.currency || 'INR',
+      t.notionalINR || 0,
+      t.realizedPnl || 0,
+      t.slippageBps || 0,
+      `"${t.venue || bot.venue}"`,
+      `"${(t.triggerMath || '').replace(/"/g, '""')}"`,
+      t.status || 'FILLED'
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `${bot.id}_Trade_Blotter_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   window.fleetClosePosition = (botId) => {
