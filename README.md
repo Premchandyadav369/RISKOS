@@ -161,32 +161,87 @@ flowchart LR
 
 ---
 
-## 🤖 24/7 Autonomous Bot Fleet & Performance Ranker (`fleet.html`)
+## 🤖 24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)
 
-A dedicated command center managing **20 distinct quantitative sector bots**:
+A dedicated command center managing **20 distinct quantitative algorithms** segregated into two mythological pantheons:
 
-| Bot ID | Market | Sector | Strategy Type | Mathematical Edge |
-| :--- | :--- | :--- | :--- | :--- |
-| **`BOT-IN-01`** | 🇮🇳 India | Index Derivatives | Volatility Dispersion | GARCH(1,1) Vol Spread $+2.5\sigma$ vs SABR smile |
-| **`BOT-IN-02`** | 🇮🇳 India | Banking & Financials | Statistical Arbitrage | HDFC vs ICICI Kalman filter $|z_t| > 2.2$ mean-reversion |
-| **`BOT-IN-03`** | 🇮🇳 India | IT & Software | Dual-Momentum Trend | Donchian 20D breakout + volatility target scaling |
-| **`BOT-IN-04`** | 🇮🇳 India | Energy & Petrochem | Cost-of-Carry Basis Arb | Cash-and-carry carry yield $> +8.5\%/	ext{yr}$ |
-| **`BOT-IN-05`** | 🇮🇳 India | Auto & EV | L2 Microstructure Scalper | Level-2 Order Flow Imbalance (OFI $> +0.70$) |
-| **`BOT-IN-06`** | 🇮🇳 India | Pharma & Health | Dynamic Mean Reversion | Bollinger Bands ($2.2\sigma$) + RSI divergence |
-| **`BOT-IN-07`** | 🇮🇳 India | Metals & Mining | Commodity Factor Trend | LME global metal cycle and China PMI momentum |
-| **`BOT-IN-08`** | 🇮🇳 India | FMCG & Retail | Volume Profile Auction | Value Area 70% (VAH/VAL) auction mean-reversion |
-| **`BOT-IN-09`** | 🇮🇳 India | Defense & Infra | Avellaneda-Stoikov MM | High-frequency optimal quoting with inventory penalty $\gamma$ |
-| **`BOT-IN-10`** | 🇮🇳 India | MCX Commodities | Evening Multi-Timeframe CTA| Dual EMA cross + $	ext{ADX} > 25$ (09:00 - 23:55 IST) |
-| **`BOT-US-01`** | 🇺🇸 US | Tech Mega-Caps | Almgren-Chriss Slicer | Optimal execution impact minimization ($\sinh(\kappa(T-t))$) |
-| **`BOT-US-02`** | 🇺🇸 US | Semiconductors | Gamma Scalper | Long gamma extraction: $\Pi pprox rac{1}{2}\Gamma S^2 (\sigma_{	ext{real}}^2 - \sigma_{	ext{implied}}^2)$ |
-| **`BOT-US-03`** | 🇺🇸 US | US Financials | Yield Curve Steepener | Nelson-Siegel 2s10s curve un-inversion trade |
-| **`BOT-US-04`** | 🇺🇸 US | BioTech & Health | Jump-Diffusion Event Arb | Merton Poisson jump-diffusion for clinical readouts |
-| **`BOT-US-05`** | 🇺🇸 US | Energy Majors | Fama-French 5-Factor Bot | Multi-factor risk premia harvesting (Value, Profitability) |
-| **`BOT-US-06`** | 🇺🇸 US | Aerospace | Kyle-Lambda Order Flow | Microstructure informed flow detection ($\Delta P = \lambda Q$) |
-| **`BOT-US-07`** | 🇺🇸 US | Crypto L1 (24/7) | Perpetual Funding Arb | Delta-neutral cash-and-carry earning 8h funding yields |
-| **`BOT-US-08`** | 🇺🇸 US | Crypto Altcoins | Triangular Arbitrage | Sub-second cross-venue latency arbitrage (CEX/DEX) |
-| **`BOT-US-09`** | 🇺🇸 US | Global FX & Rates | Vol-Targeted Macro CTA | Central bank interest rate differentials & DXY momentum |
-| **`BOT-US-10`** | 🇺🇸 US | Prediction Markets | Hanson LMSR Event Arb | Bayesian econometric fair value vs Polymarket probability |
+### 🏛️ Mount Olympus Division — 🇮🇳 10 Indian Sector Bots (Greek Mythology)
+| Bot ID | Greek Deity | Sector | Strategy Model | Sentiment Engine | Live Market Volume |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`BOT-IN-01`** | **💀 THANATOS** | Index Derivatives | 0DTE Theta Harvester | Options 25Δ Risk Reversal Skew | ₹42,800 Cr / day |
+| **`BOT-IN-02`** | **♊ DIOSCURI** | Banking & Financials | Kalman Pairs Stat-Arb | Bank Nifty Institutional Breadth | ₹1,940 Cr / day |
+| **`BOT-IN-03`** | **🦉 ATHENA** | IT & Software | Dual-Momentum Breakout | FinBERT Tech Sector NLP | ₹1,420 Cr / day |
+| **`BOT-IN-04`** | **🔥 HEPHAESTUS** | Energy & Petrochem | Cost-of-Carry Basis Arb | Refining Margin Sentiment | ₹2,850 Cr / day |
+| **`BOT-IN-05`** | **🏎️ AUTOLYCUS** | Auto & Mobility | L2 Microstructure Scalper | Level-2 Order Flow Imbalance (OFI) | ₹1,180 Cr / day |
+| **`BOT-IN-06`** | **🌿 PANACEA** | Pharma & Health | Dynamic Mean Reversion | FDA Headline Panic Sentiment Fade | ₹840 Cr / day |
+| **`BOT-IN-07`** | **⚔️ CHALYBS** | Metals & Mining | Cross-Commodity CTA | LME Global Metals Momentum Skew | ₹1,350 Cr / day |
+| **`BOT-IN-08`** | **🌾 DEMETER** | FMCG & Retail | Volume Profile Auction | Auction Market Volume Profile Node | ₹920 Cr / day |
+| **`BOT-IN-09`** | **🛡️ ARES** | Defense & Infra | Avellaneda-Stoikov MM | Defense Order Book VPIN Toxicity | ₹1,650 Cr / day |
+| **`BOT-IN-10`** | **👑 MIDAS** | MCX Commodities | Evening Multi-Timeframe CTA | Geopolitical Risk Index (GPR) | ₹3,400 Cr / day |
+
+### ⚔️ Valhalla Division — 🇺🇸 10 US & Global 24/7 Bots (Norse Mythology)
+| Bot ID | Norse Deity | Sector | Strategy Model | Sentiment Engine | Live Market Volume |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **`BOT-US-01`** | **👁️ ODIN** | Tech Mega-Caps | Almgren-Chriss Optimal Slicer | Nasdaq Dark Pool Institutional Flow | $14.2 Billion / day |
+| **`BOT-US-02`** | **⚡ THOR** | Semis & AI Hardware | Volatility Skew Gamma Scalper | CBOE SKEW & VIX Term Structure | $8.4 Billion / day |
+| **`BOT-US-03`** | **🌈 HEIMDALL** | US Financials & Yields| Nelson-Siegel Curve Steepener | Fed Funds Futures Rate Cut Skew | $4.2 Billion / day |
+| **`BOT-US-04`** | **🌿 EIR** | BioTech Healthcare | Merton Jump-Diffusion Catalyst | Clinical Trial NLP Sentiment | $3.8 Billion / day |
+| **`BOT-US-05`** | **🌊 NJORD** | Energy & Oil Majors | Fama-French 5-Factor Carry | OPEC+ Supply Discipline Sentiment | $2.9 Billion / day |
+| **`BOT-US-06`** | **🛡️ VALKYRIE** | Aerospace & Defense | Kyle's Lambda Informed Flow | Kyle Lambda Informed Flow Meter | $2.1 Billion / day |
+| **`BOT-US-07`** | **🔥 LOKI** | Crypto 24/7 L1 | Perpetual Funding Rate Carry | Crypto Funding Greed/Fear Index | $32.4 Billion / day |
+| **`BOT-US-08`** | **🐺 FENRIR** | Crypto Altcoins & DeFi| Cross-Venue Triangular Arb | Cross-Venue Liquidity Imbalance | $4.8 Billion / day |
+| **`BOT-US-09`** | **🕊️ FREYJA** | Global Macro FX | Sovereign Yield Differential CTA| Sovereign Yield Differential (US vs IN) | $8.2 Billion / day |
+| **`BOT-US-10`** | **🔮 MIMIR** | Prediction Markets | Hanson LMSR Bayesian Arber | Polymarket Fair Value Divergence | $84 Million / day |
+
+---
+
+## ⚡ 7 Institutional Breakthrough Features
+
+```mermaid
+flowchart TD
+    subgraph CoreHub["🧠 RISKOS Institutional Quantum Hub"]
+        Synapse["⚡ Inter-Bot Cross-Hedging Synapse (crossHedgingSynapse.js)"]
+        VoiceCopilot["🎙️ AI Risk Copilot & Quant Whisperer (quantWhisperer.js)"]
+        CrisisSim["⏳ Time-Travel Crisis Replay Engine (crisisReplayEngine.js)"]
+        Vol3D["🌊 3D Volatility Surface & L2 Waterfall (volatilitySurface3D.js)"]
+        DarkPool["🐋 Dark Pool Hunter & Iceberg Tape (darkPoolHunter.js)"]
+        Defcon["🛑 SEC Rule 15c3-5 DEFCON Matrix (defconRiskMatrix.js)"]
+        ExecutiveMemo["📑 Bridgewater / Goldman Sachs Risk Memo (executiveReportGenerator.js)"]
+    end
+```
+
+1. **⚡ Inter-Bot Cross-Hedging Synapse & Clash of the Pantheons**:
+   - Dynamic covariance matrix $\mathbf{\Sigma}_{\text{cross}}$ calculation across borders.
+   - Minimum-variance hedge ratio router:
+     $$h^* = -\frac{\text{Cov}(R_{\text{origin}}, R_{\text{hedge}})}{\text{Var}(R_{\text{hedge}})} \cdot \Delta_{\text{origin}}$$
+   - Animated Canvas particle network and Clash of the Pantheons Alpha Leaderboard.
+
+2. **🎙️ AI Risk Copilot & Quant Whisperer**:
+   - Web Speech API trading floor synthesized voice announcements.
+   - Procedural acoustic volatility soundscape that dynamically modulates with market turbulence.
+   - Natural language query HUD (`/ask` command) parsing complex portfolio exposures.
+
+3. **⏳ Time-Travel Black Swan Crisis Replay Simulator**:
+   - 1-click historical crash replays: 1987 Black Monday, 1998 LTCM, 2008 Lehman Brothers, 2010 Flash Crash, 2020 COVID Freeze, 2023 SVB Run, and synthetic shock designer.
+   - Tracks portfolio survivability score ($0-100\%$) and identifies autonomous crisis alpha winners.
+
+4. **🌊 3D WebGL Volatility Surface & 3D Order Book Mountain**:
+   - Parametric SVI Implied Volatility Surface: Strike ($K$) $\times$ Maturity ($T$) $\times$ Implied Volatility ($\sigma_{\text{IV}}$).
+   - 3D Topographic Order Book Waterfall with real-time mouse drag to orbit and scroll to zoom.
+
+5. **🐋 Dark Pool Hunter & Iceberg Order Detector**:
+   - Real-time Level-2 tape reader calculating hidden institutional replenishment:
+     $$V_{\text{hidden}} = V_{\text{executed}} - \sum V_{\text{visible}}$$
+   - Detects off-exchange dark pool block prints with stealth scores and institutional radar.
+
+6. **🛑 SEC Rule 15c3-5 DEFCON Risk Matrix & Dead Man's Kill Switch**:
+   - 5 defense levels (DEFCON 5: Normal to DEFCON 1: Panic Liquidation).
+   - Single-click emergency TWAP market liquidation across all open positions directly into cash.
+   - Autonomous rogue bot quarantine with 64-character SHA-256 cryptographic audit receipts.
+
+7. **📑 One-Click Bridgewater / Goldman Sachs Executive Risk Memorandum**:
+   - Institutional LP & board reporting engine generating comprehensive, print-ready HTML/PDF risk memorandums.
+   - Features LaTeX KaTeX mathematical strategy proofs, factor attributions, and regulatory disclosures.
 
 ### ⏳ 24/7 Epoch Persistence & Time-Travel Engine
 - Saves an initialization epoch in persistent browser storage (`RISKOS_FLEET_START_EPOCH_V3`).
