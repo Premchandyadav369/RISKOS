@@ -112,7 +112,14 @@ const TerminalBus = (() => {
     { cmd: 'TFM', desc: 'Run Google TimesFM 3.0 Quantile Fan', category: 'AI Action', action: 'GOTO_TFM' },
     { cmd: 'BURST', desc: 'Burst All 20 Autonomous Bot Orders', category: 'Fleet Action', action: 'BURST_ORDERS' },
     { cmd: 'KILL', desc: 'Emergency Liquidate & Halt Fleet', category: 'Circuit Breaker', action: 'KILL_SWITCH' },
-    { cmd: 'EXPORT', desc: 'Export Institutional Blotter to CSV', category: 'Data Export', action: 'EXPORT_CSV' }
+    { cmd: 'EXPORT', desc: 'Export Institutional Blotter to CSV', category: 'Data Export', action: 'EXPORT_CSV' },
+    { cmd: 'SYNAPSE', desc: 'Inter-Bot Cross-Hedging Synapse & Clash of Pantheons', category: 'Swarm Action', url: 'fleet.html?action=synapse' },
+    { cmd: 'COPILOT', desc: 'Institutional AI Risk Copilot & Quant Whisperer', category: 'AI Action', url: 'fleet.html?action=copilot' },
+    { cmd: 'CRISIS', desc: 'Time-Travel Black Swan Crisis Replay Simulator', category: 'Stress Action', url: 'fleet.html?action=crisis' },
+    { cmd: 'VOL3D', desc: '3D Implied Volatility Surface & Order Book Mountain', category: '3D Viz Action', url: 'fleet.html?action=vol3d' },
+    { cmd: 'DARKPOOL', desc: 'Dark Pool Hunter & Iceberg Order Tape Reader', category: 'Microstructure', url: 'fleet.html?action=darkpool' },
+    { cmd: 'DEFCON', desc: 'SEC Rule 15c3-5 Defense Matrix & Panic Kill Switch', category: 'Compliance', url: 'fleet.html?action=defcon' },
+    { cmd: 'MEMO', desc: 'Generate Goldman Sachs / Bridgewater Risk Memorandum', category: 'LP Report', url: 'fleet.html?action=memo' }
   ];
 
   // ══════════════════════════════════════════════════════════════════════════
