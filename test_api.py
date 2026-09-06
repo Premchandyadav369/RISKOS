@@ -10,36 +10,44 @@ from api.main import app
 
 client = TestClient(app)
 
-print("--- Testing API Endpoints ---")
+def test_candlesticks():
+    res = client.get("/api/market/candlesticks?ticker=RELIANCE&timeframe=1Y")
+    assert res.status_code == 200
+    data = res.json()
+    assert data['symbol'] == 'RELIANCE'
+    assert data['count'] > 0
 
-# 1. Candlesticks
-res = client.get("/api/market/candlesticks?ticker=RELIANCE&timeframe=1Y")
-assert res.status_code == 200
-data = res.json()
-print(f"Candlesticks Endpoint: {data['symbol']} {data['count']} bars, source={data['source']}")
+def test_live_quote():
+    res = client.get("/api/market/quote?ticker=INFY")
+    assert res.status_code == 200
+    data = res.json()
+    assert data['symbol'] == 'INFY'
+    assert 'price' in data
 
-# 2. Live Quote
-res = client.get("/api/market/quote?ticker=INFY")
-assert res.status_code == 200
-data = res.json()
-print(f"Quote Endpoint: {data['symbol']} price={data['price']}, change={data['change_percent']}%")
+def test_fundamentals():
+    res = client.get("/api/market/fundamentals?ticker=TCS")
+    assert res.status_code == 200
+    data = res.json()
+    assert data['symbol'] == 'TCS'
+    assert 'pe' in data
 
-# 3. Fundamentals
-res = client.get("/api/market/fundamentals?ticker=TCS")
-assert res.status_code == 200
-data = res.json()
-print(f"Fundamentals Endpoint: {data['symbol']} PE={data['pe']}, ROE={data['roe']}%")
+def test_portfolio_transactions():
+    res = client.get("/api/portfolio/transactions")
+    assert res.status_code == 200
+    data = res.json()
+    assert 'transactions' in data
 
-# 4. Portfolio Transactions
-res = client.get("/api/portfolio/transactions")
-assert res.status_code == 200
-data = res.json()
-print(f"Transactions Endpoint: {len(data['transactions'])} transactions returned from database")
+def test_portfolio_summary():
+    res = client.get("/api/portfolio/summary")
+    assert res.status_code == 200
+    data = res.json()
+    assert 'total_invested' in data
+    assert 'current_value' in data
 
-# 5. Portfolio Summary
-res = client.get("/api/portfolio/summary")
-assert res.status_code == 200
-data = res.json()
-print(f"Portfolio Summary Endpoint: Total Invested = INR {data['total_invested']}, Current Value = INR {data['current_value']}, Unrealized P&L = INR {data['unrealized_pnl']} ({data['unrealized_pnl_percent']}%)")
-
-print("--- All Backend Endpoints Working 100% with Real Database & Live Feeds! ---")
+if __name__ == '__main__':
+    test_candlesticks()
+    test_live_quote()
+    test_fundamentals()
+    test_portfolio_transactions()
+    test_portfolio_summary()
+    print("--- All Backend Endpoints Working 100% with Real Database & Live Feeds! ---")

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Black-Karasinski Lognormal Short Rate
 Analytical SDE: $$d\ln(r_t) = (\theta(t) - a \ln(r_t)) dt + \sigma dW_t$$
 Module Variant #189

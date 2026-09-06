@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Cox-Ingersoll-Ross Non-Negative Interest Rate Diffusion (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

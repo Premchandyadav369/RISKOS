@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Locally and Globally Capped Cliquet Option Engine (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

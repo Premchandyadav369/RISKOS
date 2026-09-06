@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Debit and Funding Valuation Adjustment Engine (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

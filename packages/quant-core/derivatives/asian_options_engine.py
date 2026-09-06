@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Turnbull-Wakeman Continuous Arithmetic Asian Engine (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

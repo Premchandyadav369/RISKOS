@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Online Kalman Filter Dynamic Hedge Ratio Tracker (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

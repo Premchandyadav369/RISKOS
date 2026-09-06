@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Gatheral Power-Law Market Impact Decay Engine (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

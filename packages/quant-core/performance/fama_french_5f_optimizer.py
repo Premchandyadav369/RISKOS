@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Fama-French 5-Factor Robust Alpha Decomposition (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

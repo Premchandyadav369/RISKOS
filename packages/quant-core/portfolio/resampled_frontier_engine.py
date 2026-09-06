@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Michaud Resampled Efficient Frontier Multi-Path Engine (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

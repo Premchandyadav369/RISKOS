@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Volume-Synchronized Probability of Toxicity Engine (validator)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

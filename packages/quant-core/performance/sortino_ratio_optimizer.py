@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Downside Deviation and Sortino/Omega Ratio Suite (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

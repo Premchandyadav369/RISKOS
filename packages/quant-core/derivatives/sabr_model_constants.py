@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Hagan SABR Volatility Smile Parameter Fitter (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

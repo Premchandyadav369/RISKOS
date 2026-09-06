@@ -5,8 +5,28 @@ def simulate_execution(ticker: str, direction: str, quantity: int, vwap_window: 
     if quantity > 100_000:
         return {'status': 'REJECTED', 'error': 'Order exceeds max quantity limit (100k shares)'}
         
-    # Dummy base price for simulation
-    base_price = 150.0 
+    # Live market price lookup with institutional fallback
+    try:
+        from engine.market import get_live_quote, BASE_PRICES
+    except (ImportError, ModuleNotFoundError):
+        try:
+            from backend.engine.market import get_live_quote, BASE_PRICES
+        except Exception:
+            get_live_quote = None
+            BASE_PRICES = {}
+
+    base_price = 150.0
+    if get_live_quote is not None:
+        try:
+            quote = get_live_quote(ticker)
+            base_price = float(quote.get('price', BASE_PRICES.get(ticker.upper(), 150.0)))
+        except Exception:
+            base_price = float(BASE_PRICES.get(ticker.upper(), 150.0))
+    elif BASE_PRICES and ticker.upper() in BASE_PRICES:
+        base_price = float(BASE_PRICES[ticker.upper()])
+
+    if base_price <= 0:
+        base_price = 150.0
     
     if quantity * base_price > 50_000_000:
         return {'status': 'REJECTED', 'error': 'Order exceeds notional limit (50M)'}

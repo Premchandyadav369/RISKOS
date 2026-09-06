@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Basel III/IV FRTB Standardized Approach Capital Engine (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

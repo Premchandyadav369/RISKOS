@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Merton Jump-Diffusion Process
 Analytical SDE: $$dS_t = (\mu - \lambda k) S_t dt + \sigma S_t dW_t + S_t dJ_t$$
 Module Variant #233

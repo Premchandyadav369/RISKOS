@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Ornstein-Uhlenbeck Mean-Reverting SDE
 Analytical SDE: $$dX_t = \kappa (\theta - X_t) dt + \sigma dW_t$$
 Module Variant #042

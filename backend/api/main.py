@@ -89,10 +89,16 @@ def parse_weights(weights_str: Optional[str], n_assets: int) -> list[float]:
 
 # ── 1. Real-Time Multi-Provider Market Endpoints ────────────────────────────
 @app.get("/api/market/quote")
-def api_market_quote(symbol: Optional[str] = None, securityId: Optional[str] = None):
+def api_market_quote(symbol: Optional[str] = None, ticker: Optional[str] = None, securityId: Optional[str] = None):
     """Fetches real-time quote via NSE Direct / Google Finance / Yahoo Finance with automatic failover."""
-    sym = symbol or securityId or "RELIANCE"
-    return market_aggregator.get_quote(sym)
+    sym = symbol or ticker or securityId or "RELIANCE"
+    try:
+        q = market_aggregator.get_quote(sym)
+        if q and not q.get("error"):
+            return q
+    except Exception:
+        pass
+    return get_live_quote(sym)
 
 @app.get("/api/market/quotes")
 def api_market_quotes(symbols: Optional[str] = "RELIANCE,TCS,HDFCBANK,INFY,NVDA,AAPL"):
@@ -673,14 +679,6 @@ def api_get_candlesticks(ticker: str = "RELIANCE", timeframe: str = "1Y"):
     """Returns OHLC candlestick series with volume and computed SMA/EMA."""
     try:
         return get_candlesticks(ticker, timeframe)
-    except Exception as e:
-        return {"error": str(e)}
-
-@app.get("/api/market/quote")
-def api_get_quote(ticker: str = "RELIANCE"):
-    """Returns live market quote."""
-    try:
-        return get_live_quote(ticker)
     except Exception as e:
         return {"error": str(e)}
 

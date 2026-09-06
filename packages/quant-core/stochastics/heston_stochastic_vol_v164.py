@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Heston Two-Factor Stochastic Volatility
 Analytical SDE: $$dv_t = \kappa (\theta - v_t) dt + \xi \sqrt{v_t} dW_t^v$$
 Module Variant #164

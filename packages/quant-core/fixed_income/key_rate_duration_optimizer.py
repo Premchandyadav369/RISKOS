@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Multi-Point Key Rate Duration DV01 Hedger (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

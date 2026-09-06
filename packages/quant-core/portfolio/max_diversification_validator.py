@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Choueifaty Maximum Diversification Ratio Optimizer (validator)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

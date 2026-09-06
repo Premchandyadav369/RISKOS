@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: GARCH(1,1) Maximum Likelihood Variance Predictor (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

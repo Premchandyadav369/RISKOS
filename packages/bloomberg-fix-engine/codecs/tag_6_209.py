@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS FIX 4.4 Institutional Engine: Tag 6 (AvgPx)
 Codec and Invariant Validator #209
 """

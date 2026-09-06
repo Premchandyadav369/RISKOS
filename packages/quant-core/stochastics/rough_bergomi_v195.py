@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Rough Bergomi Fractional Volatility
 Analytical SDE: $$v_t = \xi_0(t) \mathcal{E}\left(\eta \sqrt{2H} \int_0^t (t-s)^{H-1/2} dW_s\right)$$
 Module Variant #195

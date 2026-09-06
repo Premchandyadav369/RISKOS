@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Mean-Reverting Ornstein-Uhlenbeck Process (validator)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

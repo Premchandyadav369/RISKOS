@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Barone-Adesi-Whaley American Early Exercise Engine (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

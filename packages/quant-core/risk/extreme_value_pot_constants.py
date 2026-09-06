@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Peaks-Over-Threshold Generalized Pareto Tail Estimator (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

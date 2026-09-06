@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Brinson-Fachler Multi-Sector PnL Attribution (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

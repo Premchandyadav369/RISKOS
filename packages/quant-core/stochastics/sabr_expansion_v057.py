@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Hagan SABR Implied Volatility Expansion
 Analytical SDE: $$\sigma_{SABR}(K, F) = \frac{\alpha}{(F K)^{(1-\beta)/2}} \frac{z}{x(z)} \gamma(F, K)$$
 Module Variant #057

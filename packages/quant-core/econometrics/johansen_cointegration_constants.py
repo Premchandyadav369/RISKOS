@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Johansen Trace Test for Multi-Asset Cointegration (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

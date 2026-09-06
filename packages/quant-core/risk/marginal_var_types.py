@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Euler Component and Incremental VaR Decomposer (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

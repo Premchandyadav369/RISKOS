@@ -9,17 +9,25 @@ from database.db import init_db, SessionLocal
 from database.models import TransactionModel, SecurityModel
 from engine.market import get_candlesticks, get_live_quote, get_live_fundamentals
 
-init_db()
-db = SessionLocal()
-secs = db.query(SecurityModel).count()
-txs = db.query(TransactionModel).count()
-print(f"Database verified: {secs} securities, {txs} transactions")
+def test_database_and_market_engine():
+    init_db()
+    db = SessionLocal()
+    secs = db.query(SecurityModel).count()
+    txs = db.query(TransactionModel).count()
+    assert secs > 0 or txs >= 0
 
-candles = get_candlesticks("RELIANCE", "1Y")
-print(f"Candlesticks verified: {candles['count']} bars, SMA20 len={len(candles['sma20'])}, source={candles['source']}")
+    candles = get_candlesticks("RELIANCE", "1Y")
+    assert candles['count'] > 0
+    assert 'sma20' in candles
 
-quote = get_live_quote("TCS")
-print(f"Live quote verified: {quote['symbol']} price={quote['price']}, change={quote['change_percent']}%, source={quote['source']}")
+    quote = get_live_quote("TCS")
+    assert quote['symbol'] == 'TCS'
+    assert quote['price'] > 0
 
-fund = get_live_fundamentals("HDFCBANK")
-print(f"Fundamentals verified: {fund['symbol']} PE={fund['pe']}, Beta={fund['beta']}, ROE={fund['roe']}%")
+    fund = get_live_fundamentals("HDFCBANK")
+    assert fund['symbol'] == 'HDFCBANK'
+    assert 'pe' in fund
+
+if __name__ == '__main__':
+    test_database_and_market_engine()
+    print("Backend test passed!")

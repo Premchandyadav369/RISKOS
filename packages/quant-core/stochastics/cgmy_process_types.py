@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Carr-Geman-Madan-Yor CGMY Infinite Activity Jump Model (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

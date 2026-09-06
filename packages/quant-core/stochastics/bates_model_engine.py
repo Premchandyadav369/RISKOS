@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Bates Stochastic Volatility with Jump Diffusion (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

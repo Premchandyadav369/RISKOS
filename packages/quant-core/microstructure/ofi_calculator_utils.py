@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Level-2 Limit Order Book Flow Imbalance Engine (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

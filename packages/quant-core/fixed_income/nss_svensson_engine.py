@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Nelson-Siegel-Svensson 6-Factor Dual Hump Fitter (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

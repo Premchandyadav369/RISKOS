@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Variance Gamma Pure Jump Subordinated Model (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

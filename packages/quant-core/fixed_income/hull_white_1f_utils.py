@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Hull-White 1-Factor Short Rate Lattice Engine (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture
