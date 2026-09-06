@@ -35,48 +35,40 @@
 </head>
 <body class="observatory-page portfolio-page" data-user-mode="investor">
 
-  <!-- ═══════════════════════ 1. UNIVERSAL APPLICATION HEADER ═══════════════════════ -->
-  <header class="header" id="siteHeader">
+  <!-- ═══════════════════════ 1. STREAMLINED TOP COMMAND BAR ═══════════════════════ -->
+  <header class="header header--streamlined" id="siteHeader">
     <div class="header-inner">
       
-      <!-- Brand Logo -->
+      <!-- Left: Logo & Search Icon -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" />
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" />
         </a>
-      </div>
-
-      <!-- Center Navigation Pill Bar -->
-      <nav class="nav-pill" aria-label="Main Navigation">
-        <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Quant Models (⌘K)">
-          <i class="fa-solid fa-magnifying-glass search-icon"></i>
-          <span class="search-placeholder">Search holdings, models, news...</span>
+        <button class="header-search-icon-btn" id="navSearchTrigger" title="Quick Search (⌘K)">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span class="search-hint-text">Search...</span>
           <kbd class="kbd-shortcut">⌘K</kbd>
         </button>
-        
+      </div>
+
+      <!-- Center: Clean Navigation Pills -->
+      <nav class="nav-pill nav-pill--clean" aria-label="Main Navigation">
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="app.html" class="nav-link">7 Desks</a>
-        <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan" style="margin-right:2px;"></i> 24/7 Fleet</a>
+        <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan"></i> Fleet</a>
         <a href="observatory.html" class="nav-link">Observatory</a>
-        <a href="learn.html" class="nav-link">52 Labs</a>
         <a href="ticker.html" class="nav-link">Screener</a>
-        <a href="portfolio_optimizer.html" class="nav-link active"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
-        <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:2px;"></i> System Docs</a>
+        <a href="portfolio_optimizer.html" class="nav-link active"><i class="fa-solid fa-sliders text-cyan"></i> Optimizer</a>
+        <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan"></i> Docs</a>
       </nav>
 
-      <!-- Header Actions -->
-      <div class="header-right">
-        <button class="live-sync-trigger-btn" id="globalLiveSyncBtn" title="Sync live market quotes across all connected modules">
-          <span class="live-sync-dot"></span>
-          <i class="fa-solid fa-bolt" style="color:var(--accent-cyan);"></i>
-          <span class="live-sync-text">Sync Live</span>
-        </button>
+      <!-- Right: Currency Toggle, Clock & Mode -->
+      <div class="header-right header-right--clean">
         
-        <!-- Explanation Depth Mode Switcher -->
-        <div class="mode-selector-pill" id="modeSelectorPill" title="Switch mathematical explanation depth">
-          <button class="mode-btn" data-mode="beginner">Beginner</button>
-          <button class="mode-btn active" data-mode="investor">Investor</button>
-          <button class="mode-btn" data-mode="quant">Quant</button>
+        <!-- Interactive INR <-> USD Currency Switcher -->
+        <div class="currency-toggle-pill" id="currencyTogglePill" title="Switch Global Currency (INR ₹ / USD $)">
+          <button class="curr-btn active" data-curr="INR">₹ INR</button>
+          <button class="curr-btn" data-curr="USD">$ USD</button>
         </div>
 
         <!-- Live Market Clock Badge -->
@@ -84,6 +76,13 @@
           <span class="status-dot"></span>
           <span class="market-name" id="marketName">NSE</span>
           <span class="market-time" id="marketTime">09:15 IST</span>
+        </div>
+
+        <!-- Explanation Depth Mode Switcher -->
+        <div class="mode-selector-pill" id="modeSelectorPill" title="Switch explanation depth">
+          <button class="mode-btn" data-mode="beginner">Beg</button>
+          <button class="mode-btn active" data-mode="investor">Inv</button>
+          <button class="mode-btn" data-mode="quant">Quant</button>
         </div>
 
         <!-- Mobile Menu Toggle Button -->
@@ -133,77 +132,97 @@
         <button class="obs-prompt-chip" data-action="memo">📑 Compile Bridgewater LP Memo</button>
       </div>
 
-      <!-- Real-Time Benchmark Ribbon -->
-      <div class="market-ribbon-card" id="optMarketRibbon" style="margin-top: 14px; width: 100%;">
-        <div class="market-ribbon-track" id="optRibbonTrack">
-          <!-- Populated dynamically -->
+      <!-- ═══════════════════════ ANIMATED GLIDING TICKER MARQUEE ═══════════════════════ -->
+      <div class="beast-marquee-wrapper" id="optMarqueeWrapper">
+        <div class="marquee-tag"><span class="pulse-beacon green"></span> LIVE STREAM</div>
+        <div class="marquee-track" id="optRibbonTrack">
+          <!-- Populated dynamically with continuous animation -->
         </div>
       </div>
     </section>
 
-    <!-- ── 2. INSTITUTIONAL KPI & PULSE STRIP ───────────────────────────────── -->
-    <section class="obs-macro-grid">
-      <!-- Total Portfolio NAV -->
-      <div class="obs-macro-card obs-macro-card--active">
+    <!-- ── 2. BEAST ANIMATED KPI & PULSE STRIP ───────────────────────────────── -->
+    <section class="obs-macro-grid beast-kpi-grid">
+      
+      <!-- Card 1: Total Portfolio NAV -->
+      <div class="obs-macro-card beast-kpi-card beast-kpi-card--nav" id="kpiCardNav">
+        <div class="card-ambient-glow"></div>
         <div class="obs-macro-card-header">
-          <span class="obs-macro-card-title"><i class="fa-solid fa-wallet"></i> TOTAL PORTFOLIO NAV</span>
-          <span class="obs-macro-pill obs-macro-pill--bullish" id="kpiNavStatus">LIVE TICK</span>
+          <span class="obs-macro-card-title"><i class="fa-solid fa-wallet text-cyan"></i> TOTAL PORTFOLIO NAV</span>
+          <span class="obs-macro-pill obs-macro-pill--bullish" id="kpiNavStatus">
+            <span class="pulse-beacon green" style="width:5px; height:5px;"></span> LIVE TICK
+          </span>
         </div>
         <div class="obs-macro-primary-stat">
-          <span class="obs-macro-num" id="kpiNav">₹10,000,000</span>
-          <span class="obs-macro-chg obs-chg--pos" id="kpiPnl">+₹124,500 (+1.25%)</span>
+          <span class="obs-macro-num value-rolling" id="kpiNav">₹11,37,670</span>
+          <span class="obs-macro-chg obs-chg--pos chg-rolling" id="kpiPnl">+₹58,520 (+5.42%)</span>
+        </div>
+        <div class="kpi-mini-gauge-wrap">
+          <div class="kpi-mini-gauge-fill" id="kpiNavMeter" style="width: 78%;"></div>
         </div>
         <div class="obs-macro-card-footer">
-          <span class="obs-micro-stat" id="kpiCapital">Cost Basis: ₹9,875,500</span>
-          <span class="obs-micro-stat obs-chg--pos">Day Return: +1.25%</span>
+          <span class="obs-micro-stat" id="kpiCapital">Cost Basis: ₹10,79,150</span>
+          <span class="obs-micro-stat obs-chg--pos" id="kpiDayReturn">Day Return: +1.25%</span>
         </div>
       </div>
 
-      <!-- Risk Profile -->
-      <div class="obs-macro-card">
+      <!-- Card 2: Quant Risk Architecture -->
+      <div class="obs-macro-card beast-kpi-card beast-kpi-card--risk" id="kpiCardRisk">
+        <div class="card-ambient-glow"></div>
         <div class="obs-macro-card-header">
-          <span class="obs-macro-card-title"><i class="fa-solid fa-shield-halved"></i> QUANT RISK ARCHITECTURE</span>
+          <span class="obs-macro-card-title"><i class="fa-solid fa-shield-halved text-cyan"></i> QUANT RISK ARCHITECTURE</span>
           <span class="obs-macro-pill obs-macro-pill--neutral">FRTB BASEL III</span>
         </div>
         <div class="obs-macro-primary-stat">
-          <span class="obs-macro-num" id="kpiBeta">β 1.08</span>
+          <span class="obs-macro-num value-rolling" id="kpiBeta">β 1.17</span>
           <span class="obs-macro-chg obs-chg--neg">VaR 99%: 1.42%</span>
         </div>
+        <div class="kpi-mini-gauge-wrap">
+          <div class="kpi-mini-gauge-fill" style="width: 38%; background: linear-gradient(90deg, #10b981, #f59e0b);"></div>
+        </div>
         <div class="obs-macro-card-footer">
-          <span class="obs-micro-stat">CVaR 95%: 2.15% NAV</span>
-          <span class="obs-micro-stat">Vol: 16.4% Shrunk</span>
+          <span class="obs-micro-stat" id="kpiCvar">CVaR 95%: 2.15% NAV</span>
+          <span class="obs-micro-stat" id="kpiVol">Vol: 16.4% Shrunk</span>
         </div>
       </div>
 
-      <!-- Predictive Consensus Drift -->
-      <div class="obs-macro-card">
+      <!-- Card 3: Predictive Consensus Drift -->
+      <div class="obs-macro-card beast-kpi-card beast-kpi-card--drift" id="kpiCardDrift">
+        <div class="card-ambient-glow"></div>
         <div class="obs-macro-card-header">
-          <span class="obs-macro-card-title"><i class="fa-solid fa-chart-line"></i> PREDICTIVE DRIFT (64D)</span>
+          <span class="obs-macro-card-title"><i class="fa-solid fa-chart-line text-cyan"></i> PREDICTIVE DRIFT (64D)</span>
           <span class="obs-macro-pill obs-macro-pill--bullish">TIMESFM + PROPHET</span>
         </div>
         <div class="obs-macro-primary-stat">
-          <span class="obs-macro-num obs-chg--pos" id="kpiDrift">+4.01%</span>
+          <span class="obs-macro-num obs-chg--pos value-rolling" id="kpiDrift">+3.96%</span>
           <span class="obs-macro-chg obs-chg--pos">Win Prob: 78.4%</span>
+        </div>
+        <div class="kpi-mini-gauge-wrap">
+          <div class="kpi-mini-gauge-fill" style="width: 78.4%; background: linear-gradient(90deg, #2563eb, #22d3ee);"></div>
         </div>
         <div class="obs-macro-card-footer">
           <span class="obs-micro-stat">Sharpe Ratio: 1.48</span>
-          <span class="obs-micro-stat">Ensemble p50: ₹10.40M</span>
+          <span class="obs-micro-stat" id="kpiEnsembleP50">Ensemble p50: ₹10.40M</span>
         </div>
       </div>
 
-      <!-- News Catalyst Index -->
-      <div class="obs-macro-card">
+      <!-- Card 4: News Catalyst Index -->
+      <div class="obs-macro-card beast-kpi-card beast-kpi-card--sentiment" id="kpiCardSentiment">
+        <div class="card-ambient-glow"></div>
         <div class="obs-macro-card-header">
-          <span class="obs-macro-card-title"><i class="fa-solid fa-bolt"></i> PORTFOLIO SENTIMENT</span>
-          <span class="obs-macro-pill obs-macro-pill--bullish" id="kpiSentimentClass">BULLISH (+0.62)</span>
+          <span class="obs-macro-card-title"><i class="fa-solid fa-bolt text-cyan"></i> PORTFOLIO SENTIMENT</span>
+          <span class="obs-macro-pill obs-macro-pill--bullish" id="kpiSentimentClass">STRONG BULLISH (+0.65)</span>
         </div>
         <div class="obs-macro-primary-stat">
-          <span class="obs-macro-num obs-chg--pos" id="kpiSentimentScore">+0.62</span>
+          <span class="obs-macro-num obs-chg--pos value-rolling" id="kpiSentimentScore">+0.65</span>
           <span class="obs-macro-chg">10 Stories Cached</span>
+        </div>
+        <div class="kpi-mini-gauge-wrap">
+          <div class="kpi-mini-gauge-fill" style="width: 82.5%; background: linear-gradient(90deg, #10b981, #22d3ee);"></div>
         </div>
         <div class="obs-macro-card-footer">
           <span class="obs-micro-stat">Loughran-McDonald NLP</span>
-          <span class="obs-micro-stat">Tilt: Long Reliance/Suzlon</span>
+          <span class="obs-micro-stat" style="color:var(--accent-cyan);">Tilt: Long Reliance/Suzlon</span>
         </div>
       </div>
     </section>
@@ -619,11 +638,11 @@
           <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">QUICK PICKS:</span>
           <button class="chip-btn" data-sym="TCS.NS">TCS.NS</button>
           <button class="chip-btn" data-sym="TATAMOTORS.NS">TATAMOTORS.NS</button>
-          <button class="chip-btn" data-sym="IDEA.NS">IDEA.NS (₹8.25)</button>
-          <button class="chip-btn" data-sym="YESBANK.NS">YESBANK.NS (₹21.40)</button>
-          <button class="chip-btn" data-sym="NVDA">NVDA ($118)</button>
-          <button class="chip-btn" data-sym="PLUG">PLUG ($2.17)</button>
-          <button class="chip-btn" data-sym="BBAI">BBAI ($1.85)</button>
+          <button class="chip-btn" data-sym="IDEA.NS">IDEA.NS</button>
+          <button class="chip-btn" data-sym="YESBANK.NS">YESBANK.NS</button>
+          <button class="chip-btn" data-sym="NVDA">NVDA</button>
+          <button class="chip-btn" data-sym="PLUG">PLUG</button>
+          <button class="chip-btn" data-sym="BBAI">BBAI</button>
         </div>
 
         <div class="modal-inputs-row">
