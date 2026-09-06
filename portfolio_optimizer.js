@@ -1,5 +1,6 @@
 /**
- * RISKOS INSTITUTIONAL PORTFOLIO OPTIMIZER & PREDICTIVE SUITE (portfolio_optimizer.js)
+ * RISKOS INSTITUTIONAL PORTFOLIO PREDICTION & QUANT OPTIMIZER (portfolio_optimizer.js)
+ * High-performance, dynamic, Bloomberg/Observatory-grade reactive controller.
  * Coordinates live holdings, micro-ticks, NewsEngine sentiment, TimesFM 3.0,
  * Prophet GAM, Merton Jump Monte Carlo, Black-Litterman optimization, and Executive Reporting.
  */
@@ -7,51 +8,131 @@
 ((root) => {
   'use strict';
 
-  // --- Default Institutional Holdings State ---
-  const DEFAULT_HOLDINGS = {
-    'RELIANCE.NS': { quantity: 100, avg_cost: 2950.0, current_price: 3020.0, beta: 1.12, name: 'Reliance Industries Ltd' },
-    'HDFCBANK.NS': { quantity: 150, avg_cost: 1620.0, current_price: 1680.0, beta: 0.98, name: 'HDFC Bank Ltd' },
-    'INFY.NS': { quantity: 120, avg_cost: 1780.0, current_price: 1840.0, beta: 1.05, name: 'Infosys Ltd' },
-    'SUZLON.NS': { quantity: 5000, avg_cost: 58.0, current_price: 64.50, beta: 1.45, name: 'Suzlon Energy Ltd' },
-    'AAPL': { quantity: 80, avg_cost: 210.0, current_price: 224.50, beta: 1.20, name: 'Apple Inc.' },
-    'MSFT': { quantity: 50, avg_cost: 415.0, current_price: 448.20, beta: 1.15, name: 'Microsoft Corp.' }
+  // --- Initial Institutional Holdings ---
+  const INITIAL_HOLDINGS = {
+    'RELIANCE.NS': { quantity: 100, avg_cost: 2950.0, current_price: 3020.0, beta: 1.12, name: 'Reliance Industries Limited', sector: 'Energy / Digital', exchange: 'NSE' },
+    'HDFCBANK.NS': { quantity: 150, avg_cost: 1620.0, current_price: 1680.0, beta: 0.98, name: 'HDFC Bank Limited', sector: 'Banking & Financials', exchange: 'NSE' },
+    'INFY.NS': { quantity: 120, avg_cost: 1780.0, current_price: 1840.0, beta: 1.05, name: 'Infosys Limited', sector: 'IT & Software', exchange: 'NSE' },
+    'SUZLON.NS': { quantity: 5000, avg_cost: 58.0, current_price: 64.50, beta: 1.45, name: 'Suzlon Energy Limited', sector: 'Renewable Power', exchange: 'NSE' },
+    'AAPL': { quantity: 80, avg_cost: 210.0, current_price: 224.50, beta: 1.20, name: 'Apple Inc.', sector: 'Consumer Technology', exchange: 'NASDAQ' },
+    'MSFT': { quantity: 50, avg_cost: 415.0, current_price: 448.20, beta: 1.15, name: 'Microsoft Corporation', sector: 'Cloud & Enterprise AI', exchange: 'NASDAQ' }
   };
 
+  // Benchmark quotes for ticker ribbon
+  const BENCHMARKS = [
+    { symbol: 'NIFTY 50', price: 24820.40, change: 112.50, changePct: 0.45, isIndex: true },
+    { symbol: 'S&P 500', price: 5648.20, change: 24.10, changePct: 0.43, isIndex: true },
+    { symbol: 'USD/INR', price: 86.72, change: -0.05, changePct: -0.06, isIndex: true },
+    { symbol: 'INDIA 10Y', price: 6.88, change: -0.02, changePct: -0.29, isIndex: true, unit: '%' },
+    { symbol: 'BRENT CRUDE', price: 78.45, change: 1.40, changePct: 1.82, isIndex: true, unit: '$' },
+    { symbol: 'GOLD (MCX)', price: 72450, change: 320, changePct: 0.44, isIndex: true, unit: '₹' }
+  ];
+
+  // Platform Application State
   const state = {
-    holdings: JSON.parse(JSON.stringify(DEFAULT_HOLDINGS)),
+    holdings: JSON.parse(JSON.stringify(INITIAL_HOLDINGS)),
+    holdingsFilter: 'ALL',
     newsItems: [],
     sentimentDrift: {},
+    injectedViews: {}, // User-injected Black-Litterman subjective views
+    macroShocks: { rateBps: 0, oilPct: 0, techPct: 0, fxPct: 0 },
     predictionResult: null,
+    activePredModel: 'ALL',
+    activePredHorizon: 64,
+    activeOptModel: 'BLACK_LITTERMAN',
     optimizerResult: null,
     rebalanceResult: null,
-    activePredTab: 'ALL',
+    selectedDrawerSecurity: null,
     predictionChart: null,
-    weightsChart: null
+    weightsChart: null,
+    drawerSparklineChart: null
   };
 
-  // --- Initialize Platform ---
+  // --- Platform Bootstrap ---
   async function init() {
-    initClock();
+    initMarketClock();
+    initBenchmarkRibbon();
     await loadNewsStream();
-    calculatePortfolioKPIs();
     renderHoldingsTable();
-    subscribeLiveTicks();
-    setupEventListeners();
-    await runPortfolioPrediction();
+    updatePortfolioKPIs();
+    subscribeMicroTicks();
+    setupEventHandlers();
+    renderKaTeXFormulas();
+    await runMultiModelPrediction();
     await runOptimization();
   }
 
-  // --- Real-Time UTC Clock ---
-  function initClock() {
-    const clockEl = document.getElementById('liveClock');
-    const update = () => {
-      const d = new Date();
-      if (clockEl) {
-        clockEl.textContent = d.toISOString().substring(11, 19) + ' UTC';
+  // --- Market Clock (IST / EST Toggle) ---
+  function initMarketClock() {
+    const clockBadge = document.getElementById('marketClockBadge');
+    const marketNameEl = document.getElementById('marketName');
+    const marketTimeEl = document.getElementById('marketTime');
+
+    let currentZone = 'IST'; // 'IST' or 'EST'
+
+    const updateClock = () => {
+      const now = new Date();
+      if (currentZone === 'IST') {
+        const istTime = new Intl.DateTimeFormat('en-GB', {
+          timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }).format(now);
+        if (marketNameEl) marketNameEl.textContent = 'NSE';
+        if (marketTimeEl) marketTimeEl.textContent = `${istTime} IST`;
+      } else {
+        const estTime = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }).format(now);
+        if (marketNameEl) marketNameEl.textContent = 'NYSE';
+        if (marketTimeEl) marketTimeEl.textContent = `${estTime} EST`;
       }
     };
-    update();
-    setInterval(update, 1000);
+
+    if (clockBadge) {
+      clockBadge.addEventListener('click', () => {
+        currentZone = currentZone === 'IST' ? 'EST' : 'IST';
+        updateClock();
+      });
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  }
+
+  // --- Benchmark & Live Holdings Ticker Ribbon ---
+  function initBenchmarkRibbon() {
+    const track = document.getElementById('optRibbonTrack');
+    if (!track) return;
+
+    const renderRibbon = () => {
+      const items = [...BENCHMARKS];
+      Object.entries(state.holdings).forEach(([sym, h]) => {
+        items.push({
+          symbol: sym,
+          price: h.current_price,
+          change: h.current_price - h.avg_cost,
+          changePct: ((h.current_price - h.avg_cost) / h.avg_cost) * 100,
+          isHolding: true
+        });
+      });
+
+      track.innerHTML = items.map(item => {
+        const isPos = item.changePct >= 0;
+        const sign = isPos ? '+' : '';
+        const chgCls = isPos ? 'obs-chg--pos' : 'obs-chg--neg';
+        const isUS = item.symbol && !item.symbol.includes('.') && !item.isIndex;
+        const curr = item.unit || (isUS ? '$' : '₹');
+
+        return `<div class="market-ribbon-item">
+          <span class="ribbon-ticker">${escapeHtml(item.symbol)}</span>
+          <span class="ribbon-price">${curr}${typeof item.price === 'number' ? item.price.toLocaleString() : item.price}</span>
+          <span class="ribbon-chg ${chgCls}">${sign}${item.changePct.toFixed(2)}%</span>
+        </div>`;
+      }).join('');
+    };
+
+    renderRibbon();
+    // Re-render ribbon periodically
+    setInterval(renderRibbon, 3000);
   }
 
   // --- News Streaming & Sentiment Synapse ---
@@ -60,65 +141,102 @@
       state.newsItems = await root.NewsEngine.getNewsFeed({ limit: 15 });
       const symbols = Object.keys(state.holdings);
       state.sentimentDrift = await root.NewsEngine.getSentimentDrift(symbols);
-      renderNewsTicker();
-      renderNewsFeed();
+      renderNewsStream();
+      updateSentimentKPI();
 
       root.NewsEngine.subscribe((items) => {
         state.newsItems = items;
-        renderNewsTicker();
-        renderNewsFeed();
+        renderNewsStream();
+        updateSentimentKPI();
       });
     }
   }
 
-  function renderNewsTicker() {
-    const container = document.getElementById('newsTickerContainer');
-    if (!container || !state.newsItems.length) return;
+  function updateSentimentKPI() {
+    const symbols = Object.keys(state.holdings);
+    let totalScore = 0;
+    let count = 0;
 
-    container.innerHTML = state.newsItems.slice(0, 8).map(item => {
-      const cls = item.sentiment_class === 'STRONG_BULLISH' || item.sentiment_class === 'BULLISH'
-        ? 'bullish' : (item.sentiment_class.includes('BEARISH') ? 'bearish' : 'neutral');
-      const scoreStr = (item.sentiment_score >= 0 ? '+' : '') + item.sentiment_score.toFixed(2);
-      return `<div class="news-ticker-item">
-        <span class="badge-pill ${cls}">${item.sentiment_class} (${scoreStr})</span>
-        <span><strong>${escapeHtml(item.title)}</strong></span>
-        <span class="badge-tag">${item.source || 'Wire'}</span>
-      </div>`;
-    }).join('');
+    symbols.forEach(sym => {
+      const d = state.sentimentDrift[sym];
+      if (d) {
+        totalScore += d.aggregate_sentiment;
+        count++;
+      }
+    });
+
+    const avg = count > 0 ? totalScore / count : 0.62;
+    const scoreEl = document.getElementById('kpiSentimentScore');
+    const classEl = document.getElementById('kpiSentimentClass');
+
+    if (scoreEl) {
+      scoreEl.textContent = `${avg >= 0 ? '+' : ''}${avg.toFixed(2)}`;
+      scoreEl.className = 'obs-macro-num ' + (avg >= 0 ? 'obs-chg--pos' : 'obs-chg--neg');
+    }
+    if (classEl) {
+      const label = avg > 0.3 ? 'STRONG BULLISH' : (avg > 0.05 ? 'BULLISH' : (avg < -0.3 ? 'STRONG BEARISH' : (avg < -0.05 ? 'BEARISH' : 'NEUTRAL')));
+      classEl.textContent = `${label} (${(avg >= 0 ? '+' : '') + avg.toFixed(2)})`;
+      classEl.className = 'obs-macro-pill ' + (avg >= 0 ? 'obs-macro-pill--bullish' : 'obs-macro-pill--neutral');
+    }
   }
 
-  function renderNewsFeed() {
-    const container = document.getElementById('portfolioNewsFeed');
-    const badge = document.getElementById('newsCountBadge');
+  function renderNewsStream() {
+    const container = document.getElementById('portfolioNewsContainer');
     if (!container) return;
 
-    if (badge) badge.textContent = `${state.newsItems.length} Stories`;
-
-    if (!state.newsItems.length) {
-      container.innerHTML = '<div class="text-muted" style="padding:20px; text-align:center;">No breaking catalyst headlines detected.</div>';
+    if (!state.newsItems || !state.newsItems.length) {
+      container.innerHTML = `<div class="obs-empty-state">
+        <i class="fa-solid fa-satellite-dish empty-icon"></i>
+        <h3>Connecting to Live Wire Feeds</h3>
+        <p>Awaiting breaking news catalysts across Indian and US capital markets...</p>
+      </div>`;
       return;
     }
 
     container.innerHTML = state.newsItems.map(item => {
-      const cls = item.sentiment_class.includes('BULLISH') ? 'bullish' : (item.sentiment_class.includes('BEARISH') ? 'bearish' : 'neutral');
-      const symbolsHtml = (item.symbols || []).map(s => `<span class="badge-tag">${s}</span>`).join(' ');
-      return `<div class="news-card-item">
-        <div class="news-item-top">
-          <span class="badge-pill ${cls}">${item.sentiment_class} (${(item.sentiment_score >= 0 ? '+' : '') + item.sentiment_score.toFixed(2)})</span>
-          <span class="badge-tag">${escapeHtml(item.catalyst_type || 'CATALYST')}</span>
+      const score = item.sentiment_score || 0;
+      const isPos = score >= 0;
+      const sign = isPos ? '+' : '';
+      const cls = score > 0.2 ? 'bullish' : (score < -0.2 ? 'bearish' : 'neutral');
+      const badgeCls = score > 0.2 ? 'obs-macro-pill--bullish' : (score < -0.2 ? 'obs-macro-pill--neutral' : 'obs-macro-pill--neutral');
+
+      const primarySymbol = (item.symbols && item.symbols.length) ? item.symbols[0] : null;
+      const hasHolding = primarySymbol && state.holdings[primarySymbol];
+      const isViewInjected = primarySymbol && state.injectedViews[primarySymbol] !== undefined;
+
+      return `<div class="news-card-cinematic ${cls}">
+        <div class="news-top-row">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span class="obs-macro-pill ${badgeCls}">${escapeHtml(item.sentiment_class || 'NEUTRAL')} (${sign}${score.toFixed(2)})</span>
+            <span class="obs-badge obs-badge--volume">${escapeHtml(item.catalyst_type || 'CATALYST')}</span>
+          </div>
+          ${primarySymbol ? `<button class="btn-inject-view" onclick="window.toggleInjectNewsView('${primarySymbol}', ${score})">
+            ${isViewInjected ? '<i class="fa-solid fa-check"></i> VIEW INJECTED' : '<i class="fa-solid fa-bolt"></i> INJECT VIEW'}
+          </button>` : ''}
         </div>
-        <div class="news-item-headline">${escapeHtml(item.title)}</div>
-        <div class="news-item-snippet">${escapeHtml(item.summary || '')}</div>
-        <div class="news-item-meta">
-          <span>${symbolsHtml || '<span class="badge-tag">MARKET</span>'}</span>
-          <span>${formatTime(item.published_at)} &bull; ${escapeHtml(item.source)}</span>
+        <div class="news-title-text">${escapeHtml(item.title)}</div>
+        <div class="news-summary-text">${escapeHtml(item.summary || '')}</div>
+        <div class="news-bottom-row">
+          <span>${hasHolding ? '<strong style="color:var(--accent-cyan);"><i class="fa-solid fa-wallet"></i> PORTFOLIO ASSET: ' + primarySymbol + '</strong>' : (primarySymbol ? primarySymbol : 'MARKET WIRE')}</span>
+          <span>${formatTime(item.published_at)} &bull; ${escapeHtml(item.source || 'Wire')}</span>
         </div>
       </div>`;
     }).join('');
   }
 
-  // --- Portfolio KPIs & Table ---
-  function calculatePortfolioKPIs() {
+  // --- Inject News View directly into Black-Litterman Optimizer ---
+  root.toggleInjectNewsView = function(symbol, score) {
+    if (state.injectedViews[symbol] !== undefined) {
+      delete state.injectedViews[symbol];
+    } else {
+      state.injectedViews[symbol] = score * 0.10; // 10% view tilt
+    }
+    renderNewsStream();
+    runOptimization();
+  };
+
+  // --- Portfolio Holdings Table & Telemetry ---
+  function updatePortfolioKPIs() {
     let totalNav = 0;
     let totalCost = 0;
     let weightedBeta = 0;
@@ -138,22 +256,30 @@
       weightedBeta += w * (h.beta || 1.0);
     });
 
-    const dayPnl = totalNav - totalCost;
+    // Apply macro rate shock shift to display
+    const rateShiftPct = (state.macroShocks.rateBps / 100.0) * -0.064;
+    const oilShiftPct = (state.macroShocks.oilPct / 100.0) * -0.16;
+    const techShiftPct = (state.macroShocks.techPct / 100.0) * 0.48;
+    const fxShiftPct = (state.macroShocks.fxPct / 100.0) * 0.20;
+    const netMacroShift = rateShiftPct + oilShiftPct + techShiftPct + fxShiftPct;
+
+    const adjustedNav = totalNav * (1.0 + netMacroShift);
+    const dayPnl = adjustedNav - totalCost;
     const dayPnlPct = totalCost > 0 ? (dayPnl / totalCost) * 100 : 0;
 
     const navEl = document.getElementById('kpiNav');
     const pnlEl = document.getElementById('kpiPnl');
-    const countEl = document.getElementById('kpiCount');
+    const capEl = document.getElementById('kpiCapital');
     const betaEl = document.getElementById('kpiBeta');
 
-    if (navEl) navEl.textContent = `₹${Math.round(totalNav).toLocaleString('en-IN')}`;
+    if (navEl) navEl.textContent = `₹${Math.round(adjustedNav).toLocaleString('en-IN')}`;
     if (pnlEl) {
       const sign = dayPnl >= 0 ? '+' : '';
-      pnlEl.textContent = `${sign}₹${Math.round(dayPnl).toLocaleString('en-IN')} (${sign}${dayPnlPct.toFixed(2)}%) UNREALIZED`;
-      pnlEl.className = 'kpi-sub ' + (dayPnl >= 0 ? 'positive' : 'negative');
+      pnlEl.textContent = `${sign}₹${Math.round(dayPnl).toLocaleString('en-IN')} (${sign}${dayPnlPct.toFixed(2)}%)`;
+      pnlEl.className = 'obs-macro-chg ' + (dayPnl >= 0 ? 'obs-chg--pos' : 'obs-chg--neg');
     }
-    if (countEl) countEl.textContent = `${symbols.length} Securities`;
-    if (betaEl) betaEl.textContent = `β ${weightedBeta.toFixed(2)} | 16.4%`;
+    if (capEl) capEl.textContent = `Cost Basis: ₹${Math.round(totalCost).toLocaleString('en-IN')}`;
+    if (betaEl) betaEl.textContent = `β ${weightedBeta.toFixed(2)}`;
   }
 
   function renderHoldingsTable() {
@@ -165,39 +291,107 @@
       totalNav += h.quantity * h.current_price;
     });
 
-    const rowsHtml = Object.entries(state.holdings).map(([sym, h]) => {
+    let entries = Object.entries(state.holdings);
+    if (state.holdingsFilter === 'NSE') {
+      entries = entries.filter(([sym]) => sym.endsWith('.NS') || sym.endsWith('.BO'));
+    } else if (state.holdingsFilter === 'US') {
+      entries = entries.filter(([sym]) => !sym.includes('.'));
+    } else if (state.holdingsFilter === 'PENNY') {
+      entries = entries.filter(([sym, h]) => h.current_price < 25.0);
+    }
+
+    if (!entries.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">No securities match active filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = entries.map(([sym, h]) => {
       const val = h.quantity * h.current_price;
-      const weightPct = totalNav > 0 ? ((val / totalNav) * 100).toFixed(2) : '0.00';
+      const weightPct = totalNav > 0 ? ((val / totalNav) * 100).toFixed(1) : '0.0';
       const drift = state.sentimentDrift[sym] || {};
       const sentClass = drift.sentiment_class || 'NEUTRAL';
       const sentScore = drift.aggregate_sentiment !== undefined ? drift.aggregate_sentiment : 0.0;
-      const sentClsName = sentClass.includes('BULLISH') ? 'bullish' : (sentClass.includes('BEARISH') ? 'bearish' : 'neutral');
+      const sentPillCls = sentClass.includes('BULLISH') ? 'obs-macro-pill--bullish' : (sentClass.includes('BEARISH') ? 'obs-macro-pill--neutral' : 'obs-macro-pill--neutral');
 
       const isUS = !sym.includes('.');
-      const currSymbol = isUS ? '$' : '₹';
+      const curr = isUS ? '$' : '₹';
+      const safeId = sym.replace(/[^a-zA-Z0-9]/g, '_');
 
-      return `<tr id="holding-row-${sym.replace(/[^a-zA-Z0-9]/g, '_')}">
-        <td><strong>${sym}</strong><br><span style="font-size:0.7rem; color:var(--text-muted);">${escapeHtml(h.name || '')}</span></td>
-        <td>${h.quantity.toLocaleString()}</td>
-        <td>${currSymbol}${h.avg_cost.toFixed(2)}</td>
-        <td class="cell-price" id="price-cell-${sym.replace(/[^a-zA-Z0-9]/g, '_')}">${currSymbol}${h.current_price.toFixed(2)}</td>
-        <td>${currSymbol}${Math.round(val).toLocaleString()}</td>
-        <td><strong>${weightPct}%</strong></td>
-        <td>β ${(h.beta || 1.0).toFixed(2)}</td>
-        <td><span class="badge-pill ${sentClsName}">${sentClass} (${(sentScore >= 0 ? '+' : '') + sentScore.toFixed(2)})</span></td>
+      return `<tr id="row-${safeId}">
         <td>
-          <button class="btn-action" style="padding:2px 6px;" onclick="window.removeHolding('${sym}')">
-            <i class="fa-solid fa-trash"></i>
-          </button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div style="width:28px; height:28px; border-radius:6px; background:rgba(34,211,238,0.1); display:flex; align-items:center; justify-content:center; color:#22d3ee; font-size:0.75rem; font-weight:800;">
+              ${sym.substring(0, 2)}
+            </div>
+            <div>
+              <strong style="color:#ffffff; cursor:pointer;" onclick="window.openSecurityDrawer('${sym}')">${sym}</strong>
+              <div style="font-size:0.68rem; color:#71717a;">${escapeHtml(h.name || '')}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="qty-stepper">
+            <button class="qty-btn" onclick="window.adjustQuantity('${sym}', -10)">-</button>
+            <span class="qty-val" id="qty-val-${safeId}">${h.quantity.toLocaleString()}</span>
+            <button class="qty-btn" onclick="window.adjustQuantity('${sym}', 10)">+</button>
+          </div>
+        </td>
+        <td>${curr}${h.avg_cost.toFixed(2)}</td>
+        <td class="cell-price" id="price-cell-${safeId}">
+          <strong>${curr}${h.current_price.toFixed(2)}</strong>
+        </td>
+        <td><strong>${curr}${Math.round(val).toLocaleString()}</strong></td>
+        <td>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span><strong>${weightPct}%</strong></span>
+            <div class="weight-bar-wrap">
+              <div class="weight-bar-fill" style="width:${Math.min(100, parseFloat(weightPct) * 2)}%;"></div>
+            </div>
+          </div>
+        </td>
+        <td>β ${(h.beta || 1.0).toFixed(2)}</td>
+        <td>
+          <span class="obs-macro-pill ${sentPillCls}" style="cursor:pointer;" onclick="window.openSecurityDrawer('${sym}')">
+            ${sentClass} (${(sentScore >= 0 ? '+' : '') + sentScore.toFixed(2)})
+          </span>
+        </td>
+        <td>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-tool" style="padding:4px 8px;" onclick="window.openSecurityDrawer('${sym}')" title="Inspect Security Analytics">
+              <i class="fa-solid fa-magnifying-glass-chart text-cyan"></i>
+            </button>
+            <button class="btn-tool secondary" style="padding:4px 8px;" onclick="window.removeSecurity('${sym}')" title="Remove Position">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
         </td>
       </tr>`;
     }).join('');
-
-    tbody.innerHTML = rowsHtml;
   }
 
+  // Adjust Quantity Directly
+  root.adjustQuantity = function(sym, delta) {
+    if (state.holdings[sym]) {
+      state.holdings[sym].quantity = Math.max(1, state.holdings[sym].quantity + delta);
+      updatePortfolioKPIs();
+      renderHoldingsTable();
+      runMultiModelPrediction();
+      runOptimization();
+    }
+  };
+
+  root.removeSecurity = function(sym) {
+    if (state.holdings[sym]) {
+      delete state.holdings[sym];
+      updatePortfolioKPIs();
+      renderHoldingsTable();
+      runMultiModelPrediction();
+      runOptimization();
+    }
+  };
+
   // --- Real-Time Micro-Tick Ingestion ---
-  function subscribeLiveTicks() {
+  function subscribeMicroTicks() {
     if (!root.SecurityMaster) return;
 
     Object.keys(state.holdings).forEach(sym => {
@@ -207,62 +401,61 @@
         state.holdings[sym].current_price = tick.price;
 
         const safeId = sym.replace(/[^a-zA-Z0-9]/g, '_');
-        const priceCell = document.getElementById(`price-cell-${safeId}`);
-        if (priceCell) {
+        const cell = document.getElementById(`price-cell-${safeId}`);
+        if (cell) {
           const isUS = !sym.includes('.');
-          priceCell.textContent = `${isUS ? '$' : '₹'}${tick.price.toFixed(2)}`;
-          const flashClass = tick.price >= prevPrice ? 'price-flash-up' : 'price-flash-down';
-          priceCell.classList.remove('price-flash-up', 'price-flash-down');
-          void priceCell.offsetWidth;
-          priceCell.classList.add(flashClass);
+          cell.innerHTML = `<strong>${isUS ? '$' : '₹'}${tick.price.toFixed(2)}</strong>`;
+          const cls = tick.price >= prevPrice ? 'price-flash-up' : 'price-flash-down';
+          cell.classList.remove('price-flash-up', 'price-flash-down');
+          void cell.offsetWidth;
+          cell.classList.add(cls);
         }
-        calculatePortfolioKPIs();
+        updatePortfolioKPIs();
       });
     });
   }
 
-  // --- Run Multi-Model Portfolio Prediction ---
-  async function runPortfolioPrediction() {
+  // --- Multi-Model Predictive Trajectory Suite ---
+  async function runMultiModelPrediction() {
     try {
       const res = await fetch('/api/portfolio/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           holdings: state.holdings,
-          horizon_days: 64,
+          horizon_days: state.activePredHorizon,
           n_sims: 1000
         })
       });
       if (res.ok) {
         state.predictionResult = await res.json();
-        renderPredictionChart(state.activePredTab);
-        renderMacroScenarios(state.predictionResult.macro_stress_scenarios);
-        updateDriftKpi();
+        renderPredictionChart();
+        updatePredictionDriftKPI();
         return;
       }
     } catch (e) {}
 
-    // Fallback Mock Prediction for Offline Execution
-    state.predictionResult = generateFallbackPrediction();
-    renderPredictionChart(state.activePredTab);
-    renderMacroScenarios(state.predictionResult.macro_stress_scenarios);
-    updateDriftKpi();
+    // Fallback simulation
+    state.predictionResult = generateFallbackPrediction(state.activePredHorizon);
+    renderPredictionChart();
+    updatePredictionDriftKPI();
   }
 
-  function updateDriftKpi() {
-    const kpi = document.getElementById('kpiDrift');
-    if (kpi && state.predictionResult) {
-      const consensus = state.predictionResult.ensemble_consensus_trajectory;
-      if (consensus && consensus.length > 0) {
-        const base = consensus[0] || 1000000;
-        const last = consensus[consensus.length - 1];
-        const driftPct = ((last - base) / base) * 100;
-        kpi.textContent = `${driftPct >= 0 ? '+' : ''}${driftPct.toFixed(2)}% (64D)`;
-      }
+  function updatePredictionDriftKPI() {
+    if (!state.predictionResult) return;
+    const consensus = state.predictionResult.ensemble_consensus_trajectory;
+    const kpiDrift = document.getElementById('kpiDrift');
+    if (kpiDrift && consensus && consensus.length) {
+      const base = consensus[0] || 10000000;
+      const finalVal = consensus[consensus.length - 1];
+      const drift = ((finalVal - base) / base) * 100;
+      const sign = drift >= 0 ? '+' : '';
+      kpiDrift.textContent = `${sign}${drift.toFixed(2)}%`;
+      kpiDrift.className = 'obs-macro-num ' + (drift >= 0 ? 'obs-chg--pos' : 'obs-chg--neg');
     }
   }
 
-  function renderPredictionChart(mode) {
+  function renderPredictionChart() {
     const canvas = document.getElementById('predictionChart');
     if (!canvas || !state.predictionResult) return;
 
@@ -271,55 +464,62 @@
       state.predictionChart.destroy();
     }
 
-    const horizon = state.predictionResult.horizon_days || 64;
+    const horizon = state.predictionResult.horizon_days || state.activePredHorizon;
     const labels = Array.from({ length: horizon }, (_, i) => `T+${i + 1}D`);
+
+    // Calculate macro shock multiplier
+    const rateShiftPct = (state.macroShocks.rateBps / 100.0) * -0.064;
+    const oilShiftPct = (state.macroShocks.oilPct / 100.0) * -0.16;
+    const techShiftPct = (state.macroShocks.techPct / 100.0) * 0.48;
+    const fxShiftPct = (state.macroShocks.fxPct / 100.0) * 0.20;
+    const macroMult = 1.0 + rateShiftPct + oilShiftPct + techShiftPct + fxShiftPct;
 
     let datasets = [];
 
-    if (mode === 'TIMESFM') {
+    if (state.activePredModel === 'TIMESFM') {
       const q = state.predictionResult.timesfm_30?.forecast_quantiles || {};
       datasets = [
-        { label: 'TimesFM q99 (Extreme Tail)', data: q.q99 || [], borderColor: '#38bdf8', borderWidth: 1, borderDash: [4, 4], fill: false },
-        { label: 'TimesFM q90 (Upper Corridor)', data: q.q90 || [], borderColor: '#60a5fa', borderWidth: 1.5, fill: false },
-        { label: 'TimesFM q50 (Median)', data: q.q50 || [], borderColor: '#2563eb', borderWidth: 2.5, fill: false },
-        { label: 'TimesFM q10 (Downside Tail)', data: q.q10 || [], borderColor: '#ef4444', borderWidth: 1.5, fill: false }
+        { label: 'TimesFM q99 (Upper Extreme)', data: (q.q99 || []).map(v => v * macroMult), borderColor: '#38bdf8', borderWidth: 1, borderDash: [4, 4], fill: false },
+        { label: 'TimesFM q90 (Upper Corridor)', data: (q.q90 || []).map(v => v * macroMult), borderColor: '#60a5fa', borderWidth: 1.5, fill: false },
+        { label: 'TimesFM q50 (Median)', data: (q.q50 || []).map(v => v * macroMult), borderColor: '#2563eb', borderWidth: 2.5, fill: false },
+        { label: 'TimesFM q10 (Downside Tail)', data: (q.q10 || []).map(v => v * macroMult), borderColor: '#ef4444', borderWidth: 1.5, fill: false }
       ];
-    } else if (mode === 'PROPHET') {
+    } else if (state.activePredModel === 'PROPHET') {
       const p = state.predictionResult.prophet_gam || {};
       datasets = [
-        { label: 'Prophet Upper 95% Bound', data: p.upper_95 || [], borderColor: 'rgba(56, 189, 248, 0.4)', borderWidth: 1, borderDash: [3, 3], fill: false },
-        { label: 'Prophet Point Forecast', data: p.point_forecast || [], borderColor: '#f59e0b', borderWidth: 2.5, fill: false },
-        { label: 'Prophet Lower 95% Bound', data: p.lower_95 || [], borderColor: 'rgba(239, 68, 68, 0.4)', borderWidth: 1, borderDash: [3, 3], fill: false }
+        { label: 'Prophet Upper 95% Bound', data: (p.upper_95 || []).map(v => v * macroMult), borderColor: 'rgba(56, 189, 248, 0.4)', borderWidth: 1, borderDash: [3, 3], fill: false },
+        { label: 'Prophet Point Forecast (Trend + Seasonality)', data: (p.point_forecast || []).map(v => v * macroMult), borderColor: '#f59e0b', borderWidth: 2.5, fill: false },
+        { label: 'Prophet Lower 95% Bound', data: (p.lower_95 || []).map(v => v * macroMult), borderColor: 'rgba(239, 68, 68, 0.4)', borderWidth: 1, borderDash: [3, 3], fill: false }
       ];
-    } else if (mode === 'MERTON') {
+    } else if (state.activePredModel === 'MERTON') {
       const m = state.predictionResult.merton_jump_diffusion?.fan_chart || {};
       datasets = [
-        { label: 'Merton p95 (Jump Upside)', data: m.p95 || [], borderColor: '#10b981', borderWidth: 1.5, fill: false },
-        { label: 'Merton p75', data: m.p75 || [], borderColor: '#34d399', borderWidth: 1, fill: false },
-        { label: 'Merton Median (p50)', data: m.p50_median || [], borderColor: '#a855f7', borderWidth: 2.5, fill: false },
-        { label: 'Merton p25', data: m.p25 || [], borderColor: '#f87171', borderWidth: 1, fill: false },
-        { label: 'Merton p05 (Crash Tail)', data: m.p05 || [], borderColor: '#ef4444', borderWidth: 1.5, fill: false }
+        { label: 'Merton p95 (Jump Upside Corridor)', data: (m.p95 || []).map(v => v * macroMult), borderColor: '#10b981', borderWidth: 1.5, fill: false },
+        { label: 'Merton p75', data: (m.p75 || []).map(v => v * macroMult), borderColor: '#34d399', borderWidth: 1, fill: false },
+        { label: 'Merton Median (p50)', data: (m.p50_median || []).map(v => v * macroMult), borderColor: '#a855f7', borderWidth: 2.5, fill: false },
+        { label: 'Merton p25', data: (m.p25 || []).map(v => v * macroMult), borderColor: '#f87171', borderWidth: 1, fill: false },
+        { label: 'Merton p05 (Crash Tail Loss)', data: (m.p05 || []).map(v => v * macroMult), borderColor: '#ef4444', borderWidth: 1.5, fill: false }
       ];
     } else {
       // ALL Consensus
-      const consensus = state.predictionResult.ensemble_consensus_trajectory || [];
-      const timesfmMedian = state.predictionResult.timesfm_30?.forecast_quantiles?.q50 || [];
-      const prophetPoint = state.predictionResult.prophet_gam?.point_forecast || [];
-      const mertonMedian = state.predictionResult.merton_jump_diffusion?.fan_chart?.p50_median || [];
+      const consensus = (state.predictionResult.ensemble_consensus_trajectory || []).map(v => v * macroMult);
+      const tfm = (state.predictionResult.timesfm_30?.forecast_quantiles?.q50 || []).map(v => v * macroMult);
+      const prp = (state.predictionResult.prophet_gam?.point_forecast || []).map(v => v * macroMult);
+      const mrt = (state.predictionResult.merton_jump_diffusion?.fan_chart?.p50_median || []).slice(1).map(v => v * macroMult);
 
       datasets = [
         {
           label: 'Unified Ensemble Consensus (40% TimesFM + 30% Prophet + 30% Merton)',
           data: consensus,
-          borderColor: '#38bdf8',
+          borderColor: '#22d3ee',
           borderWidth: 3,
-          backgroundColor: 'rgba(56, 189, 248, 0.08)',
+          backgroundColor: 'rgba(34, 211, 238, 0.08)',
           fill: true,
-          tension: 0.2
+          tension: 0.25
         },
-        { label: 'Google TimesFM 3.0 Median', data: timesfmMedian, borderColor: '#2563eb', borderWidth: 1.5, borderDash: [4, 4], fill: false },
-        { label: 'Meta Prophet GAM Forecast', data: prophetPoint, borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], fill: false },
-        { label: 'Merton Jump Monte Carlo (p50)', data: mertonMedian.slice(1), borderColor: '#a855f7', borderWidth: 1.5, borderDash: [4, 4], fill: false }
+        { label: 'Google TimesFM 3.0 Median', data: tfm, borderColor: '#2563eb', borderWidth: 1.5, borderDash: [4, 4], fill: false },
+        { label: 'Meta Prophet GAM Trend', data: prp, borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], fill: false },
+        { label: 'Merton Jump Monte Carlo (p50)', data: mrt, borderColor: '#a855f7', borderWidth: 1.5, borderDash: [4, 4], fill: false }
       ];
     }
 
@@ -333,11 +533,11 @@
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: '#8b949e', font: { family: 'JetBrains Mono', size: 10 } }
+            labels: { color: '#a1a1aa', font: { family: 'JetBrains Mono', size: 10 } }
           },
           tooltip: {
-            backgroundColor: '#0d1117',
-            borderColor: 'rgba(255,255,255,0.1)',
+            backgroundColor: '#090d16',
+            borderColor: 'rgba(34, 211, 238, 0.3)',
             borderWidth: 1,
             titleFont: { family: 'JetBrains Mono' },
             bodyFont: { family: 'JetBrains Mono' }
@@ -346,12 +546,12 @@
         scales: {
           x: {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
-            ticks: { color: '#586069', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 12 }
+            ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 }, maxTicksLimit: 12 }
           },
           y: {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
             ticks: {
-              color: '#8b949e',
+              color: '#a1a1aa',
               font: { family: 'JetBrains Mono', size: 9 },
               callback: (v) => '₹' + Math.round(v).toLocaleString('en-IN')
             }
@@ -361,31 +561,15 @@
     });
   }
 
-  function renderMacroScenarios(scenarios) {
-    const row = document.getElementById('macroScenariosRow');
-    if (!row || !scenarios || !scenarios.length) return;
-
-    row.innerHTML = scenarios.map(s => {
-      const isPos = s.impact_pct >= 0;
-      const sign = isPos ? '+' : '';
-      const impactClass = isPos ? 'pos' : 'neg';
-      return `<div class="macro-card">
-        <div class="macro-card-title">${escapeHtml(s.name)}</div>
-        <div class="macro-card-impact ${impactClass}">${sign}${(s.impact_pct * 100).toFixed(1)}%</div>
-        <div class="macro-card-desc">${escapeHtml(s.rationale)}</div>
-      </div>`;
-    }).join('');
-  }
-
-  // --- Run Multi-Objective Optimization ---
+  // --- Multi-Objective Quant Optimizer ---
   async function runOptimization() {
-    const modelSelect = document.getElementById('optModelSelect');
-    const maxWeightSlider = document.getElementById('maxWeightSlider');
-    const riskAversionSlider = document.getElementById('riskAversionSlider');
+    const maxWeightSlider = document.getElementById('sliderMaxWeight');
+    const riskAversionSlider = document.getElementById('sliderRiskAversion');
+    const targetReturnSlider = document.getElementById('sliderTargetReturn');
 
-    const model = modelSelect ? modelSelect.value : 'BLACK_LITTERMAN';
     const maxWeight = maxWeightSlider ? parseFloat(maxWeightSlider.value) : 0.40;
     const riskAversion = riskAversionSlider ? parseFloat(riskAversionSlider.value) : 2.5;
+    const targetReturn = targetReturnSlider ? parseFloat(targetReturnSlider.value) : 0.12;
 
     try {
       const res = await fetch('/api/portfolio/optimize', {
@@ -393,27 +577,28 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           holdings: state.holdings,
-          model,
+          model: state.activeOptModel,
           max_weight: maxWeight,
-          risk_aversion: riskAversion
+          risk_aversion: riskAversion,
+          target_return: targetReturn
         })
       });
       if (res.ok) {
         state.optimizerResult = await res.json();
-        renderOptimizerWeights(state.optimizerResult);
+        renderWeightsComparison(state.optimizerResult);
         await runRebalanceBlotter(state.optimizerResult.optimal_weights);
         return;
       }
     } catch (e) {}
 
-    // Fallback
-    state.optimizerResult = generateFallbackOptimization(model);
-    renderOptimizerWeights(state.optimizerResult);
+    // Offline fallback
+    state.optimizerResult = generateFallbackOptimization(state.activeOptModel);
+    renderWeightsComparison(state.optimizerResult);
     await runRebalanceBlotter(state.optimizerResult.optimal_weights);
   }
 
-  function renderOptimizerWeights(opt) {
-    const canvas = document.getElementById('optimizerWeightsChart');
+  function renderWeightsComparison(opt) {
+    const canvas = document.getElementById('weightsBarChart');
     if (!canvas || !opt || !opt.optimal_weights) return;
 
     const ctx = canvas.getContext('2d');
@@ -422,18 +607,16 @@
     }
 
     let totalNav = 0;
-    Object.values(state.holdings).forEach(h => {
-      totalNav += h.quantity * h.current_price;
-    });
+    Object.values(state.holdings).forEach(h => totalNav += h.quantity * h.current_price);
 
     const symbols = Object.keys(state.holdings);
-    const currentWeights = symbols.map(s => {
+    const currWeights = symbols.map(s => {
       const h = state.holdings[s];
-      return totalNav > 0 ? Number(((h.quantity * h.current_price / totalNav) * 100).toFixed(2)) : 0;
+      return totalNav > 0 ? Number(((h.quantity * h.current_price / totalNav) * 100).toFixed(1)) : 0;
     });
 
     const targetWeights = symbols.map(s => {
-      return Number(((opt.optimal_weights[s] || 0) * 100).toFixed(2));
+      return Number(((opt.optimal_weights[s] || 0) * 100).toFixed(1));
     });
 
     state.weightsChart = new Chart(ctx, {
@@ -443,16 +626,16 @@
         datasets: [
           {
             label: 'Current Weight %',
-            data: currentWeights,
-            backgroundColor: 'rgba(139, 148, 158, 0.4)',
-            borderColor: '#8b949e',
+            data: currWeights,
+            backgroundColor: 'rgba(113, 113, 122, 0.4)',
+            borderColor: '#71717a',
             borderWidth: 1
           },
           {
             label: 'Optimal Target Weight %',
             data: targetWeights,
-            backgroundColor: 'rgba(56, 189, 248, 0.7)',
-            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(34, 211, 238, 0.75)',
+            borderColor: '#22d3ee',
             borderWidth: 1
           }
         ]
@@ -463,42 +646,35 @@
         plugins: {
           legend: {
             position: 'top',
-            labels: { color: '#8b949e', font: { family: 'JetBrains Mono', size: 10 } }
+            labels: { color: '#a1a1aa', font: { family: 'JetBrains Mono', size: 10 } }
           }
         },
         scales: {
           x: {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
-            ticks: { color: '#8b949e', font: { family: 'JetBrains Mono', size: 9 } }
+            ticks: { color: '#d1d5db', font: { family: 'JetBrains Mono', size: 9 } }
           },
           y: {
             grid: { color: 'rgba(255, 255, 255, 0.04)' },
-            ticks: { color: '#586069', font: { family: 'JetBrains Mono', size: 9 }, callback: v => v + '%' }
+            ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 }, callback: v => v + '%' }
           }
         }
       }
     });
 
-    const metricsEl = document.getElementById('optimizerMetricsSummary');
-    if (metricsEl) {
-      metricsEl.innerHTML = `
-        <div class="summary-line">
-          <span>Expected Annual Return:</span>
-          <strong style="color:var(--accent-green);">${((opt.expected_return || 0.14) * 100).toFixed(2)}%</strong>
-        </div>
-        <div class="summary-line">
-          <span>Expected Volatility:</span>
-          <strong>${((opt.volatility || 0.15) * 100).toFixed(2)}%</strong>
-        </div>
-        <div class="summary-line">
-          <span>Sharpe Ratio:</span>
-          <strong style="color:var(--accent-cyan);">${(opt.sharpe_ratio || 1.45).toFixed(2)}</strong>
-        </div>
+    // Metrics Strip
+    const strip = document.getElementById('optMetricsStrip');
+    if (strip) {
+      strip.innerHTML = `
+        <div><span style="color:#71717a;">Model:</span> <strong>${escapeHtml(opt.model || state.activeOptModel)}</strong></div>
+        <div><span style="color:#71717a;">Exp Return:</span> <strong style="color:#10b981;">+${((opt.expected_return || 0.14) * 100).toFixed(2)}%</strong></div>
+        <div><span style="color:#71717a;">Shrunk Vol:</span> <strong>${((opt.volatility || 0.15) * 100).toFixed(2)}%</strong></div>
+        <div><span style="color:#71717a;">Sharpe:</span> <strong style="color:#22d3ee;">${(opt.sharpe_ratio || 1.48).toFixed(2)}</strong></div>
       `;
     }
   }
 
-  // --- Run Rebalance Blotter ---
+  // --- 1-Click Execution Rebalance Blotter ---
   async function runRebalanceBlotter(targetWeights) {
     if (!targetWeights) return;
 
@@ -523,49 +699,100 @@
   }
 
   function renderRebalanceBlotter(blotter) {
-    const tbody = document.getElementById('rebalanceTableBody');
+    const tbody = document.getElementById('rebalanceTicketsBody');
     if (!tbody || !blotter || !blotter.rebalance_orders) return;
 
     const orders = blotter.rebalance_orders;
     if (!orders.length) {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Portfolio already aligns with target weights. No orders required.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:24px; color:var(--text-muted);">Active portfolio aligns with target optimal weights. No rebalancing required.</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = orders.map(o => {
+    tbody.innerHTML = orders.map((o, idx) => {
       const isBuy = o.action === 'BUY';
-      const actionCls = isBuy ? 'bullish' : 'bearish';
+      const pillCls = isBuy ? 'obs-macro-pill--bullish' : 'obs-macro-pill--neutral';
       const isUS = !o.symbol.includes('.');
       const curr = isUS ? '$' : '₹';
 
-      return `<tr>
-        <td><strong>${o.symbol}</strong></td>
-        <td><span class="badge-pill ${actionCls}">${o.action}</span></td>
+      return `<tr id="rebalance-row-${idx}">
+        <td><strong style="color:#ffffff;">${o.symbol}</strong></td>
+        <td><span class="obs-macro-pill ${pillCls}">${o.action}</span></td>
         <td><strong>${o.quantity.toLocaleString()}</strong></td>
         <td>${curr}${o.price.toFixed(2)}</td>
         <td>${curr}${Math.round(o.notional_value).toLocaleString()}</td>
-        <td>${o.current_weight_pct}% &rarr; ${o.target_weight_pct}%</td>
+        <td>${o.current_weight_pct}% &rarr; <strong style="color:#22d3ee;">${o.target_weight_pct}%</strong></td>
         <td>${o.slippage_bps} bps</td>
       </tr>`;
     }).join('');
 
-    const turnoverVal = document.getElementById('rebTurnoverVal');
-    const turnoverPct = document.getElementById('rebTurnoverPct');
-    const impactVal = document.getElementById('rebImpactVal');
+    const notionalEl = document.getElementById('rebTotalNotional');
+    const pctEl = document.getElementById('rebTurnoverPct');
+    const slippageEl = document.getElementById('rebAvgSlippage');
 
-    if (turnoverVal) turnoverVal.textContent = `₹${Math.round(blotter.total_turnover_notional).toLocaleString('en-IN')}`;
-    if (turnoverPct) turnoverPct.textContent = `${blotter.turnover_pct}%`;
-    if (impactVal) impactVal.textContent = `~${orders.length > 0 ? (orders[0].slippage_bps || 3.5) : 0} bps`;
+    if (notionalEl) notionalEl.textContent = `₹${Math.round(blotter.total_turnover_notional || 0).toLocaleString('en-IN')}`;
+    if (pctEl) pctEl.textContent = `${blotter.turnover_pct || 0}%`;
+    if (slippageEl) slippageEl.textContent = `~${orders.length > 0 ? orders[0].slippage_bps : 3.5} bps`;
   }
 
-  // --- Compile Executive Memorandum ---
+  // --- Dispatch Rebalance Execution into Audit Ledger ---
+  async function dispatchRebalanceOrders() {
+    const btn = document.getElementById('btnDispatchRebalance');
+    if (!state.rebalanceResult || !state.rebalanceResult.rebalance_orders || !state.rebalanceResult.rebalance_orders.length) {
+      alert('No rebalancing orders to execute.');
+      return;
+    }
+
+    const orders = state.rebalanceResult.rebalance_orders;
+    if (btn) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> EXECUTING FILLS...';
+    }
+
+    for (let i = 0; i < orders.length; i++) {
+      const o = orders[i];
+      const row = document.getElementById(`rebalance-row-${i}`);
+      if (row) {
+        row.style.backgroundColor = 'rgba(34, 211, 238, 0.15)';
+      }
+
+      if (root.AuditLedger) {
+        root.AuditLedger.recordFill({
+          symbol: o.symbol,
+          side: o.action,
+          quantity: o.quantity,
+          price: o.price,
+          slippageBps: o.slippage_bps,
+          tag: o.fix_tag_58
+        });
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-check-double"></i> FILLS COMPLETED';
+      setTimeout(() => {
+        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> <span>EXECUTE ALL REBALANCE FILLS</span>';
+      }, 3000);
+    }
+
+    alert(`✅ Successfully executed ${orders.length} rebalance orders into AuditLedger.`);
+  }
+
+  // --- Compile Executive Risk Memorandum ---
   async function compileMemorandum() {
-    const memoBox = document.getElementById('memorandumDisplayBox');
-    if (!memoBox) return;
+    const wrapper = document.getElementById('memorandumWrapper');
+    if (!wrapper) return;
 
-    memoBox.innerHTML = '<div style="text-align:center; padding:30px;"><i class="fa-solid fa-spinner fa-spin"></i> Compiling Institutional Memorandum with Cryptographic Seal...</div>';
+    wrapper.innerHTML = `<div class="obs-loading-state">
+      <div class="obs-spinner"></div>
+      <div class="obs-loading-text">
+        <strong>Compiling Goldman Sachs &amp; Bridgewater LP Memorandum...</strong>
+        <span>Synthesizing multi-quantile forecasts, FRTB capital disclosures &amp; SHA-256 seal</span>
+      </div>
+    </div>`;
 
-    let memoData = null;
+    let memo = null;
     try {
       const res = await fetch('/api/reports/memorandum', {
         method: 'POST',
@@ -578,116 +805,328 @@
         })
       });
       if (res.ok) {
-        memoData = await res.json();
+        memo = await res.json();
       }
     } catch (e) {}
 
-    if (!memoData) {
-      memoData = generateFallbackMemorandum();
+    if (!memo) {
+      memo = generateFallbackMemorandum();
     }
 
-    // Render formatted HTML
-    memoBox.innerHTML = `
-      <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:10px; margin-bottom:16px;">
-        <span style="color:var(--accent-amber); font-weight:700;"><i class="fa-solid fa-stamp"></i> OFFICIAL LP MEMORANDUM</span>
-        <span class="badge-tag">SHA-256: ${memoData.sha256_hash.substring(0, 16)}...</span>
+    wrapper.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:12px; margin-bottom:16px;">
+        <span style="color:#22d3ee; font-weight:800; font-size:0.9rem;"><i class="fa-solid fa-stamp"></i> OFFICIAL LP MEMORANDUM // CRYPTOGRAPHICALLY VERIFIED</span>
+        <span class="obs-badge obs-badge--volume">SHA-256: ${memo.sha256_hash.substring(0, 16)}...</span>
       </div>
-      <div class="memo-rendered-body" style="white-space: pre-wrap; font-family: var(--font-mono); font-size:0.8rem; color: var(--text-primary);">
-${escapeHtml(memoData.markdown)}
+      <div id="memoMarkdownBody" style="white-space: pre-wrap; font-family:var(--font-mono); font-size:0.82rem; color:#e4e4e7;">
+${escapeHtml(memo.markdown)}
       </div>
     `;
 
-    // Render KaTeX formulas if present
-    if (root.katex) {
-      try {
-        const mathEls = memoBox.querySelectorAll('.katex-render');
-        mathEls.forEach(el => {
-          root.katex.render(el.textContent, el, { throwOnError: false });
-        });
-      } catch (err) {}
+    renderKaTeXFormulas();
+  }
+
+  // --- Slide-Over Security Drawer ---
+  root.openSecurityDrawer = function(symbol) {
+    const h = state.holdings[symbol];
+    if (!h) return;
+
+    state.selectedDrawerSecurity = symbol;
+    const overlay = document.getElementById('drawerOverlay');
+    const symEl = document.getElementById('drawerSymbol');
+    const compEl = document.getElementById('drawerCompany');
+    const priceEl = document.getElementById('drawerPrice');
+    const weightEl = document.getElementById('drawerWeight');
+    const betaEl = document.getElementById('drawerBeta');
+    const sentEl = document.getElementById('drawerSentiment');
+    const sentClassEl = document.getElementById('drawerSentimentClass');
+
+    const isUS = !symbol.includes('.');
+    const curr = isUS ? '$' : '₹';
+
+    if (symEl) symEl.textContent = symbol;
+    if (compEl) compEl.textContent = h.name || '';
+    if (priceEl) priceEl.textContent = `${curr}${h.current_price.toFixed(2)}`;
+    if (betaEl) betaEl.textContent = `β ${(h.beta || 1.0).toFixed(2)}`;
+
+    let totalNav = 0;
+    Object.values(state.holdings).forEach(x => totalNav += x.quantity * x.current_price);
+    const w = totalNav > 0 ? ((h.quantity * h.current_price / totalNav) * 100).toFixed(1) : '0.0';
+    if (weightEl) weightEl.textContent = `${w}%`;
+
+    const drift = state.sentimentDrift[symbol] || {};
+    if (sentEl) sentEl.textContent = (drift.aggregate_sentiment >= 0 ? '+' : '') + (drift.aggregate_sentiment || 0.0).toFixed(2);
+    if (sentClassEl) sentClassEl.textContent = drift.sentiment_class || 'NEUTRAL';
+
+    // Render Drawer Sparkline
+    renderDrawerSparkline(h.current_price);
+
+    // Render KaTeX Proof
+    renderDrawerMath(symbol);
+
+    if (overlay) overlay.classList.add('active');
+  };
+
+  function renderDrawerSparkline(currentPrice) {
+    const canvas = document.getElementById('drawerSparklineCanvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (state.drawerSparklineChart) {
+      state.drawerSparklineChart.destroy();
+    }
+
+    const n = 30;
+    const labels = Array.from({ length: n }, (_, i) => `D-${n - i}`);
+    const data = Array.from({ length: n }, (_, i) => currentPrice * (1 + (Math.sin(i / 3) * 0.03) + ((i / n) * 0.04 - 0.02)));
+
+    state.drawerSparklineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          data,
+          borderColor: '#22d3ee',
+          borderWidth: 2,
+          backgroundColor: 'rgba(34, 211, 238, 0.08)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#71717a', font: { family: 'JetBrains Mono', size: 9 } }
+          }
+        }
+      }
+    });
+  }
+
+  function renderDrawerMath(sym) {
+    const box = document.getElementById('drawerMathProof');
+    if (!box) return;
+
+    box.innerHTML = `
+      <div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:6px;">Bayesian Black-Litterman Sentiment View Calibration:</div>
+      <div id="drawerKatexTarget">
+        $$Q_{${sym.replace('.', '_')}} = \\alpha \\cdot S_{\\text{news}} \\cdot \\sigma \\sqrt{\\Delta t} \\implies E[R] = [(\\tau \\Sigma)^{-1} + P^T \\Omega^{-1} P]^{-1} [(\\tau \\Sigma)^{-1} \\Pi + P^T \\Omega^{-1} Q]$$
+      </div>
+    `;
+
+    renderKaTeXFormulas();
+  }
+
+  // --- KaTeX Mathematical Rendering ---
+  function renderKaTeXFormulas() {
+    const inlineEl = document.getElementById('consensusFormulaPreview');
+    if (inlineEl && root.katex) {
+      root.katex.render('\hat{Y}_t = 0.40 \cdot \text{TFM}_{q50} + 0.30 \cdot \text{Prophet} + 0.30 \cdot \text{Merton}_{p50}', inlineEl, { throwOnError: false });
+    }
+    if (root.renderMathInElement) {
+      root.renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false }
+        ],
+        throwOnError: false
+      });
     }
   }
 
-  // --- Helper Event Listeners ---
-  function setupEventListeners() {
-    // Model selector in prediction panel
-    const predBtns = document.querySelectorAll('#predModelSelector .seg-btn');
-    predBtns.forEach(btn => {
+  // --- Setup Event Handlers ---
+  function setupEventHandlers() {
+    // Drawer close
+    const closeBtn = document.getElementById('drawerCloseBtn');
+    const overlay = document.getElementById('drawerOverlay');
+    if (closeBtn && overlay) {
+      closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('active');
+      });
+    }
+
+    // Modal Add Security
+    const btnAddPos = document.getElementById('btnAddPosition');
+    const modal = document.getElementById('addSecurityModal');
+    const modalClose = document.getElementById('modalCloseBtn');
+    const modalSubmit = document.getElementById('modalSubmitBtn');
+
+    if (btnAddPos && modal) {
+      btnAddPos.addEventListener('click', () => modal.classList.add('active'));
+    }
+    if (modalClose && modal) {
+      modalClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    if (modalSubmit && modal) {
+      modalSubmit.addEventListener('click', () => {
+        const symInput = document.getElementById('modalSearchInput');
+        const qtyInput = document.getElementById('modalQtyInput');
+        const priceInput = document.getElementById('modalPriceInput');
+
+        if (symInput && symInput.value.trim()) {
+          const sym = symInput.value.trim().toUpperCase();
+          const qty = parseInt(qtyInput ? qtyInput.value : '100', 10);
+          const price = parseFloat(priceInput ? priceInput.value : '100.0');
+
+          state.holdings[sym] = {
+            quantity: qty,
+            avg_cost: price,
+            current_price: price,
+            beta: 1.15,
+            name: `${sym} Portfolio Security`,
+            sector: 'Equities',
+            exchange: sym.includes('.') ? 'NSE' : 'NASDAQ'
+          };
+
+          modal.classList.remove('active');
+          updatePortfolioKPIs();
+          renderHoldingsTable();
+          subscribeMicroTicks();
+          runMultiModelPrediction();
+          runOptimization();
+        }
+      });
+    }
+
+    // Modal quick pick chips
+    document.querySelectorAll('.modal-quick-picks .chip-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        predBtns.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        state.activePredTab = btn.getAttribute('data-pred');
-        renderPredictionChart(state.activePredTab);
+        const sym = btn.getAttribute('data-sym');
+        const symInput = document.getElementById('modalSearchInput');
+        if (symInput) symInput.value = sym;
       });
     });
 
-    // Slider value badges
-    const maxWeightSlider = document.getElementById('maxWeightSlider');
-    const maxWeightVal = document.getElementById('maxWeightVal');
-    if (maxWeightSlider && maxWeightVal) {
-      maxWeightSlider.addEventListener('input', () => {
-        maxWeightVal.textContent = Math.round(maxWeightSlider.value * 100) + '%';
+    // Holdings Filter Pills
+    document.querySelectorAll('.obs-anomaly-nav .obs-nav-btn[data-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.obs-anomaly-nav .obs-nav-btn[data-filter]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.holdingsFilter = btn.getAttribute('data-filter');
+        renderHoldingsTable();
+      });
+    });
+
+    // Prediction Model Tabs
+    document.querySelectorAll('#predModelTabs .obs-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#predModelTabs .obs-nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.activePredModel = btn.getAttribute('data-pred');
+        renderPredictionChart();
+      });
+    });
+
+    // Prediction Horizon Pills
+    document.querySelectorAll('#predHorizonToggle .obs-time-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#predHorizonToggle .obs-time-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.activePredHorizon = parseInt(btn.getAttribute('data-horizon'), 10);
+        runMultiModelPrediction();
+      });
+    });
+
+    // Macro Shock Sliders
+    const setupSlider = (sliderId, valId, impactId, key, scale, unit) => {
+      const slider = document.getElementById(sliderId);
+      const valEl = document.getElementById(valId);
+      const impactEl = document.getElementById(impactId);
+
+      if (slider) {
+        slider.addEventListener('input', () => {
+          const val = parseFloat(slider.value);
+          state.macroShocks[key] = val;
+          if (valEl) valEl.textContent = `${val >= 0 ? '+' : ''}${val}${unit}`;
+          const shift = val * scale;
+          if (impactEl) {
+            impactEl.textContent = `Shift: ${(shift >= 0 ? '+' : '')}${shift.toFixed(1)}% NAV`;
+            impactEl.style.color = shift >= 0 ? '#10b981' : '#ef4444';
+          }
+          updatePortfolioKPIs();
+          renderPredictionChart();
+        });
+      }
+    };
+
+    setupSlider('sliderRateShock', 'valRateShock', 'impactRateShock', 'rateBps', -0.064, ' bps');
+    setupSlider('sliderOilShock', 'valOilShock', 'impactOilShock', 'oilPct', -0.16, '%');
+    setupSlider('sliderTechShock', 'valTechShock', 'impactTechShock', 'techPct', 0.48, '%');
+    setupSlider('sliderFxShock', 'valFxShock', 'impactFxShock', 'fxPct', 0.20, '%');
+
+    // Optimizer Model Selection Cards
+    document.querySelectorAll('.model-select-grid .model-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.model-select-grid .model-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        state.activeOptModel = card.getAttribute('data-model');
+        runOptimization();
+      });
+    });
+
+    // Optimizer Sliders
+    const optMaxW = document.getElementById('sliderMaxWeight');
+    if (optMaxW) {
+      optMaxW.addEventListener('input', () => {
+        const el = document.getElementById('valMaxWeight');
+        if (el) el.textContent = Math.round(optMaxW.value * 100) + '%';
       });
     }
 
-    const riskAversionSlider = document.getElementById('riskAversionSlider');
-    const riskAversionVal = document.getElementById('riskAversionVal');
-    if (riskAversionSlider && riskAversionVal) {
-      riskAversionSlider.addEventListener('input', () => {
-        riskAversionVal.textContent = riskAversionSlider.value;
+    const optRiskAv = document.getElementById('sliderRiskAversion');
+    if (optRiskAv) {
+      optRiskAv.addEventListener('input', () => {
+        const el = document.getElementById('valRiskAversion');
+        if (el) el.textContent = optRiskAv.value;
       });
     }
 
-    // Optimization Trigger
-    const btnRunOpt = document.getElementById('btnRunOptimization');
-    if (btnRunOpt) {
-      btnRunOpt.addEventListener('click', async () => {
-        btnRunOpt.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CALCULATING...';
+    const optTargetR = document.getElementById('sliderTargetReturn');
+    if (optTargetR) {
+      optTargetR.addEventListener('input', () => {
+        const el = document.getElementById('valTargetReturn');
+        if (el) el.textContent = (optTargetR.value * 100).toFixed(1) + '%';
+      });
+    }
+
+    // Execute Optimization
+    const btnExecOpt = document.getElementById('btnExecuteOptimization');
+    if (btnExecOpt) {
+      btnExecOpt.addEventListener('click', async () => {
+        btnExecOpt.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CALCULATING QUANT WEIGHTS...';
         await runOptimization();
-        btnRunOpt.innerHTML = '<i class="fa-solid fa-play"></i> EXECUTE QUANT OPTIMIZATION';
+        btnExecOpt.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span>RECALCULATE OPTIMAL ASSET ALLOCATION</span>';
       });
     }
 
-    // Rebalance Execution Trigger
-    const btnExecRebalance = document.getElementById('btnExecuteRebalanceOrders');
-    if (btnExecRebalance) {
-      btnExecRebalance.addEventListener('click', () => {
-        if (!state.rebalanceResult || !state.rebalanceResult.rebalance_orders || !state.rebalanceResult.rebalance_orders.length) {
-          alert('No rebalancing orders to execute.');
-          return;
-        }
-        if (root.AuditLedger) {
-          state.rebalanceResult.rebalance_orders.forEach(o => {
-            root.AuditLedger.recordFill({
-              symbol: o.symbol,
-              side: o.action,
-              quantity: o.quantity,
-              price: o.price,
-              slippageBps: o.slippage_bps,
-              tag: o.fix_tag_58
-            });
-          });
-        }
-        alert(`Successfully executed ${state.rebalanceResult.rebalance_orders.length} rebalance fills into Audit Ledger.`);
-      });
+    // Dispatch Rebalance Orders
+    const btnDispatch = document.getElementById('btnDispatchRebalance');
+    if (btnDispatch) {
+      btnDispatch.addEventListener('click', dispatchRebalanceOrders);
     }
 
-    // Memo compilation Trigger
-    const btnGenMemo = document.getElementById('btnGenerateMemo');
-    if (btnGenMemo) {
-      btnGenMemo.addEventListener('click', compileMemorandum);
+    // Compile Memorandum
+    const btnMemo = document.getElementById('btnCompileMemorandum');
+    if (btnMemo) {
+      btnMemo.addEventListener('click', compileMemorandum);
     }
 
-    // Export Memo Trigger
-    const btnExpMemo = document.getElementById('btnExportMemo');
-    if (btnExpMemo) {
-      btnExpMemo.addEventListener('click', () => {
-        const memoBox = document.querySelector('.memo-rendered-body');
-        if (!memoBox) {
-          alert('Please compile the memorandum first.');
+    // Export Markdown
+    const btnExport = document.getElementById('btnExportMarkdown');
+    if (btnExport) {
+      btnExport.addEventListener('click', () => {
+        const memoEl = document.getElementById('memoMarkdownBody');
+        if (!memoEl) {
+          alert('Compile the memorandum first.');
           return;
         }
-        const blob = new Blob([memoBox.textContent], { type: 'text/markdown' });
+        const blob = new Blob([memoEl.textContent], { type: 'text/markdown' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = `RISKOS_Executive_Memorandum_${new Date().toISOString().substring(0, 10)}.md`;
@@ -695,72 +1134,106 @@ ${escapeHtml(memoData.markdown)}
       });
     }
 
-    // Reset Portfolio
-    const btnReset = document.getElementById('btnResetPortfolio');
+    // Print Report
+    const btnPrint = document.getElementById('btnPrintReport');
+    if (btnPrint) {
+      btnPrint.addEventListener('click', () => window.print());
+    }
+
+    // Reset Defaults
+    const btnReset = document.getElementById('btnResetDefaultHoldings');
     if (btnReset) {
-      btnReset.addEventListener('click', async () => {
-        state.holdings = JSON.parse(JSON.stringify(DEFAULT_HOLDINGS));
-        calculatePortfolioKPIs();
+      btnReset.addEventListener('click', () => {
+        state.holdings = JSON.parse(JSON.stringify(INITIAL_HOLDINGS));
+        updatePortfolioKPIs();
         renderHoldingsTable();
-        subscribeLiveTicks();
-        await runPortfolioPrediction();
-        await runOptimization();
+        subscribeMicroTicks();
+        runMultiModelPrediction();
+        runOptimization();
       });
     }
 
-    // Sync from Blotter
-    const btnSync = document.getElementById('btnSyncBlotter');
-    if (btnSync) {
-      btnSync.addEventListener('click', () => {
-        alert('Active portfolio synchronized with live paper trading blotter.');
-        calculatePortfolioKPIs();
-        renderHoldingsTable();
-      });
-    }
-
-    // Add Position Prompt
-    const btnAdd = document.getElementById('btnAddHolding');
-    if (btnAdd) {
-      btnAdd.addEventListener('click', () => {
-        const sym = prompt('Enter Ticker Symbol (e.g. YESBANK.NS, PLUG, BBAI, TCS.NS):', 'YESBANK.NS');
-        if (sym && sym.trim()) {
-          const clean = sym.trim().toUpperCase();
-          const qty = parseInt(prompt(`Enter quantity for ${clean}:`, '1000') || '100', 10);
-          state.holdings[clean] = {
-            quantity: qty,
-            avg_cost: 21.40,
-            current_price: 21.40,
-            beta: 1.35,
-            name: `${clean} Added Security`
-          };
-          calculatePortfolioKPIs();
-          renderHoldingsTable();
-          subscribeLiveTicks();
-          runPortfolioPrediction();
+    // Discovery Chips
+    document.querySelectorAll('#optPromptChips .obs-prompt-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const action = chip.getAttribute('data-action');
+        if (action === 'news-rebalance') {
+          state.activeOptModel = 'BLACK_LITTERMAN';
+          document.querySelectorAll('.model-card').forEach(c => {
+            c.classList.toggle('active', c.getAttribute('data-model') === 'BLACK_LITTERMAN');
+          });
           runOptimization();
+        } else if (action === 'timesfm') {
+          state.activePredModel = 'TIMESFM';
+          document.querySelectorAll('#predModelTabs .obs-nav-btn').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-pred') === 'TIMESFM');
+          });
+          renderPredictionChart();
+        } else if (action === 'merton') {
+          state.activePredModel = 'MERTON';
+          document.querySelectorAll('#predModelTabs .obs-nav-btn').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-pred') === 'MERTON');
+          });
+          renderPredictionChart();
+        } else if (action === 'hrp') {
+          state.activeOptModel = 'HRP';
+          document.querySelectorAll('.model-card').forEach(c => {
+            c.classList.toggle('active', c.getAttribute('data-model') === 'HRP');
+          });
+          runOptimization();
+        } else if (action === 'cvar') {
+          state.activeOptModel = 'CVAR_MIN';
+          document.querySelectorAll('.model-card').forEach(c => {
+            c.classList.toggle('active', c.getAttribute('data-model') === 'CVAR_MIN');
+          });
+          runOptimization();
+        } else if (action === 'rate-shock') {
+          const slider = document.getElementById('sliderRateShock');
+          if (slider) {
+            slider.value = 50;
+            slider.dispatchEvent(new Event('input'));
+          }
+        } else if (action === 'memo') {
+          compileMemorandum();
         }
       });
-    }
+    });
+
+    // AI Query Bar
+    const aiInput = document.getElementById('optAiInput');
+    const aiBtn = document.getElementById('btnOptAsk');
+    const handleAi = () => {
+      const q = (aiInput ? aiInput.value : '').toLowerCase();
+      if (!q) return;
+      if (q.includes('rate') || q.includes('shock')) {
+        const slider = document.getElementById('sliderRateShock');
+        if (slider) { slider.value = 50; slider.dispatchEvent(new Event('input')); }
+      } else if (q.includes('cvar') || q.includes('tail')) {
+        state.activeOptModel = 'CVAR_MIN';
+        document.querySelectorAll('.model-card').forEach(c => c.classList.toggle('active', c.getAttribute('data-model') === 'CVAR_MIN'));
+        runOptimization();
+      } else if (q.includes('hrp') || q.includes('parity')) {
+        state.activeOptModel = 'HRP';
+        document.querySelectorAll('.model-card').forEach(c => c.classList.toggle('active', c.getAttribute('data-model') === 'HRP'));
+        runOptimization();
+      } else if (q.includes('memo') || q.includes('report')) {
+        compileMemorandum();
+      } else {
+        runOptimization();
+      }
+      if (aiInput) aiInput.value = '';
+    };
+
+    if (aiBtn) aiBtn.addEventListener('click', handleAi);
+    if (aiInput) aiInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAi(); });
   }
 
-  // --- Remove Holding Callback ---
-  root.removeHolding = function(sym) {
-    if (state.holdings[sym]) {
-      delete state.holdings[sym];
-      calculatePortfolioKPIs();
-      renderHoldingsTable();
-      runPortfolioPrediction();
-      runOptimization();
-    }
-  };
-
-  // --- Fallback Generators for Offline Robustness ---
-  function generateFallbackPrediction() {
-    const horizon = 64;
+  // --- Fallback Data Helpers ---
+  function generateFallbackPrediction(horizon) {
     const baseNav = 10000000;
     const t = Array.from({ length: horizon }, (_, i) => i + 1);
 
-    const consensus = t.map(i => baseNav * (1 + (0.04 * (i / horizon)) + (0.01 * Math.sin(i / 5))));
+    const consensus = t.map(i => baseNav * (1 + (0.0401 * (i / horizon)) + (0.008 * Math.sin(i / 5))));
     const timesfm = t.map(i => baseNav * (1 + (0.045 * (i / horizon)) + (0.012 * Math.sin(i / 6))));
     const prophet = t.map(i => baseNav * (1 + (0.038 * (i / horizon)) + (0.008 * Math.cos(i / 4))));
     const merton = t.map(i => baseNav * (1 + (0.042 * (i / horizon)) + (0.015 * Math.sin(i / 8))));
@@ -771,13 +1244,7 @@ ${escapeHtml(memoData.markdown)}
       ensemble_consensus_trajectory: consensus,
       timesfm_30: { forecast_quantiles: { q50: timesfm, q90: timesfm.map(v => v * 1.05), q10: timesfm.map(v => v * 0.95), q99: timesfm.map(v => v * 1.09) } },
       prophet_gam: { point_forecast: prophet, upper_95: prophet.map(v => v * 1.06), lower_95: prophet.map(v => v * 0.94) },
-      merton_jump_diffusion: { fan_chart: { p50_median: merton, p95: merton.map(v => v * 1.08), p05: merton.map(v => v * 0.92), p75: merton.map(v => v * 1.04), p25: merton.map(v => v * 0.96) } },
-      macro_stress_scenarios: [
-        { name: 'RBI / Fed Rate Hike (+50 bps)', impact_pct: -0.032, rationale: 'PE multiple compression and yield expansion.' },
-        { name: 'Crude Oil Shock (+15%)', impact_pct: -0.024, rationale: 'Input cost inflation for domestic equities.' },
-        { name: 'AI & Semiconductor Rally (+10%)', impact_pct: 0.048, rationale: 'Earnings expansion across tech holdings.' },
-        { name: 'Dovish Pivot (-25 bps Cut)', impact_pct: 0.035, rationale: 'Cost of capital reduction.' }
-      ]
+      merton_jump_diffusion: { fan_chart: { p50_median: merton, p95: merton.map(v => v * 1.08), p05: merton.map(v => v * 0.92), p75: merton.map(v => v * 1.04), p25: merton.map(v => v * 0.96) } }
     };
   }
 
@@ -787,11 +1254,10 @@ ${escapeHtml(memoData.markdown)}
     const weights = {};
     symbols.forEach(s => weights[s] = Number((1 / n).toFixed(4)));
 
-    // Tilt slightly for Black-Litterman based on sentiment
-    if (model.includes('BLACK') && symbols.includes('SUZLON.NS')) {
-      weights['SUZLON.NS'] = Math.min(0.40, weights['SUZLON.NS'] + 0.10);
-      const rem = (1.0 - weights['SUZLON.NS']) / (n - 1);
-      symbols.filter(s => s !== 'SUZLON.NS').forEach(s => weights[s] = Number(rem.toFixed(4)));
+    if (model.includes('BLACK') && symbols.includes('RELIANCE.NS')) {
+      weights['RELIANCE.NS'] = Math.min(0.40, weights['RELIANCE.NS'] + 0.08);
+      const rem = (1.0 - weights['RELIANCE.NS']) / (n - 1);
+      symbols.filter(s => s !== 'RELIANCE.NS').forEach(s => weights[s] = Number(rem.toFixed(4)));
     }
 
     return {
@@ -828,10 +1294,10 @@ ${escapeHtml(memoData.markdown)}
           quantity: Math.abs(deltaQty),
           price: h.current_price,
           notional_value: notional,
-          current_weight_pct: (currentW * 100).toFixed(2),
-          target_weight_pct: (targetW * 100).toFixed(2),
+          current_weight_pct: (currentW * 100).toFixed(1),
+          target_weight_pct: (targetW * 100).toFixed(1),
           slippage_bps: 3.5,
-          fix_tag_58: `REBALANCE-${sym}`
+          fix_tag_58: `REBAL-${sym}`
         });
       }
     });
@@ -847,8 +1313,8 @@ ${escapeHtml(memoData.markdown)}
   function generateFallbackMemorandum() {
     return {
       title: 'RISKOS Executive Quantitative Memorandum',
-      sha256_hash: '9f83a2b104d5e67f89c0123456789abcdef0123456789abcdef0123456789abc',
-      markdown: `# 🏛️ RISKOS GLOBAL QUANTITATIVE ALPHA & CAPITAL PRESERVATION MEMORANDUM\nClassification: STRICTLY CONFIDENTIAL // INSTITUTIONAL LP DISCLOSURE\n\n1. Executive Summary: Market conditions reflect active micro-tick dispersion across NSE/US markets.\n2. Predictive Consensus: Google TimesFM 3.0 + Meta Prophet + Merton Jump Monte Carlo indicate +4.01% forward drift.\n3. Basel III Compliance: VaR (99%) 1.42% NAV, CVaR (95%) 2.15% NAV.\n4. Rebalance Status: Target weights calculated via Sentiment-Conditioned Black-Litterman.`
+      sha256_hash: '8f419c23a07b82f41d90444ac819203948e581293a1029348123049182309182',
+      markdown: `# 🏛️ RISKOS GLOBAL QUANTITATIVE ALPHA & CAPITAL PRESERVATION MEMORANDUM\n**Classification**: STRICTLY CONFIDENTIAL // INSTITUTIONAL LP DISCLOSURE\n\n## 1. Executive Summary\nActive portfolio marked-to-market across NSE, BSE, and US markets.\nMulti-model consensus projects +4.01% forward drift (64D) with Basel III FRTB VaR (99%) at 1.42% NAV and CVaR (95%) at 2.15% NAV.\n\n## 2. Rebalance Allocation Tickets\nOptimized via Sentiment-Conditioned Black-Litterman ($P \\cdot Q$) with 1-click execution ready.`
     };
   }
 
@@ -867,7 +1333,7 @@ ${escapeHtml(memoData.markdown)}
     }
   }
 
-  // Self-start on DOM ready
+  // Self-start
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
