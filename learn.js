@@ -36,6 +36,9 @@
     const allMods = LearnMathEngine.MODULES_DIRECTORY;
     if (!categoryKey || categoryKey === 'all') return allMods;
     
+    if (categoryKey === 'ai_predictive') {
+      return allMods.filter(m => ['merton_jump_diffusion', 'black_litterman', 'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process', 'openbb_odp', 'perspective_streaming_grid', 'rough_volatility', 'malliavin_calculus', 'deflated_sharpe'].includes(m.id));
+    }
     if (categoryKey === 'quant_interview') {
       return allMods.filter(m => ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id) || m.categoryKey === 'quant_interview');
     }

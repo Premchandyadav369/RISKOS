@@ -161,12 +161,13 @@
 
         <div class="lab-prompt-chips">
           <span style="font-size:0.7rem;color:var(--text-muted);display:inline-flex;align-items:center;margin-right:4px;">Ask anything:</span>
+          <button class="lab-chip" data-prompt="Google TimesFM 3.0">🔮 Google TimesFM 3.0</button>
+          <button class="lab-chip" data-prompt="Meta Prophet GAM">📈 Meta Prophet GAM</button>
+          <button class="lab-chip" data-prompt="Merton Jump-Diffusion">🌊 Merton Jump Fat-Tail</button>
+          <button class="lab-chip" data-prompt="Sentiment Black-Litterman">🧠 Black-Litterman News Tilt</button>
+          <button class="lab-chip" data-prompt="Almgren-Chriss">⚡ Almgren-Chriss Execution</button>
           <button class="lab-chip" data-prompt="Analyse Reliance">Analyse Reliance</button>
-          <button class="lab-chip" data-prompt="Why did HDFC Bank move?">Why did HDFC Bank move?</button>
-          <button class="lab-chip" data-prompt="Compare TCS vs Infosys">Compare TCS vs Infosys</button>
-          <button class="lab-chip" data-prompt="Indian IT Volatility">Indian IT Volatility</button>
           <button class="lab-chip" data-prompt="Explain Sharpe Ratio">Explain Sharpe Ratio</button>
-          <button class="lab-chip" data-prompt="Explain Beta">Explain Beta</button>
           <button class="lab-chip" data-prompt="CAGR">CAGR Simulator</button>
           <button class="lab-chip" data-prompt="SIP">₹5k / mo SIP</button>
         </div>
@@ -184,11 +185,12 @@
     <nav class="lab-nav-pill-bar" aria-label="Category Filters">
       <div class="lab-nav-pill-track" id="labCatTrack">
         <button class="lab-cat-pill active" data-category="all">ALL (52)</button>
+        <button class="lab-cat-pill" data-category="ai_predictive"><i class="fa-solid fa-wand-magic-sparkles text-cyan" style="margin-right:4px;"></i> AI &amp; PREDICTIVE ALPHA</button>
         <button class="lab-cat-pill" data-category="quant_interview"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> QUANT INTERVIEWS (32)</button>
         <button class="lab-cat-pill" data-category="growth">RETURNS</button>
         <button class="lab-cat-pill" data-category="valuation">VALUATION</button>
         <button class="lab-cat-pill" data-category="risk">RISK</button>
-        <button class="lab-cat-pill" data-category="portfolio">PORTFOLIO</button>
+        <button class="lab-cat-pill" data-category="portfolio"><i class="fa-solid fa-sliders text-cyan" style="margin-right:4px;"></i> PORTFOLIO &amp; OPTIMIZATION</button>
         <button class="lab-cat-pill" data-category="simulators">SIMULATORS</button>
         <button class="lab-cat-pill" data-category="mathematics">MATHEMATICS</button>
       </div>
@@ -268,8 +270,20 @@
         <!-- Real Security Search Bar -->
         <div class="sim-real-security-bar" id="simRealSecurityBar">
           <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-cyan);"></i>
-          <input type="text" id="simSecurityInput" class="sim-security-input" placeholder="Search real security (e.g. RELIANCE, TCS, NVDA, AAPL, 500570, ^NSEI)..." />
+          <input type="text" id="simSecurityInput" class="sim-security-input" placeholder="Search real security (e.g. RELIANCE.NS, SUZLON.NS, IDEA.NS, NVDA, AAPL, PLUG, BBAI)..." />
           <span style="font-size:0.75rem;color:var(--text-muted);">Loads real market fundamentals &amp; beta</span>
+        </div>
+
+        <!-- Quick Ticker Discovery Chips -->
+        <div class="sim-quick-ticker-chips" style="display:flex; gap:6px; flex-wrap:wrap; margin: 8px 0 12px 0;">
+          <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; align-self:center;">POPULAR SECURITIES:</span>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='RELIANCE.NS'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">RELIANCE.NS</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='SUZLON.NS'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">SUZLON.NS (₹64.5)</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='IDEA.NS'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">IDEA.NS (₹8.25)</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='YESBANK.NS'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">YESBANK.NS (₹21.4)</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='NVDA'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">NVDA</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='PLUG'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">PLUG ($2.17)</button>
+          <button class="lab-chip" onclick="document.getElementById('simSecurityInput').value='BBAI'; document.getElementById('simSecurityInput').dispatchEvent(new Event('input'))">BBAI ($1.85)</button>
         </div>
 
         <!-- Presets Bar -->

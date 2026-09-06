@@ -6,7 +6,7 @@
 
 const LearnMathEngine = (() => {
   // FX Conversion Rate
-  const USD_TO_INR = 83.50;
+  const USD_TO_INR = 86.72;
 
   // Format money with compact or full options
   const formatMoney = (val, currency = 'INR', compact = false) => {
@@ -1486,12 +1486,12 @@ const LearnMathEngine = (() => {
           { label: 'Global Market Equilibrium Benchmark (%)', data: marketWeights.map(w => w * 100), backgroundColor: 'rgba(255, 255, 255, 0.15)', borderWidth: 1 }
         ]
       },
-      equationLatex: `\\[ \\boldsymbol{\\mu}_{BL} = \\left[ (\\tau \\mathbf{\\Sigma})^{-1} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{P} \\right]^{-1} \\left[ (\\tau \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\Pi} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{Q} \\right], \\quad \\boldsymbol{\\Pi} = \\lambda \\mathbf{\\Sigma} \\mathbf{w}_{mkt} \\]`,
+      equationLatex: `\\[ \\boldsymbol{\\mu}_{BL} = \\left[ (\\tau \\mathbf{\\Sigma})^{-1} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{P} \\right]^{-1} \\left[ (\\tau \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\Pi} + \\mathbf{P}^T \\mathbf{\\Omega}^{-1} \\mathbf{Q} \\right], \\quad Q_k = \\alpha \\cdot S_{\\text{news}} \\cdot \\sigma_k \\sqrt{\\Delta t} \\]`,
       substitutedLatex: `\\[ \\mathbf{w}_{BL}^* = (\\lambda \\mathbf{\\Sigma})^{-1} \\boldsymbol{\\mu}_{BL} \\implies \\text{Tech Weight} = \\mathbf{${normBLWeights[0]}\\%} \\quad \\text{vs Benchmark } 45.0\\% \\]`,
-      beginnerText: `Standard Markowitz optimization creates crazy extreme bets like 'put 100% in one stock'. Black-Litterman starts from what the entire market owns and gently tilts only where you have true quantitative conviction.`,
-      investorText: `The gold standard for multi-asset institutional portfolio construction across sovereign wealth funds and asset managers.`,
-      quantText: `Combines a Gaussian prior distribution $\\mathbf{r} \\sim \\mathcal{N}(\\boldsymbol{\\Pi}, \\tau \\mathbf{\\Sigma})$ with a Gaussian conditional likelihood $\\mathbf{P} \\mathbf{r} \\mid \\mathbf{Q} \\sim \\mathcal{N}(\\mathbf{Q}, \\mathbf{\\Omega})$ via conjugate Bayesian updating.`,
-      limitations: `Specifying the view uncertainty covariance matrix $\\mathbf{\\Omega}$ requires subjective calibration (often set via He-Litterman $\\mathbf{\\Omega} = \\text{diag}(\\mathbf{P} (\\tau \\mathbf{\\Sigma}) \\mathbf{P}^T)$).`
+      beginnerText: `Standard Markowitz optimization creates crazy extreme bets like 'put 100% in one stock'. Black-Litterman starts from global market equilibrium weights and gently tilts only where your active views (or Loughran-McDonald news NLP sentiment) have quantified conviction.`,
+      investorText: `The gold standard for multi-asset institutional portfolio construction across sovereign wealth funds. Integrated directly into RISKOS's Portfolio Optimizer desk with 1-click news sentiment view injection.`,
+      quantText: `Combines a Gaussian prior distribution $\\mathbf{r} \\sim \\mathcal{N}(\\boldsymbol{\\Pi}, \\tau \\mathbf{\\Sigma})$ with a Gaussian conditional likelihood $\\mathbf{P} \\mathbf{r} \\mid \\mathbf{Q} \\sim \\mathcal{N}(\\mathbf{Q}, \\mathbf{\\Omega})$ via conjugate Bayesian updating, where the view vector $Q$ is continuously conditioned on NLP sentiment scores $S_{\\text{news}} \\in [-1, +1]$.`,
+      limitations: `Specifying the view uncertainty covariance matrix $\\mathbf{\\Omega}$ requires subjective calibration (often set via He-Litterman $\\mathbf{\\Omega} = \\text{diag}(\\mathbf{P} (\\tau \\mathbf{\\Sigma}) \\mathbf{P}^T)$ or proportional to NLP confidence intervals).`
     };
   };
 
@@ -3168,8 +3168,9 @@ const LearnMathEngine = (() => {
         { key: 'marketRiskAversion', label: 'Global Market Risk Aversion (λ)', type: 'number', min: 1.0, max: 5.0, step: 0.25, default: 2.5 }
       ],
       presets: [
-        { label: 'High Conviction Bullish Tech (+5% Spread)', inputs: { viewSpreadPct: 5.0, confidenceTau: 0.05, marketRiskAversion: 2.5, viewConfidence: 0.90 } },
-        { label: 'Defensive Value Rotation (Banks Outperform)', inputs: { viewSpreadPct: -4.0, confidenceTau: 0.05, marketRiskAversion: 3.0, viewConfidence: 0.75 } }
+        { label: 'News Catalyst Surge: Tech (+5% NLP Tilt)', inputs: { viewSpreadPct: 5.0, confidenceTau: 0.05, marketRiskAversion: 2.5, viewConfidence: 0.90 } },
+        { label: 'Regulatory Contagion: Bank De-allocation (-4% NLP Tilt)', inputs: { viewSpreadPct: -4.0, confidenceTau: 0.05, marketRiskAversion: 3.0, viewConfidence: 0.75 } },
+        { label: 'Order Win Alpha Tilt: Suzlon / Green Energy (+8%)', inputs: { viewSpreadPct: 8.0, confidenceTau: 0.08, marketRiskAversion: 2.2, viewConfidence: 0.95 } }
       ]
     },
     {
