@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RISKOS // Portfolio Prediction & Multi-Objective Optimizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="portfolio_optimizer.css">
+</head>
+<body class="theme-bloomberg">
+
+  <!-- Top Global Command Bar -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="brand-link">
+        <span class="brand-logo">▲</span>
+        <span class="brand-text">RISKOS<span class="brand-tag">QUANT</span></span>
+      </a>
+      <span class="desk-indicator"><i class="fa-solid fa-brain"></i> PORTFOLIO PREDICTION & OPTIMIZER DESK</span>
+    </div>
+    <div class="nav-center">
+      <nav class="desk-switcher">
+        <a href="ticker.html" class="desk-tab"><i class="fa-solid fa-list-check"></i> Screener</a>
+        <a href="observatory.html" class="desk-tab"><i class="fa-solid fa-satellite-dish"></i> Observatory</a>
+        <a href="app.html" class="desk-tab"><i class="fa-solid fa-chart-line"></i> Risk Terminal</a>
+        <a href="fleet.html" class="desk-tab"><i class="fa-solid fa-robot"></i> Bot Fleet</a>
+        <a href="portfolio_optimizer.html" class="desk-tab active"><i class="fa-solid fa-sliders"></i> Optimizer</a>
+        <a href="docs.html" class="desk-tab"><i class="fa-solid fa-book-bookmark"></i> Docs</a>
+      </nav>
+    </div>
+    <div class="nav-right">
+      <div class="telemetry-pill">
+        <span class="pulse-beacon green"></span>
+        <span class="mono-label">LIVE BROWNIAN (400ms)</span>
+      </div>
+      <div id="liveClock" class="clock-display">00:00:00 UTC</div>
+    </div>
+  </header>
+
+  <!-- Breaking News Catalyst Marquee Ribbon -->
+  <div class="news-ticker-ribbon">
+    <div class="news-badge-label"><i class="fa-solid fa-bolt"></i> BREAKING CATALYSTS</div>
+    <div class="news-scroll-container" id="newsTickerContainer">
+      <span class="news-ticker-item loading">Connecting to global financial news wires...</span>
+    </div>
+  </div>
+
+  <main class="main-layout">
+
+    <!-- KPI Summary Cards Ribbon -->
+    <section class="kpi-banner">
+      <div class="kpi-card">
+        <div class="kpi-title">TOTAL PORTFOLIO NAV</div>
+        <div class="kpi-val" id="kpiNav">₹10,000,000</div>
+        <div class="kpi-sub positive" id="kpiPnl">+₹124,500 (+1.25%) TODAY</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">ACTIVE HOLDINGS</div>
+        <div class="kpi-val" id="kpiCount">6 Securities</div>
+        <div class="kpi-sub" id="kpiMarkets">NSE / BSE / US MARKETS</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">PORTFOLIO BETA & VOL</div>
+        <div class="kpi-val" id="kpiBeta">β 1.08 | 16.4%</div>
+        <div class="kpi-sub warning">SHRUNK COVARIANCE (LEDOIT-WOLF)</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-title">PREDICTIVE CONSENSUS DRIFT</div>
+        <div class="kpi-val highlight" id="kpiDrift">+4.01% (64D)</div>
+        <div class="kpi-sub positive"><i class="fa-solid fa-circle-nodes"></i> TimesFM + Prophet + Merton</div>
+      </div>
+    </section>
+
+    <!-- Section 1 & 2: Holdings Shelf and Live News Radar -->
+    <div class="grid-2col">
+
+      <!-- Left Column: User Holdings Desk -->
+      <section class="panel-box holdings-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-wallet"></i> USER ACTIVE PORTFOLIO HOLDINGS
+          </div>
+          <div class="panel-actions">
+            <button class="btn-action" id="btnSyncBlotter"><i class="fa-solid fa-arrows-rotate"></i> Sync Blotter</button>
+            <button class="btn-action" id="btnAddHolding"><i class="fa-solid fa-plus"></i> Add Position</button>
+            <button class="btn-action secondary" id="btnResetPortfolio"><i class="fa-solid fa-rotate-left"></i> Reset</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="quant-table" id="holdingsTable">
+            <thead>
+              <tr>
+                <th>SECURITY</th>
+                <th>QTY</th>
+                <th>AVG COST</th>
+                <th>CURRENT</th>
+                <th>VALUE (₹/$)</th>
+                <th>WEIGHT</th>
+                <th>BETA</th>
+                <th>NEWS SENTIMENT</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="holdingsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right Column: Live News & Catalyst Radar -->
+      <section class="panel-box news-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-newspaper"></i> PORTFOLIO-TAGGED BREAKING NEWS & SENTIMENT
+          </div>
+          <div class="panel-actions">
+            <span class="badge-tag" id="newsCountBadge">10 Stories Cached</span>
+          </div>
+        </div>
+        <div class="news-feed-list" id="portfolioNewsFeed">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Section 3: Multi-Model Predictive Trajectory Suite -->
+    <section class="panel-box prediction-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-chart-line"></i> MULTI-MODEL PREDICTIVE TRAJECTORY SUITE (TimesFM 3.0 + Prophet + Merton Jump Monte Carlo)
+        </div>
+        <div class="segmented-control" id="predModelSelector">
+          <button class="seg-btn active" data-pred="ALL">Unified Consensus</button>
+          <button class="seg-btn" data-pred="TIMESFM">Google TimesFM 3.0 (q10-q99)</button>
+          <button class="seg-btn" data-pred="PROPHET">Meta Prophet GAM</button>
+          <button class="seg-btn" data-pred="MERTON">Merton Jump Monte Carlo</button>
+        </div>
+      </div>
+
+      <div class="chart-container-lg">
+        <canvas id="predictionChart"></canvas>
+      </div>
+
+      <!-- Macro Scenario Impact Matrix -->
+      <div class="macro-impact-row" id="macroScenariosRow">
+        <!-- Dynamically populated -->
+      </div>
+    </section>
+
+    <!-- Section 4 & 5: Multi-Objective Optimizer Sandbox and Rebalance Blotter -->
+    <div class="grid-2col">
+
+      <!-- Left Column: Quantitative Optimizer Controls & Weight Comparison -->
+      <section class="panel-box optimizer-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-compass-drafting"></i> MULTI-OBJECTIVE QUANTITATIVE OPTIMIZER
+          </div>
+        </div>
+
+        <div class="optimizer-controls">
+          <div class="control-group">
+            <label class="ctrl-label">OPTIMIZATION MODEL</label>
+            <select id="optModelSelect" class="quant-select">
+              <option value="BLACK_LITTERMAN" selected>Sentiment-Conditioned Black-Litterman (P * Q)</option>
+              <option value="HRP">Hierarchical Risk Parity (HRP Machine Learning)</option>
+              <option value="CVAR_MIN">Rockafellar-Uryasev CVaR (95%) Minimization</option>
+              <option value="MAX_SHARPE">Classical Markowitz Maximum Sharpe Ratio</option>
+              <option value="MIN_VAR">Global Minimum Variance</option>
+            </select>
+          </div>
+
+          <div class="control-row">
+            <div class="control-group">
+              <label class="ctrl-label">MAX ASSET WEIGHT: <span id="maxWeightVal">40%</span></label>
+              <input type="range" id="maxWeightSlider" min="0.15" max="0.70" step="0.05" value="0.40" class="quant-slider">
+            </div>
+            <div class="control-group">
+              <label class="ctrl-label">RISK AVERSION (λ): <span id="riskAversionVal">2.5</span></label>
+              <input type="range" id="riskAversionSlider" min="1.0" max="6.0" step="0.5" value="2.5" class="quant-slider">
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-execute" id="btnRunOptimization">
+              <i class="fa-solid fa-play"></i> EXECUTE QUANT OPTIMIZATION
+            </button>
+          </div>
+        </div>
+
+        <div class="chart-container-md">
+          <canvas id="optimizerWeightsChart"></canvas>
+        </div>
+
+        <div class="metrics-summary-row" id="optimizerMetricsSummary">
+          <!-- Populated -->
+        </div>
+      </section>
+
+      <!-- Right Column: 1-Click Rebalance Order Blotter -->
+      <section class="panel-box rebalance-panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <i class="fa-solid fa-receipt"></i> 1-CLICK EXECUTION REBALANCE BLOTTER
+          </div>
+          <div class="panel-actions">
+            <button class="btn-action primary" id="btnExecuteRebalanceOrders">
+              <i class="fa-solid fa-paper-plane"></i> EXECUTE REBALANCE FILLS
+            </button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="quant-table" id="rebalanceTable">
+            <thead>
+              <tr>
+                <th>SECURITY</th>
+                <th>ACTION</th>
+                <th>DELTA QTY</th>
+                <th>PRICE</th>
+                <th>NOTIONAL</th>
+                <th>WEIGHT SHIFT</th>
+                <th>EST SLIPPAGE</th>
+              </tr>
+            </thead>
+            <tbody id="rebalanceTableBody">
+              <tr>
+                <td colspan="7" class="text-center text-muted">Run optimization to generate rebalancing tickets.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="rebalance-summary" id="rebalanceSummaryCard">
+          <div class="summary-line">
+            <span>Total Rebalance Turnover:</span>
+            <strong id="rebTurnoverVal">₹0.00</strong>
+          </div>
+          <div class="summary-line">
+            <span>Portfolio Turnover Ratio:</span>
+            <strong id="rebTurnoverPct">0.0%</strong>
+          </div>
+          <div class="summary-line">
+            <span>Estimated Market Impact:</span>
+            <strong id="rebImpactVal">~3.5 bps</strong>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Section 6: Institutional Executive Memorandum Generator -->
+    <section class="panel-box memo-panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-file-signature"></i> INSTITUTIONAL EXECUTIVE RISK & ALPHA MEMORANDUM (Bridgewater / Goldman Sachs Style)
+        </div>
+        <div class="panel-actions">
+          <button class="btn-action primary" id="btnGenerateMemo"><i class="fa-solid fa-stamp"></i> Compile Memorandum</button>
+          <button class="btn-action" id="btnExportMemo"><i class="fa-solid fa-download"></i> Export Markdown</button>
+        </div>
+      </div>
+
+      <div class="memo-content-box" id="memorandumDisplayBox">
+        <div class="memo-placeholder">
+          Click "Compile Memorandum" to generate a cryptographically sealed daily quantitative LP disclosure.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Core Scripts -->
+  <script src="securityMaster.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="newsEngine.js"></script>
+  <script src="portfolio_optimizer.js"></script>
+</body>
+</html>
