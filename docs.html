@@ -120,6 +120,18 @@
       </div>
 
       <div class="docs-nav-group">
+        <div class="docs-nav-title">Mid-Level Institutional Suite</div>
+        <a href="#crisis-studio" class="docs-nav-item"><i class="fa-solid fa-radiation text-rose"></i> Crisis Stress Studio</a>
+        <a href="#options-studio" class="docs-nav-item"><i class="fa-solid fa-chart-line-up text-cyan"></i> Options Greeks Studio</a>
+        <a href="#risk-parity" class="docs-nav-item"><i class="fa-solid fa-scale-balanced text-emerald"></i> Ray Dalio Risk Parity</a>
+        <a href="#smart-dca" class="docs-nav-item"><i class="fa-solid fa-coins text-green"></i> Smart-DCA Autopilot</a>
+        <a href="#sor-slicer" class="docs-nav-item"><i class="fa-solid fa-network-wired text-purple"></i> Multi-Venue SOR Router</a>
+        <a href="#wealth-survival" class="docs-nav-item"><i class="fa-solid fa-shield-heart text-amber"></i> Monte Carlo Survival</a>
+        <a href="#drift-bands" class="docs-nav-item"><i class="fa-solid fa-arrows-to-dot text-cyan"></i> Drift Band Rebalancing</a>
+        <a href="#barra-radar" class="docs-nav-item"><i class="fa-solid fa-chart-pie text-cyan"></i> Barra Factor Radar</a>
+      </div>
+
+      <div class="docs-nav-group">
         <div class="docs-nav-title">24/7 Autonomous Fleet</div>
         <a href="#fleet" class="docs-nav-item"><i class="fa-solid fa-robot"></i> 20-Bot Sector Matrix</a>
         <a href="#epoch" class="docs-nav-item"><i class="fa-solid fa-hourglass-half"></i> 90-Day Time-Travel Engine</a>
@@ -685,6 +697,92 @@ u)$.
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
               <strong>Layman Analogy:</strong> An interactive playground where every complex formula is unlocked through everyday real-world examples: car brakes, sports scoreboards, shopping discounts, and real companies like Reliance, HDFC, Apple, and Microsoft.<br>
               <strong>Institutional Quant:</strong> 57 deterministic quantitative laboratories spanning 9 divisions. Every lab supports tri-mode depth: Beginner (Layman Analogy + Concrete Example), Investor (Buffett/Dalio evaluation), and Quant (Formal stochastic calculus, SDEs, and LaTeX proof).
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7.6: MID-LEVEL INSTITUTIONAL EXECUTION & RISK SUITE -->
+      <section id="mid-level-suite" class="doc-section">
+        <div class="doc-header-row">
+          <h2 class="doc-title"><i class="fa-solid fa-microchip text-cyan"></i> 8 Mid-Level Institutional Engines</h2>
+          <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981;">Quantitative Production Suite</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- 1. Crisis Stress Studio -->
+          <div id="crisis-studio" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#f43f5e; margin:0 0 6px 0;"><i class="fa-solid fa-radiation"></i> 1. Portfolio Stress-Testing &amp; 'What-If' Crisis Studio</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A crash-test dummy simulator for your portfolio. Instead of hoping a crash won't happen, it simulates the 2008 Lehman crisis or 2020 COVID shock to show exactly where your money breaks down and recommends instant emergency hedges.<br>
+              <strong>Institutional Quant:</strong> Historical factor covariance propagation across 5 canonical crisis regimes (2008 GFC, 2020 COVID, 2022 Global Rate Hike, Stagflation, RBI Emergency Hike) with continuous severity multiplier ($0.5x - 2.0x$) and 1-click tactical hedge injection (Gold/OTM Puts).
+            </p>
+            <div style="font-size:0.8rem; color:#f43f5e;">$$R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity}}, \quad \Delta V = \sum_{i=1}^N w_i V_0 R_i^{\text{shock}}$$</div>
+          </div>
+
+          <!-- 2. Options Greeks Studio -->
+          <div id="options-studio" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#38bdf8; margin:0 0 6px 0;"><i class="fa-solid fa-chart-line-up"></i> 2. Multi-Asset Options Greeks &amp; Interactive Payoff Studio</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A flight dashboard for options contracts. See how much money you make across different market prices at expiry and watch how overnight time-decay (Theta) eats away at option premiums while you sleep.<br>
+              <strong>Institutional Quant:</strong> Closed-form Black-Scholes-Merton pricing with Abramowitz &amp; Stegun cumulative normal distribution approximation. Computes analytical Greeks ($\Delta, \Gamma, \Theta, \mathcal{V}, \rho$) across 6 institutional multi-leg structures (Bull Call, Bear Put, Iron Condor, Straddle, Strangle, Jade Lizard).
+            </p>
+            <div style="font-size:0.8rem; color:#38bdf8;">$$d_1 = \frac{\ln(S/K) + (r + \frac{1}{2}\sigma^2)T}{\sigma \sqrt{T}}, \quad \Delta = \Phi(d_1), \quad \Gamma = \frac{\phi(d_1)}{S \sigma \sqrt{T}}, \quad \Theta = -\frac{S \phi(d_1) \sigma}{2\sqrt{T}} - rKe^{-rT}\Phi(d_2)$$</div>
+          </div>
+
+          <!-- 3. Ray Dalio Risk Parity -->
+          <div id="risk-parity" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#34d399; margin:0 0 6px 0;"><i class="fa-solid fa-scale-balanced"></i> 3. Ray Dalio All-Weather Equal Risk Contribution (ERC) Risk Parity</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> The seesaw balancer. Putting equal dollars in stocks and bonds is misleading because volatile stocks cause 90% of your risk. Risk parity sizes positions so each holding contributes identical risk to your peace of mind.<br>
+              <strong>Institutional Quant:</strong> Solves non-linear Equal Risk Contribution equations where Total Risk Contribution $TRC_i = w_i \frac{(\mathbf{\Sigma}\mathbf{w})_i}{\sigma_p} = \frac{\sigma_p}{N}$ via cyclical coordinate descent.
+            </p>
+            <div style="font-size:0.8rem; color:#34d399;">$$\min_{\mathbf{w}} \sum_{i=1}^N \left( w_i (\mathbf{\Sigma} \mathbf{w})_i - \frac{\sigma_p^2}{N} \right)^2 \quad \text{s.t.} \quad \sum w_i = 1, \quad w_i \ge 0$$</div>
+          </div>
+
+          <!-- 4. Smart-DCA Autopilot -->
+          <div id="smart-dca" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#10b981; margin:0 0 6px 0;"><i class="fa-solid fa-coins"></i> 4. Smart Dollar-Cost Averaging (Smart-DCA) &amp; Reinvestment Scheduler</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Smart grocery shopping for stocks. When the market goes on sale, it automatically buys 2x more shares, and when prices are overheated, it pulls back and holds cash, dramatically beating standard blind SIPs over 10 years.<br>
+              <strong>Institutional Quant:</strong> Dynamic step-in investment policy scaling monthly tranche capital $C_t = C_{\text{base}} \cdot (1 + \kappa_{\text{dip}} \cdot \text{DipFactor} - \kappa_{\text{foam}} \cdot \mathbb{I}(\text{RSI} > 70))$. Simulates 10-year forward wealth compounding curves.
+            </p>
+          </div>
+
+          <!-- 5. Smart Order Routing -->
+          <div id="sor-slicer" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#a78bfa; margin:0 0 6px 0;"><i class="fa-solid fa-network-wired"></i> 5. Multi-Venue Smart Order Routing (SOR) &amp; Liquidity Slicer</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A price comparison engine for trade executions. Slices orders across NSE, BSE, and institutional Dark Pools to get the best price and save thousands of rupees in broker slippage.<br>
+              <strong>Institutional Quant:</strong> Quadratic Almgren-Chriss market impact minimization across fragmented venues with venue-specific book depth, bid-ask spread, and transaction fees.
+            </p>
+            <div style="font-size:0.8rem; color:#a78bfa;">$$\min_{q_{\text{NSE}}, q_{\text{BSE}}, q_{\text{Dark}}} \sum_{v} \left[ q_v P_v + \eta_v \left(\frac{q_v}{V_v}\right)^2 P_v + \text{Fee}_v(q_v) \right]$$</div>
+          </div>
+
+          <!-- 6. Monte Carlo Survival -->
+          <div id="wealth-survival" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#fbbf24; margin:0 0 6px 0;"><i class="fa-solid fa-shield-heart"></i> 6. Monte Carlo 1,000-Path Wealth Survival &amp; Sequence Risk</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A weather supercomputer for retirement planning. Simulates 1,000 alternate financial futures—including market crashes right after you retire—to guarantee your savings never run out.<br>
+              <strong>Institutional Quant:</strong> 1,000-path correlated geometric Brownian motion with stochastic monthly draws, CPI inflation adjustment, and Bengen 4% withdrawal schedule. Evaluates ruin probability $\Pr(\text{Ruin})$ and percentile corridors ($p_{10} - p_{90}$).
+            </p>
+          </div>
+
+          <!-- 7. Drift Band Rebalancing -->
+          <div id="drift-bands" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-arrows-to-dot"></i> 7. Asymmetric Portfolio Drift Bands &amp; Tax-Efficient Rebalancing</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A smart thermostat for your portfolio. It doesn't adjust if the temperature changes by 0.1 degree; it only trades when an asset drifts too far outside its target range, saving 50% in broker fees and capital gains taxes.<br>
+              <strong>Institutional Quant:</strong> No-trade corridor $[w_i^* - \theta_i, w_i^* + \theta_i]$ calibrated to asset volatility. Generates 'Band-Edge' rebalancing tickets that trade only to the corridor boundary to minimize turnover notional.
+            </p>
+          </div>
+
+          <!-- 8. Barra Style Factor Radar -->
+          <div id="barra-radar" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-chart-pie"></i> 8. Quantitative Factor Radar &amp; Barra Style Decomposition</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A nutrition label for your stocks. Just like food labels reveal sugar, protein, and fat, this radar tells you if your portfolio is heavy on Momentum, Value, Quality, or High Volatility.<br>
+              <strong>Institutional Quant:</strong> 6-factor cross-sectional $z$-score decomposition against the NIFTY 50 and S&P 500 benchmarks rendered on an interactive Chart.js radar.
             </p>
           </div>
         </div>

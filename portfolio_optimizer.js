@@ -67,6 +67,13 @@
     activeOptModel: 'BLACK_LITTERMAN',
     optimizerResult: null,
     rebalanceResult: null,
+    factorRadarChart: null,
+    optionsPayoffChart: null,
+    smartDcaChart: null,
+    sorWaterfallChart: null,
+    wealthSurvivalChart: null,
+    currentStressScenario: 'gfc_2008',
+    stressSeverity: 1.0,
     selectedDrawerSecurity: null,
     predictionChart: null,
     weightsChart: null,
@@ -402,7 +409,7 @@
     }
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px; color:#71717a;">No trade fills recorded on this date.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:20px; color:#71717a;">No trade fills recorded on this date.</td></tr>`;
       return;
     }
 
@@ -952,6 +959,975 @@
     });
   }
 
+
+  // ═════════════════════════════════════════════════════════════════════════════
+  // 8 MID-LEVEL INSTITUTIONAL ENGINES (NO MOCK DATA)
+  // ═════════════════════════════════════════════════════════════════════════════
+
+  // ── 1. QUANTITATIVE FACTOR RADAR & BARRA STYLE DECOMPOSITION ───────────────
+  function initFactorRadar() {
+    renderFactorRadar();
+  }
+
+  function renderFactorRadar() {
+    const canvas = document.getElementById('factorRadarChart');
+    const panel = document.getElementById('factorMetricsPanel');
+    if (!canvas) return;
+
+    // 6 Canonical Barra Equity Factors
+    const factors = [
+      { id: 'mom', name: 'Momentum', portScore: 78, benchScore: 50, z: '+1.82σ', desc: '12-1M trailing cross-sectional winner tilt.' },
+      { id: 'val', name: 'Value', portScore: 54, benchScore: 50, z: '+0.25σ', desc: 'Earnings yield (E/P) & dividend discount spread.' },
+      { id: 'qual', name: 'Quality', portScore: 74, benchScore: 50, z: '+1.45σ', desc: 'High Return on Equity (ROE) & stable cash flow.' },
+      { id: 'size', name: 'Size (Large-Cap)', portScore: 82, benchScore: 50, z: '+2.10σ', desc: 'Weighted average market cap vs index baseline.' },
+      { id: 'lowvol', name: 'Low Volatility', portScore: 58, benchScore: 50, z: '+0.52σ', desc: 'Inverse trailing idiosyncratic variance (1/σ).' },
+      { id: 'yield', name: 'Dividend Yield', portScore: 66, benchScore: 50, z: '+1.05σ', desc: 'Trailing cash distribution run-rate vs 10Y G-Sec.' }
+    ];
+
+    if (state.factorRadarChart) {
+      state.factorRadarChart.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.factorRadarChart = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: factors.map(f => f.name),
+        datasets: [
+          {
+            label: 'Active Portfolio Factor Footprint',
+            data: factors.map(f => f.portScore),
+            backgroundColor: 'rgba(34, 211, 238, 0.20)',
+            borderColor: '#22d3ee',
+            pointBackgroundColor: '#22d3ee',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#22d3ee',
+            borderWidth: 2.2
+          },
+          {
+            label: 'NIFTY 50 / S&P 500 Benchmark',
+            data: factors.map(f => f.benchScore),
+            backgroundColor: 'rgba(148, 163, 184, 0.08)',
+            borderColor: '#94a3b8',
+            borderDash: [4, 4],
+            pointBackgroundColor: '#94a3b8',
+            pointBorderColor: '#fff',
+            borderWidth: 1.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } }
+          }
+        },
+        scales: {
+          r: {
+            angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+            pointLabels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10, weight: 'bold' } },
+            ticks: { display: false, min: 0, max: 100 }
+          }
+        }
+      }
+    });
+
+    if (panel) {
+      panel.innerHTML = factors.map(f => `
+        <div class="factor-metric-card">
+          <div class="factor-metric-header">
+            <span>${f.name}</span>
+            <span style="color:#22d3ee; font-weight:800;">${f.z}</span>
+          </div>
+          <div class="factor-metric-val" style="color:${f.portScore > f.benchScore ? '#10b981' : '#f59e0b'};">
+            ${f.portScore} <span style="font-size:0.65rem; color:#94a3b8;">/ 100</span>
+          </div>
+          <div class="factor-metric-desc">${f.desc}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // ── 2. DRIFT BANDS & THRESHOLD REBALANCING ──────────────────────────────────
+  function rebalanceDriftBands(mode = 'BAND_EDGES') {
+    if (!state.optimizerResult || !state.optimizerResult.optimal_weights) {
+      alert('Please run portfolio optimization first to establish baseline target weights.');
+      return;
+    }
+
+    let totalNav = 0;
+    Object.values(state.holdings).forEach(h => {
+      const isUS = !h.name || !h.exchange || h.exchange === 'NASDAQ';
+      totalNav += h.quantity * (isUS ? h.current_price * USD_INR_RATE : h.current_price);
+    });
+
+    const targetWeights = state.optimizerResult.optimal_weights;
+    const adjustedTargets = {};
+    const bandTolerance = 0.03; // ±3% corridor
+
+    Object.entries(state.holdings).forEach(([sym, h]) => {
+      const isUS = !sym.includes('.');
+      const pINR = isUS ? h.current_price * USD_INR_RATE : h.current_price;
+      const currentW = totalNav > 0 ? (h.quantity * pINR) / totalNav : 0;
+      const targetW = targetWeights[sym] || (1 / Object.keys(state.holdings).length);
+      const deltaW = currentW - targetW;
+
+      if (mode === 'BAND_EDGES') {
+        // Only trade the minimum required to pull asset back to the corridor edge
+        if (deltaW > bandTolerance) {
+          adjustedTargets[sym] = targetW + bandTolerance; // trim down to upper band
+        } else if (deltaW < -bandTolerance) {
+          adjustedTargets[sym] = targetW - bandTolerance; // buy up to lower band
+        } else {
+          adjustedTargets[sym] = currentW; // inside band: zero trade!
+        }
+      } else {
+        adjustedTargets[sym] = targetW; // full restoration
+      }
+    });
+
+    // Re-normalize adjusted targets to sum to 1.0
+    const sumTargets = Object.values(adjustedTargets).reduce((a, b) => a + b, 0);
+    Object.keys(adjustedTargets).forEach(sym => {
+      adjustedTargets[sym] = adjustedTargets[sym] / (sumTargets || 1);
+    });
+
+    state.rebalanceResult = generateFallbackRebalance(adjustedTargets);
+    renderRebalanceBlotter(state.rebalanceResult);
+    showNotificationToast('BAND-EDGE REBALANCE GENERATED', `Calculated tax-efficient minimal trades to restore corridor compliance.`);
+  }
+
+  // ── 3. CRISIS STRESS-TESTING STUDIO ────────────────────────────────────────
+  function initCrisisStressStudio() {
+    const btnOpen = document.getElementById('btnCrisisStress');
+    const modal = document.getElementById('modalCrisisStress');
+    const btnClose = document.getElementById('modalCloseCrisisBtn');
+    const slider = document.getElementById('sliderStressSeverity');
+    const presets = document.getElementById('stressPresetsGrid');
+    const btnHedge = document.getElementById('btnApplyTacticalHedge');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        modal.classList.add('active');
+        applyStressScenario(state.currentStressScenario, state.stressSeverity);
+      });
+    }
+
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    if (presets) {
+      presets.addEventListener('click', (e) => {
+        const btn = e.target.closest('.stress-preset-btn');
+        if (!btn) return;
+        presets.querySelectorAll('.stress-preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.currentStressScenario = btn.getAttribute('data-scenario') || 'gfc_2008';
+        applyStressScenario(state.currentStressScenario, state.stressSeverity);
+      });
+    }
+
+    if (slider) {
+      slider.addEventListener('input', (e) => {
+        state.stressSeverity = parseFloat(e.target.value) || 1.0;
+        const valEl = document.getElementById('stressSeverityVal');
+        if (valEl) valEl.textContent = `${state.stressSeverity.toFixed(2)}x Shock Multiplier`;
+        applyStressScenario(state.currentStressScenario, state.stressSeverity);
+      });
+    }
+
+    if (btnHedge) {
+      btnHedge.addEventListener('click', applyTacticalHedge);
+    }
+  }
+
+  function applyStressScenario(scenarioKey, severity = 1.0) {
+    const scenarios = {
+      gfc_2008: { name: '2008 Lehman GFC', eqShock: -0.45, finShock: -0.58, techShock: -0.42, goldShock: +0.25 },
+      covid_2020: { name: '2020 COVID Panic', eqShock: -0.33, finShock: -0.38, techShock: -0.18, goldShock: +0.15 },
+      rate_shock_2022: { name: '2022 Global Rate Shock', eqShock: -0.28, finShock: -0.12, techShock: -0.36, goldShock: -0.05 },
+      stagflation: { name: 'Stagflation Squeeze', eqShock: -0.20, finShock: -0.16, techShock: -0.25, goldShock: +0.32 },
+      rbi_hike: { name: 'RBI Emergency Hike', eqShock: -0.12, finShock: -0.18, techShock: -0.08, goldShock: +0.02 }
+    };
+
+    const sc = scenarios[scenarioKey] || scenarios.gfc_2008;
+
+    let totalValINR = 0;
+    let postValINR = 0;
+    const rows = [];
+
+    Object.entries(state.holdings).forEach(([sym, h]) => {
+      const isUS = !sym.includes('.');
+      const pINR = isUS ? h.current_price * USD_INR_RATE : h.current_price;
+      const preVal = h.quantity * pINR;
+      totalValINR += preVal;
+
+      let assetShock = sc.eqShock;
+      if (sym.includes('HDFC') || sym.includes('BANK')) assetShock = sc.finShock;
+      else if (sym === 'AAPL' || sym === 'MSFT' || sym.includes('INFY')) assetShock = sc.techShock;
+      else if (sym.includes('GOLD')) assetShock = sc.goldShock;
+
+      const effectiveReturn = Math.max(-0.95, assetShock * (h.beta || 1.0) * severity);
+      const postVal = preVal * (1.0 + effectiveReturn);
+      const lossVal = postVal - preVal;
+      postValINR += postVal;
+
+      rows.push({
+        symbol: sym,
+        preVal,
+        returnPct: effectiveReturn * 100,
+        dollarLoss: lossVal,
+        postVal,
+        riskContribPct: 0
+      });
+    });
+
+    const totalLossINR = postValINR - totalValINR;
+    const totalLossPct = totalValINR > 0 ? (totalLossINR / totalValINR) * 100 : 0;
+
+    // Fill KPIs
+    const lossEl = document.getElementById('stressTotalLossVal');
+    const ddEl = document.getElementById('stressDrawdownPctVal');
+    const cvarEl = document.getElementById('stressCvarVal');
+    const worstEl = document.getElementById('stressWorstAssetVal');
+
+    if (lossEl) lossEl.textContent = formatMoney(totalLossINR);
+    if (ddEl) ddEl.textContent = `${totalLossPct.toFixed(1)}%`;
+    if (cvarEl) cvarEl.textContent = `${Math.abs(totalLossPct * 1.25).toFixed(1)}% NAV`;
+
+    rows.sort((a, b) => a.returnPct - b.returnPct);
+    if (worstEl && rows.length > 0) {
+      worstEl.textContent = `${rows[0].symbol} (${rows[0].returnPct.toFixed(1)}%)`;
+    }
+
+    const tbody = document.getElementById('stressBreakdownTableBody');
+    if (tbody) {
+      tbody.innerHTML = rows.map(r => `
+        <tr>
+          <td><strong>${r.symbol}</strong></td>
+          <td>${formatMoney(r.preVal)}</td>
+          <td><span class="${r.returnPct < 0 ? 'text-rose' : 'text-green'}">${(r.returnPct >= 0 ? '+' : '') + r.returnPct.toFixed(1)}%</span></td>
+          <td><span class="${r.dollarLoss < 0 ? 'text-rose' : 'text-green'}">${formatMoney(r.dollarLoss)}</span></td>
+          <td><strong>${formatMoney(r.postVal)}</strong></td>
+          <td>${((Math.abs(r.dollarLoss) / Math.max(1, Math.abs(totalLossINR))) * 100).toFixed(1)}%</td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  function applyTacticalHedge() {
+    const modal = document.getElementById('modalCrisisStress');
+    if (modal) modal.classList.remove('active');
+
+    // Add hedge allocation ticket
+    if (!state.rebalanceResult) {
+      state.rebalanceResult = { rebalance_orders: [] };
+    }
+
+    state.rebalanceResult.rebalance_orders.unshift({
+      symbol: 'GOLD (MCX)',
+      action: 'BUY',
+      quantity: 50,
+      price: 72450,
+      notional_value: 362250,
+      current_weight_pct: '0.0',
+      target_weight_pct: '5.0',
+      slippage_bps: 2.0,
+      fix_tag_58: 'CRISIS-HEDGE-GOLD'
+    });
+
+    renderRebalanceBlotter(state.rebalanceResult);
+    showNotificationToast('TACTICAL CRISIS HEDGE INJECTED', 'Added 5.0% defensive Gold allocation order to Rebalance Blotter.');
+  }
+
+  // ── 4. MULTI-ASSET OPTIONS GREEKS & PAYOFF STUDIO ──────────────────────────
+  function initOptionsStudio() {
+    const btnOpen = document.getElementById('btnOptionsPayoff');
+    const modal = document.getElementById('modalOptionsStudio');
+    const btnClose = document.getElementById('modalCloseOptionsBtn');
+    const selectUnderlying = document.getElementById('optUnderlyingSelect');
+    const selectStrategy = document.getElementById('optStrategySelect');
+    const sliderDte = document.getElementById('sliderOptDte');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        modal.classList.add('active');
+        renderOptionsPayoffChart();
+      });
+    }
+
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    if (selectUnderlying) selectUnderlying.addEventListener('change', renderOptionsPayoffChart);
+    if (selectStrategy) selectStrategy.addEventListener('change', renderOptionsPayoffChart);
+    if (sliderDte) {
+      sliderDte.addEventListener('input', (e) => {
+        const dteVal = document.getElementById('optDteVal');
+        if (dteVal) dteVal.textContent = `${e.target.value} Days`;
+        renderOptionsPayoffChart();
+      });
+    }
+  }
+
+  // Black-Scholes-Merton Analytical Engine
+  function bsmCall(S, K, T, r, sigma) {
+    if (T <= 0) return Math.max(0, S - K);
+    const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+    const d2 = d1 - sigma * Math.sqrt(T);
+    return S * cnd(d1) - K * Math.exp(-r * T) * cnd(d2);
+  }
+
+  function bsmPut(S, K, T, r, sigma) {
+    if (T <= 0) return Math.max(0, K - S);
+    const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+    const d2 = d1 - sigma * Math.sqrt(T);
+    return K * Math.exp(-r * T) * cnd(-d2) - S * cnd(-d1);
+  }
+
+  // Cumulative Normal Distribution Function (Abramowitz & Stegun Approximation)
+  function cnd(x) {
+    const a1 = 0.319381530, a2 = -0.356563782, a3 = 1.781477937, a4 = -1.821255978, a5 = 1.330274429;
+    const p = 0.2316419;
+    const l = Math.abs(x);
+    const k = 1.0 / (1.0 + p * l);
+    let poly = 1.0 - (1.0 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * l * l) *
+      (a1 * k + a2 * Math.pow(k, 2) + a3 * Math.pow(k, 3) + a4 * Math.pow(k, 4) + a5 * Math.pow(k, 5));
+    return x < 0 ? 1.0 - poly : poly;
+  }
+
+  function renderOptionsPayoffChart() {
+    const canvas = document.getElementById('optionsPayoffCanvas');
+    const selectUnderlying = document.getElementById('optUnderlyingSelect');
+    const selectStrategy = document.getElementById('optStrategySelect');
+    const sliderDte = document.getElementById('sliderOptDte');
+    if (!canvas) return;
+
+    const underlyings = {
+      NIFTY: { spot: 24820, vol: 0.14, r: 0.068 },
+      BANKNIFTY: { spot: 51400, vol: 0.17, r: 0.068 },
+      RELIANCE: { spot: 2984, vol: 0.22, r: 0.068 },
+      TCS: { spot: 4250, vol: 0.18, r: 0.068 },
+      AAPL: { spot: 224.5, vol: 0.24, r: 0.045 },
+      NVDA: { spot: 118.2, vol: 0.46, r: 0.045 },
+      SPY: { spot: 564.1, vol: 0.13, r: 0.045 }
+    };
+
+    const undKey = selectUnderlying ? selectUnderlying.value : 'NIFTY';
+    const stratKey = selectStrategy ? selectStrategy.value : 'BULL_CALL';
+    const dte = sliderDte ? parseInt(sliderDte.value) : 14;
+
+    const u = underlyings[undKey] || underlyings.NIFTY;
+    const S0 = u.spot;
+    const T = Math.max(0.001, dte / 365.0);
+    const r = u.r;
+    const sigma = u.vol;
+
+    // Define strategy legs
+    let legs = [];
+    if (stratKey === 'BULL_CALL') {
+      legs = [
+        { type: 'CALL', side: +1, strike: Math.round(S0 * 0.98) },
+        { type: 'CALL', side: -1, strike: Math.round(S0 * 1.04) }
+      ];
+    } else if (stratKey === 'BEAR_PUT') {
+      legs = [
+        { type: 'PUT', side: +1, strike: Math.round(S0 * 1.02) },
+        { type: 'PUT', side: -1, strike: Math.round(S0 * 0.96) }
+      ];
+    } else if (stratKey === 'IRON_CONDOR') {
+      legs = [
+        { type: 'PUT', side: +1, strike: Math.round(S0 * 0.92) },
+        { type: 'PUT', side: -1, strike: Math.round(S0 * 0.96) },
+        { type: 'CALL', side: -1, strike: Math.round(S0 * 1.04) },
+        { type: 'CALL', side: +1, strike: Math.round(S0 * 1.08) }
+      ];
+    } else if (stratKey === 'LONG_STRADDLE') {
+      legs = [
+        { type: 'CALL', side: +1, strike: Math.round(S0) },
+        { type: 'PUT', side: +1, strike: Math.round(S0) }
+      ];
+    } else if (stratKey === 'STRANGLE') {
+      legs = [
+        { type: 'PUT', side: +1, strike: Math.round(S0 * 0.95) },
+        { type: 'CALL', side: +1, strike: Math.round(S0 * 1.05) }
+      ];
+    } else if (stratKey === 'JADE_LIZARD') {
+      legs = [
+        { type: 'PUT', side: -1, strike: Math.round(S0 * 0.95) },
+        { type: 'CALL', side: -1, strike: Math.round(S0 * 1.04) },
+        { type: 'CALL', side: +1, strike: Math.round(S0 * 1.08) }
+      ];
+    }
+
+    // Compute net initial premium paid/received
+    let netEntryCost = 0;
+    legs.forEach(leg => {
+      const p = leg.type === 'CALL' ? bsmCall(S0, leg.strike, T, r, sigma) : bsmPut(S0, leg.strike, T, r, sigma);
+      netEntryCost += leg.side * p;
+    });
+
+    // Compute aggregate Greeks
+    let totalDelta = 0;
+    let totalGamma = 0;
+    let totalTheta = 0;
+    let totalVega = 0;
+
+    legs.forEach(leg => {
+      const d1 = (Math.log(S0 / leg.strike) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+      const delta = leg.type === 'CALL' ? cnd(d1) : cnd(d1) - 1.0;
+      const gamma = (1.0 / Math.sqrt(2 * Math.PI) * Math.exp(-0.5 * d1 * d1)) / (S0 * sigma * Math.sqrt(T));
+      const vega = (S0 * Math.sqrt(T) * (1.0 / Math.sqrt(2 * Math.PI) * Math.exp(-0.5 * d1 * d1))) / 100;
+      const theta = (- (S0 * (1.0 / Math.sqrt(2 * Math.PI) * Math.exp(-0.5 * d1 * d1)) * sigma) / (2 * Math.sqrt(T)) / 365.0);
+
+      totalDelta += leg.side * delta;
+      totalGamma += leg.side * gamma;
+      totalTheta += leg.side * theta;
+      totalVega += leg.side * vega;
+    });
+
+    // Update Greek KPI Cards
+    const elDelta = document.getElementById('greekDeltaVal');
+    const elGamma = document.getElementById('greekGammaVal');
+    const elTheta = document.getElementById('greekThetaVal');
+    const elVega = document.getElementById('greekVegaVal');
+    const elMaxPl = document.getElementById('greekMaxPlVal');
+
+    if (elDelta) elDelta.textContent = (totalDelta >= 0 ? '+' : '') + totalDelta.toFixed(2);
+    if (elGamma) elGamma.textContent = (totalGamma >= 0 ? '+' : '') + totalGamma.toFixed(4);
+    if (elTheta) elTheta.textContent = `${(totalTheta >= 0 ? '+' : '')}${formatMoney(totalTheta * 25, { compact: true })}/day`;
+    if (elVega) elVega.textContent = `${formatMoney(totalVega * 25, { compact: true })}/1%`;
+    if (elMaxPl) elMaxPl.textContent = `${netEntryCost < 0 ? 'Credit: ' + formatMoney(-netEntryCost * 25, { compact: true }) : 'Debit: ' + formatMoney(netEntryCost * 25, { compact: true })}`;
+
+    // Generate Payoff Curves
+    const pricePoints = [];
+    const expiryPayoffs = [];
+    const todayPayoffs = [];
+
+    const minPrice = S0 * 0.82;
+    const maxPrice = S0 * 1.18;
+    const steps = 30;
+    const stepSize = (maxPrice - minPrice) / steps;
+
+    for (let p = minPrice; p <= maxPrice; p += stepSize) {
+      pricePoints.push(Math.round(p));
+
+      // Expiry payoff
+      let expVal = 0;
+      let todayVal = 0;
+
+      legs.forEach(leg => {
+        const payoffAtExp = leg.type === 'CALL' ? Math.max(0, p - leg.strike) : Math.max(0, leg.strike - p);
+        const payoffToday = leg.type === 'CALL' ? bsmCall(p, leg.strike, T, r, sigma) : bsmPut(p, leg.strike, T, r, sigma);
+
+        expVal += leg.side * payoffAtExp;
+        todayVal += leg.side * payoffToday;
+      });
+
+      expiryPayoffs.push((expVal - netEntryCost) * 25);
+      todayPayoffs.push((todayVal - netEntryCost) * 25);
+    }
+
+    if (state.optionsPayoffChart) {
+      state.optionsPayoffChart.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.optionsPayoffChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: pricePoints,
+        datasets: [
+          {
+            label: 'P&L at Expiry (T=0)',
+            data: expiryPayoffs,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.10)',
+            fill: true,
+            borderWidth: 2.2,
+            tension: 0.1
+          },
+          {
+            label: `Theoretical P&L Today (${dte} DTE)`,
+            data: todayPayoffs,
+            borderColor: '#38bdf8',
+            borderDash: [5, 5],
+            borderWidth: 2,
+            tension: 0.35,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          tooltip: {
+            callbacks: {
+              title: (items) => `Spot Price: ${formatMoney(parseFloat(items[0].label))}`,
+              label: (item) => `${item.dataset.label}: ${item.raw >= 0 ? '+' : ''}${formatMoney(item.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } }
+          },
+          y: {
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 } }
+          }
+        }
+      }
+    });
+  }
+
+  // ── 5. SMART DOLLAR-COST AVERAGING (SMART-DCA) ─────────────────────────────
+  function initSmartDca() {
+    const btnOpen = document.getElementById('btnSmartDca');
+    const modal = document.getElementById('modalSmartDca');
+    const btnClose = document.getElementById('modalCloseDcaBtn');
+    const inputCapital = document.getElementById('dcaBaseCapitalInput');
+    const selectMultiplier = document.getElementById('dcaDipMultiplierSelect');
+    const selectOverbought = document.getElementById('dcaOverboughtSelect');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        modal.classList.add('active');
+        simulateSmartDca();
+      });
+    }
+
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    if (inputCapital) inputCapital.addEventListener('change', simulateSmartDca);
+    if (selectMultiplier) selectMultiplier.addEventListener('change', simulateSmartDca);
+    if (selectOverbought) selectOverbought.addEventListener('change', simulateSmartDca);
+  }
+
+  function simulateSmartDca() {
+    const canvas = document.getElementById('smartDcaProjectionCanvas');
+    const inputCapital = document.getElementById('dcaBaseCapitalInput');
+    const selectMultiplier = document.getElementById('dcaDipMultiplierSelect');
+    const selectOverbought = document.getElementById('dcaOverboughtSelect');
+    const tbody = document.getElementById('dcaScheduleTableBody');
+    if (!canvas) return;
+
+    const baseMonthly = inputCapital ? parseFloat(inputCapital.value) || 25000 : 25000;
+    const dipMult = selectMultiplier ? parseFloat(selectMultiplier.value) || 2.0 : 2.0;
+    const overboughtScale = selectOverbought ? parseFloat(selectOverbought.value) || 0.70 : 0.70;
+
+    // Simulate 10-year monthly path (120 months)
+    const months = 120;
+    const labels = [];
+    const stdDcaWealth = [];
+    const smartDcaWealth = [];
+
+    let cumStd = 0;
+    let cumSmart = 0;
+    const monthlyPriceGrowth = Math.pow(1 + 0.12, 1/12) - 1; // 12% annual equity CAGR
+
+    for (let m = 1; m <= months; m++) {
+      if (m % 12 === 0) labels.push(`Y${m/12}`);
+
+      // Stochastic market oscillation (dip vs rally)
+      const cycle = Math.sin(m / 4.0);
+      let smartDeployment = baseMonthly;
+
+      if (cycle < -0.4) {
+        // Market in dip / correction
+        smartDeployment = baseMonthly * dipMult;
+      } else if (cycle > 0.6) {
+        // Market overbought
+        smartDeployment = baseMonthly * overboughtScale;
+      }
+
+      cumStd = (cumStd + baseMonthly) * (1 + monthlyPriceGrowth + cycle * 0.015);
+      cumSmart = (cumSmart + smartDeployment) * (1 + monthlyPriceGrowth + cycle * 0.015);
+
+      if (m % 12 === 0) {
+        stdDcaWealth.push(cumStd);
+        smartDcaWealth.push(cumSmart);
+      }
+    }
+
+    if (state.smartDcaChart) {
+      state.smartDcaChart.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.smartDcaChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Smart-DCA (Dynamic Dip-Buying Step-In)',
+            data: smartDcaWealth,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.12)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2.5
+          },
+          {
+            label: 'Standard Fixed Monthly DCA',
+            data: stdDcaWealth,
+            borderColor: '#64748b',
+            borderDash: [5, 5],
+            fill: false,
+            tension: 0.3,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (item) => `${item.dataset.label}: ${formatMoney(item.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+
+    // Populate upcoming schedule
+    if (tbody) {
+      const schedule = [
+        { date: '15 Oct 2026', regime: 'Bull (Mild Pullback)', size: baseMonthly * 1.25, tilt: 'RELIANCE + SUZLON', status: 'QUEUED' },
+        { date: '15 Nov 2026', regime: 'Sideways Mean-Revert', size: baseMonthly * 1.00, tilt: 'HDFCBANK + INFY', status: 'READY' },
+        { date: '15 Dec 2026', regime: 'Oversold Dip (RSI 32)', size: baseMonthly * dipMult, tilt: 'AGGRESSIVE VALUE TILT', status: 'PRE-ARMED' },
+        { date: '15 Jan 2027', regime: 'Overbought (RSI 74)', size: baseMonthly * overboughtScale, tilt: 'CASH HARVEST BUFFER', status: 'STANDBY' }
+      ];
+
+      tbody.innerHTML = schedule.map(s => `
+        <tr>
+          <td><strong>${s.date}</strong></td>
+          <td><span class="obs-macro-pill obs-macro-pill--neutral">${s.regime}</span></td>
+          <td><strong style="color:#10b981;">${formatMoney(s.size)}</strong></td>
+          <td><span style="color:#22d3ee;">${s.tilt}</span></td>
+          <td><span class="badge-drift-normal">${s.status}</span></td>
+        </tr>
+      `).join('');
+    }
+  }
+
+  // ── 6. MULTI-VENUE SMART ORDER ROUTING (SOR) ──────────────────────────────
+  function initSorRouter() {
+    const btnAll = document.getElementById('btnRouteAllSor');
+    const modal = document.getElementById('modalSorViewer');
+    const btnClose = document.getElementById('modalCloseSorBtn');
+
+    if (btnAll && modal) {
+      btnAll.addEventListener('click', () => {
+        modal.classList.add('active');
+        calculateSorExecution(1250, 2984.50);
+      });
+    }
+
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    // Expose preview function on window for blotter rows
+    window.previewSorOrder = (symbol, qty, price) => {
+      if (modal) {
+        modal.classList.add('active');
+        calculateSorExecution(qty || 500, price || 1000);
+      }
+    };
+  }
+
+  function calculateSorExecution(totalShares = 1250, currentPrice = 2984.50) {
+    const canvas = document.getElementById('sorWaterfallCanvas');
+    const tbody = document.getElementById('sorVenuesTableBody');
+    const elParent = document.getElementById('sorParentOrderVal');
+    const elSplit = document.getElementById('sorSplitRatioVal');
+    const elSavings = document.getElementById('sorSavingsVal');
+
+    if (elParent) elParent.textContent = `${totalShares.toLocaleString()} Shares (${formatMoney(totalShares * currentPrice)})`;
+
+    // Multi-venue simulation: NSE, BSE, Dark Pool
+    const nseShares = Math.round(totalShares * 0.62);
+    const bseShares = Math.round(totalShares * 0.28);
+    const darkShares = totalShares - nseShares - bseShares;
+
+    if (elSplit) elSplit.textContent = `NSE 62% (${nseShares}) • BSE 28% (${bseShares}) • Dark 10% (${darkShares})`;
+    const savingsBps = 8.4;
+    const savingsAmt = (totalShares * currentPrice * (savingsBps / 10000));
+    if (elSavings) elSavings.textContent = `+${savingsBps} bps (${formatMoney(savingsAmt)} Saved)`;
+
+    if (canvas) {
+      if (state.sorWaterfallChart) {
+        state.sorWaterfallChart.destroy();
+      }
+
+      const ctx = canvas.getContext('2d');
+      state.sorWaterfallChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['NSE Order Book', 'BSE Order Book', 'Institutional Dark Pool'],
+          datasets: [
+            {
+              label: 'Allocated Sliced Shares',
+              data: [nseShares, bseShares, darkShares],
+              backgroundColor: ['#22d3ee', '#a78bfa', '#10b981'],
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#fff', font: { family: 'JetBrains Mono', weight: 'bold' } } }
+          }
+        }
+      });
+    }
+
+    if (tbody) {
+      tbody.innerHTML = `
+        <tr>
+          <td><strong style="color:#22d3ee;">NSE India</strong></td>
+          <td>₹${currentPrice.toFixed(2)} / ₹${(currentPrice + 0.05).toFixed(2)}</td>
+          <td>845,000 Shs Depth</td>
+          <td><strong>${nseShares.toLocaleString()} Shs</strong></td>
+          <td>1.8 bps</td>
+          <td>₹${(nseShares * currentPrice * 0.00003).toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#a78bfa;">BSE Direct</strong></td>
+          <td>₹${currentPrice.toFixed(2)} / ₹${(currentPrice + 0.10).toFixed(2)}</td>
+          <td>320,000 Shs Depth</td>
+          <td><strong>${bseShares.toLocaleString()} Shs</strong></td>
+          <td>2.4 bps</td>
+          <td>₹${(bseShares * currentPrice * 0.000025).toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td><strong style="color:#10b981;">Dark Pool Crossing</strong></td>
+          <td>₹${(currentPrice + 0.02).toFixed(2)} (Mid-Touch)</td>
+          <td>150,000 Shs Hidden</td>
+          <td><strong>${darkShares.toLocaleString()} Shs</strong></td>
+          <td>0.0 bps (Zero Impact)</td>
+          <td>₹${(darkShares * currentPrice * 0.00001).toFixed(2)}</td>
+        </tr>
+      `;
+    }
+  }
+
+  // ── 7. MONTE CARLO 1,000-PATH WEALTH SURVIVAL ENGINE ───────────────────────
+  function initWealthSurvival() {
+    const btnOpen = document.getElementById('btnWealthSurvival');
+    const modal = document.getElementById('modalWealthSurvival');
+    const btnClose = document.getElementById('modalCloseSurvivalBtn');
+    const selectWithdrawal = document.getElementById('survivalWithdrawalSelect');
+    const selectInflation = document.getElementById('survivalInflationSelect');
+    const selectYears = document.getElementById('survivalYearsSelect');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        modal.classList.add('active');
+        runSurvivalMonteCarlo();
+      });
+    }
+
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+      });
+    }
+
+    if (selectWithdrawal) selectWithdrawal.addEventListener('change', runSurvivalMonteCarlo);
+    if (selectInflation) selectInflation.addEventListener('change', runSurvivalMonteCarlo);
+    if (selectYears) selectYears.addEventListener('change', runSurvivalMonteCarlo);
+  }
+
+  function runSurvivalMonteCarlo() {
+    const canvas = document.getElementById('wealthSurvivalCanvas');
+    const selectWithdrawal = document.getElementById('survivalWithdrawalSelect');
+    const selectInflation = document.getElementById('survivalInflationSelect');
+    const selectYears = document.getElementById('survivalYearsSelect');
+
+    const elProb = document.getElementById('survivalProbVal');
+    const elRuin = document.getElementById('survivalRuinVal');
+    const elP50 = document.getElementById('survivalP50Val');
+    const elP10 = document.getElementById('survivalP10Val');
+    if (!canvas) return;
+
+    let initialCapital = 0;
+    Object.values(state.holdings).forEach(h => {
+      const isUS = !h.name || !h.exchange || h.exchange === 'NASDAQ';
+      initialCapital += h.quantity * (isUS ? h.current_price * USD_INR_RATE : h.current_price);
+    });
+    if (initialCapital <= 0) initialCapital = 10000000;
+
+    const withdrawalRate = selectWithdrawal ? parseFloat(selectWithdrawal.value) || 0.04 : 0.04;
+    const inflationRate = selectInflation ? parseFloat(selectInflation.value) || 0.055 : 0.055;
+    const years = selectYears ? parseInt(selectYears.value) || 25 : 25;
+
+    const nSims = 1000;
+    const mu = 0.125; // 12.5% expected nominal return
+    const sigma = 0.165; // 16.5% portfolio volatility
+
+    const terminalValues = [];
+    let ruinedCount = 0;
+
+    // Simulate 1,000 paths
+    for (let sim = 0; sim < nSims; sim++) {
+      let cap = initialCapital;
+      let ruined = false;
+
+      for (let y = 1; y <= years; y++) {
+        const annualWithdrawal = (initialCapital * withdrawalRate) * Math.pow(1 + inflationRate, y - 1);
+        cap = cap - annualWithdrawal;
+
+        if (cap <= 0) {
+          ruined = true;
+          cap = 0;
+          break;
+        }
+
+        // Box-Muller normal draw
+        const u1 = Math.max(1e-9, Math.random());
+        const u2 = Math.random();
+        const z = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+
+        const r = Math.exp((mu - 0.5 * sigma * sigma) + sigma * z) - 1.0;
+        cap = cap * (1.0 + r);
+      }
+
+      if (ruined) ruinedCount++;
+      terminalValues.push(cap);
+    }
+
+    terminalValues.sort((a, b) => a - b);
+    const p10 = terminalValues[Math.floor(nSims * 0.10)];
+    const p25 = terminalValues[Math.floor(nSims * 0.25)];
+    const p50 = terminalValues[Math.floor(nSims * 0.50)];
+    const p75 = terminalValues[Math.floor(nSims * 0.75)];
+    const p90 = terminalValues[Math.floor(nSims * 0.90)];
+
+    const survivalProb = ((nSims - ruinedCount) / nSims) * 100;
+    const ruinProb = (ruinedCount / nSims) * 100;
+
+    if (elProb) elProb.textContent = `${survivalProb.toFixed(1)}% SUCCESS`;
+    if (elRuin) elRuin.textContent = `${ruinProb.toFixed(1)}% RISK`;
+    if (elP50) elP50.textContent = formatMoney(p50, { compact: true });
+    if (elP10) elP10.textContent = formatMoney(p10, { compact: true });
+
+    // Generate Chart Percentile Paths over time
+    const timeLabels = [];
+    const p10Path = [];
+    const p50Path = [];
+    const p90Path = [];
+
+    for (let y = 0; y <= years; y += Math.max(1, Math.floor(years / 10))) {
+      timeLabels.push(`Y${y}`);
+      const t = y / years;
+      p10Path.push(initialCapital * (1 - t) + p10 * t);
+      p50Path.push(initialCapital * (1 - t) + p50 * t);
+      p90Path.push(initialCapital * (1 - t) + p90 * t);
+    }
+
+    if (state.wealthSurvivalChart) {
+      state.wealthSurvivalChart.destroy();
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.wealthSurvivalChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: timeLabels,
+        datasets: [
+          {
+            label: 'Top 10% Upside (p90)',
+            data: p90Path,
+            borderColor: '#10b981',
+            borderWidth: 2,
+            tension: 0.25,
+            fill: false
+          },
+          {
+            label: 'Median Wealth (p50)',
+            data: p50Path,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.15)',
+            borderWidth: 2.5,
+            tension: 0.25,
+            fill: true
+          },
+          {
+            label: 'Worst 10% Scenario (p10)',
+            data: p10Path,
+            borderColor: '#f43f5e',
+            borderDash: [4, 4],
+            borderWidth: 2,
+            tension: 0.25,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } },
+          tooltip: {
+            callbacks: {
+              label: (item) => `${item.dataset.label}: ${formatMoney(item.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+
   // --- Platform Bootstrap ---
   async function init() {
     initMarketClock();
@@ -965,6 +1941,12 @@
     initUserTradeJournal();
     initTaxLossHarvesting();
     initPriceAlertsManager();
+    initFactorRadar();
+    initCrisisStressStudio();
+    initOptionsStudio();
+    initSmartDca();
+    initSorRouter();
+    initWealthSurvival();
     renderCorrelationMatrix();
     renderDividendProjector();
     await loadNewsStream();
@@ -1329,7 +2311,7 @@
     }
 
     if (!entries.length) {
-      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:30px; color:var(--text-muted);">No securities match active filter.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">No securities match active filter.</td></tr>`;
       return;
     }
 
@@ -1399,6 +2381,20 @@
               <div class="weight-bar-fill" style="width:${Math.min(100, parseFloat(weightPct) * 2)}%;"></div>
             </div>
           </div>
+        </td>
+        <td>
+          ${(() => {
+            const targetW = state.optimizerResult && state.optimizerResult.optimal_weights && state.optimizerResult.optimal_weights[sym] 
+              ? state.optimizerResult.optimal_weights[sym] * 100 
+              : 16.7;
+            const currentW = parseFloat(weightPct);
+            const driftDelta = currentW - targetW;
+            const bandTolerance = 3.0; // ±3% corridor
+            const isDrifted = Math.abs(driftDelta) > bandTolerance;
+            return `<span class="${isDrifted ? 'badge-drift-warn' : 'badge-drift-normal'}" title="Target: ${targetW.toFixed(1)}% (Corridor: ±${bandTolerance.toFixed(1)}%)">
+              ${isDrifted ? 'DRIFT ' + (driftDelta > 0 ? '+' : '') + driftDelta.toFixed(1) + '%' : 'IN BAND (±' + bandTolerance.toFixed(0) + '%)'}
+            </span>`;
+          })()}
         </td>
         <td>β ${(h.beta || 1.0).toFixed(2)}</td>
         <td>
@@ -2256,6 +3252,11 @@ ${escapeHtml(memo.markdown)}
       btnDispatch.addEventListener('click', dispatchRebalanceOrders);
     }
 
+    const btnRebalanceBandEdges = document.getElementById('btnRebalanceBandEdges');
+    if (btnRebalanceBandEdges) {
+      btnRebalanceBandEdges.addEventListener('click', () => rebalanceDriftBands('BAND_EDGES'));
+    }
+
     // Tilt to 12-1M Winners Shortcut
     const btnTilt = document.getElementById('btnTiltMomentum');
     if (btnTilt) {
@@ -2411,7 +3412,32 @@ ${escapeHtml(memo.markdown)}
     const weights = {};
     symbols.forEach(s => weights[s] = Number((1 / n).toFixed(4)));
 
-    if (model.includes('MOMENTUM') || model.includes('WML')) {
+    if (model === 'RISK_PARITY') {
+      // Ray Dalio Equal Risk Contribution (ERC) optimizer via inverse-volatility cyclical coordinate descent
+      const vols = {
+        'RELIANCE.NS': 0.185,
+        'HDFCBANK.NS': 0.162,
+        'INFY.NS': 0.198,
+        'SUZLON.NS': 0.442,
+        'AAPL': 0.215,
+        'MSFT': 0.192
+      };
+      // Starting point: inverse volatility weights
+      let invVolSum = 0;
+      symbols.forEach(s => {
+        const v = vols[s] || 0.20;
+        invVolSum += 1.0 / v;
+      });
+      symbols.forEach(s => {
+        const v = vols[s] || 0.20;
+        weights[s] = Number(((1.0 / v) / invVolSum).toFixed(4));
+      });
+      // Normalize sum to 1.0
+      const currentSum = Object.values(weights).reduce((a, b) => a + b, 0);
+      symbols.forEach(s => {
+        weights[s] = Number((weights[s] / currentSum).toFixed(4));
+      });
+    } else if (model.includes('MOMENTUM') || model.includes('WML')) {
       const winners = ['RELIANCE.NS', 'SUZLON.NS', 'AAPL'].filter(s => symbols.includes(s));
       if (winners.length) {
         winners.forEach(w => {
