@@ -2499,6 +2499,110 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // ── 51. Moskowitz-Ooi-Pedersen Time-Series Momentum (TSMOM) & Volatility Targeting ────────
+  const calcTimeSeriestMomentum = (inputs) => {
+    const lookback = parseInt(inputs.lookbackDays || 63, 10);
+    const targetVol = parseFloat(inputs.targetVol || 15) / 100;
+    const realizedVol = parseFloat(inputs.assetVol || 22) / 100;
+    const cumReturn = parseFloat(inputs.assetReturn || 14.5);
+    const maxLeverage = parseFloat(inputs.maxLeverage || 2.0);
+
+    const sign = cumReturn >= 0 ? 1 : -1;
+    const rawWeight = targetVol / Math.max(0.04, realizedVol);
+    const volWeight = Math.min(maxLeverage, rawWeight);
+    const position = sign * volWeight;
+
+    const periods = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12'];
+    let bhVal = 100;
+    let tsmomVal = 100;
+    const bhCurve = [100];
+    const tsmomCurve = [100];
+
+    const monthlyReturns = [1.8, 2.4, -3.1, 4.2, 1.1, -1.8, 3.5, 2.9, -0.8, 4.1, 1.5, 2.8];
+    for (let i = 0; i < monthlyReturns.length; i++) {
+      const r = monthlyReturns[i] / 100;
+      bhVal = bhVal * (1 + r);
+      const stratR = sign * volWeight * r * 0.95;
+      tsmomVal = tsmomVal * (1 + stratR);
+      bhCurve.push(Number(bhVal.toFixed(1)));
+      tsmomCurve.push(Number(tsmomVal.toFixed(1)));
+    }
+
+    const tsmomReturn = ((tsmomVal - 100) / 100) * 100;
+    const tsmomSharpe = ((tsmomReturn - 6.5) / (targetVol * 100)).toFixed(2);
+
+    return {
+      focalSymbol: 'w_TSMOM',
+      focalLabel: 'Volatility-Scaled Momentum Weight',
+      focalValue: `${(position >= 0 ? '+' : '')}${position.toFixed(2)}x`,
+      plainResult: `Time-Series Momentum (TSMOM): Trend Sign = ${sign > 0 ? '+1 (LONG)' : '-1 (SHORT)'}. Target Vol ${(targetVol*100).toFixed(0)}% / Realized Vol ${(realizedVol*100).toFixed(0)}% yields optimal risk-parity leverage of ${position.toFixed(2)}x with projected Sharpe ${tsmomSharpe}.`,
+      chart: {
+        labels: ['Start', ...periods],
+        datasets: [
+          { label: 'Vol-Scaled TSMOM Strategy ($)', data: tsmomCurve, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.15)', fill: true, borderWidth: 2 },
+          { label: 'Unscaled Asset Benchmark ($)', data: bhCurve, borderColor: '#64748b', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      formula: '\\text{TSMOM Return: } r_{t+1} = \\text{sign}(R_{t, k}) \\cdot \\min\\left(\\frac{\\sigma_{\\text{target}}}{\\hat{\\sigma}_t}, \\text{MaxLev}\\right) \\cdot r_{t+1}^{\\text{asset}}',
+      proofSteps: [
+        '1. Moskowitz, Ooi, Pedersen (2012) proved time-series momentum exists across 58 liquid futures contracts over 25 years.',
+        '2. Raw momentum suffers severe drawdowns in high-volatility regimes (Daniel & Moskowitz 2016 momentum crashes).',
+        '3. Volatility scaling by sigma_target / sigma_hat creates an invariant annualized risk footprint regardless of macro regime.',
+        '4. Produces positive skewness, higher Sharpe ratios (>1.2), and tail protection during market panics.'
+      ],
+      practicalTakeaway: 'The core quantitative engine utilized by AQR Capital, Bridgewater Pure Alpha, and Man AHL Trend CTA funds.'
+    };
+  };
+
+  // ── 52. Gary Antonacci Dual Momentum (Absolute + Relative) ──────────────────
+  const calcDualMomentumAntonacci = (inputs) => {
+    const retA = parseFloat(inputs.assetAReturn || 22.4);
+    const retB = parseFloat(inputs.assetBReturn || 16.2);
+    const retRf = parseFloat(inputs.riskFreeReturn || 6.5);
+    const nameA = inputs.assetAName || 'US Equities (S&P 500)';
+    const nameB = inputs.assetBName || 'Indian Equities (NIFTY 50)';
+
+    const winnerName = retA >= retB ? nameA : nameB;
+    const winnerRet = Math.max(retA, retB);
+
+    const passedAbsolute = winnerRet > retRf;
+    const allocatedAsset = passedAbsolute ? winnerName : 'Sovereign Treasury Bills / Cash (BIL)';
+    const excessReturn = passedAbsolute ? (winnerRet - retRf) : 0;
+
+    const labels = [nameA, nameB, 'Risk-Free Hurdle (T-Bills)'];
+    const retValues = [retA, retB, retRf];
+
+    return {
+      focalSymbol: 'Alloc_Dual',
+      focalLabel: 'Dual Momentum Allocation',
+      focalValue: passedAbsolute ? winnerName.split(' ')[0] : 'CASH/BIL',
+      plainResult: `Gary Antonacci Dual Momentum: Relative winner is ${winnerName} (+${winnerRet.toFixed(1)}%). Absolute hurdle (${retRf.toFixed(1)}%) ${passedAbsolute ? 'PASSED' : 'FAILED'}. Optimal 100% Capital Allocation: ${allocatedAsset} with +${excessReturn.toFixed(1)}% excess alpha.`,
+      chart: {
+        labels: labels,
+        datasets: [
+          {
+            label: '12-Month Cumulative Total Return (%)',
+            data: retValues,
+            backgroundColor: [
+              allocatedAsset === nameA ? 'rgba(16, 185, 129, 0.85)' : 'rgba(100, 116, 139, 0.5)',
+              allocatedAsset === nameB ? 'rgba(16, 185, 129, 0.85)' : 'rgba(100, 116, 139, 0.5)',
+              allocatedAsset.includes('Treasury') ? 'rgba(250, 176, 5, 0.85)' : 'rgba(239, 68, 68, 0.5)'
+            ],
+            borderWidth: 1
+          }
+        ]
+      },
+      formula: '\\text{Alloc}_t = \\begin{cases} \\arg\\max_{i}(R_{i, 12}) & \\text{if } \\max_{i}(R_{i, 12}) > R_f \\\\ \\text{Treasuries} & \\text{if } \\max_{i}(R_{i, 12}) \\le R_f \\end{cases}',
+      proofSteps: [
+        '1. Relative Momentum (Jegadeesh & Titman 1993): Selects the strongest asset in the universe over trailing 12 months.',
+        '2. Absolute Momentum (Trend-Following): Compares winner against risk-free hurdle to avoid holding declining assets.',
+        '3. If the top performing risk asset drops below Treasury yield, 100% capital rotates to short-term sovereign paper.',
+        '4. Gary Antonacci (2014) demonstrated this dual filter cuts maximum drawdown from -51% to -18% during 2008 GFC.'
+      ],
+      practicalTakeaway: 'The industry gold standard for quantitative tactical asset allocation (GEM - Global Equity Momentum).'
+    };
+  };
+
   const MODULES_DIRECTORY = [
     // Category 1: Returns & Growth
     {
@@ -3629,6 +3733,46 @@ const LearnMathEngine = (() => {
       presets: [
         { label: 'Liquid Mega-Cap (Low λ)', inputs: { noiseTradingVol: 8000, fundamentalSigma: 1.5, informedOrderSize: 1500 } },
         { label: 'Illiquid Small-Cap (High λ)', inputs: { noiseTradingVol: 2000, fundamentalSigma: 4.5, informedOrderSize: 2000 } }
+      ]
+    },
+    {
+      id: 'tsmom_volatility_targeting',
+      title: 'Time-Series Momentum (TSMOM) & Volatility Scaling',
+      shortTitle: 'TSMOM Vol-Targeting',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-bolt-lightning',
+      badge: 'Moskowitz-Ooi-Pedersen',
+      calc: calcTimeSeriestMomentum,
+      defaultInputs: { lookbackDays: 63, targetVol: 15, assetVol: 22, assetReturn: 14.5, maxLeverage: 2.0 },
+      controls: [
+        { key: 'targetVol', label: 'Target Annualized Volatility (σ_target %)', type: 'percent', min: 0.05, max: 0.30, step: 0.01, default: 0.15 },
+        { key: 'assetVol', label: 'Trailing Realized Volatility (σ_hat %)', type: 'percent', min: 0.05, max: 0.50, step: 0.01, default: 0.22 },
+        { key: 'assetReturn', label: 'Lookback Trend Cumulative Return (%)', type: 'number', min: -50, max: 80, step: 1, default: 14.5 }
+      ],
+      presets: [
+        { label: 'Strong Bull Trend (σ_hat = 18%, R = +24%)', inputs: { targetVol: 15, assetVol: 18, assetReturn: 24.0, maxLeverage: 2.0 } },
+        { label: 'Volatile Bear Shock (σ_hat = 38%, R = -18%)', inputs: { targetVol: 15, assetVol: 38, assetReturn: -18.0, maxLeverage: 2.0 } }
+      ]
+    },
+    {
+      id: 'dual_momentum_antonacci',
+      title: 'Gary Antonacci Dual Momentum (Absolute + Relative)',
+      shortTitle: 'Dual Momentum',
+      category: 'Quant Interview & PDEs',
+      categoryKey: 'quant_interview',
+      icon: 'fa-arrows-split-up-and-left',
+      badge: 'Antonacci GEM',
+      calc: calcDualMomentumAntonacci,
+      defaultInputs: { assetAReturn: 22.4, assetBReturn: 16.2, riskFreeReturn: 6.5, assetAName: 'US Equities (S&P 500)', assetBName: 'Indian Equities (NIFTY 50)' },
+      controls: [
+        { key: 'assetAReturn', label: 'Asset A 12M Return (%)', type: 'number', min: -40, max: 60, step: 1, default: 22.4 },
+        { key: 'assetBReturn', label: 'Asset B 12M Return (%)', type: 'number', min: -40, max: 60, step: 1, default: 16.2 },
+        { key: 'riskFreeReturn', label: 'Risk-Free T-Bill Hurdle (%)', type: 'number', min: 1.0, max: 10.0, step: 0.25, default: 6.5 }
+      ],
+      presets: [
+        { label: 'Risk-On Rally (US > IN > T-Bills)', inputs: { assetAReturn: 22.4, assetBReturn: 16.2, riskFreeReturn: 6.5, assetAName: 'US Equities (S&P 500)', assetBName: 'Indian Equities (NIFTY 50)' } },
+        { label: 'Severe Bear Crash (Rotate 100% to Treasuries)', inputs: { assetAReturn: -14.5, assetBReturn: -8.2, riskFreeReturn: 6.5, assetAName: 'US Equities (S&P 500)', assetBName: 'Indian Equities (NIFTY 50)' } }
       ]
     }
   ];

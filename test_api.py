@@ -44,10 +44,19 @@ def test_portfolio_summary():
     assert 'total_invested' in data
     assert 'current_value' in data
 
+def test_observatory_rrg():
+    res = client.get("/api/observatory/rrg")
+    assert res.status_code == 200
+    data = res.json()
+    assert 'sectors' in data
+    assert len(data['sectors']) > 0
+    assert 'rs_ratio' in data['sectors'][0]
+
 if __name__ == '__main__':
     test_candlesticks()
     test_live_quote()
     test_fundamentals()
     test_portfolio_transactions()
     test_portfolio_summary()
+    test_observatory_rrg()
     print("--- All Backend Endpoints Working 100% with Real Database & Live Feeds! ---")

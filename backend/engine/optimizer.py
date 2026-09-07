@@ -467,3 +467,93 @@ def generate_rebalance_blotter(
         "turnover_pct": round((total_turnover_inr / (2.0 * nav)) * 100, 2) if nav > 0 else 0.0,
         "orders_count": len(orders)
     }
+
+def momentum_tilt_optimize(returns: pd.DataFrame, max_weight: float = 0.40, momentum_intensity: float = 0.60, risk_free_rate: float = 0.065) -> dict:
+    """
+    Executes Carhart 4-Factor WML (Winners Minus Losers) Momentum-Tilt Portfolio Optimization.
+    Calculates 12-1 month cross-sectional momentum (skipping recent 21 days to mitigate short-term reversals),
+    transforms returns into standardized z-scores, and tilts base risk-parity/minimum-variance weights
+    towards top-quintile momentum assets.
+    """
+    if returns.empty or len(returns.columns) == 0:
+        return {"error": "No return data"}
+
+    n_assets = len(returns.columns)
+    symbols = list(returns.columns)
+    n_rows = len(returns)
+
+    # 1. Calculate 12-1 Month Cumulative Momentum
+    # Skip last 21 trading days (1 month reversal buffer), look back up to 252 days
+    lookback = min(252, n_rows)
+    skip = min(21, n_rows // 5) if n_rows > 30 else 0
+    start_idx = max(0, n_rows - lookback)
+    end_idx = max(start_idx + 1, n_rows - skip)
+
+    mom_scores = {}
+    for sym in symbols:
+        series = returns[sym].iloc[start_idx:end_idx]
+        cum_ret = float(np.prod(1 + series) - 1.0) if len(series) > 0 else 0.0
+        mom_scores[sym] = cum_ret
+
+    # 2. Standardize into cross-sectional Z-scores
+    scores_arr = np.array([mom_scores[s] for s in symbols])
+    mean_score = np.mean(scores_arr)
+    std_score = np.std(scores_arr) if np.std(scores_arr) > 1e-6 else 1.0
+    z_scores = (scores_arr - mean_score) / std_score
+
+    # 3. Compute baseline Minimum-Variance weights w0
+    min_var_res = min_variance_optimize(returns, max_weight=max_weight)
+    if "optimal_weights" in min_var_res:
+        w0 = np.array([min_var_res["optimal_weights"].get(s, 1.0 / n_assets) for s in symbols])
+    else:
+        w0 = np.array([1.0 / n_assets] * n_assets)
+
+    # 4. Softmax momentum tilt vector
+    tau = 1.0  # Temperature
+    exp_z = np.exp(np.clip(z_scores / tau, -10, 10))
+    w_mom = exp_z / np.sum(exp_z)
+
+    # 5. Blend base weights with momentum tilt: w = (1 - lambda) * w0 + lambda * w_mom
+    blended_w = (1.0 - momentum_intensity) * w0 + momentum_intensity * w_mom
+
+    # 6. Constrain to max_weight and sum to 1.0
+    blended_w = np.clip(blended_w, 0.02, max_weight)
+    blended_w = blended_w / np.sum(blended_w)
+
+    # Expected metrics
+    mu = returns.mean().values * 252
+    lw = LedoitWolf()
+    cov_matrix = lw.fit(returns.values).covariance_ * 252
+    opt_r = float(np.sum(blended_w * mu))
+    opt_vol = float(_portfolio_volatility(blended_w, cov_matrix))
+    opt_sharpe = float((opt_r - risk_free_rate) / opt_vol) if opt_vol > 0 else 0.0
+
+    # Rankings and deciles
+    sorted_indices = np.argsort(-scores_arr)
+    rankings = []
+    for rank, idx in enumerate(sorted_indices, 1):
+        sym = symbols[idx]
+        rankings.append({
+            "rank": rank,
+            "symbol": sym,
+            "momentum_12_1m_pct": round(float(scores_arr[idx] * 100), 2),
+            "z_score": round(float(z_scores[idx]), 2),
+            "category": "WINNER" if rank <= max(1, n_assets // 3) else ("LOSER" if rank > n_assets - max(1, n_assets // 3) else "NEUTRAL"),
+            "optimal_weight_pct": round(float(blended_w[idx] * 100), 2)
+        })
+
+    # WML spread (Top 30% minus Bottom 30%)
+    top_n = max(1, n_assets // 3)
+    winner_ret = np.mean(scores_arr[sorted_indices[:top_n]])
+    loser_ret = np.mean(scores_arr[sorted_indices[-top_n:]])
+    wml_spread = round(float(winner_ret - loser_ret) * 100, 2)
+
+    return {
+        "model": "CARHART_WML_MOMENTUM_TILT",
+        "optimal_weights": {symbols[i]: round(float(blended_w[i]), 4) for i in range(n_assets)},
+        "expected_return": round(opt_r, 4),
+        "volatility": round(opt_vol, 4),
+        "sharpe_ratio": round(opt_sharpe, 4),
+        "wml_spread_pct": wml_spread,
+        "momentum_rankings": rankings
+    }

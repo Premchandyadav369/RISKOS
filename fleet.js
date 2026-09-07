@@ -902,6 +902,48 @@
       entryRules: 'Buy probability shares when market price diverges by > 8% from econometric model prior.',
       exitRules: 'Hold until binary outcome resolution ($1.00 payout) or close when market reaches fair value.',
       crisisReplay: 'Locked in 88% win rate across 2024 Fed policy decision contracts.'
+    },
+    {
+      id: 'BOT-US-11',
+      market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
+      sector: 'Multi-Cap Momentum & Velocity Breakouts',
+      name: 'VALKYRIE ⚡ — Velocity & TSMOM Breakout Bot',
+      mythName: 'VALKYRIE',
+      mythIcon: '⚡',
+      mythTitle: 'Choosers of the Slain & Momentum Breakout Accelerators',
+      norseName: 'VALKYRIE',
+      norseIcon: '⚡',
+      norseTitle: 'Choosers of the Slain & Momentum Breakout Accelerators',
+      primarySymbol: 'NVDA',
+      displayAsset: 'NVDA / PLUG / SUZLON.NS Momentum Basket',
+      venue: 'NASDAQ DIRECT FIX',
+      basePrice: 128.50,
+      currentPrice: 128.50,
+      dailyVolume: '$48.6 Billion',
+      minuteVolume: '320,000 Shares',
+      evalSpeedSec: 3,
+      strategyType: 'Time-Series Momentum & RVOL Breakout',
+      mathFormula: String.raw`w_t = \frac{\sigma_{\text{target}}}{\hat{\sigma}_t} \cdot \text{sgn}\left(\sum_{k \in \{21,63,126\}} R_{t, k}\right) \cdot \mathbb{I}(\text{RVOL} \ge 2.0)`,
+      tier: 'S-TIER',
+      sentimentSource: 'Loughran-McDonald NLP News Flow & Carter Squeeze',
+      sentimentScore: +0.78,
+      sentimentRegime: 'VELOCITY_EXPANSION',
+      sentimentSignal: 'Donchian 20D channel breakout confirmed by RVOL 2.8x (+0.78); ATR 2.5 trailing stop activated with +3R profit targets.',
+      allocatedCapINR: 1800000,
+      baseDailyAlphaINR: 2850,
+      realizedPnlINR: 58900,
+      winRate: 79.4,
+      tradesToday: 42,
+      sharpe: 3.48,
+      profitFactor: 3.15,
+      maxDD: -0.52,
+      laymanExplanation: 'Rides explosive price breakouts when high volume (RVOL ≥ 2.0x) confirms multi-month momentum. Sizes positions using volatility targeting to prevent wild swings.',
+      mathDerivation: String.raw`S_t = \frac{1}{K}\sum_k \text{sgn}(P_t - P_{t-k}), \quad \text{Stop}_{\text{Chandelier}} = \max_{22}(H) - 2.5 \cdot \text{ATR}_{22}`,
+      entryRules: 'Enter long when price breaches 20-day high with RVOL ≥ 2.0, ADX > 25, and Loughran-McDonald sentiment > +0.20.',
+      exitRules: 'Trailing Chandelier stop at 2.5 ATR or scale out 50% at +2R and trailing runner at +5R.',
+      crisisReplay: 'Protected against momentum crashes by trailing volatility scaling and Daniel-Moskowitz crash filter.'
     }
   ];
 
@@ -1129,6 +1171,16 @@
       unit: 'Contracts',
       currency: 'USD',
       venue: 'POLYMARKET AMM'
+    },
+    'BOT-US-11': {
+      primaryStock: 'NVDA',
+      tradedSymbols: ['NVDA', 'PLUG', 'BBAI'],
+      assetClass: 'Momentum Equities & Small-Cap Breakouts',
+      lotSize: 50,
+      tickSize: 0.01,
+      unit: 'Shares',
+      currency: 'USD',
+      venue: 'NASDAQ DIRECT FIX'
     }
   };
 
@@ -1534,7 +1586,7 @@
     const liveUptimeText = document.getElementById('fleetLiveUptimeText');
     if (liveUptimeText) {
       const runningCount = botRegistry.filter(b => b.status === 'RUNNING').length;
-      liveUptimeText.textContent = `${runningCount} / 20 ACTIVE • ${days}D ${pad(hours)}H ${pad(mins)}M ${pad(secs)}S`;
+      liveUptimeText.textContent = `${runningCount} / ${botRegistry.length} ACTIVE • ${days}D ${pad(hours)}H ${pad(mins)}M ${pad(secs)}S`;
     }
 
     // 6. Update individual bot runtime chips

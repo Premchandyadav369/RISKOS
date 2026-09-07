@@ -122,7 +122,7 @@ flowchart TD
         Merton["🌊 Merton Jump-Diffusion SDE (Poisson News Intensity λ)"]
         Consensus["🔮 Multi-Model Ensemble Consensus Engine (40/30/30)"]
         NewsNLP["📰 Loughran-McDonald NLP Lexicon & Catalyst Taxonomies"]
-        Optimizer["⚖️ Multi-Objective Quant Optimizer (Black-Litterman, HRP, CVaR)"]
+        Optimizer["⚖️ Multi-Objective Quant Optimizer (Black-Litterman, HRP, CVaR, Carhart WML)"]
         RiskEngine["🛡️ Basel III FRTB VaR (99%), CVaR (95%), Ledoit-Wolf Shrinkage"]
         Execution["⚡ Almgren-Chriss Optimal Order Execution Slicer (SOR)"]
         ReportEng["📑 Executive Memorandum Compiler (SHA-256 State Seal)"]
@@ -133,9 +133,9 @@ flowchart TD
     subgraph FrontendPlatform["🖥️ Institutional Front-End Workspaces"]
         App["🖥️ app.html: 7 Bloomberg-Grade Trading Desks"]
         Opt["📊 portfolio_optimizer.html: Portfolio Prediction & Quant Optimizer"]
-        Fleet["🤖 fleet.html: 24/7 Autonomous Bot Fleet & Ranker (20 Bots)"]
+        Fleet["🤖 fleet.html: 24/7 Autonomous Bot Fleet & Ranker (21 Bots incl. Valkyrie Velocity)"]
         Obs["📡 observatory.html: Spatial Anomaly Radar & Crisis Replay"]
-        Learn["🧪 learn.html: 52 Interactive Quantitative Laboratories"]
+        Learn["🧪 learn.html: 54 Interactive Quantitative Laboratories"]
         Ticker["🔍 ticker.html: Universal Screener & Penny Library"]
         Docs["📖 docs.html: End-to-End Dual-Perspective Architecture Docs"]
         Index["🏠 index.html: Executive Overview & Command Portal"]
@@ -171,7 +171,8 @@ flowchart LR
         OptEng --> BL["Sentiment Black-Litterman"]
         OptEng --> HRP["Hierarchical Risk Parity"]
         OptEng --> CVaR["Rockafellar-Uryasev CVaR (95%)"]
-        BL & HRP & CVaR --> Blotter["1-Click Rebalance Order Blotter"]
+        OptEng --> WML["Momentum Tilt (Carhart 4-Factor WML)"]
+        BL & HRP & CVaR & WML --> Blotter["1-Click Rebalance Order Blotter"]
         Blotter --> AC["Almgren-Chriss Slippage Slicer"]
         AC --> FIX["FIX 4.4 Tag 58 Order Dispatch"]
         FIX --> Audit["Audit Ledger Execution Log"]
@@ -328,10 +329,16 @@ graph LR
 - **Macro Stress Matrix**: Real-time simulated impact of Rate Shocks ($+300\text{ bps}$), Equity Crashes ($-40\%$), and Volatility Spikes ($3\times$).
 
 ### Desk 3: Systematic Signals & Strategy Execution (`app.html`)
-- **Multi-Indicator Convergence Engine**: Synthesizes RSI(14) mean-reversion, MACD(12,26,9) trend momentum, and Bollinger Band Squeeze breakouts.
-- **Fractional Kelly Criterion Position Sizing**:
+- **Multi-Horizon Time-Series Momentum (TSMOM - Moskowitz, Ooi, Pedersen 2012)**:
+  $$S_t^{\text{TSMOM}} = \frac{1}{K} \sum_{k \in \{21, 63, 126, 252\}} \text{sign}\left( \frac{P_t - P_{t-k}}{P_{t-k}} \right)$$
+- **Volatility-Targeted Position Scaling (Risk-Parity Momentum)**:
+  Scales position size inversely to trailing 60-day realized EWMA volatility ($\hat{\sigma}_t$):
+  $$w_t = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_t}, 2.0\right) \cdot S_t^{\text{TSMOM}}$$
+- **Donchian 20D Channel Breakouts & Chandelier ATR Trailing Stop**:
+  Identifies explosive range breakouts ($P_t \ge \max_{20}(H)$) with dynamic trailing exits at $\max_{22}(H) - 3 \times \text{ATR}_{22}$.
+- **Fractional Kelly Criterion Position Sizing & Pre-Trade Guardrails**:
   $$f^* = \frac{p \cdot b - q}{b}, \quad f_{\text{safe}} = 0.50 \cdot f^*$$
-- **Pre-Trade Guardrail Validation**: Automates fat-finger checks ($< 3\%$ price deviation) and notional collar caps ($< ₹50\text{ Lakh}$).
+  Enforces automatic fat-finger checks ($< 3\%$ price deviation) and notional collar caps ($< ₹50\text{ Lakh}$).
 
 ### Desk 4: Algorithmic Order Execution Slicer (SOR) (`app.html`)
 - **Almgren-Chriss Optimal Execution Trajectory**:
@@ -392,7 +399,10 @@ A dedicated institutional portfolio intelligence and execution desk that connect
    - Interactive macro sliders: Rate Shock ($[-100, +200]\text{ bps}$), Brent Crude ($-25\%$ to $+35\%$), Tech Multiple Expansion ($-20\%$ to $+30\%$), and FX Move ($-5\%$ to $+5\%$).
 
 7. **Multi-Objective Quant Optimizer Sandbox**:
-   - 4 selectable optimization objectives: `Sentiment Black-Litterman`, `Hierarchical Risk Parity (HRP)`, `Rockafellar-Uryasev CVaR (95%)`, and `Markowitz Max Sharpe`.
+   - 5 selectable optimization objectives: `Sentiment Black-Litterman`, `Hierarchical Risk Parity (HRP)`, `Momentum Tilt (Carhart 4-Factor WML)`, `Rockafellar-Uryasev CVaR (95%)`, and `Markowitz Max Sharpe`.
+   - **Carhart 4-Factor WML Formulation**: Calculates 12-month minus 1-month cross-sectional returns ($R_{i, 12-1}$), skipping the most recent 21 days to avoid mean-reversion distortions. Standardizes returns into $z$-scores:
+     $$\mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)$$
+   - **1-Click "Tilt to Winners" Button (`#btnTiltMomentum`)**: Instantly tilts portfolio weights towards top-quintile winners while trimming lagging losers.
    - Quantitative parameter controls: Max Single Asset Weight Cap, Risk Aversion Parameter ($\lambda$), Target Return Floor.
    - Dynamic bar chart comparing Current Weights vs Optimal Target Weights.
 
@@ -612,6 +622,12 @@ The RISKOS Quantitative Simulation Laboratory comprises 52 interactive, determin
 | **51** | `compound_timeline`| **Multi-Year Wealth & Inflation** | $V_{\text{real}} = \frac{V_{\text{nominal}}}{(1 + i_{\text{inflation}})^n}$ | Real purchasing power preservation comparing nominal gains vs CPI inflation. |
 | **52** | `pe_eps` | **P/E Ratio, EPS & Earnings Yield** | $\text{P/E} = \frac{\text{Price}}{\text{EPS}}, \quad \text{Earnings Yield} = \frac{1}{\text{P/E}} = \frac{\text{EPS}}{\text{Price}}$ | Equity valuation benchmarking vs risk-free government bond yields ($E/P > r_f$). |
 
+### Division IX: Universal Momentum Trading & Cross-Asset Velocity Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **53** | `tsmom_volatility_targeting` | **Time-Series Momentum & Vol Scaling** | $r_{t+1}^{\text{TSMOM}} = \text{sign}(R_{t,k}) \cdot \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_t}, \text{MaxLev}\right) \cdot r_{t+1}$ | Moskowitz, Ooi & Pedersen (2012) risk-parity momentum CTA sizing. |
+| **54** | `dual_momentum_antonacci` | **Gary Antonacci Dual Momentum** | $\text{Alloc}_t = \mathbb{I}(\max_i R_{i,12} > R_f) \cdot \arg\max_i R_{i,12} + \mathbb{I}(\dots) \cdot \text{Cash}$ | Gary Antonacci (2014) Global Equity Momentum (GEM) tactical crash filter. |
+
 ---
 
 ## 🌐 Universal Security Master (120+ Assets)
@@ -673,6 +689,15 @@ $$C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right), \quad p_i
 
 ### 12. FRTB Basel III Regulatory Expected Shortfall Capital Charge
 $$\text{ES}_{\text{FRTB}} = \frac{1}{1 - \alpha} \int_\alpha^1 \text{VaR}_u(L) du \approx \frac{1}{N_{\text{tail}}} \sum_{i \in \text{Loss} > \text{VaR}} L_i, \quad \text{Capital Charge} = k \cdot \text{ES}_{\text{FRTB}} \cdot \sqrt{\Delta t}$$
+
+### 13. Carhart 4-Factor WML Cross-Sectional Momentum Tilt
+$$R_{i, 12-1} = \frac{P_{i, t-21} - P_{i, t-252}}{P_{i, t-252}}, \quad z_i^{\text{mom}} = \frac{R_{i, 12-1} - \mu}{\sigma}, \quad \mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)$$
+
+### 14. Moskowitz-Ooi-Pedersen Volatility-Targeted Time-Series Momentum (TSMOM)
+$$w_{i, t} = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_{i, t}}, \text{MaxLev}\right) \cdot \text{sign}\left(\sum_{k \in \{21, 63, 126, 252\}} R_{i, t, k}\right), \quad \text{Stop}_{\text{Chandelier}} = \max_{22}(H) - 2.5 \cdot \text{ATR}_{22}$$
+
+### 15. John Carter TTM Momentum Squeeze & Velocity Slope
+$$\text{SqueezeOn}_t = \mathbb{I}\left( \text{EMA}_{20} + 2\hat{\sigma}_{20} < \text{EMA}_{20} + 1.5\text{ATR}_{20} \right), \quad \text{Slope}_t = \frac{d}{dt}\left(P - \frac{\text{Donchian}_{20} + \text{SMA}_{20}}{2}\right)$$
 
 ---
 
