@@ -139,6 +139,17 @@
           <!-- Populated dynamically with continuous animation -->
         </div>
       </div>
+
+      <!-- ═══════════════════════ MACRO CATALYST COUNTDOWN RIBBON ═══════════════════════ -->
+      <div class="macro-countdown-ribbon" id="macroCountdownRibbon">
+        <div class="macro-ribbon-tag">
+          <span class="pulse-beacon amber"></span>
+          <span><i class="fa-solid fa-stopwatch text-amber"></i> MACRO CATALYST RADAR</span>
+        </div>
+        <div class="macro-events-track" id="macroEventsTrack">
+          <!-- Populated dynamically with live countdown timers -->
+        </div>
+      </div>
     </section>
 
     <!-- ── 2. BEAST ANIMATED KPI & PULSE STRIP ───────────────────────────────── -->
@@ -252,6 +263,10 @@
               <button class="btn-tool" id="btnSyncPaperBlotter"><i class="fa-solid fa-arrows-rotate"></i> Sync Blotter</button>
               <button class="btn-tool" id="btnImportCsv"><i class="fa-solid fa-file-import"></i> Import CSV</button>
               <button class="btn-tool" id="btnTiltMomentum" style="color:#eab308; border-color:rgba(234,179,8,0.3);"><i class="fa-solid fa-bolt"></i> Tilt to Winners</button>
+              <button class="btn-tool" id="btnOpenUserJournal" style="color:#22d3ee; border-color:rgba(34,211,238,0.3);"><i class="fa-solid fa-calendar-days"></i> Trade Journal</button>
+              <button class="btn-tool" id="btnTaxHarvest" style="color:#10b981; border-color:rgba(16,185,129,0.3);"><i class="fa-solid fa-hand-holding-dollar"></i> Tax-Loss Harvest</button>
+              <button class="btn-tool" id="btnAlertsManager" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);"><i class="fa-solid fa-bell"></i> Alerts</button>
+              <button class="btn-tool" id="btnDividendProjector" style="color:#a78bfa; border-color:rgba(167,139,250,0.3);"><i class="fa-solid fa-sack-dollar"></i> Dividend Projector</button>
             </div>
             <div class="toolbar-right">
               <button class="btn-tool secondary" id="btnResetDefaultHoldings"><i class="fa-solid fa-rotate-left"></i> Reset Template</button>
@@ -497,6 +512,8 @@
                   <th>DELTA SHARES</th>
                   <th>PRICE</th>
                   <th>NOTIONAL</th>
+                  <th>OCO STOP-LOSS</th>
+                  <th>OCO TAKE-PROFIT</th>
                   <th>WEIGHT TRANSITION</th>
                   <th>EST SLIPPAGE</th>
                 </tr>
@@ -528,6 +545,50 @@
         </div>
       </section>
 
+    </div>
+
+    <!-- ── 5.5. PORTFOLIO CORRELATION MATRIX & DIVIDEND CASH FLOW DESK ──────────── -->
+    <div class="obs-layout-grid">
+      <!-- Left: Mini 6x6 Pairwise Correlation Heatmap -->
+      <section class="obs-main-section">
+        <div class="obs-section-header">
+          <div>
+            <h2 class="obs-section-title"><i class="fa-solid fa-table-cells text-cyan"></i> 6x6 PAIRWISE CORRELATION HEATMAP &amp; OVERLAP RADAR</h2>
+            <p class="obs-section-desc">Trailing return correlation matrix with automated concentration alerts for co-movement &gt; 0.80.</p>
+          </div>
+          <div id="corrRiskBadge" class="obs-macro-pill obs-macro-pill--neutral">DIVERSIFICATION SCORE: 88/100</div>
+        </div>
+        <div class="obs-stream-card" style="padding: 16px;">
+          <div class="corr-matrix-wrapper" id="corrMatrixWrapper">
+            <!-- Populated dynamically with interactive color cells and tooltips -->
+          </div>
+          <div class="corr-legend-bar">
+            <span><span class="legend-box corr-neg"></span> -1.0 to -0.3 (Inverse Hedge)</span>
+            <span><span class="legend-box corr-zero"></span> -0.2 to +0.3 (Uncorrelated)</span>
+            <span><span class="legend-box corr-pos"></span> +0.4 to +0.8 (Moderate Co-movement)</span>
+            <span><span class="legend-box corr-high"></span> &gt; +0.80 (Concentration Warning)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Dividend Income & Passive Cash Flow Projector -->
+      <section class="obs-main-section">
+        <div class="obs-section-header">
+          <div>
+            <h2 class="obs-section-title"><i class="fa-solid fa-sack-dollar text-cyan"></i> DIVIDEND INCOME &amp; CASH FLOW PROJECTOR</h2>
+            <p class="obs-section-desc">Annual cash flow forecasts in INR/USD, quarterly waterfall distributions, and 5Y DRIP compounding.</p>
+          </div>
+          <div class="obs-macro-pill obs-macro-pill--bullish" id="divYieldPill">YIELD: 2.14%</div>
+        </div>
+        <div class="obs-stream-card" style="padding: 16px;">
+          <div class="dividend-stats-strip" id="dividendStatsStrip">
+            <!-- Populated dynamically: Annual Income, Payout Frequency, DRIP 5Y Alpha -->
+          </div>
+          <div style="height: 220px; position: relative; margin-top: 12px;">
+            <canvas id="dividendDripChart"></canvas>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- ── 6. INSTITUTIONAL EXECUTIVE RISK MEMORANDUM ──────────────────────── -->
@@ -667,6 +728,198 @@
         </button>
       </div>
     </div>
+  </div>
+
+  <!-- ═══════════════════════ USER TRADE JOURNAL & CALENDAR MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalUserJournal">
+    <div class="modal-panel journal-modal-panel">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-calendar-days text-cyan"></i> PORTFOLIO TRADE JOURNAL &amp; P&amp;L CALENDAR</h3>
+        <button class="drawer-close-btn" id="modalCloseJournalBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding-top:10px;">
+        <!-- Journal Performance KPIs -->
+        <div class="journal-kpi-strip">
+          <div class="journal-kpi-card">
+            <span class="journal-kpi-lbl">TOTAL TRADES</span>
+            <div class="journal-kpi-val" id="journalTotalTrades">24 Fills</div>
+          </div>
+          <div class="journal-kpi-card">
+            <span class="journal-kpi-lbl">NET REALIZED P&amp;L</span>
+            <div class="journal-kpi-val pnl-pos" id="journalNetPnl">+₹42,850</div>
+          </div>
+          <div class="journal-kpi-card">
+            <span class="journal-kpi-lbl">WIN RATE</span>
+            <div class="journal-kpi-val" id="journalWinRate" style="color:#10b981;">75.0%</div>
+          </div>
+          <div class="journal-kpi-card">
+            <span class="journal-kpi-lbl">PROFIT FACTOR</span>
+            <div class="journal-kpi-val" id="journalProfitFactor" style="color:#22d3ee;">2.85</div>
+          </div>
+          <div class="journal-kpi-card">
+            <span class="journal-kpi-lbl">AVG R-MULTIPLE</span>
+            <div class="journal-kpi-val" id="journalRMultiple" style="color:#eab308;">+1.92 R</div>
+          </div>
+        </div>
+
+        <!-- Monthly Calendar Navigation -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="font-size:0.88rem; font-weight:700; color:#fff; font-family:var(--font-mono);" id="journalMonthTitle">
+            SEPTEMBER 2026 P&amp;L HEATMAP
+          </div>
+          <button class="btn-tool" id="btnExportJournalCsv"><i class="fa-solid fa-file-csv"></i> Export Journal (CSV)</button>
+        </div>
+
+        <!-- Heatmap Calendar Grid -->
+        <div class="calendar-heatmap-grid" id="journalCalendarGrid">
+          <!-- Populated dynamically with Day 1-30 cells -->
+        </div>
+
+        <!-- Selected Day's Execution Details -->
+        <div style="margin-top:14px;">
+          <div style="font-size:0.8rem; font-weight:700; color:#22d3ee; margin-bottom:8px;" id="journalSelectedDayHeader">
+            <i class="fa-solid fa-clock-rotate-left"></i> EXECUTIONS ON SELECTED DATE
+          </div>
+          <div class="day-trades-list">
+            <table class="obs-table" id="journalTradesTable">
+              <thead>
+                <tr>
+                  <th>TIME</th>
+                  <th>SECURITY</th>
+                  <th>SIDE</th>
+                  <th>SHARES</th>
+                  <th>FILL PRICE</th>
+                  <th>NOTIONAL</th>
+                  <th>SLIPPAGE</th>
+                  <th>STRATEGY</th>
+                  <th>REALIZED P&amp;L</th>
+                </tr>
+              </thead>
+              <tbody id="journalTradesTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ TAX-LOSS HARVESTING MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalTaxHarvest">
+    <div class="modal-panel" style="max-width: 860px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-hand-holding-dollar text-cyan"></i> TAX-LOSS HARVESTING &amp; CAPITAL GAINS ALPHA</h3>
+        <button class="drawer-close-btn" id="modalCloseTaxBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="tax-harvest-banner">
+          <div class="tax-banner-stat">
+            <span class="tax-banner-lbl">HARVESTABLE LOSSES</span>
+            <span class="tax-banner-val" id="taxHarvestLossVal">₹18,450.00</span>
+          </div>
+          <div class="tax-banner-stat">
+            <span class="tax-banner-lbl">TAX OFFSET REGIME</span>
+            <span class="tax-banner-val" style="color:#22d3ee;" id="taxRegimeLabel">STCG (20.0%)</span>
+          </div>
+          <div class="tax-banner-stat">
+            <span class="tax-banner-lbl">ESTIMATED DIRECT TAX SAVINGS</span>
+            <span class="tax-banner-val" id="taxSavingsAlphaVal">+₹3,690.00</span>
+          </div>
+        </div>
+
+        <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">
+          Selling underwater positions unlocks immediate capital gains offsets. RISKOS identifies correlated replacement securities to maintain target market beta without violating wash-sale regulations.
+        </p>
+
+        <div class="table-responsive" style="max-height: 250px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+          <table class="obs-table" id="taxHarvestTable">
+            <thead>
+              <tr>
+                <th>SECURITY</th>
+                <th>HELD SHARES</th>
+                <th>COST BASIS</th>
+                <th>CURRENT PRICE</th>
+                <th>UNREALIZED LOSS</th>
+                <th>TAX SAVINGS</th>
+                <th>BETA REPLACEMENT</th>
+              </tr>
+            </thead>
+            <tbody id="taxHarvestTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <button class="btn-execute-opt" id="btnHarvestToBlotter" style="margin-top:16px; background:linear-gradient(135deg, #059669, #10b981);">
+          <i class="fa-solid fa-bolt"></i> INJECT LOSS HARVESTING SELL TICKETS INTO REBALANCE BLOTTER
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ PRICE & ANOMALY ALERTS MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalAlertsManager">
+    <div class="modal-panel" style="max-width: 780px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-bell text-amber"></i> REAL-TIME PRICE &amp; ANOMALY ALERTS</h3>
+        <button class="drawer-close-btn" id="modalCloseAlertsBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <!-- New Alert Input Form -->
+        <div class="alert-input-grid">
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">SECURITY / METRIC:</label>
+            <select id="alertSymbolSelect" class="modal-num-input" style="padding:6px 8px;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">CONDITION:</label>
+            <select id="alertConditionSelect" class="modal-num-input" style="padding:6px 8px;">
+              <option value="GT">Price &gt;=</option>
+              <option value="LT">Price &lt;=</option>
+              <option value="DD_GT">Drawdown &gt;=</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">TARGET VALUE:</label>
+            <input type="number" id="alertTargetValueInput" class="modal-num-input" placeholder="e.g. 3050" step="0.5" />
+          </div>
+          <div>
+            <button class="btn-tool primary" id="btnAddAlertBtn" style="padding:8px 16px;"><i class="fa-solid fa-plus"></i> Set Alert</button>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <span style="font-size:0.75rem; color:#94a3b8; font-family:var(--font-mono); font-weight:700;">ACTIVE REAL-TIME MONITORS:</span>
+          <button class="btn-tool" id="btnTestAudioChime" style="font-size:0.72rem;"><i class="fa-solid fa-volume-high text-cyan"></i> Test Bloomberg Chime</button>
+        </div>
+
+        <div class="table-responsive" style="max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+          <table class="obs-table" id="alertsTable">
+            <thead>
+              <tr>
+                <th>SECURITY / METRIC</th>
+                <th>CONDITION</th>
+                <th>TARGET</th>
+                <th>CURRENT VALUE</th>
+                <th>STATUS</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody id="alertsTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ LIVE BLOOMBERG ALERT TOASTS CONTAINER ═══════════════════════ -->
+  <div class="alert-toast-container" id="alertToastContainer">
+    <!-- Sliding toast notifications injected dynamically on breach -->
   </div>
 
   <!-- Core Scripts -->

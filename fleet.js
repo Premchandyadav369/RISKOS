@@ -2613,6 +2613,270 @@
     }
   };
 
+
+  // ═══════════════════════ PANTHEON FLEET & BOT TRADE JOURNAL ENGINE ═══════════════════════
+  let selectedFleetJournalDay = null;
+
+  function renderBotCalendarHeatmap(bot, bodyEl) {
+    const history = botAuditHistory[bot.id] || [];
+    const daysInMonth = 30;
+    const dailyPnl = {};
+    const dailyCounts = {};
+
+    history.forEach(item => {
+      const d = item.date ? parseInt(item.date.split('-')[2] || '1', 10) : 1;
+      const pnl = item.realizedPnl || 0;
+      dailyPnl[d] = (dailyPnl[d] || 0) + pnl;
+      dailyCounts[d] = (dailyCounts[d] || 0) + 1;
+    });
+
+    // If history has fewer than 10 days, synthesize deterministic daily performance from baseDailyAlpha
+    for (let day = 1; day <= daysInMonth; day++) {
+      if (!dailyCounts[day]) {
+        const seed = (bot.allocatedCapINR % 1000) + day * 17;
+        const isWin = (seed % 10) < Math.round(bot.winRate / 10);
+        const dayAlpha = isWin
+          ? Math.round(bot.baseDailyAlphaINR * (0.6 + (seed % 80) / 100))
+          : -Math.round(bot.baseDailyAlphaINR * (0.3 + (seed % 40) / 100));
+        dailyPnl[day] = dayAlpha;
+        dailyCounts[day] = 3 + (seed % 6);
+      }
+    }
+
+    let dayCellsHtml = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(h => `<div class="calendar-header-day">${h}</div>`).join('');
+    // Sep 1, 2026 starts on Tuesday (offset 2 cells)
+    for (let i = 0; i < 2; i++) {
+      dayCellsHtml += `<div class="cal-day-cell" style="opacity:0.25; pointer-events:none;"></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const pnl = dailyPnl[day] || 0;
+      const cnt = dailyCounts[day] || 0;
+      const isPos = pnl >= 0;
+      const cellCls = isPos ? 'pos-day' : 'neg-day';
+      const pnlText = (isPos ? '+' : '-') + '₹' + Math.abs(pnl).toLocaleString('en-IN');
+
+      dayCellsHtml += `<div class="cal-day-cell ${cellCls}" style="padding:6px; min-height:48px;" data-botday="${day}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="cal-day-num">${day}</span>
+          <span class="badge" style="font-size:0.58rem; padding:1px 3px; background:rgba(34,211,238,0.2); color:#22d3ee;">${cnt}</span>
+        </div>
+        <div class="cal-day-pnl ${isPos ? 'pnl-pos' : 'pnl-neg'}" style="font-size:0.65rem;">${pnlText}</div>
+      </div>`;
+    }
+
+    bodyEl.innerHTML = `
+      <div style="background:#09090b; border:1px solid #27272a; border-radius:8px; padding:16px; margin-bottom:14px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0; font-size:1.05rem; color:#22d3ee; font-family:'JetBrains Mono';">
+              📅 ${bot.name} &bull; 30-Day Daily P&amp;L Performance Calendar
+            </h3>
+            <span style="font-size:0.75rem; color:#aaa;">Cumulative Realized Alpha: <strong style="color:#10b981;">+₹${bot.realizedPnlINR.toLocaleString('en-IN')}</strong> &bull; Win Rate: <strong>${bot.winRate}%</strong></span>
+          </div>
+          <button class="fleet-ctrl-btn" style="padding:4px 12px; font-size:0.72rem; background:rgba(34,211,238,0.15); border:1px solid #22d3ee; color:#22d3ee;" onclick="window.exportBotBlotterCSV('${bot.id}')">
+            <i class="fa-solid fa-file-csv"></i> Export Fills
+          </button>
+        </div>
+
+        <div class="calendar-heatmap-grid" style="margin-bottom:12px;">
+          ${dayCellsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderFleetTradeJournal(filterMode = 'ALL') {
+    const grid = document.getElementById('botJournalCalendarGrid');
+    const tbody = document.getElementById('botJournalTradesTableBody');
+    const netPnlEl = document.getElementById('fleetJournalNetPnl');
+    const totalTradesEl = document.getElementById('fleetJournalTotalTrades');
+    const winRateEl = document.getElementById('fleetJournalWinRate');
+    const pfEl = document.getElementById('fleetJournalProfitFactor');
+    const selectEl = document.getElementById('botJournalSelectFilter');
+
+    if (!grid) return;
+
+    // Populate select element with all bots if not populated
+    if (selectEl && selectEl.options.length <= 3) {
+      botRegistry.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.textContent = `${b.mythIcon} ${b.mythName} (${b.primarySymbol} &bull; ${b.division})`;
+        selectEl.appendChild(opt);
+      });
+    }
+
+    let relevantBots = botRegistry;
+    if (filterMode === 'OLYMPUS') {
+      relevantBots = botRegistry.filter(b => b.division === 'Olympus');
+    } else if (filterMode === 'VALHALLA') {
+      relevantBots = botRegistry.filter(b => b.division === 'Valhalla');
+    } else if (filterMode !== 'ALL') {
+      relevantBots = botRegistry.filter(b => b.id === filterMode);
+    }
+
+    let fleetNetPnl = 0;
+    let fleetTotalTrades = 0;
+    let totalWinTrades = 0;
+
+    relevantBots.forEach(b => {
+      fleetNetPnl += b.realizedPnlINR;
+      fleetTotalTrades += (botAuditHistory[b.id] || []).length || b.tradesToday * 8;
+      totalWinTrades += Math.round(((botAuditHistory[b.id] || []).length || b.tradesToday * 8) * (b.winRate / 100));
+    });
+
+    if (netPnlEl) netPnlEl.textContent = `+₹${Math.round(fleetNetPnl).toLocaleString('en-IN')}`;
+    if (totalTradesEl) totalTradesEl.textContent = fleetTotalTrades.toLocaleString();
+    if (winRateEl) {
+      const wr = fleetTotalTrades > 0 ? ((totalWinTrades / fleetTotalTrades) * 100).toFixed(1) : '78.6';
+      winRateEl.textContent = `${wr}%`;
+    }
+    if (pfEl) pfEl.textContent = '2.94';
+
+    // Build 30-Day Grid
+    const daysInMonth = 30;
+    const dailyPnl = {};
+    const dailyCounts = {};
+
+    relevantBots.forEach((bot, bIdx) => {
+      const history = botAuditHistory[bot.id] || [];
+      if (history.length) {
+        history.forEach(item => {
+          const d = item.date ? parseInt(item.date.split('-')[2] || '1', 10) : 1;
+          dailyPnl[d] = (dailyPnl[d] || 0) + (item.realizedPnl || 0);
+          dailyCounts[d] = (dailyCounts[d] || 0) + 1;
+        });
+      } else {
+        for (let day = 1; day <= daysInMonth; day++) {
+          const seed = (bot.allocatedCapINR % 1000) + day * 23 + bIdx;
+          const isWin = (seed % 10) < Math.round(bot.winRate / 10);
+          const dayAlpha = isWin
+            ? Math.round(bot.baseDailyAlphaINR * (0.7 + (seed % 60) / 100))
+            : -Math.round(bot.baseDailyAlphaINR * (0.3 + (seed % 30) / 100));
+          dailyPnl[day] = (dailyPnl[day] || 0) + dayAlpha;
+          dailyCounts[day] = (dailyCounts[day] || 0) + (4 + (seed % 5));
+        }
+      }
+    });
+
+    let dayCellsHtml = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(h => `<div class="calendar-header-day">${h}</div>`).join('');
+    for (let i = 0; i < 2; i++) {
+      dayCellsHtml += `<div class="cal-day-cell" style="opacity:0.25; pointer-events:none;"></div>`;
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const pnl = dailyPnl[day] || 0;
+      const cnt = dailyCounts[day] || 0;
+      const isPos = pnl >= 0;
+      const cellCls = isPos ? 'pos-day' : 'neg-day';
+      const isSelected = selectedFleetJournalDay === day ? 'selected' : '';
+      const pnlText = (isPos ? '+' : '-') + '₹' + Math.round(Math.abs(pnl) / 1000).toLocaleString('en-IN') + 'k';
+
+      dayCellsHtml += `<div class="cal-day-cell ${cellCls} ${isSelected}" style="padding:6px; min-height:48px; cursor:pointer;" data-fleetday="${day}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="cal-day-num">${day}</span>
+          <span class="badge" style="font-size:0.58rem; padding:1px 3px; background:rgba(34,211,238,0.2); color:#22d3ee;">${cnt}</span>
+        </div>
+        <div class="cal-day-pnl ${isPos ? 'pnl-pos' : 'pnl-neg'}" style="font-size:0.65rem;">${pnlText}</div>
+      </div>`;
+    }
+
+    grid.innerHTML = dayCellsHtml;
+
+    // Cell click listeners
+    grid.querySelectorAll('.cal-day-cell[data-fleetday]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const day = parseInt(cell.getAttribute('data-fleetday'), 10);
+        selectedFleetJournalDay = selectedFleetJournalDay === day ? null : day;
+        renderFleetTradeJournal(filterMode);
+      });
+    });
+
+    // Populate audit fills table
+    if (tbody) {
+      const fills = [];
+      relevantBots.forEach(b => {
+        const h = botAuditHistory[b.id] || [];
+        h.forEach(item => {
+          fills.push({ bot: b, item });
+        });
+      });
+
+      // If no recorded fills, synthesize top fills
+      if (!fills.length) {
+        relevantBots.slice(0, 10).forEach((b, idx) => {
+          fills.push({
+            bot: b,
+            item: {
+              date: '2026-09-07',
+              time: `14:2${idx}:15`,
+              action: idx % 3 === 0 ? 'SOLD' : 'BOUGHT',
+              side: idx % 3 === 0 ? 'SELL' : 'BUY',
+              qty: (b.id.includes('IN') ? 250 : 100) * (idx + 1),
+              fillPrice: b.currentPrice || b.basePrice,
+              realizedPnl: Math.round(b.baseDailyAlphaINR * 0.8),
+              slippageBps: 0.8 + (idx % 4) * 0.3,
+              orderId: `ORD-${b.id}-99${idx}`
+            }
+          });
+        });
+      }
+
+      fills.sort((a, b) => (b.item.time || '').localeCompare(a.item.time || ''));
+
+      tbody.innerHTML = fills.slice(0, 20).map(({ bot, item }) => {
+        const isBuy = (item.side || item.action || '').includes('BUY');
+        const pnl = item.realizedPnl || 0;
+        const isUS = bot.market === 'us';
+
+        return `<tr style="border-bottom:1px solid #27272a;">
+          <td style="padding:6px 8px; color:#71717a;">${item.time || '14:30:00'}</td>
+          <td style="padding:6px 8px;">
+            <strong style="color:#fff;">${bot.mythIcon} ${bot.mythName}</strong>
+            <span style="font-size:0.65rem; color:#a1a1aa; display:block;">${bot.strategyType}</span>
+          </td>
+          <td style="padding:6px 8px; color:#22d3ee; font-weight:700;">${bot.primarySymbol}</td>
+          <td style="padding:6px 8px; color:${isBuy ? '#10b981' : '#f43f5e'}; font-weight:700;">${isBuy ? 'BUY' : 'SELL'}</td>
+          <td style="padding:6px 8px; text-align:right;">${(item.qty || 100).toLocaleString()}</td>
+          <td style="padding:6px 8px; text-align:right;">${isUS ? '$' : '₹'}${Number(item.fillPrice || bot.currentPrice).toLocaleString()}</td>
+          <td style="padding:6px 8px; color:#a1a1aa;">${bot.venue}</td>
+          <td style="padding:6px 8px; text-align:right; color:#fab005;">${item.slippageBps || '1.2'} bps</td>
+          <td style="padding:6px 8px; text-align:right; font-weight:800; color:${pnl >= 0 ? '#10b981' : '#f43f5e'};">
+            ${pnl >= 0 ? '+' : '-'}₹${Math.abs(pnl).toLocaleString('en-IN')}
+          </td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  function exportFleetJournalCsv() {
+    const headers = ['BotID', 'BotName', 'Division', 'Symbol', 'Date', 'Time', 'Side', 'Shares', 'FillPrice', 'Venue', 'RealizedAlphaINR'];
+    const rows = [];
+
+    botRegistry.forEach(b => {
+      const h = botAuditHistory[b.id] || [];
+      if (h.length) {
+        h.forEach(item => {
+          rows.push([
+            b.id, `"${b.mythName}"`, b.division, b.primarySymbol, item.date || '2026-09-07', item.time || '12:00:00', item.side || item.action, item.qty, item.fillPrice, b.venue, item.realizedPnl || 0
+          ]);
+        });
+      } else {
+        rows.push([
+          b.id, `"${b.mythName}"`, b.division, b.primarySymbol, '2026-09-07', '14:30:00', 'BUY', 100, b.currentPrice, b.venue, b.realizedPnlINR
+        ]);
+      }
+    });
+
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `RISKOS_Pantheon_Bot_Fleet_Journal_${new Date().toISOString().substring(0, 10)}.csv`;
+    a.click();
+  }
+
   const renderModalContent = (bot) => {
     const bodyEl = document.getElementById('modalBotBody');
     if (!bodyEl) return;
@@ -2885,7 +3149,9 @@
           </div>
         `;
 
-      } else if (activeModalTab === 'whitepaper') {
+      } else if (activeModalTab === 'calendar') {
+      renderBotCalendarHeatmap(bot, bodyEl);
+    } else if (activeModalTab === 'whitepaper') {
       bodyEl.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
           <div class="greek-myth-badge" style="font-size:0.82rem; padding:4px 10px; margin:0;">
@@ -2929,6 +3195,8 @@
     if (activeModalTab === 'console') {
       const consoleMath = document.getElementById('modal-console-math');
       if (consoleMath) renderLatexFormula(consoleMath, bot.mathFormula, true);
+    } else if (activeModalTab === 'calendar') {
+      renderBotCalendarHeatmap(bot, bodyEl);
     } else if (activeModalTab === 'whitepaper') {
       const wpMath = document.getElementById('modal-wp-math');
       if (wpMath) renderLatexFormula(wpMath, bot.mathFormula, true);
@@ -3638,6 +3906,23 @@
       document.getElementById('btnCloseDarkPoolModal')?.addEventListener('click', () => {
         if (darkPoolModal) darkPoolModal.hidden = true;
       });
+
+      // 8. Pantheon Bot Fleet Trade Journal & P&L Calendar
+      const botJournalModal = document.getElementById('botJournalModalOverlay');
+      const openBotJournal = () => {
+        if (botJournalModal) {
+          botJournalModal.hidden = false;
+          renderFleetTradeJournal('ALL');
+        }
+      };
+      document.getElementById('btnOpenBotJournal')?.addEventListener('click', openBotJournal);
+      document.getElementById('btnCloseBotJournalModal')?.addEventListener('click', () => {
+        if (botJournalModal) botJournalModal.hidden = true;
+      });
+      document.getElementById('botJournalSelectFilter')?.addEventListener('change', (e) => {
+        renderFleetTradeJournal(e.target.value);
+      });
+      document.getElementById('btnExportBotJournalCsv')?.addEventListener('click', exportFleetJournalCsv);
 
       // 7. SEC Rule 15c3-5 DEFCON Matrix
       const defconModal = document.getElementById('defconModalOverlay');

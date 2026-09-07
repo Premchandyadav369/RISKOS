@@ -2499,6 +2499,126 @@ const LearnMathEngine = (() => {
     };
   };
 
+
+  // ── 53. Tax-Loss Harvesting & Capital Gains Alpha (STCG / LTCG) ─────────────
+  const calcTaxLossHarvesting = (inputs, currency = 'INR') => {
+    const loss = Math.max(1000, parseFloat(inputs.unrealizedLoss || 100000));
+    const taxRate = Math.max(5.0, Math.min(40.0, parseFloat(inputs.taxRatePct || 20.0))) / 100;
+    const reinvestRate = Math.max(2.0, Math.min(25.0, parseFloat(inputs.reinvestYieldPct || 12.0))) / 100;
+    const years = Math.max(1, parseInt(inputs.holdingYears || 10, 10));
+
+    const immediateSavings = loss * taxRate;
+    const compoundedWealth = immediateSavings * Math.pow(1 + reinvestRate, years);
+    const taxAlphaPct = ((compoundedWealth - immediateSavings) / loss) * 100;
+
+    const labels = [];
+    const taxSavingsTrajectory = [];
+    const baselineTrajectory = [];
+
+    for (let t = 0; t <= years; t++) {
+      labels.push(`Year ${t}`);
+      taxSavingsTrajectory.push(Math.round(immediateSavings * Math.pow(1 + reinvestRate, t)));
+      baselineTrajectory.push(Math.round(immediateSavings));
+    }
+
+    return {
+      focalSymbol: 'Δ_TaxAlpha',
+      focalLabel: 'Direct Tax Alpha Saved',
+      focalValue: formatMoney(immediateSavings, currency, true),
+      plainResult: `Tax-Loss Harvesting: Realizing ${formatMoney(loss, currency, true)} of capital losses at ${taxRate * 100}% tax rate unlocks an immediate ${formatMoney(immediateSavings, currency, true)} tax credit. Reinvesting this saved capital at ${reinvestRate * 100}% for ${years} years compounds into ${formatMoney(compoundedWealth, currency, true)} (a ${taxAlphaPct.toFixed(1)}% tax alpha boost).`,
+      chart: {
+        labels: labels,
+        datasets: [
+          { label: 'Compounded Reinvested Tax Savings (Wealth Created)', data: taxSavingsTrajectory, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.15)', fill: true, borderWidth: 2 },
+          { label: 'Unreinvested Cash Refund Baseline', data: baselineTrajectory, borderColor: '#64748b', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: '\\[ \\text{Tax Savings} = L \\cdot \\tau_{\\text{tax}}, \\quad W(t) = (L \\cdot \\tau_{\\text{tax}}) (1 + r)^t \\]',
+      substitutedLatex: `\\[ \\text{Savings} = ${loss.toFixed(0)} \\cdot ${(taxRate).toFixed(2)} = \\mathbf{${immediateSavings.toFixed(0)}}, \\quad W(${years}) = \\mathbf{${compoundedWealth.toFixed(0)}} \\]`,
+      beginnerText: `Think of tax-loss harvesting like returning a damaged item for an instant store credit on your taxes. If a stock drops by ${formatMoney(loss, currency, true)}, selling it allows you to deduct that loss against profitable trades. At a ${taxRate * 100}% tax rate, the government effectively hands you back ${formatMoney(immediateSavings, currency, true)} in cash taxes today! Reinvesting that free refund in a similar strong company turns paper pain into long-term compounding wealth.`,
+      realWorldExample: `Suppose you made ₹2,00,000 profit selling tech stocks this year, facing ₹40,000 in short-term capital gains tax (20% STCG). You also hold another stock currently showing a ₹1,00,000 paper loss. By selling the losing stock before March 31, your net taxable profit drops to ₹1,00,000, cutting your tax bill in half from ₹40,000 down to ₹20,000 (an immediate ₹20,000 cash savings in your bank account). You immediately buy a similar industry leader (e.g. swapping Infosys for TCS) so you don't miss the market rebound.`,
+      investorText: `Institutions like Bridgewater and Vanguard use algorithmic tax-loss harvesting year-round. It generates an estimated 1.2% to 2.1% in annualized 'tax alpha' without changing overall portfolio beta or market factor exposure.`,
+      quantText: `Formulated as a cash-flow arbitrage on taxable horizon: $\\Delta \\Omega_0 = \\sum_{i \\in \\mathcal{L}} \\tau_i \\cdot \\max(0, C_i - P_i)$ with reinvestment operator $\\mathcal{R}(t) = \\Delta \\Omega_0 \\cdot e^{r t}$, subject to the 30-day wash-sale cross-correlation constraint $\\rho(S_i, S_{\\text{sub}}) < 0.95$.`,
+      limitations: `Requires taxable capital gains to offset. Under Indian tax laws, capital losses can be carried forward for up to 8 assessment years if not fully absorbed in the current fiscal year. In the US, IRS wash-sale rules prohibit buying a 'substantially identical' security within 30 days.`
+    };
+  };
+
+  // ── 54. Gordon Growth Model & Dividend Discount Valuation (DDM) ───────────
+  const calcGordonGrowthModel = (inputs, currency = 'INR') => {
+    const D0 = Math.max(0.5, parseFloat(inputs.currentDividend || 50.0));
+    const g = Math.max(0.5, Math.min(20.0, parseFloat(inputs.dividendGrowthRate || 6.0))) / 100;
+    const r = Math.max(g + 0.01, Math.min(30.0, parseFloat(inputs.requiredReturn || 10.5))) / 100;
+
+    const D1 = D0 * (1 + g);
+    const fairValue = D1 / (r - g);
+    const divYieldPct = (D0 / fairValue) * 100;
+
+    const years = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5', 'Year 6', 'Year 7', 'Year 8', 'Year 9', 'Year 10'];
+    const dividendStream = [];
+    for (let t = 1; t <= 10; t++) {
+      dividendStream.push(Number((D0 * Math.pow(1 + g, t)).toFixed(2)));
+    }
+
+    return {
+      focalSymbol: 'P_0',
+      focalLabel: 'Intrinsic Stock Value (DDM)',
+      focalValue: formatMoney(fairValue, currency, true),
+      plainResult: `Gordon Growth DDM: With current dividend D0 = ${formatMoney(D0, currency)}, annual growth g = ${(g*100).toFixed(1)}%, and required discount rate r = ${(r*100).toFixed(1)}%, the intrinsic fair value is ${formatMoney(fairValue, currency, false)} per share (projected dividend yield = ${divYieldPct.toFixed(2)}%).`,
+      chart: {
+        labels: years,
+        datasets: [
+          { label: 'Projected Annual Dividend Stream ($/₹ per share)', data: dividendStream, backgroundColor: 'rgba(167, 139, 250, 0.75)', borderColor: '#a78bfa', borderWidth: 1 }
+        ]
+      },
+      equationLatex: '\\[ P_0 = \\frac{D_1}{r - g} = \\frac{D_0 (1 + g)}{r - g} \\]',
+      substitutedLatex: `\\[ P_0 = \\frac{${D0.toFixed(1)} \\cdot (1 + ${g.toFixed(2)})}{${r.toFixed(3)} - ${g.toFixed(2)}} = \\mathbf{${fairValue.toFixed(2)}} \\]`,
+      beginnerText: `The Gordon Growth Model values a stock just like an apartment building that pays you rental income every month with a steady yearly rent hike. If a rental property pays you ${formatMoney(D0, currency)} today and increases rent by ${(g*100).toFixed(1)}% every single year, how much is that property worth if you expect a ${(r*100).toFixed(1)}% return? The math proves the fair value is ${formatMoney(fairValue, currency, true)}. If Mr. Market offers to sell it for less, you buy!`,
+      realWorldExample: `Consider a dividend aristocrat like ITC or Coca-Cola paying ₹50 in dividends per share. Historical records show dividends grow at 6% per year forever. If your hurdle rate is 10.5% annual return: next year's dividend D1 will be ₹53. Dividing ₹53 by (10.5% - 6.0% = 4.5%) gives an intrinsic fair price of ₹1,177.78 per share. If the current market price is ₹950, you have a 24% margin of safety!`,
+      investorText: `Warren Buffett and Charlie Munger frequently use dividend discount logic to evaluate cash generation engines. It focuses on tangible cash return rather than speculative market multiple expansion.`,
+      quantText: `The sum of an infinite geometric series of discounted future cash flows: $P_0 = \\sum_{t=1}^{\\infty} \\frac{D_t}{(1 + r)^t} = \\frac{D_0(1 + g)}{1 + r} \\sum_{k=0}^{\\infty} \\left( \\frac{1 + g}{1 + r} \\right)^k = \\frac{D_1}{r - g}$, convergent strictly when $r > g$.`,
+      limitations: `Fails if dividend growth rate g is greater than or equal to discount rate r (division by zero or negative price). Also assumes constant growth in perpetuity, which no company can maintain indefinitely.`
+    };
+  };
+
+  // ── 55. Kelly Criterion & Optimal Leverage Growth ──────────────────────────
+  const calcKellyCriterionGrowth = (inputs, currency = 'INR') => {
+    const p = Math.max(0.05, Math.min(0.95, parseFloat(inputs.winProbability || 60.0) / 100));
+    const b = Math.max(0.1, parseFloat(inputs.winLossRatio || 1.5));
+    const capital = Math.max(10000, parseFloat(inputs.initialCapital || 1000000));
+
+    const q = 1 - p;
+    const fStar = Math.max(0, (p * b - q) / b);
+    const halfKelly = fStar / 2;
+
+    // Simulate 50-trade geometric compounding paths
+    const fValues = [0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50];
+    const growthRates = fValues.map(f => {
+      if (f >= 1.0) return -100;
+      const rate = (p * Math.log(1 + b * f) + q * Math.log(1 - f)) * 100;
+      return Number(rate.toFixed(2));
+    });
+
+    return {
+      focalSymbol: 'f^*_Kelly',
+      focalLabel: 'Optimal Bet Size (Full Kelly)',
+      focalValue: `${(fStar * 100).toFixed(1)}%`,
+      plainResult: `Kelly Criterion: Win Rate p = ${(p*100).toFixed(0)}%, Win/Loss Payoff b = ${b.toFixed(2)}. Full Kelly optimal position sizing = ${(fStar*100).toFixed(1)}% of capital. Institutional Half-Kelly = ${(halfKelly*100).toFixed(1)}% of capital to achieve 75% of maximum compounding speed with 50% less volatility and near-zero ruin probability.`,
+      chart: {
+        labels: fValues.map(f => `${Math.round(f * 100)}%`),
+        datasets: [
+          { label: 'Expected Geometric Growth Rate g(f) (%)', data: growthRates, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2.5 }
+        ]
+      },
+      equationLatex: '\\[ f^* = \\frac{p \\cdot b - q}{b} = \\frac{p(b + 1) - 1}{b} \\]',
+      substitutedLatex: `\\[ f^* = \\frac{${p.toFixed(2)} \\cdot ${b.toFixed(2)} - ${q.toFixed(2)}}{${b.toFixed(2)}} = \\mathbf{${(fStar * 100).toFixed(1)}\\%} \\]`,
+      beginnerText: `The Kelly Criterion answers the most critical question in trading: 'Even when I have a winning strategy, how much money should I put on each trade so I never go broke?' If you bet too little, your wealth grows like a snail. If you bet too much, even a short streak of bad luck will wipe you out completely (gambler's ruin). Kelly finds the exact mathematical sweet spot that maximizes your long-term compounding speed.`,
+      realWorldExample: `Suppose your trading system wins 60% of the time, making ₹1.50 profit for every ₹1.00 risked (b = 1.5). The Kelly formula calculates: f* = (0.60 * 1.5 - 0.40) / 1.5 = 33.3% of your portfolio per trade. While 33.3% delivers the fastest compounding, it also suffers terrifying 50% drawdowns. Institutional hedge funds like Renaissance Technologies and Ed Thorp use 'Half-Kelly' (16.7%), capturing 75% of maximum growth with only one-third the volatility and virtually zero risk of ruin.`,
+      investorText: `Used by legendary hedge fund managers Ed Thorp (Beat the Dealer, Princeton-Newport) and Jim Simons. Rather than predicting stock directions, Kelly ensures you size winners aggressively and scale down during losing runs.`,
+      quantText: `Maximizes the asymptotic expected log-wealth: $\\max_f \\mathbb{E}[\\ln(W_T)] = p \\ln(1 + b f) + q \\ln(1 - f)$. First-order condition: $\\frac{d}{df}\\mathbb{E}[\\ln(W_T)] = \\frac{p b}{1 + b f} - \\frac{q}{1 - f} = 0 \\implies f^* = \\frac{p b - q}{b}$.`,
+      limitations: `Assumes known probabilities and payoff ratios. In real financial markets, parameters are non-stationary and fat-tailed. Overestimating win probability under Full Kelly leads directly to catastrophic capital ruin, which is why institutions strictly enforce fractional Kelly ($0.3x - 0.5x$).`
+    };
+  };
+
   // ── 51. Moskowitz-Ooi-Pedersen Time-Series Momentum (TSMOM) & Volatility Targeting ────────
   const calcTimeSeriestMomentum = (inputs) => {
     const lookback = parseInt(inputs.lookbackDays || 63, 10);
@@ -3773,6 +3893,68 @@ const LearnMathEngine = (() => {
       presets: [
         { label: 'Risk-On Rally (US > IN > T-Bills)', inputs: { assetAReturn: 22.4, assetBReturn: 16.2, riskFreeReturn: 6.5, assetAName: 'US Equities (S&P 500)', assetBName: 'Indian Equities (NIFTY 50)' } },
         { label: 'Severe Bear Crash (Rotate 100% to Treasuries)', inputs: { assetAReturn: -14.5, assetBReturn: -8.2, riskFreeReturn: 6.5, assetAName: 'US Equities (S&P 500)', assetBName: 'Indian Equities (NIFTY 50)' } }
+      ]
+    }
+,
+    {
+      id: 'tax_loss_harvesting',
+      title: 'Tax Alpha & Capital Loss Harvesting (STCG / LTCG)',
+      shortTitle: 'Tax-Loss Harvesting',
+      category: 'Portfolio Management',
+      categoryKey: 'portfolio_mgmt',
+      icon: 'fa-hand-holding-dollar',
+      badge: 'Tax Alpha',
+      calc: calcTaxLossHarvesting,
+      defaultInputs: { unrealizedLoss: 100000, taxRatePct: 20.0, reinvestYieldPct: 12.0, holdingYears: 10 },
+      controls: [
+        { key: 'unrealizedLoss', label: 'Total Unrealized Loss (₹/$)', type: 'number', min: 10000, max: 1000000, step: 10000, default: 100000 },
+        { key: 'taxRatePct', label: 'Capital Gains Tax Rate (%)', type: 'number', min: 10, max: 35, step: 1, default: 20.0 },
+        { key: 'reinvestYieldPct', label: 'Reinvestment Compound Rate (%)', type: 'number', min: 5, max: 20, step: 1, default: 12.0 },
+        { key: 'holdingYears', label: 'Compounding Horizon (Years)', type: 'number', min: 1, max: 25, step: 1, default: 10 }
+      ],
+      presets: [
+        { label: 'Indian Equities STCG (20% Tax, 12% Return)', inputs: { unrealizedLoss: 100000, taxRatePct: 20.0, reinvestYieldPct: 12.0, holdingYears: 10 } },
+        { label: 'US Tech Tax Alpha (30% Tax, 15% Return)', inputs: { unrealizedLoss: 250000, taxRatePct: 30.0, reinvestYieldPct: 15.0, holdingYears: 15 } }
+      ]
+    },
+    {
+      id: 'dividend_discount_model',
+      title: 'Gordon Growth Model & Dividend Discount Valuation',
+      shortTitle: 'Dividend Discount Model',
+      category: 'Fundamental Analysis',
+      categoryKey: 'fundamental_analysis',
+      icon: 'fa-sack-dollar',
+      badge: 'Intrinsic DDM',
+      calc: calcGordonGrowthModel,
+      defaultInputs: { currentDividend: 50.0, dividendGrowthRate: 6.0, requiredReturn: 10.5 },
+      controls: [
+        { key: 'currentDividend', label: 'Current Dividend per Share (D0)', type: 'number', min: 1, max: 500, step: 5, default: 50.0 },
+        { key: 'dividendGrowthRate', label: 'Perpetual Dividend Growth Rate (g %)', type: 'number', min: 1, max: 12, step: 0.5, default: 6.0 },
+        { key: 'requiredReturn', label: 'Required Rate of Return (r %)', type: 'number', min: 7, max: 20, step: 0.5, default: 10.5 }
+      ],
+      presets: [
+        { label: 'Blue-Chip Dividend Champion (6% Growth, 10.5% Hurdle)', inputs: { currentDividend: 50.0, dividendGrowthRate: 6.0, requiredReturn: 10.5 } },
+        { label: 'Fast-Growing Dividend Aristocrat (8% Growth, 12% Hurdle)', inputs: { currentDividend: 35.0, dividendGrowthRate: 8.0, requiredReturn: 12.0 } }
+      ]
+    },
+    {
+      id: 'kelly_criterion_growth',
+      title: 'Kelly Criterion & Capital Growth Optimization',
+      shortTitle: 'Kelly Criterion',
+      category: 'Quantitative Trading',
+      categoryKey: 'quant_trading',
+      icon: 'fa-dice',
+      badge: 'Kelly Optimal',
+      calc: calcKellyCriterionGrowth,
+      defaultInputs: { winProbability: 60.0, winLossRatio: 1.5, initialCapital: 1000000 },
+      controls: [
+        { key: 'winProbability', label: 'Win Probability (p %)', type: 'number', min: 30, max: 90, step: 1, default: 60.0 },
+        { key: 'winLossRatio', label: 'Win / Loss Payoff Ratio (b)', type: 'number', min: 0.5, max: 5.0, step: 0.1, default: 1.5 },
+        { key: 'initialCapital', label: 'Trading Bankroll (₹/$)', type: 'number', min: 100000, max: 10000000, step: 100000, default: 1000000 }
+      ],
+      presets: [
+        { label: 'Standard Trend-Following (60% Win, 1.5x Payoff)', inputs: { winProbability: 60.0, winLossRatio: 1.5, initialCapital: 1000000 } },
+        { label: 'High Payoff Outlier Hunter (40% Win, 3.0x Payoff)', inputs: { winProbability: 40.0, winLossRatio: 3.0, initialCapital: 1000000 } }
       ]
     }
   ];

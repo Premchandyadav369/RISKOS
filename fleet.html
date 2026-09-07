@@ -234,6 +234,9 @@
         <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo">
           <i class="fa-solid fa-file-invoice-dollar text-gold"></i> 📑 LP Risk Memo
         </button>
+        <button class="btn-quantum-feature" id="btnOpenBotJournal" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
+          <i class="fa-solid fa-calendar-days text-cyan"></i> 📅 Fleet &amp; Bot Trade Journal
+        </button>
       </div>
     </section>
 
@@ -467,6 +470,7 @@
       <div class="modal-tab-bar">
         <button class="modal-tab-btn active" data-modtab="console"><i class="fa-solid fa-terminal"></i> Live Trading Console &amp; L2 Depth</button>
         <button class="modal-tab-btn" data-modtab="audit"><i class="fa-solid fa-list-ol"></i> Order Execution Audit Trail</button>
+        <button class="modal-tab-btn" data-modtab="calendar"><i class="fa-solid fa-calendar-days text-cyan"></i> P&amp;L Calendar Heatmap</button>
         <button class="modal-tab-btn" data-modtab="whitepaper"><i class="fa-solid fa-book-open"></i> Quantitative Whitepaper &amp; Math</button>
       </div>
 
@@ -657,6 +661,94 @@
             <i class="fa-solid fa-skull-crossbones"></i> DEAD MAN SWITCH: PANIC LIQUIDATE ALL
           </button>
           <span style="font-size:0.72rem; color:#71717a; font-family:'JetBrains Mono';">SHA-256 Tamper-Proof Audit Signatures</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 7. PANTHEON FLEET & BOT TRADE JOURNAL MODAL ═══════════════════════ -->
+  <div class="bot-modal-overlay" id="botJournalModalOverlay" hidden>
+    <div class="bot-modal-content" style="max-width:980px;">
+      <div class="bot-modal-header" style="border-bottom:2px solid #22d3ee;">
+        <div>
+          <h2 style="margin:0; font-size:1.15rem; color:#22d3ee; font-family:'JetBrains Mono', monospace;">
+            📅 Pantheon Bot Fleet Trade Journal &amp; P&amp;L Calendar Heatmap
+          </h2>
+          <span style="font-size:0.75rem; color:#aaa;">Real-time realized alpha, win rates, and audited execution tickets across all 21 autonomous trading algorithms</span>
+        </div>
+        <button id="btnCloseBotJournalModal" class="btn-close">&times;</button>
+      </div>
+      <div class="bot-modal-body" style="padding:18px;">
+        <!-- Filter and Action Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:0.72rem; color:#94a3b8; font-family:'JetBrains Mono'; font-weight:700;">FILTER FLEET BOT:</span>
+            <select id="botJournalSelectFilter" style="background:#18181b; border:1px solid #3f3f46; color:#fff; padding:6px 12px; border-radius:6px; font-family:'JetBrains Mono'; font-size:0.78rem;">
+              <option value="ALL">🏛️ All 21 Pantheon Bots (Fleet Consolidated)</option>
+              <option value="OLYMPUS">🏛️ Mount Olympus Division (India 🇮🇳)</option>
+              <option value="VALHALLA">⚔️ Valhalla Division (US 🇺🇸)</option>
+            </select>
+          </div>
+          <button id="btnExportBotJournalCsv" class="btn-tool" style="font-size:0.75rem; padding:6px 12px; border:1px solid rgba(255,255,255,0.15); background:#18181b; color:#22d3ee; cursor:pointer; border-radius:4px;">
+            <i class="fa-solid fa-download"></i> Export Fleet Journal (CSV)
+          </button>
+        </div>
+
+        <!-- Fleet KPI Strip -->
+        <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:10px; margin-bottom:16px;">
+          <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px;">
+            <div style="font-size:0.65rem; color:#a1a1aa; font-family:'JetBrains Mono';">FLEET NET ALPHA</div>
+            <div id="fleetJournalNetPnl" style="font-size:1.15rem; font-weight:800; color:#10b981; font-family:'JetBrains Mono';">+₹12,48,500</div>
+          </div>
+          <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px;">
+            <div style="font-size:0.65rem; color:#a1a1aa; font-family:'JetBrains Mono';">TOTAL AUDITED FILLS</div>
+            <div id="fleetJournalTotalTrades" style="font-size:1.15rem; font-weight:800; color:#fff; font-family:'JetBrains Mono';">18,420</div>
+          </div>
+          <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px;">
+            <div style="font-size:0.65rem; color:#a1a1aa; font-family:'JetBrains Mono';">WIN RATE %</div>
+            <div id="fleetJournalWinRate" style="font-size:1.15rem; font-weight:800; color:#22d3ee; font-family:'JetBrains Mono';">78.6%</div>
+          </div>
+          <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px;">
+            <div style="font-size:0.65rem; color:#a1a1aa; font-family:'JetBrains Mono';">PROFIT FACTOR</div>
+            <div id="fleetJournalProfitFactor" style="font-size:1.15rem; font-weight:800; color:#fab005; font-family:'JetBrains Mono';">2.94</div>
+          </div>
+          <div style="background:#18181b; border:1px solid #27272a; padding:10px; border-radius:6px;">
+            <div style="font-size:0.65rem; color:#a1a1aa; font-family:'JetBrains Mono';">MAX DRAWDOWN</div>
+            <div id="fleetJournalMaxDD" style="font-size:1.15rem; font-weight:800; color:#10b981; font-family:'JetBrains Mono';">-0.82%</div>
+          </div>
+        </div>
+
+        <!-- Heatmap Calendar Grid -->
+        <div style="font-size:0.75rem; font-weight:700; color:#22d3ee; margin-bottom:8px; font-family:'JetBrains Mono';">
+          <i class="fa-solid fa-calendar-days"></i> 30-DAY PRODUCTION P&amp;L HEATMAP (CLICK TO INSPECT DAILY AUDIT FILLS):
+        </div>
+        <div class="calendar-heatmap-grid" id="botJournalCalendarGrid" style="margin-bottom:14px;">
+          <!-- Injected dynamically -->
+        </div>
+
+        <!-- Selected Day's Audit Details -->
+        <div style="font-size:0.75rem; font-weight:700; color:#fff; margin-bottom:6px; font-family:'JetBrains Mono';" id="botJournalDayHeader">
+          <i class="fa-solid fa-list-check text-cyan"></i> AUDITED EXECUTION TICKETS (RECENT FILLS)
+        </div>
+        <div style="max-height:220px; overflow-y:auto; border:1px solid #27272a; border-radius:6px;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.72rem; font-family:'JetBrains Mono';">
+            <thead>
+              <tr style="background:#27272a; color:#a1a1aa;">
+                <th style="padding:6px 8px; text-align:left;">Time</th>
+                <th style="padding:6px 8px; text-align:left;">Bot / Strategy</th>
+                <th style="padding:6px 8px; text-align:left;">Asset</th>
+                <th style="padding:6px 8px; text-align:left;">Side</th>
+                <th style="padding:6px 8px; text-align:right;">Shares</th>
+                <th style="padding:6px 8px; text-align:right;">Fill Price</th>
+                <th style="padding:6px 8px; text-align:left;">Venue</th>
+                <th style="padding:6px 8px; text-align:right;">Slippage</th>
+                <th style="padding:6px 8px; text-align:right;">Realized Alpha</th>
+              </tr>
+            </thead>
+            <tbody id="botJournalTradesTableBody">
+              <!-- Injected dynamically -->
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

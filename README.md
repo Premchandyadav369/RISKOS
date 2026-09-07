@@ -16,7 +16,7 @@
 
 **An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, multi-quantile timeseries forecasting, news-conditioned portfolio optimization, and deterministic mathematical explainability.**
 
-[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Prediction & Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [24/7 Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [52 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
+[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Prediction & Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [24/7 Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [57 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
 
 </div>
 
@@ -24,7 +24,7 @@
 
 ## 📑 Table of Contents
 1. [Executive Summary & Core Philosophy](#-executive-summary--core-philosophy)
-2. [End-to-End System Architecture (7 Diagrams)](#-end-to-end-system-architecture)
+2. [End-to-End System Architecture (12 Diagrams)](#-end-to-end-system-architecture)
    - [Diagram 1: Complete RISKOS Intelligence Ecosystem](#diagram-1-complete-riskos-intelligence-ecosystem)
    - [Diagram 2: Desk 8 — Portfolio Prediction & Quant Optimizer](#diagram-2-desk-8--portfolio-prediction--quant-optimizer-architecture)
    - [Diagram 3: Multi-Model Predictive Consensus Pipeline](#diagram-3-multi-model-predictive-consensus-pipeline)
@@ -32,6 +32,11 @@
    - [Diagram 5: 1-Click Execution Rebalance Blotter & Almgren-Chriss Slippage](#diagram-5-1-click-execution-rebalance-blotter--market-impact-pipeline)
    - [Diagram 6: Universal Multi-Exchange & Penny Stock Ingestion Engine](#diagram-6-universal-multi-exchange--penny-stock-ingestion-engine)
    - [Diagram 7: Universal INR ↔ USD Dual-Currency Reactive Engine](#diagram-7-universal-inr--usd-dual-currency-reactive-engine)
+   - [Diagram 8: Trade Journal & Multi-Bot P&L Attribution Engine](#diagram-8-trade-journal--multi-bot-pl-attribution-engine)
+   - [Diagram 9: OCO Bracket Order Execution & Automated Risk Guardrails](#diagram-9-oco-bracket-order-execution--automated-risk-guardrails)
+   - [Diagram 10: Tax Alpha Harvesting & Reinvestment Compounding Workflow](#diagram-10-tax-alpha-harvesting--reinvestment-compounding-workflow)
+   - [Diagram 11: Real-Time Price Anomaly Radar & Web Audio Synthesizer](#diagram-11-real-time-price-anomaly-radar--web-audio-synthesizer)
+   - [Diagram 12: Dividend Income & 5Y DRIP Compound Growth Engine](#diagram-12-dividend-income--5y-drip-compound-growth-engine)
 3. [The 8 Bloomberg-Grade Trading Desks](#-the-8-bloomberg-grade-trading-desks)
    - [Desk 1: Market Intelligence & HMM Regimes](#desk-1-market-intelligence--hmm-regime-detection-apphtml)
    - [Desk 2: Portfolio Tail Risk, VaR & CVaR](#desk-2-portfolio-tail-risk--black-litterman-allocator-apphtml)
@@ -56,7 +61,7 @@
    - [Rockafellar-Uryasev CVaR (95%) Direct LP Minimizer](#rockafellar-uryasev-cvar-95-direct-lp-minimizer)
    - [1-Click Rebalance Order Blotter with FIX 4.4 Tag 58](#1-click-rebalance-order-blotter-with-fix-44-tag-58)
 7. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
-8. [Master Catalog of ALL 52 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
+8. [Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
    - [Division I: AI, Machine Learning & Deep Predictive Alpha Labs (Labs 1–7)](#division-i-ai-machine-learning--deep-predictive-alpha-labs)
    - [Division II: Stochastic Calculus & Mathematical Finance Labs (Labs 8–14)](#division-ii-stochastic-calculus--mathematical-finance-labs)
    - [Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf) (Labs 15–21)](#division-iii-quantitative-interview-mastery-wall-street--canary-wharf)
@@ -302,6 +307,127 @@ flowchart TD
 
 ---
 
+### Diagram 8: Trade Journal & Multi-Bot P&L Attribution Engine
+
+```mermaid
+flowchart TD
+    subgraph ExecutionLedgers["Mark-to-Market Execution Ledgers"]
+        UserLedger["User Portfolio Fill Ledger (IndexedDB / State)"]
+        FleetLedger["21 Pantheon Fleet Bots Fill Stream (92-Day Production)"]
+    end
+
+    subgraph CalendarAggregator["Daily P&L Attribution Engine"]
+        UserLedger & FleetLedger --> Agg["Aggregate Realized P&L by Date (YYYY-MM-DD)"]
+        Agg --> MetricCalc["Calculate Metrics: Win Rate %, Profit Factor, Sharpe, Max Drawdown"]
+        Agg --> DailyBucket["Color-Coded Heatmap Tiles (Deep Emerald Alpha vs Crimson Loss)"]
+    end
+
+    DailyBucket --> ModalRender["Interactive Calendar View (modalUserJournal / botJournalModal)"]
+    ModalRender --> DayClick["User Clicks Specific Date Tile"]
+    DayClick --> Drilldown["Drilldown Table: Timestamps, Tickers, Quantities, Prices, Slippage (bps)"]
+    Drilldown --> CSVExport["1-Click CSV Audit Export ('trades_journal.csv')"]
+```
+
+---
+
+### Diagram 9: OCO Bracket Order Execution & Automated Risk Guardrails
+
+```mermaid
+flowchart TD
+    OrderPlaced["User Triggers Trade Entry (e.g. BUY 100 RELIANCE @ P_entry)"] --> ConfigBracket["Configure OCO Bracket: Stop-Loss (e.g. -2.5%) & Take-Profit (e.g. +5.0%)"]
+    
+    ConfigBracket --> CalcLevels["Calculate Discrete Trigger Prices: P_SL = P_entry · (1 - SL%), P_TP = P_entry · (1 + TP%)"]
+    CalcLevels --> ActiveBracketsList["Register in Active OCO Order Register"]
+    
+    subgraph TickEngine["400ms Micro-Tick Continuous Evaluation Loop"]
+        PriceStream["Brownian Bridge Micro-Tick P_t"] --> CheckBreach{"Check Breach Condition"}
+        CheckBreach -->|P_t <= P_SL| TriggerSL["Trigger Stop-Loss Market Exit"]
+        CheckBreach -->|P_t >= P_TP| TriggerTP["Trigger Take-Profit Market Exit"]
+        CheckBreach -->|Within Corridor| MaintainState["Maintain Bracket Active"]
+    end
+
+    ActiveBracketsList --> TickEngine
+    
+    TriggerSL & TriggerTP --> CancelComplement["Cancel Complementary Order (One-Cancels-Other Guarantee)"]
+    CancelComplement --> AudioSynthesizer["Play Web Audio Terminal Chime"]
+    AudioSynthesizer --> SlideToast["Render Sliding Toast Banner & Commit Fill to AuditLedger"]
+```
+
+---
+
+### Diagram 10: Tax Alpha Harvesting & Reinvestment Compounding Workflow
+
+```mermaid
+flowchart LR
+    subgraph PortfolioScan["Unrealized Position Scanner"]
+        Holdings["Current Portfolio Holdings"] --> LossFilter["Filter Unrealized Loss Positions: Current Price < Average Cost Basis"]
+        LossFilter --> HoldingPeriod{"Evaluate Holding Period"}
+        HoldingPeriod -->|< 12 Months| STCG["Classify STCG Loss (Tax Rate: 20% IN / 30% US)"]
+        HoldingPeriod -->|>= 12 Months| LTCG["Classify LTCG Loss (Tax Rate: 12.5% IN / 20% US)"]
+    end
+
+    STCG & LTCG --> AggregateAlpha["Compute Cumulative Tax Alpha Savings: Σ (Cost - Price) · Qty · TaxRate"]
+    
+    subgraph WashSaleEngine["Wash-Sale Prevention & Pair Matcher"]
+        LossPositions["Identified Underwater Assets"] --> MatchSub["Beta-Matched Substitute Assets (e.g. HDFCBANK -> ICICIBANK)"]
+        MatchSub --> GenTickets["Generate Synthetic Rebalance Sell & Swap Tickets"]
+    end
+
+    AggregateAlpha & GenTickets --> InjectBlotter["1-Click 'INJECT TAX-LOSS BLOTTER' into Rebalance Table"]
+    InjectBlotter --> AutoReinvest["Execute Fills & Reinvest Immediate Tax Refund Cash into Growth Assets"]
+```
+
+---
+
+### Diagram 11: Real-Time Price Anomaly Radar & Web Audio Synthesizer
+
+```mermaid
+flowchart TD
+    UserRule["User Configures Price or Drawdown Alert (Ticker, Condition >= or <=, Target Price, Note)"] --> AlertRegister["Register Alert in State: state.priceAlerts"]
+    
+    subgraph MicroTickRadar["400ms Live Evaluation Radar"]
+        TickFeed["Continuous Price Stream P_t"] --> RadarLoop["Iterate Active Alerts"]
+        RadarLoop --> EvalCondition{"P_t >= Target or P_t <= Target?"}
+        EvalCondition -->|Condition Satisfied| AlertFired["Fire Alert Notification Event"]
+        EvalCondition -->|Not Met| WaitNext["Wait Next Tick"]
+    end
+
+    AlertRegister --> MicroTickRadar
+    
+    subgraph WebAudioEngine["Browser-Native Web Audio API Synthesizer"]
+        AlertFired --> AudioContext["Initialize / Resume AudioContext (587Hz D5 -> 880Hz A5)"]
+        AudioContext --> GainEnvelope["Exponential Gain Envelope (0.22 -> 0.001 decay in 380ms)"]
+        GainEnvelope --> DualBell["Play Dual-Frequency Institutional Bloomberg Bell Chime"]
+    end
+
+    AlertFired --> ToastBanner["Render Sliding Bezier Toast Notification Banner"]
+    AlertFired --> UpdateStatus["Mark Alert Status as 'TRIGGERED' & Log Timestamp in Alert Table"]
+```
+
+---
+
+### Diagram 12: Dividend Income & 5Y DRIP Compound Growth Engine
+
+```mermaid
+flowchart TD
+    PortfolioPositions["User Portfolio Holdings (Shares Q_i, Price P_i, Yield Y_i%)"] --> CalcYield["Compute Weighted Portfolio Yield: Y_port = Σ w_i · Y_i"]
+    
+    subgraph DividendEngine["Distribution & Compounding Engine"]
+        CalcYield --> AnnualPayout["Annual Dividend Income: Cash_div = Σ (P_i · Q_i · Y_i)"]
+        AnnualPayout --> Waterfall["Quarterly Cash Flow Waterfall (Q1: Mar, Q2: Jun, Q3: Sep, Q4: Dec)"]
+        
+        Waterfall --> Simulation5Y["5-Year Growth Simulation Engine (252-day steps)"]
+        Simulation5Y --> PathWithoutDRIP["Path A (Without DRIP): Baseline Price Return CAGR (12%) with Dividends Cashed Out"]
+        Simulation5Y --> PathWithDRIP["Path B (With DRIP): Continuous Dividend Reinvestment W_t = W_0 · (1 + CAGR + Y_port)^t"]
+    end
+
+    PathWithoutDRIP & PathWithDRIP --> ChartJS["Interactive Chart.js Multi-Line Projection Canvas"]
+    ChartJS --> DisplayMetrics["Display Alpha Spread: Extra Wealth Accumulated via Reinvestment (₹ / $)"]
+```
+
+
+---
+
 ## 🖥️ The 8 Bloomberg-Grade Trading Desks
 
 ```mermaid
@@ -500,6 +626,43 @@ Each ticket is marked with FIX 4.4 Tag 58 (`Text` = `PORT-REBAL-EXEC`), estimate
 
 ---
 
+
+---
+
+## ⚡ Institutional Execution & Risk Management Suite
+
+RISKOS incorporates seven institutional-grade risk management and automated execution tools engineered for professional asset managers, family offices, and proprietary desks:
+
+### 1. Trade Journal & Daily P&L Calendar Attribution
+- **Everyday Layman Analogy**: A high-resolution fitness tracker for your money. Instead of guessing how your trading went over the month, every day on the calendar is shaded green for net profits or crimson for losses. Clicking any calendar tile instantly opens an audit sheet showing every trade made that day with execution prices and slippage.
+- **Institutional Quant Formulation**: Granular mark-to-market performance audit engine tracking daily realized alpha, win rate ($\%$), profit factor ($PF = \frac{\sum \text{Gains}}{\sum |\text{Losses}|}$), and average R-multiple across both the discretionary User Portfolio and all 21 autonomous Pantheon Fleet Bots with automated CSV export.
+
+### 2. OCO (One-Cancels-Other) Bracket Orders
+- **Everyday Layman Analogy**: Automated safety guardrails for every trade. When buying an asset, you simultaneously place an emergency brake (Stop-Loss, e.g., $-2.5\%$) and a take-profit ceiling (e.g., $+5.0\%$). If the price surges and hits your target, your profits are locked in and the stop-loss order is automatically cancelled.
+- **Institutional Quant Formulation**: Deterministic state machine evaluated inside the 400ms Brownian micro-tick loop. Automatically calculates trigger bounds $P_{\text{SL}} = P_{\text{entry}} \cdot (1 - \text{SL}\%)$ and $P_{\text{TP}} = P_{\text{entry}} \cdot (1 + \text{TP}\%)$. Upon breach of either threshold, generates instant FIX 4.4 market exits and cancels complementary orders with sub-millisecond latency.
+
+### 3. Tax-Loss Harvesting & Capital Gains Alpha (STCG/LTCG)
+- **Everyday Layman Analogy**: Turning market lemons into tax lemonade. If an investment drops, selling it lets you tell the tax authorities to cancel out the taxes you owe on your winning trades. At a 20% tax rate, a ₹1,00,000 loss generates ₹20,000 in immediate cash tax savings. Reinvesting that free cash refund into a similar strong company creates pure extra wealth.
+- **Institutional Quant Formulation**: Algorithmic capital gains tax offset engine. Computes harvestable losses $L = \sum \max(0, C_i - P_i)$ across Indian STCG (20%), LTCG (12.5%), and US Federal (30%) tax schedules. Automatically pairs underwater assets with beta-matched substitutes to prevent wash-sale violations and injects sell orders directly into the Rebalance Blotter.
+
+### 4. Price & Anomaly Alert Triggers (Web Audio Terminal Chimes)
+- **Everyday Layman Analogy**: A smart alarm clock for the market. Set a price ceiling, floor, or portfolio drawdown limit, and RISKOS will play a crisp Bloomberg bell chime and pop up a notification banner the second the market reaches your level.
+- **Institutional Quant Formulation**: Browser-native Web Audio API synthesizer generating dual-frequency Bloomberg terminal alert bells ($D_5\, 587\text{Hz} \rightarrow A_5\, 880\text{Hz}$) coupled with cubic-bezier sliding toast notification banners. Evaluates real-time price conditions ($P_t \ge T$, $P_t \le T$) and portfolio drawdown limits ($DD_t \ge 2.5\%$).
+
+### 5. Macro Catalyst Countdown Radar
+- **Everyday Layman Analogy**: A mission-control countdown clock for high-impact financial news. Tells you exactly how many days, hours, and minutes until the US Federal Reserve or RBI announces interest rates, or when inflation numbers drop.
+- **Institutional Quant Formulation**: Real-time ticking calendar ribbon tracking global macroeconomic catalysts: US FOMC Decisions, RBI Monetary Policy Meetings, Core CPI/PPI Inflation prints, NSE NIFTY Weekly 0DTE Option Expiries, and mega-cap quarterly earnings releases.
+
+### 6. Dividend Income & 5Y DRIP Compounding Projector
+- **Everyday Layman Analogy**: A rental income estimator for your stock portfolio. Calculates exactly how much cash dividends you will collect each month and quarter, and shows how reinvesting dividends snowballs your wealth over 5 years compared to spending the cash.
+- **Institutional Quant Formulation**: Computes annual projected dividend income in ₹ INR and $ USD from Security Master yield metadata, weighted portfolio yield (%), quarterly distribution waterfall (Q1-Q4), and generates an interactive Chart.js 5-year DRIP (Dividend Reinvestment Plan) compounding curve:
+$$Y_{\text{portfolio}} = \sum_{i=1}^N w_i \cdot Y_i, \quad W_{\text{DRIP}}(t) = W_0 \cdot (1 + r_{\text{cagr}} + Y_{\text{port}})^t$$
+
+### 7. 6x6 Pairwise Correlation Heatmap Matrix
+- **Everyday Layman Analogy**: A 'copycat' detector. If you own two stocks that always move in the exact same direction at the same time, you aren't truly diversified—you've just doubled your risk. The matrix flags any pair with correlation over 0.80 as a warning.
+- **Institutional Quant Formulation**: Trailing return correlation matrix $\rho_{ij} = \frac{\text{Cov}(R_i, R_j)}{\sigma_i \sigma_j}$ rendered as an interactive color-coded grid (deep green for high co-movement, slate gray for uncorrelated, crimson for inverse hedging). Automatically flags pairs with $\rho > 0.80$ to warn of hidden factor concentration.
+
+
 ## 🤖 24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)
 
 A command center managing **20 quantitative algorithms** segregated into two mythological pantheons:
@@ -534,7 +697,7 @@ A command center managing **20 quantitative algorithms** segregated into two myt
 
 ---
 
-## 🧪 Master Catalog of ALL 52 Interactive Quantitative Laboratories (`learn.html`)
+## 🧪 Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)
 
 The RISKOS Quantitative Simulation Laboratory comprises 52 interactive, deterministic calculation modules equipped with live parameter sliders, Chart.js visualizers, real-security fundamental feeds, and KaTeX mathematical substitutions:
 
@@ -622,11 +785,14 @@ The RISKOS Quantitative Simulation Laboratory comprises 52 interactive, determin
 | **51** | `compound_timeline`| **Multi-Year Wealth & Inflation** | $V_{\text{real}} = \frac{V_{\text{nominal}}}{(1 + i_{\text{inflation}})^n}$ | Real purchasing power preservation comparing nominal gains vs CPI inflation. |
 | **52** | `pe_eps` | **P/E Ratio, EPS & Earnings Yield** | $\text{P/E} = \frac{\text{Price}}{\text{EPS}}, \quad \text{Earnings Yield} = \frac{1}{\text{P/E}} = \frac{\text{EPS}}{\text{Price}}$ | Equity valuation benchmarking vs risk-free government bond yields ($E/P > r_f$). |
 
-### Division IX: Universal Momentum Trading & Cross-Asset Velocity Labs
+### Division IX: Momentum, Tax Alpha, Dividend Compounding & Dynamic Growth Labs
 | # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
 | :-: | :--- | :--- | :--- | :--- |
 | **53** | `tsmom_volatility_targeting` | **Time-Series Momentum & Vol Scaling** | $r_{t+1}^{\text{TSMOM}} = \text{sign}(R_{t,k}) \cdot \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_t}, \text{MaxLev}\right) \cdot r_{t+1}$ | Moskowitz, Ooi & Pedersen (2012) risk-parity momentum CTA sizing. |
 | **54** | `dual_momentum_antonacci` | **Gary Antonacci Dual Momentum** | $\text{Alloc}_t = \mathbb{I}(\max_i R_{i,12} > R_f) \cdot \arg\max_i R_{i,12} + \mathbb{I}(\dots) \cdot \text{Cash}$ | Gary Antonacci (2014) Global Equity Momentum (GEM) tactical crash filter. |
+| **55** | `tax_loss_harvesting` | **Tax-Loss Harvesting & Capital Gains Alpha** | $\text{Tax Alpha} = \sum_{i \in \text{Losses}} Q_i \cdot (C_i - P_i) \cdot \tau_{\text{tax}}$ | Algorithmic tax liability minimization and reinvestment alpha. |
+| **56** | `dividend_discount_model` | **Gordon Growth & Multi-Stage DDM** | $P_0 = \frac{D_1}{r - g} = \frac{D_0 (1+g)}{r - g}$ | Intrinsic fundamental equity valuation based on future cash dividends. |
+| **57** | `kelly_criterion_growth` | **Kelly Criterion Optimal Growth & Sizing** | $f^* = \frac{p(b+1) - 1}{b}, \quad g(f) = p \ln(1+bf) + q \ln(1-f)$ | Maximizes long-term geometric capital growth while avoiding gambler's ruin. |
 
 ---
 
@@ -701,6 +867,29 @@ $$\text{SqueezeOn}_t = \mathbb{I}\left( \text{EMA}_{20} + 2\hat{\sigma}_{20} < \
 
 ---
 
+### 16. Algorithmic Capital Gains Tax-Loss Harvesting Alpha
+$$\text{Tax Alpha Savings} = \sum_{i=1}^N \max(0, C_i - P_i) \cdot Q_i \cdot \tau_{\text{tax}}$$
+where $C_i$ is cost basis per share, $P_i$ is current market price, $Q_i$ is position quantity, and $\tau_{\text{tax}} \in \{0.20, 0.125, 0.30\}$ represents statutory STCG/LTCG rates. Reinvesting this tax saving yields incremental terminal compound wealth:
+$$W_T = W_0 (1 + r)^T + \text{Tax Alpha} \cdot (1 + r)^{T - t}$$
+
+### 17. Gordon Growth Dividend Discount Model (DDM)
+$$P_0 = \sum_{t=1}^{\infty} \frac{D_t}{(1 + r)^t} = \frac{D_0 (1 + g)}{r - g} = \frac{D_1}{r - g}, \quad r > g$$
+where $P_0$ is the intrinsic equity fair value, $D_1$ is next year's dividend per share, $r$ is the required rate of return (hurdle rate), and $g$ is the perpetual constant dividend growth rate.
+
+### 18. Continuous Kelly Optimal Capital Growth Rate
+$$g(f) = r_f + f(\mu - r_f) - \frac{1}{2} f^2 \sigma^2 \implies f^* = \frac{\mu - r_f}{\sigma^2}$$
+where $f^*$ is the fraction of total wealth to risk in the asset to maximize the expected geometric compounding growth rate $\mathbb{E}[\ln(W_T)]$.
+
+### 19. Trailing Pairwise Pearson Correlation Matrix
+$$\rho_{ij} = \frac{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)(R_{j,t} - \bar{R}_j)}{\sqrt{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)^2 \sum_{t=1}^T (R_{j,t} - \bar{R}_j)^2}}$$
+Flags concentration danger when $\rho_{ij} > 0.80$, prompting synthetic beta-hedging or factor diversification.
+
+### 20. Almgren-Chriss OCO Slippage Bound
+$$\text{Slippage}_{\text{OCO}} = \eta \cdot \left(\frac{X}{\tau}\right)^\alpha + \gamma \cdot X$$
+where $\eta$ is temporary market impact, $\gamma$ is permanent market impact, and $X$ is the liquidated bracket quantity.
+
+---
+
 ## 📑 Institutional Executive Risk Memorandum Compiler
 
 Integrated into `backend/engine/report_engine.py` and `executiveReportGenerator.js`, RISKOS compiles Bridgewater / Goldman Sachs LP style risk disclosures:
@@ -772,7 +961,7 @@ python -m pytest tests/unit/test_portfolio_optimizer.py
 # 3. Run Node.js terminal quantitative test suite (20/20 suites)
 node tests/terminal_suite.js
 
-# 4. Run 52 Quantitative Simulation Laboratories test suite
+# 4. Run 57 Quantitative Simulation Laboratories test suite
 node test_learn_engine.js
 
 # 5. Verify JavaScript syntax integrity
