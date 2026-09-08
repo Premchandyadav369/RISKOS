@@ -1,0 +1,49 @@
+{
+  "experiment_id": "EXP-002",
+  "title": "Portfolio Optimization Across Macroeconomic Regimes",
+  "category": "Asset Allocation & Systematic Portfolio Construction",
+  "author": "RISKOS Quantitative Research Group",
+  "date": "2026-09-08",
+  "universe": [
+    "AAPL",
+    "MSFT",
+    "GOOGL",
+    "AMZN",
+    "JPM"
+  ],
+  "strategies": [
+    "EQUAL_WEIGHT",
+    "MARKET_WEIGHT",
+    "MIN_VARIANCE",
+    "MAX_SHARPE",
+    "HIERARCHICAL_RISK_PARITY",
+    "RISK_PARITY",
+    "BLACK_LITTERMAN"
+  ],
+  "regimes_tested": [
+    "LOW_VOL_BULL",
+    "HIGH_VOL_BULL",
+    "RANGEBOUND_NEUTRAL",
+    "DEFENSIVE_CORRECTION",
+    "CRISIS_CRASH",
+    "LIQUIDITY_SQUEEZE"
+  ],
+  "friction_schedule": {
+    "commission_bps": 3.0,
+    "stt_tax_bps": 10.0,
+    "exchange_fee_bps": 0.3,
+    "half_spread_bps": 2.5,
+    "market_impact_model": "Almgren-Chriss (2000)"
+  },
+  "metrics": [
+    "CAGR",
+    "Volatility",
+    "Sharpe",
+    "Sortino",
+    "Calmar",
+    "Omega",
+    "MaxDD",
+    "Turnover",
+    "HHI"
+  ]
+}

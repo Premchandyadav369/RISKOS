@@ -282,3 +282,47 @@ Simulates VWAP / TWAP execution slicing with synthetic microstructure slippage.
 
 ### `POST /api/reports/memorandum`
 Compiles an institutional investment committee memorandum formatted to Goldman Sachs and Bridgewater asset management standards with cryptographic SHA-256 integrity seal.
+
+---
+
+## 11. Institutional Research Suite Endpoints (v3.0.0)
+
+### `GET /api/research/ensemble/rolling-eval`
+Executes genuine out-of-sample rolling-origin evaluation across multi-horizons (1d, 5d, 20d, 64d) for TimesFM, Prophet, Merton Jump Diffusion, and Ensemble against 6 mandatory statistical baselines (Random Walk, RW with Drift, Historical Mean, SMA-20, EMA, Seasonal Naive). Zero heuristic error multipliers.
+
+**Parameters**:
+- `symbol` (string, default: `"RELIANCE"`)
+- `horizons` (string, comma-separated, default: `"1,5,20"`)
+- `n_splits` (int, default: `5`)
+
+### `GET /api/research/regime/matrix`
+Evaluates market state across 6 institutional regimes (`LOW_VOL_BULL`, `HIGH_VOL_BULL`, `RANGEBOUND_NEUTRAL`, `DEFENSIVE_CORRECTION`, `CRISIS_CRASH`, `LIQUIDITY_SQUEEZE`) and tabulates historical model performance per regime.
+
+**Parameters**:
+- `symbol` (string, default: `"SPY"`)
+- `period` (string, default: `"2y"`)
+
+### `GET /api/research/portfolio/compare`
+Simultaneously benchmarks 8 allocation strategies (Equal Weight, Market Weight, Min Variance, Max Sharpe, HRP, Risk Parity, Black-Litterman, Custom) across 18 institutional metrics including Almgren-Chriss slippage, turnover %, HHI concentration, and tail beta.
+
+**Parameters**:
+- `tickers` (string, comma-separated)
+- `period` (string, default: `"1y"`)
+- `risk_free_rate` (float, default: `0.05`)
+
+### `GET /api/research/backtest/walk-forward`
+Executes research-grade walk-forward backtest with Almgren-Chriss quadratic slippage, turnover fees, STT, automated leakage guards, and outputs a formal `RESEARCH_AUDIT_REPORT`.
+
+**Parameters**:
+- `tickers` (string, comma-separated)
+- `period` (string, default: `"2y"`)
+- `splits` (int, default: `3`)
+- `initial_capital` (float, default: `10000000.0`)
+
+### `GET /api/research/data/quality`
+Audits input market data across 8 hygiene dimensions (non-positive prices, missing values, duplicate timestamps, non-monotonic sequencing, stale prices, price spikes, unadjusted splits, volume hygiene) and produces a 0–100 composite data quality score.
+
+**Parameters**:
+- `tickers` (string, comma-separated)
+- `period` (string, default: `"1y"`)
+

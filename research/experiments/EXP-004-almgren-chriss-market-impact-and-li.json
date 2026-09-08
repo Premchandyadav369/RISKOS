@@ -1,0 +1,31 @@
+{
+  "experiment_id": "EXP-004",
+  "title": "Almgren-Chriss Market Impact & Liquidity Participation Limits",
+  "category": "Execution Algorithms & Market Microstructure",
+  "author": "RISKOS Quantitative Research Group",
+  "date": "2026-09-08",
+  "participation_rates": [
+    0.01,
+    0.02,
+    0.05,
+    0.1,
+    0.2
+  ],
+  "adv_levels": [
+    10000000.0,
+    50000000.0,
+    250000000.0
+  ],
+  "trade_notionals": [
+    500000.0,
+    2000000.0,
+    10000000.0
+  ],
+  "half_spread_bps": 2.5,
+  "eta_impact_parameter": 0.15,
+  "output_metrics": [
+    "Slippage (bps)",
+    "Implementation Shortfall",
+    "Total Friction Cost"
+  ]
+}

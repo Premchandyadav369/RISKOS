@@ -6,9 +6,11 @@ Provides institutional-grade backtesting and model validation metrics:
    - Kupiec Proportion of Failures (POF) Likelihood Ratio Test
    - Christoffersen Independence Likelihood Ratio Test
    - Christoffersen Conditional Coverage Joint Test (LR_cc = LR_pof + LR_ind)
+   - Christoffersen & Pelletier (2004) Duration Test for VaR Clustering
    - Basel Committee Traffic Light Classification (Green / Yellow / Red zones)
    - Quantile / Pinball Loss Scoring Functions for VaR
    - Regulatory Quadratic Loss Scoring for CVaR / Expected Shortfall
+   - Multi-Alpha Comprehensive Risk Validation (90%, 95%, 97.5%, 99%)
 2. Forecasting Model Validation:
    - MAE, RMSE, sMAPE (Symmetric Mean Absolute Percentage Error)
    - MASE (Mean Absolute Scaled Error) against seasonal/naive baselines
@@ -17,11 +19,13 @@ Provides institutional-grade backtesting and model validation metrics:
 3. Strategy & Performance Validation:
    - Probabilistic Sharpe Ratio (PSR) (Bailey & Lopez de Prado, 2012)
    - Deflated Sharpe Ratio (DSR) (Bailey & Lopez de Prado, 2014) for selection bias
+   - Stationary Block Bootstrap Confidence Intervals (Politis & Romano, 1994)
 """
 
 import numpy as np
 import pandas as pd
 from scipy.stats import chi2, binom, norm
+from scipy.optimize import minimize
 from typing import Dict, Any, Union, List, Optional
 
 
@@ -36,7 +40,7 @@ def kupiec_pof_test(
 ) -> Dict[str, Any]:
     """
     Kupiec (1995) Proportion of Failures (POF) Likelihood Ratio Test.
-    Tests whether the empirical exception frequency matches the nominal coverage level p = 1 - confidence.
+    Tests whether empirical exception frequency matches nominal coverage level p = 1 - confidence.
     H0: Failure rate p_hat = p.
     LR_POF = -2 * ln( ( (1-p)^(N-x) * p^x ) / ( (1 - x/N)^(N-x) * (x/N)^x ) ) ~ chi2(1)
     """
@@ -44,8 +48,17 @@ def kupiec_pof_test(
     v = np.asarray(var_series, dtype=float)
     
     if len(r) != len(v) or len(r) == 0:
-        return {"error": "Invalid inputs: returns and var_series must have equal non-zero length"}
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": "Invalid inputs: returns and var_series must have equal non-zero length"
+        }
     
+    if np.all(np.isnan(r)) or np.all(np.isnan(v)):
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": "All observations are NaN"
+        }
+
     p = 1.0 - confidence
     n = len(r)
     
@@ -56,7 +69,7 @@ def kupiec_pof_test(
     
     if x == 0:
         # 0 exceptions: likelihood ratio against null
-        lr_stat = -2.0 * np.log((1.0 - p)**n)
+        lr_stat = -2.0 * np.log(max(1e-12, (1.0 - p)**n))
         p_value = float(1.0 - chi2.cdf(lr_stat, df=1))
         return {
             "test_name": "Kupiec Proportion of Failures",
@@ -68,7 +81,7 @@ def kupiec_pof_test(
             "nominal_rate": round(float(p), 4),
             "sample_size": n,
             "pass": bool(p_value > 0.05),
-            "decision": "ACCEPT H0 (Model Calibrated)" if p_value > 0.05 else "REJECT H0 (Miscalibrated)"
+            "decision": "Failed to reject null hypothesis H0 (Model Calibrated)" if p_value > 0.05 else "Reject null hypothesis H0 (Under-Predicting Losses)"
         }
     
     if x == n:
@@ -82,7 +95,7 @@ def kupiec_pof_test(
             "nominal_rate": round(float(p), 4),
             "sample_size": n,
             "pass": False,
-            "decision": "REJECT H0 (100% Breaches)"
+            "decision": "Reject null hypothesis H0 (100% Breaches - Severe Miscalibration)"
         }
     
     p_hat = x / n
@@ -104,7 +117,7 @@ def kupiec_pof_test(
         "nominal_rate": round(float(p), 4),
         "sample_size": n,
         "pass": bool(p_value > 0.05),
-        "decision": "ACCEPT H0 (Model Calibrated)" if p_value > 0.05 else "REJECT H0 (Miscalibrated)"
+        "decision": "Failed to reject null hypothesis H0 (Model Calibrated)" if p_value > 0.05 else "Reject null hypothesis H0 (Miscalibrated Coverage)"
     }
 
 
@@ -123,7 +136,10 @@ def christoffersen_independence_test(
     v = np.asarray(var_series, dtype=float)
     
     if len(r) != len(v) or len(r) < 2:
-        return {"error": "Invalid inputs: returns and var_series must have equal length >= 2"}
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": "Invalid inputs: returns and var_series must have equal length >= 2"
+        }
     
     I = (r < v).astype(int)
     
@@ -140,7 +156,7 @@ def christoffersen_independence_test(
             "p_value": 1.0,
             "n00": n00, "n01": n01, "n10": n10, "n11": n11,
             "pass": True,
-            "decision": "ACCEPT H0 (No Exceptions)"
+            "decision": "Failed to reject null hypothesis H0 (Zero Breaches Observed)"
         }
         
     pi0 = n01 / (n00 + n01) if (n00 + n01) > 0 else 0.0
@@ -148,12 +164,10 @@ def christoffersen_independence_test(
     pi = (n01 + n11) / total_transitions
     
     eps = 1e-12
-    # Log-likelihood under null (pi0 = pi1 = pi)
     log_L0 = 0.0
     if pi > 0 and (1.0 - pi) > 0:
         log_L0 = (n00 + n10) * np.log(max(eps, 1.0 - pi)) + (n01 + n11) * np.log(max(eps, pi))
         
-    # Log-likelihood under alternative
     log_L1 = 0.0
     if (n00 + n01) > 0:
         term0 = n00 * np.log(max(eps, 1.0 - pi0)) if (1.0 - pi0) > 0 else 0.0
@@ -174,7 +188,7 @@ def christoffersen_independence_test(
         "contingency_matrix": {"n00": n00, "n01": n01, "n10": n10, "n11": n11},
         "transition_probs": {"pi01": round(pi0, 4), "pi11": round(pi1, 4), "unconditional_pi": round(pi, 4)},
         "pass": bool(p_value > 0.05),
-        "decision": "ACCEPT H0 (Independent)" if p_value > 0.05 else "REJECT H0 (Clustering Detected)"
+        "decision": "Failed to reject null hypothesis H0 (Exceptions Independent)" if p_value > 0.05 else "Reject null hypothesis H0 (Exception Clustering Detected)"
     }
 
 
@@ -190,11 +204,11 @@ def christoffersen_conditional_coverage_test(
     Jointly tests both correct unconditional coverage and independence.
     """
     pof_res = kupiec_pof_test(returns, var_series, confidence)
-    if "error" in pof_res:
+    if "status" in pof_res and pof_res["status"] == "ESTIMATION_UNAVAILABLE":
         return pof_res
         
     ind_res = christoffersen_independence_test(returns, var_series, confidence)
-    if "error" in ind_res:
+    if "status" in ind_res and ind_res["status"] == "ESTIMATION_UNAVAILABLE":
         return ind_res
         
     lr_cc = float(pof_res["test_stat"] + ind_res["test_stat"])
@@ -209,7 +223,88 @@ def christoffersen_conditional_coverage_test(
         "pof_pass": pof_res["pass"],
         "ind_pass": ind_res["pass"],
         "pass": bool(p_value > 0.05),
-        "decision": "ACCEPT H0 (Adequate Conditional Coverage)" if p_value > 0.05 else "REJECT H0 (Inadequate Coverage)"
+        "decision": "Failed to reject null hypothesis H0 (Adequate Conditional Coverage)" if p_value > 0.05 else "Reject null hypothesis H0 (Inadequate Conditional Coverage)"
+    }
+
+
+def var_duration_test(
+    returns: Union[pd.Series, np.ndarray, List[float]],
+    var_series: Union[pd.Series, np.ndarray, List[float]],
+    confidence: float = 0.99
+) -> Dict[str, Any]:
+    """
+    Christoffersen & Pelletier (2004) Duration Test for VaR Exception Clustering.
+    Evaluates whether the duration (number of days between consecutive exceptions) follows
+    an exponential/geometric distribution with memorylessness property (b = 1).
+    Under H0: Continuous hazard rate is constant (no clustering, b = 1).
+    Under H1: Weibull hazard rate h(D) = a * b * D^(b-1) with b != 1.
+    LR_dur = -2 * ln( L(H0) / L(H1) ) ~ chi2(1)
+    """
+    r = np.asarray(returns, dtype=float)
+    v = np.asarray(var_series, dtype=float)
+
+    if len(r) < 20:
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": "Insufficient sample size (N < 20) for duration test"
+        }
+
+    exception_indices = np.where(r < v)[0]
+    n_exceptions = len(exception_indices)
+
+    if n_exceptions < 3:
+        return {
+            "test_name": "Christoffersen & Pelletier Duration Test",
+            "test_stat": 0.0,
+            "p_value": 1.0,
+            "durations_count": n_exceptions,
+            "mean_duration": float(len(r)),
+            "pass": True,
+            "decision": "Failed to reject null hypothesis H0 (Too Few Exceptions to Reject Memorylessness)"
+        }
+
+    # Calculate inter-arrival durations D_i
+    durations = np.diff(exception_indices)
+    d = durations.astype(float)
+    p_null = 1.0 - confidence
+    mean_d = float(np.mean(d))
+
+    # Log-likelihood under Null: Exponential with rate lambda = 1 / mean(D)
+    lam_0 = 1.0 / mean_d
+    ll_null = float(np.sum(np.log(lam_0) - lam_0 * d))
+
+    # Fit Weibull under Alternative using numerical optimization
+    def neg_ll_weibull(params):
+        a, b = params
+        if a <= 1e-6 or b <= 1e-6:
+            return 1e10
+        # Weibull pdf: f(d) = a * b * (a * d)^(b - 1) * exp(-(a * d)^b)
+        log_f = np.log(a) + np.log(b) + (b - 1.0) * np.log(a * d) - (a * d)**b
+        return -np.sum(log_f)
+
+    init_params = [lam_0, 1.0]
+    bnds = ((1e-5, None), (1e-5, None))
+    res = minimize(neg_ll_weibull, init_params, bounds=bnds, method='L-BFGS-B')
+
+    if res.success:
+        ll_alt = -res.fun
+        b_est = float(res.x[1])
+        lr_stat = max(0.0, -2.0 * (ll_null - ll_alt))
+    else:
+        b_est = 1.0
+        lr_stat = 0.0
+
+    p_val = float(1.0 - chi2.cdf(lr_stat, df=1))
+
+    return {
+        "test_name": "Christoffersen & Pelletier VaR Duration Test",
+        "test_stat": round(float(lr_stat), 4),
+        "p_value": round(float(p_val), 4),
+        "weibull_b_param": round(b_est, 4),
+        "mean_duration_days": round(mean_d, 2),
+        "expected_duration_days": round(1.0 / p_null, 2),
+        "pass": bool(p_val > 0.05),
+        "decision": "Failed to reject null hypothesis H0 (Memoryless Duration Process)" if p_val > 0.05 else "Reject null hypothesis H0 (Clustering / Volatility Memory Detected)"
     }
 
 
@@ -221,26 +316,16 @@ def basel_traffic_light(
     """
     Basel Committee on Banking Supervision (BCBS) Traffic Light Framework.
     For a 1-day 99% VaR over 250 trading days:
-    - Green Zone: 0 to 4 exceptions (Cum Prob <= 89.22%), Multiplier k = 3.00
-    - Yellow Zone: 5 to 9 exceptions (Cum Prob between 89.22% and 99.99%), Multiplier k = 3.40 to 3.85
-    - Red Zone: >= 10 exceptions (Cum Prob >= 99.99%), Multiplier k = 4.00, Model Presumed Invalid
+    - Green Zone: 0 to 4 exceptions, Multiplier k = 3.00
+    - Yellow Zone: 5 to 9 exceptions, Multiplier k = 3.40 to 3.85
+    - Red Zone: >= 10 exceptions, Multiplier k = 4.00, Model Presumed Invalid
     """
     p = 1.0 - confidence
     x = int(n_exceptions)
     n = int(n_observations)
     
-    # Cumulative binomial probability P(X <= x)
     cum_prob = float(binom.cdf(x, n, p))
     exact_prob = float(binom.pmf(x, n, p))
-    
-    # Standard Basel breakpoints for N=250, p=0.01:
-    # 0-4: Green
-    # 5: Yellow +0.40 (3.40)
-    # 6: Yellow +0.50 (3.50)
-    # 7: Yellow +0.65 (3.65)
-    # 8: Yellow +0.75 (3.75)
-    # 9: Yellow +0.85 (3.85)
-    # 10+: Red +1.00 (4.00)
     
     multiplier_adders = {
         0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0,
@@ -280,7 +365,6 @@ def pinball_loss(
     """
     Quantile / Pinball Loss scoring function:
     L_alpha(y, q) = (y - q) * (alpha - I(y < q))
-    Used by Basel/EBA to rank and evaluate quantile forecasts (e.g. 99% VaR, alpha = 0.01).
     """
     y = np.asarray(y_true, dtype=float)
     q = np.asarray(y_quantile, dtype=float)
@@ -302,17 +386,65 @@ def quadratic_loss_cvar(
     v = np.asarray(var_series, dtype=float)
     c = np.asarray(cvar_series, dtype=float)
     
-    # Breaches: r < v
     breaches = r < v
     if not np.any(breaches):
         return 0.0
     
-    # Quadratic shortfall penalty relative to CVaR
     diff = (r[breaches] - c[breaches]) ** 2
     return float(np.sum(diff) / len(r))
 
 
-# Backward compatibility aliases for existing RISKOS endpoints
+def comprehensive_risk_validation(
+    returns: Union[pd.Series, np.ndarray, List[float]],
+    var_dict: Dict[float, Union[pd.Series, np.ndarray, List[float]]],
+    cvar_dict: Optional[Dict[float, Union[pd.Series, np.ndarray, List[float]]]] = None
+) -> Dict[str, Any]:
+    """
+    Executes full regulatory and statistical risk model validation across multiple
+    confidence levels: alpha in {0.90, 0.95, 0.975, 0.99}.
+    """
+    r = np.asarray(returns, dtype=float)
+    results = {}
+
+    for alpha, v_series in var_dict.items():
+        v = np.asarray(v_series, dtype=float)
+        alpha_key = f"{int(alpha * 100)}%" if alpha >= 0.1 else f"{alpha * 100:.1f}%"
+
+        pof = kupiec_pof_test(r, v, confidence=alpha)
+        ind = christoffersen_independence_test(r, v, confidence=alpha)
+        cc = christoffersen_conditional_coverage_test(r, v, confidence=alpha)
+        dur = var_duration_test(r, v, confidence=alpha)
+        basel = basel_traffic_light(pof.get("n_exceptions", 0), len(r), confidence=alpha)
+        p_loss = pinball_loss(r, v, alpha=1.0 - alpha)
+
+        entry = {
+            "confidence": alpha,
+            "kupiec_pof": pof,
+            "christoffersen_independence": ind,
+            "conditional_coverage": cc,
+            "duration_clustering": dur,
+            "basel_traffic_light": basel,
+            "pinball_loss": round(p_loss, 6)
+        }
+
+        if cvar_dict and alpha in cvar_dict:
+            c_series = np.asarray(cvar_dict[alpha], dtype=float)
+            q_loss = quadratic_loss_cvar(r, v, c_series)
+            entry["quadratic_cvar_loss"] = round(q_loss, 6)
+
+        results[alpha_key] = entry
+
+    return {
+        "sample_size": len(r),
+        "calibrations": results,
+        "provenance": {
+            "method": "MultiAlphaRegulatoryValidation",
+            "standards": ["Basel III / BCBS 2019", "Christoffersen (1998)", "Christoffersen & Pelletier (2004)"]
+        }
+    }
+
+
+# Backward compatibility aliases
 kupiec_test = kupiec_pof_test
 christoffersen_test = christoffersen_independence_test
 
@@ -328,11 +460,6 @@ def root_mean_squared_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     return float(np.sqrt(np.mean((y_true - y_pred) ** 2)))
 
 def symmetric_mape(y_true: np.ndarray, y_pred: np.ndarray) -> float:
-    """
-    Symmetric Mean Absolute Percentage Error (sMAPE):
-    Bounded between 0% and 200%.
-    sMAPE = 200/N * sum( |y - y_hat| / (|y| + |y_hat| + eps) )
-    """
     denom = np.abs(y_true) + np.abs(y_pred) + 1e-10
     return float(np.mean(200.0 * np.abs(y_true - y_pred) / denom))
 
@@ -342,11 +469,6 @@ def mase(
     y_train: Union[np.ndarray, List[float]],
     seasonality: int = 1
 ) -> float:
-    """
-    Mean Absolute Scaled Error (MASE) (Hyndman & Koehler, 2006):
-    Scales MAE by the in-sample naive forecast error.
-    MASE < 1 indicates forecast is superior to a naive baseline.
-    """
     yt = np.asarray(y_true, dtype=float)
     yp = np.asarray(y_pred, dtype=float)
     ytr = np.asarray(y_train, dtype=float)
@@ -367,11 +489,6 @@ def directional_accuracy(
     y_pred: Union[np.ndarray, List[float]],
     baseline_level: Optional[Union[np.ndarray, List[float]]] = None
 ) -> Dict[str, Any]:
-    """
-    Directional Accuracy (Hit Ratio %) with Binomial Statistical Significance.
-    Tests whether directional calls outperform random 50% guessing.
-    H0: Directional probability p = 0.50.
-    """
     yt = np.asarray(y_true, dtype=float)
     yp = np.asarray(y_pred, dtype=float)
     
@@ -380,7 +497,6 @@ def directional_accuracy(
         true_dir = np.sign(yt - base)
         pred_dir = np.sign(yp - base)
     else:
-        # Consecutive direction
         true_dir = np.sign(yt[1:] - yt[:-1]) if len(yt) > 1 else np.sign(yt)
         pred_dir = np.sign(yp[1:] - yp[:-1]) if len(yp) > 1 else np.sign(yp)
         
@@ -398,8 +514,6 @@ def directional_accuracy(
         }
         
     hit_rate = (n_hits / valid_n) * 100.0
-    # Two-sided binomial test against p=0.5
-    # For one-sided test: P(X >= hits | p=0.5)
     p_val_one_sided = float(1.0 - binom.cdf(n_hits - 1, valid_n, 0.5))
     p_val_two_sided = float(min(1.0, 2.0 * min(p_val_one_sided, 1.0 - p_val_one_sided)))
     
@@ -419,10 +533,6 @@ def prediction_interval_coverage(
     upper_band: Union[np.ndarray, List[float]],
     nominal_confidence: float = 0.80
 ) -> Dict[str, Any]:
-    """
-    Prediction Interval Coverage Probability (PICP) and Mean Prediction Interval Width (MPIW).
-    Evaluates calibrated uncertainty bands (e.g. 10th to 90th percentile -> 80% nominal coverage).
-    """
     yt = np.asarray(y_true, dtype=float)
     lb = np.asarray(lower_band, dtype=float)
     ub = np.asarray(upper_band, dtype=float)
@@ -451,12 +561,6 @@ def probabilistic_sharpe_ratio(
     skewness: float = 0.0,
     kurtosis: float = 3.0
 ) -> float:
-    """
-    Probabilistic Sharpe Ratio (PSR) (Bailey & Lopez de Prado, 2012):
-    Calculates the probability that the true Sharpe Ratio exceeds a benchmark (e.g. 0.0),
-    correcting for sample size, skewness, and fat-tailed excess kurtosis.
-    PSR(SR*) = Phi( ( (SR - SR*) * sqrt(N - 1) ) / sqrt( 1 - gamma3*SR + ((gamma4 - 1)/4)*SR^2 ) )
-    """
     sr = float(observed_sr)
     sr_star = float(benchmark_sr)
     n = float(n_samples)
@@ -483,13 +587,6 @@ def deflated_sharpe_ratio(
     skewness: float = 0.0,
     kurtosis: float = 3.0
 ) -> Dict[str, Any]:
-    """
-    Deflated Sharpe Ratio (DSR) (Bailey & Lopez de Prado, 2014):
-    Computes the probability that observed Sharpe Ratio is genuine after correcting for
-    multiple hypothesis testing (data snooping / selection bias) across K trials.
-    Benchmark SR* is derived as the expected maximum Sharpe ratio under the null hypothesis of no skill:
-    E[max_k {SR_k}] ~= sqrt(2 * ln(K)) * (1 - EulerGamma / (2*ln(K))) * sigma_SR
-    """
     trials = np.asarray(sr_trials, dtype=float)
     k = len(trials)
     
@@ -506,12 +603,10 @@ def deflated_sharpe_ratio(
     var_sr = float(np.var(trials, ddof=1)) if k > 1 else 0.0
     sigma_sr = np.sqrt(max(1e-6, var_sr))
     
-    # Euler-Mascheroni constant
     euler_gamma = 0.5772156649
     z_k = (1.0 - euler_gamma) * norm.ppf(1.0 - 1.0 / k) + euler_gamma * norm.ppf(1.0 - 1.0 / (k * np.e))
     expected_max_sr = float(sigma_sr * z_k)
     
-    # Calculate PSR against the deflated null threshold
     dsr = probabilistic_sharpe_ratio(observed_sr, expected_max_sr, n_samples, skewness, kurtosis)
     
     return {
@@ -522,4 +617,104 @@ def deflated_sharpe_ratio(
         "sample_size": n_samples,
         "pass": bool(dsr > 0.95),
         "status": "SIGNIFICANT (p > 0.95 vs multiple tests)" if dsr > 0.95 else "REJECT (Likely Data-Snooping)"
+    }
+
+
+def stationary_block_bootstrap(
+    returns: Union[pd.Series, np.ndarray, List[float]],
+    n_bootstrap: int = 1000,
+    expected_block_size: int = 10,
+    risk_free_rate: float = 0.05,
+    random_seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Politis & Romano (1994) Stationary Block Bootstrap for Autocorrelated Time Series.
+    Resamples dependent returns preserving serial correlation and volatility clustering.
+    Calculates 95% bootstrap confidence intervals for:
+    - Sharpe Ratio
+    - Mean Return
+    - Volatility
+    - Sortino Ratio
+    - Maximum Drawdown
+    """
+    r = np.asarray(returns, dtype=float)
+    n = len(r)
+
+    if n < 10:
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": f"Sample size (N={n}) too small for block bootstrap (minimum 10 required)"
+        }
+
+    if np.all(r == r[0]) or np.var(r) < 1e-12:
+        return {
+            "status": "ESTIMATION_UNAVAILABLE",
+            "reason": "Series has zero variance (constant returns)"
+        }
+
+    rng = np.random.default_rng(random_seed)
+    p_geom = 1.0 / max(1.0, float(expected_block_size))
+
+    boot_sharpes = []
+    boot_means = []
+    boot_vols = []
+    boot_drawdowns = []
+
+    ann_factor = np.sqrt(252.0)
+    rf_daily = risk_free_rate / 252.0
+
+    for _ in range(n_bootstrap):
+        # Generate stationary bootstrap sample indices
+        boot_idx = []
+        curr = rng.integers(0, n)
+        while len(boot_idx) < n:
+            boot_idx.append(curr)
+            if rng.random() < p_geom:
+                curr = rng.integers(0, n)
+            else:
+                curr = (curr + 1) % n
+
+        sample_r = r[boot_idx]
+        mean_d = np.mean(sample_r)
+        vol_d = np.std(sample_r, ddof=1)
+        sr = ((mean_d - rf_daily) / vol_d) * ann_factor if vol_d > 1e-8 else 0.0
+
+        # Drawdown of cumulative returns
+        cum = np.cumprod(1.0 + sample_r)
+        peak = np.maximum.accumulate(cum)
+        dd = (cum - peak) / peak
+        max_dd = float(np.min(dd))
+
+        boot_sharpes.append(sr)
+        boot_means.append(mean_d * 252.0)
+        boot_vols.append(vol_d * ann_factor)
+        boot_drawdowns.append(max_dd)
+
+    return {
+        "n_bootstrap": n_bootstrap,
+        "expected_block_size": expected_block_size,
+        "sample_size": n,
+        "sharpe_ratio": {
+            "observed": round(float(((np.mean(r) - rf_daily) / max(1e-8, np.std(r, ddof=1))) * ann_factor), 4),
+            "ci_95": [round(float(np.percentile(boot_sharpes, 2.5)), 4), round(float(np.percentile(boot_sharpes, 97.5)), 4)],
+            "std_error": round(float(np.std(boot_sharpes)), 4)
+        },
+        "annualized_return": {
+            "observed": round(float(np.mean(r) * 252.0), 4),
+            "ci_95": [round(float(np.percentile(boot_means, 2.5)), 4), round(float(np.percentile(boot_means, 97.5)), 4)],
+            "std_error": round(float(np.std(boot_means)), 4)
+        },
+        "annualized_volatility": {
+            "observed": round(float(np.std(r, ddof=1) * ann_factor), 4),
+            "ci_95": [round(float(np.percentile(boot_vols, 2.5)), 4), round(float(np.percentile(boot_vols, 97.5)), 4)],
+            "std_error": round(float(np.std(boot_vols)), 4)
+        },
+        "max_drawdown": {
+            "observed": round(float(np.min((np.cumprod(1.0 + r) - np.maximum.accumulate(np.cumprod(1.0 + r))) / np.maximum.accumulate(np.cumprod(1.0 + r)))), 4),
+            "ci_95": [round(float(np.percentile(boot_drawdowns, 2.5)), 4), round(float(np.percentile(boot_drawdowns, 97.5)), 4)]
+        },
+        "provenance": {
+            "method": "Politis & Romano (1994) Stationary Bootstrap",
+            "seed": random_seed
+        }
     }
