@@ -81,8 +81,17 @@
    - [Monte Carlo 1,000-Path Wealth Survival Engine](#6-monte-carlo-1000-path-wealth-survival--sequence-risk)
    - [Asymmetric Portfolio Drift Bands & Rebalancing](#7-asymmetric-portfolio-drift-bands--tax-efficient-rebalancing)
    - [Quantitative Factor Radar & Barra Style Decomposition](#8-quantitative-factor-radar--barra-style-decomposition)
-9. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
-10. [Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
+9. [Tier-1 Front-Office Institutional Suite (Quant, IB, Insurance & Asset Management)](#-tier-1-front-office-institutional-suite)
+   - [0DTE Gamma Exposure (GEX) & Dealer Pinning Engine](#1-0dte-gamma-exposure-gex--dealer-pinning-engine-quant--prop-trading)
+   - [Self-Exciting Hawkes Point Process & Flash-Crash Radar](#2-self-exciting-hawkes-point-process--flash-crash-radar-hft-microstructure)
+   - [Private Equity LBO Debt Waterfall & Sponsor IRR/MOIC](#3-dynamic-leveraged-buyout-lbo-debt-waterfall--sponsor-irr-investment-banking)
+   - [Merton Structural Credit & Distance-to-Default (KMV EDF)](#4-merton-structural-credit--distance-to-default-dcm--moodys-kmv)
+   - [Solvency II Extreme Value Theory (EVT) 99.5% SCR Engine](#5-extreme-value-theory-evt--solvency-ii-995-scr-engine-insurance--reinsurance)
+   - [Actuarial ALM & Redington Key-Rate Immunization](#6-actuarial-alm--redington-key-rate-immunization-life--pension-solvency)
+   - [CLO Tranche Cash-Flow Priority of Payments Waterfall](#7-clo-tranche-cash-flow--loss-absorption-waterfall-structured-credit)
+   - [Option-Adjusted Spread (OAS) & Binomial Short-Rate Tree](#8-option-adjusted-spread-oas--binomial-short-rate-tree-fixed-income)
+10. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
+11. [Master Catalog of ALL 65 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-65-interactive-quantitative-laboratories-learnhtml)
    - [Division I: AI, Machine Learning & Deep Predictive Alpha Labs (Labs 1–7)](#division-i-ai-machine-learning--deep-predictive-alpha-labs)
    - [Division II: Stochastic Calculus & Mathematical Finance Labs (Labs 8–14)](#division-ii-stochastic-calculus--mathematical-finance-labs)
    - [Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf) (Labs 15–21)](#division-iii-quantitative-interview-mastery-wall-street--canary-wharf)
@@ -93,7 +102,7 @@
    - [Division VIII: Wealth Accumulation, Compounding & Valuation Labs (Labs 47–52)](#division-viii-wealth-accumulation-compounding--valuation-labs)
    - [Division IX: Momentum, Tax Alpha, Dividend Compounding & Dynamic Growth (Labs 53–57)](#division-ix-momentum-tax-alpha-dividend-compounding--dynamic-growth-labs-5357)
 11. [Universal Security Master (120+ Assets across NSE, BSE, US, Crypto, Penny Stocks)](#-universal-security-master-120-assets)
-12. [Pure Vector Mathematical Rigor & LaTeX Master Index (25 Proofs)](#-pure-vector-mathematical-rigor--latex-master-index)
+12. [Pure Vector Mathematical Rigor & LaTeX Master Index (30 Proofs)](#-pure-vector-mathematical-rigor--latex-master-index)
 13. [Institutional Executive Risk Memorandum Compiler](#-institutional-executive-risk-memorandum-compiler)
 14. [REST & Serverless API Reference (28+ Endpoints)](#-rest--serverless-api-reference)
 15. [Local Quickstart & Production Verification](#-local-quickstart--production-verification)
@@ -761,7 +770,7 @@ A command center managing **20 quantitative algorithms** segregated into two myt
 
 ---
 
-## 🧪 Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)
+## 🧪 Master Catalog of ALL 65 Interactive Quantitative Laboratories (`learn.html`)
 
 The RISKOS Quantitative Simulation Laboratory comprises 52 interactive, deterministic calculation modules equipped with live parameter sliders, Chart.js visualizers, real-security fundamental feeds, and KaTeX mathematical substitutions:
 
@@ -1076,3 +1085,201 @@ Open any workspace directly in modern browsers (Chrome, Edge, Safari, Firefox). 
 <div align="center">
   <sub>Built with mathematical rigor for quantitative researchers, portfolio managers, and computational finance practitioners worldwide.</sub>
 </div>
+
+---
+
+## 🏛️ Tier-1 Front-Office Institutional Suite (Quant, IB, Insurance & Asset Management)
+
+Bridging the gap between academic theory and front-office production workflows across Wall Street prop shops, bulge-bracket investment banking desks, Solvency II reinsurers, and structured credit asset managers.
+
+### 1. 0DTE Gamma Exposure (GEX) & Dealer Pinning Engine (Quant / Prop Trading)
+* **Real-World Impact**: Over 50% of daily option volume in SPX and NIFTY is 0DTE. Market maker delta-hedging flows dictate intraday volatility suppression and sudden trend breakout surges.
+* **Mathematical Core**:
+  $$\text{GEX}_K = \sum_{i \in \text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{j \in \text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100, \quad S^* = S \left(1 - \kappa \frac{\text{Net GEX}}{\text{Gross GEX}}\right)$$
+
+### 2. Self-Exciting Hawkes Point Process & Flash-Crash Radar (HFT Microstructure)
+* **Real-World Impact**: Order arrivals exhibit clustering in microsecond space. Captures self-feeding child order cascades and alerts before order book liquidity evaporation leads to flash crashes.
+* **Mathematical Core**:
+  $$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta}, \quad \mathbb{E}[C] = \frac{1}{1 - \min(0.99, \eta)}$$
+
+### 3. Dynamic Leveraged Buyout (LBO) Debt Waterfall & Sponsor IRR (Investment Banking)
+* **Real-World Impact**: The analytical lifeblood of private equity acquisitions. Decomposes returns into EBITDA growth, multiple expansion, and cash-sweep deleveraging across 5-year holding periods.
+* **Mathematical Core**:
+  $$\text{MOIC} = \frac{\text{EBITDA}_T \cdot M_{\text{exit}} - (D_0 - \sum \text{FCF}_t)}{E_0}, \quad \text{IRR} = (\text{MOIC})^{1/T} - 1$$
+
+### 4. Merton Structural Credit & Distance-to-Default (DCM & Moody's KMV)
+* **Real-World Impact**: Inverts equity prices and stock volatility to estimate the unobservable market value of firm enterprise assets $V_A$ and asset volatility $\sigma_A$, calculating 1Y default probabilities and credit spreads.
+* **Mathematical Core**:
+  $$\text{DD} = \frac{\ln(V_A/D) + (r - \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad \text{EDF} = \mathcal{N}(-\text{DD})$$
+
+### 5. Extreme Value Theory (EVT) & Solvency II 99.5% SCR Engine (Insurance & Reinsurance)
+* **Real-World Impact**: Reinsurance capital requirements under European Solvency II mandate holding reserves for 99.5% 1-in-200 year catastrophe losses. EVT fits Generalized Pareto tails to extreme cyclone, flood, and earthquake claims.
+* **Mathematical Core**:
+  $$\text{SCR}_{99.5} = u + \frac{\beta}{\xi} \left[ \left(\frac{N}{N_u}(0.005)\right)^{-\xi} - 1 \right], \quad \text{ES}_{99.5} = \frac{\text{SCR}_{99.5}}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}$$
+
+### 6. Actuarial ALM & Redington Key-Rate Immunization (Life & Pension Solvency)
+* **Real-World Impact**: Defined benefit pension schemes and life insurers face multi-decade annuity liabilities. Immunizes balance-sheet equity surplus against interest rate shifts by matching duration ($D_A = D_L$) and enforcing convexity surplus ($C_A > C_L$).
+* **Mathematical Core**:
+  $$\Delta E \approx -L(D_A - D_L)\Delta y + \frac{1}{2} L(C_A - C_L)(\Delta y)^2$$
+
+### 7. CLO Tranche Cash-Flow & Loss Absorption Waterfall (Structured Credit)
+* **Real-World Impact**: $1.2 Trillion market financing corporate debt. Simulates correlated defaults in leveraged loan collateral pools via Gaussian Copula, distributing cash flows through Senior AAA, AA, BBB, BB, and First-Loss Equity tranches.
+* **Mathematical Core**:
+  $$L_{\text{pool}} = \text{Pool} \cdot P_D \cdot (1 - R), \quad L_k = \min(S_k, \max(0, L_{\text{rem}}))$$
+
+### 8. Option-Adjusted Spread (OAS) & Binomial Short-Rate Tree (Fixed Income)
+* **Real-World Impact**: The gold standard on every Bloomberg `YAS` screen. Strips away the value of embedded early borrower call/prepayment options to reveal the pure, honest credit spread.
+* **Mathematical Core**:
+  $$P_{\text{callable}} = P_{\text{straight}} - V_{\text{call}}, \quad \text{OAS} = z_{\text{nominal}} - \frac{V_{\text{call}}}{P_0}\cdot 10000$$
+
+---
+
+### Mermaid Architecture Diagrams 17–20
+
+#### Diagram 17: 0DTE GEX Dealer Pinning & Dynamic Hedging Inversion
+```mermaid
+flowchart TD
+    subgraph OptionChain["Real-Time 0DTE Option Chain Feed"]
+        SpotPrice["Index Spot Price S_t"]
+        Strikes["Strikes K_1, K_2, ..., K_n"]
+        OI["Open Interest: CallOI_k, PutOI_k"]
+        IV["Implied Volatility σ_IV"]
+    end
+
+    subgraph GammaEngine["Dealer Gamma Aggregator"]
+        SpotPrice & Strikes & IV --> CalcGamma["Compute Analytical BSM Gamma: Γ_k = n(d_1) / (S σ √T)"]
+        CalcGamma & OI --> StrikeGex["Calculate Strike GEX: GEX_k = Γ_k · S · (CallOI - PutOI) · 100"]
+        StrikeGex --> NetGex["Aggregate Net Dealer GEX = Σ GEX_k"]
+        StrikeGex --> ZeroGamma["Solve Zero-Gamma Flip Strike: S* where Net GEX = 0"]
+    end
+
+    subgraph MarketDynamics["Feedback Loop & Telemetry"]
+        NetGex --> RegimeCheck{"Net GEX > 0?"}
+        RegimeCheck -->|Yes: Long Gamma| Dampen["Volatility Dampening: Dealers fade moves (Pinning Gravity at S*)"]
+        RegimeCheck -->|No: Short Gamma| Amplify["Volatility Expansion: Dealers chase moves (Explosive Breakout)"]
+        Dampen & Amplify --> RebalanceBlotter["1-Click Tactical Gamma Hedge Injection into Blotter"]
+    end
+```
+
+#### Diagram 18: LBO Multi-Tier Debt Waterfall & Cash Sweep Deleveraging
+```mermaid
+flowchart LR
+    subgraph DealEntry["LBO Transaction Structuring"]
+        EV["Purchase Enterprise Value (EV_0)"] --> Sources["Sources: 60% Senior Debt + 40% Sponsor Equity"]
+        EBITDA["Entry EBITDA (E_0)"] --> Coverage["Debt Service Coverage Ratio (DSCR)"]
+    end
+
+    subgraph DebtWaterfall["5-Year Cash-Sweep Amortization"]
+        Sources --> Revolver["1. Revolver (Working Capital)"]
+        Revolver --> TermLoanA["2. Term Loan A (Amortizing)"]
+        TermLoanA --> TermLoanB["3. Term Loan B (Bullet Senior)"]
+        FCF["Annual Free Cash Flow (FCF_t)"] --> Sweep["100% Mandatory Cash Sweep to Senior Debt"]
+        Sweep --> TermLoanA & TermLoanB
+    end
+
+    subgraph ExitAttribution["Exit & Returns Attribution"]
+        ExitEV["Year 5 Exit EV = EBITDA_5 · ExitMultiple"]
+        EndDebt["Remaining Debt D_5"]
+        ExitEV & EndDebt --> ExitEquity["Ending Equity = Exit EV - D_5"]
+        ExitEquity --> Metrics["Calculate Sponsor IRR % & MOIC Multiple (e.g. 18.3% IRR, 2.32x MOIC)"]
+    end
+```
+
+#### Diagram 19: Solvency II EVT Catastrophe Tail Risk & SCR Capital Sizing
+```mermaid
+flowchart TD
+    subgraph LossData["Historical Catastrophe Claims"]
+        Claims["Historical Flood, Cyclone & Market Losses X_1, ..., X_N"] --> ThresholdFilter["Filter Excess Losses over High Threshold u: Y_i = X_i - u > 0"]
+        ThresholdFilter --> Exceedances["Exceedance Count: N_u out of N total"]
+    end
+
+    subgraph EvtEngine["Pickands-Balkema-de Haan GPD Engine"]
+        Exceedances --> FitGpd["Fit Generalized Pareto Distribution (GPD): Shape ξ, Scale β"]
+        FitGpd --> CheckTail{"Tail Index ξ > 0?"}
+        CheckTail -->|Yes| Frechet["Fréchet Heavy Tail (Polynomial Decay, Severe Catastrophes)"]
+        CheckTail -->|No| Gumbel["Light / Exponential Tail"]
+    end
+
+    subgraph SolvencyMetrics["Solvency II Regulatory Capital Sizing"]
+        Frechet --> CalcVar["Compute 99.5% 1-in-200 Year Solvency Capital Requirement (SCR)"]
+        CalcVar --> CalcEs["Compute Expected Shortfall (ES_99.5) Tail Risk"]
+        CalcVar & CalcEs --> CatBondPricing["Price Catastrophe Bond Reinsurance Coupon Spread (bps)"]
+    end
+```
+
+#### Diagram 20: CLO Tranche Cash Flow Priority of Payments & Default Absorption
+```mermaid
+flowchart TD
+    subgraph LoanPool["Collateral Loan Pool ($500M)"]
+        Loans["150 Senior Secured Corporate Loans"] --> Copula["Gaussian/Student-t Copula Correlated Defaults"]
+        Copula --> PoolLoss["Compute Pool Gross Loss = Pool · DefaultRate · (1 - Recovery)"]
+    end
+
+    subgraph CashFlowWaterfall["Priority of Payments (Senior to Junior)"]
+        PoolLoss --> EquityTranche["First-Loss Equity Tranche (0% - 10% Subordination)"]
+        EquityTranche -->|Absorbs Initial Losses| JuniorBB["Junior BB Tranche (10% - 15%)"]
+        JuniorBB --> MezzBBB["Mezzanine BBB Tranche (15% - 25%)"]
+        MezzBBB --> MezzAA["Mezzanine AA Tranche (25% - 35%)"]
+        MezzAA --> SeniorAAA["Senior AAA Tranche (35% - 100% Subordination)"]
+    end
+
+    subgraph ProtectionTelemetry["Ratings & Impairment Status"]
+        SeniorAAA --> AaaClean["AAA Impairment: 0.0% (Pristine SOFR + 130 bps)"]
+        EquityTranche --> EqHit["Equity Impairment: Reflects Collateral Defaults (14.0% Yield Hit)"]
+    end
+```
+
+---
+
+### Pure Vector LaTeX Proofs 26–30
+
+#### Proof 26: Dealer Delta-Hedging Velocity & Zero-Gamma Inversion
+Let market maker delta be $\Delta_{\text{MM}}(S) = -\sum_{i} \phi_i \Delta_i(S)$. The change in dealer shares required per unit change in underlying price is:
+$$\frac{\partial \Delta_{\text{MM}}}{\partial S} = -\text{GEX}(S) = -\left[ \sum_{\text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{\text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100 \right]$$
+When underlying price moves by $dS_t$, dealers execute hedging flow $dQ_t = -\text{GEX}(S_t) dS_t$. By market microstructure equilibrium ($dS_t = \lambda_{\text{Kyle}} dQ_t^{\text{net}}$):
+$$\frac{dS_t}{dt} = \mu S_t - \lambda \cdot \text{GEX}(S_t) \frac{dS_t}{dt} \implies \frac{dS_t}{dt} = \frac{\mu S_t}{1 + \lambda \cdot \text{GEX}(S_t)}$$
+* If $\text{GEX} > 0$, the denominator exceeds 1, dampening price velocity (mean-reverting volatility suppression).
+* If $\text{GEX} < -1/\lambda$, the denominator flips negative, triggering finite-time explosive trend runaway.
+The zero-gamma boundary satisfies $\text{GEX}(S^*) = 0$. $\blacksquare$
+
+#### Proof 27: Merton Structural Credit Bivariate Inversion & Distance-to-Default
+Let firm asset value follow geometric Brownian motion $dV_t = \mu V_t dt + \sigma_A V_t dW_t$. Equity is a call option on firm assets maturing at debt maturity $T$:
+$$E = V_A \mathcal{N}(d_1) - D e^{-rT} \mathcal{N}(d_2), \quad d_1 = \frac{\ln(V_A/D) + (r + \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad d_2 = d_1 - \sigma_A \sqrt{T}$$
+By Itô's lemma, the diffusion coefficient of equity satisfies $\sigma_E E = \frac{\partial E}{\partial V_A} \sigma_A V_A = \mathcal{N}(d_1) \sigma_A V_A$. This defines a non-linear bivariate system in unobservables $(V_A, \sigma_A)$:
+$$\begin{cases} f_1(V_A, \sigma_A) = V_A \mathcal{N}(d_1) - D e^{-rT}\mathcal{N}(d_2) - E = 0 \\ f_2(V_A, \sigma_A) = \mathcal{N}(d_1) \sigma_A V_A - \sigma_E E = 0 \end{cases}$$
+Solving via 2D Newton-Raphson yields $(V_A^*, \sigma_A^*)$. Distance-to-Default is the number of standard deviations firm asset value sits above debt barrier $D$:
+$$\text{DD} = \frac{\ln(V_A^* / D) + (\mu_A - \frac{1}{2}{\sigma_A^*}^2)T}{\sigma_A^* \sqrt{T}} \implies \text{EDF} = \mathcal{N}(-\text{DD}). \quad \blacksquare$$
+
+#### Proof 28: Pickands-Balkema-de Haan Theorem & Solvency II 99.5% SCR
+Let $X$ have distribution function $F$. The conditional excess distribution over threshold $u$ is $F_u(y) = \Pr(X - u \le y \mid X > u)$. By the Pickands-Balkema-de Haan theorem (1974, 1975):
+$$\lim_{u \to x_F} \sup_{0 \le y < x_F - u} |F_u(y) - G_{\xi, \beta(u)}(y)| = 0$$
+where $G_{\xi, \beta}(y) = 1 - (1 + \xi y / \beta)^{-1/\xi}$ is the Generalized Pareto Distribution.
+The tail probability for $x > u$ is $P(X > x) = P(X > u) P(X - u > x - u \mid X > u) = \frac{N_u}{N} \left( 1 + \xi \frac{x - u}{\beta} \right)^{-1/\xi}$.
+Setting $P(X > x) = 1 - q$ with Solvency II quantile $q = 0.995$:
+$$\text{VaR}_q = u + \frac{\beta}{\xi} \left[ \left( \frac{N}{N_u} (1 - q) \right)^{-\xi} - 1 \right]$$
+Expected Shortfall integrates the conditional excess:
+$$\text{ES}_q = \mathbb{E}[X \mid X > \text{VaR}_q] = \text{VaR}_q + \frac{\beta + \xi(\text{VaR}_q - u)}{1 - \xi} = \frac{\text{VaR}_q}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}. \quad \blacksquare$$
+
+#### Proof 29: Redington Duration & Convexity Immunization of Balance Sheet Surplus
+Let equity surplus be $E(y) = A(y) - L(y)$ where $A(y)$ and $L(y)$ are asset and liability present values at yield $y$. Expanding $E(y + \Delta y)$ via second-order Taylor series around current yield $y_0$:
+$$\Delta E = \frac{dE}{dy} \Delta y + \frac{1}{2} \frac{d^2E}{dy^2} (\Delta y)^2 + \mathcal{O}((\Delta y)^3)$$
+Substituting modified duration $D = -\frac{1}{P} \frac{dP}{dy}$ and convexity $C = \frac{1}{P} \frac{d^2P}{dy^2}$:
+$$\frac{dE}{dy} = \frac{dA}{dy} - \frac{dL}{dy} = -A D_A + L D_L, \quad \frac{d^2E}{dy^2} = A C_A - L C_L$$
+Assuming fully funded initial surplus $A = L$:
+$$\Delta E \approx -L(D_A - D_L) \Delta y + \frac{1}{2} L(C_A - C_L) (\Delta y)^2$$
+For $\Delta E \ge 0$ for all arbitrary yield shifts $\Delta y \in \mathbb{R}$:
+1. First-order condition: $\frac{dE}{dy} = 0 \implies D_A = D_L$ (Duration Matching).
+2. Second-order condition: $\frac{d^2E}{dy^2} > 0 \implies C_A > C_L$ (Convexity Surplus). $\blacksquare$
+
+#### Proof 30: Calibrated Short-Rate Tree Backward Induction & Option-Adjusted Spread (OAS)
+Let short rate $r_{i,j}$ evolve on a recombining binomial lattice: $r_{i,j} = r_{i,0} e^{2j \sigma \sqrt{\Delta t}}$ for $j = 0, \dots, i$.
+For a bond with face value $M$, coupon $C$, and call protection schedule with call price $K_i$:
+At maturity $T = N \Delta t$: $V_{N,j} = M + C$.
+For time steps $i = N-1, \dots, 0$, backward induction discounts expected next-period cash flows adjusted for spread $s = \text{OAS}$:
+$$\widetilde{V}_{i,j} = \frac{1}{1 + (r_{i,j} + s)\Delta t} \left[ q V_{i+1, j+1} + (1 - q) V_{i+1, j} \right] + C$$
+where risk-neutral branching probability $q = 0.5$.
+Applying the issuer early exercise call boundary:
+$$V_{i,j} = \begin{cases} \min(K_i, \widetilde{V}_{i,j}) & \text{if bond is callable at step } i \\ \widetilde{V}_{i,j} & \text{otherwise} \end{cases}$$
+The model price $P_{\text{model}}(s) = V_{0,0}(s)$ is monotonically decreasing in $s$. The unique Option-Adjusted Spread $s^*$ satisfies $P_{\text{model}}(s^*) = P_{\text{market}}^{\text{clean}}$.
+The embedded call option value is $V_{\text{call}} = P_{\text{straight}} - P_{\text{market}}$, with option cost in spread basis points:
+$$\text{Option Cost (bps)} = z_{\text{nominal}} - s^*. \quad \blacksquare$$

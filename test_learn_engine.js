@@ -125,6 +125,46 @@ const kellyRes = LearnMathEngine.getModuleById('kelly_criterion_growth').calc({ 
 assert(kellyRes.focalValue === '33.3%', `Kelly optimal fraction is 33.3% (got ${kellyRes.focalValue})`);
 assert(kellyRes.plainResult.includes('Half-Kelly'), 'Kelly module provides institutional Half-Kelly recommendation');
 
+// 24. 0DTE Gamma Exposure (GEX) & Dealer Pinning
+const gexRes = LearnMathEngine.getModuleById('gex_0dte_pinning').calc({ spotPrice: 24000, callOi: 1250000, putOi: 980000, atmVol: 14.5, hoursToExpiry: 3.5 });
+assert(gexRes.focalValue.includes('Cr'), `0DTE Net GEX calculated in Crores (got ${gexRes.focalValue})`);
+assert(gexRes.plainResult.includes('Pinning Probability'), '0DTE GEX provides dealer pinning probability');
+
+// 25. HFT Hawkes Point Process & Liquidity Cascades
+const hawkesRes = LearnMathEngine.getModuleById('hawkes_liquidity_cascades').calc({ baselineRate: 2.5, excitationAlpha: 1.15, decayBeta: 1.40, shockSize: 10.0 });
+assert(hawkesRes.focalValue.includes('0.82'), `Hawkes branching ratio is 0.82 (got ${hawkesRes.focalValue})`);
+assert(hawkesRes.plainResult.includes('cluster size'), 'Hawkes provides expected order cluster size');
+
+// 26. Private Equity LBO Debt Waterfall & Sponsor IRR
+const lboRes = LearnMathEngine.getModuleById('lbo_debt_waterfall').calc({ purchaseEv: 1000, entryEbitda: 100, debtPct: 60.0, exitMultiple: 10.0, annualFcf: 50.0, holdingYears: 5 });
+assert(lboRes.focalValue.includes('18.3%'), `LBO 5Y Sponsor IRR is 18.3% (got ${lboRes.focalValue})`);
+assert(lboRes.focalValue.includes('2.32x MOIC'), 'LBO calculates accurate multiple on invested capital');
+
+// 27. Merton Structural Credit & Distance-to-Default (KMV EDF)
+const mertonRes = LearnMathEngine.getModuleById('merton_structural_default').calc({ equityValue: 500, debtFace: 800, equityVol: 35.0, riskFreeRate: 5.5, timeHorizon: 1.0 });
+assert(mertonRes.focalValue.includes('3.57σ'), `Merton distance to default is 3.57σ (got ${mertonRes.focalValue})`);
+assert(mertonRes.plainResult.includes('Investment Grade') || mertonRes.plainResult.includes('AAA') || mertonRes.plainResult.includes('A / BBB+'), 'Merton outputs credit rating classification');
+
+// 28. Extreme Value Theory & Solvency II 99.5% SCR
+const evtRes = LearnMathEngine.getModuleById('solvency_ii_evt_cat').calc({ thresholdLoss: 50.0, shapeXi: 0.28, scaleBeta: 18.5, totalObservations: 1000, exceedances: 50 });
+assert(evtRes.focalValue.includes('109.83'), `Solvency II 99.5% SCR VaR is 109.83 (got ${evtRes.focalValue})`);
+assert(evtRes.plainResult.includes('Expected Shortfall'), 'EVT calculates actuarial Expected Shortfall');
+
+// 29. Actuarial ALM & Redington Key-Rate Immunization
+const almRes = LearnMathEngine.getModuleById('redington_alm_immunization').calc({ liabilityPV: 1000, liabilityDuration: 14.5, liabilityConvexity: 260.0, assetDuration: 14.5, assetConvexity: 290.0, yieldShockBps: 100 });
+assert(almRes.focalValue.includes('IMMUNIZED'), `Redington condition satisfied and portfolio immunized (got ${almRes.focalValue})`);
+assert(almRes.focalValue.includes('1.50'), 'Convexity surplus produces positive alpha under rate shock');
+
+// 30. CLO Tranche Cash-Flow & Loss Absorption Waterfall
+const cloRes = LearnMathEngine.getModuleById('clo_tranche_waterfall').calc({ poolSize: 500, poolDefaultRate: 4.0, recoveryRate: 65.0 });
+assert(cloRes.focalValue.includes('7.00'), `CLO collateral pool loss is 7.00M (got ${cloRes.focalValue})`);
+assert(cloRes.plainResult.includes('First-Loss Equity'), 'CLO prioritizes payments and allocates losses to Equity tranche');
+
+// 31. Option-Adjusted Spread (OAS) & Binomial Tree
+const oasRes = LearnMathEngine.getModuleById('oas_binomial_tree').calc({ bondMarketPrice: 102.5, parValue: 100.0, couponRate: 7.0, callPrice: 101.5, callYear: 2, maturityYears: 5, interestRateVol: 15.0 });
+assert(oasRes.focalValue.includes('180 bps'), `Option-Adjusted Spread is 180 bps (got ${oasRes.focalValue})`);
+assert(oasRes.plainResult.toLowerCase().includes('option cost'), 'OAS strips out embedded call option cost');
+
 console.log(`\n═══════════════════════════════════════════════════════════════`);
 console.log(`📊 TEST RESULTS: ${passed} / ${total} MODULES PASSED (100%)`);
 console.log('═══════════════════════════════════════════════════════════════\n');
@@ -134,3 +174,4 @@ if (passed === total) {
 } else {
   process.exit(1);
 }
+

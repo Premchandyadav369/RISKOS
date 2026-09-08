@@ -297,6 +297,18 @@
               <button class="btn-tool secondary" id="btnResetDefaultHoldings"><i class="fa-solid fa-rotate-left"></i> Reset Template</button>
             </div>
           </div>
+          <!-- Institutional & Front-Office Workbench Strip -->
+          <div class="institutional-workbench-strip">
+            <span class="institutional-strip-label"><i class="fa-solid fa-building-columns text-cyan"></i> FRONT-OFFICE &amp; INSTITUTIONAL DESKS:</span>
+            <button class="btn-tool-inst" id="btnGexStudio"><i class="fa-solid fa-bolt text-yellow"></i> 0DTE GEX Pinning</button>
+            <button class="btn-tool-inst" id="btnHawkesStudio"><i class="fa-solid fa-wave-square text-rose"></i> Hawkes Liquidity</button>
+            <button class="btn-tool-inst" id="btnLboStudio"><i class="fa-solid fa-briefcase text-amber"></i> LBO &amp; M&amp;A Waterfall</button>
+            <button class="btn-tool-inst" id="btnMertonCredit"><i class="fa-solid fa-landmark text-cyan"></i> Merton Structural Credit</button>
+            <button class="btn-tool-inst" id="btnEvtSolvency"><i class="fa-solid fa-shield-halved text-rose"></i> Solvency II EVT Cat</button>
+            <button class="btn-tool-inst" id="btnAlmImmunization"><i class="fa-solid fa-scale-unbalanced text-emerald"></i> Actuarial ALM</button>
+            <button class="btn-tool-inst" id="btnCloWaterfall"><i class="fa-solid fa-layer-group text-sky"></i> CLO Waterfall</button>
+            <button class="btn-tool-inst" id="btnOasTree"><i class="fa-solid fa-tree text-indigo"></i> OAS Callable Tree</button>
+          </div>
 
           <div class="table-responsive">
             <table class="obs-table" id="holdingsTable">
@@ -1298,7 +1310,512 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════ LIVE BLOOMBERG ALERT TOASTS CONTAINER ═══════════════════════ -->
+
+  <!-- ═══════════════════════ MODAL 1: 0DTE GEX PINNING STUDIO ═══════════════════════ -->
+  <div class="modal-overlay" id="modalGexStudio">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-bolt text-yellow modal-icon"></i>
+          <div>
+            <h3 class="modal-title">0DTE GAMMA EXPOSURE (GEX) &amp; DEALER PINNING ENGINE</h3>
+            <p class="modal-subtitle">Real-time dealer delta-hedging flows, zero-gamma flip strikes, and expiry pinning gravity.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseGexStudio"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">INDEX SPOT (S):</label>
+            <input type="number" id="gexSpotInput" class="modal-num-input" value="24000" step="50" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ATM CALL OI (CONTRACTS):</label>
+            <input type="number" id="gexCallOiInput" class="modal-num-input" value="1250000" step="50000" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ATM PUT OI (CONTRACTS):</label>
+            <input type="number" id="gexPutOiInput" class="modal-num-input" value="980000" step="50000" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">IMPLIED VOL (IV %):</label>
+            <input type="number" id="gexIvInput" class="modal-num-input" value="14.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">HOURS TO EXPIRY:</label>
+            <input type="number" id="gexHoursInput" class="modal-num-input" value="3.5" step="0.5" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">NET DEALER GEX</span>
+            <span class="survival-kpi-val text-green" id="gexNetVal">+₹157.6 Cr</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">ZERO-GAMMA FLIP STRIKE (S*)</span>
+            <span class="survival-kpi-val text-cyan" id="gexFlipVal">23,920</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EXPIRY PINNING PROBABILITY</span>
+            <span class="survival-kpi-val text-yellow" id="gexPinVal">74.2%</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">DEALER HEDGING BIAS</span>
+            <span class="survival-kpi-val text-emerald" id="gexRegimeVal">VOL SUPPRESSION</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="gexCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 2: HAWKES LIQUIDITY CASCADES ═══════════════════════ -->
+  <div class="modal-overlay" id="modalHawkesStudio">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-wave-square text-rose modal-icon"></i>
+          <div>
+            <h3 class="modal-title">SELF-EXCITING HAWKES POINT PROCESS &amp; FLASH-CRASH RADAR</h3>
+            <p class="modal-subtitle">Microsecond order flow clustering, branching ratio η, and liquidity evaporation cascades.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseHawkesStudio"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">BASELINE ARRIVAL (μ):</label>
+            <input type="number" id="hawkesMuInput" class="modal-num-input" value="2.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">EXCITATION (α):</label>
+            <input type="number" id="hawkesAlphaInput" class="modal-num-input" value="1.15" step="0.05" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">DECAY SPEED (β):</label>
+            <input type="number" id="hawkesBetaInput" class="modal-num-input" value="1.40" step="0.1" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">BLOCK ORDER SHOCK:</label>
+            <input type="number" id="hawkesShockInput" class="modal-num-input" value="10.0" step="1.0" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">BRANCHING RATIO (η = α/β)</span>
+            <span class="survival-kpi-val text-cyan" id="hawkesEtaVal">0.82</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EXPECTED CLUSTER SIZE</span>
+            <span class="survival-kpi-val text-green" id="hawkesClusterVal">5.6 Orders</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">PEAK INTENSITY λ(0)</span>
+            <span class="survival-kpi-val text-amber" id="hawkesPeakVal">14.00 ev/s</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">SYSTEM STABILITY STATE</span>
+            <span class="survival-kpi-val text-emerald" id="hawkesRegimeVal">SUBCRITICAL STABLE</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="hawkesCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 3: LBO & M&A WATERFALL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalLboStudio">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-briefcase text-amber modal-icon"></i>
+          <div>
+            <h3 class="modal-title">DYNAMIC LEVERAGED BUYOUT (LBO) &amp; M&amp;A WATERFALL</h3>
+            <p class="modal-subtitle">Sources &amp; Uses, debt paydown cash sweep, and Sponsor IRR / MOIC sensitivity.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseLboStudio"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(6, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">ENTERPRISE VALUE ($M):</label>
+            <input type="number" id="lboEvInput" class="modal-num-input" value="1000" step="50" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ENTRY EBITDA ($M):</label>
+            <input type="number" id="lboEbitdaInput" class="modal-num-input" value="100" step="10" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">DEBT RATIO (%):</label>
+            <input type="number" id="lboDebtPctInput" class="modal-num-input" value="60" step="5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ANNUAL FCF ($M):</label>
+            <input type="number" id="lboFcfInput" class="modal-num-input" value="50" step="5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">EXIT MULTIPLE (x):</label>
+            <input type="number" id="lboExitMultInput" class="modal-num-input" value="10.0" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">HOLDING YEARS:</label>
+            <input type="number" id="lboYearsInput" class="modal-num-input" value="5" step="1" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">SPONSOR EQUITY IRR</span>
+            <span class="survival-kpi-val text-green" id="lboIrrVal">18.3%</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">RETURN MULTIPLE (MOIC)</span>
+            <span class="survival-kpi-val text-cyan" id="lboMoicVal">2.32x</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">TOTAL DEBT REPAID</span>
+            <span class="survival-kpi-val text-amber" id="lboPaydownVal">$250M (41.7%)</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EXIT EQUITY VALUE</span>
+            <span class="survival-kpi-val text-yellow" id="lboExitEqVal">$926M</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="lboCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 4: MERTON STRUCTURAL CREDIT ═══════════════════════ -->
+  <div class="modal-overlay" id="modalMertonCredit">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-landmark text-cyan modal-icon"></i>
+          <div>
+            <h3 class="modal-title">MERTON STRUCTURAL CREDIT &amp; DISTANCE-TO-DEFAULT (KMV EDF)</h3>
+            <p class="modal-subtitle">Enterprise asset value inversion, default probability, and debt capital markets pricing.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseMertonCredit"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">EQUITY VALUE ($M):</label>
+            <input type="number" id="mertonEqInput" class="modal-num-input" value="500" step="25" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">DEBT FACE VALUE ($M):</label>
+            <input type="number" id="mertonDebtInput" class="modal-num-input" value="800" step="25" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">EQUITY VOL (σE %):</label>
+            <input type="number" id="mertonVolInput" class="modal-num-input" value="35" step="1" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">RISK-FREE RATE (%):</label>
+            <input type="number" id="mertonRfInput" class="modal-num-input" value="5.5" step="0.25" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">DEBT MATURITY (Y):</label>
+            <input type="number" id="mertonMatInput" class="modal-num-input" value="1.0" step="0.5" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">DISTANCE-TO-DEFAULT</span>
+            <span class="survival-kpi-val text-green" id="mertonDdVal">3.57σ</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EXPECTED DEFAULT FREQ (EDF)</span>
+            <span class="survival-kpi-val text-cyan" id="mertonEdfVal">0.02%</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">IMPLIED ASSET VALUE (VA)</span>
+            <span class="survival-kpi-val text-amber" id="mertonVaVal">$1,257M</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">SYNTHETIC CREDIT RATING</span>
+            <span class="survival-kpi-val text-yellow" id="mertonRatingVal">A / BBB+</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="mertonCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 5: SOLVENCY II EVT CATASTROPHE ═══════════════════════ -->
+  <div class="modal-overlay" id="modalEvtSolvency">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-shield-halved text-rose modal-icon"></i>
+          <div>
+            <h3 class="modal-title">EXTREME VALUE THEORY (EVT) &amp; SOLVENCY II 99.5% SCR ENGINE</h3>
+            <p class="modal-subtitle">Pickands-Balkema-de Haan Peaks-Over-Threshold (GPD) and Catastrophe Bond pricing.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseEvtSolvency"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">THRESHOLD u ($M):</label>
+            <input type="number" id="evtThresholdInput" class="modal-num-input" value="50.0" step="5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">TAIL SHAPE (ξ):</label>
+            <input type="number" id="evtShapeInput" class="modal-num-input" value="0.28" step="0.02" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">SCALE PARAM (β):</label>
+            <input type="number" id="evtScaleInput" class="modal-num-input" value="18.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">TOTAL LOSSES (N):</label>
+            <input type="number" id="evtNInput" class="modal-num-input" value="1000" step="100" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">EXCEEDANCES (Nu):</label>
+            <input type="number" id="evtNuInput" class="modal-num-input" value="50" step="5" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">SOLVENCY II 99.5% SCR (VaR)</span>
+            <span class="survival-kpi-val text-rose" id="evtScrVal">$109.8M</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EXPECTED SHORTFALL (ES 99.5%)</span>
+            <span class="survival-kpi-val text-amber" id="evtEsVal">$158.8M</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">CAT BOND SPREAD</span>
+            <span class="survival-kpi-val text-yellow" id="evtCatSpreadVal">75 bps</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">TAIL REGIME</span>
+            <span class="survival-kpi-val text-cyan">PARETO FAT-TAIL</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="evtCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 6: ACTUARIAL ALM IMMUNIZATION ═══════════════════════ -->
+  <div class="modal-overlay" id="modalAlmImmunization">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-scale-unbalanced text-emerald modal-icon"></i>
+          <div>
+            <h3 class="modal-title">ACTUARIAL ALM &amp; REDINGTON KEY-RATE IMMUNIZATION</h3>
+            <p class="modal-subtitle">Asset-liability duration matching and pension surplus protection under interest rate shocks.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseAlmImmunization"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(6, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">LIABILITIES PV ($M):</label>
+            <input type="number" id="almLiabPvInput" class="modal-num-input" value="1000" step="50" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">LIABILITY DURATION (DL):</label>
+            <input type="number" id="almLiabDurInput" class="modal-num-input" value="14.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">LIABILITY CONVEXITY (CL):</label>
+            <input type="number" id="almLiabConvInput" class="modal-num-input" value="260" step="10" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ASSET DURATION (DA):</label>
+            <input type="number" id="almAssetDurInput" class="modal-num-input" value="14.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">ASSET CONVEXITY (CA):</label>
+            <input type="number" id="almAssetConvInput" class="modal-num-input" value="290" step="10" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">YIELD SHOCK (BPS):</label>
+            <input type="number" id="almShockBpsInput" class="modal-num-input" value="100" step="25" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">NET SURPLUS CHANGE (ΔE)</span>
+            <span class="survival-kpi-val text-green" id="almSurplusVal">+₹1.50M</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">DURATION GAP (DA - DL)</span>
+            <span class="survival-kpi-val text-cyan" id="almDurGapVal">0.00 Y</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">CONVEXITY SURPLUS (CA - CL)</span>
+            <span class="survival-kpi-val text-amber" id="almConvSurplusVal">+30.0</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">IMMUNIZATION STATUS</span>
+            <span class="survival-kpi-val text-emerald" id="almStatusVal">FULLY IMMUNIZED</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="almCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 7: CLO TRANCHE WATERFALL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalCloWaterfall">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-layer-group text-sky modal-icon"></i>
+          <div>
+            <h3 class="modal-title">CLO TRANCHE CASH-FLOW &amp; DEFAULT ABSORPTION WATERFALL</h3>
+            <p class="modal-subtitle">Leveraged loan pool priority of payments, subordination attachment, and ratings protection.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseCloWaterfall"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">LOAN POOL SIZE ($M):</label>
+            <input type="number" id="cloPoolInput" class="modal-num-input" value="500" step="50" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">POOL DEFAULT RATE (%):</label>
+            <input type="number" id="cloDefRateInput" class="modal-num-input" value="4.0" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">RECOVERY RATE (%):</label>
+            <input type="number" id="cloRecRateInput" class="modal-num-input" value="65.0" step="5" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">GROSS POOL LOSS</span>
+            <span class="survival-kpi-val text-rose" id="cloLossAmtVal">$7.00M (1.40%)</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EQUITY IMPAIRMENT</span>
+            <span class="survival-kpi-val text-amber" id="cloEqLossVal">14.0% Loss</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">AAA IMPAIRMENT</span>
+            <span class="survival-kpi-val text-green" id="cloAaaLossVal">0.0% (Pristine)</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">SUBORDINATION BUFFER</span>
+            <span class="survival-kpi-val text-cyan">35% Protection</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="cloCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MODAL 8: OAS CALLABLE BOND TREE ═══════════════════════ -->
+  <div class="modal-overlay" id="modalOasTree">
+    <div class="modal-card modal-card--wide">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-tree text-indigo modal-icon"></i>
+          <div>
+            <h3 class="modal-title">OPTION-ADJUSTED SPREAD (OAS) &amp; BINOMIAL SHORT-RATE TREE</h3>
+            <p class="modal-subtitle">Stripping embedded call option value from corporate bonds and mortgage-backed securities.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseOasTree"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-inputs-grid" style="grid-template-columns: repeat(6, 1fr); margin-bottom: 16px;">
+          <div>
+            <label class="modal-input-lbl">BOND PRICE ($):</label>
+            <input type="number" id="oasPriceInput" class="modal-num-input" value="102.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">COUPON RATE (%):</label>
+            <input type="number" id="oasCouponInput" class="modal-num-input" value="7.0" step="0.25" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">CALL PRICE ($):</label>
+            <input type="number" id="oasCallPriceInput" class="modal-num-input" value="101.5" step="0.5" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">CALL YEAR:</label>
+            <input type="number" id="oasCallYearInput" class="modal-num-input" value="2" step="1" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">MATURITY (Y):</label>
+            <input type="number" id="oasMatInput" class="modal-num-input" value="5" step="1" />
+          </div>
+          <div>
+            <label class="modal-input-lbl">RATE VOL (σ %):</label>
+            <input type="number" id="oasVolInput" class="modal-num-input" value="15.0" step="1" />
+          </div>
+        </div>
+
+        <div class="survival-summary-bar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">OPTION-ADJUSTED SPREAD</span>
+            <span class="survival-kpi-val text-green" id="oasSpreadVal">180 bps</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EMBEDDED OPTION COST</span>
+            <span class="survival-kpi-val text-amber" id="oasCostVal">5 bps</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">STRAIGHT BOND VALUE</span>
+            <span class="survival-kpi-val text-cyan" id="oasStraightVal">$104.21</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">EFFECTIVE DURATION</span>
+            <span class="survival-kpi-val text-yellow" id="oasDurationVal">3.60 Y</span>
+          </div>
+        </div>
+
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="oasCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- ═══════════════════════ LIVE BLOOMBERG ALERT TOASTS CONTAINER ═══════════════════════ -->
   <div class="alert-toast-container" id="alertToastContainer">
     <!-- Sliding toast notifications injected dynamically on breach -->
   </div>
