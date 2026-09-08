@@ -13,4 +13,4 @@ Cont-Kukanov-Stoikov queue dynamics and micro-price estimator.
 ### KaTeX Formulation
 $$\text{OFI}_{t} = \arg\min_{\mathbf{w} \in \mathcal{W}} \mathcal{L}(\mathbf{w}, \mathbf{\Sigma}, \boldsymbol{\mu})$$
 
-*RISKOS Institutional Bloomberg Terminal Core Engine Specification v3.5.*
+*RISKOS Institutional Bloomberg Terminal Core Engine Specification.*

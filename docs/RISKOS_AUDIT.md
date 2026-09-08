@@ -1,4 +1,4 @@
-# RISKOS v3.0 Institutional Quantitative Research & Production Rigor Audit
+# RISKOS Institutional Quantitative Research & Production Rigor Audit
 
 **Audit Date**: September 2026  
 **Auditor**: Senior Quantitative Researcher, Quantitative Risk Specialist & Financial Systems Reviewer  
@@ -141,7 +141,7 @@ All 6 test suites were executed sequentially. Total tests passed: **134 / 134 (1
 
 ## 6. Audit Verdict & Certification
 
-RISKOS v3.0 has satisfied all requirements of the **Quantitative Research & Production Rigor Upgrade**:
+RISKOS has satisfied all requirements of the **Quantitative Research & Production Rigor Upgrade**:
 - **Rule #0 Compliance**: 100% feature surface preserved (0 features removed, 0 desks altered, 0 labs simplified).
 - **No Fabricated Benchmarks**: Model weights and validation metrics are derived exclusively from empirical rolling-origin evaluation.
 - **Reproducibility**: Experiments formalized in `research/experiments/`, execution locked in `backend/requirements.lock`.

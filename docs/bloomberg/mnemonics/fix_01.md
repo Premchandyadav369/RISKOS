@@ -13,4 +13,4 @@ Direct market access electronic order routing protocol.
 ### KaTeX Formulation
 $$\text{FIX}_{t} = \arg\min_{\mathbf{w} \in \mathcal{W}} \mathcal{L}(\mathbf{w}, \mathbf{\Sigma}, \boldsymbol{\mu})$$
 
-*RISKOS Institutional Bloomberg Terminal Core Engine Specification v3.5.*
+*RISKOS Institutional Bloomberg Terminal Core Engine Specification.*

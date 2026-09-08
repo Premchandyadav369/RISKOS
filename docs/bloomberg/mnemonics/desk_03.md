@@ -13,4 +13,4 @@ Multi-asset execution and real-time risk analytics hub.
 ### KaTeX Formulation
 $$\text{DESK}_{t} = \arg\min_{\mathbf{w} \in \mathcal{W}} \mathcal{L}(\mathbf{w}, \mathbf{\Sigma}, \boldsymbol{\mu})$$
 
-*RISKOS Institutional Bloomberg Terminal Core Engine Specification v3.5.*
+*RISKOS Institutional Bloomberg Terminal Core Engine Specification.*

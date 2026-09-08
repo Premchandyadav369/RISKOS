@@ -28,7 +28,7 @@ class ResearchReportGenerator:
         md.append(f"# Quantitative Research Audit Report: {experiment_meta.get('title', 'Experiment')}")
         md.append(f"**Experiment ID**: `{experiment_meta.get('experiment_id', 'EXP-XXX')}` | **Category**: {experiment_meta.get('category', 'Quantitative Research')}")
         md.append(f"**Date**: {experiment_meta.get('date', datetime.utcnow().strftime('%Y-%m-%d'))} | **Audited At**: {datetime.utcnow().isoformat()}Z")
-        md.append(f"**Platform**: RISKOS Quantitative Systems (v3.0.0-PROD)")
+        md.append(f"**Platform**: RISKOS Quantitative Systems (PRODUCTION)")
         md.append("")
         md.append("---")
         md.append("")

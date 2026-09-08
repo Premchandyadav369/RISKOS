@@ -13,4 +13,4 @@ Engle-Granger ADF unit root test and Kalman dynamic hedge ratio.
 ### KaTeX Formulation
 $$\text{STAT}_{t} = \arg\min_{\mathbf{w} \in \mathcal{W}} \mathcal{L}(\mathbf{w}, \mathbf{\Sigma}, \boldsymbol{\mu})$$
 
-*RISKOS Institutional Bloomberg Terminal Core Engine Specification v3.5.*
+*RISKOS Institutional Bloomberg Terminal Core Engine Specification.*
