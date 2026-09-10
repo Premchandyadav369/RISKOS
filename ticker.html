@@ -220,6 +220,72 @@
       </div>
     </section>
 
+
+    <!-- ═══════════════════════ 2.3 QUANTITATIVE SECTOR INTELLIGENCE & INDICATORS DESK ═══════════════════════ -->
+    <section class="sector-indicators-desk" id="sectorIndicatorsDesk" aria-label="Quantitative Sector Intelligence & Indicators Matrix">
+      
+      <!-- Top Ribbon / Telemetry Banner -->
+      <div class="sector-desk-header">
+        <div class="sector-desk-title-wrap">
+          <div class="sector-live-tag">
+            <span class="live-pulse-dot"></span>
+            <i class="fa-solid fa-chart-pie text-cyan"></i>
+            <span>SECTOR QUANTITATIVE INTELLIGENCE &amp; ROTATION RADAR (INDIA &bull; US)</span>
+          </div>
+          <h2 class="sector-desk-heading">SECTOR-WISE QUANTITATIVE INDICATORS &amp; EGYPTIAN BOTS</h2>
+          <p class="sector-desk-subheading">
+            Independent multi-horizon relative strength, GARCH(1,1) volatility, market breadth (% &gt; 50D SMA), order flow imbalance, and valuation percentiles for Indian (NSE Sectoral) and US (GICS Sectors) with direct routing to Egyptian Pantheon trading bots.
+          </p>
+        </div>
+
+        <div class="sector-desk-actions">
+          <button class="rec-refresh-btn" id="btnRescanSectors" title="Recalculate Sector Quantitative Indicators">
+            <i class="fa-solid fa-arrows-rotate"></i> Rescan Sectors
+          </button>
+          <div class="sector-status-pill" id="sectorStatusPill">
+            <i class="fa-solid fa-circle-nodes text-emerald"></i>
+            <span id="sectorCountText">Loading Sectors...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Market & Metric Filter Ribbons -->
+      <div class="sector-controls-bar">
+        <div class="sector-control-group">
+          <span class="sector-control-label"><i class="fa-solid fa-earth-asia text-cyan"></i> Market:</span>
+          <div class="segmented-control" id="sectorMarketFilter">
+            <button class="seg-btn active" data-smarket="all">All Markets</button>
+            <button class="seg-btn" data-smarket="india">🇮🇳 Indian Sectors (NSE)</button>
+            <button class="seg-btn" data-smarket="us">🇺🇸 US Sectors (GICS)</button>
+          </div>
+        </div>
+
+        <div class="sector-control-group">
+          <span class="sector-control-label"><i class="fa-solid fa-arrow-down-short-wide text-amber"></i> Rank By:</span>
+          <div class="segmented-control" id="sectorRankFilter">
+            <button class="seg-btn active" data-srank="momentum">🔥 Top Momentum</button>
+            <button class="seg-btn" data-srank="inflow">🌊 Institutional Inflow (OFI)</button>
+            <button class="seg-btn" data-srank="breadth">📈 Market Breadth</button>
+            <button class="seg-btn" data-srank="valuation">💎 Valuation (P/E)</button>
+          </div>
+        </div>
+
+        <div class="sector-control-summary" id="sectorTelemetrySummary">
+          <span><i class="fa-solid fa-ankh text-amber"></i> 20 Egyptian Sector Bots Active</span>
+          <span style="opacity:0.3;">•</span>
+          <span><i class="fa-solid fa-scale-balanced text-cyan"></i> GARCH Vol &bull; Breadth Monitored</span>
+        </div>
+      </div>
+
+      <!-- Sector Dynamic Cards Grid -->
+      <div class="sector-cards-grid" id="sectorCardsGrid">
+        <div class="rec-loading-placeholder" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-notch fa-spin text-cyan" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+          <p>Computing Sector Relative Strength, Parkinson Volatility, Breadth &amp; Egyptian Bot Mappings...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══════════════════════ 2.5 UNIVERSAL MULTI-EXCHANGE PENNY STOCK RADAR MATRIX ═══════════════════════ -->
     <section class="penny-radar-desk" id="pennyRadarDesk" aria-label="Universal Penny Stock Radar Matrix">
       
