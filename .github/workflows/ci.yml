@@ -23,7 +23,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
-          pip install pytest scipy numpy pandas
+          pip install pytest scipy numpy pandas httpx
 
       - name: Set up Node.js 20.x
         uses: actions/setup-node@v4
@@ -54,6 +54,12 @@ jobs:
       - name: Run Terminal Integration Test Suite (20 Tests)
         run: node tests/terminal_suite.js
 
+      - name: Run Daily Stock Alpha Recommender & Target Engine Tests
+        run: node tests/test_recommender_system.js
+
+      - name: Run Sector Quantitative Indicators & Egyptian Bot Fleet Tests
+        run: node tests/test_sector_features.js
+
       - name: Run Python Quantitative Invariants & Validation Test Suite
         run: python -m pytest tests/quant/ -v
 
@@ -61,3 +67,4 @@ jobs:
         run: |
           python research/benchmark_forecasting.py
           python research/benchmark_portfolios.py
+

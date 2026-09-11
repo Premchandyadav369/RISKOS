@@ -3193,6 +3193,399 @@ const LearnMathEngine = (() => {
     };
   };
 
+
+  // ── 66. Sector Rotation & Relative Strength Alpha Matrix ───────────────────
+  const calcSectorRelativeStrength = (inputs, currency = 'INR') => {
+    const secR = parseFloat(inputs.sectorReturn || 22.5);
+    const bmkR = parseFloat(inputs.benchmarkReturn || 14.0);
+    const secVol = Math.max(5.0, parseFloat(inputs.sectorVol || 18.5));
+    const bmkVol = Math.max(5.0, parseFloat(inputs.benchmarkVol || 14.0));
+    const lookback = parseInt(inputs.lookbackDays || 63, 10);
+
+    const rsRatio = ((1 + secR / 100) / (1 + bmkR / 100));
+    const excessAlpha = secR - bmkR;
+    const beta = Number((secVol / bmkVol * 0.88).toFixed(2));
+    const mansfieldScore = Number(((rsRatio - 1.0) * 100).toFixed(2));
+
+    let rotationRegime = 'LEADING';
+    if (excessAlpha >= 4.0 && secR > 0) rotationRegime = 'LEADING (High Momentum)';
+    else if (excessAlpha < 4.0 && excessAlpha >= 0) rotationRegime = 'WEAKENING (Decelerating)';
+    else if (excessAlpha < 0 && secR < 0) rotationRegime = 'LAGGING (Underperforming)';
+    else rotationRegime = 'IMPROVING (Bottom Reversal)';
+
+    const weeks = ['W-12', 'W-10', 'W-8', 'W-6', 'W-4', 'W-2', 'Current'];
+    const trajectory = [0.94, 0.96, 0.99, 1.02, 1.05, 1.07, Number(rsRatio.toFixed(3))];
+
+    return {
+      focalSymbol: 'RS_{sec}',
+      focalLabel: 'Relative Strength Ratio vs Benchmark',
+      focalValue: `${rsRatio.toFixed(2)}x`,
+      plainResult: `Sector Relative Strength: Sector return ${secR >= 0 ? '+' : ''}${secR}% vs benchmark ${bmkR >= 0 ? '+' : ''}${bmkR}% gives RS Ratio = ${rsRatio.toFixed(2)}x (Excess Alpha = +${excessAlpha.toFixed(1)}%). Rotation quadrant: ${rotationRegime}.`,
+      chart: {
+        labels: weeks,
+        datasets: [
+          { label: 'Relative Strength Ratio (RS > 1.0 = Outperforming)', data: trajectory, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.15)', fill: true, borderWidth: 2 },
+          { label: 'Benchmark Parity Baseline (1.0x)', data: [1, 1, 1, 1, 1, 1, 1], borderColor: '#64748b', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: '\\[ RS_t = \\frac{P_t^{\\text{sec}} / P_{t-N}^{\\text{sec}}}{P_t^{\\text{bmk}} / P_{t-N}^{\\text{bmk}}}, \\quad \\text{Mansfield} = \\left( \\frac{RS_t}{\\text{SMA}(RS)} - 1 \\right) \\times 100 \\]',
+      substitutedLatex: `\\[ RS = \\frac{1 + ${secR}/100}{1 + ${bmkR}/100} = \\mathbf{${rsRatio.toFixed(2)}x}, \\quad \\text{Excess} = \\mathbf{+${excessAlpha.toFixed(1)}\\%} \\]`,
+      beginnerText: 'Think of relative strength like a 100-meter race between two runners: your sector and the overall market index. If the sector is running faster than the index, it has strong relative strength. Buying leading sectors and avoiding lagging ones is the number one strategy used by top Wall Street equity rotation funds.',
+      realWorldExample: 'During 2023-2024, Indian Nifty Auto gained +65% while Nifty 50 gained +28%, producing an RS Ratio of 1.29x. Traders who rotated into Auto achieved massive alpha, while those holding lagging FMCG (RS = 0.88x) lagged behind.',
+      investorText: 'Institutional asset managers track the JdK RS-Ratio and RS-Momentum scatter (RRG - Relative Rotation Graphs) to systematically overweight leading quadrants and underweight lagging sectors before earnings seasons.',
+      quantText: 'Formulated as cross-sectional momentum: $z_i = \\frac{R_i - \\mu_R}{\\sigma_R}$ filtered through a Kalman gain state-space smoother to filter out idiosyncratic constituent noise from pure sectoral factor drift.',
+      limitations: 'High relative strength can become overextended near late-cycle tops, leading to violent sector rotation selloffs.'
+    };
+  };
+
+  // ── 67. Egyptian Pantheon Order Flow Imbalance (OFI) & Microstructure ────────
+  const calcEgyptianPantheonHft = (inputs, currency = 'USD') => {
+    const bidDelta = parseFloat(inputs.bidVolChange || 18500);
+    const askDelta = parseFloat(inputs.askVolChange || 9200);
+    const lambda = parseFloat(inputs.lambdaImpact || 0.00035);
+    const spreadBps = parseFloat(inputs.tickSpreadBps || 2.5);
+
+    const netOFI = bidDelta - askDelta;
+    const ofiZScore = Number((netOFI / 5000).toFixed(2));
+    const priceImpactBps = Number((netOFI * lambda * 10).toFixed(2));
+
+    let hftSignal = 'NEUTRAL / MAKER';
+    if (ofiZScore >= 1.5) hftSignal = 'AGGRESSIVE LONG (Ra / Horus Solar Breakout)';
+    else if (ofiZScore <= -1.5) hftSignal = 'AGGRESSIVE SHORT (Sobek Predator Dump)';
+    else if (Math.abs(ofiZScore) < 0.5) hftSignal = 'PASSIVE TWO-SIDED MM (Anubis Spread Harvester)';
+
+    const timeSteps = ['T-30s', 'T-20s', 'T-10s', 'T-5s', 'T-2s', 'Now'];
+    const ofiStream = [1200, 2800, 5400, 9200, 14100, netOFI];
+
+    return {
+      focalSymbol: 'OFI_{Z}',
+      focalLabel: 'Order Flow Imbalance Z-Score',
+      focalValue: `${ofiZScore >= 0 ? '+' : ''}${ofiZScore}σ`,
+      plainResult: `Order Flow Imbalance (OFI): Net Queue Shift = ${netOFI > 0 ? '+' : ''}${netOFI.toLocaleString()} shares (${ofiZScore}σ). Microstructure price impact = +${priceImpactBps} bps. High-frequency routing signal: ${hftSignal}.`,
+      chart: {
+        labels: timeSteps,
+        datasets: [
+          { label: 'Cumulative Level-2 Queue Imbalance (Shares)', data: ofiStream, borderColor: '#38bdf8', backgroundColor: 'rgba(56, 189, 248, 0.2)', fill: true, borderWidth: 2 }
+        ]
+      },
+      equationLatex: '\\[ OFI_t = \\Delta q_{b,t} - \\Delta q_{a,t}, \\quad \\Delta P_t = \\lambda \\cdot OFI_t + \\epsilon_t \\]',
+      substitutedLatex: `\\[ OFI = ${bidDelta} - ${askDelta} = \\mathbf{${netOFI}}, \\quad Z = \\mathbf{${ofiZScore}\\sigma}, \\quad \\Delta P = \\mathbf{+${priceImpactBps}\\text{ bps}} \\]`,
+      beginnerText: 'Imagine an auction where 10 buyers suddenly rush in shouting bids while sellers step back. Order Flow Imbalance (OFI) measures this exact imbalance at the top of the order book. When buyers outnumber sellers, price has to jump up to find new sellers.',
+      realWorldExample: 'In HFT trading on NSE or NASDAQ, when an institutional algorithmic buying sweep consumes ask depth, OFI spikes beyond +2.0 sigma within 50 milliseconds, predicting an immediate 3 to 8 bps price pop.',
+      investorText: 'Developed by Rama Cont and Sasha Stoikov (2014), OFI explains over 65% of short-term high-frequency price changes, outperforming traditional trade volume alone.',
+      quantText: 'Defined as $OFI_k = I_{\\{P_{b,k} \\ge P_{b,k-1}\\}} q_{b,k} - I_{\\{P_{b,k} \\le P_{b,k-1}\\}} q_{b,k-1} - (I_{\\{P_{a,k} \\le P_{a,k-1}\\}} q_{a,k} - I_{\\{P_{a,k} \\ge P_{a,k-1}\\}} q_{a,k-1})$.',
+      limitations: 'Susceptible to algorithmic order spoofing, quote cancellation cascades, and latency arbitrage from colocated market participants.'
+    };
+  };
+
+  // ── 68. GARCH(1,1) Compound Poisson Jump-Diffusion ─────────────────────────
+  const calcGarchJumpDiffusion = (inputs) => {
+    const baseVol = Math.max(5.0, parseFloat(inputs.baselineVol || 16.0));
+    const alpha = Math.max(0.01, Math.min(0.25, parseFloat(inputs.alphaArch || 0.08)));
+    const beta = Math.max(0.60, Math.min(0.95, parseFloat(inputs.betaGarch || 0.88)));
+    const lambda = Math.max(0.5, parseFloat(inputs.jumpIntensityLambda || 3.5));
+    const jumpMean = parseFloat(inputs.jumpSizeMean || -4.5);
+    const jumpVol = Math.max(1.0, parseFloat(inputs.jumpSizeVol || 6.0));
+
+    const garchUnconditionalVol = Math.sqrt(Math.pow(baseVol, 2) / Math.max(0.01, 1 - alpha - beta));
+    const jumpVariance = lambda * (Math.pow(jumpMean, 2) + Math.pow(jumpVol, 2));
+    const compositeTotalVol = Number(Math.sqrt(Math.pow(garchUnconditionalVol, 2) + jumpVariance).toFixed(2));
+    const excessKurtosis = Number((3 + (lambda * Math.pow(jumpMean, 4)) / Math.pow(compositeTotalVol, 4) * 10).toFixed(2));
+
+    const horizons = ['1D', '5D', '10D', '21D', '42D', '63D'];
+    const garchPath = horizons.map((_, i) => Number((garchUnconditionalVol * (1 + 0.02 * i)).toFixed(1)));
+    const jumpPath = horizons.map((_, i) => Number((compositeTotalVol * (1 + 0.03 * i)).toFixed(1)));
+
+    return {
+      focalSymbol: '\\sigma_{comp}',
+      focalLabel: 'Total Jump-Adjusted Volatility',
+      focalValue: `${compositeTotalVol.toFixed(1)}%`,
+      plainResult: `GARCH Jump-Diffusion: Continuous GARCH Vol = ${garchUnconditionalVol.toFixed(1)}%, Jump Shock Intensity = ${lambda} events/yr. Composite Fat-Tail Volatility = ${compositeTotalVol.toFixed(1)}% (Excess Kurtosis = ${excessKurtosis}).`,
+      chart: {
+        labels: horizons,
+        datasets: [
+          { label: 'Composite Jump-Diffusion Volatility (%)', data: jumpPath, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.2)', fill: true, borderWidth: 2.5 },
+          { label: 'Standard Continuous GARCH(1,1) Volatility (%)', data: garchPath, borderColor: '#fab005', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: '\\[ \\sigma_t^2 = \\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2, \\quad \\text{Var}_{\\text{total}} = \\sigma_{\\text{GARCH}}^2 + \\lambda (\\mu_J^2 + \\sigma_J^2) \\]',
+      substitutedLatex: `\\[ \\sigma_{\\text{comp}} = \\sqrt{${(garchUnconditionalVol).toFixed(1)}^2 + ${jumpVariance.toFixed(1)}} = \\mathbf{${compositeTotalVol}\\%} \\]`,
+      beginnerText: 'Normal models assume stock prices move in smooth waves. In the real world, stocks suffer sudden flash crashes or gap-up earnings announcements. Jump-Diffusion models both normal choppy days AND violent lightning-strike crashes together.',
+      realWorldExample: 'During the March 2020 pandemic crash, traditional Black-Scholes volatility models failed completely because markets gapped down 10% overnight. Jump-diffusion models correctly priced deep out-of-the-money puts.',
+      investorText: 'Essential for pricing options on biotech stocks (FDA approvals), earnings announcements, and sovereign debt markets where discrete events create fat-tailed jump risks.',
+      quantText: 'SDE governed by $dS_t = \\mu S_t dt + \\sigma_t S_t dW_t + (e^J - 1)S_t dN_t$ where $N_t$ is a Poisson counting process with intensity parameter $\\lambda$ and $J \\sim \\mathcal{N}(\\mu_J, \\sigma_J^2)$.',
+      limitations: 'Parameters must be estimated using joint MLE and Markov Chain Monte Carlo (MCMC), which is computationally intensive.'
+    };
+  };
+
+  // ── 69. Cross-Asset Statistical Arbitrage & Cointegration ───────────────────
+  const calcCrossAssetStatArb = (inputs) => {
+    const pA = parseFloat(inputs.priceA || 24680);
+    const pB = parseFloat(inputs.priceB || 52140);
+    const beta = parseFloat(inputs.hedgeRatioBeta || 0.47);
+    const theta = Math.max(0.02, parseFloat(inputs.ouSpeedTheta || 0.22));
+    const curSpread = parseFloat(inputs.currentSpreadDev || 2.35);
+
+    const halfLife = Number((Math.log(2) / theta).toFixed(1));
+    const zScore = curSpread;
+    let signal = 'HOLD';
+    if (zScore >= 2.0) signal = 'SHORT SPREAD (Sell A, Buy B)';
+    else if (zScore <= -2.0) signal = 'LONG SPREAD (Buy A, Sell B)';
+    else if (Math.abs(zScore) <= 0.5) signal = 'TAKE PROFIT (Mean Reverted)';
+
+    const days = ['D-10', 'D-8', 'D-6', 'D-4', 'D-2', 'D-1', 'Now'];
+    const spreadPath = [0.4, 0.8, 1.2, 1.6, 2.0, 2.2, zScore];
+
+    return {
+      focalSymbol: 't_{1/2}',
+      focalLabel: 'Ornstein-Uhlenbeck Reversion Half-Life',
+      focalValue: `${halfLife} Days`,
+      plainResult: `Statistical Arbitrage: Spread Z-Score = ${zScore >= 0 ? '+' : ''}${zScore}σ, Hedge Ratio β = ${beta}. OU Half-Life = ${halfLife} days. Systematic execution signal: ${signal}.`,
+      chart: {
+        labels: days,
+        datasets: [
+          { label: 'Cointegrated Spread Z-Score (σ)', data: spreadPath, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.2)', fill: true, borderWidth: 2 },
+          { label: '+2.0σ Short Threshold', data: [2, 2, 2, 2, 2, 2, 2], borderColor: '#f43f5e', borderDash: [4, 4], fill: false },
+          { label: '-2.0σ Long Threshold', data: [-2, -2, -2, -2, -2, -2, -2], borderColor: '#10b981', borderDash: [4, 4], fill: false }
+        ]
+      },
+      equationLatex: '\\[ S_t = Y_t - \\beta X_t, \\quad dS_t = \\theta(\\mu - S_t)dt + \\sigma dW_t, \\quad t_{1/2} = \\frac{\\ln 2}{\\theta} \\]',
+      substitutedLatex: `\\[ t_{1/2} = \\frac{\\ln 2}{${theta}} = \\mathbf{${halfLife}\\text{ Days}}, \\quad Z = \\mathbf{${zScore}\\sigma} \\]`,
+      beginnerText: 'Stat Arb is like walking a dog on a leash: the owner and the dog might wander apart for a few minutes, but the leash forces them back together. When two related stocks pull too far apart, you sell the expensive one and buy the cheap one.',
+      realWorldExample: 'Trading NIFTY vs BANKNIFTY or Brent vs WTI crude oil. When Brent trades at a 3-sigma premium to WTI without physical supply disruption, quant funds short Brent and buy WTI until the spread collapses.',
+      investorText: 'Market-neutral strategy with low correlation to broad equity bull/bear cycles, generating steady Sharpe ratios above 2.0 under disciplined risk bounds.',
+      quantText: 'Tested via Augmented Dickey-Fuller (ADF) on residuals: $\\Delta e_t = \\gamma e_{t-1} + \\sum \\delta_i \\Delta e_{t-i} + v_t$. Cointegration confirmed when test statistic < critical value (-3.45 at 95% confidence).',
+      limitations: 'Structural regime breaks (e.g. corporate mergers, bankruptcy, regulatory changes) can break cointegration, turning mean-reversion into infinite divergence.'
+    };
+  };
+
+  // ── 70. Barra Multi-Factor Risk & Covariance Decomposition ──────────────────
+  const calcBarraMultiFactorRisk = (inputs) => {
+    const valExp = parseFloat(inputs.valueExposure || 0.45);
+    const momExp = parseFloat(inputs.momentumExposure || 0.82);
+    const qualExp = parseFloat(inputs.qualityExposure || 0.60);
+    const sizeExp = parseFloat(inputs.sizeExposure || -0.25);
+    const specRisk = Math.max(1.0, parseFloat(inputs.specificRiskPct || 7.5));
+
+    const factorVariance = (Math.pow(valExp * 12, 2) + Math.pow(momExp * 15, 2) + Math.pow(qualExp * 10, 2) + Math.pow(sizeExp * 9, 2)) * 0.8;
+    const factorRisk = Math.sqrt(factorVariance);
+    const totalRisk = Number(Math.sqrt(factorVariance + Math.pow(specRisk, 2)).toFixed(2));
+    const factorContribPct = Number(((factorVariance / Math.pow(totalRisk, 2)) * 100).toFixed(1));
+    const specContribPct = Number((100 - factorContribPct).toFixed(1));
+
+    return {
+      focalSymbol: '\\sigma_{total}',
+      focalLabel: 'Total Portfolio Active Risk (Tracking Error)',
+      focalValue: `${totalRisk.toFixed(1)}%`,
+      plainResult: `Barra Factor Decomposition: Total Risk = ${totalRisk.toFixed(1)}%. Systematic Factor Risk = ${factorRisk.toFixed(1)}% (${factorContribPct}% of variance). Stock-Specific Idiosyncratic Risk = ${specRisk.toFixed(1)}% (${specContribPct}% of variance).`,
+      chart: {
+        labels: ['Value Risk', 'Momentum Risk', 'Quality Risk', 'Size Risk', 'Specific Risk'],
+        datasets: [
+          { label: 'Risk Allocation by Factor (%)', data: [Number((valExp*12).toFixed(1)), Number((momExp*15).toFixed(1)), Number((qualExp*10).toFixed(1)), Number(Math.abs(sizeExp*9).toFixed(1)), specRisk], backgroundColor: ['#f59e0b', '#22d3ee', '#10b981', '#a78bfa', '#f43f5e'] }
+        ]
+      },
+      equationLatex: '\\[ V = X F X^T + \\Delta, \\quad \\sigma_p^2 = w^T X F X^T w + w^T \\Delta w \\]',
+      substitutedLatex: `\\[ \\sigma_p = \\sqrt{${factorRisk.toFixed(1)}^2 + ${specRisk.toFixed(1)}^2} = \\mathbf{${totalRisk}\\%} \\]`,
+      beginnerText: 'When your portfolio goes up or down, is it because you picked great individual stocks, or just because you bought high-momentum tech stocks during a bull run? Barra risk models dissect your portfolio down to its genetic DNA.',
+      realWorldExample: 'A fund manager bragging about 25% returns might discover that 90% of their performance came from passive Momentum factor exposure rather than genuine stock-picking skill.',
+      investorText: 'Institutional standard used by MSCI Barra, Axioma, and BlackRock Aladdin to ensure portfolio managers do not take unintended factor bets.',
+      quantText: 'Cross-sectional regression $R_{i,t} = \\sum_{k=1}^K X_{i,k,t} f_{k,t} + u_{i,t}$ with weighted least squares (WLS) weighted by square root of market cap.',
+      limitations: 'Factor definitions are backward-looking and factor correlations can spike to 1.0 during liquidity crunches.'
+    };
+  };
+
+  // ── 71. Optimal Algorithmic Order Slicing (VWAP & TWAP) ─────────────────────
+  const calcOptimalVwapExecution = (inputs, currency = 'USD') => {
+    const orderShares = Math.max(1000, parseInt(inputs.orderSizeShares || 85000, 10));
+    const adv = Math.max(10000, parseInt(inputs.advShares || 2200000, 10));
+    const targetPart = Math.max(1.0, Math.min(25.0, parseFloat(inputs.participationPct || 8.5))) / 100;
+    const volPct = parseFloat(inputs.volatilityPct || 24.0);
+    const duration = Math.max(1.0, parseFloat(inputs.tradingHours || 6.5));
+
+    const totalPctOfAdv = (orderShares / adv) * 100;
+    const optimalSlices = Math.max(6, Math.round(duration * 60 / 15));
+    const expectedImpactBps = Number((0.14 * Math.sqrt(orderShares / adv) * volPct * 100).toFixed(1));
+    const totalImpactCost = (orderShares * 150 * (expectedImpactBps / 10000));
+
+    const hours = ['09:30', '10:30', '11:30', '12:30', '13:30', '14:30', '15:30'];
+    const uCurveVolume = [18.5, 13.2, 9.8, 8.5, 10.4, 15.8, 23.8];
+
+    return {
+      focalSymbol: '\\text{IS}',
+      focalLabel: 'Expected Implementation Shortfall',
+      focalValue: `${expectedImpactBps} bps`,
+      plainResult: `Optimal VWAP Execution: Order of ${orderShares.toLocaleString()} shares (${totalPctOfAdv.toFixed(2)}% of ADV) across ${duration} hours sliced into ${optimalSlices} intervals. Expected market footprint = ${expectedImpactBps} bps (${formatMoney(totalImpactCost, currency, true)}).`,
+      chart: {
+        labels: hours,
+        datasets: [
+          { label: 'U-Shaped Intraday Volume Profile (% of Daily Volume)', data: uCurveVolume, backgroundColor: 'rgba(34, 211, 238, 0.25)', borderColor: '#22d3ee', borderWidth: 1.5 }
+        ]
+      },
+      equationLatex: '\\[ \\text{VWAP} = \\frac{\\sum_{i=1}^N P_i Q_i}{\\sum_{i=1}^N Q_i}, \\quad \\text{Shortfall} \\propto \\eta \\cdot \\sigma \\sqrt{\\frac{Q}{\\text{ADV}}} \\]',
+      substitutedLatex: `\\[ \\text{IS} = 0.14 \\cdot ${volPct} \\sqrt{\\frac{${orderShares}}{${adv}}} = \\mathbf{${expectedImpactBps}\\text{ bps}} \\]`,
+      beginnerText: 'If you want to buy 100,000 shares of a company, dumping the whole order in at once will push the stock price through the roof. Smart algorithms slice the order into hundreds of bite-sized pieces following the natural rhythm of the market.',
+      realWorldExample: 'Trading desks at Goldman Sachs and Morgan Stanley use VWAP engines to execute institutional client orders, striving to beat the benchmark price by 2 to 5 bps on every trade.',
+      investorText: 'Guarantees execution tracks the volume-weighted average price of the trading day, eliminating rogue price spikes.',
+      quantText: 'Almgren-Chriss (2000) optimal execution framework minimizing $E[x] + \\lambda V[x]$ under linear temporary impact and square-root permanent impact.',
+      limitations: 'Vulnerable to predatory HFT algorithms that detect static predictable participation rates and front-run upcoming slices.'
+    };
+  };
+
+  // ── 72. SABR Stochastic Volatility Surface Calibration ──────────────────────
+  const calcSabrVolSurface = (inputs) => {
+    const f = parseFloat(inputs.forwardF || 100.0);
+    const alpha = parseFloat(inputs.atmVolAlpha || 0.20);
+    const beta = parseFloat(inputs.elasticityBeta || 0.50);
+    const rho = parseFloat(inputs.correlationRho || -0.35);
+    const nu = parseFloat(inputs.volOfVolNu || 0.42);
+
+    const strikes = [80, 90, 95, 100, 105, 110, 120];
+    const vols = strikes.map(k => {
+      const moneyness = Math.log(f / k);
+      const skew = -0.5 * rho * nu * moneyness;
+      const smile = (1 - Math.pow(rho, 2)) / 12 * Math.pow(nu * moneyness, 2);
+      const vol = (alpha / Math.pow(f * k, (1 - beta) / 2)) * (1 + skew + smile) * 100;
+      return Number(vol.toFixed(1));
+    });
+
+    const atmVol = vols[3];
+    const skew25d = Number((vols[1] - vols[5]).toFixed(1));
+
+    return {
+      focalSymbol: '\\sigma_{\\text{SABR}}',
+      focalLabel: 'At-The-Money Implied Volatility',
+      focalValue: `${atmVol}%`,
+      plainResult: `SABR Volatility Surface: ATM Vol = ${atmVol}%, 25-Delta Skew = +${skew25d}%. Model parameters: α=${alpha}, β=${beta}, ρ=${rho}, ν=${nu}. Reconstructs asymmetric market implied smile.`,
+      chart: {
+        labels: strikes.map(k => `$${k}`),
+        datasets: [
+          { label: 'SABR Calibrated Implied Volatility Smile (%)', data: vols, borderColor: '#fbbf24', backgroundColor: 'rgba(251, 191, 36, 0.2)', fill: true, borderWidth: 2 }
+        ]
+      },
+      equationLatex: '\\[ dF_t = \\sigma_t F_t^\\beta dW_1, \\quad d\\sigma_t = \\nu \\sigma_t dW_2, \\quad dW_1 dW_2 = \\rho dt \\]',
+      substitutedLatex: `\\[ \\sigma(100) = \\mathbf{${atmVol}\\%}, \\quad \\text{Skew} = \\mathbf{+${skew25d}\\%} \\]`,
+      beginnerText: 'Options on stocks dont trade at a single volatility number; out-of-the-money crash insurance puts are almost always more expensive than upside calls. This curve is called the volatility smile or smirk. The SABR model is the mathematical gold standard used to map it.',
+      realWorldExample: 'Interest rate swaption traders and FX options desks at Deutsche Bank and Barclays calibrate SABR parameters every second to price exotic barrier options.',
+      investorText: 'Explains why deep out-of-the-money puts trade with rich risk premia, reflecting market participant aversion to left-tail market crashes.',
+      quantText: 'Hagan et al. (2002) asymptotic expansion for implied Black vol: $\\sigma_B(K, F) \\approx \\frac{\\alpha}{(F K)^{(1-\\beta)/2}} \\frac{z}{x(z)} \\left[ 1 + \\dots \\right]$ where $z = \\frac{\\nu}{\\alpha}(FK)^{(1-\\beta)/2} \\ln(F/K)$.',
+      limitations: 'Approximation breaks down for very long maturities (T > 10Y) or extreme strikes deep in the wings.'
+    };
+  };
+
+  // ── 73. Q-Learning Market Making & Inventory Control ────────────────────────
+  const calcReinforcementLearningMm = (inputs) => {
+    const q = parseInt(inputs.currentInventory || 12, 10);
+    const maxQ = parseInt(inputs.maxInventory || 40, 10);
+    const gamma = parseFloat(inputs.gammaRiskAversion || 0.08);
+    const spread = parseInt(inputs.spreadTicks || 3, 10);
+    const vol = parseFloat(inputs.assetVolPct || 22.0);
+
+    const skewTicks = Number((gamma * q * (vol / 100) * 2).toFixed(1));
+    const optimalBid = Math.max(1, Math.round(spread - skewTicks));
+    const optimalAsk = Math.round(spread + skewTicks);
+    const expReward = Number((spread * 1.5 - Math.abs(q) * 0.4).toFixed(1));
+
+    const inventories = [-20, -10, 0, 10, 20, 30];
+    const bidQuotes = inventories.map(inv => Number((spread - (gamma * inv * 0.44)).toFixed(1)));
+    const askQuotes = inventories.map(inv => Number((spread + (gamma * inv * 0.44)).toFixed(1)));
+
+    return {
+      focalSymbol: 'r_{\\text{opt}}',
+      focalLabel: 'Optimal Inventory Reservation Skew',
+      focalValue: `${skewTicks >= 0 ? '+' : ''}${skewTicks} Ticks`,
+      plainResult: `RL Market Making: Current Inventory = ${q} / ${maxQ}. Q-Learning Policy: Bid Offset = ${optimalBid} ticks, Ask Offset = ${optimalAsk} ticks. Inventory skew pushes quotes to unload long risk.`,
+      chart: {
+        labels: inventories.map(i => `${i} sh`),
+        datasets: [
+          { label: 'Optimal Bid Spread Offset (Ticks)', data: bidQuotes, borderColor: '#10b981', borderWidth: 2 },
+          { label: 'Optimal Ask Spread Offset (Ticks)', data: askQuotes, borderColor: '#f43f5e', borderWidth: 2 }
+        ]
+      },
+      equationLatex: '\\[ Q(s, a) \\leftarrow Q(s, a) + \\alpha [R - \\gamma q^2 \\sigma^2 + \\gamma \\max_{a\'} Q(s\', a\') - Q(s, a)] \\]',
+      substitutedLatex: `\\[ \\text{Skew} = ${gamma} \\cdot ${q} \\cdot ${vol}\\% = \\mathbf{${skewTicks}\\text{ Ticks}}, \\quad \\text{Bid}=${optimalBid}, \\text{Ask}=${optimalAsk} \\]`,
+      beginnerText: 'A market maker is like a grocery store owner: you want to buy milk at $3 and sell it at $4. But if you have 100 cartons of milk about to expire, you lower your price to get rid of them. Reinforcement learning teaches the trading bot how to manage inventory automatically.',
+      realWorldExample: 'Crypto market-making firms like Wintermute and Jump Trading use reinforcement learning agents that quote bid-ask spreads 24/7 on thousands of pairs while avoiding toxic order flow.',
+      investorText: 'Ensures algorithmic market makers survive sudden trending markets without getting run over by informed institutional order flow.',
+      quantText: 'Markov Decision Process (MDP) with state space $S = (q, \\Delta P, OFI)$ and action space $A = (\\delta_b, \\delta_a)$. Reward $R = \\delta_b N_b + \\delta_a N_a - \\phi q^2$.',
+      limitations: 'Requires millions of simulation steps to converge; susceptible to reward gaming in non-stationary market regimes.'
+    };
+  };
+
+  // ── 74. Extreme Value Theory (EVT) Peaks-Over-Threshold CVaR ────────────────
+  const calcEvtPotTailRisk = (inputs) => {
+    const u = parseFloat(inputs.thresholdLossPct || 2.8);
+    const xi = parseFloat(inputs.shapeXi || 0.24);
+    const beta = parseFloat(inputs.scaleBeta || 1.15);
+    const conf = parseFloat(inputs.confidencePct || 99.5) / 100;
+    const n = parseInt(inputs.sampleSize || 2500, 10);
+
+    const nu = Math.round(n * 0.05);
+    const evtVaR = Number((u + (beta / xi) * (Math.pow((n / nu) * (1 - conf), -xi) - 1)).toFixed(2));
+    const evtCVaR = Number(((evtVaR + beta - xi * u) / (1 - xi)).toFixed(2));
+    const normalVaR = Number((2.576 * 1.2).toFixed(2));
+
+    const quantiles = ['95.0%', '97.5%', '99.0%', '99.5%', '99.9%'];
+    const evtTail = [2.8, 3.4, 4.2, evtVaR, Number((evtVaR * 1.35).toFixed(2))];
+    const normalTail = [2.0, 2.4, 2.8, 3.1, 3.5];
+
+    return {
+      focalSymbol: '\\text{ES}_{99.5}',
+      focalLabel: 'EVT 99.5% Expected Shortfall (CVaR)',
+      focalValue: `-${evtCVaR}%`,
+      plainResult: `Extreme Value Theory (POT): 99.5% EVT VaR = -${evtVaR}%, 99.5% EVT Expected Shortfall (CVaR) = -${evtCVaR}% (vs Normal VaR of -${normalVaR}%). Fat-tail shape parameter ξ = ${xi} confirms heavy Pareto tail.`,
+      chart: {
+        labels: quantiles,
+        datasets: [
+          { label: 'EVT Generalized Pareto Tail Loss (%)', data: evtTail, borderColor: '#f43f5e', backgroundColor: 'rgba(244, 63, 94, 0.2)', fill: true, borderWidth: 2 },
+          { label: 'Gaussian Normal Tail Loss (%)', data: normalTail, borderColor: '#64748b', borderDash: [4, 4], fill: false }
+        ]
+      },
+      equationLatex: '\\[ G_{\\xi, \\beta}(y) = 1 - (1 + \\xi y / \\beta)^{-1/\\xi}, \\quad \\text{ES}_\\alpha = \\frac{\\text{VaR}_\\alpha}{1 - \\xi} + \\frac{\\beta - \\xi u}{1 - \\xi} \\]',
+      substitutedLatex: `\\[ \\text{VaR}_{99.5} = \\mathbf{-${evtVaR}\\%}, \\quad \\text{ES}_{99.5} = \\mathbf{-${evtCVaR}\\%} \\]`,
+      beginnerText: 'Normal statistics say that a 10% market crash should happen once every 4 billion years. In reality, they happen every decade! Extreme Value Theory specifically studies rare catastrophe events to calculate how much you will actually lose when disaster strikes.',
+      realWorldExample: 'Risk managers at pension funds and central banks use EVT to calculate catastrophic reserves under Basel IV and Solvency II regulatory stress tests.',
+      investorText: 'Guarantees portfolio survival during Black Swan crises by sizing tail-risk hedges using actual Pareto tails instead of bell curves.',
+      quantText: 'Balkema-de Haan-Pickands theorem: asymptotic distribution of exceedances over high threshold converges uniquely to Generalized Pareto Distribution (GPD).',
+      limitations: 'Selecting the optimal threshold u involves an empirical bias-variance trade-off; too low introduces bias, too high increases variance.'
+    };
+  };
+
+  // ── 75. Hidden Markov Model (HMM) Multi-State Regime Matrix ─────────────────
+  const calcHmmRegimeSwitching = (inputs) => {
+    const pBull = parseFloat(inputs.pBullToBull || 0.94);
+    const pBear = parseFloat(inputs.pBearToBear || 0.86);
+    const pSide = parseFloat(inputs.pSidewaysToSideways || 0.88);
+    const ret = parseFloat(inputs.recentDailyReturn || 0.85);
+    const vol = parseFloat(inputs.recentDailyVol || 15.2);
+
+    let stateProbs = [0.72, 0.10, 0.18]; // Bull, Bear, Sideways
+    if (ret < -1.0 || vol > 25.0) stateProbs = [0.08, 0.78, 0.14];
+    else if (Math.abs(ret) < 0.3 && vol > 18.0) stateProbs = [0.22, 0.18, 0.60];
+
+    const dominant = stateProbs[0] > 0.5 ? 'BULL REGIME (Trend Long)' : (stateProbs[1] > 0.5 ? 'BEAR REGIME (Capital Preservation)' : 'SIDEWAYS REGIME (Mean Reversion)');
+    const expectedBullDuration = Math.round(1 / (1 - pBull));
+
+    return {
+      focalSymbol: 'S_t^*',
+      focalLabel: 'Decoded Market Regime State',
+      focalValue: dominant.split(' ')[0],
+      plainResult: `Gaussian HMM: P(Bull) = ${Math.round(stateProbs[0]*100)}%, P(Bear) = ${Math.round(stateProbs[1]*100)}%, P(Sideways) = ${Math.round(stateProbs[2]*100)}%. Dominant state: ${dominant}. Expected duration = ${expectedBullDuration} days.`,
+      chart: {
+        labels: ['Bull Regime', 'Bear Regime', 'Sideways Volatile'],
+        datasets: [
+          { label: 'Filtered State Posterior Probability (%)', data: stateProbs.map(p => Math.round(p * 100)), backgroundColor: ['#10b981', '#f43f5e', '#f59e0b'] }
+        ]
+      },
+      equationLatex: '\\[ P(S_t = j \\mid S_{t-1} = i) = A_{ij}, \\quad \\alpha_t(j) = P(Y_{1:t}, S_t = j) \\]',
+      substitutedLatex: `\\[ P(S_t) = [\\mathbf{${Math.round(stateProbs[0]*100)}\\%}, \\mathbf{${Math.round(stateProbs[1]*100)}\\%}, \\mathbf{${Math.round(stateProbs[2]*100)}\\%}], \\quad \\tau = \\mathbf{${expectedBullDuration}\\text{ Days}} \\]`,
+      beginnerText: 'Markets have distinct personalities or seasons: sunny calm bull markets, stormy crashing bear markets, and foggy sideways markets. HMM acts like an automated weather satellite that detects which season the market is in today.',
+      realWorldExample: 'Systematic trend-following CTAs use HMM filters to dynamically switch between aggressive trend-following during bull regimes and shorting or cash during bear regimes.',
+      investorText: 'Prevents massive drawdowns by taking defensive posture when regime probabilities tip towards bear state.',
+      quantText: 'Baum-Welch expectation-maximization algorithm estimating transition matrix A and emission Gaussian parameters $\\mu_k, \\Sigma_k$ solved via forward-backward recursion.',
+      limitations: 'Lag in state identification during rapid regime inflection points; requires sufficient sample history to avoid degenerate states.'
+    };
+  };
+
   const MODULES_DIRECTORY = [
     // Category 1: Returns & Growth
     {
@@ -4605,6 +4998,227 @@ const LearnMathEngine = (() => {
         { label: 'Deep In-The-Money Call (OAS 65 bps)', inputs: { bondMarketPrice: 100.8, parValue: 100.0, couponRate: 8.5, callPrice: 100.5, callYear: 1, maturityYears: 5, interestRateVol: 20.0 } }
       ]
     },
+    {
+      id: 'sector_relative_strength',
+      title: 'Sector Rotation & Relative Strength Alpha Matrix',
+      shortTitle: 'Sector Rotation Matrix',
+      category: 'Portfolio Optimization & Allocation',
+      categoryKey: 'portfolio',
+      icon: 'fa-chart-pie',
+      badge: 'Mansfield Relative Strength',
+      calc: calcSectorRelativeStrength,
+      defaultInputs: { sectorReturn: 22.5, benchmarkReturn: 14.0, sectorVol: 18.5, benchmarkVol: 14.0, lookbackDays: 63 },
+      controls: [
+        { key: 'sectorReturn', label: 'Sector Multi-Month Return (%)', type: 'percent', min: -40, max: 80, step: 1.0, default: 22.5 },
+        { key: 'benchmarkReturn', label: 'Market Benchmark Return (%)', type: 'percent', min: -30, max: 50, step: 1.0, default: 14.0 },
+        { key: 'sectorVol', label: 'Sector Annualized Volatility (%)', type: 'percent', min: 8, max: 45, step: 0.5, default: 18.5 },
+        { key: 'benchmarkVol', label: 'Benchmark Index Volatility (%)', type: 'percent', min: 8, max: 35, step: 0.5, default: 14.0 },
+        { key: 'lookbackDays', label: 'Rotation Lookback Window (Days)', type: 'number', min: 21, max: 252, step: 21, default: 63 }
+      ],
+      presets: [
+        { label: 'Outperforming Leading Sector', inputs: { sectorReturn: 28.0, benchmarkReturn: 12.0, sectorVol: 20.0, benchmarkVol: 14.0, lookbackDays: 63 } },
+        { label: 'Lagging Deficit Sector', inputs: { sectorReturn: 4.5, benchmarkReturn: 16.0, sectorVol: 16.0, benchmarkVol: 14.0, lookbackDays: 63 } }
+      ]
+    },
+    {
+      id: 'egyptian_pantheon_hft',
+      title: 'Egyptian Pantheon Order Flow Imbalance (OFI) & Microstructure',
+      shortTitle: 'Order Flow Imbalance (OFI)',
+      category: 'AI & Predictive Intelligence',
+      categoryKey: 'ai_predictive',
+      icon: 'fa-ankh',
+      badge: 'Cont-Kukanov-Stoikov',
+      calc: calcEgyptianPantheonHft,
+      defaultInputs: { bidVolChange: 18500, askVolChange: 9200, lambdaImpact: 0.00035, tickSpreadBps: 2.5 },
+      controls: [
+        { key: 'bidVolChange', label: 'Bid Queue Depth Change (Shares)', type: 'number', min: 0, max: 100000, step: 1000, default: 18500 },
+        { key: 'askVolChange', label: 'Ask Queue Depth Change (Shares)', type: 'number', min: 0, max: 100000, step: 1000, default: 9200 },
+        { key: 'lambdaImpact', label: "Price Impact Lambda (λ)", type: 'number', min: 0.0001, max: 0.002, step: 0.00005, default: 0.00035 },
+        { key: 'tickSpreadBps', label: 'Bid-Ask Spread (BPS)', type: 'number', min: 0.5, max: 15.0, step: 0.5, default: 2.5 }
+      ],
+      presets: [
+        { label: 'Ra / Horus Heavy Buying Imbalance (+2.5σ)', inputs: { bidVolChange: 25000, askVolChange: 5000, lambdaImpact: 0.00035, tickSpreadBps: 2.0 } },
+        { label: 'Sobek Heavy Selling Dump (-2.0σ)', inputs: { bidVolChange: 4000, askVolChange: 22000, lambdaImpact: 0.00035, tickSpreadBps: 3.5 } }
+      ]
+    },
+    {
+      id: 'garch_jump_diffusion',
+      title: 'GARCH(1,1) Compound Poisson Jump-Diffusion',
+      shortTitle: 'GARCH Jump-Diffusion',
+      category: 'Risk & Drawdown Engine',
+      categoryKey: 'risk',
+      icon: 'fa-bolt-lightning',
+      badge: 'Fat-Tail Jump Risk',
+      calc: calcGarchJumpDiffusion,
+      defaultInputs: { baselineVol: 16.0, alphaArch: 0.08, betaGarch: 0.88, jumpIntensityLambda: 3.5, jumpSizeMean: -4.5, jumpSizeVol: 6.0 },
+      controls: [
+        { key: 'baselineVol', label: 'Base Continuous Volatility (%)', type: 'percent', min: 5, max: 40, step: 1.0, default: 16.0 },
+        { key: 'alphaArch', label: 'ARCH Alpha Reaction Parameter (α)', type: 'number', min: 0.01, max: 0.20, step: 0.01, default: 0.08 },
+        { key: 'betaGarch', label: 'GARCH Beta Persistence Parameter (β)', type: 'number', min: 0.60, max: 0.95, step: 0.01, default: 0.88 },
+        { key: 'jumpIntensityLambda', label: 'Poisson Jump Intensity (λ events/yr)', type: 'number', min: 0.5, max: 12.0, step: 0.5, default: 3.5 },
+        { key: 'jumpSizeMean', label: 'Mean Crash Jump Return (%)', type: 'percent', min: -20.0, max: 5.0, step: 0.5, default: -4.5 },
+        { key: 'jumpSizeVol', label: 'Jump Shock Volatility (%)', type: 'percent', min: 1.0, max: 15.0, step: 0.5, default: 6.0 }
+      ],
+      presets: [
+        { label: 'Normal Equity Market (3.5 Jumps/Yr)', inputs: { baselineVol: 16.0, alphaArch: 0.08, betaGarch: 0.88, jumpIntensityLambda: 3.5, jumpSizeMean: -4.5, jumpSizeVol: 6.0 } },
+        { label: 'Crisis Flash Crash Regime (10 Jumps/Yr)', inputs: { baselineVol: 28.0, alphaArch: 0.15, betaGarch: 0.82, jumpIntensityLambda: 9.5, jumpSizeMean: -8.0, jumpSizeVol: 10.0 } }
+      ]
+    },
+    {
+      id: 'cross_asset_stat_arb',
+      title: 'Cross-Asset Statistical Arbitrage & Cointegration',
+      shortTitle: 'Cross-Asset Stat Arb',
+      category: 'Quantitative Simulators',
+      categoryKey: 'simulators',
+      icon: 'fa-arrows-split-up-and-left',
+      badge: 'Ornstein-Uhlenbeck Pairs',
+      calc: calcCrossAssetStatArb,
+      defaultInputs: { priceA: 24680, priceB: 52140, hedgeRatioBeta: 0.47, ouSpeedTheta: 0.22, currentSpreadDev: 2.35 },
+      controls: [
+        { key: 'priceA', label: 'Asset A Spot Level (e.g. NIFTY)', type: 'number', min: 100, max: 100000, step: 50, default: 24680 },
+        { key: 'priceB', label: 'Asset B Spot Level (e.g. BANKNIFTY)', type: 'number', min: 100, max: 100000, step: 50, default: 52140 },
+        { key: 'hedgeRatioBeta', label: 'Cointegration Hedge Ratio (β)', type: 'number', min: 0.05, max: 3.0, step: 0.01, default: 0.47 },
+        { key: 'ouSpeedTheta', label: 'Mean Reversion Speed (θ)', type: 'number', min: 0.02, max: 0.80, step: 0.02, default: 0.22 },
+        { key: 'currentSpreadDev', label: 'Current Spread Deviation (σ)', type: 'number', min: -4.0, max: 4.0, step: 0.1, default: 2.35 }
+      ],
+      presets: [
+        { label: 'Short Spread Extreme Divergence (+2.5σ)', inputs: { priceA: 24680, priceB: 52140, hedgeRatioBeta: 0.47, ouSpeedTheta: 0.22, currentSpreadDev: 2.5 } },
+        { label: 'Long Spread Oversold Divergence (-2.4σ)', inputs: { priceA: 24680, priceB: 52140, hedgeRatioBeta: 0.47, ouSpeedTheta: 0.22, currentSpreadDev: -2.4 } }
+      ]
+    },
+    {
+      id: 'barra_multi_factor_risk',
+      title: 'Barra Multi-Factor Risk & Covariance Decomposition',
+      shortTitle: 'Barra Multi-Factor Risk',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-cubes-stacked',
+      badge: 'Active Risk Attribution',
+      calc: calcBarraMultiFactorRisk,
+      defaultInputs: { valueExposure: 0.45, momentumExposure: 0.82, qualityExposure: 0.60, sizeExposure: -0.25, specificRiskPct: 7.5 },
+      controls: [
+        { key: 'valueExposure', label: 'Value Factor Z-Score Exposure', type: 'number', min: -2.5, max: 2.5, step: 0.05, default: 0.45 },
+        { key: 'momentumExposure', label: 'Momentum Factor Z-Score Exposure', type: 'number', min: -2.5, max: 2.5, step: 0.05, default: 0.82 },
+        { key: 'qualityExposure', label: 'Quality Factor Z-Score Exposure', type: 'number', min: -2.5, max: 2.5, step: 0.05, default: 0.60 },
+        { key: 'sizeExposure', label: 'Size (Small-Cap) Exposure', type: 'number', min: -2.5, max: 2.5, step: 0.05, default: -0.25 },
+        { key: 'specificRiskPct', label: 'Stock-Specific Idiosyncratic Risk (%)', type: 'percent', min: 1.0, max: 25.0, step: 0.5, default: 7.5 }
+      ],
+      presets: [
+        { label: 'High Momentum Growth Portfolio', inputs: { valueExposure: -0.30, momentumExposure: 1.45, qualityExposure: 0.80, sizeExposure: 0.15, specificRiskPct: 6.5 } },
+        { label: 'Defensive Value & Quality Portfolio', inputs: { valueExposure: 1.20, momentumExposure: -0.40, qualityExposure: 1.10, sizeExposure: -0.50, specificRiskPct: 5.0 } }
+      ]
+    },
+    {
+      id: 'optimal_vwap_execution',
+      title: 'Optimal Algorithmic Order Slicing (VWAP & TWAP)',
+      shortTitle: 'VWAP Order Slicing',
+      category: 'Quantitative Simulators',
+      categoryKey: 'simulators',
+      icon: 'fa-stopwatch-20',
+      badge: 'Almgren-Chriss Slicing',
+      calc: calcOptimalVwapExecution,
+      defaultInputs: { orderSizeShares: 85000, advShares: 2200000, participationPct: 8.5, volatilityPct: 24.0, tradingHours: 6.5 },
+      controls: [
+        { key: 'orderSizeShares', label: 'Target Order Size (Shares)', type: 'number', min: 5000, max: 1000000, step: 5000, default: 85000 },
+        { key: 'advShares', label: '20-Day Average Daily Volume (ADV)', type: 'number', min: 100000, max: 20000000, step: 100000, default: 2200000 },
+        { key: 'participationPct', label: 'Target Volume Participation Rate (%)', type: 'percent', min: 1.0, max: 25.0, step: 0.5, default: 8.5 },
+        { key: 'volatilityPct', label: 'Asset Annualized Volatility (%)', type: 'percent', min: 10.0, max: 60.0, step: 1.0, default: 24.0 },
+        { key: 'tradingHours', label: 'Execution Time Horizon (Hours)', type: 'number', min: 1.0, max: 8.0, step: 0.5, default: 6.5 }
+      ],
+      presets: [
+        { label: 'Patient VWAP (8.5% Participation)', inputs: { orderSizeShares: 85000, advShares: 2200000, participationPct: 8.5, volatilityPct: 24.0, tradingHours: 6.5 } },
+        { label: 'Urgent Liquidation (20% Participation)', inputs: { orderSizeShares: 150000, advShares: 2200000, participationPct: 20.0, volatilityPct: 35.0, tradingHours: 2.5 } }
+      ]
+    },
+    {
+      id: 'sabr_vol_surface',
+      title: 'SABR Stochastic Volatility Surface Calibration',
+      shortTitle: 'SABR Vol Surface',
+      category: 'Advanced Quantitative Mathematics',
+      categoryKey: 'mathematics',
+      icon: 'fa-wave-square',
+      badge: 'Hagan SABR PDE',
+      calc: calcSabrVolSurface,
+      defaultInputs: { forwardF: 100.0, atmVolAlpha: 0.20, elasticityBeta: 0.50, correlationRho: -0.35, volOfVolNu: 0.42, expiryYears: 1.0 },
+      controls: [
+        { key: 'forwardF', label: 'Forward Price (F0)', type: 'number', min: 20, max: 500, step: 5, default: 100.0 },
+        { key: 'atmVolAlpha', label: 'Initial Volatility Alpha (α)', type: 'number', min: 0.05, max: 0.60, step: 0.01, default: 0.20 },
+        { key: 'elasticityBeta', label: 'CEV Elasticity Beta (β: 0=Norm, 1=Log)', type: 'number', min: 0.0, max: 1.0, step: 0.1, default: 0.50 },
+        { key: 'correlationRho', label: 'Spot-Vol Correlation (ρ)', type: 'number', min: -0.80, max: 0.80, step: 0.05, default: -0.35 },
+        { key: 'volOfVolNu', label: 'Volatility of Volatility (ν)', type: 'number', min: 0.05, max: 1.20, step: 0.05, default: 0.42 }
+      ],
+      presets: [
+        { label: 'Equity Skew Smile (Negative Rho)', inputs: { forwardF: 100.0, atmVolAlpha: 0.20, elasticityBeta: 0.50, correlationRho: -0.45, volOfVolNu: 0.48, expiryYears: 1.0 } },
+        { label: 'FX Symmetric Smile (Near Zero Rho)', inputs: { forwardF: 100.0, atmVolAlpha: 0.14, elasticityBeta: 1.0, correlationRho: 0.05, volOfVolNu: 0.35, expiryYears: 1.0 } }
+      ]
+    },
+    {
+      id: 'reinforcement_learning_mm',
+      title: 'Q-Learning Market Making & Inventory Control',
+      shortTitle: 'RL Market Making',
+      category: 'AI & Predictive Intelligence',
+      categoryKey: 'ai_predictive',
+      icon: 'fa-robot',
+      badge: 'Q-Learning MDP',
+      calc: calcReinforcementLearningMm,
+      defaultInputs: { currentInventory: 12, maxInventory: 40, gammaRiskAversion: 0.08, spreadTicks: 3, assetVolPct: 22.0 },
+      controls: [
+        { key: 'currentInventory', label: 'Current Inventory (Shares/Lots)', type: 'number', min: -40, max: 40, step: 2, default: 12 },
+        { key: 'maxInventory', label: 'Hard Inventory Risk Limit (Max Q)', type: 'number', min: 10, max: 100, step: 5, default: 40 },
+        { key: 'gammaRiskAversion', label: 'Risk Aversion Parameter (γ)', type: 'number', min: 0.01, max: 0.30, step: 0.01, default: 0.08 },
+        { key: 'spreadTicks', label: 'Half-Spread Baseline (Ticks)', type: 'number', min: 1, max: 10, step: 1, default: 3 },
+        { key: 'assetVolPct', label: 'Underlying Asset Volatility (%)', type: 'percent', min: 5, max: 60, step: 1, default: 22.0 }
+      ],
+      presets: [
+        { label: 'Long Inventory (Skew Quotes to Sell)', inputs: { currentInventory: 24, maxInventory: 40, gammaRiskAversion: 0.12, spreadTicks: 3, assetVolPct: 26.0 } },
+        { label: 'Flat Inventory (Balanced Two-Sided Quotes)', inputs: { currentInventory: 0, maxInventory: 40, gammaRiskAversion: 0.05, spreadTicks: 2, assetVolPct: 18.0 } }
+      ]
+    },
+    {
+      id: 'evt_pot_tail_risk',
+      title: 'Extreme Value Theory (EVT) Peaks-Over-Threshold CVaR',
+      shortTitle: 'EVT Tail Risk & GPD',
+      category: 'Risk & Drawdown Engine',
+      categoryKey: 'risk',
+      icon: 'fa-shield-halved',
+      badge: 'Generalized Pareto (GPD)',
+      calc: calcEvtPotTailRisk,
+      defaultInputs: { thresholdLossPct: 2.8, shapeXi: 0.24, scaleBeta: 1.15, confidencePct: 99.5, sampleSize: 2500 },
+      controls: [
+        { key: 'thresholdLossPct', label: 'Exceedance Threshold Loss u (%)', type: 'percent', min: 1.0, max: 6.0, step: 0.2, default: 2.8 },
+        { key: 'shapeXi', label: 'GPD Tail Shape Parameter (ξ > 0 = Heavy Tail)', type: 'number', min: 0.05, max: 0.60, step: 0.02, default: 0.24 },
+        { key: 'scaleBeta', label: 'GPD Scale Parameter (β)', type: 'number', min: 0.4, max: 3.0, step: 0.1, default: 1.15 },
+        { key: 'confidencePct', label: 'Target Confidence Level (%)', type: 'percent', min: 99.0, max: 99.9, step: 0.1, default: 99.5 },
+        { key: 'sampleSize', label: 'Historical Observation Sample Size', type: 'number', min: 500, max: 10000, step: 500, default: 2500 }
+      ],
+      presets: [
+        { label: 'Fat-Tail Financial Crisis Tail (ξ = 0.32)', inputs: { thresholdLossPct: 3.0, shapeXi: 0.32, scaleBeta: 1.40, confidencePct: 99.5, sampleSize: 2500 } },
+        { label: 'Moderate Tail Risk (ξ = 0.16)', inputs: { thresholdLossPct: 2.5, shapeXi: 0.16, scaleBeta: 1.05, confidencePct: 99.0, sampleSize: 2500 } }
+      ]
+    },
+    {
+      id: 'hmm_regime_switching',
+      title: 'Hidden Markov Model (HMM) Multi-State Regime Matrix',
+      shortTitle: 'HMM Regime Switching',
+      category: 'AI & Predictive Intelligence',
+      categoryKey: 'ai_predictive',
+      icon: 'fa-diagram-project',
+      badge: 'Gaussian HMM Transition',
+      calc: calcHmmRegimeSwitching,
+      defaultInputs: { pBullToBull: 0.94, pBearToBear: 0.86, pSidewaysToSideways: 0.88, recentDailyReturn: 0.85, recentDailyVol: 15.2 },
+      controls: [
+        { key: 'pBullToBull', label: 'Probability Bull → Bull State', type: 'percent', min: 70, max: 99, step: 1, default: 0.94 },
+        { key: 'pBearToBear', label: 'Probability Bear → Bear State', type: 'percent', min: 70, max: 99, step: 1, default: 0.86 },
+        { key: 'pSidewaysToSideways', label: 'Probability Sideways → Sideways', type: 'percent', min: 70, max: 99, step: 1, default: 0.88 },
+        { key: 'recentDailyReturn', label: 'Latest Observed Daily Return (%)', type: 'percent', min: -6.0, max: 6.0, step: 0.25, default: 0.85 },
+        { key: 'recentDailyVol', label: 'Latest Annualized Volatility (%)', type: 'percent', min: 8.0, max: 50.0, step: 1.0, default: 15.2 }
+      ],
+      presets: [
+        { label: 'Strong Bull Regime Persistence', inputs: { pBullToBull: 0.96, pBearToBear: 0.80, pSidewaysToSideways: 0.85, recentDailyReturn: 1.4, recentDailyVol: 13.5 } },
+        { label: 'Crashing Bear Market Contagion', inputs: { pBullToBull: 0.85, pBearToBear: 0.92, pSidewaysToSideways: 0.80, recentDailyReturn: -3.2, recentDailyVol: 34.0 } }
+      ]
+    }
+
   ];
 
   return {

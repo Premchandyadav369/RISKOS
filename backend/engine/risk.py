@@ -55,9 +55,15 @@ def calculate_var(
     param_cvar = float(mu - sigma * (norm.pdf(z) / (1 - confidence)))
     
     # Monte Carlo VaR and CVaR using Ledoit-Wolf
-    lw_result = ledoit_wolf_shrinkage(returns)
-    cov_matrix = np.array(lw_result['covariance_matrix'], dtype=float)
-    mu_assets = returns.mean().values
+    clean_returns = returns.dropna()
+    if clean_returns.empty:
+        clean_returns = returns.fillna(0.0)
+    lw_result = ledoit_wolf_shrinkage(clean_returns)
+    if 'covariance_matrix' in lw_result and lw_result['covariance_matrix']:
+        cov_matrix = np.array(lw_result['covariance_matrix'], dtype=float)
+    else:
+        cov_matrix = np.atleast_2d(clean_returns.cov().values)
+    mu_assets = clean_returns.mean().values
     
     rng = np.random.default_rng(random_seed)
     

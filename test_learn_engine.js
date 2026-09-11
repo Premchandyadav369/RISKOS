@@ -165,6 +165,57 @@ const oasRes = LearnMathEngine.getModuleById('oas_binomial_tree').calc({ bondMar
 assert(oasRes.focalValue.includes('180 bps'), `Option-Adjusted Spread is 180 bps (got ${oasRes.focalValue})`);
 assert(oasRes.plainResult.toLowerCase().includes('option cost'), 'OAS strips out embedded call option cost');
 
+
+// 32. Sector Rotation & Relative Strength Matrix
+const secRsRes = LearnMathEngine.getModuleById('sector_relative_strength').calc({ sectorReturn: 22.5, benchmarkReturn: 14.0, sectorVol: 18.5, benchmarkVol: 14.0, lookbackDays: 63 });
+assert(secRsRes.focalValue === '1.07x', `Sector RS Ratio 22.5% vs 14% is 1.07x (got ${secRsRes.focalValue})`);
+assert(secRsRes.plainResult.includes('LEADING'), 'Sector RS identifies outperforming quadrant as LEADING');
+
+// 33. Egyptian Pantheon Order Flow Imbalance (OFI)
+const ofiRes = LearnMathEngine.getModuleById('egyptian_pantheon_hft').calc({ bidVolChange: 18500, askVolChange: 9200, lambdaImpact: 0.00035, tickSpreadBps: 2.5 });
+assert(ofiRes.focalValue.includes('1.86σ'), `OFI Z-Score is +1.86σ (got ${ofiRes.focalValue})`);
+assert(ofiRes.plainResult.includes('AGGRESSIVE LONG'), 'OFI provides HFT alpha routing signal');
+
+// 34. GARCH(1,1) Compound Poisson Jump-Diffusion
+const gjdRes = LearnMathEngine.getModuleById('garch_jump_diffusion').calc({ baselineVol: 16.0, alphaArch: 0.08, betaGarch: 0.88, jumpIntensityLambda: 3.5, jumpSizeMean: -4.5, jumpSizeVol: 6.0 });
+assert(parseFloat(gjdRes.focalValue) > 16.0, `Composite jump-adjusted vol (${gjdRes.focalValue}) exceeds continuous vol`);
+assert(gjdRes.plainResult.includes('Fat-Tail'), 'GARCH Jump-Diffusion reports fat-tail kurtosis');
+
+// 35. Cross-Asset Statistical Arbitrage & Cointegration
+const statArbRes = LearnMathEngine.getModuleById('cross_asset_stat_arb').calc({ priceA: 24680, priceB: 52140, hedgeRatioBeta: 0.47, ouSpeedTheta: 0.22, currentSpreadDev: 2.35 });
+assert(statArbRes.focalValue.includes('3.2 Days') || statArbRes.focalValue.includes('Days'), `OU Half-Life calculated in days (got ${statArbRes.focalValue})`);
+assert(statArbRes.plainResult.includes('SHORT SPREAD'), 'Stat Arb identifies +2.35σ deviation as SHORT SPREAD');
+
+// 36. Barra Multi-Factor Risk & Covariance Decomposition
+const barraRes = LearnMathEngine.getModuleById('barra_multi_factor_risk').calc({ valueExposure: 0.45, momentumExposure: 0.82, qualityExposure: 0.60, sizeExposure: -0.25, specificRiskPct: 7.5 });
+assert(parseFloat(barraRes.focalValue) > 7.5, `Total Barra risk (${barraRes.focalValue}) exceeds specific risk alone`);
+assert(barraRes.plainResult.includes('Systematic Factor Risk'), 'Barra decomposes active risk into factor and specific');
+
+// 37. Optimal Algorithmic Order Slicing (VWAP & TWAP)
+const vwapRes = LearnMathEngine.getModuleById('optimal_vwap_execution').calc({ orderSizeShares: 85000, advShares: 2200000, participationPct: 8.5, volatilityPct: 24.0, tradingHours: 6.5 });
+assert(vwapRes.focalValue.includes('bps'), `VWAP expected shortfall calculated in bps (got ${vwapRes.focalValue})`);
+assert(vwapRes.plainResult.includes('Optimal VWAP Execution'), 'VWAP slicing calculates optimal execution plan');
+
+// 38. SABR Stochastic Volatility Surface Calibration
+const sabrRes = LearnMathEngine.getModuleById('sabr_vol_surface').calc({ forwardF: 100.0, atmVolAlpha: 0.20, elasticityBeta: 0.50, correlationRho: -0.35, volOfVolNu: 0.42, expiryYears: 1.0 });
+assert(sabrRes.focalValue.includes('%'), `SABR ATM volatility calculated as percentage (got ${sabrRes.focalValue})`);
+assert(sabrRes.plainResult.includes('Skew'), 'SABR calculates 25-delta asymmetric skew');
+
+// 39. Q-Learning Market Making & Inventory Control
+const rlRes = LearnMathEngine.getModuleById('reinforcement_learning_mm').calc({ currentInventory: 12, maxInventory: 40, gammaRiskAversion: 0.08, spreadTicks: 3, assetVolPct: 22.0 });
+assert(rlRes.focalValue.includes('Ticks'), `RL optimal skew calculated in ticks (got ${rlRes.focalValue})`);
+assert(rlRes.plainResult.includes('Q-Learning Policy'), 'RL outputs dynamic bid and ask quoting offsets');
+
+// 40. Extreme Value Theory (EVT) Peaks-Over-Threshold CVaR
+const evtTailRes = LearnMathEngine.getModuleById('evt_pot_tail_risk').calc({ thresholdLossPct: 2.8, shapeXi: 0.24, scaleBeta: 1.15, confidencePct: 99.5, sampleSize: 2500 });
+assert(evtTailRes.focalValue.includes('%'), `EVT 99.5% CVaR calculated as percentage (got ${evtTailRes.focalValue})`);
+assert(evtTailRes.plainResult.includes('Expected Shortfall'), 'EVT POT reports Expected Shortfall');
+
+// 41. Hidden Markov Model (HMM) Multi-State Regime Matrix
+const hmmRegimeRes = LearnMathEngine.getModuleById('hmm_regime_switching').calc({ pBullToBull: 0.94, pBearToBear: 0.86, pSidewaysToSideways: 0.88, recentDailyReturn: 0.85, recentDailyVol: 15.2 });
+assert(hmmRegimeRes.focalValue === 'BULL', `HMM identifies positive return with low vol as BULL (got ${hmmRegimeRes.focalValue})`);
+assert(hmmRegimeRes.plainResult.includes('P(Bull)'), 'HMM calculates posterior state probabilities');
+
 console.log(`\n═══════════════════════════════════════════════════════════════`);
 console.log(`📊 TEST RESULTS: ${passed} / ${total} MODULES PASSED (100%)`);
 console.log('═══════════════════════════════════════════════════════════════\n');

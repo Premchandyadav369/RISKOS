@@ -193,13 +193,17 @@ def evaluate_single_stock_recommendation(
     if np.isnan(base_drift_daily):
         base_drift_daily = 0.0008
 
-    tsmom_boost = max(-0.02, min(0.04, mom['tsmom_score'] * 0.025))
+    tsmom_score = float(mom.get('tsmom_score', 0.5))
+    if np.isnan(tsmom_score):
+        tsmom_score = 0.5
+
+    tsmom_boost = max(-0.02, min(0.04, tsmom_score * 0.025))
     rsi_dip_boost = max(0.0, (50 - rsi) * 0.001) if rsi < 50 else 0.0
 
     # Projected multi-horizon expected return fractions
     ret_1d_frac = float(np.clip(base_drift_daily + (tsmom_boost * 0.3) + 0.004, 0.008, 0.035))
     ret_5d_frac = float(np.clip((ret_1d_frac * 3.2) + rsi_dip_boost + 0.015, 0.025, 0.085))
-    ret_20d_frac = float(np.clip((ret_5d_frac * 2.2) + (mom['tsmom_score'] * 0.04) + 0.028, 0.065, 0.195))
+    ret_20d_frac = float(np.clip((ret_5d_frac * 2.2) + (tsmom_score * 0.04) + 0.028, 0.065, 0.195))
     ret_64d_frac = float(np.clip((ret_20d_frac * 1.8) + 0.045, 0.12, 0.38))
 
     # Multi-Horizon Targets
@@ -224,16 +228,22 @@ def evaluate_single_stock_recommendation(
             adv20 = int(actual_adv)
 
     # Projected RVOL required to fuel price discovery
-    rvol_multiplier = round(float(np.clip(1.35 + (mom['tsmom_score'] * 0.4) + (ret_5d_frac * 6), 1.25, 2.95)), 2)
-    target_volume = int(adv20 * rvol_multiplier)
+    rvol_calc = 1.35 + (tsmom_score * 0.4) + (ret_5d_frac * 6)
+    if np.isnan(rvol_calc):
+        rvol_calc = 1.5
+    rvol_multiplier = round(float(np.clip(rvol_calc, 1.25, 2.95)), 2)
+    target_volume = int(max(1000, adv20 * rvol_multiplier))
     # Institutional max order participation collar (1.5% of ADV to keep slippage < 3.5 bps)
-    max_order_collar_shares = int(adv20 * 0.015)
+    max_order_collar_shares = int(max(100, adv20 * 0.015))
 
     # 7. Intrinsic DCF Valuation & Margin of Safety
-    # DCF / Gordon Growth Fair Value Proxy
-    dcf_growth_rate = float(np.clip(0.08 + (mom['tsmom_score'] * 0.04), 0.05, 0.18))
+    dcf_calc = 0.08 + (tsmom_score * 0.04)
+    if np.isnan(dcf_calc):
+        dcf_calc = 0.10
+    dcf_growth_rate = float(np.clip(dcf_calc, 0.05, 0.18))
     dcf_fair_value = round(curr_p * (1.0 + (dcf_growth_rate * 1.5)), 2)
     margin_of_safety_pct = round(((dcf_fair_value - curr_p) / curr_p) * 100, 1)
+
 
     # 8. Barra 8-Factor Style Attribution
     barra_factors = _compute_barra_8_factors(close_series, vol_series)
