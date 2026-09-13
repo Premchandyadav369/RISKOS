@@ -880,3 +880,9 @@ def serve_terminal():
 
 if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="root_static")
+
+
+@app.get("/api/fleet/status")
+def get_fleet_status():
+    from engine.bot_fleet import get_fleet_telemetry
+    return get_fleet_telemetry()
