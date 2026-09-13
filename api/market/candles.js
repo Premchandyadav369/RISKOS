@@ -1,5 +1,6 @@
 /**
- * Vercel Serverless Function: GET /api/market/candles?symbol=...&tf=...
+ * Vercel Serverless Function: GET /api/market/candles?symbol=...&tf=...&period=...
+ * Multi-timeframe OHLCV historical & intraday candlestick data engine.
  */
 
 const US_KNOWN = new Set([
@@ -43,6 +44,23 @@ function normalizeSymbol(symbol) {
   return `${sym}.NS`;
 }
 
+function getTimeframeParams(tf) {
+  const t = String(tf || '1Y').toUpperCase();
+  switch (t) {
+    case '1D': return { range: '1d', interval: '5m', isIntraday: true };
+    case '1W':
+    case '5D': return { range: '5d', interval: '15m', isIntraday: true };
+    case '1M': return { range: '1mo', interval: '1d', isIntraday: false };
+    case '3M': return { range: '3mo', interval: '1d', isIntraday: false };
+    case '6M': return { range: '6mo', interval: '1d', isIntraday: false };
+    case '1Y': return { range: '1y', interval: '1d', isIntraday: false };
+    case '5Y': return { range: '5y', interval: '1wk', isIntraday: false };
+    case 'ALL':
+    case 'MAX': return { range: 'max', interval: '1mo', isIntraday: false };
+    default: return { range: '1y', interval: '1d', isIntraday: false };
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -52,11 +70,16 @@ export default async function handler(req, res) {
 
   const rawSym = req.query.symbol || req.query.ticker || 'RELIANCE';
   const cleanSym = normalizeSymbol(rawSym);
-  const range = req.query.period || '1y';
+  const requestedTf = req.query.tf || req.query.timeframe || req.query.period || '1Y';
+  const { range, interval, isIntraday } = getTimeframeParams(requestedTf);
 
   try {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=1d&range=${range}`;
-    const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=${interval}&range=${range}&includePrePost=false`;
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
+    });
 
     if (response.ok) {
       const data = await response.json();
@@ -64,14 +87,20 @@ export default async function handler(req, res) {
       if (result && result.timestamp && result.indicators && result.indicators.quote) {
         const timestamps = result.timestamp;
         const q = result.indicators.quote[0];
+        const meta = result.meta || {};
         const bars = [];
 
         for (let i = 0; i < timestamps.length; i++) {
-          if (q.close[i] !== null && q.close[i] !== undefined) {
-            const dateStr = new Date(timestamps[i] * 1000).toISOString().split('T')[0];
+          if (q.close[i] !== null && q.close[i] !== undefined && !isNaN(q.close[i])) {
+            const dt = new Date(timestamps[i] * 1000);
+            const dateStr = isIntraday 
+              ? dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+              : dt.toISOString().split('T')[0];
+
             bars.push({
               time: dateStr,
-              date: dateStr,
+              date: isIntraday ? `${dt.toISOString().split('T')[0]} ${dateStr}` : dateStr,
+              timestamp: timestamps[i],
               open: Number((q.open[i] || q.close[i]).toFixed(2)),
               high: Number((q.high[i] || q.close[i]).toFixed(2)),
               low: Number((q.low[i] || q.close[i]).toFixed(2)),
@@ -81,16 +110,22 @@ export default async function handler(req, res) {
           }
         }
 
-        return res.status(200).json({
-          symbol: rawSym.toUpperCase(),
-          timeframe: '1D',
-          period: range,
-          provider: 'Yahoo Finance Live',
-          bars: bars
-        });
+        if (bars.length > 0) {
+          return res.status(200).json({
+            symbol: rawSym.toUpperCase(),
+            currency: meta.currency || (cleanSym.endsWith('.NS') ? 'INR' : 'USD'),
+            timeframe: requestedTf.toUpperCase(),
+            range: range,
+            interval: interval,
+            count: bars.length,
+            provider: 'Yahoo Finance Multi-Timeframe Feed',
+            bars: bars
+          });
+        }
       }
     }
-    return res.status(404).json({ error: 'Candles not available' });
+    
+    return res.status(404).json({ error: 'Candles not found for symbol' });
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
