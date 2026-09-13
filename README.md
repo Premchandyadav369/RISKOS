@@ -10,7 +10,7 @@
 
 **An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, prediction market probability pricing, and deterministic mathematical explainability.**
 
-[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [35-Module Quant Laboratories](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
+[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [52-Module Quant Laboratories](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
 
 </div>
 
@@ -27,7 +27,7 @@
    - [Desk 5: Derivatives, Greeks & Local Volatility Surfaces](#desk-5-derivatives-greeks--local-volatility-surfaces-f6)
    - [Desk 6: Systematic Signals, Kelly Sizing & Backtrader Cerebro](#desk-6-systematic-signals-kelly-sizing--backtrader-cerebro-f7)
    - [Desk 7: AI Speculations & Hanson LMSR Prediction Markets](#desk-7-ai-speculations--hanson-lmsr-prediction-markets-f8)
-4. [Master Catalog of 35 Interactive Quantitative Laboratories](#-master-catalog-of-35-interactive-quantitative-laboratories)
+4. [Master Catalog of 52 Interactive Quantitative Laboratories](#-master-catalog-of-35-interactive-quantitative-laboratories)
 5. [OpenBB Open Data Platform (ODP) Integration](#-openbb-open-data-platform-odp-integration)
 6. [Backtrader Cerebro Execution Framework](#-backtrader-cerebro-execution-framework)
 7. [Perspective WebAssembly Streaming Grid](#-perspective-webassembly-streaming-grid)
@@ -382,7 +382,7 @@ $$dS_t = (\mu - \lambda k) S_t dt + \sigma S_t dW_t + (J - 1) S_t dN_t, \quad \l
 
 ---
 
-## 🔬 Master Catalog of 35 Interactive Quantitative Laboratories
+## 🔬 Master Catalog of 52 Interactive Quantitative Laboratories
 
 All 35 simulation laboratories in [`learn.html`](learn.html) feature dynamic parameter sliders, real-time Chart.js trajectory updates, and full LaTeX proofs:
 
