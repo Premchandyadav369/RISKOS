@@ -127,8 +127,8 @@ function switchTab(tabId) {
             });
         }
         if (tabId === 'tab-spreads' && typeof initFuturesBasisDesk === 'function') initFuturesBasisDesk();
-        if (tabId === 'tab-micro' && typeof initLOBHeatmap === 'function') initLOBHeatmap();
-        if (tabId === 'tab-options' && typeof initVol3DSurface === 'function') initVol3DSurface();
+        if (tabId === 'tab-micro') { if (typeof initLOBHeatmap === 'function') initLOBHeatmap(); if (typeof initAlgoExecutionSlicer === 'function') initAlgoExecutionSlicer(); }
+        if (tabId === 'tab-options') { if (typeof initVol3DSurface === 'function') initVol3DSurface(); if (typeof initMultiLegOptionsStudio === 'function') initMultiLegOptionsStudio(); }
         if (tabId === 'tab-speculations') {
             if (typeof initAppSpeculationsDesk === 'function') initAppSpeculationsDesk();
             if (typeof initPredictionMarketsDesk === 'function') initPredictionMarketsDesk();
@@ -488,7 +488,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if(analyzeBtn) analyzeBtn.addEventListener('click', fetchAllQuantData);
 
     // Initial fetch & market ribbon
-    initTerminalMarketRibbon();
+        initTerminalMarketRibbon();
+    initBrinsonAttribution();
+    initMacroShockMatrix();
+    initAlgoExecutionSlicer();
+    initMultiLegOptionsStudio();
+    initQuantBacktestSandbox();
+    initBreakingNewsWire();
     fetchAllQuantData();
     fetchOrdersHistory();
 });
@@ -554,6 +560,41 @@ function initTerminalMarketRibbon() {
 
 async function fetchAllQuantData() {
     const inputEl = document.getElementById('ticker-input');
+    const rawInput = (inputEl ? inputEl.value : 'AAPL,MSFT,GOOGL,AMZN,JPM').trim().toUpperCase();
+    
+    // ── Bloomberg Terminal Fast Mnemonic Command Parser ──
+    const upperCmd = rawInput.replace(/<|>/g, ' ').trim();
+    if (upperCmd === 'DESK1' || upperCmd === 'MARKET') { switchTab('tab-market'); return; }
+    if (upperCmd === 'DESK2' || upperCmd === 'RISK') { switchTab('tab-risk'); return; }
+    if (upperCmd === 'DESK3' || upperCmd === 'FUT' || upperCmd === 'YCRV' || upperCmd === 'RATES') { switchTab('tab-spreads'); return; }
+    if (upperCmd === 'DESK4' || upperCmd === 'DOM' || upperCmd === 'MICRO' || upperCmd === 'OFI') { switchTab('tab-micro'); return; }
+    if (upperCmd === 'DESK5' || upperCmd === 'VOL' || upperCmd === 'OPTIONS' || upperCmd === 'GREEKS') { switchTab('tab-options'); return; }
+    if (upperCmd === 'DESK6' || upperCmd === 'SIG' || upperCmd === 'SIGNALS' || upperCmd === 'ALGO') { switchTab('tab-signals'); return; }
+    if (upperCmd === 'DESK7' || upperCmd === 'AI' || upperCmd === 'SPEC') { switchTab('tab-speculations'); return; }
+    if (upperCmd === 'HELP' || upperCmd === 'PALETTE') { executeMnemonic('help'); return; }
+    if (upperCmd === 'TEAR' || upperCmd === 'REPORT') { executeMnemonic('tear'); return; }
+    if (upperCmd === 'SYNC') { executeMnemonic('sync'); return; }
+    if (upperCmd === 'FIX') { executeMnemonic('fix'); return; }
+
+    // Pattern: SYMBOL <COMMAND> e.g. "TCS VOL" or "NVDA <DESK5>"
+    const parts = upperCmd.split(/\s+/);
+    if (parts.length >= 2) {
+        const sym = parts[0];
+        const cmd = parts[1];
+        if (['VOL', 'OPTIONS', 'GREEKS', 'DESK5'].includes(cmd)) {
+            switchTab('tab-options');
+            if (inputEl) inputEl.value = sym;
+        } else if (['DOM', 'MICRO', 'OFI', 'DESK4'].includes(cmd)) {
+            switchTab('tab-micro');
+            if (inputEl) inputEl.value = sym;
+        } else if (['RISK', 'CVAR', 'VAR', 'DESK2'].includes(cmd)) {
+            switchTab('tab-risk');
+            if (inputEl) inputEl.value = sym;
+        } else if (['TEAR', 'FACTSHEET'].includes(cmd)) {
+            executeMnemonic('tear');
+        }
+    }
+
     const tickersStr = (inputEl ? inputEl.value : 'AAPL,MSFT,GOOGL,AMZN,JPM').toUpperCase().replace(/\s/g, '');
     const tickers = tickersStr.split(',').filter(t => t);
     if(tickers.length === 0) return alert('Please enter at least one ticker');
@@ -4119,3 +4160,473 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PILLAR 1: MULTI-LEG DERIVATIVES STRATEGY STUDIO & VOLATILITY SKEW ARBITRAGE (DESK 5)
+   ══════════════════════════════════════════════════════════════════════════ */
+let activeOptStrat = 'condor';
+
+function initMultiLegOptionsStudio() {
+    const canvas = document.getElementById('multiLegPayoffCanvas');
+    const stratBtns = document.querySelectorAll('.opt-strat-btn');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const spot = 185.0;
+
+    const STRATEGY_LEGS = {
+        condor: [
+            { type: 'put', strike: 165, pos: 1, premium: 1.2 },    // Buy Long Put
+            { type: 'put', strike: 175, pos: -1, premium: 3.4 },   // Sell Short Put
+            { type: 'call', strike: 195, pos: -1, premium: 3.8 },  // Sell Short Call
+            { type: 'call', strike: 205, pos: 1, premium: 1.4 }    // Buy Long Call
+        ],
+        straddle: [
+            { type: 'call', strike: 185, pos: 1, premium: 8.5 },
+            { type: 'put', strike: 185, pos: 1, premium: 8.2 }
+        ],
+        strangle: [
+            { type: 'put', strike: 175, pos: 1, premium: 4.1 },
+            { type: 'call', strike: 195, pos: 1, premium: 4.5 }
+        ],
+        bull_call: [
+            { type: 'call', strike: 180, pos: 1, premium: 9.8 },
+            { type: 'call', strike: 195, pos: -1, premium: 3.2 }
+        ],
+        bear_put: [
+            { type: 'put', strike: 190, pos: 1, premium: 8.9 },
+            { type: 'put', strike: 175, pos: -1, premium: 2.8 }
+        ],
+        butterfly: [
+            { type: 'call', strike: 175, pos: 1, premium: 14.2 },
+            { type: 'call', strike: 185, pos: -2, premium: 8.5 },
+            { type: 'call', strike: 195, pos: 1, premium: 4.2 }
+        ],
+        risk_reversal: [
+            { type: 'put', strike: 175, pos: -1, premium: 3.6 },
+            { type: 'call', strike: 195, pos: 1, premium: 4.1 }
+        ]
+    };
+
+    function renderPayoffDiagram() {
+        const w = canvas.offsetWidth || 500;
+        const h = canvas.offsetHeight || 260;
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.scale(dpr, dpr);
+
+        ctx.clearRect(0, 0, w, h);
+
+        const legs = STRATEGY_LEGS[activeOptStrat] || STRATEGY_LEGS.condor;
+        const minS = 140, maxS = 230;
+        const padL = 45, padR = 20, padT = 20, padB = 25;
+        const plotW = w - padL - padR;
+        const plotH = h - padT - padB;
+
+        // Compute payoffs across price spectrum
+        const pricePoints = [];
+        const numPoints = 80;
+        let maxPayoff = -99999, minPayoff = 99999;
+
+        for (let i = 0; i <= numPoints; i++) {
+            const s = minS + (i / numPoints) * (maxS - minS);
+            let pnl = 0;
+            legs.forEach(leg => {
+                let intrinsic = 0;
+                if (leg.type === 'call') intrinsic = Math.max(0, s - leg.strike);
+                else intrinsic = Math.max(0, leg.strike - s);
+                pnl += (intrinsic - leg.premium) * leg.pos * 100;
+            });
+            pricePoints.push({ s, pnl });
+            if (pnl > maxPayoff) maxPayoff = pnl;
+            if (pnl < minPayoff) minPayoff = pnl;
+        }
+
+        const yRange = Math.max(100, Math.max(Math.abs(maxPayoff), Math.abs(minPayoff)) * 1.15);
+        const zeroY = padT + plotH / 2;
+
+        const getX = (s) => padL + ((s - minS) / (maxS - minS)) * plotW;
+        const getY = (pnl) => zeroY - (pnl / yRange) * (plotH / 2);
+
+        // Zero Line
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.moveTo(padL, zeroY);
+        ctx.lineTo(w - padR, zeroY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Spot Price Marker Line
+        const spotX = getX(spot);
+        ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(spotX, padT);
+        ctx.lineTo(spotX, h - padB);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.fillStyle = '#22d3ee';
+        ctx.font = '9px monospace';
+        ctx.fillText(`Spot $${spot.toFixed(0)}`, spotX - 22, padT - 6);
+
+        // Fill Green for Profit / Red for Loss
+        ctx.beginPath();
+        ctx.moveTo(getX(pricePoints[0].s), zeroY);
+        pricePoints.forEach(pt => ctx.lineTo(getX(pt.s), getY(pt.pnl)));
+        ctx.lineTo(getX(pricePoints[pricePoints.length - 1].s), zeroY);
+        ctx.closePath();
+
+        const grad = ctx.createLinearGradient(0, padT, 0, h - padB);
+        grad.addColorStop(0, 'rgba(16, 185, 129, 0.25)');
+        grad.addColorStop(0.5, 'rgba(16, 185, 129, 0.05)');
+        grad.addColorStop(1, 'rgba(244, 63, 94, 0.25)');
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // Solid Payoff Line at Expiration (T=0)
+        ctx.strokeStyle = '#10b981';
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        pricePoints.forEach((pt, idx) => {
+            if (idx === 0) ctx.moveTo(getX(pt.s), getY(pt.pnl));
+            else ctx.lineTo(getX(pt.s), getY(pt.pnl));
+        });
+        ctx.stroke();
+
+        // T-15 Days Smooth Curve (Theta Decay Model)
+        ctx.strokeStyle = '#a78bfa';
+        ctx.lineWidth = 1.6;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        pricePoints.forEach((pt, idx) => {
+            const smoothPnl = pt.pnl * 0.72 + (spot - pt.s) * 0.15;
+            if (idx === 0) ctx.moveTo(getX(pt.s), getY(smoothPnl));
+            else ctx.lineTo(getX(pt.s), getY(smoothPnl));
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Axis Labels
+        ctx.fillStyle = '#71717a';
+        ctx.font = '9px monospace';
+        ctx.fillText(`+$${Math.round(yRange)}`, 4, padT + 8);
+        ctx.fillText(`-$${Math.round(yRange)}`, 4, h - padB);
+        ctx.fillText('$140', padL, h - 6);
+        ctx.fillText('$185', spotX - 10, h - 6);
+        ctx.fillText('$230', w - padR - 20, h - 6);
+    }
+
+    stratBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            stratBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeOptStrat = btn.dataset.strat;
+
+            // Update Greek Badges
+            const greekMap = {
+                condor: { delta: '+0.02', gamma: '-0.012', vega: '-$42.50', theta: '+$24.80/d', maxP: '+$460.00', maxL: '-$540.00' },
+                straddle: { delta: '+0.05', gamma: '+0.038', vega: '+$145.00', theta: '-$68.20/d', maxP: 'Unlimited', maxL: '-$1,670.00' },
+                strangle: { delta: '+0.03', gamma: '+0.022', vega: '+$88.00', theta: '-$38.40/d', maxP: 'Unlimited', maxL: '-$860.00' },
+                bull_call: { delta: '+0.42', gamma: '+0.014', vega: '+$34.00', theta: '-$12.50/d', maxP: '+$840.00', maxL: '-$660.00' },
+                bear_put: { delta: '-0.38', gamma: '+0.012', vega: '+$28.00', theta: '-$10.20/d', maxP: '+$890.00', maxL: '-$610.00' },
+                butterfly: { delta: '+0.01', gamma: '-0.025', vega: '-$55.00', theta: '+$31.00/d', maxP: '+$780.00', maxL: '-$220.00' },
+                risk_reversal: { delta: '+0.68', gamma: '+0.004', vega: '+$12.00', theta: '-$4.50/d', maxP: 'Unlimited', maxL: 'Substantial' }
+            };
+            const g = greekMap[activeOptStrat] || greekMap.condor;
+            const deltaEl = document.getElementById('netDeltaVal');
+            const gammaEl = document.getElementById('netGammaVal');
+            const vegaEl = document.getElementById('netVegaVal');
+            const thetaEl = document.getElementById('netThetaVal');
+            const maxPEl = document.getElementById('optMaxProfitVal');
+            const maxLEl = document.getElementById('optMaxLossVal');
+
+            if (deltaEl) deltaEl.textContent = g.delta;
+            if (gammaEl) gammaEl.textContent = g.gamma;
+            if (vegaEl) vegaEl.textContent = g.vega;
+            if (thetaEl) thetaEl.textContent = g.theta;
+            if (maxPEl) maxPEl.textContent = g.maxP;
+            if (maxLEl) maxLEl.textContent = g.maxL;
+
+            renderPayoffDiagram();
+        });
+    });
+
+    renderPayoffDiagram();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PILLAR 2: ALGORITHMIC ORDER EXECUTION SLICER (DESK 4)
+   ══════════════════════════════════════════════════════════════════════════ */
+let algoSlicingTimer = null;
+
+function initAlgoExecutionSlicer() {
+    const startBtn = document.getElementById('btnStartAlgoExecution');
+    const profileSelect = document.getElementById('algoProfileSelect');
+    const parentQtyInput = document.getElementById('algoParentQty');
+    const progressBar = document.getElementById('algoProgressBar');
+    const trancheText = document.getElementById('algoTrancheProgressText');
+    const filledText = document.getElementById('algoFilledQtyText');
+    const logContainer = document.getElementById('algoFillsLogContainer');
+
+    if (!startBtn || !profileSelect) return;
+
+    startBtn.addEventListener('click', () => {
+        if (algoSlicingTimer) clearInterval(algoSlicingTimer);
+
+        const totalQty = parseInt(parentQtyInput.value, 10) || 25000;
+        const profile = profileSelect.value.toUpperCase();
+        const totalTranches = 10;
+        let currentTranche = 0;
+        let cumulativeFilled = 0;
+        const basePrice = 185.00;
+
+        if (logContainer) {
+            logContainer.innerHTML = `<div style="color:#22d3ee; font-weight:700;">[EXECUTION ROUTED] ${profile} Algorithmic Engine initialized for ${totalQty.toLocaleString()} shares.</div>`;
+        }
+
+        startBtn.disabled = true;
+        startBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Slicing Order...`;
+
+        algoSlicingTimer = setInterval(() => {
+            currentTranche++;
+            // U-shaped volume weighting for VWAP or Uniform for TWAP
+            let trancheWeight = 0.1;
+            if (profile.includes('VWAP')) {
+                const uCurve = [0.15, 0.12, 0.08, 0.06, 0.05, 0.05, 0.07, 0.09, 0.15, 0.18];
+                trancheWeight = uCurve[currentTranche - 1] || 0.1;
+            }
+            const trancheQty = Math.round(totalQty * trancheWeight);
+            cumulativeFilled += trancheQty;
+            const slippageBps = Number(((Math.random() * 1.8) + (currentTranche * 0.15)).toFixed(1));
+            const fillPrice = Number((basePrice * (1 + slippageBps / 10000)).toFixed(2));
+            const pct = Math.min(100, Math.round((currentTranche / totalTranches) * 100));
+
+            if (progressBar) progressBar.style.width = `${pct}%`;
+            if (trancheText) trancheText.textContent = `${currentTranche} / ${totalTranches} Tranches Filled`;
+            if (filledText) filledText.textContent = `${Math.min(totalQty, cumulativeFilled).toLocaleString()} / ${totalQty.toLocaleString()} Shares (${pct}%)`;
+
+            if (logContainer) {
+                const row = document.createElement('div');
+                row.style.padding = '2px 0';
+                row.innerHTML = `<span style="color:#71717a;">${new Date().toLocaleTimeString()}</span> &bull; <strong style="color:#10b981;">FILL #${currentTranche}</strong>: ${trancheQty.toLocaleString()} sh @ $${fillPrice.toFixed(2)} | Slippage: <span style="color:#fab005;">+${slippageBps} bps</span> | SOR: <span style="color:#22d3ee;">DARK POOL / ARCA</span>`;
+                logContainer.prepend(row);
+            }
+
+            if (typeof updateTcaBlotter === 'function') {
+                updateTcaBlotter(fillPrice, trancheQty, 'AAPL');
+            }
+
+            if (currentTranche >= totalTranches) {
+                clearInterval(algoSlicingTimer);
+                startBtn.disabled = false;
+                startBtn.innerHTML = `<i class="fa-solid fa-check"></i> Slicing Complete`;
+                if (logContainer) {
+                    const doneRow = document.createElement('div');
+                    doneRow.style.color = '#10b981';
+                    doneRow.style.fontWeight = '700';
+                    doneRow.style.marginTop = '4px';
+                    doneRow.innerHTML = `[ORDER FILLED] 100% Parent Order Completed. Avg Fill: $${(basePrice * 1.0004).toFixed(2)} | Net Shortfall: 2.7 bps.`;
+                    logContainer.prepend(doneRow);
+                }
+            }
+        }, 600);
+    });
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PILLAR 3: BRINSON-FACHLER ATTRIBUTION & MACRO SHOCK MATRIX (DESK 2)
+   ══════════════════════════════════════════════════════════════════════════ */
+function initBrinsonAttribution() {
+    const tableBody = document.getElementById('brinsonTableBody');
+    if (!tableBody) return;
+
+    const BRINSON_DATA = [
+        { sector: 'Information Technology', wp: 0.32, wb: 0.24, rp: 0.185, rb: 0.142 },
+        { sector: 'Banking & Financials', wp: 0.28, wb: 0.35, rp: 0.124, rb: 0.110 },
+        { sector: 'Energy & Commodities', wp: 0.18, wb: 0.15, rp: 0.082, rb: 0.054 },
+        { sector: 'Automotive & Industrials', wp: 0.12, wb: 0.16, rp: 0.155, rb: 0.138 },
+        { sector: 'Consumer & Healthcare', wp: 0.10, wb: 0.10, rp: 0.094, rb: 0.088 }
+    ];
+
+    const benchmarkTotalReturn = BRINSON_DATA.reduce((acc, d) => acc + d.wb * d.rb, 0);
+
+    tableBody.innerHTML = BRINSON_DATA.map(d => {
+        const allocEffect = (d.wp - d.wb) * (d.rb - benchmarkTotalReturn);
+        const selectEffect = d.wb * (d.rp - d.rb);
+        const totalAlpha = allocEffect + selectEffect + ((d.wp - d.wb) * (d.rp - d.rb));
+
+        return `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td><strong>${d.sector}</strong></td>
+                <td style="font-family:monospace;">${(d.wp * 100).toFixed(1)}%</td>
+                <td style="font-family:monospace; color:#aaa;">${(d.wb * 100).toFixed(1)}%</td>
+                <td style="font-family:monospace; color:#10b981;">+${(d.rp * 100).toFixed(1)}%</td>
+                <td style="font-family:monospace; color:#aaa;">+${(d.rb * 100).toFixed(1)}%</td>
+                <td style="font-family:monospace; color:${allocEffect >= 0 ? '#10b981' : '#f43f5e'};">${allocEffect >= 0 ? '+' : ''}${(allocEffect * 100).toFixed(2)}%</td>
+                <td style="font-family:monospace; color:${selectEffect >= 0 ? '#10b981' : '#f43f5e'};">${selectEffect >= 0 ? '+' : ''}${(selectEffect * 100).toFixed(2)}%</td>
+                <td style="font-family:monospace; font-weight:700; color:${totalAlpha >= 0 ? '#22d3ee' : '#f43f5e'};">${totalAlpha >= 0 ? '+' : ''}${(totalAlpha * 100).toFixed(2)}%</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function initMacroShockMatrix() {
+    const rateSlider = document.getElementById('shockRateSlider');
+    const oilSlider = document.getElementById('shockOilSlider');
+    const fxSlider = document.getElementById('shockFxSlider');
+    const creditSlider = document.getElementById('shockCreditSlider');
+    const badge = document.getElementById('macroNetImpactBadge');
+
+    const updateShocks = () => {
+        const rate = parseFloat(rateSlider?.value || 150);
+        const oil = parseFloat(oilSlider?.value || 20);
+        const fx = parseFloat(fxSlider?.value || 3.5);
+        const credit = parseFloat(creditSlider?.value || 180);
+
+        document.getElementById('shockRateVal').textContent = `${rate >= 0 ? '+' : ''}${rate} bps`;
+        document.getElementById('shockOilVal').textContent = `${oil >= 0 ? '+' : ''}$${oil.toFixed(1)}/bbl`;
+        document.getElementById('shockFxVal').textContent = `${fx >= 0 ? '+' : ''}${fx.toFixed(1)}%`;
+        document.getElementById('shockCreditVal').textContent = `+${credit} bps`;
+
+        // Macro shock sensitivity equations
+        const netLossPct = (- (rate / 100) * 1.6 - (oil / 10) * 0.85 + (fx * 0.4) - (credit / 100) * 1.1);
+        const baseCap = 10000000;
+        const absLoss = Math.round(baseCap * (netLossPct / 100));
+
+        if (badge) {
+            badge.textContent = `Simulated Impact: ${absLoss >= 0 ? '+' : ''}₹${Math.abs(absLoss).toLocaleString('en-IN')} (${netLossPct.toFixed(2)}%)`;
+            badge.style.background = netLossPct >= 0 ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)';
+            badge.style.color = netLossPct >= 0 ? '#10b981' : '#f43f5e';
+        }
+    };
+
+    [rateSlider, oilSlider, fxSlider, creditSlider].forEach(sl => {
+        if (sl) sl.addEventListener('input', updateShocks);
+    });
+
+    updateShocks();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PILLAR 4: QUANTITATIVE STRATEGY SANDBOX & MONTHLY ALPHA HEATMAP (DESK 6)
+   ══════════════════════════════════════════════════════════════════════════ */
+let activeQuantStrat = 'dual_ma';
+
+function initQuantBacktestSandbox() {
+    const tableBody = document.getElementById('heatmapTableBody');
+    const stratBtns = document.querySelectorAll('.q-strat-btn');
+    if (!tableBody) return;
+
+    const STRAT_HEATMAP_DATA = {
+        dual_ma: {
+            years: [
+                { y: '2024', m: [2.4, -1.1, 4.2, 1.8, -0.6, 3.5, 2.1, -1.4, 0.8, 2.6, 1.9, 3.1], ytd: 22.8 },
+                { y: '2023', m: [1.8, 2.6, -2.1, 3.4, 1.2, 4.1, 0.9, -0.8, -1.9, 2.8, 3.7, 2.4], ytd: 19.5 },
+                { y: '2022', m: [-2.8, -1.4, 3.1, -4.2, 0.8, -2.1, 4.5, -1.8, -3.2, 1.9, 4.2, -0.6], ytd: -2.1 }
+            ],
+            kpis: { sortino: '2.68', calmar: '3.12', winRate: '64.2%', profitFactor: '2.41', total: '+40.2%', sharpe: '2.14' }
+        },
+        rsi_rev: {
+            years: [
+                { y: '2024', m: [1.2, 3.4, 0.8, -1.2, 2.9, 1.4, 3.8, 0.5, 2.1, -0.9, 2.4, 1.6], ytd: 19.4 },
+                { y: '2023', m: [2.9, 1.1, 3.2, -0.5, 1.8, 2.2, -1.4, 3.1, 0.6, 1.5, 2.8, 1.9], ytd: 20.8 },
+                { y: '2022', m: [0.5, 2.1, -1.2, 1.8, -2.4, 3.2, 1.1, 0.8, -1.5, 3.4, 1.8, 2.2], ytd: 12.4 }
+            ],
+            kpis: { sortino: '3.15', calmar: '3.85', winRate: '71.5%', profitFactor: '2.84', total: '+52.6%', sharpe: '2.48' }
+        },
+        pairs_kalman: {
+            years: [
+                { y: '2024', m: [1.8, 1.4, 2.1, 1.6, 0.9, 2.4, 1.5, 1.8, 0.8, 1.9, 2.2, 1.7], ytd: 23.5 },
+                { y: '2023', m: [1.5, 2.1, 1.8, 1.2, 2.4, 1.9, 1.6, 2.2, 0.9, 1.7, 2.5, 1.8], ytd: 23.8 },
+                { y: '2022', m: [2.1, 1.8, 2.4, 1.5, 1.9, 2.2, 1.8, 1.4, 2.6, 1.9, 2.1, 1.8], ytd: 26.1 }
+            ],
+            kpis: { sortino: '4.82', calmar: '5.92', winRate: '82.4%', profitFactor: '3.92', total: '+73.4%', sharpe: '3.62' }
+        },
+        vol_trend: {
+            years: [
+                { y: '2024', m: [3.8, -0.8, 5.4, 2.1, -1.2, 4.2, 1.9, -2.1, 1.4, 3.8, 2.6, 4.1], ytd: 27.8 },
+                { y: '2023', m: [2.2, 3.8, -1.5, 4.2, 2.1, 5.4, 1.2, -1.1, -2.4, 3.5, 4.8, 3.1], ytd: 28.1 },
+                { y: '2022', m: [4.8, 3.2, 2.1, -2.8, 3.9, 1.5, -3.2, 4.1, 5.2, -1.8, 2.4, 1.9], ytd: 22.8 }
+            ],
+            kpis: { sortino: '2.94', calmar: '3.42', winRate: '61.8%', profitFactor: '2.62', total: '+78.7%', sharpe: '2.35' }
+        }
+    };
+
+    function renderHeatmap() {
+        const data = STRAT_HEATMAP_DATA[activeQuantStrat] || STRAT_HEATMAP_DATA.dual_ma;
+        
+        tableBody.innerHTML = data.years.map(yr => `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+                <td style="font-weight:700; color:#fff; text-align:left; padding:6px;">${yr.y}</td>
+                ${yr.m.map(val => {
+                    let cls = 'heat-pos-low';
+                    if (val >= 3.0) cls = 'heat-pos-high';
+                    else if (val >= 1.5) cls = 'heat-pos-med';
+                    else if (val >= 0) cls = 'heat-pos-low';
+                    else if (val > -1.5) cls = 'heat-neg-low';
+                    else if (val > -3.0) cls = 'heat-neg-med';
+                    else cls = 'heat-neg-high';
+
+                    return `<td class="heatmap-cell ${cls}">${val >= 0 ? '+' : ''}${val.toFixed(1)}%</td>`;
+                }).join('')}
+                <td style="font-weight:700; color:${yr.ytd >= 0 ? '#10b981' : '#f43f5e'}; font-family:monospace;">${yr.ytd >= 0 ? '+' : ''}${yr.ytd.toFixed(1)}%</td>
+            </tr>
+        `).join('');
+
+        // Update KPIs
+        const sEl = document.getElementById('qSortinoVal');
+        const cEl = document.getElementById('qCalmarVal');
+        const wEl = document.getElementById('qWinRateVal');
+        const pEl = document.getElementById('qProfitFactorVal');
+        const totEl = document.getElementById('heatTotalReturn');
+        const shEl = document.getElementById('heatSharpe');
+
+        if (sEl) sEl.textContent = data.kpis.sortino;
+        if (cEl) cEl.textContent = data.kpis.calmar;
+        if (wEl) wEl.textContent = data.kpis.winRate;
+        if (pEl) pEl.textContent = data.kpis.profitFactor;
+        if (totEl) totEl.textContent = data.kpis.total;
+        if (shEl) shEl.textContent = data.kpis.sharpe;
+    }
+
+    stratBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            stratBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeQuantStrat = btn.dataset.strat;
+            renderHeatmap();
+        });
+    });
+
+    renderHeatmap();
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PILLAR 5: BLOOMBERG MNEMONICS PARSER & REAL-TIME NEWS WIRE
+   ══════════════════════════════════════════════════════════════════════════ */
+function initBreakingNewsWire() {
+    const strip = document.getElementById('bbgNewsTickerStrip');
+    if (!strip) return;
+
+    const NEWS_HEADLINES = [
+        '[10:45 IST] RBI MPC leaves Repo Rate unchanged at 6.50% &bull; GDP projection maintained at 7.2%',
+        '[10:41 IST] US 10-Year Treasury Yield eases to 4.22% following cooling Core PCE inflation',
+        '[10:35 IST] Brent Crude consolidates at $78.40/bbl amid Red Sea tanker reroutings',
+        '[10:28 IST] TCS announces multi-year enterprise AI contract expansion with global financial titan',
+        '[10:20 IST] NIFTY IT alpha spread widens +2.4% over PSU Banks on semiconductor strength',
+        '[10:12 IST] NVIDIA Blackwell Ultra GPU orders accelerate across sovereign AI cloud infrastructure'
+    ];
+
+    let newsIdx = 0;
+    setInterval(() => {
+        newsIdx = (newsIdx + 1) % NEWS_HEADLINES.length;
+        if (strip) {
+            strip.innerHTML = NEWS_HEADLINES[newsIdx];
+        }
+    }, 6000);
+}
