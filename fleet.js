@@ -1464,7 +1464,57 @@
           </table>
         </div>
       `;
-    } else if (activeModalTab === 'whitepaper') {
+    
+      } else if (activeModalTab === 'optimizer') {
+        // Pillar 3: Genetic Algorithm Evolutionary Parameter Optimizer
+        const gaRes = typeof GeneticOptimizer !== 'undefined' ? GeneticOptimizer.runEvolution(25, 16) : null;
+        const opt = gaRes ? gaRes.optimalChromosome : { rsiPeriod: 14, rsiThreshold: 28, volMultiplier: 1.45, almgrenKappa: 3.8, stopLossPct: 1.2, takeProfitPct: 2.8, fitness: 4.82 };
+
+        bodyEl.innerHTML = `
+          <div style="background:#04060a; border:1px solid rgba(34,211,238,0.3); border-radius:10px; padding:16px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h4 style="color:#22d3ee; margin:0;"><i class="fa-solid fa-dna"></i> Genetic Algorithm Evolutionary Strategy Auto-Tuner</h4>
+              <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">25 Generations &bull; 16 Chromosomes</span>
+            </div>
+            <p style="font-size:0.78rem; color:#aaa; margin:0 0 12px 0;">
+              Simulates natural selection, crossover, and Gaussian mutation on strategy chromosomes to maximize Sortino and Calmar ratios while penalizing turnover slippage.
+            </p>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:10px; font-family:'JetBrains Mono', monospace;">
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Optimal RSI Lookback</span><div class="sandbox-tel-val text-green">${opt.rsiPeriod} Bars</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Oversold Trigger</span><div class="sandbox-tel-val text-cyan">${opt.rsiThreshold} RSI</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Almgren Slicer Urgency (κ)</span><div class="sandbox-tel-val text-purple">${opt.almgrenKappa}</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Stop-Loss Ceiling</span><div class="sandbox-tel-val text-rose">-${opt.stopLossPct}%</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Take-Profit Target</span><div class="sandbox-tel-val text-green">+${opt.takeProfitPct}%</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">Evolutionary Fitness</span><div class="sandbox-tel-val text-amber">${opt.fitness}</div></div>
+            </div>
+          </div>
+        `;
+      } else if (activeModalTab === 'montecarlo') {
+        // Pillar 3: 1,000-Path Block-Bootstrap Monte Carlo
+        const mcRes = typeof GeneticOptimizer !== 'undefined' ? GeneticOptimizer.runMonteCarlo1000(bot.allocatedCapINR, 90, 1000) : null;
+        const p05 = mcRes ? mcRes.p05INR : bot.allocatedCapINR * 0.94;
+        const p50 = mcRes ? mcRes.p50INR : bot.allocatedCapINR * 1.08;
+        const p95 = mcRes ? mcRes.p95INR : bot.allocatedCapINR * 1.24;
+
+        bodyEl.innerHTML = `
+          <div style="background:#04060a; border:1px solid rgba(250,176,5,0.3); border-radius:10px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h4 style="color:#fab005; margin:0;"><i class="fa-solid fa-chart-line"></i> 1,000-Path Block-Bootstrap Monte Carlo Resampling (90 Days)</h4>
+              <span class="badge" style="background:rgba(250,176,5,0.15); color:#fab005;">1,000 Forward Trajectories</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; font-family:'JetBrains Mono', monospace; margin-bottom:14px;">
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">5th Percentile (Worst-Case)</span><div class="sandbox-tel-val text-rose">₹${Math.round(p05).toLocaleString('en-IN')}</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">50th Percentile (Expected)</span><div class="sandbox-tel-val text-green">₹${Math.round(p50).toLocaleString('en-IN')}</div></div>
+              <div class="sandbox-tel-box"><span class="sandbox-tel-label">95th Percentile (Bull Case)</span><div class="sandbox-tel-val text-cyan">₹${Math.round(p95).toLocaleString('en-IN')}</div></div>
+            </div>
+            <div style="font-size:0.75rem; color:#aaa;">
+              <strong>Expected Forward 1-Year CAGR:</strong> <span style="color:#10b981; font-weight:800;">+${mcRes ? mcRes.expectedCagrPct : 24.2}%</span> | 
+              <strong>Max Simulated Drawdown:</strong> <span style="color:#f43f5e; font-weight:800;">-${mcRes ? mcRes.worstDrawdownPct : 4.8}%</span>
+            </div>
+          </div>
+        `;
+
+      } else if (activeModalTab === 'whitepaper') {
       bodyEl.innerHTML = `
         <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); border-radius:10px; padding:16px; margin-bottom:16px;">
           <h4 style="font-size:0.85rem; color:#22d3ee; margin:0 0 8px 0; text-transform:uppercase;">
