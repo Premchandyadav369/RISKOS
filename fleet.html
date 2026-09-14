@@ -11,6 +11,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 
+    <!-- KaTeX Instant Real-Time Mathematical Typesetting Engine -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
   <!-- MathJax 3 SVG Typesetting -->
   <script>
     window.MathJax = {
@@ -189,6 +194,20 @@
       </div>
     </section>
 
+    <!-- Global Multi-Criteria Sorting Bar -->
+    <section class="fleet-control-strip" style="padding-top:0; margin-top:-8px;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <span style="font-size:0.72rem; color:#a1a1aa; font-family:'JetBrains Mono', monospace; font-weight:800; text-transform:uppercase;">
+          <i class="fa-solid fa-arrow-down-wide-short text-amber"></i> Rank Fleet By:
+        </span>
+        <button class="quick-rank-pill active" data-sort="pnl"><i class="fa-solid fa-money-bill-trend-up text-green"></i> Profits Booked (₹)</button>
+        <button class="quick-rank-pill" data-sort="trades"><i class="fa-solid fa-bolt text-amber"></i> Orders / Fills Executed</button>
+        <button class="quick-rank-pill" data-sort="score"><i class="fa-solid fa-trophy text-cyan"></i> Composite Alpha Score</button>
+        <button class="quick-rank-pill" data-sort="sharpe"><i class="fa-solid fa-chart-line text-purple"></i> Sharpe Ratio</button>
+        <button class="quick-rank-pill" data-sort="winrate"><i class="fa-solid fa-bullseye text-green"></i> Win Rate %</button>
+      </div>
+    </section>
+
     <!-- 4.1 View A: 20-Bot Matrix Grid -->
     <section class="bot-grid" id="botGridContainer">
       <!-- Injected dynamically by fleet.js with 20 distinct sector bots -->
@@ -203,6 +222,14 @@
               <i class="fa-solid fa-trophy text-amber"></i> Quantitative Fleet Ranker &amp; Alpha Leaderboard
             </h3>
             <span style="font-size:0.75rem; color:#aaa;">Ranked by composite performance score: Sharpe Ratio, Net Realized PnL, Win Rate %, and Maximum Drawdown resiliency.</span>
+            <!-- Quick Rank Filter Pills -->
+            <div class="quick-rank-pills" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+              <button class="quick-rank-pill active" data-sort="pnl"><i class="fa-solid fa-money-bill-trend-up text-green"></i> Rank by Profits Booked (₹)</button>
+              <button class="quick-rank-pill" data-sort="trades"><i class="fa-solid fa-bolt text-amber"></i> Rank by Orders / Fills</button>
+              <button class="quick-rank-pill" data-sort="score"><i class="fa-solid fa-trophy text-cyan"></i> Composite Alpha Rank</button>
+              <button class="quick-rank-pill" data-sort="sharpe"><i class="fa-solid fa-chart-line text-purple"></i> Rank by Sharpe Ratio</button>
+              <button class="quick-rank-pill" data-sort="winrate"><i class="fa-solid fa-bullseye text-green"></i> Rank by Win Rate %</button>
+            </div>
           </div>
           <div class="ranker-sort-controls">
             <span style="font-size:0.75rem; color:#aaa;">Sort By:</span>
@@ -222,7 +249,7 @@
             <thead>
               <tr>
                 <th style="width:70px;">Rank</th>
-                <th>Bot Name &amp; Sector</th>
+                <th>Greek Deity &amp; Bot Identity</th>
                 <th>Strategy Type</th>
                 <th>Tier Badge</th>
                 <th>Quantitative Model (MathJax)</th>

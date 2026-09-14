@@ -804,3 +804,59 @@
   margin: 0 !important;
   outline: none !important;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GREEK MYTHOLOGY NICKNAMES & QUICK RANKER STYLING
+   ══════════════════════════════════════════════════════════════════════════ */
+.greek-myth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255, 176, 0, 0.22) 0%, rgba(34, 211, 238, 0.15) 100%);
+  border: 1px solid rgba(255, 176, 0, 0.45);
+  color: #ffb000;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(255, 176, 0, 0.15);
+}
+
+.greek-myth-sub {
+  font-size: 0.65rem;
+  color: #a1a1aa;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.quick-rank-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.quick-rank-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.quick-rank-pill.active {
+  background: rgba(255, 176, 0, 0.2);
+  border-color: #ffb000;
+  color: #ffb000;
+  box-shadow: 0 0 12px rgba(255, 176, 0, 0.25);
+}

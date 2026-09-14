@@ -611,7 +611,7 @@
   let botRegistry = [];
   let globalAuditBlotter = [];
   let currentFilter = 'all';
-  let currentSort = 'score';
+  let currentSort = 'pnl';
   let currentViewMode = 'grid';
   let blotterViewMode = 'stream';
   let searchQuery = '';
@@ -1048,7 +1048,11 @@
                   </span>
                 </span>
               </div>
-              <h4 class="bot-name" style="margin-top:4px;">${bot.name}</h4>
+                            <div class="greek-myth-badge">
+                <span>${bot.greekIcon} ${bot.greekName}</span>
+                <span class="greek-myth-sub">&bull; ${bot.greekTitle}</span>
+              </div>
+              <h4 class="bot-name" style="margin-top:2px;">${bot.name}</h4>
               <span class="bot-sector-tag"><i class="fa-solid fa-layer-group"></i> ${bot.sector}</span>
             </div>
             <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
@@ -1138,8 +1142,11 @@
         <tr>
           <td><span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span></td>
           <td>
-            <strong style="color:#fff; font-size:0.82rem;">${bot.name}</strong><br>
-            <span style="font-size:0.7rem; color:#22d3ee;">${flag} ${bot.sector}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="greek-myth-badge" style="margin:0; font-size:0.68rem; padding:2px 6px;">${bot.greekIcon} ${bot.greekName}</span>
+              <strong style="color:#fff; font-size:0.82rem;">${bot.name}</strong>
+            </div>
+            <span style="font-size:0.7rem; color:#22d3ee;">${flag} ${bot.sector} &bull; <em style="color:#aaa;">${bot.greekTitle}</em></span>
           </td>
           <td style="color:#aaa;">${bot.strategyType}</td>
                     <td><span class="tier-badge ${tierCls}">${bot.tier}</span></td>
@@ -1191,30 +1198,42 @@
   };
 
   
-  let mathJaxPending = false;
+  // ── Bulletproof Two-Layer Math Rendering Engine (KaTeX + MathJax) ──────
   const typesetMathJax = (targetEl) => {
-    if (mathJaxPending) return;
-    mathJaxPending = true;
-    setTimeout(() => {
-      mathJaxPending = false;
-      typesetMathJax(bodyEl);
-      if (false) {
-        const targets = targetEl ? [targetEl] : [document.getElementById('botGridContainer'), document.getElementById('botRankerContainer'), document.getElementById('modalBotBody')].filter(Boolean);
-        window.MathJax.typesetPromise(targets).catch(() => {});
-      } else {
-        let attempts = 0;
-        const interval = setInterval(() => {
-          attempts++;
-          typesetMathJax(bodyEl);
-      if (false) {
-            clearInterval(interval);
-            const targets = targetEl ? [targetEl] : [document.getElementById('botGridContainer'), document.getElementById('botRankerContainer')].filter(Boolean);
-            window.MathJax.typesetPromise(targets).catch(() => {});
-          }
-          if (attempts > 20) clearInterval(interval);
-        }, 250);
+    const root = targetEl || document.body;
+    if (!root) return;
+
+    // Layer 1: Instant Synchronous KaTeX Compilation (0ms latency, zero text flash)
+    if (typeof renderMathInElement === 'function') {
+      try {
+        renderMathInElement(root, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\(', right: '\)', display: false },
+            { left: '\[', right: '\]', display: true }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {
+        console.warn('KaTeX render notice:', e);
       }
-    }, 80);
+    }
+
+    // Layer 2: MathJax 3 SVG Compilation
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      window.MathJax.typesetPromise([root]).catch(() => {});
+    } else {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+          clearInterval(interval);
+          window.MathJax.typesetPromise([root]).catch(() => {});
+        }
+        if (attempts > 20) clearInterval(interval);
+      }, 200);
+    }
   };
 
   const renderActiveView = () => {
@@ -1351,6 +1370,18 @@
       ];
 
       bodyEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div class="greek-myth-badge" style="font-size:0.82rem; padding:4px 10px; margin:0;">
+            <span>${bot.greekIcon} ${bot.greekName}</span>
+            <span class="greek-myth-sub">&bull; ${bot.greekTitle}</span>
+          </div>
+          <span class="tier-badge ${bot.tier.includes('S') ? 'tier-s' : 'tier-a'}">${bot.tier}</span>
+        </div>
+
+        <div class="bot-math-card" style="margin-bottom:16px;">
+          <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model (MathJax / KaTeX)</div>
+          <div class="math-jax-block" style="font-size:0.92rem;">$$${bot.mathFormula}$$</div>
+        </div>
         <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); border-radius:10px; padding:16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
             <span style="font-size:0.75rem; color:#22d3ee; font-weight:800; text-transform:uppercase;">
@@ -1516,6 +1547,18 @@
 
       } else if (activeModalTab === 'whitepaper') {
       bodyEl.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div class="greek-myth-badge" style="font-size:0.82rem; padding:4px 10px; margin:0;">
+            <span>${bot.greekIcon} ${bot.greekName}</span>
+            <span class="greek-myth-sub">&bull; ${bot.greekTitle}</span>
+          </div>
+          <span class="tier-badge ${bot.tier.includes('S') ? 'tier-s' : 'tier-a'}">${bot.tier}</span>
+        </div>
+
+        <div class="bot-math-card" style="margin-bottom:16px;">
+          <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model (MathJax / KaTeX)</div>
+          <div class="math-jax-block" style="font-size:0.92rem;">$$${bot.mathFormula}$$</div>
+        </div>
         <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); border-radius:10px; padding:16px; margin-bottom:16px;">
           <h4 style="font-size:0.85rem; color:#22d3ee; margin:0 0 8px 0; text-transform:uppercase;">
             <i class="fa-solid fa-lightbulb"></i> Layman Translation — Why This Bot Makes Money
@@ -1544,11 +1587,8 @@
         </div>
       `;
 
-      typesetMathJax(bodyEl);
-      if (false) {
-        window.MathJax.typesetPromise([bodyEl]).catch(() => {});
-      }
     }
+    typesetMathJax(bodyEl);
   };
 
   const closeBotModal = () => {
