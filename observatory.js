@@ -441,7 +441,8 @@
     track.querySelectorAll('.obs-sec-pill').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        window.location.href = `index.html?symbol=${btn.dataset.symbol}`;
+        if (typeof TerminalBus !== 'undefined') { TerminalBus.setSecurity(btn.dataset.symbol); }
+        window.location.href = `app.html?sec=${btn.dataset.symbol}`;
       });
     });
 
@@ -509,7 +510,8 @@
 
     tbody.querySelectorAll('.table-sec-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        window.location.href = `index.html?symbol=${btn.dataset.symbol}`;
+        if (typeof TerminalBus !== 'undefined') { TerminalBus.setSecurity(btn.dataset.symbol); }
+        window.location.href = `app.html?sec=${btn.dataset.symbol}`;
       });
     });
 
@@ -589,6 +591,7 @@
 
   // ── 8. Universal Detail Drawer ─────────────────────────────────────────────
   const openDetailDrawer = (obs) => {
+    if (typeof TerminalBus !== 'undefined' && obs?.security?.symbol) { TerminalBus.setSecurity(obs.security.symbol); }
     obsState.activeDetailObs = obs;
     const overlay = document.getElementById('obsDetailDrawerOverlay');
     if (!overlay) return;

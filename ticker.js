@@ -344,6 +344,7 @@
 
   // ── 5. Slide-Over Detail Drawer ────────────────────────────────────────────
   const openSecurityDrawer = (sec) => {
+    if (typeof TerminalBus !== 'undefined' && sec && sec.symbol) { TerminalBus.setSecurity(sec.symbol); }
     state.activeDrawerSec = sec;
     MarketStore.setActiveSecurity(sec);
     MarketStore.addRecentSearch(sec);

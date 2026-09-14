@@ -1792,3 +1792,30 @@
   });
 
 })();
+
+
+// ── Fleet TerminalBus Integration & Deep-Linking ──────────────────────────
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const botParam = urlParams.get('bot');
+    if (botParam) {
+      setTimeout(() => {
+        const cleanId = botParam.toUpperCase().trim();
+        const found = INITIAL_BOTS.find(b => b.id.toUpperCase() === cleanId || b.id.replace(/-/g, '') === cleanId.replace(/-/g, ''));
+        if (found && typeof openBotConsoleModal === 'function') {
+          openBotConsoleModal(found.id);
+        }
+      }, 450);
+    }
+  });
+
+  // Global window hook for BURST command from terminal command bar
+  window.fleetBurstAllOrders = () => {
+    INITIAL_BOTS.forEach((bot, idx) => {
+      setTimeout(() => {
+        if (typeof triggerBotOrderCycle === 'function') triggerBotOrderCycle(bot);
+      }, idx * 60);
+    });
+  };
+}
