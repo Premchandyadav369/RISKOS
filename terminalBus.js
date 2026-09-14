@@ -266,33 +266,6 @@ const TerminalBus = (() => {
 
     document.body.appendChild(overlay);
 
-    // Floating Launchpad Dock at bottom
-    const dock = document.createElement('div');
-    dock.id = 'bbmLaunchpadDock';
-    dock.className = 'bbm-launchpad-dock';
-
-    dock.innerHTML = `
-      <button class="launchpad-cmd-trigger" id="btnLaunchpadWorkspaceTrigger" style="background:rgba(255,176,0,0.2); border-color:#ffb000; margin-right:4px;" title="Open Launchpad Mode"><i class="fa-solid fa-layer-group text-amber"></i> Launchpad</button>
-      <button class="launchpad-cmd-trigger" id="btnLaunchpadTrigger" title="Press ~ or F12">
-        <i class="fa-solid fa-terminal"></i> &lt;CMD&gt; &lt;GO&gt;
-      </button>
-      <div class="launchpad-sec-display" id="launchpadSecDisplay">
-        <span style="color:#71717a;">ACTIVE:</span>
-        <strong style="color:#22d3ee;" id="dockActiveSec">${activeSecurity}</strong>
-      </div>
-      <div class="launchpad-portal-links">
-        <a href="index.html" class="launchpad-portal-btn"><i class="fa-solid fa-house"></i> Home</a>
-        <a href="app.html" class="launchpad-portal-btn"><i class="fa-solid fa-cubes"></i> 7 Desks</a>
-        <a href="fleet.html" class="launchpad-portal-btn"><i class="fa-solid fa-robot text-cyan"></i> Fleet</a>
-        <a href="observatory.html" class="launchpad-portal-btn"><i class="fa-solid fa-chart-line"></i> Obs</a>
-        <a href="learn.html" class="launchpad-portal-btn"><i class="fa-solid fa-graduation-cap"></i> Labs</a>
-        <a href="ticker.html" class="launchpad-portal-btn"><i class="fa-solid fa-magnifying-glass"></i> Screener</a>
-        <a href="docs.html" class="launchpad-portal-btn"><i class="fa-solid fa-book text-cyan"></i> Docs</a>
-      </div>
-    `;
-
-    document.body.appendChild(dock);
-
     attachBloombergEvents();
   };
 

@@ -1026,3 +1026,174 @@
   align-items: center;
   gap: 4px;
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PANTHEON DIVISIONS & SENTIMENT WIDGET STYLES
+   ══════════════════════════════════════════════════════════════════════════ */
+.pantheon-scoreboard-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 900px) {
+  .pantheon-scoreboard-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.division-score-card {
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  backdrop-filter: blur(8px);
+}
+
+.olympus-card {
+  background: linear-gradient(135deg, rgba(255, 176, 0, 0.08) 0%, rgba(34, 211, 238, 0.04) 100%);
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  box-shadow: 0 4px 16px rgba(255, 176, 0, 0.08);
+}
+
+.valhalla-card {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.08) 0%, rgba(244, 63, 94, 0.04) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.08);
+}
+
+.div-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.div-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.olympus-badge {
+  background: rgba(255, 176, 0, 0.2);
+  color: #ffb000;
+  border: 1px solid rgba(255, 176, 0, 0.5);
+}
+
+.valhalla-badge {
+  background: rgba(96, 165, 250, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.5);
+}
+
+.div-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #a1a1aa;
+}
+
+.div-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.div-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.div-stat-lbl {
+  font-size: 0.64rem;
+  color: #71717a;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.div-stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-top: 2px;
+}
+
+/* Greek vs Norse Badges */
+.myth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.myth-badge-greek {
+  background: linear-gradient(135deg, rgba(255, 176, 0, 0.22) 0%, rgba(34, 211, 238, 0.15) 100%);
+  border: 1px solid rgba(255, 176, 0, 0.45);
+  color: #ffb000;
+  box-shadow: 0 2px 8px rgba(255, 176, 0, 0.15);
+}
+
+.myth-badge-norse {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.22) 0%, rgba(244, 63, 94, 0.15) 100%);
+  border: 1px solid rgba(96, 165, 250, 0.45);
+  color: #60a5fa;
+  box-shadow: 0 2px 8px rgba(96, 165, 250, 0.15);
+}
+
+/* Dynamic Sentiment Barometer on Cards */
+.sentiment-barometer-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.sentiment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.sentiment-meter-track {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sentiment-meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease, background 0.4s ease;
+}
+
+.sentiment-signal-text {
+  font-size: 0.62rem;
+  color: #a1a1aa;
+  margin-top: 3px;
+  line-height: 1.3;
+}

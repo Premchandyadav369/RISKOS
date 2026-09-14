@@ -55,24 +55,38 @@
   // ══════════════════════════════════════════════════════════════════════════
   // 2. THE 20-BOT SECTOR MATRIX SPECIFICATIONS
   // ══════════════════════════════════════════════════════════════════════════
-  const INITIAL_BOTS = [
-    // 🇮🇳 INDIAN SECTOR FLEET (10 BOTS)
+    const INITIAL_BOTS = [
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🏛️ MOUNT OLYMPUS DIVISION — 🇮🇳 INDIAN SECTOR FLEET (10 GREEK BOTS)
+    // ══════════════════════════════════════════════════════════════════════════
     {
       id: 'BOT-IN-01',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Index Derivatives (NSE)',
       name: 'THANATOS 💀 — NIFTY 0DTE Theta Harvester',
+      mythName: 'THANATOS',
+      mythIcon: '💀',
+      mythTitle: 'God of Peaceful Expiration & 0DTE Theta Decay',
       greekName: 'THANATOS',
       greekIcon: '💀',
-      greekTitle: 'God of Peaceful Expiration & 0DTE Theta Harvesting',
+      greekTitle: 'God of Peaceful Expiration & 0DTE Theta Decay',
       primarySymbol: 'NIFTY',
       displayAsset: 'NIFTY 24600 CE/PE',
       venue: 'NSE PRISM',
       basePrice: 24680.0,
+      currentPrice: 24680.0,
+      dailyVolume: '₹42,800 Cr',
+      minuteVolume: '18,450 Lots',
       evalSpeedSec: 6,
       strategyType: 'Delta-Neutral Vol Dispersion',
-      mathFormula: '\\text{Edge} = \\sigma_{\\text{IV}} - \\sqrt{\\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2}',
+      mathFormula: '\text{Edge} = \sigma_{\text{IV}} - \sqrt{\omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2}',
       tier: 'S-TIER',
+      sentimentSource: 'Options 25Δ Risk Reversal Skew',
+      sentimentScore: +0.34,
+      sentimentRegime: 'GREED_PREMIUM',
+      sentimentSignal: 'Vol smile skew elevated (+0.34σ); harvesting bloated OTM put premiums with dynamic futures delta hedge.',
       allocatedCapINR: 1500000,
       baseDailyAlphaINR: 2450,
       realizedPnlINR: 62450,
@@ -81,8 +95,8 @@
       sharpe: 3.12,
       profitFactor: 2.84,
       maxDD: -0.65,
-      laymanExplanation: 'Harvests the structural premium between option buying panic (Implied Vol) and actual movement (GARCH Vol). Sells Iron Condor wings every morning and delta-hedges with index futures.',
-      mathDerivation: '$$\\sigma_{\\text{GARCH}}^2 = \\omega + \\alpha \\epsilon_{t-1}^2 + \\beta \\sigma_{t-1}^2, \\quad \\Delta_{\\text{hedge}} = -\\sum \\Delta_i S_i$$',
+      laymanExplanation: 'Harvests the structural premium between option panic (Implied Vol) and actual movement (GARCH Vol). Sells Iron Condors and delta-hedges with index futures.',
+      mathDerivation: '$$\sigma_{\text{GARCH}}^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \Delta_{\text{hedge}} = -\sum \Delta_i S_i$$',
       entryRules: 'Enter when ATM IV / GARCH Vol ratio > 1.25 and SABR wing convexity ∂²C/∂K² ≥ 0.',
       exitRules: 'Auto-exit at 15:15 IST, or take profit at 65% max theta decay, or stop loss at 1.8x premium.',
       crisisReplay: 'Protected by long outer wings; returned +14.2% during 2024 Yen carry unwind.'
@@ -90,8 +104,13 @@
     {
       id: 'BOT-IN-02',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Banking & Financials',
       name: 'DIOSCURI ♊ — HDFC & ICICI Kalman Pairs Stat-Arb',
+      mythName: 'DIOSCURI',
+      mythIcon: '♊',
+      mythTitle: 'The Divine Twins of Kalman Pairs Stat-Arb',
       greekName: 'DIOSCURI',
       greekIcon: '♊',
       greekTitle: 'The Divine Twins of Kalman Pairs Stat-Arb',
@@ -99,10 +118,17 @@
       displayAsset: 'HDFCBANK / ICICIBANK',
       venue: 'NSE COLOCATION',
       basePrice: 1642.0,
+      currentPrice: 1642.0,
+      dailyVolume: '₹1,940 Cr',
+      minuteVolume: '32,100 Shares',
       evalSpeedSec: 8,
       strategyType: 'Statistical Arbitrage',
-      mathFormula: 'z_t = \\frac{y_t - \\beta_t x_t - \\mu_{\\text{spread}}}{\\sigma_{\\text{spread}}} \\quad (|z_t| > 2.2)',
+      mathFormula: 'z_t = \frac{y_t - \beta_t x_t - \mu_{\text{spread}}}{\sigma_{\text{spread}}} \quad (|z_t| > 2.2)',
       tier: 'S-TIER',
+      sentimentSource: 'Bank Nifty Institutional Breadth',
+      sentimentScore: -0.18,
+      sentimentRegime: 'NEUTRAL_ARBITRAGE',
+      sentimentSignal: 'Banking spread stationary at -0.18σ; long HDFC Bank while shorting ICICI Bank to capture reversion.',
       allocatedCapINR: 1200000,
       baseDailyAlphaINR: 1980,
       realizedPnlINR: 41800,
@@ -111,8 +137,8 @@
       sharpe: 3.45,
       profitFactor: 3.15,
       maxDD: -0.42,
-      laymanExplanation: 'Buys whichever private banking leader is temporarily undervalued by institutional fund flows while shorting the overvalued peer, locking in mean-reversion profits.',
-      mathDerivation: '$$\\beta_t = \\beta_{t-1} + K_t (y_t - x_t \\beta_{t-1}), \\quad K_t = P_{t|t-1} x_t^T (x_t P_{t|t-1} x_t^T + R)^{-1}$$',
+      laymanExplanation: 'Buys whichever private banking leader is temporarily undervalued by institutional fund flows while shorting the peer, locking in mean-reversion profits.',
+      mathDerivation: '$$\beta_t = \beta_{t-1} + K_t (y_t - x_t \beta_{t-1}), \quad K_t = P_{t|t-1} x_t^T (x_t P_{t|t-1} x_t^T + R)^{-1}$$',
       entryRules: 'Enter pair when standardized Kalman residual z-score |z| > 2.2 and ADF p < 0.01.',
       exitRules: 'Close when spread converges to |z| < 0.30 or 5-day max hold.',
       crisisReplay: 'Zero market beta; gained +8.4% during 2020 COVID lockdown market drop.'
@@ -120,19 +146,31 @@
     {
       id: 'BOT-IN-03',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'IT & Software Technology',
       name: 'ATHENA 🦉 — IT Dual-Momentum Volatility Breakout',
+      mythName: 'ATHENA',
+      mythIcon: '🦉',
+      mythTitle: 'Goddess of Strategy & Algorithmic Momentum',
       greekName: 'ATHENA',
       greekIcon: '🦉',
-      greekTitle: 'Goddess of Algorithmic Strategy & Multi-Factor Tech Momentum',
+      greekTitle: 'Goddess of Strategy & Algorithmic Momentum',
       primarySymbol: 'TCS.NS',
       displayAsset: 'TCS / INFY (NSE)',
       venue: 'NSE PRISM',
       basePrice: 4480.0,
+      currentPrice: 4480.0,
+      dailyVolume: '₹1,420 Cr',
+      minuteVolume: '14,800 Shares',
       evalSpeedSec: 9,
       strategyType: 'Cross-Sectional Momentum',
-      mathFormula: 'w_i = \\frac{\\sigma_{\\text{target}}}{\\sigma_i \\cdot N} \\cdot \\text{sgn}(P_t - \\text{EMA}_{50})',
+      mathFormula: 'w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{50})',
       tier: 'A-TIER',
+      sentimentSource: 'FinBERT Tech Sector News NLP',
+      sentimentScore: +0.72,
+      sentimentRegime: 'STRONG_BULLISH',
+      sentimentSignal: 'AI enterprise spend sentiment positive (+0.72); widening Donchian breakout upper bound by 1.25x.',
       allocatedCapINR: 1000000,
       baseDailyAlphaINR: 1420,
       realizedPnlINR: 32400,
@@ -141,8 +179,8 @@
       sharpe: 2.42,
       profitFactor: 2.25,
       maxDD: -1.15,
-      laymanExplanation: 'Captures multi-week institutional trends across IT heavyweights. Sizes positions inversely to volatility so unexpected dips cause zero oversized damage.',
-      mathDerivation: '$$\\text{Signal} = \\text{Donchian}(20) \\cap (\\text{ADX} > 25), \\quad \\text{Stop} = P_{\\text{entry}} - 2.5 \\cdot \\text{ATR}(14)$$',
+      laymanExplanation: 'Captures multi-week institutional trends across IT heavyweights. Sizes positions inversely to volatility so dips cause zero oversized damage.',
+      mathDerivation: '$$\text{Signal} = \text{Donchian}(20) \cap (\text{ADX} > 25), \quad \text{Stop} = P_{\text{entry}} - 2.5 \cdot \text{ATR}(14)$$',
       entryRules: 'Buy on 20-Day high breakout with volume > 1.8x 20-day average.',
       exitRules: 'Trailing stop on 15-day EMA cross.',
       crisisReplay: 'Cut positions within 4 hours during 2022 Fed rate hike tech selloff.'
@@ -150,8 +188,13 @@
     {
       id: 'BOT-IN-04',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Energy & Petrochemicals',
       name: 'HEPHAESTUS 🔥 — Reliance & ONGC Basis Carry',
+      mythName: 'HEPHAESTUS',
+      mythIcon: '🔥',
+      mythTitle: 'God of Petrochemical Forges & Basis Carry Arbitrage',
       greekName: 'HEPHAESTUS',
       greekIcon: '🔥',
       greekTitle: 'God of Petrochemical Forges & Basis Carry Arbitrage',
@@ -159,10 +202,17 @@
       displayAsset: 'RELIANCE Spot / Fut',
       venue: 'NSE PRISM',
       basePrice: 3010.5,
+      currentPrice: 3010.5,
+      dailyVolume: '₹2,850 Cr',
+      minuteVolume: '45,200 Shares',
       evalSpeedSec: 10,
       strategyType: 'Cost-of-Carry Arbitrage',
-      mathFormula: 'F^* = S_0 \\cdot e^{(r - q)T} \\implies \\text{Carry Yield} > +8.5\\% / \\text{yr}',
+      mathFormula: 'F^* = S_0 \cdot e^{(r - q)T} \implies \text{Carry Yield} > +8.5\% / \text{yr}',
       tier: 'S-TIER',
+      sentimentSource: 'Petrochemical Refining Margin Sentiment',
+      sentimentScore: +0.45,
+      sentimentRegime: 'BULLISH_CARRY',
+      sentimentSignal: 'Refining margins firm (+0.45); locking in 9.4% annualized basis carry spread between spot and futures.',
       allocatedCapINR: 1400000,
       baseDailyAlphaINR: 1650,
       realizedPnlINR: 28900,
@@ -171,8 +221,8 @@
       sharpe: 4.10,
       profitFactor: 4.80,
       maxDD: -0.25,
-      laymanExplanation: 'Buys cash stock and sells near-month futures whenever market exuberance creates an annualized futures basis premium higher than RBI repo rates.',
-      mathDerivation: '$$\\text{Basis} = \\frac{F_{\\text{market}} - S_{\\text{spot}}}{S_{\\text{spot}}} \\cdot \\frac{365}{T} - \\text{Cost}$$',
+      laymanExplanation: 'Buys cash stock and sells futures whenever retail exuberance creates an annualized futures basis premium higher than RBI repo rates.',
+      mathDerivation: '$$\text{Basis} = \frac{F_{\text{market}} - S_{\text{spot}}}{S_{\text{spot}}} \cdot \frac{365}{T} - \text{Cost}$$',
       entryRules: 'Enter when annualized basis spread exceeds 8.50% / yr.',
       exitRules: 'Hold until expiry convergence on monthly expiry Thursday.',
       crisisReplay: '100% market neutral; immune to equity crashes.'
@@ -180,19 +230,31 @@
     {
       id: 'BOT-IN-05',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Automotive & Mobility',
       name: 'AUTOLYCUS 🏎️ — Automotive L2 Microstructure Scalper',
+      mythName: 'AUTOLYCUS',
+      mythIcon: '🏎️',
+      mythTitle: 'Master of Swift Reflexes & L2 OFI Flow',
       greekName: 'AUTOLYCUS',
       greekIcon: '🏎️',
-      greekTitle: 'Master of Swift Reflexes & Level-2 Microstructure Flow',
+      greekTitle: 'Master of Swift Reflexes & L2 OFI Flow',
       primarySymbol: 'TATAMOTORS.NS',
       displayAsset: 'TATAMOTORS (NSE L2)',
       venue: 'NSE COLOCATION',
       basePrice: 985.2,
+      currentPrice: 985.2,
+      dailyVolume: '₹1,180 Cr',
+      minuteVolume: '28,600 Shares',
       evalSpeedSec: 3,
       strategyType: 'High-Frequency OFI Scalping',
-      mathFormula: '\\text{OFI}_t = \\Delta q_t^b \\cdot \\mathbb{I}_{\\{\\Delta p_t^b \\ge 0\\}} - \\Delta q_t^a \\cdot \\mathbb{I}_{\\{\\Delta p_t^a \\le 0\\}}',
+      mathFormula: '\text{OFI}_t = \Delta q_t^b \cdot \mathbb{I}_{\{\Delta p_t^b \ge 0\}} - \Delta q_t^a \cdot \mathbb{I}_{\{\Delta p_t^a \le 0\}}',
       tier: 'A-TIER',
+      sentimentSource: 'Level-2 Order Flow Imbalance (OFI)',
+      sentimentScore: +0.85,
+      sentimentRegime: 'AGGRESSIVE_BID',
+      sentimentSignal: 'Bid queue stack > 2.8x ask depth (+0.85); front-running institutional block buy tick for +12 bps.',
       allocatedCapINR: 800000,
       baseDailyAlphaINR: 1150,
       realizedPnlINR: 21500,
@@ -201,8 +263,8 @@
       sharpe: 2.88,
       profitFactor: 2.48,
       maxDD: -0.72,
-      laymanExplanation: 'Peeks inside the live Level-2 Limit Order Book. When institutional buy orders stack up on the bid, the bot front-runs the upward tick and exits seconds later.',
-      mathDerivation: '$$\\hat{P}_{\\text{micro}} = \\frac{q_b P_a + q_a P_b}{q_b + q_a}, \\quad \\text{Signal} = \\text{sgn}(\\hat{P}_{\\text{micro}} - P_{\\text{mid}})$$',
+      laymanExplanation: 'Peeks inside Level-2 Limit Order Book. When institutional buy orders stack up on bid, front-runs the upward tick and exits seconds later.',
+      mathDerivation: '$$\hat{P}_{\text{micro}} = \frac{q_b P_a + q_a P_b}{q_b + q_a}, \quad \text{Signal} = \text{sgn}(\hat{P}_{\text{micro}} - P_{\text{mid}})$$',
       entryRules: 'Enter when OFI > +0.70 and bid depth ratio > 2.2x ask depth.',
       exitRules: 'Exit at +12 bps profit target or 45 seconds timeout.',
       crisisReplay: 'Zero overnight risk due to sub-minute holding periods.'
@@ -210,19 +272,31 @@
     {
       id: 'BOT-IN-06',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Pharma & Life Sciences',
       name: 'PANACEA 🌿 — Pharma Dynamic Statistical Reversion',
+      mythName: 'PANACEA',
+      mythIcon: '🌿',
+      mythTitle: 'Goddess of Universal Remedies & Mean-Reversion',
       greekName: 'PANACEA',
       greekIcon: '🌿',
-      greekTitle: 'Goddess of Universal Remedies & Mean-Reversion Healing',
+      greekTitle: 'Goddess of Universal Remedies & Mean-Reversion',
       primarySymbol: 'SUNPHARMA.NS',
       displayAsset: 'SUNPHARMA (NSE)',
       venue: 'NSE PRISM',
       basePrice: 1820.0,
+      currentPrice: 1820.0,
+      dailyVolume: '₹840 Cr',
+      minuteVolume: '11,200 Shares',
       evalSpeedSec: 8,
       strategyType: 'Statistical Mean Reversion',
-      mathFormula: 'P_t < \\mu_{20} - 2.2 \\sigma_{20} \\quad \\cap \\quad \\text{RSI}_{14} < 28',
+      mathFormula: 'P_t < \mu_{20} - 2.2 \sigma_{20} \quad \cap \quad \text{RSI}_{14} < 28',
       tier: 'B-TIER',
+      sentimentSource: 'FDA Headline Panic Sentiment Fade',
+      sentimentScore: -0.75,
+      sentimentRegime: 'CONTRARIAN_REVERSAL',
+      sentimentSignal: 'Panic headline selloff (-0.75); RSI 24 oversold; fading retail fear dip back to 20-day institutional SMA.',
       allocatedCapINR: 800000,
       baseDailyAlphaINR: 980,
       realizedPnlINR: 19400,
@@ -231,8 +305,8 @@
       sharpe: 2.35,
       profitFactor: 2.18,
       maxDD: -0.88,
-      laymanExplanation: 'Buys exaggerated panic sell-offs on regulatory or FDA headlines, exiting when prices normalize back to the 20-day institutional fair value.',
-      mathDerivation: '$$\\text{Band Width} = \\frac{U_t - L_t}{\\mu_t}, \\quad Z = \\frac{P_t - \\text{SMA}(20)}{\\text{StdDev}(20)}$$',
+      laymanExplanation: 'Buys exaggerated panic sell-offs on regulatory headlines, exiting when prices normalize back to 20-day institutional fair value.',
+      mathDerivation: '$$\text{Band Width} = \frac{U_t - L_t}{\mu_t}, \quad Z = \frac{P_t - \text{SMA}(20)}{\text{StdDev}(20)}$$',
       entryRules: 'Buy when price touches 2.2σ lower Bollinger Band with RSI < 28.',
       exitRules: 'Take profit at 20-day SMA mean line.',
       crisisReplay: 'Stable healthcare cash flows provide steady defensiveness.'
@@ -240,19 +314,31 @@
     {
       id: 'BOT-IN-07',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Metals & Mining',
       name: 'CHALYBS ⚔️ — Metals Cross-Commodity Momentum',
+      mythName: 'CHALYBS',
+      mythIcon: '⚔️',
+      mythTitle: 'Father of Hardened Steel & Cross-Commodity Flow',
       greekName: 'CHALYBS',
       greekIcon: '⚔️',
-      greekTitle: 'Father of Hardened Steel & Cross-Commodity Momentum',
+      greekTitle: 'Father of Hardened Steel & Cross-Commodity Flow',
       primarySymbol: 'TATASTEEL.NS',
       displayAsset: 'TATASTEEL (NSE)',
       venue: 'NSE PRISM',
       basePrice: 156.8,
+      currentPrice: 156.8,
+      dailyVolume: '₹1,350 Cr',
+      minuteVolume: '78,400 Shares',
       evalSpeedSec: 9,
       strategyType: 'Commodity Factor Trend',
-      mathFormula: 'R_{\\text{steel}} = \\alpha + \\beta_1 \\Delta \\text{LME} + \\beta_2 \\Delta \\text{IronOre} + \\beta_3 \\text{ChinaPMI}',
+      mathFormula: 'R_{\text{steel}} = \alpha + \beta_1 \Delta \text{LME} + \beta_2 \Delta \text{IronOre} + \beta_3 \text{ChinaPMI}',
       tier: 'B-TIER',
+      sentimentSource: 'LME Global Metals Momentum Skew',
+      sentimentScore: +0.52,
+      sentimentRegime: 'CYCLICAL_EXPANSION',
+      sentimentSignal: 'Global copper/steel backwardation (+0.52); riding cyclical industrial trend on Tata Steel.',
       allocatedCapINR: 900000,
       baseDailyAlphaINR: 1120,
       realizedPnlINR: 24600,
@@ -261,8 +347,8 @@
       sharpe: 2.15,
       profitFactor: 1.95,
       maxDD: -1.35,
-      laymanExplanation: 'Tracks global London Metal Exchange (LME) copper/steel prices and international coking coal spreads to trade cyclical Indian steel swings.',
-      mathDerivation: '$$\\text{Hedge Ratio} = (X^T X)^{-1} X^T Y, \\quad \\text{Score} = \\frac{P_t - P_{t-60}}{\\sigma_{60}}$$',
+      laymanExplanation: 'Tracks London Metal Exchange (LME) copper/steel prices and international coking coal spreads to trade Indian steel swings.',
+      mathDerivation: '$$\text{Hedge Ratio} = (X^T X)^{-1} X^T Y, \quad \text{Score} = \frac{P_t - P_{t-60}}{\sigma_{60}}$$',
       entryRules: 'Long when global LME metal futures lead Indian spot stocks by > 1.5%.',
       exitRules: 'Exit when global metal basis rolls into contango.',
       crisisReplay: 'Managed via strict 1.5% stop-loss caps.'
@@ -270,8 +356,13 @@
     {
       id: 'BOT-IN-08',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'FMCG & Consumer Retail',
       name: 'DEMETER 🌾 — Volume Profile Auction Scalper',
+      mythName: 'DEMETER',
+      mythIcon: '🌾',
+      mythTitle: 'Goddess of Bountiful Harvest & FMCG Volume Auction',
       greekName: 'DEMETER',
       greekIcon: '🌾',
       greekTitle: 'Goddess of Bountiful Harvest & FMCG Volume Auction',
@@ -279,10 +370,17 @@
       displayAsset: 'TRENT / ITC (NSE)',
       venue: 'NSE PRISM',
       basePrice: 7240.0,
+      currentPrice: 7240.0,
+      dailyVolume: '₹920 Cr',
+      minuteVolume: '4,800 Shares',
       evalSpeedSec: 7,
       strategyType: 'Volume Profile Auction Market',
-      mathFormula: 'P_t \\notin [\\text{VAL}_{70}, \\text{VAH}_{70}] \\implies \\text{Reversion to POC}',
+      mathFormula: 'P_t \notin [\text{VAL}_{70}, \text{VAH}_{70}] \implies \text{Reversion to POC}',
       tier: 'A-TIER',
+      sentimentSource: 'Auction Market Volume Profile Node',
+      sentimentScore: 0.00,
+      sentimentRegime: 'BALANCED_VALUE',
+      sentimentSignal: 'Trading within 70% Value Area; fading low-volume retail attempts back to high-volume POC node.',
       allocatedCapINR: 900000,
       baseDailyAlphaINR: 1050,
       realizedPnlINR: 18200,
@@ -291,8 +389,8 @@
       sharpe: 2.95,
       profitFactor: 2.65,
       maxDD: -0.55,
-      laymanExplanation: 'Calculates the 70% institutional Value Area. When retail traders push consumer stocks outside fair-value on low volume, the bot fades the move back to the high-volume node.',
-      mathDerivation: '$$\\text{POC} = \\arg\\max_P V(P), \\quad \\int_{\\text{VAL}}^{\\text{VAH}} V(P) dP = 0.70 \\cdot V_{\\text{total}}$$',
+      laymanExplanation: 'Calculates 70% institutional Value Area. When retail traders push consumer stocks outside fair-value on low volume, fades the move back to POC.',
+      mathDerivation: '$$\text{POC} = \arg\max_P V(P), \quad \int_{\text{VAL}}^{\text{VAH}} V(P) dP = 0.70 \cdot V_{\text{total}}$$',
       entryRules: 'Enter mean-reversion outside Value Area on below-average volume.',
       exitRules: 'Exit when price reaches Point of Control (POC).',
       crisisReplay: 'Consumer staples provide steady cash flows during macro downturns.'
@@ -300,19 +398,31 @@
     {
       id: 'BOT-IN-09',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'Defense & Infrastructure',
       name: 'ARES 🛡️ — HAL & BEL Defense Market Maker',
+      mythName: 'ARES',
+      mythIcon: '🛡️',
+      mythTitle: 'God of Defense Electronics & Market Making',
       greekName: 'ARES',
       greekIcon: '🛡️',
-      greekTitle: 'God of Warfare, Defense Electronics & Market Making',
+      greekTitle: 'God of Defense Electronics & Market Making',
       primarySymbol: 'HAL.NS',
       displayAsset: 'HAL / BEL (NSE L2)',
       venue: 'NSE COLOCATION',
       basePrice: 4320.0,
+      currentPrice: 4320.0,
+      dailyVolume: '₹1,650 Cr',
+      minuteVolume: '19,500 Shares',
       evalSpeedSec: 3,
       strategyType: 'High-Frequency Market Making',
-      mathFormula: 'r(s, q, t) = s - q \\gamma \\sigma^2 (T - t), \\quad \\delta^a + \\delta^b = \\gamma \\sigma^2 (T-t) + \\frac{2}{\\gamma} \\ln\\left(1 + \\frac{\\gamma}{\\kappa}\\right)',
+      mathFormula: 'r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \gamma \sigma^2 (T-t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)',
       tier: 'S-TIER',
+      sentimentSource: 'Defense Order Book VPIN Toxicity',
+      sentimentScore: +0.64,
+      sentimentRegime: 'STEADY_FLOW',
+      sentimentSignal: 'Toxic flow VPIN < 0.18 (+0.64); tightening Avellaneda-Stoikov spread to 8 bps for continuous two-sided fee capture.',
       allocatedCapINR: 1100000,
       baseDailyAlphaINR: 1850,
       realizedPnlINR: 36500,
@@ -321,8 +431,8 @@
       sharpe: 3.82,
       profitFactor: 3.60,
       maxDD: -0.38,
-      laymanExplanation: 'Provides continuous bid and ask liquidity in Indian defense stocks, pocketing the half-spread continuously while dynamically adjusting quotes to avoid holding excess inventory.',
-      mathDerivation: '$$\\delta^b = \\frac{r - s}{2} + \\frac{1}{\\gamma} \\ln\\left(1 + \\frac{\\gamma}{\\kappa}\\right), \\quad \\delta^a = \\frac{s - r}{2} + \\frac{1}{\\gamma} \\ln\\left(1 + \\frac{\\gamma}{\\kappa}\\right)$$',
+      laymanExplanation: 'Provides continuous bid and ask liquidity in Indian defense stocks, pocketing the half-spread continuously while adjusting quotes dynamically.',
+      mathDerivation: '$$\delta^b = \frac{r - s}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right), \quad \delta^a = \frac{s - r}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$',
       entryRules: 'Post two-sided quotes when bid-ask spread > 10 bps.',
       exitRules: 'Passive continuous fills on both sides of the book.',
       crisisReplay: 'Inventory penalty parameter γ prevents inventory overhang during sudden selloffs.'
@@ -330,8 +440,13 @@
     {
       id: 'BOT-IN-10',
       market: 'india',
+      division: 'Olympus',
+      pantheon: 'greek',
       sector: 'MCX Commodities (Evening)',
       name: 'MIDAS 👑 — MCX Gold & Crude Bullion Trend CTA',
+      mythName: 'MIDAS',
+      mythIcon: '👑',
+      mythTitle: 'Sovereign of the Golden Touch & MCX Bullion CTA',
       greekName: 'MIDAS',
       greekIcon: '👑',
       greekTitle: 'Sovereign of the Golden Touch & MCX Bullion CTA',
@@ -339,10 +454,17 @@
       displayAsset: 'MCX GOLD & CRUDE',
       venue: 'MCX GTS',
       basePrice: 78420.0,
+      currentPrice: 78420.0,
+      dailyVolume: '₹3,400 Cr',
+      minuteVolume: '8,400 Lots',
       evalSpeedSec: 8,
       strategyType: 'Multi-Timeframe Trend Following',
-      mathFormula: '(\\text{EMA}_{12} > \\text{EMA}_{26}) \\cap (\\text{ADX}_{14} > 25) \\cap (F_{\\text{near}} - F_{\\text{far}} > 0)',
+      mathFormula: '(\text{EMA}_{12} > \text{EMA}_{26}) \cap (\text{ADX}_{14} > 25) \cap (F_{\text{near}} - F_{\text{far}} > 0)',
       tier: 'A-TIER',
+      sentimentSource: 'Geopolitical Risk Index (GPR) & Inflation',
+      sentimentScore: +0.81,
+      sentimentRegime: 'SAFE_HAVEN_FLIGHT',
+      sentimentSignal: 'Geopolitical flight to safety (+0.81); long MCX Bullion Gold trend riding evening US trading momentum.',
       allocatedCapINR: 1400000,
       baseDailyAlphaINR: 2150,
       realizedPnlINR: 48200,
@@ -352,29 +474,43 @@
       profitFactor: 2.35,
       maxDD: -0.92,
       laymanExplanation: 'Operates during evening commodity hours (09:00 to 23:55 IST) capturing major global price discovery during the US trading session.',
-      mathDerivation: '$$\\text{Trend Signal} = \\text{sgn}(\\text{EMA}_{12} - \\text{EMA}_{26}) \\cdot \\min\\left(1, \\frac{\\text{ADX}}{30}\\right)$$',
+      mathDerivation: '$$\text{Trend Signal} = \text{sgn}(\text{EMA}_{12} - \text{EMA}_{26}) \cdot \min\left(1, \frac{\text{ADX}}{30}\right)$$',
       entryRules: 'Enter long on EMA bullish cross when ADX > 25 during US market open overlap.',
       exitRules: 'Exit on EMA bearish cross or ATR trailing stop breach.',
       crisisReplay: 'Gold trend surged +28% during inflation and geopolitical tension periods.'
     },
 
-    // 🇺🇸 US & 24/7 GLOBAL FLEET (10 BOTS)
+    // ══════════════════════════════════════════════════════════════════════════
+    // ⚔️ VALHALLA DIVISION — 🇺🇸 US & GLOBAL 24/7 FLEET (10 NORSE BOTS)
+    // ══════════════════════════════════════════════════════════════════════════
     {
       id: 'BOT-US-01',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Tech Mega-Caps (NASDAQ)',
-      name: 'CHRONOS ⏳ — Mega-Cap Almgren-Chriss Slicer',
-      greekName: 'CHRONOS',
-      greekIcon: '⏳',
-      greekTitle: 'Personification of Time & Optimal Almgren-Chriss Slicing',
+      name: 'ODIN 👁️ — Mega-Cap Almgren-Chriss Slicer',
+      mythName: 'ODIN',
+      mythIcon: '👁️',
+      mythTitle: 'The Allfather & Supreme Quantitative Slicer',
+      norseName: 'ODIN',
+      norseIcon: '👁️',
+      norseTitle: 'The Allfather & Supreme Quantitative Slicer',
       primarySymbol: 'NVDA',
-      displayAsset: 'NVDA (NASDAQ)',
+      displayAsset: 'NVDA / AAPL / MSFT (NASDAQ)',
       venue: 'NASDAQ OUCH',
       basePrice: 128.5,
+      currentPrice: 128.5,
+      dailyVolume: '$14.2 Billion',
+      minuteVolume: '124,500 Shares',
       evalSpeedSec: 4,
       strategyType: 'Optimal Execution & Smart Routing',
-      mathFormula: 'x_j = \\frac{\\sinh(\\kappa (T - t_j))}{\\sinh(\\kappa T)} X, \\quad \\kappa \\approx \\sqrt{\\frac{\\lambda \\sigma^2}{\\eta}}',
+      mathFormula: 'x_j = \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)} X, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}',
       tier: 'S-TIER',
+      sentimentSource: 'Nasdaq Institutional Dark Pool Flow',
+      sentimentScore: +0.62,
+      sentimentRegime: 'INSTITUTIONAL_ACCUMULATION',
+      sentimentSignal: 'Dark pool accumulation index +0.62; pacing Almgren-Chriss schedule to eliminate temporary price impact.',
       allocatedCapINR: 1800000,
       baseDailyAlphaINR: 2650,
       realizedPnlINR: 58400,
@@ -383,28 +519,40 @@
       sharpe: 3.25,
       profitFactor: 2.92,
       maxDD: -0.58,
-      laymanExplanation: 'Slices multi-million dollar institutional orders into tiny micro-blocks using calculus of variations, balancing temporary price impact against market volatility risk.',
-      mathDerivation: '$$\\min_{\{x_j\}} \\mathbb{E}[x] + \\lambda \\mathbb{V}[x] = \\sum_{j=1}^N \\tau \\left( \\gamma \\left(\\frac{x_j}{\\tau}\\right)^2 + \\lambda \\sigma^2 x_j^2 \\right)$$',
+      laymanExplanation: 'Slices multi-million dollar institutional orders into micro-blocks using calculus of variations, balancing price impact against volatility risk.',
+      mathDerivation: '$$\min_{\{x_j\}} \mathbb{E}[x] + \lambda \mathbb{V}[x] = \sum_{j=1}^N \tau \left( \gamma \left(\frac{x_j}{\tau}\right)^2 + \lambda \sigma^2 x_j^2 \right)$$',
       entryRules: 'Triggered when parent order size exceeds $250,000 notional.',
-      exitRules: 'Guaranteed completion within target time window $T$.',
+      exitRules: 'Guaranteed completion within target time window T.',
       crisisReplay: 'Saves 8-14 bps in execution slippage during high-volatility sessions.'
     },
     {
       id: 'BOT-US-02',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Semiconductors & AI Hardware',
-      name: 'PROMETHEUS ⚡ — Semiconductor Gamma Scalper',
-      greekName: 'PROMETHEUS',
-      greekIcon: '⚡',
-      greekTitle: 'Titan of Silicon Fire & High-Gamma Convexity',
+      name: 'THOR ⚡ — Semiconductor Gamma Scalper',
+      mythName: 'THOR',
+      mythIcon: '⚡',
+      mythTitle: 'God of Thunder & High-Gamma Strikes',
+      norseName: 'THOR',
+      norseIcon: '⚡',
+      norseTitle: 'God of Thunder & High-Gamma Strikes',
       primarySymbol: 'AMD',
-      displayAsset: 'AMD Straddles (CBOE)',
+      displayAsset: 'AMD / TSM Straddles (CBOE)',
       venue: 'CBOE HYBRID',
       basePrice: 146.2,
+      currentPrice: 146.2,
+      dailyVolume: '$8.4 Billion',
+      minuteVolume: '82,100 Contracts',
       evalSpeedSec: 6,
       strategyType: 'Dynamic Gamma Scalping',
-      mathFormula: '\\Pi_{\\text{daily}} \\approx \\frac{1}{2}\\Gamma S^2 (\\sigma_{\\text{realized}}^2 - \\sigma_{\\text{implied}}^2) \\Delta t - \\text{Costs}',
+      mathFormula: '\Pi_{\text{daily}} \approx \frac{1}{2}\Gamma S^2 (\sigma_{\text{realized}}^2 - \sigma_{\text{implied}}^2) \Delta t - \text{Costs}',
       tier: 'A-TIER',
+      sentimentSource: 'CBOE SKEW & VIX Term Structure',
+      sentimentScore: +0.88,
+      sentimentRegime: 'HIGH_GAMMA_SQUEEZE',
+      sentimentSignal: 'Implied vol cheaper than realized vol by 4.2 vol pts; aggressively scalping long straddle gamma on breakout swings.',
       allocatedCapINR: 1500000,
       baseDailyAlphaINR: 2280,
       realizedPnlINR: 49200,
@@ -413,8 +561,8 @@
       sharpe: 2.85,
       profitFactor: 2.55,
       maxDD: -0.95,
-      laymanExplanation: 'Buys options when implied volatility is cheaper than actual stock price swings. Re-hedges shares continuously: sells on rallies and buys on dips, pocketing continuous gamma profits.',
-      mathDerivation: '$$\\Gamma = \\frac{\\phi(d_1)}{S \\sigma \\sqrt{T}}, \\quad \\Delta \\text{Shares} = -\\Gamma \\cdot \\Delta S \\cdot 100$$',
+      laymanExplanation: 'Buys options when implied volatility is cheaper than actual price swings. Re-hedges shares continuously, pocketing gamma profits.',
+      mathDerivation: '$$\Gamma = \frac{\phi(d_1)}{S \sigma \sqrt{T}}, \quad \Delta \text{Shares} = -\Gamma \cdot \Delta S \cdot 100$$',
       entryRules: 'Buy ATM Straddle when SABR calibrated IV < 30-day realized volatility.',
       exitRules: 'Re-hedge delta every 15 minutes; close straddle 3 days prior to expiration.',
       crisisReplay: 'Generates massive gamma windfalls during explosive semiconductor earnings swings.'
@@ -422,19 +570,31 @@
     {
       id: 'BOT-US-03',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'US Financials & Yield Curve',
-      name: 'PLUTUS 🏛️ — US Financials Yield Curve Steepener',
-      greekName: 'PLUTUS',
-      greekIcon: '🏛️',
-      greekTitle: 'God of Abundant Banking Wealth & Bond Yield Curves',
+      name: 'HEIMDALL 🌈 — US Financials Yield Steepener',
+      mythName: 'HEIMDALL',
+      mythIcon: '🌈',
+      mythTitle: 'The All-Seeing Watcher of the Bifrost Yield Curve',
+      norseName: 'HEIMDALL',
+      norseIcon: '🌈',
+      norseTitle: 'The All-Seeing Watcher of the Bifrost Yield Curve',
       primarySymbol: 'JPM',
       displayAsset: 'JPM / 2Y-10Y Curve',
       venue: 'NYSE ARCA',
       basePrice: 218.4,
+      currentPrice: 218.4,
+      dailyVolume: '$4.2 Billion',
+      minuteVolume: '38,900 Shares',
       evalSpeedSec: 9,
       strategyType: 'Yield Curve Term-Structure Arb',
-      mathFormula: 'y(t) = \\beta_0 + \\beta_1 \\left(\\frac{1 - e^{-t/\\tau}}{t/\\tau}\\right) + \\beta_2 \\left(\\frac{1 - e^{-t/\\tau}}{t/\\tau} - e^{-t/\\tau}\\right)',
+      mathFormula: 'y(t) = \beta_0 + \beta_1 \left(\frac{1 - e^{-t/\tau}}{t/\tau}\right) + \beta_2 \left(\frac{1 - e^{-t/\tau}}{t/\tau} - e^{-t/\tau}\right)',
       tier: 'A-TIER',
+      sentimentSource: 'Fed Funds Futures Rate Cut Skew',
+      sentimentScore: +0.58,
+      sentimentRegime: 'CURVE_STEEPENING',
+      sentimentSignal: '2s10s yield curve un-inverting (+0.58); expansion of bank net interest margins; long JPM / GS.',
       allocatedCapINR: 1200000,
       baseDailyAlphaINR: 1650,
       realizedPnlINR: 34100,
@@ -443,8 +603,8 @@
       sharpe: 2.92,
       profitFactor: 2.70,
       maxDD: -0.48,
-      laymanExplanation: 'Monitors the US Treasury 2s10s yield curve. When the yield curve un-inverts and steepens, bank net interest margins expand dramatically; the bot goes long Wall Street banks and hedges rate duration.',
-      mathDerivation: '$$\\text{Slope} = y(10\\text{Y}) - y(2\\text{Y}), \\quad \\text{Trade} = \\text{Long Bank} \\iff \\Delta \\text{Slope} > +15 \\text{ bps}$$',
+      laymanExplanation: 'Monitors US Treasury 2s10s yield curve. When curve steepens, bank net interest margins expand; goes long Wall Street banks and hedges rate duration.',
+      mathDerivation: '$$\text{Slope} = y(10\text{Y}) - y(2\text{Y}), \quad \text{Trade} = \text{Long Bank} \iff \Delta \text{Slope} > +15 \text{ bps}$$',
       entryRules: 'Enter long bank financials when 2s10s curve slope accelerates above 20-day EMA.',
       exitRules: 'Exit when yield curve slope flattens by > 10 bps.',
       crisisReplay: 'Benefited heavily from 2024 Fed rate cutting cycle normalization.'
@@ -452,19 +612,31 @@
     {
       id: 'BOT-US-04',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Healthcare & BioTech',
-      name: 'ASCLEPIUS ⚕️ — BioTech Jump-Diffusion Catalyst',
-      greekName: 'ASCLEPIUS',
-      greekIcon: '⚕️',
-      greekTitle: 'God of BioTech Medicine & Jump-Diffusion Discovery',
+      name: 'EIR 🌿 — BioTech Jump-Diffusion Catalyst',
+      mythName: 'EIR',
+      mythIcon: '🌿',
+      mythTitle: 'Goddess of Healing & Medicinal Discovery',
+      norseName: 'EIR',
+      norseIcon: '🌿',
+      norseTitle: 'Goddess of Healing & Medicinal Discovery',
       primarySymbol: 'LLY',
-      displayAsset: 'LLY (NYSE)',
+      displayAsset: 'LLY / NVO (NYSE)',
       venue: 'NYSE ARCA',
       basePrice: 945.2,
+      currentPrice: 945.2,
+      dailyVolume: '$3.8 Billion',
+      minuteVolume: '14,200 Shares',
       evalSpeedSec: 8,
       strategyType: 'Merton Jump-Diffusion Event Arb',
-      mathFormula: 'dS_t = (\\mu - \\lambda k)S_t dt + \\sigma S_t dW_t + (Y - 1)S_t dN_t',
+      mathFormula: 'dS_t = (\mu - \lambda k)S_t dt + \sigma S_t dW_t + (Y - 1)S_t dN_t',
       tier: 'A-TIER',
+      sentimentSource: 'Clinical Trial NLP Sentiment',
+      sentimentScore: +0.76,
+      sentimentRegime: 'ASYMMETRIC_CATALYST',
+      sentimentSignal: 'Phase-3 clinical sentiment positive (+0.76); Merton Poisson jump hedge active with defined tail risk.',
       allocatedCapINR: 1300000,
       baseDailyAlphaINR: 1780,
       realizedPnlINR: 37800,
@@ -473,8 +645,8 @@
       sharpe: 2.78,
       profitFactor: 2.45,
       maxDD: -0.82,
-      laymanExplanation: 'Models unexpected GLP-1 clinical trial outcomes and FDA surprise approvals as compound Poisson jumps. Captures asymmetric upside while hedging tail downside.',
-      mathDerivation: '$$\\ln(Y) \\sim \\mathcal{N}(\\mu_J, \\sigma_J^2), \\quad k = \\mathbb{E}[Y-1] = e^{\\mu_J + \\sigma_J^2/2} - 1$$',
+      laymanExplanation: 'Models unexpected clinical trial outcomes and FDA surprise approvals as compound Poisson jumps. Captures asymmetric upside while hedging tail downside.',
+      mathDerivation: '$$\ln(Y) \sim \mathcal{N}(\mu_J, \sigma_J^2), \quad k = \mathbb{E}[Y-1] = e^{\mu_J + \sigma_J^2/2} - 1$$',
       entryRules: 'Enter when Bayesian clinical sentiment index exceeds +2.0σ prior to trial readouts.',
       exitRules: 'Take profit immediately upon market open post-announcement.',
       crisisReplay: 'Gained +32% during GLP-1 cardiovascular trial success announcements.'
@@ -482,19 +654,31 @@
     {
       id: 'BOT-US-05',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Energy & Global Oil Majors',
-      name: 'GAIA 🌍 — Fama-French 5-Factor Energy Carry',
-      greekName: 'GAIA',
-      greekIcon: '🌍',
-      greekTitle: 'Primordial Earth Mother of Deep Fossil Energy Reserves',
+      name: 'NJORD 🌊 — Fama-French 5-Factor Energy Carry',
+      mythName: 'NJORD',
+      mythIcon: '🌊',
+      mythTitle: 'God of Wind, Sea & Natural Resource Wealth',
+      norseName: 'NJORD',
+      norseIcon: '🌊',
+      norseTitle: 'God of Wind, Sea & Natural Resource Wealth',
       primarySymbol: 'XOM',
-      displayAsset: 'XOM (NYSE)',
+      displayAsset: 'XOM / CVX (NYSE)',
       venue: 'NYSE ARCA',
       basePrice: 114.8,
+      currentPrice: 114.8,
+      dailyVolume: '$2.9 Billion',
+      minuteVolume: '48,100 Shares',
       evalSpeedSec: 10,
       strategyType: 'Multi-Factor Risk Premia',
-      mathFormula: 'R_i - R_f = \\alpha + \\beta_m \\text{MKT} + \\beta_s \\text{SMB} + \\beta_h \\text{HML} + \\beta_r \\text{RMW} + \\beta_c \\text{CMA}',
+      mathFormula: 'R_i - R_f = \alpha + \beta_m \text{MKT} + \beta_s \text{SMB} + \beta_h \text{HML} + \beta_r \text{RMW} + \beta_c \text{CMA}',
       tier: 'B-TIER',
+      sentimentSource: 'OPEC+ Supply Discipline Sentiment',
+      sentimentScore: +0.30,
+      sentimentRegime: 'DIVIDEND_CARRY',
+      sentimentSignal: 'Energy free cash flow yield solid (+0.30); Fama-French value factor premium extraction with zero beta risk.',
       allocatedCapINR: 1100000,
       baseDailyAlphaINR: 1250,
       realizedPnlINR: 26400,
@@ -503,8 +687,8 @@
       sharpe: 2.45,
       profitFactor: 2.10,
       maxDD: -0.75,
-      laymanExplanation: 'Isolates pure alpha in oil supermajors by hedging out broader equity and commodity market beta, capturing value and robust profitability factor spreads.',
-      mathDerivation: '$$\\alpha_i = (R_i - R_f) - \\sum_{k=1}^5 \\beta_k F_k$$',
+      laymanExplanation: 'Isolates pure alpha in oil supermajors by hedging out broader equity and commodity beta, capturing value and profitability factor spreads.',
+      mathDerivation: '$$\alpha_i = (R_i - R_f) - \sum_{k=1}^5 \beta_k F_k$$',
       entryRules: 'Enter when multi-factor alpha t-statistic exceeds 2.5.',
       exitRules: 'Rebalance monthly to maintain factor neutrality.',
       crisisReplay: 'Stable non-correlated returns during 2022 energy crisis.'
@@ -512,19 +696,31 @@
     {
       id: 'BOT-US-06',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Aerospace & Industrial',
-      name: 'DAEDALUS ✈️ — Aerospace Kyle-Lambda Flow Scalper',
-      greekName: 'DAEDALUS',
-      greekIcon: '✈️',
-      greekTitle: 'Master Craftsman of Aviation Wings & Kyle-Lambda Flow',
+      name: 'VALKYRIE 🦅 — Aerospace Kyle-Lambda Scalper',
+      mythName: 'VALKYRIE',
+      mythIcon: '🦅',
+      mythTitle: 'Choosers of the Slain & Aeronautical Flow Masters',
+      norseName: 'VALKYRIE',
+      norseIcon: '🦅',
+      norseTitle: 'Choosers of the Slain & Aeronautical Flow Masters',
       primarySymbol: 'BA',
       displayAsset: 'BA / GE (NYSE)',
       venue: 'NYSE ARCA',
       basePrice: 172.5,
+      currentPrice: 172.5,
+      dailyVolume: '$2.1 Billion',
+      minuteVolume: '22,400 Shares',
       evalSpeedSec: 8,
       strategyType: 'Microstructure Adverse Selection',
-      mathFormula: '\\Delta P_t = \\lambda_{\\text{Kyle}} \\cdot Q_t + \\epsilon_t, \\quad \\lambda = \\frac{\\text{Cov}(v, p)}{\\text{Var}(Q)}',
+      mathFormula: '\Delta P_t = \lambda_{\text{Kyle}} \cdot Q_t + \epsilon_t, \quad \lambda = \frac{\text{Cov}(v, p)}{\text{Var}(Q)}',
       tier: 'B-TIER',
+      sentimentSource: 'Kyle Lambda Informed Flow Meter',
+      sentimentScore: -0.42,
+      sentimentRegime: 'ADVERSE_SELECTION_GUARD',
+      sentimentSignal: 'Kyle lambda impact coefficient spiking (-0.42); scaling order size down 40% to avoid institutional predatory flow.',
       allocatedCapINR: 1000000,
       baseDailyAlphaINR: 1120,
       realizedPnlINR: 23800,
@@ -533,8 +729,8 @@
       sharpe: 2.28,
       profitFactor: 2.05,
       maxDD: -1.05,
-      laymanExplanation: 'Measures Kyle\'s lambda to detect when institutional traders with non-public order flow are actively executing in aerospace defense leaders.',
-      mathDerivation: '$$\\lambda_{\\text{Kyle}} = \\frac{\\sigma_v}{2 \\sigma_u}, \\quad \\text{Signal} = \\text{Cumulative Flow} \\cdot \\lambda$$',
+      laymanExplanation: "Measures Kyle's lambda to detect when institutional traders with non-public order flow are actively executing in aerospace defense leaders.",
+      mathDerivation: '$$\lambda_{\text{Kyle}} = \frac{\sigma_v}{2 \sigma_u}, \quad \text{Signal} = \text{Cumulative Flow} \cdot \lambda$$',
       entryRules: 'Enter when 15-minute price impact coefficient exceeds historical 95th percentile.',
       exitRules: 'Exit when order flow imbalance dissipates.',
       crisisReplay: 'Flagged Boeing recovery trends post-FAA recertification milestones.'
@@ -542,19 +738,31 @@
     {
       id: 'BOT-US-07',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Crypto 24/7 L1 Layer-1',
-      name: 'HERMES ⚡ — Perp Funding Cash & Carry',
-      greekName: 'HERMES',
-      greekIcon: '⚡',
-      greekTitle: 'God of Commerce, Boundary Crossing & 24/7 Arbitrage',
+      name: 'LOKI 🎭 — Perp Funding Cash & Carry',
+      mythName: 'LOKI',
+      mythIcon: '🎭',
+      mythTitle: 'The Shape-Shifter & Delta-Neutral Carry Trickster',
+      norseName: 'LOKI',
+      norseIcon: '🎭',
+      norseTitle: 'The Shape-Shifter & Delta-Neutral Carry Trickster',
       primarySymbol: 'BTC-USD',
       displayAsset: 'BTC Spot / Perp Basis',
       venue: 'BINANCE FIX 4.4',
       basePrice: 64280.0,
+      currentPrice: 64280.0,
+      dailyVolume: '$32.4 Billion',
+      minuteVolume: '142.5 BTC',
       evalSpeedSec: 4,
       strategyType: 'Delta-Neutral Funding Arbitrage',
-      mathFormula: '\\text{Yield} = \\left(\\frac{F_{\\text{perp}} - S_{\\text{spot}}}{S_{\\text{spot}}}\\right) \\cdot 3 \\cdot 365 > +12\\% / \\text{yr}',
+      mathFormula: '\text{Yield} = \left(\frac{F_{\text{perp}} - S_{\text{spot}}}{S_{\text{spot}}}\right) \cdot 3 \cdot 365 > +12\% / \text{yr}',
       tier: 'S-TIER',
+      sentimentSource: 'Crypto Funding Rate Greed/Fear Index',
+      sentimentScore: +0.92,
+      sentimentRegime: 'EXTREME_GREED_HARVEST',
+      sentimentSignal: 'Retail perpetual leverage +28% APR (+0.92); delta-neutral cash & carry basis fully deployed for maximum daily interest.',
       allocatedCapINR: 2000000,
       baseDailyAlphaINR: 3450,
       realizedPnlINR: 74200,
@@ -563,8 +771,8 @@
       sharpe: 5.42,
       profitFactor: 6.85,
       maxDD: -0.15,
-      laymanExplanation: 'Buys spot Bitcoin and shorts perpetual Bitcoin futures when retail leverage drives funding rates above +12%/yr. Earns daily funding interest payments every 8 hours with zero directional market risk.',
-      mathDerivation: '$$\\text{PnL} = \\text{Funding Rate} \\cdot \\text{Notional Position} - \\text{Trading Fees}$$',
+      laymanExplanation: 'Buys spot Bitcoin and shorts perpetual Bitcoin futures when retail leverage drives funding rates above +12%/yr. Earns daily funding interest payments with zero directional market risk.',
+      mathDerivation: '$$\text{PnL} = \text{Funding Rate} \cdot \text{Notional Position} - \text{Trading Fees}$$',
       entryRules: 'Enter delta-neutral basis position whenever 8h funding rate > 0.01% (+10.95% APR).',
       exitRules: 'Close position if funding rate drops below 0.00% (negative funding).',
       crisisReplay: 'Generated uninterrupted yield during both bull and bear markets (2022 crypto winter and 2024 ATH).'
@@ -572,19 +780,31 @@
     {
       id: 'BOT-US-08',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Crypto 24/7 Altcoins & DeFi',
-      name: 'HECATE 🔮 — Triangular Cross-Exchange Arb',
-      greekName: 'HECATE',
-      greekIcon: '🔮',
-      greekTitle: 'Goddess of Three Crossroads & Triangular Pathways',
+      name: 'FENRIR 🐺 — Triangular Cross-Exchange Arb',
+      mythName: 'FENRIR',
+      mythIcon: '🐺',
+      mythTitle: 'The Unbound Wolf & Sub-Second Arbitrage Hunter',
+      norseName: 'FENRIR',
+      norseIcon: '🐺',
+      norseTitle: 'The Unbound Wolf & Sub-Second Arbitrage Hunter',
       primarySymbol: 'SOL-USD',
       displayAsset: 'SOL / BNB / USDT Triangle',
       venue: 'BINANCE FIX 4.4',
       basePrice: 154.6,
+      currentPrice: 154.6,
+      dailyVolume: '$4.8 Billion',
+      minuteVolume: '38,200 SOL',
       evalSpeedSec: 2,
       strategyType: 'Cross-Venue High Frequency Arb',
-      mathFormula: '\\text{Profit} = \\frac{P_A(\\text{SOL}/\\text{USD})}{P_B(\\text{SOL}/\\text{USDT}) \\cdot P_B(\\text{USDT}/\\text{USD})} - 1 > \\text{Fee}',
+      mathFormula: '\text{Profit} = \frac{P_A(\text{SOL}/\text{USD})}{P_B(\text{SOL}/\text{USDT}) \cdot P_B(\text{USDT}/\text{USD})} - 1 > \text{Fee}',
       tier: 'S-TIER',
+      sentimentSource: 'Cross-Venue Liquidity Imbalance Matrix',
+      sentimentScore: +0.70,
+      sentimentRegime: 'HIGH_SPEED_DISPERSION',
+      sentimentSignal: 'Venue A/B price spread at 22 bps (+0.70); sub-second atomic 3-asset loop routing with 0.8ms latency.',
       allocatedCapINR: 1200000,
       baseDailyAlphaINR: 1950,
       realizedPnlINR: 42100,
@@ -593,8 +813,8 @@
       sharpe: 4.85,
       profitFactor: 4.20,
       maxDD: -0.28,
-      laymanExplanation: 'Continuously monitors price discrepancies between venues 24/7. When Solana trades $0.15 cheaper on venue A than venue B, the bot executes simultaneous buy-sell legs, pocketing the discrepancy risk-free.',
-      mathDerivation: '$$\\Delta = \\ln P_{AB} + \\ln P_{BC} + \\ln P_{CA} > 3 \\cdot \\text{Fee}$$',
+      laymanExplanation: 'Monitors price discrepancies between venues 24/7. When Solana trades cheaper on venue A than B, executes simultaneous buy-sell legs, pocketing discrepancy risk-free.',
+      mathDerivation: '$$\Delta = \ln P_{AB} + \ln P_{BC} + \ln P_{CA} > 3 \cdot \text{Fee}$$',
       entryRules: 'Fires sub-second atomic order loops when triangle spread > 15 bps.',
       exitRules: 'Instantaneous execution within the same block.',
       crisisReplay: 'Volume surges during market turbulence increase arbitrage opportunities by 300%.'
@@ -602,19 +822,31 @@
     {
       id: 'BOT-US-09',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Global Macro FX & Rates',
-      name: 'AEOLUS 💨 — Macro FX Volatility-Targeted CTA',
-      greekName: 'AEOLUS',
-      greekIcon: '💨',
-      greekTitle: 'Keeper of Global Winds, FX Currents & Central Bank Storms',
+      name: 'FREYJA 👑 — Macro FX Volatility-Targeted CTA',
+      mythName: 'FREYJA',
+      mythIcon: '👑',
+      mythTitle: 'Goddess of Gold, War & Macro FX Winds',
+      norseName: 'FREYJA',
+      norseIcon: '👑',
+      norseTitle: 'Goddess of Gold, War & Macro FX Winds',
       primarySymbol: 'USDINR=X',
       displayAsset: 'USD/INR Futures',
       venue: 'CME GLOBEX',
       basePrice: 83.92,
+      currentPrice: 83.92,
+      dailyVolume: '$8.2 Billion',
+      minuteVolume: '45,000 Lots',
       evalSpeedSec: 7,
       strategyType: 'Macro Dual-Momentum Trend',
-      mathFormula: 'w_i = \\frac{\\sigma_{\\text{target}}}{\\sigma_i \\cdot N} \\cdot \\text{sgn}(P_t - \\text{EMA}_{100})',
+      mathFormula: 'w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{100})',
       tier: 'A-TIER',
+      sentimentSource: 'Sovereign Yield Differential (US vs IN)',
+      sentimentScore: +0.48,
+      sentimentRegime: 'CARRY_TREND',
+      sentimentSignal: '10-year yield spread stable at 380 bps (+0.48); momentum trend-following USD/INR.',
       allocatedCapINR: 1500000,
       baseDailyAlphaINR: 1840,
       realizedPnlINR: 39500,
@@ -624,7 +856,7 @@
       profitFactor: 2.30,
       maxDD: -0.85,
       laymanExplanation: 'Trades global currency super-cycles 24/5 driven by interest rate differentials (carry trade) and sovereign trade balances.',
-      mathDerivation: '$$\\text{Carry Score} = r_{\\text{USD}} - r_{\\text{INR}} + \\text{Momentum}_{60\\text{D}}$$',
+      mathDerivation: '$$\text{Carry Score} = r_{\text{USD}} - r_{\text{INR}} + \text{Momentum}_{60\text{D}}$$',
       entryRules: 'Enter long dollar when US 10Y yield spread widens vs global peers.',
       exitRules: 'Trailing stop on 50-day moving average break.',
       crisisReplay: 'Consistently hedges rupee depreciation during global risk-off events.'
@@ -632,19 +864,31 @@
     {
       id: 'BOT-US-10',
       market: 'us',
+      division: 'Valhalla',
+      pantheon: 'norse',
       sector: 'Prediction Markets 24/7',
-      name: 'APOLLO ☀️ — Polymarket Bayesian Prediction Bot',
-      greekName: 'APOLLO',
-      greekIcon: '☀️',
-      greekTitle: 'God of Oracles, Prophecy & Bayesian Truth Forecasting',
+      name: 'MIMIR 🧠 — Polymarket Bayesian Prediction Bot',
+      mythName: 'MIMIR',
+      mythIcon: '🧠',
+      mythTitle: 'Keeper of the Well of Wisdom & Bayesian Foresight',
+      norseName: 'MIMIR',
+      norseIcon: '🧠',
+      norseTitle: 'Keeper of the Well of Wisdom & Bayesian Foresight',
       primarySymbol: 'PRED-FOMC',
       displayAsset: 'FOMC Rate Outcome Shares',
       venue: 'POLYMARKET AMM',
       basePrice: 0.82,
+      currentPrice: 0.82,
+      dailyVolume: '$84 Million',
+      minuteVolume: '280,000 Shares',
       evalSpeedSec: 6,
       strategyType: 'Prediction Market Pricing Arbitrage',
-      mathFormula: 'p_i = \\frac{e^{q_i / b}}{\\sum_j e^{q_j / b}} \\quad \\text{vs} \\quad P(\\text{Fed Cut} \\mid \\text{CPI}, \\text{PCE})',
+      mathFormula: 'p_i = \frac{e^{q_i / b}}{\sum_j e^{q_j / b}} \quad \text{vs} \quad P(\text{Fed Cut} \mid \text{CPI}, \text{PCE})',
       tier: 'S-TIER',
+      sentimentSource: 'Polymarket vs Econometric Fair Value Divergence',
+      sentimentScore: -0.65,
+      sentimentRegime: 'PREDICTION_ARBITRAGE',
+      sentimentSignal: 'Polymarket crowd overpricing 50bps rate cut by 12% (-0.65); Bayesian LMSR short position fading irrational sentiment.',
       allocatedCapINR: 900000,
       baseDailyAlphaINR: 1480,
       realizedPnlINR: 31200,
@@ -653,8 +897,8 @@
       sharpe: 3.55,
       profitFactor: 3.40,
       maxDD: -0.45,
-      laymanExplanation: 'Operates 24/7 on decentralized prediction markets (Polymarket). Uses Bayesian econometric formulas to calculate true fair value probabilities for FOMC decisions, buying underpriced outcome shares and selling overpriced ones.',
-      mathDerivation: '$$\\text{Cost}(q) = b \\ln\\left(\\sum_{i} e^{q_i / b}\\right), \\quad \\text{Edge} = |p_{\\text{market}} - P_{\\text{Bayesian}}| > 0.08$$',
+      laymanExplanation: 'Operates 24/7 on decentralized prediction markets (Polymarket). Uses Bayesian formulas to calculate fair value probabilities for FOMC decisions, buying underpriced shares.',
+      mathDerivation: '$$\text{Cost}(q) = b \ln\left(\sum_{i} e^{q_i / b}\right), \quad \text{Edge} = |p_{\text{market}} - P_{\text{Bayesian}}| > 0.08$$',
       entryRules: 'Buy probability shares when market price diverges by > 8% from econometric model prior.',
       exitRules: 'Hold until binary outcome resolution ($1.00 payout) or close when market reaches fair value.',
       crisisReplay: 'Locked in 88% win rate across 2024 Fed policy decision contracts.'
@@ -793,13 +1037,27 @@
         botRegistry = INITIAL_BOTS.map(initBot => {
           const existing = parsed.find(p => p.id === initBot.id);
           if (!existing) return { ...initBot, status: 'RUNNING' };
-          return {
+                    return {
             ...initBot,
             ...existing,
             name: initBot.name,
-            greekName: initBot.greekName,
-            greekIcon: initBot.greekIcon,
-            greekTitle: initBot.greekTitle,
+            mythName: initBot.mythName,
+            mythIcon: initBot.mythIcon,
+            mythTitle: initBot.mythTitle,
+            pantheon: initBot.pantheon,
+            division: initBot.division,
+            greekName: initBot.mythName,
+            greekIcon: initBot.mythIcon,
+            greekTitle: initBot.mythTitle,
+            norseName: initBot.mythName,
+            norseIcon: initBot.mythIcon,
+            norseTitle: initBot.mythTitle,
+            sentimentSource: initBot.sentimentSource,
+            sentimentScore: initBot.sentimentScore,
+            sentimentRegime: initBot.sentimentRegime,
+            sentimentSignal: initBot.sentimentSignal,
+            dailyVolume: initBot.dailyVolume,
+            minuteVolume: initBot.minuteVolume,
             mathFormula: initBot.mathFormula,
             mathDerivation: initBot.mathDerivation,
             laymanExplanation: initBot.laymanExplanation
@@ -927,18 +1185,26 @@
 
     const side = forceSide || (Math.random() > 0.45 ? 'BUY' : 'SELL');
     const orderId = generateOrderId(bot.id);
-    const curPrice = bot.currentPrice || bot.basePrice;
-    const slippageBps = Number(((Math.random() * 1.4) + 0.4).toFixed(1));
+        const curPrice = bot.currentPrice || bot.basePrice;
+    const qty = bot.market === 'india' ? (bot.basePrice > 5000 ? 25 : 150) : (bot.primarySymbol.includes('BTC') ? 1.0 : 40);
+    
+    // Dynamic Volume-Weighted Slippage Calculation (Order Qty / Available L2 Book Depth)
+    const bookDepth = 800 + Math.floor(Math.random() * 1200);
+    const volumeImpactBps = Number(((qty / bookDepth) * 3.5).toFixed(2));
+    const kyleLambdaBps = Number((0.4 + Math.random() * 0.5).toFixed(2));
+    const slippageBps = Number((volumeImpactBps + kyleLambdaBps).toFixed(1));
     const isBuy = side.includes('BUY') || side === 'COVER';
     const fillPrice = Number((isBuy ? curPrice * (1 + slippageBps / 10000) : curPrice * (1 - slippageBps / 10000)).toFixed(2));
-    const qty = bot.market === 'india' ? (bot.basePrice > 5000 ? 25 : 150) : (bot.primarySymbol.includes('BTC') ? 1.0 : 40);
+    const vwapBenchmark = Number(((curPrice + fillPrice) / 2).toFixed(2));
 
+    const sentText = `[Sentiment: ${bot.sentimentSource} = ${bot.sentimentScore >= 0 ? '+' : ''}${bot.sentimentScore || 0.45}]`;
+    const volText = `[Vol Matched: ${qty} / ${bookDepth} Depth | VWAP: ₹${vwapBenchmark}]`;
     const mathReasons = [
-      `${bot.strategyType}: Signal trigger |z| = ${(2.2 + Math.random() * 0.8).toFixed(2)} > 2.20 threshold`,
-      `TimesFM 3.0 Skew = +${(0.18 + Math.random() * 0.15).toFixed(3)} Bullish expansion`,
-      `Order Flow Imbalance OFI = +${(0.72 + Math.random() * 0.18).toFixed(2)} > 0.70`,
-      `SABR continuous smile mispricing: +${(2.4 + Math.random() * 1.1).toFixed(1)}σ wing disparity`,
-      `Perpetual funding carry basis yield: +${(14.2 + Math.random() * 4.5).toFixed(1)}% APR`
+      `${bot.strategyType}: Signal |z| = ${(2.2 + Math.random() * 0.8).toFixed(2)} > 2.20 threshold ${sentText}`,
+      `TimesFM 3.0 Neural Skew: +${(0.18 + Math.random() * 0.15).toFixed(3)} expansion ${volText}`,
+      `Order Flow Imbalance OFI = +${(0.72 + Math.random() * 0.18).toFixed(2)} > 0.70 ${sentText}`,
+      `SABR Smile mispricing: +${(2.4 + Math.random() * 1.1).toFixed(1)}σ wing disparity ${volText}`,
+      `Perpetual carry basis yield: +${(14.2 + Math.random() * 4.5).toFixed(1)}% APR ${sentText}`
     ];
     const triggerReason = mathReasons[Math.floor(Math.random() * mathReasons.length)];
 
@@ -1270,35 +1536,70 @@
       if (bot.tier.includes('S')) tierCls = 'tier-s';
       else if (bot.tier.includes('A')) tierCls = 'tier-a';
 
+      
+      const isGreek = bot.pantheon === 'greek' || bot.market === 'india';
+      const pantheonCls = isGreek ? 'myth-badge-greek' : 'myth-badge-norse';
+      const divisionTag = isGreek ? '🏛️ OLYMPUS' : '⚔️ VALHALLA';
+
+      // Sentiment color & meter calculation
+      const sentScore = bot.sentimentScore !== undefined ? bot.sentimentScore : 0.45;
+      const sentPct = Math.round(((sentScore + 1) / 2) * 100);
+      let sentColor = '#ffb000';
+      if (sentScore >= 0.3) sentColor = '#10b981';
+      else if (sentScore <= -0.3) sentColor = '#f43f5e';
+
       return `
         <div class="bot-card ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
           <div class="bot-card-top">
             <div class="bot-card-title">
-              <div style="display:flex; align-items:center; gap:6px;">
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                 <span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span>
                 <span class="tier-badge ${tierCls}">${bot.tier}</span>
                 <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
+                <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);'}">
+                  ${divisionTag}
+                </span>
                 <span id="order-state-${bot.id}">
                   <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
                     ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
                   </span>
                 </span>
               </div>
-                            <div class="greek-myth-badge">
-                <span>${bot.greekIcon} ${bot.greekName}</span>
-                <span class="greek-myth-sub">&bull; ${bot.greekTitle}</span>
+
+              <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
+                <span>${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
+                <span style="font-size:0.65rem; color:#d4d4d8; font-weight:500;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
               </div>
               <h4 class="bot-name" style="margin-top:2px;">${bot.name}</h4>
-              <span class="bot-sector-tag"><i class="fa-solid fa-layer-group"></i> ${bot.sector}</span>
+              <div style="display:flex; gap:8px; align-items:center; margin-top:2px;">
+                <span class="bot-sector-tag"><i class="fa-solid fa-layer-group"></i> ${bot.sector}</span>
+                <span style="font-size:0.64rem; color:#71717a; font-family:'JetBrains Mono', monospace;">
+                  <i class="fa-solid fa-chart-simple text-purple"></i> 24h Vol: <strong style="color:#e4e4e7;">${bot.dailyVolume || '₹1,200 Cr'}</strong>
+                </span>
+              </div>
             </div>
             <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
               <i class="fa-solid ${isRunning ? 'fa-circle fa-beat' : 'fa-circle-pause'}"></i> ${bot.status}
             </span>
           </div>
 
+          <!-- Dynamic Sentiment Barometer Widget -->
+          <div class="sentiment-barometer-box">
+            <div class="sentiment-header">
+              <span style="color:#a1a1aa;"><i class="fa-solid fa-brain text-cyan"></i> ${bot.sentimentSource || 'FinBERT News NLP'}:</span>
+              <strong style="color:${sentColor};" id="sent-score-${bot.id}">
+                ${sentScore >= 0 ? '+' : ''}${sentScore.toFixed(2)} (${bot.sentimentRegime || 'BULLISH'})
+              </strong>
+            </div>
+            <div class="sentiment-meter-track">
+              <div class="sentiment-meter-fill" id="sent-fill-${bot.id}" style="width:${sentPct}%; background:${sentColor};"></div>
+            </div>
+            <div class="sentiment-signal-text" id="sent-sig-${bot.id}">${bot.sentimentSignal || ''}</div>
+          </div>
+
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
             <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
-              <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+0.218 (Bullish Skew)</strong>
+              <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong>
             </span>
             <span class="bot-card-uptime-tag"><i class="fa-solid fa-stopwatch text-amber"></i> Running: <strong style="color:#ffb000;" class="bot-card-uptime">92d 14h 28m</strong></span>
           </div>
@@ -1320,8 +1621,8 @@
               <div class="bot-stat-val text-cyan">${bot.sharpe} &bull; ${bot.winRate}%</div>
             </div>
             <div class="bot-stat-box">
-              <div class="bot-stat-label">Fills Executed</div>
-              <div class="bot-stat-val text-amber" id="trades-${bot.id}">${bot.tradesToday.toLocaleString()}</div>
+              <div class="bot-stat-label">Fills &bull; Matched Vol</div>
+              <div class="bot-stat-val text-amber" id="trades-${bot.id}">${bot.tradesToday.toLocaleString()} Fills</div>
             </div>
           </div>
 
@@ -1331,8 +1632,8 @@
               ${bot.activePosition ? `
                 <span style="color:#22d3ee; font-weight:700;">${bot.activePosition.side} ${bot.activePosition.qty}</span> 
                 <span style="color:#fff;">${bot.activePosition.symbol}</span> @ ₹${bot.activePosition.entryPrice} 
-                <span style="color:#10b981; font-weight:800;">(+₹${bot.activePosition.unrealizedPnlINR})</span>
-              ` : '<span style="color:#71717a;"><i class="fa-solid fa-radar"></i> Scanning Order Book...</span>'}
+                <span style="color:${pnlColor}; font-weight:800;">(${bot.activePosition.unrealizedPnlINR >= 0 ? '+' : ''}₹${bot.activePosition.unrealizedPnlINR})</span>
+              ` : '<span style="color:#71717a;"><i class="fa-solid fa-radar"></i> Scanning L2 Order Book...</span>'}
             </span>
           </div>
 
@@ -1360,10 +1661,13 @@
 
     const sorted = getSortedBots();
 
-    tableBody.innerHTML = sorted.map((bot, idx) => {
+        tableBody.innerHTML = sorted.map((bot, idx) => {
       const totPnl = bot.realizedPnlINR;
       const pnlColor = totPnl >= 0 ? '#10b981' : '#f43f5e';
       const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
+      const isGreek = bot.pantheon === 'greek' || bot.market === 'india';
+      const pantheonCls = isGreek ? 'myth-badge-greek' : 'myth-badge-norse';
+      const divisionTag = isGreek ? '🏛️ Olympus' : '⚔️ Valhalla';
 
       let rankBadgeCls = 'rank-other';
       if (idx === 0) rankBadgeCls = 'rank-1';
@@ -1374,22 +1678,39 @@
       if (bot.tier.includes('S')) tierCls = 'tier-s';
       else if (bot.tier.includes('A')) tierCls = 'tier-a';
 
+      const sentScore = bot.sentimentScore !== undefined ? bot.sentimentScore : 0.45;
+      let sentColor = '#ffb000';
+      if (sentScore >= 0.3) sentColor = '#10b981';
+      else if (sentScore <= -0.3) sentColor = '#f43f5e';
+
       return `
         <tr id="ranker-row-${bot.id}">
           <td><span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span></td>
           <td>
             <div style="display:flex; align-items:center; gap:6px;">
-              <span class="greek-myth-badge" style="margin:0; font-size:0.68rem; padding:2px 6px;">${bot.greekIcon} ${bot.greekName}</span>
+              <span class="myth-badge ${pantheonCls}" style="margin:0; font-size:0.68rem; padding:2px 6px;">
+                ${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}
+              </span>
               <strong style="color:#fff; font-size:0.82rem;">${bot.name}</strong>
             </div>
-            <span style="font-size:0.7rem; color:#22d3ee;">${flag} ${bot.sector} &bull; <em style="color:#aaa;">${bot.greekTitle}</em></span>
+            <span style="font-size:0.7rem; color:${isGreek ? '#ffb000' : '#60a5fa'}; font-family:'JetBrains Mono', monospace;">
+              ${divisionTag} &bull; ${flag} ${bot.sector}
+            </span>
+          </td>
+          <td style="font-family:'JetBrains Mono', monospace; font-size:0.72rem;">
+            <span style="color:${sentColor}; font-weight:800;" id="ranker-sent-${bot.id}">
+              ${sentScore >= 0 ? '+' : ''}${sentScore.toFixed(2)}
+            </span>
+            <div style="font-size:0.62rem; color:#71717a;">${bot.sentimentRegime || 'BULLISH'}</div>
           </td>
           <td style="font-family:'JetBrains Mono', monospace; font-size:0.72rem; color:#ffb000;">
             <i class="fa-solid fa-stopwatch text-amber"></i> <span class="ranker-bot-uptime">92d 14h 28m</span>
           </td>
           <td style="color:#aaa;">${bot.strategyType}</td>
           <td><span class="tier-badge ${tierCls}">${bot.tier}</span></td>
-          <td><div class="math-jax-block-mini">$$${bot.mathFormula}$$</div></td>
+          <td style="font-family:'JetBrains Mono', monospace; font-size:0.74rem; color:#c084fc;">
+            ${bot.dailyVolume || '₹1,200 Cr'}
+          </td>
           <td id="ranker-pnl-${bot.id}" style="font-family:'JetBrains Mono', monospace; font-weight:800; color:${pnlColor};">
             ${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}
           </td>
@@ -1525,6 +1846,36 @@
     });
   };
 
+  
+  // ── Division Telemetry Scorecard (Mount Olympus vs Valhalla) ──────────────
+  const updateDivisionScoreboard = () => {
+    const olympusBots = botRegistry.filter(b => b.market === 'india');
+    const valhallaBots = botRegistry.filter(b => b.market === 'us');
+
+    const olympusPnl = olympusBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? b.activePosition.unrealizedPnlINR : 0), 0);
+    const valhallaPnl = valhallaBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? b.activePosition.unrealizedPnlINR : 0), 0);
+
+    const olympusWin = (olympusBots.reduce((acc, b) => acc + b.winRate, 0) / (olympusBots.length || 1)).toFixed(1);
+    const valhallaWin = (valhallaBots.reduce((acc, b) => acc + b.winRate, 0) / (valhallaBots.length || 1)).toFixed(1);
+
+    const oEl = document.getElementById('olympusPnl');
+    const vEl = document.getElementById('valhallaPnl');
+    const oWinEl = document.getElementById('olympusWinRate');
+    const vWinEl = document.getElementById('valhallaWinRate');
+
+    if (oEl) {
+      oEl.textContent = `${olympusPnl >= 0 ? '+' : ''}₹${olympusPnl.toLocaleString('en-IN')}`;
+      oEl.style.color = olympusPnl >= 0 ? '#ffb000' : '#f43f5e';
+    }
+    if (vEl) {
+      const usd = (valhallaPnl / 83.5).toFixed(0);
+      vEl.textContent = `${valhallaPnl >= 0 ? '+' : ''}₹${valhallaPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
+      vEl.style.color = valhallaPnl >= 0 ? '#60a5fa' : '#f43f5e';
+    }
+    if (oWinEl) oWinEl.textContent = `${olympusWin}% • 3.24 Sharpe`;
+    if (vWinEl) vWinEl.textContent = `${valhallaWin}% • 3.52 Sharpe`;
+  };
+
   const updateGlobalTelemetry = () => {
     const runningCount = botRegistry.filter(b => b.status === 'RUNNING').length;
     // Live Real-Time Total P&L: Realized + Live Unrealized positions across all 20 bots
@@ -1558,6 +1909,7 @@
     if (fillsEl) fillsEl.textContent = `${totalTrades.toLocaleString()} Orders (FIX 4.4)`;
     if (sharpeEl) sharpeEl.textContent = `${avgSharpe} • -0.74% MDD`;
     if (winRateEl) winRateEl.textContent = `${avgWinRate}% • 2.85x PF`;
+    updateDivisionScoreboard();
 
     // Sync to TerminalBus for platform-wide real-time listeners
     if (typeof window !== 'undefined' && window.TerminalBus) {
@@ -1985,6 +2337,51 @@
     updateGlobalTelemetry();
     initEquityChart();
     startAutonomousFleetLoops();
+    startDynamicSentimentEngine();
+
+  // ── Dynamic Multi-Source Sentiment Fluctuation Engine (Every 2.5s) ────────
+  const startDynamicSentimentEngine = () => {
+    setInterval(() => {
+      // Fluctuate 3 to 5 bots' sentiment scores realistically
+      const count = 3 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < count; i++) {
+        const bot = botRegistry[Math.floor(Math.random() * botRegistry.length)];
+        const jiggle = (Math.random() - 0.49) * 0.08;
+        bot.sentimentScore = Number(Math.max(-0.95, Math.min(0.95, (bot.sentimentScore || 0.4) + jiggle)).toFixed(2));
+
+        // Derive regime
+        if (bot.sentimentScore >= 0.70) bot.sentimentRegime = 'STRONG_BULLISH';
+        else if (bot.sentimentScore >= 0.25) bot.sentimentRegime = 'BULLISH_EXPANSION';
+        else if (bot.sentimentScore > -0.25) bot.sentimentRegime = 'NEUTRAL_ARBITRAGE';
+        else if (bot.sentimentScore > -0.70) bot.sentimentRegime = 'BEARISH_HEDGE';
+        else bot.sentimentRegime = 'CONTRARIAN_REVERSAL';
+
+        // Update card sentiment UI
+        const scoreEl = document.getElementById(`sent-score-${bot.id}`);
+        const fillEl = document.getElementById(`sent-fill-${bot.id}`);
+        const rankerSentEl = document.getElementById(`ranker-sent-${bot.id}`);
+
+        let sColor = '#ffb000';
+        if (bot.sentimentScore >= 0.25) sColor = '#10b981';
+        else if (bot.sentimentScore <= -0.25) sColor = '#f43f5e';
+
+        if (scoreEl) {
+          scoreEl.textContent = `${bot.sentimentScore >= 0 ? '+' : ''}${bot.sentimentScore.toFixed(2)} (${bot.sentimentRegime})`;
+          scoreEl.style.color = sColor;
+        }
+        if (fillEl) {
+          const sentPct = Math.round(((bot.sentimentScore + 1) / 2) * 100);
+          fillEl.style.width = `${sentPct}%`;
+          fillEl.style.background = sColor;
+        }
+        if (rankerSentEl) {
+          rankerSentEl.textContent = `${bot.sentimentScore >= 0 ? '+' : ''}${bot.sentimentScore.toFixed(2)}`;
+          rankerSentEl.style.color = sColor;
+        }
+      }
+    }, 2500);
+  };
+
 
     // Auto-re-rank in Ranker view every 6s so leaderboard dynamically reflects live fills
     setInterval(() => {
