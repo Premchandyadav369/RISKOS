@@ -886,3 +886,9 @@ if frontend_dir.exists():
 def get_fleet_status():
     from engine.bot_fleet import get_fleet_telemetry
     return get_fleet_telemetry()
+
+
+@app.get("/api/forecast/timesfm")
+def get_timesfm_endpoint(symbol: str = "AAPL", horizon: int = 64):
+    from engine.timesfm_engine import get_timesfm_forecast
+    return get_timesfm_forecast(symbol=symbol, horizon=horizon)

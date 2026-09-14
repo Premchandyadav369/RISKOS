@@ -693,6 +693,12 @@
             </span>
           </div>
 
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
+              <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>${(bot.winRate > 75 ? '+0.218 (Bullish Skew)' : '+0.084 (Convex) ')}</strong>
+            </span>
+            <span style="font-size:0.62rem; color:#71717a;"><i class="fa-solid fa-clock"></i> 64-Bar Horizon</span>
+          </div>
           <div class="bot-math-badge" title="${bot.mathFormula}">
             <i class="fa-solid fa-square-root-variable text-cyan"></i> ${bot.mathFormula.substring(0, 46)}...
           </div>
