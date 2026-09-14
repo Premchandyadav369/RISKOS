@@ -92,6 +92,37 @@
     </div>
   </header>
 
+  <!-- ═══════════════════ REAL-TIME FLEET MISSION RUNTIME BANNER ═══════════════════ -->
+  <div class="fleet-runtime-banner">
+    <div class="runtime-banner-inner">
+      <div class="runtime-banner-left">
+        <span class="pulse-beacon"><i class="fa-solid fa-satellite-dish fa-beat text-cyan"></i> <strong>24/7 QUANTITATIVE FLEET ONLINE:</strong></span>
+        <span class="runtime-since-label">Continuous Production Since: <strong id="runtimeEpochDate" style="color:#22d3ee; font-family:'JetBrains Mono', monospace;">04-Jun-2026 04:00:00 UTC</strong></span>
+      </div>
+      
+      <div class="runtime-counter-display">
+        <span class="runtime-title"><i class="fa-solid fa-stopwatch text-amber"></i> FLEET RUNTIME CLOCK:</span>
+        <div class="runtime-clock-digits" id="topMissionClock">
+          <span class="clock-segment"><span class="digit" id="clockDays">92</span><span class="unit">DAYS</span></span>
+          <span class="clock-colon">:</span>
+          <span class="clock-segment"><span class="digit" id="clockHours">14</span><span class="unit">HOURS</span></span>
+          <span class="clock-colon">:</span>
+          <span class="clock-segment"><span class="digit" id="clockMins">28</span><span class="unit">MINS</span></span>
+          <span class="clock-colon">:</span>
+          <span class="clock-segment"><span class="digit" id="clockSecs">45</span><span class="unit">SECS</span></span>
+        </div>
+      </div>
+      
+      <div class="runtime-banner-right">
+        <span class="badge badge-pulse-green"><i class="fa-solid fa-circle-check"></i> 100% SLA UPTIME</span>
+        <span class="badge badge-latency"><i class="fa-solid fa-bolt text-amber"></i> <span id="realtimeLatency">1.2ms</span> SUB-SECOND HFT</span>
+        <span class="badge" style="background:rgba(255,176,0,0.15); border:1px solid rgba(255,176,0,0.35); color:#fab005; font-size:0.68rem; font-family:'JetBrains Mono', monospace; font-weight:800;">
+          <i class="fa-solid fa-satellite"></i> LIVE TICKING DATA
+        </span>
+      </div>
+    </div>
+  </div>
+
   <!-- ═══════════════════════ LIVE TICKER MARQUEE RIBBON ═══════════════════════ -->
   <div class="ticker-ribbon-wrap" style="background:#020306; border-bottom:1px solid rgba(255,255,255,0.06); padding:4px 0; overflow:hidden;">
     <div id="fleetTickerStrip" style="white-space:nowrap; display:flex; gap:28px; font-family:'JetBrains Mono', monospace; font-size:0.72rem; animation: marqueeScroll 45s linear infinite;">
@@ -117,12 +148,14 @@
     <!-- 1. Executive Global Telemetry Row -->
     <section class="telemetry-bar-grid">
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-network-wired text-cyan"></i> Fleet Status &bull; Continuous Uptime</div>
-        <div class="tel-val" id="telActiveBots">20 / 20 Running</div>
-        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-clock"></i> Persistent Uptime: 92d 14h (24/7 Active)</div>
+        <div class="tel-label"><i class="fa-solid fa-stopwatch text-amber"></i> Since How Much Fleet Is Running</div>
+        <div class="tel-val text-amber" id="telUptimeCounter" style="font-size:1.24rem; font-family:'JetBrains Mono', monospace; font-weight:900; letter-spacing:0.02em;">
+          92d 14h 28m 45s
+        </div>
+        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-satellite-dish fa-beat"></i> 20 / 20 Autonomous &bull; Zero Manual Downtime</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> Cumulative Fleet Net Alpha P&amp;L</div>
+        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> Real-Time Live Fleet Alpha P&amp;L</div>
         <div class="tel-val text-green" id="telDailyPnl">+₹3,42,850 ($4,105)</div>
         <div class="tel-sub text-green" id="telPnlReturn"><i class="fa-solid fa-arrow-up"></i> +34.28% on Initial Capital</div>
       </div>
@@ -250,6 +283,7 @@
               <tr>
                 <th style="width:70px;">Rank</th>
                 <th>Greek Deity &amp; Bot Identity</th>
+                <th>Live Runtime</th>
                 <th>Strategy Type</th>
                 <th>Tier Badge</th>
                 <th>Quantitative Model (MathJax)</th>
