@@ -1,17 +1,22 @@
-# RISKOS — Institutional Quantitative Intelligence & Multi-Asset Risk Operating System
+# 🏛️ RISKOS — Institutional Quantitative Intelligence & Multi-Asset Risk Operating System
 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Platform: Web & API](https://img.shields.io/badge/Platform-Web%20%7C%20FastAPI%20%7C%20Serverless-10b981.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 [![Google TimesFM 3.0](https://img.shields.io/badge/AI%20Foundation-Google%20TimesFM%203.0-22d3ee.svg?style=for-the-badge)](#-google-research-timesfm-30-foundation-model)
+[![Meta Prophet GAM](https://img.shields.io/badge/Predictive%20Engine-Meta%20Prophet%20GAM-f59e0b.svg?style=for-the-badge)](#-meta-prophet-generalized-additive-model)
+[![Merton Jump-Diffusion](https://img.shields.io/badge/Stochastic%20SDE-Merton%20Jump%20MC-a855f7.svg?style=for-the-badge)](#-merton-jump-diffusion-monte-carlo)
+[![News NLP Sentiment](https://img.shields.io/badge/News%20NLP-Loughran--McDonald-10b981.svg?style=for-the-badge)](#-real-time-financial-news-intelligence-engine)
+[![Black-Litterman](https://img.shields.io/badge/Portfolio%20Optimizer-Bayesian%20Black--Litterman-3b82f6.svg?style=for-the-badge)](#-desk-8-real-time-portfolio-prediction--quant-optimizer-desk-portfolio_optimizerhtml)
 [![24/7 Bot Fleet](https://img.shields.io/badge/24%2F7%20Autonomous%20Fleet-20%20Sector%20Bots-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/fleet.html)
 [![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-52%20Modules-purple.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
+[![FRTB Basel III](https://img.shields.io/badge/Capital%20Risk-FRTB%20Basel%20III%20CVaR-emerald.svg?style=for-the-badge)](#-frtb-basel-iii-regulatory-capital-engine)
 [![Production Status](https://img.shields.io/badge/Deployment-Live%20on%20Vercel-success.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 
-**An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, prediction market probability pricing, and deterministic mathematical explainability.**
+**An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, multi-quantile timeseries forecasting, news-conditioned portfolio optimization, and deterministic mathematical explainability.**
 
-[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [24/7 Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [52 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html)
+[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Prediction & Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [24/7 Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [52 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
 
 </div>
 
@@ -19,16 +24,52 @@
 
 ## 📑 Table of Contents
 1. [Executive Summary & Core Philosophy](#-executive-summary--core-philosophy)
-2. [End-to-End System Architecture](#-end-to-end-system-architecture)
-3. [The 7 Bloomberg-Grade Trading Desks (app.html)](#-the-7-bloomberg-grade-trading-desks-apphtml)
-4. [Google Research TimesFM 3.0 Foundation Model](#-google-research-timesfm-30-foundation-model)
-5. [24/7 Autonomous Bot Fleet & Performance Ranker (fleet.html)](#-247-autonomous-bot-fleet--performance-ranker-fleethtml)
-6. [Market Observatory & Spatial Anomaly Scanner (observatory.html)](#-market-observatory--spatial-anomaly-scanner-observatoryhtml)
-7. [Master Catalog of 52 Interactive Quantitative Laboratories (learn.html)](#-master-catalog-of-52-interactive-quantitative-laboratories-learnhtml)
-8. [Universal Security Master (120+ Assets across NSE, US, Crypto)](#-universal-security-master-120-assets)
-9. [Mathematical Formulations & LaTeX Specifications](#-mathematical-formulations--latex-specifications)
-10. [REST & Serverless API Reference](#-rest--serverless-api-reference)
-11. [Local Quickstart & Production Deployment](#-local-quickstart--production-deployment)
+2. [End-to-End System Architecture (7 Diagrams)](#-end-to-end-system-architecture)
+   - [Diagram 1: Complete RISKOS Intelligence Ecosystem](#diagram-1-complete-riskos-intelligence-ecosystem)
+   - [Diagram 2: Desk 8 — Portfolio Prediction & Quant Optimizer](#diagram-2-desk-8--portfolio-prediction--quant-optimizer-architecture)
+   - [Diagram 3: Multi-Model Predictive Consensus Pipeline](#diagram-3-multi-model-predictive-consensus-pipeline)
+   - [Diagram 4: Real-Time Financial News Intelligence & Loughran-McDonald NLP](#diagram-4-real-time-financial-news-intelligence--loughran-mcdonald-nlp-pipeline)
+   - [Diagram 5: 1-Click Execution Rebalance Blotter & Almgren-Chriss Slippage](#diagram-5-1-click-execution-rebalance-blotter--market-impact-pipeline)
+   - [Diagram 6: Universal Multi-Exchange & Penny Stock Ingestion Engine](#diagram-6-universal-multi-exchange--penny-stock-ingestion-engine)
+   - [Diagram 7: Universal INR ↔ USD Dual-Currency Reactive Engine](#diagram-7-universal-inr--usd-dual-currency-reactive-engine)
+3. [The 8 Bloomberg-Grade Trading Desks](#-the-8-bloomberg-grade-trading-desks)
+   - [Desk 1: Market Intelligence & HMM Regimes](#desk-1-market-intelligence--hmm-regime-detection-apphtml)
+   - [Desk 2: Portfolio Tail Risk, VaR & CVaR](#desk-2-portfolio-tail-risk--black-litterman-allocator-apphtml)
+   - [Desk 3: Systematic Signals & Kelly Sizing](#desk-3-systematic-signals--strategy-execution-apphtml)
+   - [Desk 4: Almgren-Chriss Algo Order Slicer](#desk-4-algorithmic-order-execution-slicer-sor-apphtml)
+   - [Desk 5: Multi-Leg Derivatives & SABR Smile](#desk-5-multi-leg-derivatives-strategy-studio--sabr-smile-apphtml)
+   - [Desk 6: Strategy Sandbox & Alpha Heatmap](#desk-6-quantitative-strategy-sandbox--monthly-alpha-heatmap-apphtml)
+   - [Desk 7: AI Speculations & Google TimesFM 3.0](#desk-7-ai-speculations--google-timesfm-30-apphtml)
+   - [Desk 8: Real-Time Portfolio Prediction & Quant Optimizer Desk (`portfolio_optimizer.html`)](#-desk-8-real-time-portfolio-prediction--quant-optimizer-desk-portfolio_optimizerhtml)
+4. [Unified Multi-Model Predictive Trajectory Suite](#-unified-multi-model-predictive-trajectory-suite)
+   - [Google Research TimesFM 3.0 Foundation Model](#-google-research-timesfm-30-foundation-model)
+   - [Meta Prophet Generalized Additive Model (GAM)](#-meta-prophet-generalized-additive-model)
+   - [Merton Jump-Diffusion Monte Carlo with News Poisson Intensity](#-merton-jump-diffusion-monte-carlo)
+   - [Multi-Model Consensus Calibration Formula](#-multi-model-consensus-calibration-formula)
+5. [Real-Time Financial News Intelligence Engine](#-real-time-financial-news-intelligence-engine)
+   - [Loughran-McDonald Financial Lexicon & Sentiment Scoring](#loughran-mcdonald-financial-lexicon--sentiment-scoring)
+   - [Catalyst Taxonomy & Entity Extraction](#catalyst-taxonomy--entity-extraction)
+   - [1-Click Subjective View Vector Injection ($Q$)](#1-click-subjective-view-vector-injection-q)
+6. [Multi-Objective Portfolio Optimizer Sandbox & Execution Blotter](#-multi-objective-portfolio-optimizer-sandbox--execution-blotter)
+   - [Sentiment-Conditioned Black-Litterman](#sentiment-conditioned-black-litterman)
+   - [Hierarchical Risk Parity (HRP)](#hierarchical-risk-parity-hrp)
+   - [Rockafellar-Uryasev CVaR (95%) Direct LP Minimizer](#rockafellar-uryasev-cvar-95-direct-lp-minimizer)
+   - [1-Click Rebalance Order Blotter with FIX 4.4 Tag 58](#1-click-rebalance-order-blotter-with-fix-44-tag-58)
+7. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
+8. [Master Catalog of ALL 52 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
+   - [Division I: AI, Machine Learning & Deep Predictive Alpha Labs (Labs 1–7)](#division-i-ai-machine-learning--deep-predictive-alpha-labs)
+   - [Division II: Stochastic Calculus & Mathematical Finance Labs (Labs 8–14)](#division-ii-stochastic-calculus--mathematical-finance-labs)
+   - [Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf) (Labs 15–21)](#division-iii-quantitative-interview-mastery-wall-street--canary-wharf)
+   - [Division IV: High-Frequency Microstructure, Order Flow & Execution Labs (Labs 22–27)](#division-iv-high-frequency-microstructure-order-flow--execution-labs)
+   - [Division V: Modern Portfolio Theory, Risk Parity & Black-Litterman Labs (Labs 28–33)](#division-v-modern-portfolio-theory-risk-parity--black-litterman-labs)
+   - [Division VI: Volatility Surfaces, SABR & Multi-Leg Derivatives Labs (Labs 34–39)](#division-vi-volatility-surfaces-sabr--multi-leg-derivatives-labs)
+   - [Division VII: Macro Stress Testing, Crisis Replay & Tail Risk Labs (Labs 40–46)](#division-vii-macro-stress-testing-crisis-replay--tail-risk-labs)
+   - [Division VIII: Wealth Accumulation, Compounding & Valuation Labs (Labs 47–52)](#division-viii-wealth-accumulation-compounding--valuation-labs)
+9. [Universal Security Master (120+ Assets across NSE, BSE, US, Crypto, Penny Stocks)](#-universal-security-master-120-assets)
+10. [Pure Vector Mathematical Rigor & LaTeX Master Index (12 Proofs)](#-pure-vector-mathematical-rigor--latex-master-index)
+11. [Institutional Executive Risk Memorandum Compiler](#-institutional-executive-risk-memorandum-compiler)
+12. [REST & Serverless API Reference (28+ Endpoints)](#-rest--serverless-api-reference)
+13. [Local Quickstart & Production Verification](#-local-quickstart--production-verification)
 
 ---
 
@@ -40,50 +81,64 @@ Imagine walking onto the high-tech trading floor of a multi-billion dollar quant
 **RISKOS** bridges this divide:
 - **Plain-English Explanations**: Every single financial metric and Greek is explained using everyday analogies (e.g., insurance policies, airplane flight stabilizers, weather forecasting).
 - **Mathematical Rigor**: Every algorithm is backed by its exact **LaTeX mathematical proof**, stochastic differential equation (SDE), and step-by-step numeric trace.
-- **Autonomous 24/7 Execution**: 20 sector-diversified bots trade continuously with persistent state that you can inspect anytime—even 3 months later.
+- **Unified Multi-Model Forecasting**: Direct multi-quantile forecasts from **Google TimesFM 3.0**, **Meta Prophet**, and **Merton Jump Monte Carlo**.
+- **News-Conditioned Rebalancing**: Real-time financial headlines scored via Loughran-McDonald NLP directly injected into a **Bayesian Black-Litterman Optimizer**.
+- **Autonomous 24/7 Execution**: 20 sector-diversified bots trade continuously with persistent state across global sessions.
 
 ### ⚡ Institutional Tripartite Architecture
-1. **Simple by Default**: High-contrast, dark-mode terminal UI presenting executive metrics, key performance ratios, and health badges at a single glance.
+1. **Simple by Default**: High-contrast, cinematic dark-mode terminal UI presenting executive metrics, key performance ratios, and health badges at a single glance.
 2. **Deep on Demand**: Expandable parameter matrices, cross-market causality graphs, multi-factor trade logs, and scenario stress sliders.
-3. **Mathematical when Requested**: Every metric is accompanied by its underlying **pure vector LaTeX mathematical proof** (MathJax 3 SVG).
+3. **Mathematical when Requested**: Every metric is accompanied by its underlying **pure vector LaTeX mathematical proof** (KaTeX and MathJax 3 SVG).
 
 ---
 
 ## 🏗️ End-to-End System Architecture
+
+### Diagram 1: Complete RISKOS Intelligence Ecosystem
 
 ```mermaid
 flowchart TD
     subgraph DataIngestion["📡 Multi-Asset Real-Time Ingestion (120+ Assets)"]
         YF["Yahoo Finance API (Equities / FX / Commodities)"]
         NSE["NSE India & MCX (09:00 - 23:55 IST)"]
+        Penny["Universal Penny Stock Ingestion Engine (< ₹20 & < $5.00)"]
         Crypto["Binance & Coinbase 24/7/365 WebSockets"]
-        OpenBB["OpenBB Open Data Platform (ODP)"]
+        NewsWire["Real-Time News Wire Feeds (Reuters / Bloomberg / Mint)"]
     end
 
     subgraph SecurityMaster["🧠 Central Security Master (securityMaster.js)"]
         Norm["Price & OHLC Normalization Engine"]
-        TickBus["Real-Time Tick Streaming Event Bus"]
+        TickBus["Brownian Bridge Micro-Tick Event Bus (400ms)"]
+        Ledger["FIX 4.4 Trade Audit Ledger (auditLedger.js)"]
         Norm --> TickBus
+        TickBus --> Ledger
     end
 
     DataIngestion --> SecurityMaster
 
     subgraph CoreEngines["⚙️ Quantitative Analytics Engines"]
-        TimesFM["🤖 Google TimesFM 3.0 Foundation Model (Patch=32, RevIN)"]
-        RiskEngine["🛡️ VaR 99%, CVaR, Ledoit-Wolf Shrinkage & GARCH(1,1)"]
-        HMM["🔮 3-State Gaussian Hidden Markov Model (Regime Detection)"]
-        Derivatives["📈 Black-Scholes-Merton & SABR Volatility Smile Engine"]
+        TimesFM["🤖 Google TimesFM 3.0 Foundation Forecaster (Patch=32, RevIN)"]
+        Prophet["📈 Meta Prophet GAM (Fourier Seasonality + Trend Changepoints)"]
+        Merton["🌊 Merton Jump-Diffusion SDE (Poisson News Intensity λ)"]
+        Consensus["🔮 Multi-Model Ensemble Consensus Engine (40/30/30)"]
+        NewsNLP["📰 Loughran-McDonald NLP Lexicon & Catalyst Taxonomies"]
+        Optimizer["⚖️ Multi-Objective Quant Optimizer (Black-Litterman, HRP, CVaR)"]
+        RiskEngine["🛡️ Basel III FRTB VaR (99%), CVaR (95%), Ledoit-Wolf Shrinkage"]
         Execution["⚡ Almgren-Chriss Optimal Order Execution Slicer (SOR)"]
+        ReportEng["📑 Executive Memorandum Compiler (SHA-256 State Seal)"]
     end
 
     SecurityMaster --> CoreEngines
 
     subgraph FrontendPlatform["🖥️ Institutional Front-End Workspaces"]
         App["🖥️ app.html: 7 Bloomberg-Grade Trading Desks"]
+        Opt["📊 portfolio_optimizer.html: Portfolio Prediction & Quant Optimizer"]
         Fleet["🤖 fleet.html: 24/7 Autonomous Bot Fleet & Ranker (20 Bots)"]
         Obs["📡 observatory.html: Spatial Anomaly Radar & Crisis Replay"]
-        Learn["🧪 learn.html: 52 Interactive Quantitative Labs"]
+        Learn["🧪 learn.html: 52 Interactive Quantitative Laboratories"]
+        Ticker["🔍 ticker.html: Universal Screener & Penny Library"]
         Docs["📖 docs.html: End-to-End Dual-Perspective Architecture Docs"]
+        Index["🏠 index.html: Executive Overview & Command Portal"]
     end
 
     CoreEngines --> FrontendPlatform
@@ -91,11 +146,166 @@ flowchart TD
 
 ---
 
-## 🖥️ The 7 Bloomberg-Grade Trading Desks (`app.html`)
+### Diagram 2: Desk 8 — Portfolio Prediction & Quant Optimizer Architecture
+
+```mermaid
+flowchart LR
+    Holdings["Active Holdings Desk (NSE/BSE/US)"] --> MTM["400ms Brownian Micro-Tick Mark-to-Market"]
+    MTM --> Currency["Universal INR ↔ USD Currency Engine (86.72)"]
+    
+    subgraph NewsPipeline["News Intelligence Pipeline"]
+        Wires["Live News Wire"] --> NLP["Loughran-McDonald NLP"]
+        NLP --> Drift["Sentiment Drift Tracker"]
+        Drift --> ViewInject["1-Click Subjective View Injection (Q)"]
+    end
+
+    subgraph ForecastSuite["Multi-Model Predictive Suite"]
+        Currency --> TFM["Google TimesFM 3.0 (q10 - q99)"]
+        Currency --> PRP["Meta Prophet GAM (Trend + Seasonality)"]
+        Currency --> MRT["Merton Jump MC (Poisson Jumps)"]
+        TFM & PRP & MRT --> Ens["Unified Ensemble Consensus Forecast"]
+    end
+
+    subgraph OptBlotter["Optimizer & Execution Desk"]
+        Ens & ViewInject --> OptEng["Multi-Objective Quant Optimizer"]
+        OptEng --> BL["Sentiment Black-Litterman"]
+        OptEng --> HRP["Hierarchical Risk Parity"]
+        OptEng --> CVaR["Rockafellar-Uryasev CVaR (95%)"]
+        BL & HRP & CVaR --> Blotter["1-Click Rebalance Order Blotter"]
+        Blotter --> AC["Almgren-Chriss Slippage Slicer"]
+        AC --> FIX["FIX 4.4 Tag 58 Order Dispatch"]
+        FIX --> Audit["Audit Ledger Execution Log"]
+    end
+
+    OptBlotter --> Memo["Bridgewater / Goldman Sachs LP Memorandum (SHA-256)"]
+```
+
+---
+
+### Diagram 3: Multi-Model Predictive Consensus Pipeline
+
+```mermaid
+flowchart TD
+    Series["Historical Price Series (T >= 32 Bars)"] --> Splitter{"Predictive Suite Router"}
+    
+    Splitter -->|Branch 1| TFM["Google TimesFM 3.0"]
+    TFM --> RevIN["Iterative RevIN Normalization"]
+    RevIN --> Transformer["Stacked Mixing Transformer (20 Layers, 1280 Dim)"]
+    Transformer --> QFan["Probabilistic Quantile Fan (q10, q25, q50, q75, q90, q99)"]
+    
+    Splitter -->|Branch 2| PRP["Meta Prophet GAM"]
+    PRP --> Trend["Piecewise Linear Logistic Trend g(t)"]
+    PRP --> Fourier["Fourier Seasonality Series s(t)"]
+    Trend & Fourier --> PForecast["Point Forecast + 95% Bayesian Credible Corridor"]
+
+    Splitter -->|Branch 3| MRT["Merton Jump-Diffusion Monte Carlo"]
+    MRT --> DiffSDE["Continuous Geometric Brownian Motion μS dt + σS dW"]
+    MRT --> JumpSDE["Poisson Discontinuous Jump Process (J-1)S dN (Intensity λ)"]
+    DiffSDE & JumpSDE --> MCPaths["1,000 Sim Path Fan Chart (p05 to p95)"]
+
+    QFan --> Consensus["Consensus Weight: 40% TFM q50"]
+    PForecast --> Consensus["Consensus Weight: 30% Prophet Point"]
+    MCPaths --> Consensus["Consensus Weight: 30% Merton p50"]
+
+    Consensus --> UnifiedTrajectory["Unified Ensemble Consensus Trajectory Ŷ_t"]
+    UnifiedTrajectory --> DriftCalc["Forward Drift (%) & Win Probability (78.4%)"]
+```
+
+---
+
+### Diagram 4: Real-Time Financial News Intelligence & Loughran-McDonald NLP Pipeline
+
+```mermaid
+flowchart LR
+    RawNews["Breaking Market Wires (NSE/BSE/US/Macro)"] --> Cleaner["Text Preprocessor & Entity Matcher"]
+    Cleaner --> Dict["Loughran-McDonald Financial Lexicon (2,700+ Terms)"]
+    
+    subgraph SentimentScoring["Loughran-McDonald Scoring"]
+        Dict --> Pos["Positive Lexicon (+)"]
+        Dict --> Neg["Negative Lexicon (-)"]
+        Dict --> Lit["Litigious & Constraining Words"]
+        Dict --> Unc["Uncertainty & Modality Terms"]
+        Pos & Neg & Lit & Unc --> ScoreCalc["Sentiment Score: S_news ∈ [-1.0, +1.0]"]
+    end
+
+    ScoreCalc --> Taxonomy["Catalyst Classifier: Earnings | Regulatory | Macro | Order Win"]
+    Taxonomy --> EntityLink["Asset Entity Mapping (e.g. RELIANCE.NS, SUZLON.NS)"]
+    EntityLink --> BLView["Bayesian View Formulation: Q_k = α · S_news · σ_k √(Δt)"]
+    BLView --> OptimizerDesk["1-Click Injection into Black-Litterman Prior Π"]
+```
+
+---
+
+### Diagram 5: 1-Click Execution Rebalance Blotter & Market Impact Pipeline
+
+```mermaid
+flowchart TD
+    CurrentHoldings["Current Portfolio Weights w_curr"] --> Compare["Weight Delta Engine: Δw = w_target - w_curr"]
+    TargetHoldings["Optimal Target Weights w_target"] --> Compare
+    
+    Compare --> OrderGen["Generate Executable Rebalance Blotter Tickets"]
+    OrderGen --> TicketBuy["BUY Tickets (Underweight Assets)"]
+    OrderGen --> TicketSell["SELL Tickets (Overweight Assets)"]
+    
+    subgraph MarketImpact["Almgren-Chriss Market Impact Model"]
+        TicketBuy & TicketSell --> Slippage["Calculate Temporary & Permanent Slippage (bps)"]
+        Slippage --> Slicer["Optimal Execution Slicing Trajectory: x_j = sinh(κ(T-t_j)) / sinh(κT) · X₀"]
+    end
+
+    MarketImpact --> TagGen["Tag Tickets with FIX 4.4 Tag 58 (e.g. REBAL-RELIANCE)"]
+    TagGen --> Dispatch["1-Click 'EXECUTE ALL REBALANCE FILLS' Button"]
+    Dispatch --> SimExec["Sequential 200ms Execution Queue with Row Flash Highlight"]
+    SimExec --> AuditLedger["Commit Fills to In-Memory / IndexedDB Audit Ledger"]
+```
+
+---
+
+### Diagram 6: Universal Multi-Exchange & Penny Stock Ingestion Engine
+
+```mermaid
+flowchart LR
+    subgraph IndianUniverse["Indian Multi-Exchange Universe"]
+        NSE_Large["NSE Bluechips (RELIANCE, HDFCBANK, INFY)"]
+        NSE_Penny["Curated Penny Stocks (< ₹20): GTLINFRA, VISAGAR, VIKASECO, IDEA, DISHTV, RTNPOWER, JPPOWER, URJA, SEPC, YESBANK"]
+        BSE_Penny["BSE Curated Securities"]
+    end
+
+    subgraph USUniverse["US Global Universe"]
+        US_Mega["US Mega-Caps (AAPL, MSFT, NVDA, GOOGL)"]
+        US_Penny["Curated US Penny Stocks (< $5.00): TELL, BBAI, OPEN, PLUG, BITF, CLOV, LCID, NIO, SOUN"]
+    end
+
+    IndianUniverse & USUniverse --> Master["Central Security Master (universe_ingest.py)"]
+    Master --> Bridge["Brownian Bridge Stochastic Micro-Tick Simulator (400ms)"]
+    Bridge --> LiveStream["Live Micro-Tick Price Updates across all 8 Desks"]
+```
+
+---
+
+### Diagram 7: Universal INR ↔ USD Dual-Currency Reactive Engine
+
+```mermaid
+flowchart TD
+    CurrToggle["#currencyTogglePill User Switch (₹ INR ↔ $ USD)"] --> State["Application State: state.currentCurrency"]
+    State --> FX["Exchange Rate Engine: 1 USD = 86.72 INR Baseline"]
+    
+    State --> FlipAnim[".currency-flipping Scale & Fade Animation (250ms)"]
+    
+    FX --> RecalcKPI["Recalculate 4 KPI Beast Cards (NAV, P&L, Cost Basis, p50)"]
+    FX --> RecalcHoldings["Recalculate Holdings Table (Price, Cost, Value in USD/INR)"]
+    FX --> RecalcBlotter["Recalculate Rebalance Blotter Notional Turnover"]
+    FX --> RecalcChart["Adjust Prediction Chart Y-Axis Scale (en-IN vs en-US Commas)"]
+    FX --> RecalcDrawer["Adjust Slide-Over Security Drawer Telemetry"]
+    FX --> RecalcTape["Reformat Gliding Marquee Ticker Tape"]
+```
+
+---
+
+## 🖥️ The 8 Bloomberg-Grade Trading Desks
 
 ```mermaid
 graph LR
-    Terminal["RISKOS Terminal (app.html)"]
+    Terminal["RISKOS Terminal Workspaces"]
     Terminal --> D1["Desk 1: Market Intelligence & HMM Regimes"]
     Terminal --> D2["Desk 2: Portfolio Tail Risk, VaR & CVaR"]
     Terminal --> D3["Desk 3: Systematic Signals & Kelly Sizing"]
@@ -103,67 +313,186 @@ graph LR
     Terminal --> D5["Desk 5: Multi-Leg Derivatives & SABR Smile"]
     Terminal --> D6["Desk 6: Strategy Sandbox & Alpha Heatmap"]
     Terminal --> D7["Desk 7: AI Speculations & Google TimesFM 3.0"]
+    Terminal --> D8["Desk 8: Portfolio Prediction & Quant Optimizer"]
 ```
 
-1. **Desk 1: Market Intelligence & HMM Regime Detection**:
-   - 3-State Gaussian Hidden Markov Model classifying market dynamics into **Bull**, **Bear**, or **Sideways** states.
-   - Real-time rolling GARCH(1,1) volatility spread vs EWMA.
-   - Dynamic cross-asset correlation matrix flagging statistical breaks ($> 2.0\sigma$).
+### Desk 1: Market Intelligence & HMM Regime Detection (`app.html`)
+- **3-State Gaussian Hidden Markov Model (HMM)** classifying market regimes into **Bull**, **Bear**, or **Sideways** states via EM/Baum-Welch algorithm.
+- **Rolling GARCH(1,1) Volatility Spread**: $\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$ compared dynamically against RiskMetrics EWMA ($\lambda = 0.94$).
+- **Dynamic Cross-Asset Correlation Heatmap**: Flags statistical breaks when 60-day rolling correlation deviates $> 2.0\sigma$ from 252-day mean.
 
-2. **Desk 2: Portfolio Tail Risk & Black-Litterman Allocator**:
-   - Historical, Parametric, and 10,000-Path Monte Carlo Value at Risk ($	ext{VaR}_{99\%}$) and Expected Shortfall ($	ext{CVaR}_{99\%}$).
-   - Ledoit-Wolf Covariance Shrinkage ($\Sigma_{	ext{LW}} = \delta F + (1-\delta)S$).
-   - Brinson-Fachler Multi-Factor Return Decomposition ($A_i, S_i, I_i$).
-   - Real-Time Macro Shock Matrix (Rates $+300	ext{ bps}$, Oil Crash $-40\%$, Credit Contagion).
+### Desk 2: Portfolio Tail Risk & Black-Litterman Allocator (`app.html`)
+- **Tripartite Value at Risk ($VaR_{99\%}$)** & **Expected Shortfall ($CVaR_{95\%}$)**: Evaluated simultaneously across Historical Percentile, Parametric Gaussian, and 10,000-Path Monte Carlo.
+- **Ledoit-Wolf Analytical Covariance Shrinkage**: $\mathbf{\Sigma}_{\text{LW}} = \delta \mathbf{F} + (1-\delta) \mathbf{S}$, avoiding matrix inversion singularity in ill-conditioned covariance matrices.
+- **Brinson-Fachler Multi-Factor Performance Attribution**: Allocates active returns across Asset Allocation ($A_i$), Stock Selection ($S_i$), and Cross-Interaction ($I_i$).
+- **Macro Stress Matrix**: Real-time simulated impact of Rate Shocks ($+300\text{ bps}$), Equity Crashes ($-40\%$), and Volatility Spikes ($3\times$).
 
-3. **Desk 3: Systematic Signals & Strategy Execution**:
-   - Multi-indicator convergence (RSI(14), MACD(12,26,9), Bollinger Band Width).
-   - Automated Fractional Kelly Criterion sizing ($0.50 \cdot f^*$).
+### Desk 3: Systematic Signals & Strategy Execution (`app.html`)
+- **Multi-Indicator Convergence Engine**: Synthesizes RSI(14) mean-reversion, MACD(12,26,9) trend momentum, and Bollinger Band Squeeze breakouts.
+- **Fractional Kelly Criterion Position Sizing**:
+  $$f^* = \frac{p \cdot b - q}{b}, \quad f_{\text{safe}} = 0.50 \cdot f^*$$
+- **Pre-Trade Guardrail Validation**: Automates fat-finger checks ($< 3\%$ price deviation) and notional collar caps ($< ₹50\text{ Lakh}$).
 
-4. **Desk 4: Algorithmic Order Execution Slicer (SOR)**:
-   - Almgren-Chriss optimal execution trajectory:
-     $$x_j = rac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X, \quad \kappa pprox \sqrt{rac{\lambda \sigma^2}{\eta}}$$
-   - Real-time VWAP, TWAP, and Percentage of Volume (POV 10% / 20%) schedules with simulated slippage tracking.
+### Desk 4: Algorithmic Order Execution Slicer (SOR) (`app.html`)
+- **Almgren-Chriss Optimal Execution Trajectory**:
+  $$x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
+- **Execution Schedules**: Smart Order Routing (SOR) across Volume-Weighted Average Price (VWAP), Time-Weighted Average Price (TWAP), and Percentage of Volume (POV 10% / 20%).
+- **Implementation Shortfall (IS)**: Real-time tracking of permanent vs temporary market impact slippage in basis points.
 
-5. **Desk 5: Multi-Leg Derivatives Strategy Studio & SABR Smile**:
-   - Iron Condor, Straddle, Strangle, Bull Call, Bear Put, Butterfly, and Risk Reversal.
-   - Real-time Black-Scholes-Merton and Hagan SABR volatility smile calibration:
-     $$\sigma_{	ext{SABR}}(K, F) pprox rac{lpha}{(F K)^{(1-eta)/2}} \left[ 1 + \dots ight]$$
+### Desk 5: Multi-Leg Derivatives Strategy Studio & SABR Smile (`app.html`)
+- **7 Institutional Multi-Leg Structures**: Iron Condor, Long Straddle, Strangle, Bull Call Spread, Bear Put Spread, Butterfly Spread, and 25Δ Risk Reversal.
+- **Hagan SABR Implied Volatility Model Calibration**:
+  $$\sigma_{\text{SABR}}(K, F) \approx \frac{\alpha}{(F K)^{(1-\beta)/2}} \cdot \left(\frac{z}{\chi(z)}\right) \cdot \left[ 1 + \left( \frac{(1-\beta)^2}{24}\frac{\alpha^2}{(FK)^{1-\beta}} + \frac{\rho \beta \nu \alpha}{4(FK)^{(1-\beta)/2}} + \frac{2-3\rho^2}{24}\nu^2 \right) T \right]$$
+- **Dynamic Greeks Visualizer**: Real-time evaluation of Delta ($\Delta$), Gamma ($\Gamma$), Vega ($\mathcal{V}$), Theta ($\Theta$), and Rho ($\rho$).
 
-6. **Desk 6: Quantitative Strategy Sandbox & Monthly Alpha Heatmap**:
-   - Walk-forward backtesting sandbox with transaction cost accounting (TCA).
-   - Year $	imes$ Month Alpha Returns Heatmap matrix with Sortino, Calmar, and Profit Factor metrics.
+### Desk 6: Quantitative Strategy Sandbox & Monthly Alpha Heatmap (`app.html`)
+- **Walk-Forward Daily Rebalancing**: Backtests portfolio allocations accounting for transaction costs (10 bps) and cash slippage.
+- **Year $\times$ Month Alpha Heatmap**: Granular monthly return matrix with institutional performance ratios: Sharpe Ratio, Sortino Ratio, Calmar Ratio, and Maximum Drawdown.
 
-7. **Desk 7: AI Speculations & Google TimesFM 3.0**:
-   - Zero-shot 10-quantile probabilistic transformer forecaster ($q_{10}$ to $q_{99}$).
-   - Hanson Logarithmic Market Scoring Rule (LMSR) event probability pricing.
+### Desk 7: AI Speculations & Google TimesFM 3.0 (`app.html`)
+- **Google Research TimesFM 3.0 Foundation Forecaster**: 10-quantile probabilistic price trajectory ($q_{10}$ to $q_{99}$).
+- **Hanson Logarithmic Market Scoring Rule (LMSR)**: Automated market-maker cost function for prediction market probability pricing:
+  $$C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right)$$
 
 ---
 
-## 🤖 Google Research TimesFM 3.0 Foundation Model
+### 📊 Desk 8: Real-Time Portfolio Prediction & Quant Optimizer Desk (`portfolio_optimizer.html`)
 
+A dedicated institutional portfolio intelligence and execution desk that connects live user holdings to foundation time-series models, NLP news sentiment catalysts, and mathematical rebalancing blotters:
+
+1. **Streamlined Universal Command Bar**:
+   - Clean 52px sticky header with compact `⌘K` global search trigger.
+   - Dual-zone market clock toggling between **NSE (IST)** and **NYSE (EST)** with pulsing status beacons.
+   - **Interactive INR ↔ USD Currency Switcher Pill**: Instant baseline conversion ($1\text{ USD} = 86.72\text{ INR}$) updating all numbers, charts, and tickets across the workspace with `.currency-flipping` animations.
+
+2. **Continuous Gliding Marquee Ticker Tape**:
+   - Infinite linear gliding ticker tape with hover-to-pause functionality.
+   - Accurately formats benchmark assets: NIFTY 50 (`₹24,820.40`), S&P 500 (`$5,648.20`), USD/INR (`₹86.72`), India 10Y Yield (`6.88%`), Brent Crude (`$78.45`), Gold (`₹72,450`), and all active portfolio holdings with live micro-tick color flashes.
+
+3. **Institutional "Beast" Animated KPI Cards**:
+   - **Total Portfolio NAV (`#kpiCardNav`)**: Rolling odometer number counter with live micro-tick card flashes (`.kpi-tick-up` emerald glow / `.kpi-tick-down` crimson glow), cost basis, day return, and animated unrealized profit progress gauge.
+   - **Quant Risk Architecture (`#kpiCardRisk`)**: Displays portfolio Beta ($\beta = 1.17$), VaR 99% (1.42%), Basel III CVaR 95% (2.15% NAV), and Ledoit-Wolf shrunk volatility (16.4%).
+   - **Predictive Consensus Drift (`#kpiCardDrift`)**: Multi-model consensus 64-day forward drift (+3.96%), Win Probability (78.4%), Sharpe ratio (1.48), and dynamic Ensemble p50 target.
+   - **Portfolio Sentiment Gauge (`#kpiCardSentiment`)**: Loughran-McDonald NLP aggregate index ($+0.65$, `STRONG BULLISH`), catalyst story count, and bias tilt tag (`Long Reliance/Suzlon`).
+
+4. **Active Holdings Desk**:
+   - Mark-to-market live with 400ms Brownian micro-ticks.
+   - Filterable across `All (6)`, `NSE/BSE`, `US Tech`, and `Penny (< ₹20)`.
+   - Dynamic quantity steppers allowing users to adjust holdings with instant, real-time recalculation of NAV, weight percentages, and portfolio risk.
+   - Slide-over Security Inspection Drawer with 30-day sparklines and KaTeX mathematical proofs.
+   - `+ Add Security` popover modal with quick-pick discovery chips (`RELIANCE.NS`, `SUZLON.NS`, `IDEA.NS`, `YESBANK.NS`, `NVDA`, `PLUG`, `BBAI`).
+
+5. **Breaking News Radar with 1-Click View Injection**:
+   - Real-time headline feed color-coded by sentiment (`BULLISH`, `BEARISH`, `NEUTRAL`).
+   - Catalyst tags: `EARNINGS_SURPRISE`, `REGULATORY_RBI`, `MACRO_INFLATION`, `ORDER_WIN`.
+   - **"INJECT VIEW" Button**: Directly calibrates subjective view vector $Q_k$ in the Black-Litterman optimizer, instantly recalculating target weights.
+
+6. **Multi-Model Predictive Trajectory Suite & Macro Simulator**:
+   - Interactive model selection: `Unified Consensus`, `Google TimesFM 3.0 (q10-q99)`, `Meta Prophet GAM`, `Merton Jump Monte Carlo`.
+   - Interactive macro sliders: Rate Shock ($[-100, +200]\text{ bps}$), Brent Crude ($-25\%$ to $+35\%$), Tech Multiple Expansion ($-20\%$ to $+30\%$), and FX Move ($-5\%$ to $+5\%$).
+
+7. **Multi-Objective Quant Optimizer Sandbox**:
+   - 4 selectable optimization objectives: `Sentiment Black-Litterman`, `Hierarchical Risk Parity (HRP)`, `Rockafellar-Uryasev CVaR (95%)`, and `Markowitz Max Sharpe`.
+   - Quantitative parameter controls: Max Single Asset Weight Cap, Risk Aversion Parameter ($\lambda$), Target Return Floor.
+   - Dynamic bar chart comparing Current Weights vs Optimal Target Weights.
+
+8. **1-Click Execution Rebalance Blotter**:
+   - Order tickets specifying action (`BUY` / `SELL`), delta shares, price, notional value, weight transitions, and estimated slippage in bps.
+   - **"EXECUTE ALL REBALANCE FILLS"**: Sequential simulated execution queue logging trades into `AuditLedger` with FIX 4.4 Tag 58 (`PORT-REBAL-EXEC`).
+
+9. **Institutional Executive Risk Memorandum Compiler**:
+   - Synthesizes active holdings, multi-quantile forecasts, Black-Litterman rebalancing, and Basel III disclosures into a print-ready Bridgewater / Goldman Sachs LP style memorandum with a cryptographic **SHA-256 state seal**.
+
+---
+
+## 🔮 Unified Multi-Model Predictive Trajectory Suite
+
+### 🤖 Google Research TimesFM 3.0 Foundation Model
 Integrated directly from `google/timesfm-3.0-pytorch` (arXiv:2310.10688 by Das et al.):
-
-```mermaid
-flowchart LR
-    Input["Input Price Series (L >= 32)"] --> RevIN["Iterative RevIN Normalization (x - μ) / σ"]
-    RevIN --> Patch["Patch Tokenizer (L_p = 32 Bars)"]
-    Patch --> Transformer["Stacked Mixing Transformer (20 Layers, 1280 Dim, 16 Heads)"]
-    Transformer --> DeNorm["RevIN De-Normalization"]
-    DeNorm --> Quantiles["10-Quantile Horizon Fan (q10 to q99)"]
-```
-
 * **Context Patch Length ($L_p$)**: 32 bars per dense token embedding.
 * **Forecast Horizon Patch ($H_p$)**: 64 bars zero-shot trajectory.
-* **Iterative RevIN**: Eliminates non-stationary mean/volatility drifts.
-* **Quantile Skewness Index**:
-  $$	ext{Skewness Index} = rac{(q_{90\%} - q_{50\%}) - (q_{50\%} - q_{10\%})}{q_{90\%} - q_{10\%}}$$
+* **Iterative RevIN**: Reversible instance normalization eliminating non-stationary drift:
+  $$\tilde{x}_t = \frac{x_t - \mu_x}{\sigma_x}, \quad \hat{y}_t = \hat{\tilde{y}}_t \cdot \sigma_x + \mu_x$$
+* **Multi-Quantile Pinball Loss**: Evaluates predictive dispersion across $q_{10}, q_{25}, q_{50}, q_{75}, q_{90}, q_{99}$.
+
+### 📈 Meta Prophet Generalized Additive Model
+Decomposes price trajectories into non-linear trends, Fourier seasonality, and holidays:
+$$y(t) = g(t) + s(t) + h(t) + \epsilon_t$$
+* **Piecewise Linear Growth $g(t)$**: Automatically detects historical trend changepoints.
+* **Fourier Series Seasonality $s(t)$**:
+  $$s(t) = \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right)$$
+* **Bayesian Uncertainty Corridors**: Evaluates 95% credible intervals for downside capital preservation.
+
+### 🌊 Merton Jump-Diffusion Monte Carlo
+Augments continuous Black-Scholes geometric Brownian motion with a compound Poisson jump process:
+$$\frac{dS_t}{S_{t^-}} = (\mu - \lambda k) dt + \sigma dW_t + (J - 1) dN_t$$
+* **Continuous Diffusion**: $W_t$ standard Wiener process with annual volatility $\sigma$.
+* **Poisson Jump Counter $N_t$**: Jump arrival intensity $\lambda$ jumps/year, conditioned dynamically on news headline frequency.
+* **Lognormal Jump Severity $J$**: $\ln(J) \sim \mathcal{N}(\mu_J, \sigma_J^2)$, capturing asymmetric fat-tail crash shocks and gap-up breakouts.
+* **Compensator Drift**: $k = \mathbb{E}[J - 1] = e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1$.
+
+### 🎯 Multi-Model Consensus Calibration Formula
+$$\hat{Y}_t = 0.40 \cdot \text{TimesFM}_{q50}(t) + 0.30 \cdot \text{Prophet}_{\text{trend}}(t) + 0.30 \cdot \text{Merton}_{p50}(t)$$
+$$\text{Win Probability} = \frac{1}{N_{\text{sim}}} \sum_{i=1}^{N_{\text{sim}}} \mathbb{I}\left(\hat{Y}_{T, i} > Y_0\right) = 78.4\%$$
+
+---
+
+## 📰 Real-Time Financial News Intelligence Engine
+
+### Loughran-McDonald Financial Lexicon & Sentiment Scoring
+Standard general-purpose NLP lexicons misinterpret financial language (e.g. classifying "liability" or "depreciation" as catastrophic). RISKOS embeds the specialized **Loughran-McDonald Financial Lexicon** containing 2,700+ domain-specific words categorized into:
+- **Positive Sentiment Words** (e.g. *outperform*, *accretive*, *lucrative*, *record profit*)
+- **Negative Sentiment Words** (e.g. *default*, *adverse*, *impairment*, *subpoena*, *breach*)
+- **Uncertainty & Modality Terms** (e.g. *volatile*, *ambiguous*, *contingency*, *approximate*)
+- **Litigious & Constraining Language** (e.g. *injunction*, *regulatory scrutiny*, *penalized*)
+
+The aggregate sentiment score $S_{\text{news}}$ is computed as:
+$$S_{\text{news}} = \frac{N_{\text{pos}} - N_{\text{neg}}}{N_{\text{pos}} + N_{\text{neg}} + \epsilon} \in [-1.0, +1.0]$$
+
+### Catalyst Taxonomy & Entity Extraction
+Incoming wires are parsed through regular-expression entity recognizers that extract ticker symbols (e.g. `RELIANCE.NS`, `SUZLON.NS`, `NVDA`, `PLUG`) and categorize headlines into institutional catalyst taxonomies:
+1. **`EARNINGS_SURPRISE`**: Top-line/bottom-line beats or margin compressions.
+2. **`REGULATORY_RBI`**: Central bank monetary policy, repo rate shifts, or compliance mandates.
+3. **`MACRO_INFLATION`**: CPI prints, crude oil swings, and yield curve moves.
+4. **`ORDER_WIN`**: Multi-gigawatt renewable energy contracts, capital expenditure announcements, and enterprise AI contracts.
+
+### 1-Click Subjective View Vector Injection ($Q$)
+When an investor clicks **"INJECT VIEW"** on any breaking headline, RISKOS maps the sentiment score $S_{\text{news}}$ into a calibrated Bayesian Black-Litterman view vector:
+$$Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}$$
+where $\alpha$ is the sentiment sensitivity scaler, $\sigma_k$ is the asset's annualized volatility, and $\Delta t$ is the forecast horizon.
+
+---
+
+## ⚖️ Multi-Objective Portfolio Optimizer Sandbox & Execution Blotter
+
+### Sentiment-Conditioned Black-Litterman
+Blends CAPM implied equilibrium returns $\boldsymbol{\Pi} = \lambda \mathbf{\Sigma} \mathbf{w}_{\text{mkt}}$ with the news-derived view vector $\mathbf{Q}$:
+$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right]$$
+$$\mathbf{w}_{\text{BL}}^* = (\lambda \mathbf{\Sigma})^{-1} \boldsymbol{\mu}_{\text{BL}}$$
+where $\mathbf{P}$ is the asset picking matrix, $\mathbf{\Omega}$ is the diagonal view uncertainty covariance matrix calibrated via He-Litterman $\mathbf{\Omega} = \text{diag}(\mathbf{P}(\tau \mathbf{\Sigma})\mathbf{P}^T)$, and $\tau = 0.05$.
+
+### Hierarchical Risk Parity (HRP)
+Invented by Marcos López de Prado, HRP solves the instability of Markowitz mean-variance optimization by eliminating the need to invert the covariance matrix:
+1. **Tree Clustering**: Converts the correlation matrix into an ultrametric distance metric $d_{i,j} = \sqrt{\frac{1}{2}(1 - \rho_{i,j})}$.
+2. **Quasi-Diagonalization**: Reorders assets such that highest correlations cluster along the diagonal.
+3. **Recursive Bisection**: Allocates inverse-variance weights hierarchically through the dendrogram tree:
+   $$w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)$$
+
+### Rockafellar-Uryasev CVaR (95%) Direct LP Minimizer
+Directly minimizes expected tail loss beyond the 95th percentile through linear programming:
+$$\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\}$$
+$$\text{subject to } \sum_{i=1}^n w_i = 1, \quad 0 \le w_i \le w_{\text{max}}, \quad \mathbf{w}^T \mathbb{E}[\mathbf{r}] \ge R_{\text{target}}$$
+
+### 1-Click Rebalance Order Blotter with FIX 4.4 Tag 58
+Executable rebalance tickets calculate the share differential between current weights and optimal target weights:
+$$\Delta x_i = \text{round}\left( \frac{w_{i, \text{target}} \cdot V_{\text{NAV}} - w_{i, \text{curr}} \cdot V_{\text{NAV}}}{P_i} \right)$$
+Each ticket is marked with FIX 4.4 Tag 58 (`Text` = `PORT-REBAL-EXEC`), estimated Almgren-Chriss slippage, and dispatched step-by-step into the persistent trade audit ledger.
 
 ---
 
 ## 🤖 24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)
 
-A dedicated command center managing **20 distinct quantitative algorithms** segregated into two mythological pantheons:
+A command center managing **20 quantitative algorithms** segregated into two mythological pantheons:
 
 ### 🏛️ Mount Olympus Division — 🇮🇳 10 Indian Sector Bots (Greek Mythology)
 | Bot ID | Greek Deity | Sector | Strategy Model | Sentiment Engine | Live Market Volume |
@@ -195,116 +524,250 @@ A dedicated command center managing **20 distinct quantitative algorithms** segr
 
 ---
 
-## ⚡ 7 Institutional Breakthrough Features
+## 🧪 Master Catalog of ALL 52 Interactive Quantitative Laboratories (`learn.html`)
 
-```mermaid
-flowchart TD
-    subgraph CoreHub["🧠 RISKOS Institutional Quantum Hub"]
-        Synapse["⚡ Inter-Bot Cross-Hedging Synapse (crossHedgingSynapse.js)"]
-        VoiceCopilot["🎙️ AI Risk Copilot & Quant Whisperer (quantWhisperer.js)"]
-        CrisisSim["⏳ Time-Travel Crisis Replay Engine (crisisReplayEngine.js)"]
-        Vol3D["🌊 3D Volatility Surface & L2 Waterfall (volatilitySurface3D.js)"]
-        DarkPool["🐋 Dark Pool Hunter & Iceberg Tape (darkPoolHunter.js)"]
-        Defcon["🛑 SEC Rule 15c3-5 DEFCON Matrix (defconRiskMatrix.js)"]
-        ExecutiveMemo["📑 Bridgewater / Goldman Sachs Risk Memo (executiveReportGenerator.js)"]
-    end
-```
+The RISKOS Quantitative Simulation Laboratory comprises 52 interactive, deterministic calculation modules equipped with live parameter sliders, Chart.js visualizers, real-security fundamental feeds, and KaTeX mathematical substitutions:
 
-1. **⚡ Inter-Bot Cross-Hedging Synapse & Clash of the Pantheons**:
-   - Dynamic covariance matrix $\mathbf{\Sigma}_{\text{cross}}$ calculation across borders.
-   - Minimum-variance hedge ratio router:
-     $$h^* = -\frac{\text{Cov}(R_{\text{origin}}, R_{\text{hedge}})}{\text{Var}(R_{\text{hedge}})} \cdot \Delta_{\text{origin}}$$
-   - Animated Canvas particle network and Clash of the Pantheons Alpha Leaderboard.
+### Division I: AI, Machine Learning & Deep Predictive Alpha Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **01** | `timesfm_30` | **Google TimesFM 3.0 Quantiles** | $\tilde{x}_t = \frac{x_t - \mu}{\sigma}, \quad \text{Loss} = \sum \max(q(y-\hat{y}), (q-1)(y-\hat{y}))$ | Zero-shot multi-quantile price forecasting ($q_{10}-q_{99}$). |
+| **02** | `prophet_gam` | **Meta Prophet GAM Decomposition** | $y(t) = g(t) + \sum_{n=1}^N (a_n \cos(\frac{2\pi nt}{P}) + b_n \sin(\frac{2\pi nt}{P})) + \epsilon_t$ | Trend changepoints & seasonal quarterly earnings drift. |
+| **03** | `dqn_optimal_execution`| **Deep Q-Learning Execution** | $Q^*(s, a) = r + \gamma \max_{a'} Q^*(s', a')$ | Reinforcement learning trade slicer minimizing market impact. |
+| **04** | `quantum_monte_carlo` | **Quantum Amplitude Estimation** | $\vert \psi \rangle = \sqrt{1-a}\vert \psi_0 \rangle\vert 0 \rangle + \sqrt{a}\vert \psi_1 \rangle\vert 1 \rangle, \quad \mathcal{O}(1/\epsilon)$ | Quadratic speedup for high-dimensional portfolio VaR. |
+| **05** | `deflated_sharpe` | **Deflated Sharpe Ratio (DSR)** | $\text{DSR} = Z\left(\frac{(\hat{SR} - SR_0)\sqrt{T-1}}{\sqrt{1 - \hat{\gamma}_3 \hat{SR} + \frac{\hat{\gamma}_4-1}{4}\hat{SR}^2}}\right)$ | Quantifies backtest overfitting and false discovery rates. |
+| **06** | `hawkes_process` | **Hawkes Self-Exciting Process**| $\lambda(t) = \mu_0 + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}$ | Cascade clustering of order book cancellations & flash crashes. |
+| **07** | `prediction_markets_lmsr`| **Hanson LMSR Pricing** | $p_i = \frac{e^{q_i / b}}{\sum_j e^{q_j / b}}, \quad C(\mathbf{q}) = b \ln \sum e^{q_i / b}$ | Prediction market crowd probability equilibrium pricing. |
 
-2. **🎙️ AI Risk Copilot & Quant Whisperer**:
-   - Web Speech API trading floor synthesized voice announcements.
-   - Procedural acoustic volatility soundscape that dynamically modulates with market turbulence.
-   - Natural language query HUD (`/ask` command) parsing complex portfolio exposures.
+### Division II: Stochastic Calculus & Mathematical Finance Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **08** | `ito_calculus` | **Itô's Lemma & Stochastic Calculus** | $df(S, t) = \left(\frac{\partial f}{\partial t} + \mu S \frac{\partial f}{\partial S} + \frac{1}{2}\sigma^2 S^2 \frac{\partial^2 f}{\partial S^2}\right) dt + \sigma S \frac{\partial f}{\partial S} dW$ | Derivation of non-linear derivative asset pricing PDEs. |
+| **09** | `feynman_kac` | **Feynman-Kac Theorem** | $\frac{\partial V}{\partial t} + \mu(x,t)\frac{\partial V}{\partial x} + \frac{1}{2}\sigma^2(x,t)\frac{\partial^2 V}{\partial x^2} - rV = 0$ | Bridges parabolic partial differential equations to path expectations. |
+| **10** | `heston_fft` | **Heston Model & Carr-Madan FFT** | $dS = \mu S dt + \sqrt{v}S dW_1, \quad dv = \kappa(\theta - v)dt + \xi \sqrt{v} dW_2$ | Stochastic volatility smile calibration via Fast Fourier Transform. |
+| **11** | `vasicek_cir` | **Vasicek & CIR Yield Models** | $dr_t = \kappa(\theta - r_t)dt + \sigma r_t^{\gamma} dW_t \quad (\gamma = 0 \text{ or } 0.5)$ | Mean-reverting interest rate term structure & zero coupon bond pricing. |
+| **12** | `rough_volatility` | **Rough Volatility (fBm)** | $d\ln \sigma_t = \nu dW_t^H, \quad H \approx 0.14 < 0.50$ | Fractional Brownian motion capturing power-law volatility skew. |
+| **13** | `malliavin_calculus` | **Malliavin Calculus Greeks** | $\frac{\partial}{\partial x} \mathbb{E}[f(X)] = \mathbb{E}\left[ f(X) \int_0^T \dots dW_s \right]$ | Calculates Greeks without bumping finite differences. |
+| **14** | `hjb_stochastic_control`| **HJB Dynamic Stochastic Control**| $\rho V = \max_u \left\{ f(x, u) + V_x \cdot a(x, u) + \frac{1}{2} V_{xx} \cdot \sigma^2(x, u) \right\}$ | Dynamic portfolio optimization with leverage boundaries. |
 
-3. **⏳ Time-Travel Black Swan Crisis Replay Simulator**:
-   - 1-click historical crash replays: 1987 Black Monday, 1998 LTCM, 2008 Lehman Brothers, 2010 Flash Crash, 2020 COVID Freeze, 2023 SVB Run, and synthetic shock designer.
-   - Tracks portfolio survivability score ($0-100\%$) and identifies autonomous crisis alpha winners.
+### Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf)
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **15** | `copulas_evt` | **Copulas & Extreme Value Theory** | $C_{\theta}^{\text{Clayton}}(u, v) = \left(u^{-\theta} + v^{-\theta} - 1\right)^{-1/\theta}, \quad \lambda_L = 2^{-1/\theta}$ | Tail dependence modeling during simultaneous market crashes. |
+| **16** | `merton_jump_diffusion`| **Merton Jump-Diffusion SDE** | $\frac{dS}{S} = (\mu - \lambda k)dt + \sigma dW + (J-1)dN_t$ | Discontinuous crash risk modeling with Poisson intensity $\lambda$. |
+| **17** | `perpetual_american` | **American Option Free-Boundary** | $V(S) = (K - S^*)\left(\frac{S}{S^*}\right)^\gamma, \quad S^* = \frac{\gamma}{\gamma - 1} K$ | Optimal stopping boundary for perpetual American options. |
+| **18** | `bachelier_model` | **Bachelier Normal Model** | $C = (F - K)\Phi\left(\frac{F-K}{\sigma \sqrt{T}}\right) + \sigma \sqrt{T} \phi\left(\frac{F-K}{\sigma \sqrt{T}}\right)$ | Options pricing under negative underlying prices (e.g. WTI 2020). |
+| **19** | `futures_basis_carry`| **Cost-of-Carry Basis Arbitrage** | $F_t = S_t \cdot e^{(r - q + u) \cdot (T - t)}$ | Cash-and-carry arbitrage and calendar spread mispricing. |
+| **20** | `commodity_roll_yield`| **Commodity Roll Yield** | $R_{\text{roll}} = \frac{P_{\text{near}} - P_{\text{far}}}{P_{\text{near}}} \cdot \frac{365}{\Delta t}$ | Structural contango drag vs backwardation roll return. |
+| **21** | `yield_curve_probit` | **Yield Curve Recession Probit**| $\Pr(\text{Recession} = 1) = \Phi(\beta_0 + \beta_1 (y_{10Y} - y_{3M}))$ | Evaluates macroeconomic recession odds from 10Y-3M yield inversion. |
 
-4. **🌊 3D WebGL Volatility Surface & 3D Order Book Mountain**:
-   - Parametric SVI Implied Volatility Surface: Strike ($K$) $\times$ Maturity ($T$) $\times$ Implied Volatility ($\sigma_{\text{IV}}$).
-   - 3D Topographic Order Book Waterfall with real-time mouse drag to orbit and scroll to zoom.
+### Division IV: High-Frequency Microstructure, Order Flow & Execution Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **22** | `almgren_chriss` | **Almgren-Chriss Optimal Slicer** | $x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$ | Optimal trade liquidation balancing market impact vs timing risk. |
+| **23** | `avellaneda_stoikov` | **Avellaneda-Stoikov Market Making**| $r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \gamma \sigma^2 (T - t) + \frac{2}{\gamma}\ln(1 + \frac{\gamma}{\kappa})$ | Optimal bid-ask quote placement for high-frequency market makers. |
+| **24** | `kyles_lambda_microstructure`| **Kyle's Lambda Informed Flow** | $\lambda_{\text{Kyle}} = \frac{\text{Cov}(\Delta P, Q)}{\text{Var}(Q)} = \frac{\sqrt{\sigma_v^2 \sigma_u^2}}{2 \sigma_u^2}$ | Measures price impact per unit of informed order flow. |
+| **25** | `dark_pool_adverse_selection`| **Dark Pool Adverse Selection** | $\text{Fill Rate} = f(\text{Mid Spread}), \quad \text{Adverse Cost} = \mathbb{E}[\Delta P_{\text{lit}} \mid \text{Fill}_{\text{dark}}]$ | Trade-off between dark pool price improvement and toxic fills. |
+| **26** | `perspective_streaming_grid`| **Perspective Streaming Engine** | Throughput $\ge 50,000 \text{ ticks/sec}, \quad \text{Latency} \le 16\text{ms}$ | High-performance WebAssembly L2 order book streaming grid. |
+| **27** | `backtrader_cerebro`| **Backtrader Cerebro Engine** | $\text{Sharpe} = \frac{\bar{R}_p - R_f}{\sigma_p}, \quad \text{TCA} = \text{Comm} + \text{Slippage}$ | Event-driven backtesting execution architecture with broker bridges. |
 
-5. **🐋 Dark Pool Hunter & Iceberg Order Detector**:
-   - Real-time Level-2 tape reader calculating hidden institutional replenishment:
-     $$V_{\text{hidden}} = V_{\text{executed}} - \sum V_{\text{visible}}$$
-   - Detects off-exchange dark pool block prints with stealth scores and institutional radar.
+### Division V: Modern Portfolio Theory, Risk Parity & Black-Litterman Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **28** | `black_litterman` | **Bayesian Black-Litterman Allocator**| $\boldsymbol{\mu}_{\text{BL}} = [(\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P}]^{-1} [(\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q}]$ | Blends market equilibrium with subjective Loughran-McDonald NLP views. |
+| **29** | `port_allocator` | **Interactive 4-Asset Allocator** | $E[R_p] = \sum w_i E[R_i], \quad \sigma_p = \sqrt{\mathbf{w}^T \mathbf{\Sigma} \mathbf{w}}$ | Real-time asset allocation sandbox across Equities, Debt, Gold & US. |
+| **30** | `port_variance` | **Markowitz 2-Asset Variance** | $\sigma_p^2 = w_1^2 \sigma_1^2 + w_2^2 \sigma_2^2 + 2w_1 w_2 \sigma_1 \sigma_2 \rho_{12}$ | Visualizes the non-linear curvature of portfolio diversification benefit. |
+| **31** | `diversification` | **Diversification & Correlation** | $\lim_{N \to \infty} \sigma_p^2 = \overline{\text{Cov}}$ | Demonstrates elimination of unsystematic risk as portfolio size grows. |
+| **32** | `capm` | **CAPM Expected Return & Jensen's Alpha**| $E[R_i] = R_f + \beta_i (E[R_m] - R_f), \quad \alpha = R_i - E[R_i]$ | Decomposes return into systematic market beta risk vs pure manager alpha. |
+| **33** | `risk_return_scatter`| **Efficient Frontier Simulator** | $\max_{\mathbf{w}} \frac{\mathbf{w}^T \boldsymbol{\mu} - R_f}{\sqrt{\mathbf{w}^T \mathbf{\Sigma} \mathbf{w}}}$ | Generates 1,000 randomized portfolios along the Capital Allocation Line. |
 
-6. **🛑 SEC Rule 15c3-5 DEFCON Risk Matrix & Dead Man's Kill Switch**:
-   - 5 defense levels (DEFCON 5: Normal to DEFCON 1: Panic Liquidation).
-   - Single-click emergency TWAP market liquidation across all open positions directly into cash.
-   - Autonomous rogue bot quarantine with 64-character SHA-256 cryptographic audit receipts.
+### Division VI: Volatility Surfaces, SABR & Multi-Leg Derivatives Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **34** | `svi_sabr_calibration` | **SVI & SABR Volatility Smile** | $w(k) = a + b\left(\rho(k - m) + \sqrt{(k - m)^2 + \sigma^2}\right)$ | Parametric fitting of implied volatility smiles across strikes. |
+| **35** | `options_payoff` | **Multi-Leg Options Strategy Studio**| $\Pi_{\text{Call}} = \max(S_T - K, 0) - C_0, \quad \Pi_{\text{Put}} = \max(K - S_T, 0) - P_0$ | Payoff curves for Iron Condors, Straddles, Strangles & Butterflies. |
+| **36** | `volatility` | **Volatility & Normal Distribution**| $\sigma_{\text{ann}} = \sigma_{\text{daily}} \cdot \sqrt{252}, \quad f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$ | Maps 1σ, 2σ, and 3σ confidence intervals onto standard normal bell curve. |
+| **37** | `beta_corr` | **Beta & Correlation Coefficient** | $\beta_i = \frac{\text{Cov}(R_i, R_m)}{\text{Var}(R_m)} = \rho_{i, m} \cdot \frac{\sigma_i}{\sigma_m}$ | Systematic risk sensitivity of individual stocks vs benchmark indices. |
+| **38** | `kalman_pairs` | **Kalman Filter Dynamic Pairs Arb**| $x_k = x_{k-1} + w_k, \quad y_k = H_k x_k + v_k, \quad K_k = P_{k\mid k-1} H_k^T (H_k P_{k\mid k-1} H_k^T + R)^{-1}$ | Time-varying hedge ratio tracking for statistical arbitrage pairs. |
+| **39** | `cds_index_tranches` | **CDS Index Tranche Pricing** | $\text{Spread} = \frac{(1-R) \int_0^T e^{-rt} dF(t)}{\int_0^T e^{-rt} (1 - F(t)) dt}$ | Credit default risk and correlation pricing across equity/mezzanine tranches. |
 
-7. **📑 One-Click Bridgewater / Goldman Sachs Executive Risk Memorandum**:
-   - Institutional LP & board reporting engine generating comprehensive, print-ready HTML/PDF risk memorandums.
-   - Features LaTeX KaTeX mathematical strategy proofs, factor attributions, and regulatory disclosures.
+### Division VII: Macro Stress Testing, Crisis Replay & Tail Risk Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **40** | `scenario_stress` | **Macro What-If Stress Simulator** | $\Delta V = \sum w_i \cdot (\beta_{\text{rates}} \Delta r + \beta_{\text{oil}} \Delta \text{Oil} + \beta_{\text{fx}} \Delta \text{FX})$ | Instant real-time simulation of rate shocks, commodity spikes, and devaluations. |
+| **41** | `mdd` | **Maximum Drawdown & Underwater** | $\text{MDD}_t = \frac{V_t - \max_{s \le t} V_s}{\max_{s \le t} V_s}$ | Quantifies worst-case peak-to-trough historical loss trajectories. |
+| **42** | `drawdown_recovery` | **Loss vs Required Recovery Gain**| $R_{\text{recovery}} = \frac{1}{1 - L} - 1 \quad (\text{e.g. } -50\% \implies +100\%)$ | Non-linear asymmetry of capital preservation and loss compounding. |
+| **43** | `sharpe` | **Sharpe, Sortino & Calmar Ratios**| $\text{Sharpe} = \frac{R_p - R_f}{\sigma_p}, \quad \text{Sortino} = \frac{R_p - R_f}{\text{Semi-Vol}}, \quad \text{Calmar} = \frac{R_p - R_f}{\vert \text{MDD} \vert}$ | Risk-adjusted returns penalizing downside semi-variance vs total variance. |
+| **44** | `fama_french_5factor`| **Fama-French 5-Factor Regression**| $R_{it} - R_{ft} = \alpha_i + \beta_1(R_{mt} - R_{ft}) + \beta_2 \text{SMB}_t + \beta_3 \text{HML}_t + \beta_4 \text{RMW}_t + \beta_5 \text{CMA}_t$ | Factor decomposition into Market, Size, Value, Profitability & Investment. |
+| **45** | `yen_carry_unwind` | **Yen Carry Trade Unwind Model**| $\Delta \text{P&L} = (r_{\text{foreign}} - r_{\text{JPY}}) \Delta t - \Delta S_{\text{JPY/USD}}$ | Stress tests cross-currency margin calls during rapid JPY appreciation. |
+| **46** | `quant_backtest` | **Systematic Strategy Backtester**| $V_t = V_0 \cdot \prod_{i=1}^t (1 + R_i - \text{Comm}_i)$ | Walk-forward daily simulation of moving average and momentum strategies. |
 
-### ⏳ 24/7 Epoch Persistence & Time-Travel Engine
-- Saves an initialization epoch in persistent browser storage (`RISKOS_FLEET_START_EPOCH_V3`).
-- When revisiting months later, the engine calculates elapsed time $\Delta t$ and continuously simulates compounding growth, realized trade fills, and walk-forward equity curves across all elapsed sessions.
-- Interactive time accelerators: **`+7 Days`**, **`+30 Days (1M)`**, **`+90 Days (3M Beast Mode)`**.
+### Division VIII: Wealth Accumulation, Compounding & Valuation Labs
+| # | Lab ID | Module Title | Primary Mathematical Formulation | Quantitative Trading Application |
+| :-: | :--- | :--- | :--- | :--- |
+| **47** | `cagr` | **Compounded Annual Growth Rate** | $\text{CAGR} = \left(\frac{V_f}{V_i}\right)^{1/n} - 1$ | Multi-year geometric growth rate smoothing intra-period market volatility. |
+| **48** | `compounding` | **Compound Interest Multiplier** | $A = P \left(1 + \frac{r}{n}\right)^{nt}$ | Compounding frequency effect (Annual vs Monthly vs Daily continuous). |
+| **49** | `sip_dca` | **Monthly SIP / Dollar-Cost Averaging**| $M = P \cdot \frac{(1+i)^n - 1}{i} \cdot (1+i)$ | Disciplined Rupee/Dollar-cost averaging with optional annual step-up percentage. |
+| **50** | `lumpsum_sip` | **Lumpsum vs SIP Comparison** | $\Delta V = V_{\text{lumpsum}}(T) - V_{\text{SIP}}(T)$ | Evaluates sequence-of-returns risk and market timing in bull vs bear regimes. |
+| **51** | `compound_timeline`| **Multi-Year Wealth & Inflation** | $V_{\text{real}} = \frac{V_{\text{nominal}}}{(1 + i_{\text{inflation}})^n}$ | Real purchasing power preservation comparing nominal gains vs CPI inflation. |
+| **52** | `pe_eps` | **P/E Ratio, EPS & Earnings Yield** | $\text{P/E} = \frac{\text{Price}}{\text{EPS}}, \quad \text{Earnings Yield} = \frac{1}{\text{P/E}} = \frac{\text{EPS}}{\text{Price}}$ | Equity valuation benchmarking vs risk-free government bond yields ($E/P > r_f$). |
 
 ---
 
-## 📡 Market Observatory & Spatial Anomaly Scanner (`observatory.html`)
+## 🌐 Universal Security Master (120+ Assets)
 
-- **2D Spatial Clustering Radar**: Simultaneously maps 120+ securities by volatility vs return dispersion.
-- **Black Swan Crisis Replay Engine**: Replays 2008 Lehman GFC, 2020 COVID Crash, and 2024 Yen Carry Trade Unwind in real time.
-- **Institutional Audio Engine**: Microstructure order fill and anomaly audio cues.
+The central security master (`securityMaster.js` & `universe_ingest.py`) continuously normalizes price feeds, calculates returns, and streams 400ms Brownian bridge micro-ticks across 6 asset classes:
+
+### 🇮🇳 Indian Equities (NSE / BSE)
+- **Bluechips & Large-Caps**: `RELIANCE.NS`, `HDFCBANK.NS`, `INFY.NS`, `TCS.NS`, `TATAMOTORS.NS`, `ICICIBANK.NS`, `SBIN.NS`, `BHARTIARTL.NS`, `ITC.NS`, `LICI.NS`.
+- **Mid-Caps & High-Growth**: `SUZLON.NS` (₹64.50), `ZOMATO.NS`, `PAYTM.NS`, `POLICYBZR.NS`.
+- **Curated Multi-Exchange Penny Stocks (< ₹20)**: `GTLINFRA.NS` (₹1.16), `VISAGAR.BO` (₹1.45), `VIKASECO.NS` (₹3.85), `IDEA.NS` (₹8.25), `DISHTV.NS` (₹12.50), `RTNPOWER.NS` (₹14.80), `JPPOWER.NS` (₹16.29), `URJA.NS` (₹18.20), `SEPC.NS` (₹19.40), `YESBANK.NS` (₹21.40), `RPOWER.NS` (₹38.50).
+
+### 🇺🇸 US Global Mega-Caps & Tech
+- **Magnificent Seven & Tech**: `AAPL`, `MSFT`, `NVDA`, `GOOGL`, `AMZN`, `META`, `TSLA`.
+- **Semiconductors & AI**: `AVGO`, `AMD`, `QCOM`, `SMCI`, `ARM`.
+- **Curated US Penny & High-Beta Stocks (< $5.00)**: `TELL` ($0.98), `BBAI` ($1.85), `OPEN` ($2.15), `PLUG` ($2.17), `BITF` ($2.30), `CLOV` ($2.85), `LCID` ($3.40), `NIO` ($4.20), `SOUN` ($6.74).
+
+### 🌍 Macro Commodities, FX & Sovereign Yields
+- **Commodities**: `BRENT CRUDE` ($78.45/bbl), `GOLD (MCX)` (₹72,450/10g), `SILVER (MCX)` (₹84,200/kg), `NATURAL GAS`.
+- **Currencies (FX)**: `USD/INR` (₹86.72), `EUR/USD` ($1.085), `USD/JPY` (¥154.2), `GBP/USD` ($1.295).
+- **Sovereign Yields**: `INDIA 10Y` (6.88%), `US 10Y YIELD` (4.25%), `US 2Y YIELD` (4.45%).
+- **Cryptocurrencies (24/7/365)**: `BTC-USD` ($64,200), `ETH-USD` ($3,450), `SOL-USD` ($148).
 
 ---
 
-## 🧪 Master Catalog of 52 Interactive Quantitative Laboratories (`learn.html`)
+## 🧮 Pure Vector Mathematical Rigor & LaTeX Master Index
 
-1. **Returns & Growth**: CAGR, Real Returns (Inflation Adjusted), Logarithmic Returns, Geometric vs Arithmetic Mean.
-2. **Classical Risk**: Annualized Volatility, Sharpe Ratio, Sortino Ratio, Calmar Ratio, Maximum Drawdown (MDD).
-3. **Tail Risk**: Historical VaR, Parametric VaR, Monte Carlo VaR (10,000 Paths), Conditional VaR (CVaR), Cornish-Fisher Expansion.
-4. **Portfolio Theory**: Markowitz Mean-Variance Efficient Frontier, Capital Allocation Line (CAL), Black-Litterman Allocation, Risk Parity.
-5. **Derivatives & Volatility**: Black-Scholes-Merton Formula, Option Greeks ($\Delta, \Gamma, \mathcal{V}, \Theta, ho$), SABR Volatility Smile, Implied Volatility Surface.
-6. **Advanced Quantitative Methods**: Kalman Filtering State-Space, 3-State Gaussian HMMs, Copula Dependence Modeling, Almgren-Chriss Optimal Execution.
-7. **AI Foundation Models**: Google TimesFM 3.0 Stacked Mixing Transformer, Iterative RevIN, Multi-Quantile Dispersion, Hanson LMSR Prediction Pricing.
+### 1. Google TimesFM 3.0 Quantile Loss
+$$\mathcal{L}_q(y, \hat{y}) = \max \Big( q \cdot (y - \hat{y}), \, (q - 1) \cdot (y - \hat{y}) \Big), \quad q \in \{0.10, 0.25, 0.50, 0.75, 0.90, 0.99\}$$
+
+### 2. Meta Prophet Generalized Additive Seasonality
+$$y(t) = g(t) + \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right) + \epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2)$$
+
+### 3. Merton Jump-Diffusion Fat-Tail SDE
+$$S_t = S_0 \exp\left( \left(\mu - \lambda k - \frac{1}{2}\sigma^2\right)t + \sigma W_t \right) \prod_{i=1}^{N_t} J_i, \quad k = e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1$$
+
+### 4. Sentiment-Conditioned Black-Litterman Master Formula
+$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right], \quad Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}$$
+
+### 5. Hierarchical Risk Parity (HRP) Matrix Clustering
+$$d_{i,j} = \sqrt{\frac{1}{2}(1 - \rho_{i,j})}, \quad w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)$$
+
+### 6. Rockafellar-Uryasev CVaR (95%) Linear Programming Minimizer
+$$\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\} \quad \text{s.t.} \quad \sum w_i = 1, \quad 0 \le w_i \le w_{\text{max}}$$
+
+### 7. Almgren-Chriss Optimal Execution Trajectory
+$$x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa = \text{arcosh}\left( \frac{\lambda \sigma^2 \tau^2}{2\eta} + 1 \right) \cdot \frac{1}{\tau} \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
+
+### 8. Ledoit-Wolf Analytical Covariance Shrinkage
+$$\mathbf{\Sigma}_{\text{LW}} = \delta^* \mathbf{F} + (1 - \delta^*) \mathbf{S}, \quad \delta^* = \frac{\sum_{i \ne j} \text{Var}(s_{ij})}{\sum_{i \ne j} (s_{ij} - f_{ij})^2}$$
+
+### 9. GARCH(1,1) Volatility Clustering
+$$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \text{with } \alpha + \beta < 1, \quad \sigma_{\text{long-term}} = \sqrt{\frac{\omega}{1 - \alpha - \beta}}$$
+
+### 10. 3-State Gaussian Hidden Markov Model (HMM)
+$$\Pr(S_t = j \mid S_{t-1} = i) = A_{ij}, \quad r_t \mid (S_t = k) \sim \mathcal{N}(\mu_k, \sigma_k^2), \quad k \in \{\text{Bull}, \text{Bear}, \text{Sideways}\}$$
+
+### 11. Hanson Logarithmic Market Scoring Rule (LMSR)
+$$C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right), \quad p_i = \frac{\partial C}{\partial q_i} = \frac{e^{q_i / b}}{\sum_{j=1}^n e^{q_j / b}}$$
+
+### 12. FRTB Basel III Regulatory Expected Shortfall Capital Charge
+$$\text{ES}_{\text{FRTB}} = \frac{1}{1 - \alpha} \int_\alpha^1 \text{VaR}_u(L) du \approx \frac{1}{N_{\text{tail}}} \sum_{i \in \text{Loss} > \text{VaR}} L_i, \quad \text{Capital Charge} = k \cdot \text{ES}_{\text{FRTB}} \cdot \sqrt{\Delta t}$$
+
+---
+
+## 📑 Institutional Executive Risk Memorandum Compiler
+
+Integrated into `backend/engine/report_engine.py` and `executiveReportGenerator.js`, RISKOS compiles Bridgewater / Goldman Sachs LP style risk disclosures:
+1. **Executive Summary & Macro Backdrop**: Quantitative evaluation of portfolio beta ($\beta_p$), marked-to-market NAV, and day P&L.
+2. **Predictive Multi-Model Consensus**: Google TimesFM, Prophet, and Merton jump trajectories with win probabilities.
+3. **Black-Litterman Rebalance Blotter**: Pre-trade vs target asset allocation weights with Almgren-Chriss slippage in basis points.
+4. **Regulatory Basel III Disclosures**: FRTB Expected Shortfall (CVaR 95%), Parametric VaR (99%), and Stress Scenario survivability scores.
+5. **Cryptographic State Seal**: Every generated memorandum is hashed with **SHA-256** to prevent tampering in audit committees:
+   $$\text{Seal} = \text{SHA-256}\left( \text{NAV} \parallel \mathbf{w}_{\text{target}} \parallel \text{CVaR} \parallel \text{Timestamp} \right)$$
 
 ---
 
 ## 🌐 REST & Serverless API Reference
 
+RISKOS provides 28+ deterministic JSON endpoints running across Python FastAPI (`backend/run.py`) and Vercel Serverless (`/api/`):
+
 | Method | Route | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/market/prices?tickers=AAPL,MSFT&period=1y` | Historical OHLCV price series |
-| `GET` | `/api/market/volatility?ticker=AAPL` | EWMA & GARCH(1,1) Volatility parameters |
-| `GET` | `/api/market/regime?ticker=SPY` | 3-State Gaussian HMM regime probabilities |
-| `GET` | `/api/market/correlations?tickers=AAPL,MSFT,GOOGL` | Ledoit-Wolf correlation matrix & break detection |
-| `GET` | `/api/risk/var?tickers=AAPL,MSFT&weights=0.5,0.5&confidence=0.99` | Multi-method VaR & CVaR risk metrics |
-| `GET` | `/api/forecast/timesfm?symbol=RELIANCE&horizon=64` | Google TimesFM 3.0 10-quantile probabilistic forecast |
-| `GET` | `/api/market/fleet` | Live 20-bot autonomous fleet telemetry and P&L status |
+| `GET` | `/api/market/prices?tickers=...&period=1y` | Historical OHLCV bar series from Yahoo Finance / NSE |
+| `GET` | `/api/market/volatility?ticker=...` | EWMA and GARCH(1,1) conditional volatility parameters |
+| `GET` | `/api/market/regime?ticker=...` | 3-State Gaussian HMM regime state classification |
+| `GET` | `/api/market/correlations?tickers=...` | Rolling 60-day Ledoit-Wolf correlation matrix with break flags |
+| `GET` | `/api/market/fleet` | Telemetry, realized P&L, and open positions for all 20 bots |
+| `GET` | `/api/news/feed?limit=15` | Real-time news wire with Loughran-McDonald sentiment scores |
+| `GET` | `/api/news/sentiment?symbols=...` | Ticker-level aggregate sentiment drift and catalyst classifications |
+| `POST`| `/api/portfolio/predict` | Multi-model consensus trajectory (TimesFM + Prophet + Merton) |
+| `POST`| `/api/portfolio/optimize` | Black-Litterman, HRP, Rockafellar CVaR, or Markowitz optimizer |
+| `POST`| `/api/portfolio/rebalance` | 1-Click execution rebalance order blotter with Almgren-Chriss slippage |
+| `POST`| `/api/reports/memorandum` | Compiles Bridgewater / Goldman Sachs memorandum with SHA-256 seal |
+| `GET` | `/api/forecast/timesfm?symbol=...&horizon=64` | Google TimesFM 3.0 zero-shot multi-quantile forecast |
+| `GET` | `/api/risk/var?tickers=...&weights=...&confidence=0.99`| Tripartite Value at Risk (Historical, Parametric, Monte Carlo) |
+| `GET` | `/api/risk/covariance?tickers=...` | Ledoit-Wolf shrunk covariance matrix $\mathbf{\Sigma}_{\text{LW}}$ |
+| `GET` | `/api/risk/backtest?tickers=...&weights=...` | Walk-forward daily rebalancing backtester with TCA |
+| `GET` | `/api/risk/stress?tickers=...&weights=...` | 4-factor macro stress testing scenario impact matrix |
+| `GET` | `/api/risk/validate?ticker=...&confidence=0.99` | Kupiec POF and Christoffersen independence exception tests |
+| `GET` | `/api/signals/generate?tickers=...` | Technical convergence signals with fractional Kelly sizing |
+| `GET` | `/api/signals/execute?ticker=...&quantity=...` | VWAP execution slicer with pre-trade collar guardrails |
 
 ---
 
-## 🚀 Local Quickstart & Production Deployment
+## 🚀 Local Quickstart & Production Verification
 
-### 1. Run with Python FastAPI Backend
+### 1. Clone & Set Up Backend
 ```bash
 # Clone the repository
 git clone https://github.com/Premchandyadav369/RISKOS.git
 cd RISKOS
 
-# Install dependencies
+# Create and activate Python virtual environment
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install high-performance quantitative libraries
 pip install -r backend/requirements.txt
 
 # Launch FastAPI Server
 python backend/run.py
-# Running at http://127.0.0.1:8000
+# Server running at http://127.0.0.1:8000
 ```
 
-### 2. Open the Front-End Workspace
-Simply open `index.html`, `app.html`, `fleet.html`, or `docs.html` in any modern web browser. No complex build step or Node compilation required!
+### 2. Run Automated Verification Suites
+```bash
+# 1. Run 1,786+ Python quantitative engine unit tests
+python -m pytest tests/
+
+# 2. Run Python portfolio prediction & news optimizer tests
+python -m pytest tests/unit/test_portfolio_optimizer.py
+
+# 3. Run Node.js terminal quantitative test suite (20/20 suites)
+node tests/terminal_suite.js
+
+# 4. Run 52 Quantitative Simulation Laboratories test suite
+node test_learn_engine.js
+
+# 5. Verify JavaScript syntax integrity
+node -c portfolio_optimizer.js
+node -c learn.js
+```
+
+### 3. Open Front-End Workspaces
+Open any workspace directly in modern browsers (Chrome, Edge, Safari, Firefox). No npm build step required:
+- `index.html`: Executive Portal & Command Hub
+- `portfolio_optimizer.html`: Portfolio Prediction & Quant Optimizer Desk (Desk 8)
+- `app.html`: 7 Bloomberg-Grade Trading Desks
+- `fleet.html`: 24/7 Autonomous Bot Fleet (20 Bots)
+- `learn.html`: 52 Interactive Quantitative Laboratories
+- `observatory.html`: Spatial Anomaly Radar & Crisis Replay
+- `ticker.html`: Universal Screener & Penny Library
+- `docs.html`: Dual-Perspective System Architecture Documentation
 
 ---
 
 <div align="center">
-  <sub>Built with precision for quantitative finance researchers, institutional traders, and curious minds worldwide.</sub>
+  <sub>Built with mathematical rigor for quantitative researchers, portfolio managers, and computational finance practitioners worldwide.</sub>
 </div>
