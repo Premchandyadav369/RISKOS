@@ -269,6 +269,42 @@ def api_get_observatory_feed():
     from engine.observatory import generate_observatory_feed
     return {"observations": generate_observatory_feed()}
 
+@app.get("/api/observatory/radar")
+def api_get_observatory_radar():
+    """Returns ranked leaderboard of securities demonstrating significant statistical variance from 20-day baselines."""
+    from engine.universe_ingest import get_unusual_activity_radar
+    return {"radar": get_unusual_activity_radar()}
+
+@app.get("/api/observatory/macro")
+def api_get_observatory_macro():
+    """Returns real-time global macro model, central bank policy probabilities (Fed & RBI), and Taylor rule forecaster."""
+    from engine.universe_ingest import get_global_macro_model
+    return get_global_macro_model()
+
+@app.get("/api/observatory/catalysts")
+def api_get_observatory_catalysts():
+    """Returns intraday market catalyst timeline with live timestamps."""
+    from engine.universe_ingest import get_catalyst_timeline
+    return {"catalysts": get_catalyst_timeline()}
+
+# ── 2D. Universal Multi-Exchange & Penny Stock Endpoints ──────────────────────
+@app.get("/api/market/universe")
+def api_get_market_universe(
+    market: str = "all",
+    category: str = "all",
+    query: Optional[str] = None,
+    limit: int = 50
+):
+    """Returns multi-exchange market universe across NSE, BSE, and US markets."""
+    from engine.universe_ingest import get_universe
+    return {"universe": get_universe(market=market, category=category, query=query, limit=limit)}
+
+@app.get("/api/market/penny-stocks")
+def api_get_penny_stocks(market: str = "all", max_price: float = 20.0):
+    """Returns filtered universe of Indian (<= ₹20) and US (<= $5) penny and microcap stocks."""
+    from engine.universe_ingest import get_penny_stocks
+    return {"penny_stocks": get_penny_stocks(market=market, max_price=max_price)}
+
 @app.get("/api/securities/{symbol}")
 def api_get_single_security(symbol: str, db: Session = Depends(get_db)):
     """Fetches full security profile, historical bars, and live fundamentals."""

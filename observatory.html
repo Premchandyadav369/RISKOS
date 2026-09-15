@@ -457,40 +457,40 @@
         <div class="cb-policy-card" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span style="font-weight:700;color:#fff;font-size:0.9rem;"><i class="fa-solid fa-flag-usa" style="color:var(--accent-cyan);margin-right:6px;"></i> US Federal Reserve (FOMC)</span>
-            <span style="font-size:0.7rem;padding:2px 8px;border-radius:10px;background:rgba(34,211,238,0.12);color:var(--accent-cyan);">Target: 5.25% - 5.50%</span>
+            <span id="fomcTargetRange" style="font-size:0.7rem;padding:2px 8px;border-radius:10px;background:rgba(34,211,238,0.12);color:var(--accent-cyan);">Target: 5.25% - 5.50%</span>
           </div>
           <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">Next Meeting Decision Probabilities:</div>
           <div style="display:flex;gap:10px;margin-bottom:8px;">
             <div style="flex:1;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:8px;padding:8px;text-align:center;">
               <span style="display:block;font-size:0.65rem;color:var(--text-muted);">25 bps Cut</span>
-              <strong style="font-size:1.1rem;color:#10b981;">84.5%</strong>
+              <strong id="fomcCutProb" style="font-size:1.1rem;color:#10b981;">84.5%</strong>
             </div>
             <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;text-align:center;">
               <span style="display:block;font-size:0.65rem;color:var(--text-muted);">Hold / Pause</span>
-              <strong style="font-size:1.1rem;color:#a1a1aa;">15.5%</strong>
+              <strong id="fomcHoldProb" style="font-size:1.1rem;color:#a1a1aa;">15.5%</strong>
             </div>
           </div>
-          <span style="font-size:0.7rem;color:var(--text-muted);"><i class="fa-solid fa-circle-info"></i> Dovish pivot priced in for next easing cycle.</span>
+          <span id="fomcStanceComment" style="font-size:0.7rem;color:var(--text-muted);"><i class="fa-solid fa-circle-info"></i> Dovish pivot priced in for next easing cycle.</span>
         </div>
 
         <!-- RBI MPC Card -->
         <div class="cb-policy-card" style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
             <span style="font-weight:700;color:#fff;font-size:0.9rem;">🇮🇳 Reserve Bank of India (MPC)</span>
-            <span style="font-size:0.7rem;padding:2px 8px;border-radius:10px;background:rgba(250,176,5,0.12);color:var(--accent-amber);">Repo Rate: 6.50%</span>
+            <span id="rbiRepoRateBadge" style="font-size:0.7rem;padding:2px 8px;border-radius:10px;background:rgba(250,176,5,0.12);color:var(--accent-amber);">Repo Rate: 6.50%</span>
           </div>
           <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:12px;">Stance &amp; Inflation Corridor:</div>
           <div style="display:flex;gap:10px;margin-bottom:8px;">
             <div style="flex:1;background:rgba(250,176,5,0.08);border:1px solid rgba(250,176,5,0.2);border-radius:8px;padding:8px;text-align:center;">
               <span style="display:block;font-size:0.65rem;color:var(--text-muted);">Policy Stance</span>
-              <strong style="font-size:1.1rem;color:#fab005;">NEUTRAL</strong>
+              <strong id="rbiPolicyStance" style="font-size:1.1rem;color:#fab005;">NEUTRAL</strong>
             </div>
             <div style="flex:1;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);border-radius:8px;padding:8px;text-align:center;">
               <span style="display:block;font-size:0.65rem;color:var(--text-muted);">Core CPI</span>
-              <strong style="font-size:1.1rem;color:#22d3ee;">3.80%</strong>
+              <strong id="rbiCoreCpi" style="font-size:1.1rem;color:#22d3ee;">3.80%</strong>
             </div>
           </div>
-          <span style="font-size:0.7rem;color:var(--text-muted);"><i class="fa-solid fa-circle-check text-emerald"></i> Within RBI tolerance band (2% - 6%).</span>
+          <span id="rbiToleranceComment" style="font-size:0.7rem;color:var(--text-muted);"><i class="fa-solid fa-circle-check text-emerald"></i> Within RBI tolerance band (2% - 6%).</span>
         </div>
 
         <!-- Macro Shock What-If Interactive Simulator -->
@@ -562,9 +562,9 @@
               <strong id="obsHoldProb" style="color:#51CF66;">Hold: 78% | Cut: 14% | Hike: 8%</strong>
             </div>
             <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;display:flex;">
-              <div style="width:78%;background:#51CF66;" title="Hold Probability"></div>
-              <div style="width:14%;background:#22d3ee;" title="Cut Probability"></div>
-              <div style="width:8%;background:#FF6B6B;" title="Hike Probability"></div>
+              <div id="obsProbBarHold" style="width:78%;background:#51CF66;" title="Hold Probability"></div>
+              <div id="obsProbBarCut" style="width:14%;background:#22d3ee;" title="Cut Probability"></div>
+              <div id="obsProbBarHike" style="width:8%;background:#FF6B6B;" title="Hike Probability"></div>
             </div>
           </div>
         </div>

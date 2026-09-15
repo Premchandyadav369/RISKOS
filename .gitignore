@@ -13,3 +13,4 @@ backend/database/*.db
 .DS_Store
 .vscode/
 .idea/
+scratch/
