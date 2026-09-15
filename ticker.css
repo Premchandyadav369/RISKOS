@@ -973,3 +973,416 @@ body.ticker-page {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   9. UNIVERSAL MULTI-EXCHANGE PENNY STOCK RADAR MATRIX STYLES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+.penny-radar-desk {
+  background: radial-gradient(130% 90% at 50% 0%, rgba(245, 158, 11, 0.05) 0%, #09090d 55%, #050508 100%);
+  border: 1px solid rgba(245, 158, 11, 0.22);
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 30px rgba(245, 158, 11, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.penny-radar-desk::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #f59e0b 20%, #22d3ee 50%, #51cf66 80%, transparent 100%);
+}
+
+.penny-desk-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.penny-desk-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 860px;
+}
+
+.penny-live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #f59e0b;
+  text-transform: uppercase;
+}
+
+.penny-live-tag .live-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
+  animation: pulseDotAnim 1.4s infinite;
+}
+
+.penny-desk-heading {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 0;
+}
+
+.penny-desk-subheading {
+  font-size: 0.8rem;
+  color: #a1a1aa;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.penny-desk-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Penny KPI Ribbon Grid */
+.penny-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.penny-kpi-card {
+  background: rgba(18, 18, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.penny-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.pkpi-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #71717a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pkpi-val-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pkpi-num {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pkpi-sub {
+  font-size: 0.68rem;
+  color: #71717a;
+}
+
+.pkpi-badge {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.badge-emerald { background: rgba(81, 207, 102, 0.15); color: #51cf66; border: 1px solid rgba(81, 207, 102, 0.3); }
+.badge-cyan { background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3); }
+.badge-amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-rose { background: rgba(244, 63, 94, 0.15); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.3); }
+.badge-purple { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+/* Penny Filter Strip */
+.penny-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.penny-feed-status {
+  font-size: 0.68rem;
+  color: #51cf66;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Penny Cards Grid */
+.penny-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.penny-stock-card {
+  background: rgba(14, 14, 20, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.penny-stock-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.08);
+}
+
+.pcard-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pcard-sym-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pcard-sym-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pcard-sym {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
+}
+
+.pcard-ex-pill {
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d4d4d8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.pcard-name {
+  font-size: 0.72rem;
+  color: #a1a1aa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+}
+
+.pcard-price-group {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.pcard-price {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: 'JetBrains Mono', monospace;
+  transition: color 0.3s ease;
+}
+
+.pcard-chg {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pcard-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.pstat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pstat-title {
+  font-size: 0.62rem;
+  color: #71717a;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.pstat-val {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #e4e4e7;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pcard-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.pcard-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge-surge-pill {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(34, 211, 238, 0.12);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.badge-zscore-pill {
+  font-size: 0.62rem;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pcard-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pcard-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #d4d4d8;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pcard-btn:hover {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Quick Jump Penny Chips */
+.chip-penny {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  color: #fbbf24 !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+}
+
+.chip-penny:hover {
+  background: rgba(245, 158, 11, 0.22) !important;
+  border-color: #f59e0b !important;
+}
+
+/* Table Penny Chips */
+.badge-penny-chip {
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  margin-left: 4px;
+}
+
+.badge-us-micro {
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(34, 211, 238, 0.2);
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  margin-left: 4px;
+}
+
+/* Card Tick Flash Animations */
+.card-flash-green {
+  animation: cardFlashPulseGreen 0.65s ease-out;
+}
+
+.card-flash-red {
+  animation: cardFlashPulseRed 0.65s ease-out;
+}
+
+@keyframes cardFlashPulseGreen {
+  0% { border-color: #51cf66; box-shadow: 0 0 16px rgba(81, 207, 102, 0.4); }
+  100% { border-color: rgba(255, 255, 255, 0.07); box-shadow: none; }
+}
+
+@keyframes cardFlashPulseRed {
+  0% { border-color: #ff6b6b; box-shadow: 0 0 16px rgba(255, 107, 107, 0.4); }
+  100% { border-color: rgba(255, 255, 255, 0.07); box-shadow: none; }
+}

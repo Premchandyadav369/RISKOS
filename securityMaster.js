@@ -131,26 +131,27 @@ const SecurityMaster = (() => {
     { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR', 'USD INR'], currency: 'INR', basePrice: 86.74, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' },
 
     // ── High-Volume Penny Stocks & Microcaps (NSE / BSE / US) ──
-    { id: 'NSE:GTLINFRA', symbol: 'GTLINFRA', symbolNS: 'GTLINFRA.NS', name: 'GTL Infrastructure Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE221H01019', bseCode: '532775', aliases: ['GTLINFRA', 'GTL INFRA'], currency: 'INR', basePrice: 1.16, beta: 1.75, vol: 0.58, pe: null, sector: 'Telecom Infrastructure', country: 'IN', isPenny: true },
-    { id: 'BSE:VISAGAR', symbol: 'VISAGAR', symbolNS: 'VISAGAR.BO', name: 'Visagar Polytex Ltd', exchange: 'BSE', assetType: 'PENNY_EQUITY', isin: 'INE370E01029', bseCode: '531025', aliases: ['VISAGAR', 'VISAGAR POLYTEX'], currency: 'INR', basePrice: 1.45, beta: 1.82, vol: 0.62, pe: null, sector: 'Textiles & Apparel', country: 'IN', isPenny: true },
-    { id: 'NSE:VIKASECO', symbol: 'VIKASECO', symbolNS: 'VIKASECO.NS', name: 'Vikas Ecotech Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE806A01020', bseCode: '536565', aliases: ['VIKASECO', 'VIKAS ECOTECH'], currency: 'INR', basePrice: 3.85, beta: 1.45, vol: 0.44, pe: 28.5, sector: 'Specialty Chemicals', country: 'IN', isPenny: true },
-    { id: 'NSE:IDEA', symbol: 'IDEA', symbolNS: 'IDEA.NS', name: 'Vodafone Idea Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE669E01016', bseCode: '532822', aliases: ['IDEA', 'VODAFONE IDEA', 'VI'], currency: 'INR', basePrice: 8.25, beta: 1.95, vol: 0.52, pe: null, sector: 'Telecommunications', country: 'IN', isPenny: true },
-    { id: 'NSE:DISHTV', symbol: 'DISHTV', symbolNS: 'DISHTV.NS', name: 'Dish TV India Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE836F01026', bseCode: '532839', aliases: ['DISHTV', 'DISH TV'], currency: 'INR', basePrice: 12.50, beta: 1.38, vol: 0.46, pe: null, sector: 'Media & Entertainment', country: 'IN', isPenny: true },
-    { id: 'NSE:RTNPOWER', symbol: 'RTNPOWER', symbolNS: 'RTNPOWER.NS', name: 'RattanIndia Power Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE399K01017', bseCode: '533122', aliases: ['RTNPOWER', 'RATTANINDIA POWER'], currency: 'INR', basePrice: 14.80, beta: 1.88, vol: 0.56, pe: 16.4, sector: 'Thermal Power Generation', country: 'IN', isPenny: true },
-    { id: 'NSE:JPPOWER', symbol: 'JPPOWER', symbolNS: 'JPPOWER.NS', name: 'Jaiprakash Power Ventures', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE351F01018', bseCode: '532627', aliases: ['JPPOWER', 'JP POWER', 'JAIPRAKASH POWER'], currency: 'INR', basePrice: 16.29, beta: 1.62, vol: 0.48, pe: 11.2, sector: 'Hydro & Thermal Power', country: 'IN', isPenny: true },
-    { id: 'NSE:URJA', symbol: 'URJA', symbolNS: 'URJA.NS', name: 'Urja Global Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE550C01020', bseCode: '526987', aliases: ['URJA', 'URJA GLOBAL', 'SOLAR'], currency: 'INR', basePrice: 18.20, beta: 1.70, vol: 0.54, pe: null, sector: 'Solar Energy & EV Batteries', country: 'IN', isPenny: true },
-    { id: 'NSE:SEPC', symbol: 'SEPC', symbolNS: 'SEPC.NS', name: 'SEPC Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE964H01014', bseCode: '532945', aliases: ['SEPC', 'SHRIRAM EPC'], currency: 'INR', basePrice: 19.40, beta: 1.55, vol: 0.50, pe: 34.0, sector: 'Engineering & Infra', country: 'IN', isPenny: true },
-    { id: 'NSE:YESBANK', symbol: 'YESBANK', symbolNS: 'YESBANK.NS', name: 'Yes Bank Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE528G01035', bseCode: '532648', aliases: ['YESBANK', 'YES BANK'], currency: 'INR', basePrice: 21.40, beta: 1.45, vol: 0.38, pe: 38.5, sector: 'Banking & Financials', country: 'IN', isPenny: true },
-    { id: 'NSE:RPOWER', symbol: 'RPOWER', symbolNS: 'RPOWER.NS', name: 'Reliance Power Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE614G01033', bseCode: '532939', aliases: ['RPOWER', 'RELIANCE POWER', 'ANIL AMBANI'], currency: 'INR', basePrice: 38.50, beta: 1.90, vol: 0.64, pe: null, sector: 'Thermal & Clean Energy', country: 'IN', isPenny: true },
-    { id: 'NYSE:TELL', symbol: 'TELL', symbolNS: 'TELL', name: 'Tellurian Inc.', exchange: 'NYSE American', assetType: 'PENNY_EQUITY', isin: 'US87968A1043', aliases: ['TELL', 'TELLURIAN', 'LNG'], currency: 'USD', basePrice: 0.98, beta: 2.10, vol: 0.68, pe: null, sector: 'LNG & Natural Gas', country: 'US', isPenny: true },
-    { id: 'NYSE:BBAI', symbol: 'BBAI', symbolNS: 'BBAI', name: 'BigBear.ai Holdings', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US08975B1070', aliases: ['BBAI', 'BIGBEAR', 'AI'], currency: 'USD', basePrice: 1.85, beta: 2.45, vol: 0.76, pe: null, sector: 'Artificial Intelligence', country: 'US', isPenny: true },
-    { id: 'NASDAQ:OPEN', symbol: 'OPEN', symbolNS: 'OPEN', name: 'Opendoor Technologies', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US6837121036', aliases: ['OPEN', 'OPENDOOR'], currency: 'USD', basePrice: 2.15, beta: 2.80, vol: 0.82, pe: null, sector: 'Digital Real Estate', country: 'US', isPenny: true },
-    { id: 'NASDAQ:PLUG', symbol: 'PLUG', symbolNS: 'PLUG', name: 'Plug Power Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US72919P2020', aliases: ['PLUG', 'PLUG POWER', 'HYDROGEN'], currency: 'USD', basePrice: 2.17, beta: 2.25, vol: 0.72, pe: null, sector: 'Hydrogen Fuel Cells', country: 'US', isPenny: true },
-    { id: 'NASDAQ:BITF', symbol: 'BITF', symbolNS: 'BITF', name: 'Bitfarms Ltd.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'CA09173B1076', aliases: ['BITF', 'BITFARMS', 'CRYPTO'], currency: 'USD', basePrice: 2.30, beta: 3.10, vol: 0.94, pe: null, sector: 'Crypto Mining & Compute', country: 'US', isPenny: true },
-    { id: 'NASDAQ:CLOV', symbol: 'CLOV', symbolNS: 'CLOV', name: 'Clover Health Investments', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US18914F1030', aliases: ['CLOV', 'CLOVER HEALTH'], currency: 'USD', basePrice: 2.85, beta: 1.85, vol: 0.58, pe: null, sector: 'Healthcare Technology', country: 'US', isPenny: true },
-    { id: 'NASDAQ:LCID', symbol: 'LCID', symbolNS: 'LCID', name: 'Lucid Group Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US5494981039', aliases: ['LCID', 'LUCID', 'LUCID MOTORS'], currency: 'USD', basePrice: 3.40, beta: 2.20, vol: 0.68, pe: null, sector: 'Electric Vehicles', country: 'US', isPenny: true },
-    { id: 'NYSE:NIO', symbol: 'NIO', symbolNS: 'NIO', name: 'NIO Inc. ADR', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US62914V1061', aliases: ['NIO', 'NIO EV'], currency: 'USD', basePrice: 4.20, beta: 2.15, vol: 0.65, pe: null, sector: 'EV & Battery Swapping', country: 'US', isPenny: true },
-    { id: 'NASDAQ:SOUN', symbol: 'SOUN', symbolNS: 'SOUN', name: 'SoundHound AI Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US8361001073', aliases: ['SOUN', 'SOUNDHOUND', 'VOICE AI'], currency: 'USD', basePrice: 6.74, beta: 2.75, vol: 0.85, pe: null, sector: 'Conversational AI', country: 'US', isPenny: true },
+    { id: 'NSE:GTLINFRA', symbol: 'GTLINFRA', symbolNS: 'GTLINFRA.NS', name: 'GTL Infrastructure Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE221H01019', bseCode: '532775', aliases: ['GTLINFRA', 'GTLINFRA.NS', 'GTL INFRA', '532775'], currency: 'INR', basePrice: 1.16, beta: 1.75, vol: 0.58, pe: null, sector: 'Telecom Infrastructure', country: 'IN', isPenny: true, avgVolume20d: 4850000 },
+    { id: 'BSE:VISAGAR', symbol: 'VISAGAR', symbolNS: 'VISAGAR.BO', name: 'Visagar Polytex Ltd', exchange: 'BSE', assetType: 'PENNY_EQUITY', isin: 'INE370E01029', bseCode: '531025', aliases: ['VISAGAR', 'VISAGAR.BO', 'VISAGAR POLYTEX', '531025'], currency: 'INR', basePrice: 1.45, beta: 1.82, vol: 0.62, pe: null, sector: 'Textiles & Apparel', country: 'IN', isPenny: true, avgVolume20d: 950000 },
+    { id: 'NSE:VIKASECO', symbol: 'VIKASECO', symbolNS: 'VIKASECO.NS', name: 'Vikas Ecotech Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE806A01020', bseCode: '536565', aliases: ['VIKASECO', 'VIKASECO.NS', 'VIKAS ECOTECH', '536565'], currency: 'INR', basePrice: 3.85, beta: 1.45, vol: 0.44, pe: 28.5, sector: 'Specialty Chemicals', country: 'IN', isPenny: true, avgVolume20d: 3200000 },
+    { id: 'NSE:IDEA', symbol: 'IDEA', symbolNS: 'IDEA.NS', name: 'Vodafone Idea Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE669E01016', bseCode: '532822', aliases: ['IDEA', 'IDEA.NS', 'VODAFONE IDEA', 'VI', '532822'], currency: 'INR', basePrice: 8.25, beta: 1.95, vol: 0.52, pe: null, sector: 'Telecommunications', country: 'IN', isPenny: true, avgVolume20d: 84500000 },
+    { id: 'NSE:DISHTV', symbol: 'DISHTV', symbolNS: 'DISHTV.NS', name: 'Dish TV India Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE836F01026', bseCode: '532839', aliases: ['DISHTV', 'DISHTV.NS', 'DISH TV', '532839'], currency: 'INR', basePrice: 12.50, beta: 1.38, vol: 0.46, pe: null, sector: 'Media & Entertainment', country: 'IN', isPenny: true, avgVolume20d: 4100000 },
+    { id: 'NSE:RTNPOWER', symbol: 'RTNPOWER', symbolNS: 'RTNPOWER.NS', name: 'RattanIndia Power Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE399K01017', bseCode: '533122', aliases: ['RTNPOWER', 'RTNPOWER.NS', 'RATTANINDIA POWER', '533122'], currency: 'INR', basePrice: 14.80, beta: 1.88, vol: 0.56, pe: 16.4, sector: 'Thermal Power Generation', country: 'IN', isPenny: true, avgVolume20d: 12100000 },
+    { id: 'NSE:JPPOWER', symbol: 'JPPOWER', symbolNS: 'JPPOWER.NS', name: 'Jaiprakash Power Ventures', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE351F01018', bseCode: '532627', aliases: ['JPPOWER', 'JPPOWER.NS', 'JP POWER', 'JAIPRAKASH POWER', '532627'], currency: 'INR', basePrice: 16.29, beta: 1.62, vol: 0.48, pe: 11.2, sector: 'Hydro & Thermal Power', country: 'IN', isPenny: true, avgVolume20d: 14200000 },
+    { id: 'NSE:URJA', symbol: 'URJA', symbolNS: 'URJA.NS', name: 'Urja Global Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE550C01020', bseCode: '526987', aliases: ['URJA', 'URJA.NS', 'URJA GLOBAL', 'SOLAR', '526987'], currency: 'INR', basePrice: 18.20, beta: 1.70, vol: 0.54, pe: null, sector: 'Solar Energy & EV Batteries', country: 'IN', isPenny: true, avgVolume20d: 2800000 },
+    { id: 'NSE:SEPC', symbol: 'SEPC', symbolNS: 'SEPC.NS', name: 'SEPC Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE964H01014', bseCode: '532945', aliases: ['SEPC', 'SEPC.NS', 'SHRIRAM EPC', '532945'], currency: 'INR', basePrice: 19.40, beta: 1.55, vol: 0.50, pe: 34.0, sector: 'Engineering & Infra', country: 'IN', isPenny: true, avgVolume20d: 2100000 },
+    { id: 'NSE:YESBANK', symbol: 'YESBANK', symbolNS: 'YESBANK.NS', name: 'Yes Bank Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE528G01035', bseCode: '532648', aliases: ['YESBANK', 'YESBANK.NS', 'YES BANK', '532648'], currency: 'INR', basePrice: 21.40, beta: 1.45, vol: 0.38, pe: 38.5, sector: 'Banking & Financials', country: 'IN', isPenny: true, avgVolume20d: 45000000 },
+    { id: 'NSE:RPOWER', symbol: 'RPOWER', symbolNS: 'RPOWER.NS', name: 'Reliance Power Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE614G01033', bseCode: '532939', aliases: ['RPOWER', 'RPOWER.NS', 'RELIANCE POWER', 'ANIL AMBANI', '532939'], currency: 'INR', basePrice: 38.50, beta: 1.90, vol: 0.64, pe: null, sector: 'Thermal & Clean Energy', country: 'IN', isPenny: true, avgVolume20d: 18200000 },
+    { id: 'NSE:SUZLON', symbol: 'SUZLON', symbolNS: 'SUZLON.NS', name: 'Suzlon Energy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040H01021', bseCode: '532667', aliases: ['SUZLON', 'SUZLON.NS', 'SUZLON ENERGY', 'WIND', '532667'], currency: 'INR', basePrice: 64.50, beta: 1.65, vol: 0.44, pe: 65.0, sector: 'Wind Energy & Green Tech', country: 'IN', isPenny: true, avgVolume20d: 28400000 },
+    { id: 'NYSE:TELL', symbol: 'TELL', symbolNS: 'TELL', name: 'Tellurian Inc.', exchange: 'NYSE American', assetType: 'PENNY_EQUITY', isin: 'US87968A1043', aliases: ['TELL', 'TELLURIAN', 'LNG'], currency: 'USD', basePrice: 0.98, beta: 2.10, vol: 0.68, pe: null, sector: 'LNG & Natural Gas', country: 'US', isPenny: true, avgVolume20d: 6200000 },
+    { id: 'NYSE:BBAI', symbol: 'BBAI', symbolNS: 'BBAI', name: 'BigBear.ai Holdings', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US08975B1070', aliases: ['BBAI', 'BIGBEAR', 'AI'], currency: 'USD', basePrice: 1.85, beta: 2.45, vol: 0.76, pe: null, sector: 'Artificial Intelligence', country: 'US', isPenny: true, avgVolume20d: 5400000 },
+    { id: 'NASDAQ:OPEN', symbol: 'OPEN', symbolNS: 'OPEN', name: 'Opendoor Technologies', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US6837121036', aliases: ['OPEN', 'OPENDOOR'], currency: 'USD', basePrice: 2.15, beta: 2.80, vol: 0.82, pe: null, sector: 'Digital Real Estate', country: 'US', isPenny: true, avgVolume20d: 9800000 },
+    { id: 'NASDAQ:PLUG', symbol: 'PLUG', symbolNS: 'PLUG', name: 'Plug Power Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US72919P2020', aliases: ['PLUG', 'PLUG POWER', 'HYDROGEN'], currency: 'USD', basePrice: 2.17, beta: 2.25, vol: 0.72, pe: null, sector: 'Hydrogen Fuel Cells', country: 'US', isPenny: true, avgVolume20d: 16500000 },
+    { id: 'NASDAQ:BITF', symbol: 'BITF', symbolNS: 'BITF', name: 'Bitfarms Ltd.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'CA09173B1076', aliases: ['BITF', 'BITFARMS', 'CRYPTO'], currency: 'USD', basePrice: 2.30, beta: 3.10, vol: 0.94, pe: null, sector: 'Crypto Mining & Compute', country: 'US', isPenny: true, avgVolume20d: 7100000 },
+    { id: 'NASDAQ:CLOV', symbol: 'CLOV', symbolNS: 'CLOV', name: 'Clover Health Investments', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US18914F1030', aliases: ['CLOV', 'CLOVER HEALTH'], currency: 'USD', basePrice: 2.85, beta: 1.85, vol: 0.58, pe: null, sector: 'Healthcare Technology', country: 'US', isPenny: true, avgVolume20d: 5900000 },
+    { id: 'NASDAQ:LCID', symbol: 'LCID', symbolNS: 'LCID', name: 'Lucid Group Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US5494981039', aliases: ['LCID', 'LUCID', 'LUCID MOTORS'], currency: 'USD', basePrice: 3.40, beta: 2.20, vol: 0.68, pe: null, sector: 'Electric Vehicles', country: 'US', isPenny: true, avgVolume20d: 14200000 },
+    { id: 'NYSE:NIO', symbol: 'NIO', symbolNS: 'NIO', name: 'NIO Inc. ADR', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US62914V1061', aliases: ['NIO', 'NIO EV'], currency: 'USD', basePrice: 4.20, beta: 2.15, vol: 0.65, pe: null, sector: 'EV & Battery Swapping', country: 'US', isPenny: true, avgVolume20d: 22100000 },
+    { id: 'NASDAQ:SOUN', symbol: 'SOUN', symbolNS: 'SOUN', name: 'SoundHound AI Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US8361001073', aliases: ['SOUN', 'SOUNDHOUND', 'VOICE AI'], currency: 'USD', basePrice: 6.74, beta: 2.75, vol: 0.85, pe: null, sector: 'Conversational AI', country: 'US', isPenny: true, avgVolume20d: 11400000 },
 
     // ── Newly Added Indian Bluechips & NIFTY Heavyweights ──
     { id: 'NSE:NESTLEIND', symbol: 'NESTLEIND', symbolNS: 'NESTLEIND.NS', name: 'Nestle India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE239A01016', bseCode: '500790', aliases: ['NESTLE', 'MAGGI', 'KITKAT'], currency: 'INR', basePrice: 2480.00, beta: 0.52, vol: 0.135, pe: 74.50, eps: 33.25, roe: 108.50, roce: 135.00, marketCap: 2390000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
@@ -445,13 +446,17 @@ const SecurityMaster = (() => {
     if (_microTickTimer) return;
     const activeUniverse = [
       'RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'NVDA', 'AAPL', 'MSFT', 'TSLA',
-      'BRENT', 'GOLD', 'SILVER', 'USDINR', 'SUZLON', 'TATAMOTORS',
-      'IDEA', 'PLUG', 'SOUN', 'JPPOWER', 'GTLINFRA', 'RPOWER', 'YESBANK', 'RTNPOWER',
+      'BRENT', 'GOLD', 'SILVER', 'USDINR', 'TATAMOTORS',
+      // Universal Indian Penny Stocks & Microcaps
+      'GTLINFRA', 'VISAGAR', 'VIKASECO', 'IDEA', 'DISHTV', 'RTNPOWER',
+      'JPPOWER', 'URJA', 'SEPC', 'YESBANK', 'RPOWER', 'SUZLON',
+      // Universal US Penny Stocks & Microcaps
+      'TELL', 'BBAI', 'OPEN', 'PLUG', 'BITF', 'CLOV', 'LCID', 'NIO', 'SOUN',
       '^NSEI', '^BSESN', '^GSPC'
     ];
     
     _microTickTimer = setInterval(() => {
-      const count = 1 + Math.floor(Math.random() * 2);
+      const count = 1 + Math.floor(Math.random() * 3);
       const updates = [];
       
       for (let i = 0; i < count; i++) {
@@ -459,14 +464,25 @@ const SecurityMaster = (() => {
         const oldQuote = _liveQuotes.get(sym);
         if (!oldQuote || !oldQuote.price) continue;
         
-        const driftPct = (Math.random() - 0.485) * 0.0012;
+        const isPenny = oldQuote.isPenny || oldQuote.basePrice < 25;
+        const driftMag = isPenny ? 0.005 : 0.0012;
+        const driftPct = (Math.random() - 0.485) * driftMag;
         const oldP = oldQuote.price;
-        const newP = Number(Math.max(0.01, oldP * (1 + driftPct)).toFixed(sym === 'USDINR' ? 4 : 2));
+        let newP = Number(Math.max(0.01, oldP * (1 + driftPct)).toFixed(sym === 'USDINR' ? 4 : 2));
+        
+        // Ensure discrete penny stock tick when rounded to 2 decimals
+        if (isPenny && newP === oldP) {
+          const step = oldP < 5 ? 0.01 : 0.05;
+          const dir = Math.random() > 0.48 ? 1 : -1;
+          newP = Number(Math.max(0.01, oldP + dir * step).toFixed(2));
+        }
+        
         const delta = Number((newP - oldP).toFixed(2));
         if (delta === 0) continue;
         
         const chg = Number((newP - oldQuote.previousClose).toFixed(2));
         const chgPct = oldQuote.previousClose > 0 ? Number(((chg / oldQuote.previousClose) * 100).toFixed(2)) : 0;
+        const volStep = isPenny ? Math.floor(5000 + Math.random() * 45000) : Math.floor(100 + Math.random() * 5000);
         
         const updated = {
           ...oldQuote,
@@ -477,7 +493,7 @@ const SecurityMaster = (() => {
           change_percent: chgPct,
           high: Math.max(oldQuote.high || newP, newP),
           low: Math.min(oldQuote.low || newP, newP),
-          volume: (oldQuote.volume || 1000000) + Math.floor(100 + Math.random() * 5000),
+          volume: (oldQuote.volume || 1000000) + volStep,
           lastUpdated: Date.now()
         };
         
@@ -501,7 +517,7 @@ const SecurityMaster = (() => {
           try { cb(updates); } catch (e) {}
         });
       }
-    }, 850);
+    }, 450);
   };
 
   _startTickPipeline();
@@ -1103,7 +1119,7 @@ const SecurityMaster = (() => {
       _tapeSubscribers.add(cb);
       return () => _tapeSubscribers.delete(cb);
     },
-    getPennyStocks: (market = 'all', maxPrice = 20.0) => {
+    getPennyStocks: (market = 'all', maxPrice = 70.0) => {
       const m = market.toLowerCase();
       return LOCAL_REGISTRY.filter(item => {
         if (!item.isPenny) return false;
@@ -1113,7 +1129,7 @@ const SecurityMaster = (() => {
         if (m === 'bse' && item.exchange !== 'BSE') return false;
         if (m === 'us' && !isUS) return false;
         if (isIN && item.basePrice > maxPrice) return false;
-        if (isUS && item.basePrice > (maxPrice <= 10 ? maxPrice : 5.0)) return false;
+        if (isUS && item.basePrice > (maxPrice <= 10 ? maxPrice : 10.0)) return false;
         return true;
       });
     },

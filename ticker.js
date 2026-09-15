@@ -15,6 +15,7 @@
     exchange: 'ALL',
     assetType: 'ALL',
     quickFilter: 'ALL',
+    pennyFilter: 'ALL',
     sortColumn: 'marketCap',
     sortDir: 'desc',
     currentPage: 1,
@@ -102,6 +103,143 @@
     });
   };
 
+  // ── 2.5 Render Universal Penny Stock & Microcap Radar Matrix ───────────────
+  const renderPennyStockMatrix = (pfilter = 'ALL') => {
+    state.pennyFilter = pfilter;
+    const grid = document.getElementById('pennyCardsGrid');
+    if (!grid) return;
+
+    // Fetch all 21 penny stocks from central security master
+    const pennyList = SecurityMaster.getPennyStocks('all', 70.0);
+    const watch = typeof MarketStore !== 'undefined' ? MarketStore.getWatchlist() : [];
+
+    let filtered = pennyList;
+    if (pfilter === 'NSE') {
+      filtered = pennyList.filter(s => s.exchange === 'NSE');
+    } else if (pfilter === 'BSE') {
+      filtered = pennyList.filter(s => s.exchange === 'BSE');
+    } else if (pfilter === 'US') {
+      filtered = pennyList.filter(s => ['US', 'NASDAQ', 'NYSE', 'NYSE American'].includes(s.exchange));
+    } else if (pfilter === 'SURGE') {
+      filtered = pennyList.filter(s => {
+        const q = SecurityMaster._liveQuotes.get(s.symbol) || s;
+        const b = s.avgVolume20d || 1000000;
+        return ((q.volume || 1000000) / b) >= 2.0;
+      });
+    } else if (pfilter === 'SUB5') {
+      filtered = pennyList.filter(s => {
+        return (s.currency === 'INR' && s.basePrice < 5.0) || (s.currency === 'USD' && s.basePrice < 2.0);
+      });
+    }
+
+    // Update Top KPI count badge
+    const totalCountEl = document.getElementById('pkpiTotalCount');
+    if (totalCountEl) totalCountEl.textContent = pennyList.length;
+
+    grid.innerHTML = filtered.map(sec => {
+      const q = SecurityMaster._liveQuotes.get(sec.symbol) || {
+        price: sec.basePrice,
+        previousClose: sec.basePrice,
+        volume: sec.avgVolume20d || 2000000
+      };
+      const cleanSym = sec.symbol.replace(/[\^=]/g, '');
+      const prev = q.previousClose || sec.basePrice;
+      const chg = Number((q.price - prev).toFixed(2));
+      const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
+      const isUp = chg >= 0;
+      const isWatch = watch.includes(sec.symbol);
+      const isUS = ['US', 'NASDAQ', 'NYSE', 'NYSE American'].includes(sec.exchange);
+      const baseVol = sec.avgVolume20d || 1000000;
+      const volRatio = Number(((q.volume || baseVol) / baseVol).toFixed(2));
+      const stdVol = baseVol * 0.45;
+      const zScore = Number((((q.volume || baseVol) - baseVol) / stdVol).toFixed(2));
+
+      return `
+        <div class="penny-stock-card" data-symbol="${sec.symbol}" id="pcard_${cleanSym}">
+          <div class="pcard-top">
+            <div class="pcard-sym-group">
+              <div class="pcard-sym-row">
+                <span class="pcard-sym">${sec.symbol}</span>
+                <span class="pcard-ex-pill">${sec.exchange}</span>
+                ${isUS ? '<span class="badge-us-micro">US MICRO</span>' : '<span class="badge-penny-chip">&lt; ₹20</span>'}
+              </div>
+              <span class="pcard-name" title="${sec.name}">${sec.name}</span>
+            </div>
+            <div class="pcard-price-group">
+              <span class="pcard-price">${formatMoney(q.price, sec.currency)}</span>
+              <span class="pcard-chg ${isUp ? 'text-emerald' : 'text-red'}">
+                ${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%
+              </span>
+            </div>
+          </div>
+
+          <div class="pcard-stats-row">
+            <div class="pstat-item">
+              <span class="pstat-title">20D Baseline</span>
+              <span class="pstat-val">${formatVolume(baseVol)}</span>
+            </div>
+            <div class="pstat-item">
+              <span class="pstat-title">Vol Multiple</span>
+              <span class="pstat-val ${volRatio >= 2.0 ? 'text-cyan' : ''}">${volRatio.toFixed(2)}x</span>
+            </div>
+            <div class="pstat-item">
+              <span class="pstat-title">Statistical Z</span>
+              <span class="pstat-val ${zScore >= 2.0 ? 'text-amber' : ''}">${zScore >= 0 ? '+' : ''}${zScore.toFixed(2)}σ</span>
+            </div>
+            <div class="pstat-item">
+              <span class="pstat-title">Annual Vol σ</span>
+              <span class="pstat-val">${((sec.vol || 0.5) * 100).toFixed(0)}%</span>
+            </div>
+          </div>
+
+          <div class="pcard-footer">
+            <div class="pcard-badges-row">
+              <span class="badge-surge-pill"><i class="fa-solid fa-bolt"></i> ${volRatio.toFixed(1)}x</span>
+              <span class="badge-zscore-pill">${zScore >= 0 ? '+' : ''}${zScore.toFixed(1)}σ</span>
+            </div>
+            <div class="pcard-actions">
+              <button class="pcard-btn btn-pcard-inspect" data-symbol="${sec.symbol}" title="Inspect in Drawer">
+                <i class="fa-solid fa-expand"></i>
+              </button>
+              <button class="pcard-btn btn-pcard-star ${isWatch ? 'active' : ''}" data-symbol="${sec.symbol}" title="Add to Watchlist">
+                <i class="${isWatch ? 'fa-solid text-amber' : 'fa-regular'} fa-star"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Wire clicks
+    grid.querySelectorAll('.penny-stock-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-pcard-star') || e.target.closest('.btn-pcard-inspect')) return;
+        const sym = card.dataset.symbol;
+        const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === sym);
+        if (sec) openSecurityDrawer(sec);
+      });
+    });
+
+    grid.querySelectorAll('.btn-pcard-inspect').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sym = btn.dataset.symbol;
+        const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === sym);
+        if (sec) openSecurityDrawer(sec);
+      });
+    });
+
+    grid.querySelectorAll('.btn-pcard-star').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sym = btn.dataset.symbol;
+        MarketStore.toggleWatchlist(sym);
+        renderPennyStockMatrix(state.pennyFilter);
+        renderTable();
+      });
+    });
+  };
+
   // ── 3. Filter & Sort Securities ───────────────────────────────────────────
   const computeFilteredSecurities = () => {
     let list = [...SecurityMaster.LOCAL_REGISTRY];
@@ -109,13 +247,18 @@
 
     // 1. Text / Fuzzy search
     if (q) {
+      const isPennyQuery = ['penny', 'pennies', 'microcap', 'microcaps', 'under 20', 'sub 5', 'bse penny', 'cheap'].some(k => q.includes(k));
       list = list.filter(item => {
+        if (isPennyQuery && (item.isPenny || item.assetType === 'PENNY_EQUITY' || (item.currency === 'INR' && item.basePrice <= 20) || (item.currency === 'USD' && item.basePrice <= 5.0))) {
+          return true;
+        }
         const s = item.symbol.toLowerCase();
+        const sNS = (item.symbolNS || '').toLowerCase();
         const n = item.name.toLowerCase();
         const isin = (item.isin || '').toLowerCase();
         const bse = (item.bseCode || '').toLowerCase();
         const aliases = (item.aliases || []).map(a => a.toLowerCase());
-        return s.includes(q) || n.includes(q) || isin.includes(q) || bse.includes(q) || aliases.some(a => a.includes(q));
+        return s.includes(q) || sNS.includes(q) || n.includes(q) || isin.includes(q) || bse.includes(q) || aliases.some(a => a.includes(q));
       });
     }
 
@@ -123,9 +266,9 @@
     if (state.marketScope === 'INDIA') {
       list = list.filter(item => item.country === 'IN' || ['NSE', 'BSE'].includes(item.exchange));
     } else if (state.marketScope === 'US') {
-      list = list.filter(item => item.country === 'US' || ['NASDAQ', 'NYSE', 'US'].includes(item.exchange));
+      list = list.filter(item => item.country === 'US' || ['NASDAQ', 'NYSE', 'NYSE American', 'US'].includes(item.exchange));
     } else if (state.marketScope === 'GLOBAL') {
-      list = list.filter(item => item.country === 'GLOBAL' || ['GLOBAL', 'FX'].includes(item.exchange));
+      list = list.filter(item => item.country === 'GLOBAL' || ['GLOBAL', 'FX', 'COMEX', 'NYMEX', 'ICE', 'LME', 'CBOT'].includes(item.exchange));
     }
 
     // 3. Exchange Filter
@@ -134,7 +277,9 @@
     }
 
     // 4. Asset Class Filter
-    if (state.assetType !== 'ALL') {
+    if (state.assetType === 'PENNY') {
+      list = list.filter(item => item.isPenny || item.assetType === 'PENNY_EQUITY' || (item.currency === 'INR' && item.basePrice <= 20) || (item.currency === 'USD' && item.basePrice <= 5.0));
+    } else if (state.assetType !== 'ALL') {
       list = list.filter(item => item.assetType === state.assetType);
     }
 
@@ -146,6 +291,14 @@
       list = list.filter(item => favs.includes(item.symbol));
     } else if (state.quickFilter === 'WATCHLIST') {
       list = list.filter(item => watch.includes(item.symbol));
+    } else if (state.quickFilter === 'PENNY') {
+      list = list.filter(item => item.isPenny || item.assetType === 'PENNY_EQUITY' || (item.currency === 'INR' && item.basePrice <= 20) || (item.currency === 'USD' && item.basePrice <= 5.0));
+    } else if (state.quickFilter === 'SURGE') {
+      list = list.filter(item => {
+        const q = SecurityMaster._liveQuotes.get(item.symbol);
+        const baseVol = (item.avgVolume20d || (q && q.avgVolume20d) || 1000000);
+        return q && (q.volume >= baseVol * 2.0);
+      });
     } else if (state.quickFilter === 'GAINERS') {
       list = list.filter(item => {
         const q = SecurityMaster._liveQuotes.get(item.symbol);
@@ -266,6 +419,12 @@
       const isWatch = watch.includes(sec.symbol);
       const marketStatus = MarketStore.getMarketStatus(sec.exchange);
 
+      const isUS = ['US', 'NASDAQ', 'NYSE', 'NYSE American'].includes(sec.exchange);
+      const isPennyStock = sec.isPenny || sec.assetType === 'PENNY_EQUITY' || (sec.currency === 'INR' && sec.basePrice <= 20) || (sec.currency === 'USD' && sec.basePrice <= 5.0);
+      const baseVol = sec.avgVolume20d || (q && q.avgVolume20d) || 1000000;
+      const volRatio = q.volume > 0 && baseVol > 0 ? (q.volume / baseVol) : 1.0;
+      const isSurge = volRatio >= 2.0;
+
       return `
         <tr data-symbol="${sec.symbol}" id="row_${sec.symbol.replace(/[\^=]/g, '')}">
           <td class="th-pin">
@@ -275,7 +434,10 @@
           </td>
           <td>
             <div class="sec-name-cell">
-              <button class="sec-title-btn" data-symbol="${sec.symbol}">${sec.name}</button>
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <button class="sec-title-btn" data-symbol="${sec.symbol}">${sec.name}</button>
+                ${isPennyStock ? (isUS ? '<span class="badge-us-micro">US MICRO</span>' : '<span class="badge-penny-chip">PENNY</span>') : ''}
+              </div>
               <span class="sec-isin-text">${sec.isin || sec.sector}</span>
             </div>
           </td>
@@ -292,7 +454,11 @@
             ${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%
           </td>
           <td class="text-right cell-vol" style="font-family:var(--font-mono);">
-            ${formatVolume(q.volume)}
+            <div>${formatVolume(q.volume)}</div>
+            <div style="font-size:0.65rem;color:var(--text-muted);display:flex;align-items:center;justify-content:flex-end;gap:4px;">
+              <span>20D: ${formatVolume(baseVol)}</span>
+              ${isSurge ? `<span class="badge-surge-pill" style="font-size:0.58rem;padding:0 3px;">${volRatio.toFixed(1)}x</span>` : ''}
+            </div>
           </td>
           <td class="text-center">
             <span class="sec-type-badge ${marketStatus.color === 'emerald' ? 'text-emerald' : 'text-red'}">
@@ -390,6 +556,58 @@
     if (betaEl) betaEl.textContent = sec.beta ? sec.beta.toFixed(2) : '—';
     if (volEl) volEl.textContent = sec.vol ? `${(sec.vol * 100).toFixed(1)}%` : '—';
     if (high52El) high52El.textContent = formatMoney(q.high52w, sec.currency);
+
+    // Check if penny stock and inject penny telemetry card
+    const isPennyStock = sec.isPenny || sec.assetType === 'PENNY_EQUITY' || (sec.currency === 'INR' && sec.basePrice <= 20) || (sec.currency === 'USD' && sec.basePrice <= 5.0);
+    let pennyBox = document.getElementById('drawerPennyTelemetryBox');
+    if (isPennyStock) {
+      const baseVol = sec.avgVolume20d || 1000000;
+      const volRatio = Number(((q.volume || baseVol) / baseVol).toFixed(2));
+      const stdVol = baseVol * 0.45;
+      const zScore = Number((((q.volume || baseVol) - baseVol) / stdVol).toFixed(2));
+      const circuitBand = sec.currency === 'USD' ? '±10% (US Microcap)' : (sec.basePrice < 5 ? '±5% (NSE/BSE)' : '±10% / ±20%');
+
+      if (!pennyBox) {
+        pennyBox = document.createElement('div');
+        pennyBox.id = 'drawerPennyTelemetryBox';
+        pennyBox.className = 'drawer-penny-box';
+        const metricsGrid = document.querySelector('.drawer-metrics-grid');
+        if (metricsGrid && metricsGrid.parentNode) {
+          metricsGrid.parentNode.insertBefore(pennyBox, metricsGrid.nextSibling);
+        }
+      }
+
+      pennyBox.innerHTML = `
+        <div style="margin:14px 0;background:radial-gradient(100% 100% at 50% 0%, rgba(245,158,11,0.1) 0%, rgba(14,14,20,0.9) 100%);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <span style="font-size:0.75rem;font-weight:800;color:#f59e0b;text-transform:uppercase;letter-spacing:0.04em;display:flex;align-items:center;gap:6px;">
+              <i class="fa-solid fa-coins text-amber"></i> High-Beta Penny &amp; Microcap Telemetry
+            </span>
+            <span style="font-size:0.65rem;background:rgba(245,158,11,0.2);color:#fbbf24;padding:2px 8px;border-radius:4px;font-weight:700;border:1px solid rgba(245,158,11,0.35);">
+              BAND: ${circuitBand}
+            </span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.72rem;color:#a1a1aa;">
+            <div>20D Baseline: <strong style="color:#fff;">${formatVolume(baseVol)}</strong></div>
+            <div>Volume Surge: <strong style="color:#22d3ee;">${volRatio}x Multiple</strong></div>
+            <div>Statistical Z: <strong style="color:#f59e0b;">${zScore >= 0 ? '+' : ''}${zScore}σ</strong></div>
+            <div>Brownian Delta: <strong style="color:#51cf66;">Sub-Second Stochastic</strong></div>
+          </div>
+          <div id="drawerKatexFormula" style="padding:6px 10px;background:rgba(0,0,0,0.45);border-radius:6px;font-size:0.75rem;color:#e4e4e7;text-align:center;"></div>
+        </div>
+      `;
+
+      const kEl = document.getElementById('drawerKatexFormula');
+      if (kEl && typeof katex !== 'undefined') {
+        try {
+          katex.render(`\\text{Surge Ratio} = \\frac{${((q.volume || baseVol)/1e6).toFixed(2)}\\text{M}}{${(baseVol/1e6).toFixed(2)}\\text{M}} = ${volRatio}\\times \\quad (Z = ${zScore >= 0 ? '+' : ''}${zScore}\\sigma)`, kEl, { throwOnError: false });
+        } catch (e) {
+          kEl.textContent = `Surge Ratio: ${volRatio}x | Z-Score: ${zScore}σ`;
+        }
+      }
+    } else if (pennyBox) {
+      pennyBox.remove();
+    }
 
     // Cross-Platform Links
     const linkDash = document.getElementById('drawerGoDashboard');
@@ -669,9 +887,53 @@
   // ── 8. Initializer ────────────────────────────────────────────────────────
   const init = () => {
     renderMarketRibbon();
+    renderPennyStockMatrix('ALL');
     renderTable();
     setupRealtimeQuoteSubscription();
     setupCommandPalette();
+
+    // 0. Wire Universal Penny Stock Radar Desk Controls
+    document.querySelectorAll('#pennyMatrixFilter .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#pennyMatrixFilter .seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPennyStockMatrix(btn.dataset.pfilter);
+      });
+    });
+
+    const btnFilterTablePenny = document.getElementById('btnFilterTablePenny');
+    if (btnFilterTablePenny) {
+      btnFilterTablePenny.addEventListener('click', () => {
+        state.assetType = 'PENNY';
+        document.querySelectorAll('#assetTypeControl .seg-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.asset === 'PENNY');
+        });
+        state.currentPage = 1;
+        renderTable();
+        const tbl = document.getElementById('tickerMasterTable');
+        if (tbl) tbl.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
+
+    const btnTogglePenny = document.getElementById('btnTogglePennyView');
+    if (btnTogglePenny) {
+      btnTogglePenny.addEventListener('click', () => {
+        const grid = document.getElementById('pennyCardsGrid');
+        if (grid) {
+          const isHidden = window.getComputedStyle(grid).display === 'none';
+          grid.style.display = isHidden ? 'grid' : 'none';
+          btnTogglePenny.innerHTML = isHidden ? '<i class="fa-solid fa-table-cells-large text-cyan"></i> Matrix View' : '<i class="fa-solid fa-eye-slash text-muted"></i> Hide Matrix';
+        }
+      });
+    }
+
+    // Render KaTeX for Penny Formula Badge
+    const badgeFormula = document.getElementById('pennyFormulaBadge');
+    if (badgeFormula && typeof katex !== 'undefined') {
+      try {
+        katex.render("Z = \\frac{V_t - \\bar{V}_{20}}{\\sigma_{20}}", badgeFormula, { throwOnError: false });
+      } catch (e) {}
+    }
 
     // 1. Universal Search Input
     const searchInput = document.getElementById('tickerSearchInput');
@@ -927,27 +1189,65 @@
 
         // 2. Update matching rows in table with flash animation
         updates.forEach(u => {
-          const rowId = `row_${u.symbol.replace(/[\^=]/g, '')}`;
+          const cleanSym = u.symbol.replace(/[\^=]/g, '');
+          const rowId = `row_${cleanSym}`;
           const row = document.getElementById(rowId);
           if (row) {
-            const priceEl = row.querySelector('.sec-price-val');
-            const chgEl = row.querySelector('.sec-chg-pill');
+            const priceCell = row.querySelector('.cell-price');
+            const chgCell = row.querySelector('.cell-chg');
+            const chgPctCell = row.querySelector('.cell-chgpct');
+            const volCell = row.querySelector('.cell-vol');
+
+            if (priceCell) {
+              priceCell.textContent = formatMoney(u.price, u.currency);
+              priceCell.classList.remove('price-flash-up', 'price-flash-down');
+              void priceCell.offsetWidth;
+              priceCell.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+            }
+            if (chgCell) {
+              chgCell.textContent = `${u.change >= 0 ? '+' : ''}${formatMoney(u.change, u.currency)}`;
+              chgCell.className = `text-right cell-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+            }
+            if (chgPctCell) {
+              chgPctCell.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+              chgPctCell.className = `text-right cell-chgpct ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
+            }
+            if (volCell) {
+              const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === u.symbol);
+              const baseVol = sec && sec.avgVolume20d ? sec.avgVolume20d : 1000000;
+              const ratio = u.volume / baseVol;
+              volCell.innerHTML = `
+                <div>${formatVolume(u.volume)}</div>
+                <div style="font-size:0.65rem;color:var(--text-muted);display:flex;align-items:center;justify-content:flex-end;gap:4px;">
+                  <span>20D: ${formatVolume(baseVol)}</span>
+                  ${ratio >= 2.0 ? `<span class="badge-surge-pill" style="font-size:0.58rem;padding:0 3px;">${ratio.toFixed(1)}x</span>` : ''}
+                </div>
+              `;
+            }
+          }
+
+          // 3. Update Penny Stock Card in Matrix Grid
+          const pcard = document.getElementById(`pcard_${cleanSym}`);
+          if (pcard) {
+            const priceEl = pcard.querySelector('.pcard-price');
+            const chgEl = pcard.querySelector('.pcard-chg');
             if (priceEl) {
               priceEl.textContent = formatMoney(u.price, u.currency);
-              priceEl.classList.remove('price-flash-up', 'price-flash-down');
-              void priceEl.offsetWidth;
-              priceEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
             }
             if (chgEl) {
-              chgEl.textContent = `${u.change >= 0 ? '+' : ''}${u.changePercent.toFixed(2)}%`;
-              chgEl.className = `sec-chg-pill ${u.change >= 0 ? 'pos' : 'neg'}`;
+              chgEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;
+              chgEl.className = `pcard-chg ${u.change >= 0 ? 'text-emerald' : 'text-red'}`;
             }
+            pcard.classList.remove('card-flash-green', 'card-flash-red');
+            void pcard.offsetWidth;
+            pcard.classList.add(u.delta >= 0 ? 'card-flash-green' : 'card-flash-red');
           }
         });
 
-        // 3. Update drawer if open
+        // 4. Update drawer if open
         if (state.activeDrawerSec) {
           const matching = updates.find(u => u.symbol === state.activeDrawerSec.symbol);
+          if (matching) {
             const dPrice = document.getElementById('drawerPrice') || document.getElementById('drawerLivePrice');
             const dChg = document.getElementById('drawerChange') || document.getElementById('drawerLiveChg');
             if (dPrice) dPrice.textContent = formatMoney(matching.price, matching.currency);
@@ -956,6 +1256,7 @@
               dChg.textContent = `${sign}${formatMoney(matching.change, matching.currency)} (${sign}${matching.changePercent.toFixed(2)}%)`;
               dChg.className = `quote-change ${matching.change >= 0 ? 'text-emerald' : 'text-red'}`;
             }
+          }
         }
       });
     }
