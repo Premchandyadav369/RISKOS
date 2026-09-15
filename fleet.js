@@ -2588,6 +2588,303 @@
     document.getElementById('botModalOverlay')?.addEventListener('click', (e) => {
       if (e.target.id === 'botModalOverlay') closeBotModal();
     });
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 12. QUANTUM BREAKTHROUGH FEATURES INITIALIZATION & WIRING
+    // ══════════════════════════════════════════════════════════════════════════
+    const initQuantumFeatures = () => {
+      // 1. Cross-Hedging Synapse
+      const synapseModal = document.getElementById('synapseModalOverlay');
+      const openSynapse = () => {
+        if (synapseModal) {
+          synapseModal.hidden = false;
+          if (window.CrossHedgingSynapse) {
+            window.CrossHedgingSynapse.initSynapseCanvas(document.getElementById('synapseCanvas'), botRegistry);
+            const tourney = window.CrossHedgingSynapse.updateTournamentMetrics(
+              botRegistry.filter(b => b.market === 'india'),
+              botRegistry.filter(b => b.market === 'us')
+            );
+            const lBadge = document.getElementById('synapseLeaderBadge');
+            if (lBadge) lBadge.textContent = `${tourney.currentRegimeLeader} LEADING REGIME`;
+          }
+        }
+      };
+      document.getElementById('btnOpenSynapse')?.addEventListener('click', openSynapse);
+      document.getElementById('btnCloseSynapseModal')?.addEventListener('click', () => {
+        if (synapseModal) {
+          synapseModal.hidden = true;
+          window.CrossHedgingSynapse?.stopCanvas();
+        }
+      });
+      document.getElementById('btnTriggerManualCrossHedge')?.addEventListener('click', () => {
+        if (window.CrossHedgingSynapse) {
+          const greek = botRegistry.find(b => b.id === 'BOT-IN-01') || botRegistry[0];
+          const norse = botRegistry.find(b => b.id === 'BOT-US-01') || botRegistry[10];
+          const hedge = window.CrossHedgingSynapse.executeCrossHedge(greek, norse, 'OPERATOR_MANUAL_SYNAPSE_TEST', 500000);
+          if (window.QuantWhisperer?.isVoiceEnabled) {
+            window.QuantWhisperer.speakAlert(`Cross-hedge pulse routed between ${greek.mythName || greek.name} and ${norse.mythName || norse.name}.`);
+          }
+        }
+      });
+
+      // 2. Voice HUD & Soundscape
+      const btnVoice = document.getElementById('btnToggleVoiceHud');
+      const voiceIcon = document.getElementById('voiceHudIcon');
+      const voiceLabel = document.getElementById('voiceHudLabel');
+      btnVoice?.addEventListener('click', () => {
+        if (window.QuantWhisperer) {
+          const nowOn = window.QuantWhisperer.setVoiceEnabled(!window.QuantWhisperer.isVoiceEnabled);
+          window.QuantWhisperer.toggleSoundscape();
+          if (voiceLabel) voiceLabel.textContent = nowOn ? 'Voice Copilot: ACTIVE' : 'Voice Copilot: OFF';
+          if (voiceIcon) {
+            voiceIcon.style.color = nowOn ? '#10b981' : '#38bdf8';
+            if (nowOn) voiceIcon.classList.add('fa-beat');
+            else voiceIcon.classList.remove('fa-beat');
+          }
+        }
+      });
+
+      // 3. AI Risk Copilot
+      const copilotModal = document.getElementById('copilotModalOverlay');
+      const copilotInput = document.getElementById('copilotInput');
+      const copilotFeed = document.getElementById('copilotFeed');
+      const openCopilot = () => {
+        if (copilotModal) copilotModal.hidden = false;
+        copilotInput?.focus();
+      };
+      document.getElementById('btnOpenCopilot')?.addEventListener('click', openCopilot);
+      document.getElementById('btnCloseCopilotModal')?.addEventListener('click', () => {
+        if (copilotModal) copilotModal.hidden = true;
+      });
+
+      const handleCopilotQuery = () => {
+        const text = copilotInput?.value.trim();
+        if (!text) return;
+        copilotInput.value = '';
+
+        const uDiv = document.createElement('div');
+        uDiv.className = 'copilot-bubble user';
+        uDiv.textContent = text;
+        copilotFeed?.appendChild(uDiv);
+
+        if (window.QuantWhisperer) {
+          const res = window.QuantWhisperer.ask(text, { bots: botRegistry });
+          const aDiv = document.createElement('div');
+          aDiv.className = 'copilot-bubble assistant';
+          aDiv.innerHTML = `<strong>${res.title}:</strong> ${res.summary}`;
+          copilotFeed?.appendChild(aDiv);
+          copilotFeed.scrollTop = copilotFeed.scrollHeight;
+
+          if (window.QuantWhisperer.isVoiceEnabled && res.spokenText) {
+            window.QuantWhisperer.speakAlert(res.spokenText);
+          }
+        }
+      };
+
+      document.getElementById('btnSendCopilotQuery')?.addEventListener('click', handleCopilotQuery);
+      copilotInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleCopilotQuery();
+      });
+
+      // 4. Time-Travel Crisis Replay
+      const crisisModal = document.getElementById('crisisModalOverlay');
+      const renderCrisisOutcome = (scenarioId) => {
+        if (!window.CrisisReplayEngine) return;
+        const res = window.CrisisReplayEngine.simulateCrisis(scenarioId, botRegistry);
+        const card = document.getElementById('crisisResultsCard');
+        if (card) {
+          card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div>
+                <h3 style="margin:0; font-size:1.05rem; color:#f43f5e; font-family:'Cinzel';">${res.scenarioName} (${res.date})</h3>
+                <div style="font-size:0.75rem; color:#a1a1aa;">Historical Benchmark Crash: <strong style="color:#f43f5e;">${res.marketDropPct}%</strong> &bull; Fleet Impact: <strong style="color:${res.fleetImpactPct >= 0 ? '#10b981' : '#f43f5e'};">${res.fleetImpactPct}%</strong></div>
+              </div>
+              <div style="text-align:right;">
+                <span class="badge" style="background:rgba(16,185,129,0.2); color:#10b981; font-size:0.85rem; font-weight:800;">
+                  ${res.survivabilityScore}% SURVIVABILITY
+                </span>
+                <div style="font-size:0.68rem; color:#71717a; margin-top:2px;">Capital Preserved: ₹${res.capitalPreservedINR.toLocaleString('en-IN')}</div>
+              </div>
+            </div>
+            <div style="font-size:0.75rem; color:#ffb000; font-family:'JetBrains Mono'; margin-bottom:8px;">
+              ⚡ Crisis Alpha Winners: <strong>${res.crisisAlphaBots.join(', ') || 'Semis & Curve Steepeners'}</strong>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px;">
+              ${res.botOutcomes.slice(0, 8).map(b => `
+                <div style="background:#09090b; border:1px solid #27272a; padding:8px; border-radius:4px; font-size:0.7rem; font-family:'JetBrains Mono';">
+                  <strong style="color:#fff;">${b.name}</strong> (${b.pantheon})<br>
+                  <span style="color:${b.pnlImpactPct >= 0 ? '#10b981' : '#f43f5e'}; font-weight:700;">${b.pnlImpactPct >= 0 ? '+' : ''}${b.pnlImpactPct}%</span>
+                  <div style="font-size:0.6rem; color:#71717a; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">${b.mitigationAction}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        }
+      };
+
+      const openCrisis = () => {
+        if (crisisModal) {
+          crisisModal.hidden = false;
+          renderCrisisOutcome('2008_LEHMAN_BROTHERS');
+        }
+      };
+      document.getElementById('btnOpenCrisis')?.addEventListener('click', openCrisis);
+      document.getElementById('btnCloseCrisisModal')?.addEventListener('click', () => {
+        if (crisisModal) crisisModal.hidden = true;
+      });
+      document.querySelectorAll('.crisis-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.crisis-pill').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderCrisisOutcome(btn.dataset.crisis);
+        });
+      });
+
+      // 5. 3D Vol Surface & L2 Waterfall
+      const vol3dModal = document.getElementById('vol3dModalOverlay');
+      const openVol3d = () => {
+        if (vol3dModal) {
+          vol3dModal.hidden = false;
+          window.VolatilitySurface3D?.init(document.getElementById('vol3dCanvas'));
+        }
+      };
+      document.getElementById('btnOpenVol3D')?.addEventListener('click', openVol3d);
+      document.getElementById('btnCloseVol3dModal')?.addEventListener('click', () => {
+        if (vol3dModal) vol3dModal.hidden = true;
+      });
+      document.getElementById('btnVol3dSurfaceMode')?.addEventListener('click', () => {
+        window.VolatilitySurface3D?.setMode('SURFACE');
+        document.getElementById('btnVol3dSurfaceMode')?.classList.add('active');
+        document.getElementById('btnVol3dOrderBookMode')?.classList.remove('active');
+      });
+      document.getElementById('btnVol3dOrderBookMode')?.addEventListener('click', () => {
+        window.VolatilitySurface3D?.setMode('ORDERBOOK');
+        document.getElementById('btnVol3dOrderBookMode')?.classList.add('active');
+        document.getElementById('btnVol3dSurfaceMode')?.classList.remove('active');
+      });
+
+      // 6. Dark Pool Hunter
+      const darkPoolModal = document.getElementById('darkPoolModalOverlay');
+      const renderDarkPoolTable = () => {
+        if (!window.DarkPoolHunter) return;
+        const tbody = document.getElementById('darkPoolTableBody');
+        if (tbody) {
+          tbody.innerHTML = window.DarkPoolHunter.darkPoolPrints.slice(0, 10).map(p => `
+            <tr style="border-bottom:1px solid #27272a;">
+              <td style="padding:6px 10px; color:#71717a;">${p.timestamp.split('T')[1].substring(0, 8)}</td>
+              <td style="padding:6px 10px;"><strong style="color:#fff;">${p.symbol}</strong></td>
+              <td style="padding:6px 10px; color:${p.side === 'BUY' ? '#10b981' : '#f43f5e'}; font-weight:700;">${p.side}</td>
+              <td style="padding:6px 10px;">$${p.price.toLocaleString()}</td>
+              <td style="padding:6px 10px; color:#c084fc; font-weight:800;">$${p.notionalUSD.toLocaleString()}</td>
+              <td style="padding:6px 10px; color:#38bdf8;">${p.venue}</td>
+              <td style="padding:6px 10px; color:#ffb000;">${(p.stealthScore * 100).toFixed(0)}% Stealth</td>
+            </tr>
+          `).join('');
+        }
+      };
+
+      const openDarkPool = () => {
+        if (darkPoolModal) {
+          darkPoolModal.hidden = false;
+          window.DarkPoolHunter?.startScanning();
+          renderDarkPoolTable();
+        }
+      };
+      document.getElementById('btnOpenDarkPool')?.addEventListener('click', openDarkPool);
+      document.getElementById('btnCloseDarkPoolModal')?.addEventListener('click', () => {
+        if (darkPoolModal) darkPoolModal.hidden = true;
+      });
+
+      // 7. SEC Rule 15c3-5 DEFCON Matrix
+      const defconModal = document.getElementById('defconModalOverlay');
+      const renderDefconOptions = () => {
+        if (!window.DefconRiskMatrix) return;
+        const group = document.getElementById('defconOptionsGroup');
+        const curr = window.DefconRiskMatrix.getCurrentPosture();
+        if (group) {
+          group.innerHTML = [5, 4, 3, 2, 1].map(lvl => {
+            const p = {
+              5: { level: 5, color: '#10b981', label: 'DEFCON 5: NORMAL', desc: 'Standard autonomous execution across all 20 Pantheon algorithms.' },
+              4: { level: 4, color: '#38bdf8', label: 'DEFCON 4: ELEVATED', desc: 'Notional size collars reduced by 25%. Enhanced slippage monitoring.' },
+              3: { level: 3, color: '#ffb000', label: 'DEFCON 3: RESTRICTED', desc: '50% position limits enforced. Leverage capped at 2.0x. Speculative entries blocked.' },
+              2: { level: 2, color: '#f97316', label: 'DEFCON 2: ORDER HALT', desc: 'All new order entries suspended. Open positions managed defensively.' },
+              1: { level: 1, color: '#f43f5e', label: 'DEFCON 1: EMERGENCY KILL SWITCH', desc: 'DEAD MAN SWITCH TRIPPED: Coordinated Almgren-Chriss TWAP market exit into cash.' }
+            }[lvl];
+            const isActive = curr.level === lvl;
+            return `
+              <div class="defcon-option-row ${isActive ? 'active' : ''}" data-defcon="${lvl}">
+                <div>
+                  <strong style="color:${p.color};">${p.label}</strong>
+                  <div style="font-size:0.7rem; color:#a1a1aa; margin-top:2px;">${p.desc}</div>
+                </div>
+                <div>
+                  <span class="badge" style="background:${p.color}; color:#000; font-weight:800;">${isActive ? 'ACTIVE POSTURE' : 'ENGAGE'}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+          group.querySelectorAll('.defcon-option-row').forEach(row => {
+            row.addEventListener('click', () => {
+              const target = Number(row.dataset.defcon);
+              window.DefconRiskMatrix?.setDefconLevel(target, 'MANUAL_OPERATOR_SELECTION');
+              updateDefconButtonUI();
+              renderDefconOptions();
+            });
+          });
+        }
+      };
+
+      const updateDefconButtonUI = () => {
+        if (!window.DefconRiskMatrix) return;
+        const p = window.DefconRiskMatrix.getCurrentPosture();
+        const lbl = document.getElementById('defconBtnLabel');
+        const icon = document.getElementById('defconBtnIcon');
+        if (lbl) lbl.textContent = p.label;
+        if (icon) icon.style.color = p.color;
+      };
+
+      const openDefcon = () => {
+        if (defconModal) {
+          defconModal.hidden = false;
+          renderDefconOptions();
+        }
+      };
+      document.getElementById('btnOpenDefcon')?.addEventListener('click', openDefcon);
+      document.getElementById('btnCloseDefconModal')?.addEventListener('click', () => {
+        if (defconModal) defconModal.hidden = true;
+      });
+      document.getElementById('btnEmergencyPanicKill')?.addEventListener('click', () => {
+        if (confirm('DEAD MAN KILL SWITCH: Liquidate all active orders and halt all 20 Pantheon bots?')) {
+          window.DefconRiskMatrix?.setDefconLevel(1, 'PANIC_KILL_SWITCH_TRIPPED');
+          setAllBots('PAUSED');
+          botRegistry.forEach(bot => {
+            if (bot.activePosition) closeBotPosition(bot, 'DEFCON_1_PANIC_LIQUIDATE');
+          });
+          updateDefconButtonUI();
+          renderDefconOptions();
+          alert('DEFCON 1 ENGAGED: All 20 bots halted. Emergency TWAP unwinding initiated.');
+        }
+      });
+
+      // 8. One-Click Executive LP Risk Memo
+      document.getElementById('btnOpenExecutiveMemo')?.addEventListener('click', () => {
+        if (window.ExecutiveReportGenerator) {
+          window.ExecutiveReportGenerator.openPrintableReport(botRegistry);
+        }
+      });
+
+      // Expose modal openers on window for TerminalBus deep linking
+      window.openSynapseModal = openSynapse;
+      window.openCopilotModal = openCopilot;
+      window.openCrisisModal = openCrisis;
+      window.openVol3dModal = openVol3d;
+      window.openDarkPoolModal = openDarkPool;
+      window.openDefconModal = openDefcon;
+    };
+
+    initQuantumFeatures();
+
     // Expose on window for external triggers and terminal bus
     if (typeof window !== 'undefined') {
       window.INITIAL_BOTS = INITIAL_BOTS;
@@ -2604,6 +2901,8 @@ if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const botParam = urlParams.get('bot');
+    const actionParam = urlParams.get('action');
+
     if (botParam) {
       setTimeout(() => {
         const cleanId = botParam.toUpperCase().trim();
@@ -2612,6 +2911,18 @@ if (typeof window !== 'undefined') {
           openBotConsoleModal(found.id);
         }
       }, 450);
+    }
+
+    if (actionParam) {
+      setTimeout(() => {
+        if (actionParam === 'synapse' && typeof window.openSynapseModal === 'function') window.openSynapseModal();
+        else if (actionParam === 'copilot' && typeof window.openCopilotModal === 'function') window.openCopilotModal();
+        else if (actionParam === 'crisis' && typeof window.openCrisisModal === 'function') window.openCrisisModal();
+        else if (actionParam === 'vol3d' && typeof window.openVol3dModal === 'function') window.openVol3dModal();
+        else if (actionParam === 'darkpool' && typeof window.openDarkPoolModal === 'function') window.openDarkPoolModal();
+        else if (actionParam === 'defcon' && typeof window.openDefconModal === 'function') window.openDefconModal();
+        else if (actionParam === 'memo' && window.ExecutiveReportGenerator) window.ExecutiveReportGenerator.openPrintableReport(window.botRegistry || window.INITIAL_BOTS);
+      }, 500);
     }
   });
 
@@ -2624,3 +2935,4 @@ if (typeof window !== 'undefined') {
     });
   };
 }
+
