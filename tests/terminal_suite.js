@@ -146,6 +146,110 @@ it('AuditLedger: Records and retrieves trade fills in memory fallback', async ()
   assert.strictEqual(fills[0].tradeId, 'TEST-TRD-01');
 });
 
+// ── Test 6: Cross-Hedging Synapse & Clash of the Pantheons ───────────────
+const CrossHedgingSynapse = require('../crossHedgingSynapse.js');
+it('CrossHedgingSynapse: Calculates minimum-variance cross-hedge ratio', () => {
+  const metrics = CrossHedgingSynapse.calculateHedgeRatio('BOT-IN-01', 'BOT-US-01', 10.0);
+  assert(metrics.correlation !== 0, 'Correlation must be non-zero');
+  assert(typeof metrics.hedgeRatio === 'number', 'Hedge ratio must be a number');
+  assert(metrics.recommendedHedgeNotional > 0, 'Hedge notional must be positive');
+});
+
+it('CrossHedgingSynapse: Executes cross-hedge and records FIX 4.4 tag', () => {
+  const hedge = CrossHedgingSynapse.executeCrossHedge(
+    { id: 'BOT-IN-01', mythName: 'THANATOS', market: 'india' },
+    { id: 'BOT-US-01', mythName: 'ODIN', market: 'us' },
+    'GAMMA_SPIKE',
+    350000
+  );
+  assert(hedge.id.startsWith('HEDGE-'), 'Hedge ID must follow format');
+  assert.strictEqual(hedge.status, 'ACTIVE_HEDGE');
+  assert(hedge.fixTag.includes('37=CROSS_HEDGE_SYNAPSE'), 'Must contain FIX tag');
+});
+
+// ── Test 7: AI Risk Copilot & Quant Whisperer ─────────────────────────────
+const QuantWhisperer = require('../quantWhisperer.js');
+it('QuantWhisperer: Resolves natural language quant queries', () => {
+  const mockBots = [
+    { id: 'BOT-IN-01', mythName: 'THANATOS', sentimentScore: -0.4, sentimentRegime: 'BEARISH_HEDGE', sharpeRatio: 3.8, winRate: 78 },
+    { id: 'BOT-US-07', mythName: 'LOKI', sentimentScore: 0.9, sentimentRegime: 'EXTREME_GREED_HARVEST', sharpeRatio: 5.42, winRate: 98.2 }
+  ];
+
+  const deltaRes = QuantWhisperer.ask('which bots have negative delta', { bots: mockBots });
+  assert.strictEqual(deltaRes.category, 'EXPOSURE_QUERY');
+  assert(deltaRes.data.length >= 1, 'Must find negative delta bot');
+
+  const sharpeRes = QuantWhisperer.ask('top sharpe leader', { bots: mockBots });
+  assert.strictEqual(sharpeRes.category, 'PERFORMANCE_QUERY');
+  assert(sharpeRes.data[0].deity === 'LOKI', 'Top Sharpe leader should be LOKI');
+});
+
+// ── Test 8: Time-Travel Crisis Replay Simulator ───────────────────────────
+const CrisisReplayEngine = require('../crisisReplayEngine.js');
+it('CrisisReplayEngine: Simulates historical Black Swan stress tests', () => {
+  const mockBots = [
+    { id: 'BOT-IN-01', mythName: 'THANATOS', market: 'india', strategyType: '0DTE Theta' },
+    { id: 'BOT-US-02', mythName: 'THOR', market: 'us', strategyType: 'Gamma Scalper' }
+  ];
+
+  const res = CrisisReplayEngine.simulateCrisis('2008_LEHMAN_BROTHERS', mockBots);
+  assert(res.marketDropPct < 0, 'Market drop must be negative');
+  assert(res.survivabilityScore >= 0 && res.survivabilityScore <= 100, 'Survivability must be 0-100%');
+  assert(res.botOutcomes.length === 2, 'Must evaluate both bots');
+});
+
+// ── Test 9: 3D Volatility Surface Engine ──────────────────────────────────
+const VolatilitySurface3D = require('../volatilitySurface3D.js');
+it('VolatilitySurface3D: Generates SVI surface mesh and order book waterfall', () => {
+  assert(VolatilitySurface3D.surfaceData.length > 0, 'Surface grid rows must exist');
+  assert(VolatilitySurface3D.surfaceData[0].length > 0, 'Surface grid columns must exist');
+  assert(VolatilitySurface3D.orderBookData.length > 0, 'Waterfall ticks must exist');
+});
+
+// ── Test 10: Dark Pool Hunter & Iceberg Detector ──────────────────────────
+const DarkPoolHunter = require('../darkPoolHunter.js');
+it('DarkPoolHunter: Detects iceberg order on hidden volume replenishment', () => {
+  const iceberg = DarkPoolHunter.detectIceberg('RELIANCE.NS', 15000, 3000, 2940.0, 'BUY');
+  assert(iceberg !== null, 'Must detect iceberg when executed > visible');
+  assert(iceberg.estimatedHiddenQty >= 12000, 'Hidden quantity estimated correctly');
+  assert(iceberg.confidence >= 0.70, 'Confidence must be institutional grade');
+
+  const print = DarkPoolHunter.recordDarkPoolPrint('NVDA', 55000000, 118.5, 'BUY');
+  assert(print.id.startsWith('DP-'), 'Dark pool print ID generated');
+});
+
+// ── Test 11: DEFCON Risk Matrix & Dead Man Switch ─────────────────────────
+const DefconRiskMatrix = require('../defconRiskMatrix.js');
+it('DefconRiskMatrix: Transitions defense postures and generates SHA-256 seal', () => {
+  const transition = DefconRiskMatrix.setDefconLevel(3, 'VOLATILITY_EXPANSION_ALERT');
+  assert.strictEqual(transition.newLevel, 3);
+  assert.strictEqual(DefconRiskMatrix.getCurrentPosture().level, 3);
+  assert(typeof transition.cryptoSha256 === 'string' && transition.cryptoSha256.length === 64, 'Must produce valid 64-char SHA-256 hex');
+
+  const qRecord = DefconRiskMatrix.quarantineBot('BOT-US-06', 'COLLAR_BREACH');
+  assert(DefconRiskMatrix.isBotQuarantined('BOT-US-06'), 'Bot should be in quarantine');
+  DefconRiskMatrix.releaseBot('BOT-US-06');
+  assert(!DefconRiskMatrix.isBotQuarantined('BOT-US-06'), 'Bot should be released');
+
+  // Reset back to DEFCON 5
+  DefconRiskMatrix.setDefconLevel(5, 'TEST_COMPLETE');
+});
+
+// ── Test 12: Executive Risk Memorandum Generator ──────────────────────────
+const ExecutiveReportGenerator = require('../executiveReportGenerator.js');
+it('ExecutiveReportGenerator: Compiles Goldman Sachs / Bridgewater memorandum', () => {
+  const mockBots = [
+    { id: 'BOT-IN-01', mythName: 'THANATOS', market: 'india', realizedPnlINR: 150000, totalTrades: 1200, sharpeRatio: 3.8, winRate: 75, mathFormula: 'Yield > 12%' }
+  ];
+  const data = ExecutiveReportGenerator.generateMemorandumData(mockBots);
+  assert(data.title.includes('RISKOS'), 'Title should match');
+  assert(data.strategies.length === 1, 'Must include strategy entry');
+
+  const html = ExecutiveReportGenerator.renderReportHTML(data);
+  assert(html.includes('RISKOS GLOBAL QUANTITATIVE ALPHA'), 'HTML must render header');
+  assert(html.includes('THANATOS'), 'HTML must include deity name');
+});
+
 console.log('\n══════════════════════════════════════════════════════════════════════════');
 console.log(`🎯  TOTAL TESTS: ${totalTests} | PASSED: ${passedTests} | FAILED: ${totalTests - passedTests}`);
 console.log('══════════════════════════════════════════════════════════════════════════\n');
@@ -155,3 +259,4 @@ if (passedTests === totalTests) {
 } else {
   process.exit(1);
 }
+
