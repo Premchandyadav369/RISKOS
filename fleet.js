@@ -81,7 +81,7 @@
       minuteVolume: '18,450 Lots',
       evalSpeedSec: 6,
       strategyType: 'Delta-Neutral Vol Dispersion',
-      mathFormula: '\text{Edge} = \sigma_{\text{IV}} - \sqrt{\omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2}',
+      mathFormula: String.raw`\text{Edge} = \sigma_{\text{IV}} - \sqrt{\omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2}`,
       tier: 'S-TIER',
       sentimentSource: 'Options 25Δ Risk Reversal Skew',
       sentimentScore: +0.34,
@@ -96,7 +96,7 @@
       profitFactor: 2.84,
       maxDD: -0.65,
       laymanExplanation: 'Harvests the structural premium between option panic (Implied Vol) and actual movement (GARCH Vol). Sells Iron Condors and delta-hedges with index futures.',
-      mathDerivation: '$$\sigma_{\text{GARCH}}^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \Delta_{\text{hedge}} = -\sum \Delta_i S_i$$',
+      mathDerivation: String.raw`\sigma_{\text{GARCH}}^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \Delta_{\text{hedge}} = -\sum \Delta_i S_i`,
       entryRules: 'Enter when ATM IV / GARCH Vol ratio > 1.25 and SABR wing convexity ∂²C/∂K² ≥ 0.',
       exitRules: 'Auto-exit at 15:15 IST, or take profit at 65% max theta decay, or stop loss at 1.8x premium.',
       crisisReplay: 'Protected by long outer wings; returned +14.2% during 2024 Yen carry unwind.'
@@ -123,7 +123,7 @@
       minuteVolume: '32,100 Shares',
       evalSpeedSec: 8,
       strategyType: 'Statistical Arbitrage',
-      mathFormula: 'z_t = \frac{y_t - \beta_t x_t - \mu_{\text{spread}}}{\sigma_{\text{spread}}} \quad (|z_t| > 2.2)',
+      mathFormula: String.raw`z_t = \frac{y_t - \beta_t x_t - \mu_{\text{spread}}}{\sigma_{\text{spread}}} \quad (|z_t| > 2.2)`,
       tier: 'S-TIER',
       sentimentSource: 'Bank Nifty Institutional Breadth',
       sentimentScore: -0.18,
@@ -138,7 +138,7 @@
       profitFactor: 3.15,
       maxDD: -0.42,
       laymanExplanation: 'Buys whichever private banking leader is temporarily undervalued by institutional fund flows while shorting the peer, locking in mean-reversion profits.',
-      mathDerivation: '$$\beta_t = \beta_{t-1} + K_t (y_t - x_t \beta_{t-1}), \quad K_t = P_{t|t-1} x_t^T (x_t P_{t|t-1} x_t^T + R)^{-1}$$',
+      mathDerivation: String.raw`\beta_t = \beta_{t-1} + K_t (y_t - x_t \beta_{t-1}), \quad K_t = P_{t|t-1} x_t^T (x_t P_{t|t-1} x_t^T + R)^{-1}`,
       entryRules: 'Enter pair when standardized Kalman residual z-score |z| > 2.2 and ADF p < 0.01.',
       exitRules: 'Close when spread converges to |z| < 0.30 or 5-day max hold.',
       crisisReplay: 'Zero market beta; gained +8.4% during 2020 COVID lockdown market drop.'
@@ -165,7 +165,7 @@
       minuteVolume: '14,800 Shares',
       evalSpeedSec: 9,
       strategyType: 'Cross-Sectional Momentum',
-      mathFormula: 'w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{50})',
+      mathFormula: String.raw`w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{50})`,
       tier: 'A-TIER',
       sentimentSource: 'FinBERT Tech Sector News NLP',
       sentimentScore: +0.72,
@@ -180,7 +180,7 @@
       profitFactor: 2.25,
       maxDD: -1.15,
       laymanExplanation: 'Captures multi-week institutional trends across IT heavyweights. Sizes positions inversely to volatility so dips cause zero oversized damage.',
-      mathDerivation: '$$\text{Signal} = \text{Donchian}(20) \cap (\text{ADX} > 25), \quad \text{Stop} = P_{\text{entry}} - 2.5 \cdot \text{ATR}(14)$$',
+      mathDerivation: String.raw`\text{Signal} = \text{Donchian}(20) \cap (\text{ADX} > 25), \quad \text{Stop} = P_{\text{entry}} - 2.5 \cdot \text{ATR}(14)`,
       entryRules: 'Buy on 20-Day high breakout with volume > 1.8x 20-day average.',
       exitRules: 'Trailing stop on 15-day EMA cross.',
       crisisReplay: 'Cut positions within 4 hours during 2022 Fed rate hike tech selloff.'
@@ -207,7 +207,7 @@
       minuteVolume: '45,200 Shares',
       evalSpeedSec: 10,
       strategyType: 'Cost-of-Carry Arbitrage',
-      mathFormula: 'F^* = S_0 \cdot e^{(r - q)T} \implies \text{Carry Yield} > +8.5\% / \text{yr}',
+      mathFormula: String.raw`F^* = S_0 \cdot e^{(r - q)T} \implies \text{Carry Yield} > +8.5\% / \text{yr}`,
       tier: 'S-TIER',
       sentimentSource: 'Petrochemical Refining Margin Sentiment',
       sentimentScore: +0.45,
@@ -222,7 +222,7 @@
       profitFactor: 4.80,
       maxDD: -0.25,
       laymanExplanation: 'Buys cash stock and sells futures whenever retail exuberance creates an annualized futures basis premium higher than RBI repo rates.',
-      mathDerivation: '$$\text{Basis} = \frac{F_{\text{market}} - S_{\text{spot}}}{S_{\text{spot}}} \cdot \frac{365}{T} - \text{Cost}$$',
+      mathDerivation: String.raw`\text{Basis} = \frac{F_{\text{market}} - S_{\text{spot}}}{S_{\text{spot}}} \cdot \frac{365}{T} - \text{Cost}`,
       entryRules: 'Enter when annualized basis spread exceeds 8.50% / yr.',
       exitRules: 'Hold until expiry convergence on monthly expiry Thursday.',
       crisisReplay: '100% market neutral; immune to equity crashes.'
@@ -249,7 +249,7 @@
       minuteVolume: '28,600 Shares',
       evalSpeedSec: 3,
       strategyType: 'High-Frequency OFI Scalping',
-      mathFormula: '\text{OFI}_t = \Delta q_t^b \cdot \mathbb{I}_{\{\Delta p_t^b \ge 0\}} - \Delta q_t^a \cdot \mathbb{I}_{\{\Delta p_t^a \le 0\}}',
+      mathFormula: String.raw`\text{OFI}_t = \Delta q_t^b \cdot \mathbb{I}_{\{\Delta p_t^b \ge 0\}} - \Delta q_t^a \cdot \mathbb{I}_{\{\Delta p_t^a \le 0\}}`,
       tier: 'A-TIER',
       sentimentSource: 'Level-2 Order Flow Imbalance (OFI)',
       sentimentScore: +0.85,
@@ -264,7 +264,7 @@
       profitFactor: 2.48,
       maxDD: -0.72,
       laymanExplanation: 'Peeks inside Level-2 Limit Order Book. When institutional buy orders stack up on bid, front-runs the upward tick and exits seconds later.',
-      mathDerivation: '$$\hat{P}_{\text{micro}} = \frac{q_b P_a + q_a P_b}{q_b + q_a}, \quad \text{Signal} = \text{sgn}(\hat{P}_{\text{micro}} - P_{\text{mid}})$$',
+      mathDerivation: String.raw`\hat{P}_{\text{micro}} = \frac{q_b P_a + q_a P_b}{q_b + q_a}, \quad \text{Signal} = \text{sgn}(\hat{P}_{\text{micro}} - P_{\text{mid}})`,
       entryRules: 'Enter when OFI > +0.70 and bid depth ratio > 2.2x ask depth.',
       exitRules: 'Exit at +12 bps profit target or 45 seconds timeout.',
       crisisReplay: 'Zero overnight risk due to sub-minute holding periods.'
@@ -291,7 +291,7 @@
       minuteVolume: '11,200 Shares',
       evalSpeedSec: 8,
       strategyType: 'Statistical Mean Reversion',
-      mathFormula: 'P_t < \mu_{20} - 2.2 \sigma_{20} \quad \cap \quad \text{RSI}_{14} < 28',
+      mathFormula: String.raw`P_t < \mu_{20} - 2.2 \sigma_{20} \quad \cap \quad \text{RSI}_{14} < 28`,
       tier: 'B-TIER',
       sentimentSource: 'FDA Headline Panic Sentiment Fade',
       sentimentScore: -0.75,
@@ -306,7 +306,7 @@
       profitFactor: 2.18,
       maxDD: -0.88,
       laymanExplanation: 'Buys exaggerated panic sell-offs on regulatory headlines, exiting when prices normalize back to 20-day institutional fair value.',
-      mathDerivation: '$$\text{Band Width} = \frac{U_t - L_t}{\mu_t}, \quad Z = \frac{P_t - \text{SMA}(20)}{\text{StdDev}(20)}$$',
+      mathDerivation: String.raw`\text{Band Width} = \frac{U_t - L_t}{\mu_t}, \quad Z = \frac{P_t - \text{SMA}(20)}{\text{StdDev}(20)}`,
       entryRules: 'Buy when price touches 2.2σ lower Bollinger Band with RSI < 28.',
       exitRules: 'Take profit at 20-day SMA mean line.',
       crisisReplay: 'Stable healthcare cash flows provide steady defensiveness.'
@@ -333,7 +333,7 @@
       minuteVolume: '78,400 Shares',
       evalSpeedSec: 9,
       strategyType: 'Commodity Factor Trend',
-      mathFormula: 'R_{\text{steel}} = \alpha + \beta_1 \Delta \text{LME} + \beta_2 \Delta \text{IronOre} + \beta_3 \text{ChinaPMI}',
+      mathFormula: String.raw`R_{\text{steel}} = \alpha + \beta_1 \Delta \text{LME} + \beta_2 \Delta \text{IronOre} + \beta_3 \text{ChinaPMI}`,
       tier: 'B-TIER',
       sentimentSource: 'LME Global Metals Momentum Skew',
       sentimentScore: +0.52,
@@ -348,7 +348,7 @@
       profitFactor: 1.95,
       maxDD: -1.35,
       laymanExplanation: 'Tracks London Metal Exchange (LME) copper/steel prices and international coking coal spreads to trade Indian steel swings.',
-      mathDerivation: '$$\text{Hedge Ratio} = (X^T X)^{-1} X^T Y, \quad \text{Score} = \frac{P_t - P_{t-60}}{\sigma_{60}}$$',
+      mathDerivation: String.raw`\text{Hedge Ratio} = (X^T X)^{-1} X^T Y, \quad \text{Score} = \frac{P_t - P_{t-60}}{\sigma_{60}}`,
       entryRules: 'Long when global LME metal futures lead Indian spot stocks by > 1.5%.',
       exitRules: 'Exit when global metal basis rolls into contango.',
       crisisReplay: 'Managed via strict 1.5% stop-loss caps.'
@@ -375,7 +375,7 @@
       minuteVolume: '4,800 Shares',
       evalSpeedSec: 7,
       strategyType: 'Volume Profile Auction Market',
-      mathFormula: 'P_t \notin [\text{VAL}_{70}, \text{VAH}_{70}] \implies \text{Reversion to POC}',
+      mathFormula: String.raw`P_t \notin [\text{VAL}_{70}, \text{VAH}_{70}] \implies \text{Reversion to POC}`,
       tier: 'A-TIER',
       sentimentSource: 'Auction Market Volume Profile Node',
       sentimentScore: 0.00,
@@ -390,7 +390,7 @@
       profitFactor: 2.65,
       maxDD: -0.55,
       laymanExplanation: 'Calculates 70% institutional Value Area. When retail traders push consumer stocks outside fair-value on low volume, fades the move back to POC.',
-      mathDerivation: '$$\text{POC} = \arg\max_P V(P), \quad \int_{\text{VAL}}^{\text{VAH}} V(P) dP = 0.70 \cdot V_{\text{total}}$$',
+      mathDerivation: String.raw`\text{POC} = \arg\max_P V(P), \quad \int_{\text{VAL}}^{\text{VAH}} V(P) dP = 0.70 \cdot V_{\text{total}}`,
       entryRules: 'Enter mean-reversion outside Value Area on below-average volume.',
       exitRules: 'Exit when price reaches Point of Control (POC).',
       crisisReplay: 'Consumer staples provide steady cash flows during macro downturns.'
@@ -417,7 +417,7 @@
       minuteVolume: '19,500 Shares',
       evalSpeedSec: 3,
       strategyType: 'High-Frequency Market Making',
-      mathFormula: 'r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \gamma \sigma^2 (T-t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)',
+      mathFormula: String.raw`r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \gamma \sigma^2 (T-t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)`,
       tier: 'S-TIER',
       sentimentSource: 'Defense Order Book VPIN Toxicity',
       sentimentScore: +0.64,
@@ -432,7 +432,7 @@
       profitFactor: 3.60,
       maxDD: -0.38,
       laymanExplanation: 'Provides continuous bid and ask liquidity in Indian defense stocks, pocketing the half-spread continuously while adjusting quotes dynamically.',
-      mathDerivation: '$$\delta^b = \frac{r - s}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right), \quad \delta^a = \frac{s - r}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$',
+      mathDerivation: String.raw`\delta^b = \frac{r - s}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right), \quad \delta^a = \frac{s - r}{2} + \frac{1}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)`,
       entryRules: 'Post two-sided quotes when bid-ask spread > 10 bps.',
       exitRules: 'Passive continuous fills on both sides of the book.',
       crisisReplay: 'Inventory penalty parameter γ prevents inventory overhang during sudden selloffs.'
@@ -459,7 +459,7 @@
       minuteVolume: '8,400 Lots',
       evalSpeedSec: 8,
       strategyType: 'Multi-Timeframe Trend Following',
-      mathFormula: '(\text{EMA}_{12} > \text{EMA}_{26}) \cap (\text{ADX}_{14} > 25) \cap (F_{\text{near}} - F_{\text{far}} > 0)',
+      mathFormula: String.raw`(\text{EMA}_{12} > \text{EMA}_{26}) \cap (\text{ADX}_{14} > 25) \cap (F_{\text{near}} - F_{\text{far}} > 0)`,
       tier: 'A-TIER',
       sentimentSource: 'Geopolitical Risk Index (GPR) & Inflation',
       sentimentScore: +0.81,
@@ -474,7 +474,7 @@
       profitFactor: 2.35,
       maxDD: -0.92,
       laymanExplanation: 'Operates during evening commodity hours (09:00 to 23:55 IST) capturing major global price discovery during the US trading session.',
-      mathDerivation: '$$\text{Trend Signal} = \text{sgn}(\text{EMA}_{12} - \text{EMA}_{26}) \cdot \min\left(1, \frac{\text{ADX}}{30}\right)$$',
+      mathDerivation: String.raw`\text{Trend Signal} = \text{sgn}(\text{EMA}_{12} - \text{EMA}_{26}) \cdot \min\left(1, \frac{\text{ADX}}{30}\right)`,
       entryRules: 'Enter long on EMA bullish cross when ADX > 25 during US market open overlap.',
       exitRules: 'Exit on EMA bearish cross or ATR trailing stop breach.',
       crisisReplay: 'Gold trend surged +28% during inflation and geopolitical tension periods.'
@@ -505,7 +505,7 @@
       minuteVolume: '124,500 Shares',
       evalSpeedSec: 4,
       strategyType: 'Optimal Execution & Smart Routing',
-      mathFormula: 'x_j = \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)} X, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}',
+      mathFormula: String.raw`x_j = \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)} X, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}`,
       tier: 'S-TIER',
       sentimentSource: 'Nasdaq Institutional Dark Pool Flow',
       sentimentScore: +0.62,
@@ -520,7 +520,7 @@
       profitFactor: 2.92,
       maxDD: -0.58,
       laymanExplanation: 'Slices multi-million dollar institutional orders into micro-blocks using calculus of variations, balancing price impact against volatility risk.',
-      mathDerivation: '$$\min_{\{x_j\}} \mathbb{E}[x] + \lambda \mathbb{V}[x] = \sum_{j=1}^N \tau \left( \gamma \left(\frac{x_j}{\tau}\right)^2 + \lambda \sigma^2 x_j^2 \right)$$',
+      mathDerivation: String.raw`\min_{\{x_j\}} \mathbb{E}[x] + \lambda \mathbb{V}[x] = \sum_{j=1}^N \tau \left( \gamma \left(\frac{x_j}{\tau}\right)^2 + \lambda \sigma^2 x_j^2 \right)`,
       entryRules: 'Triggered when parent order size exceeds $250,000 notional.',
       exitRules: 'Guaranteed completion within target time window T.',
       crisisReplay: 'Saves 8-14 bps in execution slippage during high-volatility sessions.'
@@ -547,7 +547,7 @@
       minuteVolume: '82,100 Contracts',
       evalSpeedSec: 6,
       strategyType: 'Dynamic Gamma Scalping',
-      mathFormula: '\Pi_{\text{daily}} \approx \frac{1}{2}\Gamma S^2 (\sigma_{\text{realized}}^2 - \sigma_{\text{implied}}^2) \Delta t - \text{Costs}',
+      mathFormula: String.raw`\Pi_{\text{daily}} \approx \frac{1}{2}\Gamma S^2 (\sigma_{\text{realized}}^2 - \sigma_{\text{implied}}^2) \Delta t - \text{Costs}`,
       tier: 'A-TIER',
       sentimentSource: 'CBOE SKEW & VIX Term Structure',
       sentimentScore: +0.88,
@@ -562,7 +562,7 @@
       profitFactor: 2.55,
       maxDD: -0.95,
       laymanExplanation: 'Buys options when implied volatility is cheaper than actual price swings. Re-hedges shares continuously, pocketing gamma profits.',
-      mathDerivation: '$$\Gamma = \frac{\phi(d_1)}{S \sigma \sqrt{T}}, \quad \Delta \text{Shares} = -\Gamma \cdot \Delta S \cdot 100$$',
+      mathDerivation: String.raw`\Gamma = \frac{\phi(d_1)}{S \sigma \sqrt{T}}, \quad \Delta \text{Shares} = -\Gamma \cdot \Delta S \cdot 100`,
       entryRules: 'Buy ATM Straddle when SABR calibrated IV < 30-day realized volatility.',
       exitRules: 'Re-hedge delta every 15 minutes; close straddle 3 days prior to expiration.',
       crisisReplay: 'Generates massive gamma windfalls during explosive semiconductor earnings swings.'
@@ -589,7 +589,7 @@
       minuteVolume: '38,900 Shares',
       evalSpeedSec: 9,
       strategyType: 'Yield Curve Term-Structure Arb',
-      mathFormula: 'y(t) = \beta_0 + \beta_1 \left(\frac{1 - e^{-t/\tau}}{t/\tau}\right) + \beta_2 \left(\frac{1 - e^{-t/\tau}}{t/\tau} - e^{-t/\tau}\right)',
+      mathFormula: String.raw`y(t) = \beta_0 + \beta_1 \left(\frac{1 - e^{-t/\tau}}{t/\tau}\right) + \beta_2 \left(\frac{1 - e^{-t/\tau}}{t/\tau} - e^{-t/\tau}\right)`,
       tier: 'A-TIER',
       sentimentSource: 'Fed Funds Futures Rate Cut Skew',
       sentimentScore: +0.58,
@@ -604,7 +604,7 @@
       profitFactor: 2.70,
       maxDD: -0.48,
       laymanExplanation: 'Monitors US Treasury 2s10s yield curve. When curve steepens, bank net interest margins expand; goes long Wall Street banks and hedges rate duration.',
-      mathDerivation: '$$\text{Slope} = y(10\text{Y}) - y(2\text{Y}), \quad \text{Trade} = \text{Long Bank} \iff \Delta \text{Slope} > +15 \text{ bps}$$',
+      mathDerivation: String.raw`\text{Slope} = y(10\text{Y}) - y(2\text{Y}), \quad \text{Trade} = \text{Long Bank} \iff \Delta \text{Slope} > +15 \text{ bps}`,
       entryRules: 'Enter long bank financials when 2s10s curve slope accelerates above 20-day EMA.',
       exitRules: 'Exit when yield curve slope flattens by > 10 bps.',
       crisisReplay: 'Benefited heavily from 2024 Fed rate cutting cycle normalization.'
@@ -631,7 +631,7 @@
       minuteVolume: '14,200 Shares',
       evalSpeedSec: 8,
       strategyType: 'Merton Jump-Diffusion Event Arb',
-      mathFormula: 'dS_t = (\mu - \lambda k)S_t dt + \sigma S_t dW_t + (Y - 1)S_t dN_t',
+      mathFormula: String.raw`dS_t = (\mu - \lambda k)S_t dt + \sigma S_t dW_t + (Y - 1)S_t dN_t`,
       tier: 'A-TIER',
       sentimentSource: 'Clinical Trial NLP Sentiment',
       sentimentScore: +0.76,
@@ -646,7 +646,7 @@
       profitFactor: 2.45,
       maxDD: -0.82,
       laymanExplanation: 'Models unexpected clinical trial outcomes and FDA surprise approvals as compound Poisson jumps. Captures asymmetric upside while hedging tail downside.',
-      mathDerivation: '$$\ln(Y) \sim \mathcal{N}(\mu_J, \sigma_J^2), \quad k = \mathbb{E}[Y-1] = e^{\mu_J + \sigma_J^2/2} - 1$$',
+      mathDerivation: String.raw`\ln(Y) \sim \mathcal{N}(\mu_J, \sigma_J^2), \quad k = \mathbb{E}[Y-1] = e^{\mu_J + \sigma_J^2/2} - 1`,
       entryRules: 'Enter when Bayesian clinical sentiment index exceeds +2.0σ prior to trial readouts.',
       exitRules: 'Take profit immediately upon market open post-announcement.',
       crisisReplay: 'Gained +32% during GLP-1 cardiovascular trial success announcements.'
@@ -673,7 +673,7 @@
       minuteVolume: '48,100 Shares',
       evalSpeedSec: 10,
       strategyType: 'Multi-Factor Risk Premia',
-      mathFormula: 'R_i - R_f = \alpha + \beta_m \text{MKT} + \beta_s \text{SMB} + \beta_h \text{HML} + \beta_r \text{RMW} + \beta_c \text{CMA}',
+      mathFormula: String.raw`R_i - R_f = \alpha + \beta_m \text{MKT} + \beta_s \text{SMB} + \beta_h \text{HML} + \beta_r \text{RMW} + \beta_c \text{CMA}`,
       tier: 'B-TIER',
       sentimentSource: 'OPEC+ Supply Discipline Sentiment',
       sentimentScore: +0.30,
@@ -688,7 +688,7 @@
       profitFactor: 2.10,
       maxDD: -0.75,
       laymanExplanation: 'Isolates pure alpha in oil supermajors by hedging out broader equity and commodity beta, capturing value and profitability factor spreads.',
-      mathDerivation: '$$\alpha_i = (R_i - R_f) - \sum_{k=1}^5 \beta_k F_k$$',
+      mathDerivation: String.raw`\alpha_i = (R_i - R_f) - \sum_{k=1}^5 \beta_k F_k`,
       entryRules: 'Enter when multi-factor alpha t-statistic exceeds 2.5.',
       exitRules: 'Rebalance monthly to maintain factor neutrality.',
       crisisReplay: 'Stable non-correlated returns during 2022 energy crisis.'
@@ -715,7 +715,7 @@
       minuteVolume: '22,400 Shares',
       evalSpeedSec: 8,
       strategyType: 'Microstructure Adverse Selection',
-      mathFormula: '\Delta P_t = \lambda_{\text{Kyle}} \cdot Q_t + \epsilon_t, \quad \lambda = \frac{\text{Cov}(v, p)}{\text{Var}(Q)}',
+      mathFormula: String.raw`\Delta P_t = \lambda_{\text{Kyle}} \cdot Q_t + \epsilon_t, \quad \lambda = \frac{\text{Cov}(v, p)}{\text{Var}(Q)}`,
       tier: 'B-TIER',
       sentimentSource: 'Kyle Lambda Informed Flow Meter',
       sentimentScore: -0.42,
@@ -730,7 +730,7 @@
       profitFactor: 2.05,
       maxDD: -1.05,
       laymanExplanation: "Measures Kyle's lambda to detect when institutional traders with non-public order flow are actively executing in aerospace defense leaders.",
-      mathDerivation: '$$\lambda_{\text{Kyle}} = \frac{\sigma_v}{2 \sigma_u}, \quad \text{Signal} = \text{Cumulative Flow} \cdot \lambda$$',
+      mathDerivation: String.raw`\lambda_{\text{Kyle}} = \frac{\sigma_v}{2 \sigma_u}, \quad \text{Signal} = \text{Cumulative Flow} \cdot \lambda`,
       entryRules: 'Enter when 15-minute price impact coefficient exceeds historical 95th percentile.',
       exitRules: 'Exit when order flow imbalance dissipates.',
       crisisReplay: 'Flagged Boeing recovery trends post-FAA recertification milestones.'
@@ -757,7 +757,7 @@
       minuteVolume: '142.5 BTC',
       evalSpeedSec: 4,
       strategyType: 'Delta-Neutral Funding Arbitrage',
-      mathFormula: '\text{Yield} = \left(\frac{F_{\text{perp}} - S_{\text{spot}}}{S_{\text{spot}}}\right) \cdot 3 \cdot 365 > +12\% / \text{yr}',
+      mathFormula: String.raw`\text{Yield} = \left(\frac{F_{\text{perp}} - S_{\text{spot}}}{S_{\text{spot}}}\right) \cdot 3 \cdot 365 > +12\% / \text{yr}`,
       tier: 'S-TIER',
       sentimentSource: 'Crypto Funding Rate Greed/Fear Index',
       sentimentScore: +0.92,
@@ -772,7 +772,7 @@
       profitFactor: 6.85,
       maxDD: -0.15,
       laymanExplanation: 'Buys spot Bitcoin and shorts perpetual Bitcoin futures when retail leverage drives funding rates above +12%/yr. Earns daily funding interest payments with zero directional market risk.',
-      mathDerivation: '$$\text{PnL} = \text{Funding Rate} \cdot \text{Notional Position} - \text{Trading Fees}$$',
+      mathDerivation: String.raw`\text{PnL} = \text{Funding Rate} \cdot \text{Notional Position} - \text{Trading Fees}`,
       entryRules: 'Enter delta-neutral basis position whenever 8h funding rate > 0.01% (+10.95% APR).',
       exitRules: 'Close position if funding rate drops below 0.00% (negative funding).',
       crisisReplay: 'Generated uninterrupted yield during both bull and bear markets (2022 crypto winter and 2024 ATH).'
@@ -799,7 +799,7 @@
       minuteVolume: '38,200 SOL',
       evalSpeedSec: 2,
       strategyType: 'Cross-Venue High Frequency Arb',
-      mathFormula: '\text{Profit} = \frac{P_A(\text{SOL}/\text{USD})}{P_B(\text{SOL}/\text{USDT}) \cdot P_B(\text{USDT}/\text{USD})} - 1 > \text{Fee}',
+      mathFormula: String.raw`\text{Profit} = \frac{P_A(\text{SOL}/\text{USD})}{P_B(\text{SOL}/\text{USDT}) \cdot P_B(\text{USDT}/\text{USD})} - 1 > \text{Fee}`,
       tier: 'S-TIER',
       sentimentSource: 'Cross-Venue Liquidity Imbalance Matrix',
       sentimentScore: +0.70,
@@ -814,7 +814,7 @@
       profitFactor: 4.20,
       maxDD: -0.28,
       laymanExplanation: 'Monitors price discrepancies between venues 24/7. When Solana trades cheaper on venue A than B, executes simultaneous buy-sell legs, pocketing discrepancy risk-free.',
-      mathDerivation: '$$\Delta = \ln P_{AB} + \ln P_{BC} + \ln P_{CA} > 3 \cdot \text{Fee}$$',
+      mathDerivation: String.raw`\Delta = \ln P_{AB} + \ln P_{BC} + \ln P_{CA} > 3 \cdot \text{Fee}`,
       entryRules: 'Fires sub-second atomic order loops when triangle spread > 15 bps.',
       exitRules: 'Instantaneous execution within the same block.',
       crisisReplay: 'Volume surges during market turbulence increase arbitrage opportunities by 300%.'
@@ -841,7 +841,7 @@
       minuteVolume: '45,000 Lots',
       evalSpeedSec: 7,
       strategyType: 'Macro Dual-Momentum Trend',
-      mathFormula: 'w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{100})',
+      mathFormula: String.raw`w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{100})`,
       tier: 'A-TIER',
       sentimentSource: 'Sovereign Yield Differential (US vs IN)',
       sentimentScore: +0.48,
@@ -856,7 +856,7 @@
       profitFactor: 2.30,
       maxDD: -0.85,
       laymanExplanation: 'Trades global currency super-cycles 24/5 driven by interest rate differentials (carry trade) and sovereign trade balances.',
-      mathDerivation: '$$\text{Carry Score} = r_{\text{USD}} - r_{\text{INR}} + \text{Momentum}_{60\text{D}}$$',
+      mathDerivation: String.raw`\text{Carry Score} = r_{\text{USD}} - r_{\text{INR}} + \text{Momentum}_{60\text{D}}`,
       entryRules: 'Enter long dollar when US 10Y yield spread widens vs global peers.',
       exitRules: 'Trailing stop on 50-day moving average break.',
       crisisReplay: 'Consistently hedges rupee depreciation during global risk-off events.'
@@ -883,7 +883,7 @@
       minuteVolume: '280,000 Shares',
       evalSpeedSec: 6,
       strategyType: 'Prediction Market Pricing Arbitrage',
-      mathFormula: 'p_i = \frac{e^{q_i / b}}{\sum_j e^{q_j / b}} \quad \text{vs} \quad P(\text{Fed Cut} \mid \text{CPI}, \text{PCE})',
+      mathFormula: String.raw`p_i = \frac{e^{q_i / b}}{\sum_j e^{q_j / b}} \quad \text{vs} \quad P(\text{Fed Cut} \mid \text{CPI}, \text{PCE})`,
       tier: 'S-TIER',
       sentimentSource: 'Polymarket vs Econometric Fair Value Divergence',
       sentimentScore: -0.65,
@@ -898,7 +898,7 @@
       profitFactor: 3.40,
       maxDD: -0.45,
       laymanExplanation: 'Operates 24/7 on decentralized prediction markets (Polymarket). Uses Bayesian formulas to calculate fair value probabilities for FOMC decisions, buying underpriced shares.',
-      mathDerivation: '$$\text{Cost}(q) = b \ln\left(\sum_{i} e^{q_i / b}\right), \quad \text{Edge} = |p_{\text{market}} - P_{\text{Bayesian}}| > 0.08$$',
+      mathDerivation: String.raw`\text{Cost}(q) = b \ln\left(\sum_{i} e^{q_i / b}\right), \quad \text{Edge} = |p_{\text{market}} - P_{\text{Bayesian}}| > 0.08`,
       entryRules: 'Buy probability shares when market price diverges by > 8% from econometric model prior.',
       exitRules: 'Hold until binary outcome resolution ($1.00 payout) or close when market reaches fair value.',
       crisisReplay: 'Locked in 88% win rate across 2024 Fed policy decision contracts.'
@@ -1606,7 +1606,7 @@
 
           <div class="bot-math-card">
             <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model</div>
-            <div class="math-jax-block">$$${bot.mathFormula}$$</div>
+            <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
           </div>
 
           <div class="bot-stats-grid">
@@ -1651,6 +1651,14 @@
         </div>
       `;
     }).join('');
+
+    // Synchronously compile all 20 bot LaTeX formulas directly via KaTeX / MathJax
+    sorted.forEach(bot => {
+      const mathEl = document.getElementById(`math-grid-${bot.id}`);
+      if (mathEl) {
+        renderLatexFormula(mathEl, bot.mathFormula, true);
+      }
+    });
 
     attachCardListeners(grid);
   };
@@ -1759,11 +1767,92 @@
 
   
   // ── Bulletproof Two-Layer Math Rendering Engine (KaTeX + MathJax) ──────
+  // ══════════════════════════════════════════════════════════════════════════
+  // DIRECT SYNCHRONOUS KATEX & MATHJAX 3 DUAL-ENGINE RENDERING PIPELINE
+  // ══════════════════════════════════════════════════════════════════════════
+  const renderLatexFormula = (containerEl, rawLatex, isDisplayMode = true) => {
+    if (!containerEl || !rawLatex) return;
+
+    // Clean off any outer delimiters: $$, $, \[, \], \(, \)
+    let clean = String(rawLatex).trim();
+    if (clean.startsWith('$$') && clean.endsWith('$$') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    } else if (clean.startsWith('\\[') && clean.endsWith('\\]') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    } else if (clean.startsWith('\\(') && clean.endsWith('\\)') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    }
+
+    // 1. Primary: Direct Synchronous KaTeX Compilation (Instant 0ms, Zero text flash)
+    if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
+      try {
+        containerEl.innerHTML = '';
+        katex.render(clean, containerEl, {
+          displayMode: isDisplayMode,
+          throwOnError: false
+        });
+        return;
+      } catch (e) {
+        console.warn('KaTeX direct render notice:', e);
+      }
+    }
+
+    // 2. Secondary: MathJax 3 SVG Compilation
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      containerEl.textContent = isDisplayMode ? `\\[ ${clean} \\]` : `\\( ${clean} \\)`;
+      window.MathJax.typesetPromise([containerEl]).catch(() => {});
+      return;
+    }
+
+    // 3. Fallback: Wait for KaTeX or MathJax initialization if loading asynchronously
+    containerEl.textContent = isDisplayMode ? `\\[ ${clean} \\]` : `\\( ${clean} \\)`;
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
+        clearInterval(poll);
+        try {
+          containerEl.innerHTML = '';
+          katex.render(clean, containerEl, {
+            displayMode: isDisplayMode,
+            throwOnError: false
+          });
+        } catch (e) {}
+      } else if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        clearInterval(poll);
+        window.MathJax.typesetPromise([containerEl]).catch(() => {});
+      }
+      if (attempts > 30) clearInterval(poll);
+    }, 100);
+  };
+
+  // Global exposure for debugging and external tests
+  if (typeof window !== 'undefined') {
+    window.renderLatexFormula = renderLatexFormula;
+  }
+
   const typesetMathJax = (targetEl) => {
     const root = targetEl || document.body;
     if (!root) return;
 
-    // Layer 1: Instant Synchronous KaTeX Compilation (0ms latency, zero text flash)
+    // Scan all math containers and apply direct synchronous render
+    const mathBlocks = root.querySelectorAll('.math-jax-block, .bot-math-card .math-jax-block');
+    mathBlocks.forEach(el => {
+      const botId = el.getAttribute('data-bot-id');
+      if (botId) {
+        const b = botRegistry.find(x => x.id === botId);
+        if (b) {
+          renderLatexFormula(el, b.mathFormula, true);
+          return;
+        }
+      }
+      const formula = el.getAttribute('data-formula') || el.textContent || '';
+      if (formula && !el.querySelector('.katex') && !el.querySelector('mjx-container')) {
+        renderLatexFormula(el, formula, true);
+      }
+    });
+
+    // Also run renderMathInElement for any inline math in text
     if (typeof renderMathInElement === 'function') {
       try {
         renderMathInElement(root, {
@@ -1776,25 +1865,16 @@
           throwOnError: false
         });
       } catch (e) {
-        console.warn('KaTeX render notice:', e);
+        console.warn('KaTeX auto-render notice:', e);
       }
     }
 
-    // Layer 2: MathJax 3 SVG Compilation
+    // MathJax 3 backup
     if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
       window.MathJax.typesetPromise([root]).catch(() => {});
-    } else {
-      let attempts = 0;
-      const interval = setInterval(() => {
-        attempts++;
-        if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-          clearInterval(interval);
-          window.MathJax.typesetPromise([root]).catch(() => {});
-        }
-        if (attempts > 20) clearInterval(interval);
-      }, 200);
     }
   };
+
 
   const renderActiveView = () => {
     if (currentViewMode === 'grid') {
@@ -1996,7 +2076,7 @@
 
         <div class="bot-math-card" style="margin-bottom:16px;">
           <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model (MathJax / KaTeX)</div>
-          <div class="math-jax-block" style="font-size:0.92rem;">$$${bot.mathFormula}$$</div>
+          <div class="math-jax-block" id="modal-console-math" style="font-size:0.92rem;"></div>
         </div>
         <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); border-radius:10px; padding:16px; margin-bottom:16px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -2173,7 +2253,7 @@
 
         <div class="bot-math-card" style="margin-bottom:16px;">
           <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model (MathJax / KaTeX)</div>
-          <div class="math-jax-block" style="font-size:0.92rem;">$$${bot.mathFormula}$$</div>
+          <div class="math-jax-block" id="modal-wp-math" style="font-size:0.92rem;"></div>
         </div>
         <div style="background:rgba(34,211,238,0.06); border:1px solid rgba(34,211,238,0.25); border-radius:10px; padding:16px; margin-bottom:16px;">
           <h4 style="font-size:0.85rem; color:#22d3ee; margin:0 0 8px 0; text-transform:uppercase;">
@@ -2186,9 +2266,7 @@
           <h4 style="font-size:0.85rem; color:#10b981; margin:0 0 8px 0; text-transform:uppercase;">
             <i class="fa-solid fa-square-root-variable"></i> Quantitative Mathematical Derivation
           </h4>
-          <div style="font-size:0.85rem; color:#fff; overflow-x:auto; padding:6px 0;">
-            ${bot.mathDerivation}
-          </div>
+          <div class="math-jax-block" id="modal-wp-derivation" style="font-size:0.85rem; color:#fff; overflow-x:auto; padding:6px 0; justify-content:flex-start;"></div>
         </div>
 
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; margin-bottom:16px;">
@@ -2203,6 +2281,15 @@
         </div>
       `;
 
+    }
+    if (activeModalTab === 'console') {
+      const consoleMath = document.getElementById('modal-console-math');
+      if (consoleMath) renderLatexFormula(consoleMath, bot.mathFormula, true);
+    } else if (activeModalTab === 'whitepaper') {
+      const wpMath = document.getElementById('modal-wp-math');
+      if (wpMath) renderLatexFormula(wpMath, bot.mathFormula, true);
+      const wpDeriv = document.getElementById('modal-wp-derivation');
+      if (wpDeriv) renderLatexFormula(wpDeriv, bot.mathDerivation, true);
     }
     typesetMathJax(bodyEl);
   };

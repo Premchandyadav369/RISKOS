@@ -786,6 +786,28 @@
   justify-content: center;
 }
 
+
+.math-jax-block .katex-display {
+  margin: 0 !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.4) transparent;
+}
+
+.math-jax-block .katex {
+  color: #22d3ee !important;
+  font-size: 0.95em;
+  text-rendering: auto;
+}
+
+.math-jax-block .katex-html {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
 .math-jax-block mjx-container {
   margin: 0 !important;
   color: #22d3ee !important;
