@@ -57,7 +57,7 @@
         <a href="app.html" class="nav-link"><i class="fa-solid fa-cubes" style="margin-right:4px;"></i> 7 Desks</a>
         <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
         <a href="observatory.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right:4px;"></i> Observatory</a>
-        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 57 Labs</a>
+        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 65 Labs</a>
         <a href="ticker.html" class="nav-link"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> Screener</a>
         <a href="portfolio_optimizer.html" class="nav-link"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
           <a href="docs.html" class="nav-link active"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:4px;"></i> System Docs</a>
@@ -691,7 +691,7 @@ u)$.
             </p>
           </div>
 
-          <!-- 8. 57 Labs Mastery -->
+          <!-- 8. 65 Labs Mastery -->
           <div id="labs-mastery" class="doc-section" style="padding:16px; background:#04060a;">
             <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-graduation-cap"></i> 8. 57 Interactive Quantitative Labs with Everyday Layman Mode</h4>
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
@@ -784,6 +784,97 @@ u)$.
               <strong>Layman Analogy:</strong> A nutrition label for your stocks. Just like food labels reveal sugar, protein, and fat, this radar tells you if your portfolio is heavy on Momentum, Value, Quality, or High Volatility.<br>
               <strong>Institutional Quant:</strong> 6-factor cross-sectional $z$-score decomposition against the NIFTY 50 and S&P 500 benchmarks rendered on an interactive Chart.js radar.
             </p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 7.7: TIER-1 FRONT-OFFICE INSTITUTIONAL SUITE (QUANT, IB, INSURANCE & ASSET MANAGEMENT) -->
+      <section id="front-office-suite" class="doc-section">
+        <div class="doc-header-row">
+          <h2 class="doc-title"><i class="fa-solid fa-building-columns text-cyan"></i> Tier-1 Front-Office Institutional Suite</h2>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Quant, IB, Insurance &amp; Asset Management</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- 1. 0DTE GEX Pinning -->
+          <div id="gex-pinning-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#facc15; margin:0 0 6px 0;"><i class="fa-solid fa-bolt"></i> 1. 0DTE Gamma Exposure (GEX) &amp; Dealer Pinning Engine (Quant / Prop Trading)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Shock absorbers on a sports car. When market makers are long gamma, they sell rallies and buy dips, acting like powerful brakes that pin the market at the biggest strike. When gamma turns negative, they buy rallies and dump dips, igniting violent runaway intraday trend accelerations.<br>
+              <strong>Institutional Quant:</strong> Real-time aggregate market-maker gamma profiling across strikes: $\text{GEX}_K = \sum_{\text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{\text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100$. Pinpoints the Zero-Gamma Flip Strike $S^*$ where delta-hedging flips from mean-reversion dampening to directional volatility explosion.
+            </p>
+            <div style="font-size:0.8rem; color:#facc15;">$$\frac{dS_t}{dt} \propto -\text{GEX}_t \cdot \Delta S_t, \quad S^* = S \cdot \left[1 - \kappa \frac{\text{Net GEX}}{\text{Gross GEX}}\right]$$</div>
+          </div>
+
+          <!-- 2. Hawkes Liquidity Cascades -->
+          <div id="hawkes-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#f43f5e; margin:0 0 6px 0;"><i class="fa-solid fa-wave-square"></i> 2. Self-Exciting Hawkes Point Process &amp; Flash-Crash Radar (HFT Microstructure)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Earthquake tremors and aftershocks. A large institutional order creates aftershock tremors that trigger further panic cancellations. If the tremor rate ($\alpha$) exceeds the calming dissipation rate ($\beta$), liquidity vaporizes into an instantaneous flash crash.<br>
+              <strong>Institutional Quant:</strong> Non-Markovian point process with conditional intensity $\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}$. Computes the branching ratio $\eta = \alpha / \beta$; when $\eta \ge 1.0$, the order book transitions into an explosive supercritical liquidity avalanche.
+            </p>
+            <div style="font-size:0.8rem; color:#f43f5e;">$$\lambda(t) = \mu + \int_0^t \alpha e^{-\beta(t-s)} dN(s), \quad \mathbb{E}[C] = \frac{1}{1 - \min(0.99, \eta)}$$</div>
+          </div>
+
+          <!-- 3. LBO Debt Waterfall -->
+          <div id="lbo-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#f59e0b; margin:0 0 6px 0;"><i class="fa-solid fa-briefcase"></i> 3. Dynamic Leveraged Buyout (LBO) Debt Waterfall &amp; Sponsor IRR (Investment Banking)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Buying a rental property with 60% bank mortgage and 40% equity. Using the annual tenant rent to aggressively pay off the bank loan over 5 years turns a modest 25% property value gain into a 130% equity windfall (2.3x return on capital).<br>
+              <strong>Institutional Quant:</strong> Full corporate finance debt schedule with 100% free cash flow sweeps, senior term debt paydown, and exit returns sensitivity grid. Decomposes returns into EBITDA growth, multiple expansion, and balance-sheet deleveraging.
+            </p>
+            <div style="font-size:0.8rem; color:#f59e0b;">$$\text{MOIC} = \frac{\text{EBITDA}_T \cdot M_{\text{exit}} - (D_0 - \sum \text{FCF}_t)}{E_0}, \quad \text{IRR} = (\text{MOIC})^{1/T} - 1$$</div>
+          </div>
+
+          <!-- 4. Merton Structural Credit -->
+          <div id="merton-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#38bdf8; margin:0 0 6px 0;"><i class="fa-solid fa-landmark"></i> 4. Merton Structural Credit &amp; Distance-to-Default (Debt Capital Markets &amp; Moody's KMV)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Measuring the safety cushion of a business before its assets sink below its bank debt. Equity is treated as a call option on the company's total assets, revealing how many standard deviations of safety buffer separate the firm from bankruptcy.<br>
+              <strong>Institutional Quant:</strong> Solves the simultaneous non-linear Black-Scholes inversion for unobservable firm asset value $V_A$ and asset volatility $\sigma_A$. Computes Distance-to-Default (DD) and 1-year Expected Default Frequency (EDF) mapped to S&amp;P/Moody's credit rating tiers.
+            </p>
+            <div style="font-size:0.8rem; color:#38bdf8;">$$\text{DD} = \frac{\ln(V_A/D) + (r - \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad \text{EDF} = \mathcal{N}(-\text{DD}), \quad s_{\text{credit}} = -\frac{1}{T}\ln\left(\frac{V_A \mathcal{N}(-d_1) + D e^{-rT}\mathcal{N}(d_2)}{D e^{-rT}}\right)$$</div>
+          </div>
+
+          <!-- 5. Solvency II EVT Catastrophe -->
+          <div id="solvency-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#f43f5e; margin:0 0 6px 0;"><i class="fa-solid fa-shield-halved"></i> 5. Extreme Value Theory (EVT) &amp; Solvency II 99.5% SCR Engine (Insurance &amp; Reinsurance)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Sizing a coastal storm surge sea wall so that only a 1-in-200 year super-cyclone can ever breach it. Regular bell curves fail during extreme natural disasters; EVT models the fat tail of catastrophe losses to ensure insurance vaults never run dry.<br>
+              <strong>Institutional Quant:</strong> Pickands-Balkema-de Haan theorem modeling tail exceedances via the Generalized Pareto Distribution (GPD). Calculates the mandatory European Solvency II 99.5% Solvency Capital Requirement (SCR) and Expected Shortfall (ES) for Cat Bond pricing.
+            </p>
+            <div style="font-size:0.8rem; color:#f43f5e;">$$\text{SCR}_{99.5} = u + \frac{\beta}{\xi} \left[ \left(\frac{N}{N_u}(0.005)\right)^{-\xi} - 1 \right], \quad \text{ES}_{99.5} = \frac{\text{SCR}_{99.5}}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}$$</div>
+          </div>
+
+          <!-- 6. Actuarial ALM Immunization -->
+          <div id="alm-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#10b981; margin:0 0 6px 0;"><i class="fa-solid fa-scale-unbalanced"></i> 6. Actuarial ALM &amp; Redington Key-Rate Immunization (Life &amp; Pension Solvency)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Balancing a seesaw where one side is the retirement money owed to pensioners in 25 years and the other side is government bonds held today. Immunization matches the balance point and curve so that whether interest rates plunge or spike, the pension remains 100% funded.<br>
+              <strong>Institutional Quant:</strong> Second-order Taylor series immunization satisfying F.M. Redington's conditions: $D_A = D_L$ and $C_A > C_L$. Positive convexity surplus guarantees that equity surplus expands regardless of whether central banks hike or slash interest rates.
+            </p>
+            <div style="font-size:0.8rem; color:#10b981;">$$\Delta E \approx -L(D_A - D_L)\Delta y + \frac{1}{2} L(C_A - C_L)(\Delta y)^2, \quad \text{Status} = \begin{cases} \text{IMMUNIZED} & \text{if } |D_A - D_L| \le 0.15 \text{ and } C_A > C_L \\ \text{EXPOSED} & \text{otherwise} \end{cases}$$</div>
+          </div>
+
+          <!-- 7. CLO Tranche Waterfall -->
+          <div id="clo-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#38bdf8; margin:0 0 6px 0;"><i class="fa-solid fa-layer-group"></i> 7. CLO Tranche Cash-Flow &amp; Loss Absorption Waterfall (Structured Credit &amp; Fixed Income)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A multi-level champagne fountain. When loan interest rolls in, the top tier (AAA Tranche) fills up first and never misses a single dollar. The bottom tier (Equity Tranche) absorbs 100% of tenant loan defaults, shielding senior institutional investors from any impairment.<br>
+              <strong>Institutional Quant:</strong> Structured finance priority of payments waterfall across collateralized corporate leveraged loans. Simulates correlated defaults via Gaussian Copula, evaluating subordination attachment buffers and cash-flow diversion triggers.
+            </p>
+            <div style="font-size:0.8rem; color:#38bdf8;">$$L_{\text{pool}} = \text{Pool} \cdot P_D \cdot (1 - R), \quad L_k = \min(S_k, \max(0, L_{\text{rem}})), \quad \text{AAA Subordination} = 35\%$$</div>
+          </div>
+
+          <!-- 8. OAS Binomial Tree -->
+          <div id="oas-doc" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#818cf8; margin:0 0 6px 0;"><i class="fa-solid fa-tree"></i> 8. Option-Adjusted Spread (OAS) &amp; Binomial Short-Rate Tree (Mortgage &amp; Corporate Bonds)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Revealing the true honest interest rate on a loan. When a company issues a callable bond, they hold an option to take your bond away if interest rates drop. OAS strips away the hidden cost of this borrower option to reveal the pure, honest credit compensation you actually earn.<br>
+              <strong>Institutional Quant:</strong> Backward induction on a calibrated recombining binomial interest rate tree ($r_{i,j} = r_{i,0} e^{2j\sigma\sqrt{\Delta t}}$). Isolates Option Cost from nominal Z-spread: $\text{OAS} = \text{Z-Spread} - \text{Option Cost (bps)}$ and calculates Effective Duration.
+            </p>
+            <div style="font-size:0.8rem; color:#818cf8;">$$P_{\text{callable}} = P_{\text{straight}} - V_{\text{call}}, \quad \text{OAS} = z_{\text{nominal}} - \frac{V_{\text{call}}}{P_0}\cdot 10000, \quad D_{\text{eff}} = \frac{P_- - P_+}{2 P_0 \Delta y}$$</div>
           </div>
         </div>
       </section>

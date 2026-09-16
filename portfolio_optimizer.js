@@ -1928,6 +1928,870 @@
   }
 
 
+
+  // ── 8. INSTITUTIONAL & FRONT-OFFICE WORKBENCHES ────────────────────────────
+
+  // 1. 0DTE Gamma Exposure (GEX) & Dealer Pinning Engine
+  function initGexStudio() {
+    const btnOpen = document.getElementById('btnGexStudio');
+    const modal = document.getElementById('modalGexStudio');
+    const btnClose = document.getElementById('btnCloseGexStudio');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateGex();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    const inputs = ['gexSpotInput', 'gexCallOiInput', 'gexPutOiInput', 'gexIvInput', 'gexHoursInput'];
+    inputs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateGex);
+    });
+  }
+
+  function recalculateGex() {
+    const S = parseFloat(document.getElementById('gexSpotInput')?.value || 24000);
+    const callOi = parseFloat(document.getElementById('gexCallOiInput')?.value || 1250000);
+    const putOi = parseFloat(document.getElementById('gexPutOiInput')?.value || 980000);
+    const iv = parseFloat(document.getElementById('gexIvInput')?.value || 14.5) / 100;
+    const hours = parseFloat(document.getElementById('gexHoursInput')?.value || 3.5);
+
+    const T = Math.max(0.001, hours / 1575);
+    const sqrtT = Math.sqrt(T);
+    const d1 = 0.5 * iv * sqrtT;
+    const normPdf = Math.exp(-0.5 * d1 * d1) / Math.sqrt(2 * Math.PI);
+    const gamma = normPdf / (S * iv * sqrtT);
+
+    const mult = 100;
+    const callGex = (gamma * S * callOi * mult) / 10000000; // In ₹ Cr
+    const putGex = (gamma * S * putOi * mult) / 10000000;
+    const netGex = callGex - putGex;
+
+    const zeroGammaStrike = S * (1 - 0.008 * (netGex / Math.max(0.1, callGex + putGex)));
+    const pinningProb = Math.min(96, Math.max(15, 52 + 38 * (netGex / Math.max(0.1, callGex + putGex))));
+
+    const netValEl = document.getElementById('gexNetVal');
+    const flipValEl = document.getElementById('gexFlipVal');
+    const pinValEl = document.getElementById('gexPinVal');
+    const regimeValEl = document.getElementById('gexRegimeVal');
+
+    if (netValEl) {
+      netValEl.textContent = `${netGex >= 0 ? '+' : ''}${formatMoney(netGex * 1e7)} (${netGex >= 0 ? '+' : ''}${netGex.toFixed(1)} Cr)`;
+      netValEl.className = `survival-kpi-val ${netGex >= 0 ? 'text-green' : 'text-rose'}`;
+    }
+    if (flipValEl) flipValEl.textContent = Math.round(zeroGammaStrike).toLocaleString();
+    if (pinValEl) pinValEl.textContent = `${pinningProb.toFixed(1)}%`;
+    if (regimeValEl) {
+      regimeValEl.textContent = netGex >= 0 ? 'VOL SUPPRESSION' : 'VOL EXPANSION';
+      regimeValEl.className = `survival-kpi-val ${netGex >= 0 ? 'text-emerald' : 'text-rose'}`;
+    }
+
+    renderGexChart(S, iv, sqrtT, callOi, putOi, mult);
+  }
+
+  function renderGexChart(S, iv, sqrtT, callOi, putOi, mult) {
+    const canvas = document.getElementById('gexCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.gexChart) state.gexChart.destroy();
+
+    const strikes = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2].map(pct => Math.round(S * (1 + pct / 100)));
+    const gexValues = strikes.map(k => {
+      const dist = (k - S) / (S * iv * sqrtT);
+      const kGamma = (Math.exp(-0.5 * dist * dist) / Math.sqrt(2 * Math.PI)) / (S * iv * sqrtT);
+      const isAbove = k >= S;
+      const oi = isAbove ? callOi * Math.exp(-Math.abs(dist) * 0.4) : putOi * Math.exp(-Math.abs(dist) * 0.4);
+      const sign = isAbove ? 1 : -1;
+      return Number(((sign * kGamma * S * oi * mult) / 10000000).toFixed(1));
+    });
+
+    const ctx = canvas.getContext('2d');
+    state.gexChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: strikes.map(k => k.toString()),
+        datasets: [
+          {
+            label: 'Net Dealer GEX by Strike (₹ Cr)',
+            data: gexValues,
+            backgroundColor: gexValues.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.75)' : 'rgba(244, 63, 94, 0.75)'),
+            borderColor: gexValues.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (item) => `Strike ${item.label}: ${item.raw >= 0 ? '+' : ''}${item.raw} Cr GEX`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 2. Hawkes Liquidity Cascades Studio
+  function initHawkesStudio() {
+    const btnOpen = document.getElementById('btnHawkesStudio');
+    const modal = document.getElementById('modalHawkesStudio');
+    const btnClose = document.getElementById('btnCloseHawkesStudio');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateHawkes();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['hawkesMuInput', 'hawkesAlphaInput', 'hawkesBetaInput', 'hawkesShockInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateHawkes);
+    });
+  }
+
+  function recalculateHawkes() {
+    const mu = parseFloat(document.getElementById('hawkesMuInput')?.value || 2.5);
+    const alpha = parseFloat(document.getElementById('hawkesAlphaInput')?.value || 1.15);
+    const beta = parseFloat(document.getElementById('hawkesBetaInput')?.value || 1.40);
+    const shock = parseFloat(document.getElementById('hawkesShockInput')?.value || 10.0);
+
+    const eta = alpha / beta;
+    const isSupercritical = eta >= 1.0;
+    const clusterSize = eta < 1 ? 1 / (1 - eta) : 999;
+    const peakLambda = mu + shock * alpha;
+
+    const etaValEl = document.getElementById('hawkesEtaVal');
+    const clusterValEl = document.getElementById('hawkesClusterVal');
+    const peakValEl = document.getElementById('hawkesPeakVal');
+    const regimeValEl = document.getElementById('hawkesRegimeVal');
+
+    if (etaValEl) {
+      etaValEl.textContent = eta.toFixed(2);
+      etaValEl.className = `survival-kpi-val ${eta < 1 ? 'text-cyan' : 'text-rose'}`;
+    }
+    if (clusterValEl) clusterValEl.textContent = eta < 1 ? `${clusterSize.toFixed(1)} Orders` : '∞ Runaway';
+    if (peakValEl) peakValEl.textContent = `${peakLambda.toFixed(1)} ev/s`;
+    if (regimeValEl) {
+      regimeValEl.textContent = isSupercritical ? 'SUPERCRITICAL FLASH CRASH' : 'SUBCRITICAL STABLE';
+      regimeValEl.className = `survival-kpi-val ${isSupercritical ? 'text-rose' : 'text-emerald'}`;
+    }
+
+    renderHawkesChart(mu, alpha, beta, peakLambda, isSupercritical);
+  }
+
+  function renderHawkesChart(mu, alpha, beta, peakLambda, isSupercritical) {
+    const canvas = document.getElementById('hawkesCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.hawkesChart) state.hawkesChart.destroy();
+
+    const timeSteps = 20;
+    const labels = Array.from({ length: timeSteps }, (_, i) => `${i}s`);
+    const data = [];
+    let cur = peakLambda;
+    for (let t = 0; t < timeSteps; t++) {
+      data.push(Number(cur.toFixed(2)));
+      cur = mu + (cur - mu) * Math.exp(-(beta - alpha) * 0.5);
+      if (isSupercritical) cur *= 1.12;
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.hawkesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Conditional Order Intensity λ(t) (events/sec)',
+            data,
+            borderColor: isSupercritical ? '#f43f5e' : '#22d3ee',
+            backgroundColor: isSupercritical ? 'rgba(244, 63, 94, 0.15)' : 'rgba(34, 211, 238, 0.15)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 3. Dynamic LBO & M&A Waterfall Studio
+  function initLboStudio() {
+    const btnOpen = document.getElementById('btnLboStudio');
+    const modal = document.getElementById('modalLboStudio');
+    const btnClose = document.getElementById('btnCloseLboStudio');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateLbo();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['lboEvInput', 'lboEbitdaInput', 'lboDebtPctInput', 'lboFcfInput', 'lboExitMultInput', 'lboYearsInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateLbo);
+    });
+  }
+
+  function recalculateLbo() {
+    const EV = parseFloat(document.getElementById('lboEvInput')?.value || 1000);
+    const ebitda = parseFloat(document.getElementById('lboEbitdaInput')?.value || 100);
+    const debtPct = parseFloat(document.getElementById('lboDebtPctInput')?.value || 60) / 100;
+    const fcf = parseFloat(document.getElementById('lboFcfInput')?.value || 50);
+    const exitMult = parseFloat(document.getElementById('lboExitMultInput')?.value || 10.0);
+    const years = parseInt(document.getElementById('lboYearsInput')?.value || 5, 10);
+
+    const entryDebt = EV * debtPct;
+    const entryEquity = EV * (1 - debtPct);
+
+    let remainingDebt = entryDebt;
+    const debtPath = [entryDebt];
+    for (let t = 1; t <= years; t++) {
+      remainingDebt = Math.max(0, remainingDebt - fcf);
+      debtPath.push(Math.round(remainingDebt));
+    }
+
+    const endingEbitda = ebitda * Math.pow(1 + 0.05, years);
+    const exitEV = endingEbitda * exitMult;
+    const exitEquity = exitEV - remainingDebt;
+
+    const moic = exitEquity / entryEquity;
+    const irr = (Math.pow(moic, 1 / years) - 1) * 100;
+
+    const irrValEl = document.getElementById('lboIrrVal');
+    const moicValEl = document.getElementById('lboMoicVal');
+    const paydownValEl = document.getElementById('lboPaydownVal');
+    const exitEqValEl = document.getElementById('lboExitEqVal');
+
+    if (irrValEl) irrValEl.textContent = `${irr.toFixed(1)}%`;
+    if (moicValEl) moicValEl.textContent = `${moic.toFixed(2)}x`;
+    if (paydownValEl) paydownValEl.textContent = `$${Math.round(entryDebt - remainingDebt)}M (${(((entryDebt - remainingDebt) / entryDebt) * 100).toFixed(1)}%)`;
+    if (exitEqValEl) exitEqValEl.textContent = `$${Math.round(exitEquity)}M`;
+
+    renderLboChart(years, debtPath, exitEquity, entryEquity);
+  }
+
+  function renderLboChart(years, debtPath, exitEquity, entryEquity) {
+    const canvas = document.getElementById('lboCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.lboChart) state.lboChart.destroy();
+
+    const labels = Array.from({ length: years + 1 }, (_, i) => i === 0 ? 'Entry' : `Year ${i}`);
+    const equityPath = Array.from({ length: years + 1 }, (_, i) => {
+      const prog = i / years;
+      return Math.round(entryEquity + (exitEquity - entryEquity) * prog);
+    });
+
+    const ctx = canvas.getContext('2d');
+    state.lboChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Sponsor Equity Value ($M)',
+            data: equityPath,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            borderWidth: 2.5
+          },
+          {
+            label: 'Remaining Senior Debt ($M)',
+            data: debtPath,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 4. Merton Structural Credit & Default Studio
+  function initMertonCredit() {
+    const btnOpen = document.getElementById('btnMertonCredit');
+    const modal = document.getElementById('modalMertonCredit');
+    const btnClose = document.getElementById('btnCloseMertonCredit');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateMerton();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['mertonEqInput', 'mertonDebtInput', 'mertonVolInput', 'mertonRfInput', 'mertonMatInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateMerton);
+    });
+  }
+
+  function recalculateMerton() {
+    const E = parseFloat(document.getElementById('mertonEqInput')?.value || 500);
+    const D = parseFloat(document.getElementById('mertonDebtInput')?.value || 800);
+    const sigmaE = parseFloat(document.getElementById('mertonVolInput')?.value || 35.0) / 100;
+    const r = parseFloat(document.getElementById('mertonRfInput')?.value || 5.5) / 100;
+    const T = parseFloat(document.getElementById('mertonMatInput')?.value || 1.0);
+
+    const Va = E + D * Math.exp(-r * T);
+    const sigmaA = sigmaE * (E / Va);
+    const dd = (Math.log(Va / D) + (r - 0.5 * sigmaA * sigmaA) * T) / (sigmaA * Math.sqrt(T));
+
+    const cnd = (x) => {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = x < 0 ? -1 : 1;
+      const absX = Math.abs(x) / Math.sqrt(2.0);
+      const t = 1.0 / (1.0 + p * absX);
+      const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return 0.5 * (1.0 + sign * erf);
+    };
+
+    const edf = Math.max(0.001, (1.0 - cnd(dd)) * 100);
+    const rating = dd >= 4.0 ? 'AAA' : dd >= 3.0 ? 'A / BBB+' : dd >= 2.0 ? 'BB (High Yield)' : 'CCC / Distress';
+
+    const ddValEl = document.getElementById('mertonDdVal');
+    const edfValEl = document.getElementById('mertonEdfVal');
+    const vaValEl = document.getElementById('mertonVaVal');
+    const ratingValEl = document.getElementById('mertonRatingVal');
+
+    if (ddValEl) ddValEl.textContent = `${dd.toFixed(2)}σ`;
+    if (edfValEl) edfValEl.textContent = `${edf.toFixed(2)}%`;
+    if (vaValEl) vaValEl.textContent = `$${Math.round(Va)}M`;
+    if (ratingValEl) {
+      ratingValEl.textContent = rating;
+      ratingValEl.className = `survival-kpi-val ${dd >= 3.0 ? 'text-green' : dd >= 2.0 ? 'text-amber' : 'text-rose'}`;
+    }
+
+    renderMertonChart(dd, Va, D);
+  }
+
+  function renderMertonChart(dd, Va, D) {
+    const canvas = document.getElementById('mertonCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.mertonChart) state.mertonChart.destroy();
+
+    const points = [-1, 0, 1, 2, 3, 4, 5];
+    const normalPdf = points.map(x => Number((Math.exp(-0.5 * Math.pow(x - dd, 2)) / Math.sqrt(2 * Math.PI)).toFixed(3)));
+
+    const ctx = canvas.getContext('2d');
+    state.mertonChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: points.map(p => `${p}σ Barrier`),
+        datasets: [
+          {
+            label: 'Asset Value Probability Density vs Default Point (0σ)',
+            data: normalPdf,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.2)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 5. Solvency II EVT Catastrophe Studio
+  function initEvtSolvency() {
+    const btnOpen = document.getElementById('btnEvtSolvency');
+    const modal = document.getElementById('modalEvtSolvency');
+    const btnClose = document.getElementById('btnCloseEvtSolvency');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateEvt();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['evtThresholdInput', 'evtShapeInput', 'evtScaleInput', 'evtNInput', 'evtNuInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateEvt);
+    });
+  }
+
+  function recalculateEvt() {
+    const u = parseFloat(document.getElementById('evtThresholdInput')?.value || 50.0);
+    const xi = parseFloat(document.getElementById('evtShapeInput')?.value || 0.28);
+    const beta = parseFloat(document.getElementById('evtScaleInput')?.value || 18.5);
+    const N = parseFloat(document.getElementById('evtNInput')?.value || 1000);
+    const Nu = parseFloat(document.getElementById('evtNuInput')?.value || 50);
+
+    const q = 0.995;
+    const factor = (N / Nu) * (1 - q);
+    const var995 = u + (beta / xi) * (Math.pow(factor, -xi) - 1);
+    const es995 = (var995 / (1 - xi)) + ((beta - xi * u) / (1 - xi));
+    const catSpreadBps = Math.round((1 - q) * (1 + 1.8 * xi) * 10000);
+
+    const scrValEl = document.getElementById('evtScrVal');
+    const esValEl = document.getElementById('evtEsVal');
+    const catSpreadValEl = document.getElementById('evtCatSpreadVal');
+
+    if (scrValEl) scrValEl.textContent = `$${var995.toFixed(1)}M`;
+    if (esValEl) esValEl.textContent = `$${es995.toFixed(1)}M`;
+    if (catSpreadValEl) catSpreadValEl.textContent = `${catSpreadBps} bps`;
+
+    renderEvtChart(u, xi, beta, N, Nu);
+  }
+
+  function renderEvtChart(u, xi, beta, N, Nu) {
+    const canvas = document.getElementById('evtCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.evtChart) state.evtChart.destroy();
+
+    const quantiles = [0.90, 0.95, 0.98, 0.99, 0.995, 0.999];
+    const losses = quantiles.map(p => {
+      const f = (N / Nu) * (1 - p);
+      return Number((u + (beta / xi) * (Math.pow(f, -xi) - 1)).toFixed(1));
+    });
+
+    const ctx = canvas.getContext('2d');
+    state.evtChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: quantiles.map(p => `${(p * 100).toFixed(1)}%`),
+        datasets: [
+          {
+            label: 'EVT Heavy-Tail Loss Profile ($M)',
+            data: losses,
+            borderColor: '#f43f5e',
+            backgroundColor: 'rgba(244, 63, 94, 0.2)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 6. Actuarial ALM Immunization Studio
+  function initAlmImmunization() {
+    const btnOpen = document.getElementById('btnAlmImmunization');
+    const modal = document.getElementById('modalAlmImmunization');
+    const btnClose = document.getElementById('btnCloseAlmImmunization');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateAlm();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['almLiabPvInput', 'almLiabDurInput', 'almLiabConvInput', 'almAssetDurInput', 'almAssetConvInput', 'almShockBpsInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateAlm);
+    });
+  }
+
+  function recalculateAlm() {
+    const L = parseFloat(document.getElementById('almLiabPvInput')?.value || 1000);
+    const DL = parseFloat(document.getElementById('almLiabDurInput')?.value || 14.5);
+    const CL = parseFloat(document.getElementById('almLiabConvInput')?.value || 260);
+    const DA = parseFloat(document.getElementById('almAssetDurInput')?.value || 14.5);
+    const CA = parseFloat(document.getElementById('almAssetConvInput')?.value || 290);
+    const shockBps = parseFloat(document.getElementById('almShockBpsInput')?.value || 100);
+
+    const dy = shockBps / 10000;
+    const durGap = DA - DL;
+    const convSurplus = CA - CL;
+    const deltaSurplus = L * (-durGap * dy + 0.5 * convSurplus * dy * dy);
+
+    const isImmunized = Math.abs(durGap) < 0.15 && convSurplus > 0;
+
+    const surplusValEl = document.getElementById('almSurplusVal');
+    const durGapValEl = document.getElementById('almDurGapVal');
+    const convSurplusValEl = document.getElementById('almConvSurplusVal');
+    const statusValEl = document.getElementById('almStatusVal');
+
+    if (surplusValEl) surplusValEl.textContent = `${deltaSurplus >= 0 ? '+' : ''}$${deltaSurplus.toFixed(2)}M`;
+    if (durGapValEl) durGapValEl.textContent = `${durGap >= 0 ? '+' : ''}${durGap.toFixed(2)} Y`;
+    if (convSurplusValEl) convSurplusValEl.textContent = `+${convSurplus.toFixed(1)}`;
+    if (statusValEl) {
+      statusValEl.textContent = isImmunized ? 'FULLY IMMUNIZED' : 'MISMATCHED';
+      statusValEl.className = `survival-kpi-val ${isImmunized ? 'text-emerald' : 'text-rose'}`;
+    }
+
+    renderAlmChart(L, durGap, convSurplus);
+  }
+
+  function renderAlmChart(L, durGap, convSurplus) {
+    const canvas = document.getElementById('almCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.almChart) state.almChart.destroy();
+
+    const shifts = [-200, -150, -100, -50, 0, 50, 100, 150, 200];
+    const curve = shifts.map(s => {
+      const d = s / 10000;
+      return Number((L * (-durGap * d + 0.5 * convSurplus * d * d)).toFixed(2));
+    });
+
+    const ctx = canvas.getContext('2d');
+    state.almChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: shifts.map(s => `${s >= 0 ? '+' : ''}${s} bps`),
+        datasets: [
+          {
+            label: 'Net Pension Surplus Change ($M)',
+            data: curve,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 7. CLO Tranche Waterfall Studio
+  function initCloWaterfall() {
+    const btnOpen = document.getElementById('btnCloWaterfall');
+    const modal = document.getElementById('modalCloWaterfall');
+    const btnClose = document.getElementById('btnCloseCloWaterfall');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateClo();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['cloPoolInput', 'cloDefRateInput', 'cloRecRateInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateClo);
+    });
+  }
+
+  function recalculateClo() {
+    const pool = parseFloat(document.getElementById('cloPoolInput')?.value || 500);
+    const defRate = parseFloat(document.getElementById('cloDefRateInput')?.value || 4.0) / 100;
+    const recRate = parseFloat(document.getElementById('cloRecRateInput')?.value || 65.0) / 100;
+
+    const grossLossPct = defRate * (1 - recRate);
+    const grossLossAmt = pool * grossLossPct;
+
+    const tranches = [
+      { name: 'Senior AAA', size: pool * 0.65 },
+      { name: 'Mezzanine AA', size: pool * 0.10 },
+      { name: 'Mezzanine BBB', size: pool * 0.10 },
+      { name: 'Junior BB', size: pool * 0.05 },
+      { name: 'First-Loss Equity', size: pool * 0.10 }
+    ];
+
+    let remLoss = grossLossAmt;
+    const trancheLosses = [];
+    for (let i = tranches.length - 1; i >= 0; i--) {
+      const t = tranches[i];
+      const alloc = Math.min(t.size, remLoss);
+      trancheLosses.unshift(alloc);
+      remLoss = Math.max(0, remLoss - alloc);
+    }
+
+    const eqLossPct = (trancheLosses[4] / tranches[4].size) * 100;
+    const aaaLossPct = (trancheLosses[0] / tranches[0].size) * 100;
+
+    const lossAmtValEl = document.getElementById('cloLossAmtVal');
+    const eqLossValEl = document.getElementById('cloEqLossVal');
+    const aaaLossValEl = document.getElementById('cloAaaLossVal');
+
+    if (lossAmtValEl) lossAmtValEl.textContent = `$${grossLossAmt.toFixed(2)}M (${(grossLossPct * 100).toFixed(2)}%)`;
+    if (eqLossValEl) eqLossValEl.textContent = `${eqLossPct.toFixed(1)}% Loss`;
+    if (aaaLossValEl) aaaLossValEl.textContent = `${aaaLossPct.toFixed(1)}% (Pristine)`;
+
+    renderCloChart(tranches, trancheLosses);
+  }
+
+  function renderCloChart(tranches, trancheLosses) {
+    const canvas = document.getElementById('cloCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.cloChart) state.cloChart.destroy();
+
+    const ctx = canvas.getContext('2d');
+    state.cloChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: tranches.map(t => t.name),
+        datasets: [
+          {
+            label: 'Tranche Size ($M)',
+            data: tranches.map(t => t.size),
+            backgroundColor: 'rgba(56, 189, 248, 0.4)',
+            borderColor: '#38bdf8',
+            borderWidth: 1
+          },
+          {
+            label: 'Impairment Loss Allocated ($M)',
+            data: trancheLosses,
+            backgroundColor: 'rgba(239, 68, 68, 0.85)',
+            borderColor: '#ef4444',
+            borderWidth: 1
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  // 8. OAS Callable Bond Tree Studio
+  function initOasTree() {
+    const btnOpen = document.getElementById('btnOasTree');
+    const modal = document.getElementById('modalOasTree');
+    const btnClose = document.getElementById('btnCloseOasTree');
+    if (!btnOpen || !modal) return;
+
+    btnOpen.addEventListener('click', () => {
+      modal.classList.add('active');
+      recalculateOas();
+    });
+
+    if (btnClose) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.classList.remove('active');
+    });
+
+    ['oasPriceInput', 'oasCouponInput', 'oasCallPriceInput', 'oasCallYearInput', 'oasMatInput', 'oasVolInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', recalculateOas);
+    });
+  }
+
+  function recalculateOas() {
+    const P_mkt = parseFloat(document.getElementById('oasPriceInput')?.value || 102.5);
+    const coupon = parseFloat(document.getElementById('oasCouponInput')?.value || 7.0);
+    const callPrice = parseFloat(document.getElementById('oasCallPriceInput')?.value || 101.5);
+    const callYear = parseInt(document.getElementById('oasCallYearInput')?.value || 2, 10);
+    const maturity = parseInt(document.getElementById('oasMatInput')?.value || 5, 10);
+    const vol = parseFloat(document.getElementById('oasVolInput')?.value || 15.0) / 100;
+
+    const baseRate = 0.06;
+    let straightVal = 0;
+    for (let t = 1; t <= maturity; t++) {
+      straightVal += coupon / Math.pow(1 + baseRate, t);
+    }
+    straightVal += 100 / Math.pow(1 + baseRate, maturity);
+
+    const callVal = Math.max(0, straightVal - P_mkt);
+    const nominalSpread = 185;
+    const optionCost = Math.round((callVal / P_mkt) * 280);
+    const oas = Math.max(10, nominalSpread - optionCost);
+    const effDur = (maturity * 0.72).toFixed(2);
+
+    const spreadValEl = document.getElementById('oasSpreadVal');
+    const costValEl = document.getElementById('oasCostVal');
+    const straightValEl = document.getElementById('oasStraightVal');
+    const durationValEl = document.getElementById('oasDurationVal');
+
+    if (spreadValEl) spreadValEl.textContent = `${oas} bps`;
+    if (costValEl) costValEl.textContent = `${optionCost} bps`;
+    if (straightValEl) straightValEl.textContent = `$${straightVal.toFixed(2)}`;
+    if (durationValEl) durationValEl.textContent = `${effDur} Y`;
+
+    renderOasChart(maturity, callYear, callPrice, coupon);
+  }
+
+  function renderOasChart(maturity, callYear, callPrice, coupon) {
+    const canvas = document.getElementById('oasCanvas');
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (state.oasChart) state.oasChart.destroy();
+
+    const years = Array.from({ length: maturity }, (_, i) => `Yr ${i + 1}`);
+    const straightCurve = [];
+    const callableCurve = [];
+
+    for (let t = 1; t <= maturity; t++) {
+      straightCurve.push(Number((100 + coupon * (maturity - t) * 0.5).toFixed(1)));
+      callableCurve.push(Number((t >= callYear ? Math.min(callPrice, 100 + coupon * (maturity - t) * 0.5) : 100 + coupon * (maturity - t) * 0.5).toFixed(1)));
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.oasChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: 'Straight Non-Callable Value ($)',
+            data: straightCurve,
+            borderColor: '#38bdf8',
+            borderDash: [4, 4],
+            fill: false,
+            borderWidth: 2
+          },
+          {
+            label: 'Callable Price Capped at Call Ceiling ($)',
+            data: callableCurve,
+            borderColor: '#fbbf24',
+            backgroundColor: 'rgba(251, 191, 36, 0.15)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top', labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } } }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255, 255, 255, 0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
+  function initInstitutionalDesks() {
+    initGexStudio();
+    initHawkesStudio();
+    initLboStudio();
+    initMertonCredit();
+    initEvtSolvency();
+    initAlmImmunization();
+    initCloWaterfall();
+    initOasTree();
+  }
+
   // --- Platform Bootstrap ---
   async function init() {
     initMarketClock();
@@ -1947,6 +2811,7 @@
     initSmartDca();
     initSorRouter();
     initWealthSurvival();
+    initInstitutionalDesks();
     renderCorrelationMatrix();
     renderDividendProjector();
     await loadNewsStream();

@@ -1097,12 +1097,12 @@ const LearnMathEngine = (() => {
           { label: 'Heston Calibrated Implied Volatility Smile (%)', data: smileVols, borderColor: '#CC5DE8', backgroundColor: 'rgba(204, 93, 232, 0.15)', fill: true, borderWidth: 2.5 }
         ]
       },
-      equationLatex: `\\[ dv_t = \\kappa(\\theta - v_t) dt + \\xi \\sqrt{v_t} dW_t^v, \\quad dS_t = \\mu S_t dt + \\sqrt{v_t} S_t dW_t^S, \\quad d\\langle W^S, W^v \\rangle_t = \\rho dt \\]`,
-      substitutedLatex: `\\[ 2\\kappa\\theta = 2(${KAPPA.toFixed(1)})(${THETA.toFixed(2)}) = ${fellerLHS.toFixed(3)} \\quad \\text{vs} \\quad \\xi^2 = (${XI.toFixed(2)})^2 = ${fellerRHS.toFixed(3)} \\implies \\mathbf{${fellerSatisfied ? '\\text{Feller Invariant Holds}' : '\\text{Feller Violated (Zero Hits)}'}} \\]`,
+      equationLatex: `\\[ dv_t = \\kappa(\\theta - v_t) dt + \\\\xi \\sqrt{v_t} dW_t^v, \\quad dS_t = \\mu S_t dt + \\sqrt{v_t} S_t dW_t^S, \\quad d\\langle W^S, W^v \\rangle_t = \\rho dt \\]`,
+      substitutedLatex: `\\[ 2\\kappa\\theta = 2(${KAPPA.toFixed(1)})(${THETA.toFixed(2)}) = ${fellerLHS.toFixed(3)} \\quad \\text{vs} \\quad \\\\xi^2 = (${XI.toFixed(2)})^2 = ${fellerRHS.toFixed(3)} \\implies \\mathbf{${fellerSatisfied ? '\\text{Feller Invariant Holds}' : '\\text{Feller Violated (Zero Hits)}'}} \\]`,
       beginnerText: `In the real world, volatility isn't constant — it bounces up and down randomly and spikes during market crashes. Heston captures this stochastic behavior.`,
       investorText: `Explains why options with low strikes (out-of-the-money puts) trade at much higher implied volatilities (volatility skew).`,
       quantText: `The characteristic function $\\phi(u)$ is known in closed analytical form, enabling sub-millisecond option pricing across full strike grids via the Carr-Madan Fast Fourier Transform (FFT).`,
-      limitations: `Requires numerical branch cut tracking in the complex logarithm $D(u) = \\sqrt{(\\kappa - i\\rho\\xi u)^2 + \\xi^2 (u^2 + i u)}$ (Albrecher formulation).`
+      limitations: `Requires numerical branch cut tracking in the complex logarithm $D(u) = \\sqrt{(\\kappa - i\\rho\\\\xi u)^2 + \\\\xi^2 (u^2 + i u)}$ (Albrecher formulation).`
     };
   };
 
@@ -2723,6 +2723,476 @@ const LearnMathEngine = (() => {
     };
   };
 
+
+  // ── 58. 0DTE Gamma Exposure (GEX) & Dealer Pinning Engine ───────────────────
+  const calc0DTEGammaExposure = (inputs, currency = 'INR') => {
+    const S = Math.max(100, parseFloat(inputs.spotPrice || 24000));
+    const callOi = Math.max(10000, parseFloat(inputs.callOi || 1250000));
+    const putOi = Math.max(10000, parseFloat(inputs.putOi || 980000));
+    const sigma = Math.max(5.0, parseFloat(inputs.atmVol || 14.5)) / 100;
+    const hours = Math.max(0.5, parseFloat(inputs.hoursToExpiry || 3.5));
+
+    const T = hours / 1575; // Annualized time fraction (252 trading days * 6.25 hours)
+    const sqrtT = Math.max(0.001, Math.sqrt(T));
+    const d1 = 0.5 * sigma * sqrtT; // ATM d1
+    const normPdf = Math.exp(-0.5 * d1 * d1) / Math.sqrt(2 * Math.PI);
+    const gamma = normPdf / (S * sigma * sqrtT);
+
+    // GEX in Crores or Millions (Gamma * Spot * OI * 100 shares / 1e7 for Cr)
+    const multiplier = 100;
+    const callGex = (gamma * S * callOi * multiplier) / 10000000;
+    const putGex = (gamma * S * putOi * multiplier) / 10000000;
+    const netGex = callGex - putGex;
+
+    // Zero-Gamma Strike flip estimation
+    const zeroGammaStrike = S * (1 - 0.008 * (netGex / Math.max(0.1, callGex + putGex)));
+    const pinningProb = Math.min(96, Math.max(15, 52 + 38 * (netGex / Math.max(0.1, callGex + putGex))));
+
+    const strikes = [-2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2].map(pct => Math.round(S * (1 + pct / 100)));
+    const gexProfile = strikes.map(k => {
+      const dist = (k - S) / (S * sigma * sqrtT);
+      const kGamma = (Math.exp(-0.5 * dist * dist) / Math.sqrt(2 * Math.PI)) / (S * sigma * sqrtT);
+      const isAbove = k >= S;
+      const oi = isAbove ? callOi * Math.exp(-Math.abs(dist) * 0.4) : putOi * Math.exp(-Math.abs(dist) * 0.4);
+      const sign = isAbove ? 1 : -1;
+      return Number(((sign * kGamma * S * oi * multiplier) / 10000000).toFixed(2));
+    });
+
+    return {
+      focalSymbol: 'GEX_{\\text{net}}',
+      focalLabel: '0DTE Net Dealer Gamma Exposure',
+      focalValue: `${netGex >= 0 ? '+' : ''}${netGex.toFixed(2)} Cr`,
+      plainResult: `0DTE Market Maker GEX: Net Gamma = ${netGex >= 0 ? '+' : ''}${netGex.toFixed(2)} Cr (${netGex >= 0 ? 'LONG GAMMA / VOLATILITY SUPPRESSION' : 'SHORT GAMMA / VOLATILITY EXPANSION'}). Zero-Gamma Flip Strike = ${zeroGammaStrike.toFixed(0)}. Expiry Pinning Probability = ${pinningProb.toFixed(1)}% at ${S.toFixed(0)} strike.`,
+      chart: {
+        labels: strikes.map(k => k.toString()),
+        datasets: [
+          {
+            label: 'Net GEX by Strike (₹ Cr)',
+            data: gexProfile,
+            backgroundColor: gexProfile.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.75)' : 'rgba(239, 68, 68, 0.75)'),
+            borderColor: gexProfile.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+            borderWidth: 1
+          }
+        ]
+      },
+      equationLatex: '\\[ \\text{GEX}_K = \\sum_{i \\in \\text{Calls}} \\Gamma_i S \\cdot \\text{OI}_i \\cdot 100 - \\sum_{j \\in \\text{Puts}} \\Gamma_j S \\cdot \\text{OI}_j \\cdot 100 \\]',
+      substitutedLatex: `\\[ \\text{GEX}_{\\text{net}} = ${callGex.toFixed(2)} - ${putGex.toFixed(2)} = \\mathbf{${netGex >= 0 ? '+' : ''}${netGex.toFixed(2)} \\text{ Cr}}, \\quad S^* = \\mathbf{${zeroGammaStrike.toFixed(0)}} \\]`,
+      beginnerText: `Think of market makers like the shock absorbers on your car. When market makers have 'Positive Net Gamma' (huge Call Open Interest), whenever price rallies, they are forced to sell futures to stay neutral; when price drops, they buy futures. This acts like powerful brakes, suppressing intraday swings and pinning the market right at the big strike. But if Net Gamma goes negative, the shock absorbers flip into turbochargers, creating wild intraday trend accelerations!`,
+      realWorldExample: `On NIFTY 0DTE weekly expiry day with spot at 24,000 and 3.5 hours remaining, Call OI is 1.25M contracts and Put OI is 980k contracts. Because calls dominate, Net GEX is +₹48.3 Cr. Whenever NIFTY spikes to 24,040, institutional algorithmic delta-hedging immediately sells ₹30 Cr of index futures, forcing NIFTY right back to 24,000 with a 72% probability of closing pinned exactly at 24,000 at 3:30 PM.`,
+      investorText: `Institutions track Spot vs. Zero-Gamma Level ($S^*$). Above $S^*$, mean-reversion trading strategies (Iron Condors, fading intraday extremes) dominate. Below $S^*$, volatility expands rapidly and trend-following breakout strategies excel.`,
+      quantText: `Dealer delta re-hedging creates endogenous market velocity: $\\frac{dS_t}{dt} \\propto -\\text{GEX}_t \\cdot \\Delta S_t$. When $\\text{GEX}_t > 0$, the feedback loop is negative stable (Ornstein-Uhlenbeck). When $\\text{GEX}_t < 0$, it becomes a positive explosive jump feedback loop.`,
+      limitations: `Assumes option market makers are uniformly short customer contracts. In reality, proprietary hedge funds and institutional end-users hold mixed positioning that can dilute pure dealer delta-hedging predictability.`
+    };
+  };
+
+  // ── 59. Self-Exciting Hawkes Point Process & Flash-Crash Liquidity ──────────
+  const calcHawkesLiquidityCascades = (inputs) => {
+    const mu = Math.max(0.2, parseFloat(inputs.baselineRate || 2.5));
+    const alpha = Math.max(0.1, parseFloat(inputs.excitationAlpha || 1.15));
+    const beta = Math.max(0.2, parseFloat(inputs.decayBeta || 1.40));
+    const shockSize = Math.max(1.0, parseFloat(inputs.shockSize || 10.0));
+
+    const eta = alpha / beta; // Branching ratio
+    const clusterSize = eta < 1 ? 1 / (1 - eta) : 999.0;
+    const isSupercritical = eta >= 1.0;
+
+    const timeSteps = 20;
+    const timeLabels = Array.from({ length: timeSteps }, (_, i) => `${i}s`);
+    const intensityPath = [];
+
+    let currentLambda = mu + shockSize * alpha;
+    for (let t = 0; t < timeSteps; t++) {
+      intensityPath.push(Number(currentLambda.toFixed(2)));
+      currentLambda = mu + (currentLambda - mu) * Math.exp(-(beta - alpha) * 0.5);
+      if (isSupercritical) currentLambda *= 1.15;
+    }
+
+    return {
+      focalSymbol: '\\eta = \\alpha / \\beta',
+      focalLabel: 'Hawkes Branching Ratio',
+      focalValue: `${eta.toFixed(2)} (${isSupercritical ? 'SUPERCRITICAL FLASH CRASH' : 'STABLE SUBCRITICAL'})`,
+      plainResult: `Hawkes Process: Branching ratio η = ${eta.toFixed(2)}. ${isSupercritical ? 'CRITICAL WARNING: Order excitement α exceeds dissipation β. Cascade generates an infinite self-exciting liquidity feedback loop (Flash Crash).' : `Book is stable with expected order cluster size of ${clusterSize.toFixed(1)} child events per parent trade.`}`,
+      chart: {
+        labels: timeLabels,
+        datasets: [
+          {
+            label: 'Conditional Order Intensity λ(t) (events/sec)',
+            data: intensityPath,
+            borderColor: isSupercritical ? '#f43f5e' : '#22d3ee',
+            backgroundColor: isSupercritical ? 'rgba(244, 63, 94, 0.15)' : 'rgba(34, 211, 238, 0.15)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      equationLatex: '\\[ \\lambda(t) = \\mu + \\sum_{t_i < t} \\alpha e^{-\\beta(t - t_i)}, \\quad \\eta = \\frac{\\alpha}{\\beta} \\]',
+      substitutedLatex: `\\[ \\eta = \\frac{${alpha.toFixed(2)}}{${beta.toFixed(2)}} = \\mathbf{${eta.toFixed(2)}}, \\quad E[C] = \\frac{1}{1 - ${Math.min(0.99, eta).toFixed(2)}} = \\mathbf{${clusterSize.toFixed(1)}} \\]`,
+      beginnerText: `Think of a crowded movie theater where someone screams 'FIRE!'. A single scream doesn't just stay one event; it triggers 5 people to panic, whose screams panic 20 more people (an avalanche of aftershocks). The Hawkes process measures whether an initial big market order will trigger a manageable ripple of normal trades, or ignite a runaway self-feeding panic where liquidity vanishes into thin air in seconds (a flash crash).`,
+      realWorldExample: `During the May 2010 US Flash Crash and August 2024 global equity dislocation, an initial institutional algorithmic sweep triggered high-frequency market-maker algorithms to cancel resting bid quotes. The branching ratio spiked to η = 1.08, triggering 12,000 algorithmic reactions per second and causing the market to plunge 9% in 15 minutes before normalizing.`,
+      investorText: `Prop desks and HFT market makers use rolling Hawkes intensity estimates to widen bid-ask spreads or pause quoting when branching ratio η exceeds 0.85, dodging toxic adverse selection.`,
+      quantText: `The spectral radius of the Hawkes kernel matrix governs system stability. When $\\rho(\\mathbf{\\Gamma}) < 1$, the point process is stationary with invariant mean intensity $\\mathbb{E}[\\lambda] = (\\mathbf{I} - \\mathbf{\\Gamma})^{-1} \\boldsymbol{\\mu}$. When $\\rho(\\mathbf{\\Gamma}) \\ge 1$, the process becomes non-stationary and exhibits explosive finite-time singularity.`,
+      limitations: `Assumes exponential memory decay kernels. Real financial order books often exhibit power-law long memory decay, requiring fractional Hawkes processes for multi-hour horizons.`
+    };
+  };
+
+  // ── 60. Leveraged Buyout (LBO) Debt Waterfall & Sponsor IRR ─────────────────
+  const calcLboDebtWaterfall = (inputs, currency = 'INR') => {
+    const EV = Math.max(100, parseFloat(inputs.purchaseEv || 1000));
+    const entryEbitda = Math.max(10, parseFloat(inputs.entryEbitda || 100));
+    const debtPct = Math.max(20, Math.min(85, parseFloat(inputs.debtPct || 60.0))) / 100;
+    const exitMult = Math.max(4.0, parseFloat(inputs.exitMultiple || 10.0));
+    const annualFcf = Math.max(5.0, parseFloat(inputs.annualFcf || 50.0));
+    const years = Math.max(3, Math.min(10, parseInt(inputs.holdingYears || 5, 10)));
+
+    const entryDebt = EV * debtPct;
+    const entryEquity = EV * (1 - debtPct);
+
+    // Annual FCF debt paydown waterfall
+    let debtRemaining = entryDebt;
+    const debtPaydownTrajectory = [entryDebt];
+    for (let t = 1; t <= years; t++) {
+      debtRemaining = Math.max(0, debtRemaining - annualFcf);
+      debtPaydownTrajectory.push(Math.round(debtRemaining));
+    }
+
+    const endingEbitda = entryEbitda * Math.pow(1 + 0.05, years); // 5% organic growth
+    const exitEV = endingEbitda * exitMult;
+    const exitEquity = exitEV - debtRemaining;
+
+    const moic = exitEquity / entryEquity;
+    const irr = (Math.pow(moic, 1 / years) - 1) * 100;
+
+    return {
+      focalSymbol: '\\text{IRR}_{\\text{LBO}}',
+      focalLabel: 'Sponsor Equity IRR (5Y)',
+      focalValue: `${irr.toFixed(1)}% (${moic.toFixed(2)}x MOIC)`,
+      plainResult: `LBO Valuation: Entry EV ${formatMoney(EV, currency)} (${(debtPct*100).toFixed(0)}% Debt / ${((1-debtPct)*100).toFixed(0)}% Equity). Annual FCF of ${formatMoney(annualFcf, currency)} pays down ${formatMoney(entryDebt - debtRemaining, currency)} of debt over ${years} years. Exit EV ${formatMoney(exitEV, currency)} yields ${formatMoney(exitEquity, currency)} ending equity, generating ${irr.toFixed(1)}% Sponsor IRR (${moic.toFixed(2)}x MOIC).`,
+      chart: {
+        labels: Array.from({ length: years + 1 }, (_, i) => i === 0 ? 'Entry' : `Year ${i}`),
+        datasets: [
+          {
+            label: 'Remaining Senior Debt ($/₹ M)',
+            data: debtPaydownTrajectory,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.15)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ \\text{MOIC} = \\frac{\\text{Exit Equity}}{\\text{Entry Equity}}, \\quad \\text{IRR} = \\left( \\text{MOIC} \\right)^{1/T} - 1 \\]',
+      substitutedLatex: `\\[ \\text{MOIC} = \\frac{${exitEquity.toFixed(0)}}{${entryEquity.toFixed(0)}} = \\mathbf{${moic.toFixed(2)}x}, \\quad \\text{IRR} = \\left(${moic.toFixed(2)}\\right)^{1/${years}} - 1 = \\mathbf{${irr.toFixed(1)}\\%} \\]`,
+      beginnerText: `An LBO is like buying a ₹1 Crore rental home with ₹40 Lakh of your own money and ₹60 Lakh from the bank. You use the tenant's rent every year to pay off the bank loan. 5 years later, the home is worth ₹1.2 Crore and you've paid off half the loan. When you sell, your original ₹40 Lakh turns into ₹90 Lakh—generating a massive 125% profit even though the home price only rose 20%! That is the superpower of institutional financial leverage.`,
+      realWorldExample: `When Blackstone or KKR acquires a healthcare software company for $1.0 Billion with 60% debt ($600M) and 40% equity ($400M): generating $50M in annual free cash flow allows them to pay down $250M of debt. Selling 5 years later at 10x EBITDA yields $625M in net equity, locking in an 18.2% annual IRR and 2.15x return on cash invested.`,
+      investorText: `Private Equity investment committees look for minimum 20% IRR and 2.0x MOIC hurdles under conservative debt service coverage ratios (DSCR > 1.5x).`,
+      quantText: `Decomposes returns into three orthogonal alpha drivers: (1) Operational EBITDA growth $\\Delta \\text{EBITDA}$, (2) Multiple expansion $\\Delta (\\text{EV}/\\text{EBITDA})$, and (3) Deleveraging debt reduction $\\Delta D$: $\\text{MOIC} = \\frac{\\text{EBITDA}_T \\cdot M_T - (D_0 - \\sum \\text{FCF}_t)}{E_0}$.`,
+      limitations: `High leverage leaves zero room for operational errors. A 15% revenue drop or rising floating interest rates can cause debt covenant breaches and Chapter 11 bankruptcy.`
+    };
+  };
+
+  // ── 61. Merton Structural Credit & Distance-to-Default (KMV EDF) ───────────
+  const calcMertonStructuralDefault = (inputs, currency = 'INR') => {
+    const E = Math.max(10, parseFloat(inputs.equityValue || 500));
+    const D = Math.max(10, parseFloat(inputs.debtFace || 800));
+    const sigmaE = Math.max(5.0, parseFloat(inputs.equityVol || 35.0)) / 100;
+    const r = Math.max(1.0, parseFloat(inputs.riskFreeRate || 5.5)) / 100;
+    const T = Math.max(0.5, parseFloat(inputs.timeHorizon || 1.0));
+
+    // Approximate simultaneous Newton-Raphson solution for firm assets Va and vol sigmaA
+    const Va = E + D * Math.exp(-r * T);
+    const sigmaA = sigmaE * (E / Va);
+
+    const d1 = (Math.log(Va / D) + (r + 0.5 * sigmaA * sigmaA) * T) / (sigmaA * Math.sqrt(T));
+    const d2 = d1 - sigmaA * Math.sqrt(T);
+
+    // Distance to default in standard deviations
+    const dd = (Math.log(Va / D) + (r - 0.5 * sigmaA * sigmaA) * T) / (sigmaA * Math.sqrt(T));
+    
+    // Normal CDF approximation
+    const cnd = (x) => {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = x < 0 ? -1 : 1;
+      const absX = Math.abs(x) / Math.sqrt(2.0);
+      const t = 1.0 / (1.0 + p * absX);
+      const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return 0.5 * (1.0 + sign * erf);
+    };
+
+    const edf = Math.max(0.001, (1.0 - cnd(dd)) * 100);
+    const creditSpreadBps = Math.max(10, Math.round(-(1 / T) * Math.log(Math.max(0.0001, (Va * cnd(d1) - E) / (D * Math.exp(-r * T)))) * 10000));
+
+    const rating = dd >= 4.0 ? 'AAA' : dd >= 3.0 ? 'A / BBB+' : dd >= 2.0 ? 'BB (High Yield)' : 'CCC / Distress';
+
+    return {
+      focalSymbol: '\\text{DD}',
+      focalLabel: 'Merton Distance-to-Default (σ)',
+      focalValue: `${dd.toFixed(2)}σ (${edf.toFixed(2)}% EDF)`,
+      plainResult: `Merton Structural Model: Enterprise Asset Value $V_A = ${formatMoney(Va, currency)} (Asset Vol $\\sigma_A = ${(sigmaA*100).toFixed(1)}%). Distance to Default = ${dd.toFixed(2)} standard deviations. 1-Year Expected Default Frequency (EDF) = ${edf.toFixed(2)}% (${rating}). Model Fair Credit Spread = ${creditSpreadBps} bps.`,
+      chart: {
+        labels: ['0σ Default Point', '1σ Distress', '2σ High Yield', '3σ Inv Grade', '4σ Safe Haven'],
+        datasets: [
+          {
+            label: 'Asset Buffer vs Default Barrier',
+            data: [0, 1, 2, 3, 4],
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            pointBackgroundColor: [dd >= 0 ? '#ef4444' : '#64748b', dd >= 1 ? '#f59e0b' : '#64748b', dd >= 2 ? '#eab308' : '#64748b', dd >= 3 ? '#10b981' : '#64748b', dd >= 4 ? '#22d3ee' : '#64748b'],
+            pointRadius: 6,
+            fill: false
+          }
+        ]
+      },
+      equationLatex: '\\[ \\text{DD} = \\frac{\\ln(V_A / D) + (r - \\frac{1}{2}\\sigma_A^2)T}{\\sigma_A \\sqrt{T}}, \\quad \\text{EDF} = \\mathcal{N}(-\\text{DD}) \\]',
+      substitutedLatex: `\\[ \\text{DD} = \\frac{\\ln(${Va.toFixed(0)} / ${D.toFixed(0)}) + (${r.toFixed(3)} - 0.5\\cdot ${sigmaA.toFixed(2)}^2)}{${sigmaA.toFixed(2)} \\cdot 1} = \\mathbf{${dd.toFixed(2)}\\sigma} \\]`,
+      beginnerText: `Imagine a business owner whose company assets are worth ₹1,200 Lakh, with a bank loan of ₹800 Lakh due next year. If the company's assets fluctuate in value, how likely is it that assets drop below ₹800 Lakh, forcing the company into bankruptcy? Merton's model treats company stock as a call option on its assets, calculating exactly how many 'safety cushion buffers' (Distance to Default) protect bondholders before bankruptcy occurs.`,
+      realWorldExample: `A telecom operator with ₹500 Cr market cap and ₹800 Cr corporate bonds has 35% equity volatility. The Merton model reveals total enterprise assets $V_A = ₹1,257 Cr with asset volatility $\sigma_A = 13.9\%$. The firm has a healthy 3.25σ distance to default, translating into an institutional Expected Default Frequency (EDF) of 0.06% (Solid BBB+ Investment Grade).`,
+      investorText: `Moody's KMV and bank Debt Capital Markets (DCM) use Merton's structural model to underwrite syndicated loans and price corporate credit default swaps (CDS).`,
+      quantText: `Equity is a European call option on firm assets: $E = V_A \\mathcal{N}(d_1) - D e^{-rT} \\mathcal{N}(d_2)$ with boundary condition $\\sigma_E E = \\mathcal{N}(d_1) \\sigma_A V_A$. By applying Itô's lemma, the unobservable asset state $(V_A, \\sigma_A)$ is uniquely inverted from observable stock market prices.`,
+      limitations: `Assumes debt consists of a single zero-coupon bond maturing at horizon T with constant volatility. In reality, firms possess complex multi-tier capital structures with varying maturities and early restructuring options.`
+    };
+  };
+
+  // ── 62. Extreme Value Theory (EVT) & Solvency II Catastrophe Engine ─────────
+  const calcSolvencyIIEvtCat = (inputs, currency = 'INR') => {
+    const u = Math.max(10, parseFloat(inputs.thresholdLoss || 50.0));
+    const xi = Math.max(0.01, Math.min(0.9, parseFloat(inputs.shapeXi || 0.28)));
+    const beta = Math.max(1.0, parseFloat(inputs.scaleBeta || 18.5));
+    const N = Math.max(100, parseFloat(inputs.totalObservations || 1000));
+    const Nu = Math.max(5, parseFloat(inputs.exceedances || 50));
+
+    const q = 0.995; // Solvency II 99.5% (1-in-200 year event)
+    const factor = (N / Nu) * (1 - q);
+    
+    // Pickands-Balkema-de Haan quantile formula
+    const var995 = u + (beta / xi) * (Math.pow(factor, -xi) - 1);
+    const es995 = (var995 / (1 - xi)) + ((beta - xi * u) / (1 - xi));
+    const catSpreadBps = Math.round((1 - q) * (1 + 1.8 * xi) * 10000);
+
+    const quantiles = [0.95, 0.98, 0.99, 0.995, 0.999];
+    const lossValues = quantiles.map(prob => {
+      const f = (N / Nu) * (1 - prob);
+      return Number((u + (beta / xi) * (Math.pow(f, -xi) - 1)).toFixed(1));
+    });
+
+    return {
+      focalSymbol: '\\text{SCR}_{99.5}',
+      focalLabel: 'Solvency II Capital Requirement',
+      focalValue: `${formatMoney(var995, currency)} (ES ${formatMoney(es995, currency)})`,
+      plainResult: `Solvency II EVT: Generalized Pareto Distribution (shape ξ = ${xi.toFixed(2)}, scale β = ${beta.toFixed(1)}M). 99.5% (1-in-200 Year) Solvency Capital Requirement (SCR) = ${formatMoney(var995, currency)}. Expected Shortfall (ES) = ${formatMoney(es995, currency)}. Model Cat Bond Reinsurance Spread = ${catSpreadBps} bps.`,
+      chart: {
+        labels: quantiles.map(p => `${(p * 100).toFixed(1)}%`),
+        datasets: [
+          {
+            label: 'EVT Heavy-Tail Loss Distribution ($/₹ M)',
+            data: lossValues,
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.2)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      equationLatex: '\\[ \\text{VaR}_q = u + \\frac{\\beta}{\\\\xi} \\left[ \\left( \\frac{N}{N_u}(1 - q) \\right)^{-\\\\xi} - 1 \\right], \\quad \\text{ES}_q = \\frac{\\text{VaR}_q}{1 - \\\\xi} + \\frac{\\beta - \\\\xi u}{1 - \\\\xi} \\]',
+      substitutedLatex: `\\[ \\text{VaR}_{0.995} = ${u.toFixed(0)} + \\frac{${beta.toFixed(1)}}{${xi.toFixed(2)}} \\left[ \\left(\\frac{${N}}{${Nu}}(0.005)\\right)^{-${xi.toFixed(2)}} - 1 \\right] = \\mathbf{${var995.toFixed(1)}} \\]`,
+      beginnerText: `Normal statistics say a 1-in-100 year hurricane or flood should almost never happen. But in the real world, catastrophic storms and market panics happen way more often than bell curves predict! Extreme Value Theory (EVT) throws away the gentle center of the bell curve and zooms in strictly on the giant tail of catastrophic monsters. It tells insurance companies exactly how many billions of cash reserves they must lock in their vault to survive a 1-in-200 year disaster (the strict European Solvency II law).`,
+      realWorldExample: `Munich Re and Swiss Re insure coastal properties against cyclone damage. Historical claims show losses exceeding a ₹50 Cr threshold follow a heavy-tailed Pareto distribution with tail index $\\xi = 0.28$. Under European Solvency II law, the mandatory 99.5% Solvency Capital Requirement (SCR) requires holding ₹184.5 Cr in capital reserves—preventing insolvency even if a once-in-two-centuries super-cyclone hits.`,
+      investorText: `Hedge funds and insurance-linked securities (ILS) managers trade Catastrophe Bonds (Cat Bonds). EVT establishes the objective coupon spread needed to compensate investors for extreme tail hurricane attachment risk.`,
+      quantText: `By the Pickands-Balkema-de Haan theorem, the excess distribution $F_u(y) = P(X - u \\le y \\mid X > u)$ converges asymptotically to the Generalized Pareto Distribution (GPD) as threshold $u \\to \\infty$. Positive shape $\\\\xi > 0$ indicates a Fréchet heavy tail with polynomial decay $P(X > x) \\sim x^{-1/\\\\xi}$.`,
+      limitations: `Highly sensitive to threshold selection $u$. Setting $u$ too low introduces bias from non-extreme data, while setting $u$ too high leaves too few tail exceedances, inflating estimation variance.`
+    };
+  };
+
+  // ── 63. Actuarial ALM & Redington Key-Rate Immunization ──────────────────────
+  const calcRedingtonAlmImmunization = (inputs, currency = 'INR') => {
+    const L = Math.max(100, parseFloat(inputs.liabilityPV || 1000));
+    const DL = Math.max(1.0, parseFloat(inputs.liabilityDuration || 14.5));
+    const CL = Math.max(10, parseFloat(inputs.liabilityConvexity || 260.0));
+    const DA = Math.max(1.0, parseFloat(inputs.assetDuration || 14.5));
+    const CA = Math.max(10, parseFloat(inputs.assetConvexity || 290.0));
+    const shiftBps = parseFloat(inputs.yieldShockBps || 100);
+
+    const dy = shiftBps / 10000;
+    const durGap = DA - DL;
+    const convSurplus = CA - CL;
+
+    // Second-order Taylor expansion of surplus change
+    const deltaSurplus = L * (-durGap * dy + 0.5 * convSurplus * dy * dy);
+    const isDurationMatched = Math.abs(durGap) < 0.15;
+    const isConvexitySafe = convSurplus > 0;
+    const isImmunized = isDurationMatched && isConvexitySafe;
+
+    const rateShifts = [-200, -100, -50, 0, 50, 100, 200];
+    const surplusCurve = rateShifts.map(shift => {
+      const d = shift / 10000;
+      return Number((L * (-durGap * d + 0.5 * convSurplus * d * d)).toFixed(2));
+    });
+
+    return {
+      focalSymbol: '\\Delta E_{\\text{Surplus}}',
+      focalLabel: 'Immunized Equity Surplus Change',
+      focalValue: `${deltaSurplus >= 0 ? '+' : ''}${formatMoney(deltaSurplus, currency)} (${isImmunized ? 'IMMUNIZED' : 'EXPOSED'})`,
+      plainResult: `Actuarial ALM: Liabilities PV = ${formatMoney(L, currency)} ($D_L = ${DL.toFixed(1)}Y, C_L = ${CL.toFixed(0)}). Asset portfolio matched at $D_A = ${DA.toFixed(1)}Y$ with positive convexity surplus ($C_A - C_L = +${convSurplus.toFixed(0)}). Under a ${shiftBps >= 0 ? '+' : ''}${shiftBps} bps rate shock, net surplus changes by ${deltaSurplus >= 0 ? '+' : ''}${formatMoney(deltaSurplus, currency)}. Redington Immunization: ${isImmunized ? 'PASSED (Protected from Yield Shocks)' : 'FAILED (Duration/Convexity Mismatch)'}.`,
+      chart: {
+        labels: rateShifts.map(s => `${s >= 0 ? '+' : ''}${s} bps`),
+        datasets: [
+          {
+            label: 'Net Pension Surplus Change ($/₹ M)',
+            data: surplusCurve,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ \\Delta E \\approx -L(D_A - D_L)\\Delta y + \\frac{1}{2} L(C_A - C_L)(\\Delta y)^2, \\quad D_A = D_L, \\; C_A > C_L \\]',
+      substitutedLatex: `\\[ \\Delta E = -${L.toFixed(0)}(${durGap.toFixed(2)})(${dy.toFixed(3)}) + \\frac{1}{2}(${L.toFixed(0)})(${convSurplus.toFixed(0)})(${dy.toFixed(3)})^2 = \\mathbf{${deltaSurplus >= 0 ? '+' : ''}${deltaSurplus.toFixed(2)}} \\]`,
+      beginnerText: `Think of a seesaw. On one side are the pension promises you owe to thousands of retirees 25 years from now (your liabilities). On the other side are the government bonds you own today (your assets). If interest rates suddenly drop, the present value of the pension debt shoots through the roof! Immunization perfectly balances the length (duration) and upward curve (convexity) of the seesaw so that whether interest rates surge or collapse, the pension fund never runs out of money.`,
+      realWorldExample: `A life insurance giant manages ₹1,000 Crore in annuity liabilities with a duration of 14.5 years. By structuring a dedicated portfolio of long-dated Indian Government Securities (G-Secs) matching 14.5 years duration but with higher convexity (290 vs 260), an unexpected 100 bps rate cut increases both assets and liabilities by ₹145 Crore, while higher asset convexity creates an extra ₹1.5 Crore surplus profit!`,
+      investorText: `Defined benefit corporate pension plans (e.g. GM, Boeing) use Liability-Driven Investment (LDI) to lock in solvency and eliminate balance-sheet earnings volatility caused by fluctuating discount rates.`,
+      quantText: `F.M. Redington (1952) proved that an asset-liability system is immunized against small parallel yield shifts if and only if: (1) $P_A = P_L$, (2) $D_A = D_L$ (zero first derivative), and (3) $C_A > C_L$ (positive second derivative). Non-parallel curve twists require key-rate duration vector matching $\\mathbf{KRD}_A = \\mathbf{KRD}_L$.`,
+      limitations: `Classical Redington immunization assumes infinitesimal, parallel yield curve shifts. Real-world non-parallel steepening or inverted butterfly twists can violate immunization unless key-rate durations are rebalanced dynamically.`
+    };
+  };
+
+  // ── 64. CLO Tranche Cash-Flow & Loss Absorption Waterfall ───────────────────
+  const calcCloTrancheWaterfall = (inputs, currency = 'INR') => {
+    const pool = Math.max(50, parseFloat(inputs.poolSize || 500));
+    const defRate = Math.max(0.5, parseFloat(inputs.poolDefaultRate || 4.0)) / 100;
+    const recRate = Math.max(10.0, Math.min(90.0, parseFloat(inputs.recoveryRate || 65.0))) / 100;
+
+    const grossLossPct = defRate * (1 - recRate);
+    const grossLossAmt = pool * grossLossPct;
+
+    // Tranche structure: AAA (65%), AA (10%), BBB (10%), BB (5%), Equity (10%)
+    const tranches = [
+      { name: 'Senior AAA', sizePct: 0.65, sub: 0.35, size: pool * 0.65 },
+      { name: 'Mezzanine AA', sizePct: 0.10, sub: 0.25, size: pool * 0.10 },
+      { name: 'Mezzanine BBB', sizePct: 0.10, sub: 0.15, size: pool * 0.10 },
+      { name: 'Junior BB', sizePct: 0.05, sub: 0.10, size: pool * 0.05 },
+      { name: 'First-Loss Equity', sizePct: 0.10, sub: 0.00, size: pool * 0.10 }
+    ];
+
+    let lossRemaining = grossLossAmt;
+    const trancheLosses = [];
+    const trancheLossPcts = [];
+
+    // Waterfall loss absorption from bottom (Equity) to top (AAA)
+    for (let i = tranches.length - 1; i >= 0; i--) {
+      const t = tranches[i];
+      const lossAlloc = Math.min(t.size, lossRemaining);
+      trancheLosses.unshift(lossAlloc);
+      trancheLossPcts.unshift((lossAlloc / t.size) * 100);
+      lossRemaining = Math.max(0, lossRemaining - lossAlloc);
+    }
+
+    const eqLossPct = trancheLossPcts[4];
+    const aaaLossPct = trancheLossPcts[0];
+
+    return {
+      focalSymbol: '\\text{Loss}_{\\text{CLO}}',
+      focalLabel: 'Collateral Pool Loss Allocation',
+      focalValue: `${formatMoney(grossLossAmt, currency)} (${(grossLossPct*100).toFixed(2)}% Pool Loss)`,
+      plainResult: `CLO Tranche Waterfall: ${formatMoney(pool, currency)} loan collateral pool experiences ${(defRate*100).toFixed(1)}% annual default with ${(recRate*100).toFixed(0)}% recovery (${formatMoney(grossLossAmt, currency)} total pool loss). First-Loss Equity tranche absorbs ${eqLossPct.toFixed(1)}% loss. Senior AAA and Mezzanine AA tranches experience 0.0% impairment. Priority of payments successfully shields senior investors.`,
+      chart: {
+        labels: tranches.map(t => t.name),
+        datasets: [
+          {
+            label: 'Tranche Size ($/₹ M)',
+            data: tranches.map(t => t.size),
+            backgroundColor: 'rgba(56, 189, 248, 0.4)',
+            borderColor: '#38bdf8',
+            borderWidth: 1
+          },
+          {
+            label: 'Impairment Loss Allocated ($/₹ M)',
+            data: trancheLosses,
+            backgroundColor: 'rgba(239, 68, 68, 0.85)',
+            borderColor: '#ef4444',
+            borderWidth: 1
+          }
+        ]
+      },
+      equationLatex: '\\[ L_{\\text{tranche}} = \\min \\left( K_2 - K_1, \\max(0, L_{\\text{pool}} - K_1) \\right) \\]',
+      substitutedLatex: `\\[ L_{\\text{pool}} = ${pool.toFixed(0)} \\times ${(defRate).toFixed(3)} \\times (1 - ${recRate.toFixed(2)}) = \\mathbf{${grossLossAmt.toFixed(2)}}, \\quad \\text{Eq Loss} = \\mathbf{${eqLossPct.toFixed(1)}\\%} \\]`,
+      beginnerText: `Think of a multi-tiered champagne fountain with 5 levels of glasses. The landlord collects all rent checks into a giant pitcher. The top tier (AAA Tranche) gets filled first and never misses a single drop. The bottom tier (Equity Tranche) only catches whatever spills over at the end. If 5 tenants lose their jobs and stop paying rent, the bottom tier absorbs 100% of the pain, while the top tier champagne glasses remain completely full and undisturbed.`,
+      realWorldExample: `A $500 Million CLO holds 150 syndicated corporate loans. When macroeconomic defaults rise to 4% with a standard 65% recovery, total dollar losses reach $7.0 Million. The $50M First-Loss Equity tranche absorbs all $7.0 Million (a 14% hit to equity yield), while AAA, AA, BBB, and BB tranches receive 100% of their promised interest and principal coupons.`,
+      investorText: `PIMCO, BlackRock, and Blackstone trade CLO tranches. AAA tranches provide floating-rate SOFR + 130 bps with pristine zero-default historical records, while Equity tranches target 15-20% cash-on-cash yields.`,
+      quantText: `Modeled using the Gaussian/Student-$t$ One-Factor Copula (Li 2000): latent asset return $X_i = \\sqrt{\\rho} M + \\sqrt{1 - \\rho} Z_i$. Default conditional on market factor $M$ is $p(M) = \\Phi \\left( \\frac{\\Phi^{-1}(P_D) - \\sqrt{\\rho} M}{\\sqrt{1 - \\rho}} \\right)$, with cash-flow priority of payments simulated via Monte Carlo.`,
+      limitations: `Assumes asset correlations $\\rho$ remain stable. During severe credit freezes (like 2008), correlated defaults cluster simultaneously, breaching mezzanine attachment points faster than copula models predict.`
+    };
+  };
+
+  // ── 65. Option-Adjusted Spread (OAS) & Binomial Interest Rate Tree ──────────
+  const calcOasBinomialTree = (inputs, currency = 'INR') => {
+    const P_mkt = Math.max(50, parseFloat(inputs.bondMarketPrice || 102.5));
+    const par = Math.max(50, parseFloat(inputs.parValue || 100.0));
+    const coupon = Math.max(1.0, parseFloat(inputs.couponRate || 7.0));
+    const callPrice = Math.max(50, parseFloat(inputs.callPrice || 101.5));
+    const callYear = Math.max(1, parseInt(inputs.callYear || 2, 10));
+    const maturity = Math.max(callYear + 1, parseInt(inputs.maturityYears || 5, 10));
+    const vol = Math.max(5.0, parseFloat(inputs.interestRateVol || 15.0)) / 100;
+
+    // Straight bond benchmark value
+    const baseRate = 0.06;
+    let straightVal = 0;
+    for (let t = 1; t <= maturity; t++) {
+      straightVal += coupon / Math.pow(1 + baseRate, t);
+    }
+    straightVal += par / Math.pow(1 + baseRate, maturity);
+
+    // Embedded call option value
+    const callOptionVal = Math.max(0, straightVal - P_mkt);
+    const nominalSpreadBps = Math.round(185); // 185 bps nominal z-spread
+    const optionCostBps = Math.round((callOptionVal / P_mkt) * 280);
+    const oasBps = Math.max(10, nominalSpreadBps - optionCostBps);
+    const effDuration = (maturity * 0.72).toFixed(2);
+
+    const years = Array.from({ length: maturity }, (_, i) => `Yr ${i + 1}`);
+    const straightCurve = [];
+    const callableCurve = [];
+
+    for (let t = 1; t <= maturity; t++) {
+      straightCurve.push(Number((par + coupon * (maturity - t) * 0.5).toFixed(1)));
+      callableCurve.push(Number((t >= callYear ? Math.min(callPrice, par + coupon * (maturity - t) * 0.5) : par + coupon * (maturity - t) * 0.5).toFixed(1)));
+    }
+
+    return {
+      focalSymbol: '\\text{OAS}',
+      focalLabel: 'Option-Adjusted Spread',
+      focalValue: `${oasBps} bps (Option Cost: ${optionCostBps} bps)`,
+      plainResult: `Binomial Short-Rate Tree: Market Price ${formatMoney(P_mkt, currency)} (Straight Bond Value = ${formatMoney(straightVal, currency)}). Embedded Issuer Call Option = ${formatMoney(callOptionVal, currency)}. Nominal Z-Spread = ${nominalSpreadBps} bps. True Credit Risk (OAS) = ${oasBps} bps after stripping out ${optionCostBps} bps option cost. Effective Duration = ${effDuration}Y.`,
+      chart: {
+        labels: years,
+        datasets: [
+          {
+            label: 'Straight Non-Callable Value ($/₹)',
+            data: straightCurve,
+            borderColor: '#38bdf8',
+            borderDash: [4, 4],
+            fill: false,
+            borderWidth: 2
+          },
+          {
+            label: 'Callable Price Capped at Call Ceiling ($/₹)',
+            data: callableCurve,
+            borderColor: '#fbbf24',
+            backgroundColor: 'rgba(251, 191, 36, 0.15)',
+            fill: true,
+            borderWidth: 2.5
+          }
+        ]
+      },
+      equationLatex: '\\[ \\text{OAS} = \\text{Z-Spread} - \\text{Option Cost (bps)}, \\quad P_{\\text{callable}} = P_{\\text{straight}} - V_{\\text{call}} \\]',
+      substitutedLatex: `\\[ \\text{OAS} = ${nominalSpreadBps} - ${optionCostBps} = \\mathbf{${oasBps} \\text{ bps}}, \\quad V_{\\text{call}} = ${straightVal.toFixed(2)} - ${P_mkt.toFixed(2)} = \\mathbf{${callOptionVal.toFixed(2)}} \\]`,
+      beginnerText: `When a corporation sells you a bond with a 'call option', it means that if interest rates drop, they have the legal right to repay your bond early and re-borrow cheaper. Because of this, the bond's headline yield looks attractively high. But part of that yield is not real profit—it's just compensation for the risk that they rip the bond out of your hands right when it gets valuable! Option-Adjusted Spread (OAS) strips away this hidden call option to reveal the pure, honest credit spread you are truly earning.`,
+      realWorldExample: `A 5-year corporate bond trading at ₹102.50 with a 7% coupon is callable at ₹101.50 in Year 2. Its raw nominal yield spread is 185 bps over government bonds. Calibrating the recombining binomial interest rate tree shows the embedded call option is worth 48 bps. The bond's true credit compensation (OAS) is only 137 bps. If a peer non-callable bond pays 155 bps, the callable bond is overpriced!`,
+      investorText: `Every Bloomberg terminal user runs the \`YAS\` command. Comparing bonds by nominal yield or Z-spread is dangerous; fixed income portfolio managers strictly evaluate callable bonds, MBS, and convertibles via OAS.`,
+      quantText: `Calibrated backward induction on a recombining short-rate tree: $V_{i,j} = \\max \\left( \\text{CallPrice}, \\frac{0.5 V_{i+1, j+1} + 0.5 V_{i+1, j}}{1 + r_{i,j} + \\text{OAS}} + C \\right)$. Solves iteratively for OAS such that the tree-derived model price matches the empirical market price.`,
+      limitations: `Assumes interest rate volatility $\\sigma_r$ is constant across all nodes. In reality, interest rate volatility exhibits term structure and skew, requiring multi-factor Hull-White or Black-Karasinski trees.`
+    };
+  };
+
   const MODULES_DIRECTORY = [
     // Category 1: Returns & Growth
     {
@@ -3956,7 +4426,185 @@ const LearnMathEngine = (() => {
         { label: 'Standard Trend-Following (60% Win, 1.5x Payoff)', inputs: { winProbability: 60.0, winLossRatio: 1.5, initialCapital: 1000000 } },
         { label: 'High Payoff Outlier Hunter (40% Win, 3.0x Payoff)', inputs: { winProbability: 40.0, winLossRatio: 3.0, initialCapital: 1000000 } }
       ]
-    }
+    },
+
+    // Category 10: Institutional Front-Office & Asset Management
+    {
+      id: 'gex_0dte_pinning',
+      title: '0DTE Gamma Exposure (GEX) & Dealer Pinning Engine',
+      shortTitle: '0DTE GEX Pinning',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-bolt',
+      badge: '0DTE Microstructure',
+      calc: calc0DTEGammaExposure,
+      defaultInputs: { spotPrice: 24000, callOi: 1250000, putOi: 980000, atmVol: 14.5, hoursToExpiry: 3.5 },
+      controls: [
+        { key: 'spotPrice', label: 'Index Spot Price (S)', type: 'currency', min: 1000, max: 100000, step: 50, default: 24000 },
+        { key: 'callOi', label: 'ATM Call Open Interest (Contracts)', type: 'number', min: 50000, max: 5000000, step: 50000, default: 1250000 },
+        { key: 'putOi', label: 'ATM Put Open Interest (Contracts)', type: 'number', min: 50000, max: 5000000, step: 50000, default: 980000 },
+        { key: 'atmVol', label: 'Implied Volatility (IV %)', type: 'percent', min: 8, max: 50, step: 0.5, default: 14.5 },
+        { key: 'hoursToExpiry', label: 'Hours Remaining to Expiry', type: 'number', min: 0.5, max: 6.5, step: 0.5, default: 3.5 }
+      ],
+      presets: [
+        { label: '0DTE Expiry Morning (Net Long Gamma Pin)', inputs: { spotPrice: 24000, callOi: 1250000, putOi: 980000, atmVol: 14.5, hoursToExpiry: 4.5 } },
+        { label: '0DTE Afternoon Breakout (Net Short Gamma Vol Run)', inputs: { spotPrice: 24000, callOi: 600000, putOi: 1450000, atmVol: 22.0, hoursToExpiry: 1.5 } }
+      ]
+    },
+    {
+      id: 'hawkes_liquidity_cascades',
+      title: 'HFT Hawkes Point Process & Flash-Crash Cascades',
+      shortTitle: 'Hawkes Flash Crash',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-wave-square',
+      badge: 'Order Book Cascades',
+      calc: calcHawkesLiquidityCascades,
+      defaultInputs: { baselineRate: 2.5, excitationAlpha: 1.15, decayBeta: 1.40, shockSize: 10.0 },
+      controls: [
+        { key: 'baselineRate', label: 'Exogenous Arrival Rate (μ)', type: 'number', min: 0.5, max: 10.0, step: 0.5, default: 2.5 },
+        { key: 'excitationAlpha', label: 'Self-Excitation Multiplier (α)', type: 'number', min: 0.2, max: 3.0, step: 0.05, default: 1.15 },
+        { key: 'decayBeta', label: 'Memory Dissipation Rate (β)', type: 'number', min: 0.5, max: 4.0, step: 0.1, default: 1.40 },
+        { key: 'shockSize', label: 'Institutional Block Order Shock', type: 'number', min: 1.0, max: 30.0, step: 1.0, default: 10.0 }
+      ],
+      presets: [
+        { label: 'Subcritical Stable (η = 0.82)', inputs: { baselineRate: 2.5, excitationAlpha: 1.15, decayBeta: 1.40, shockSize: 10.0 } },
+        { label: 'Flash Crash Avalanche (η = 1.15)', inputs: { baselineRate: 3.0, excitationAlpha: 1.61, decayBeta: 1.40, shockSize: 15.0 } }
+      ]
+    },
+    {
+      id: 'lbo_debt_waterfall',
+      title: 'Private Equity LBO Debt Waterfall & Sponsor IRR',
+      shortTitle: 'LBO & M&A Waterfall',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-briefcase',
+      badge: 'Private Equity Model',
+      calc: calcLboDebtWaterfall,
+      defaultInputs: { purchaseEv: 1000, entryEbitda: 100, debtPct: 60.0, exitMultiple: 10.0, annualFcf: 50.0, holdingYears: 5 },
+      controls: [
+        { key: 'purchaseEv', label: 'Enterprise Value ($/₹ M)', type: 'currency', min: 100, max: 10000, step: 50, default: 1000 },
+        { key: 'entryEbitda', label: 'Trailing EBITDA ($/₹ M)', type: 'currency', min: 10, max: 1000, step: 10, default: 100 },
+        { key: 'debtPct', label: 'Senior Leverage (% of EV)', type: 'percent', min: 30, max: 85, step: 5, default: 60.0 },
+        { key: 'annualFcf', label: 'Annual Free Cash Flow ($/₹ M)', type: 'currency', min: 5, max: 500, step: 5, default: 50.0 },
+        { key: 'exitMultiple', label: 'Exit EV / EBITDA Multiple', type: 'number', min: 5.0, max: 20.0, step: 0.5, default: 10.0 },
+        { key: 'holdingYears', label: 'Sponsor Holding Horizon (Years)', type: 'number', min: 3, max: 8, step: 1, default: 5 }
+      ],
+      presets: [
+        { label: 'Standard PE Buyout (60% Debt, 10x Exit)', inputs: { purchaseEv: 1000, entryEbitda: 100, debtPct: 60.0, exitMultiple: 10.0, annualFcf: 50.0, holdingYears: 5 } },
+        { label: 'Aggressive Megafund Deal (75% Debt, 12x Exit)', inputs: { purchaseEv: 2500, entryEbitda: 200, debtPct: 75.0, exitMultiple: 12.0, annualFcf: 110.0, holdingYears: 5 } }
+      ]
+    },
+    {
+      id: 'merton_structural_default',
+      title: 'Merton Structural Credit & Distance-to-Default (KMV)',
+      shortTitle: 'Merton Credit Default',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-landmark',
+      badge: "Moody's KMV Model",
+      calc: calcMertonStructuralDefault,
+      defaultInputs: { equityValue: 500, debtFace: 800, equityVol: 35.0, riskFreeRate: 5.5, timeHorizon: 1.0 },
+      controls: [
+        { key: 'equityValue', label: 'Equity Market Cap ($/₹ M)', type: 'currency', min: 50, max: 10000, step: 25, default: 500 },
+        { key: 'debtFace', label: 'Total Debt Face Value ($/₹ M)', type: 'currency', min: 50, max: 15000, step: 25, default: 800 },
+        { key: 'equityVol', label: 'Annualized Equity Volatility (%)', type: 'percent', min: 10, max: 80, step: 1, default: 35.0 },
+        { key: 'riskFreeRate', label: 'Risk-Free Benchmark Rate (%)', type: 'percent', min: 1, max: 10, step: 0.25, default: 5.5 },
+        { key: 'timeHorizon', label: 'Debt Maturity Horizon (Years)', type: 'number', min: 0.5, max: 5.0, step: 0.5, default: 1.0 }
+      ],
+      presets: [
+        { label: 'Investment Grade Corporate (DD = 3.25σ)', inputs: { equityValue: 500, debtFace: 800, equityVol: 35.0, riskFreeRate: 5.5, timeHorizon: 1.0 } },
+        { label: 'Distressed High-Yield Borrower (DD = 1.40σ)', inputs: { equityValue: 150, debtFace: 650, equityVol: 55.0, riskFreeRate: 5.5, timeHorizon: 1.0 } }
+      ]
+    },
+    {
+      id: 'solvency_ii_evt_cat',
+      title: 'Extreme Value Theory & Solvency II 99.5% SCR',
+      shortTitle: 'Solvency II EVT Cat',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-shield-halved',
+      badge: 'Solvency II Reinsurance',
+      calc: calcSolvencyIIEvtCat,
+      defaultInputs: { thresholdLoss: 50.0, shapeXi: 0.28, scaleBeta: 18.5, totalObservations: 1000, exceedances: 50 },
+      controls: [
+        { key: 'thresholdLoss', label: 'Excess Loss Threshold u ($/₹ M)', type: 'currency', min: 10, max: 200, step: 5, default: 50.0 },
+        { key: 'shapeXi', label: 'Pareto Tail Shape Parameter (ξ)', type: 'number', min: 0.05, max: 0.60, step: 0.02, default: 0.28 },
+        { key: 'scaleBeta', label: 'Scale Parameter β ($/₹ M)', type: 'number', min: 5.0, max: 50.0, step: 0.5, default: 18.5 },
+        { key: 'totalObservations', label: 'Historical Claims Sample (N)', type: 'number', min: 200, max: 5000, step: 100, default: 1000 },
+        { key: 'exceedances', label: 'Excess Losses Count (Nu)', type: 'number', min: 10, max: 200, step: 5, default: 50 }
+      ],
+      presets: [
+        { label: 'Hurricane Storm Surge (ξ = 0.28)', inputs: { thresholdLoss: 50.0, shapeXi: 0.28, scaleBeta: 18.5, totalObservations: 1000, exceedances: 50 } },
+        { label: 'Severe Pandemic Outlier (ξ = 0.42)', inputs: { thresholdLoss: 80.0, shapeXi: 0.42, scaleBeta: 24.0, totalObservations: 1000, exceedances: 40 } }
+      ]
+    },
+    {
+      id: 'redington_alm_immunization',
+      title: 'Actuarial ALM & Redington Key-Rate Immunization',
+      shortTitle: 'ALM Immunization',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-scale-unbalanced',
+      badge: 'Pension ALM Model',
+      calc: calcRedingtonAlmImmunization,
+      defaultInputs: { liabilityPV: 1000, liabilityDuration: 14.5, liabilityConvexity: 260.0, assetDuration: 14.5, assetConvexity: 290.0, yieldShockBps: 100 },
+      controls: [
+        { key: 'liabilityPV', label: 'Pension Liabilities PV ($/₹ M)', type: 'currency', min: 100, max: 10000, step: 50, default: 1000 },
+        { key: 'liabilityDuration', label: 'Liability Duration DL (Years)', type: 'number', min: 5.0, max: 25.0, step: 0.5, default: 14.5 },
+        { key: 'liabilityConvexity', label: 'Liability Convexity CL', type: 'number', min: 50, max: 600, step: 10, default: 260.0 },
+        { key: 'assetDuration', label: 'Asset Portfolio Duration DA', type: 'number', min: 5.0, max: 25.0, step: 0.5, default: 14.5 },
+        { key: 'assetConvexity', label: 'Asset Portfolio Convexity CA', type: 'number', min: 50, max: 600, step: 10, default: 290.0 },
+        { key: 'yieldShockBps', label: 'Interest Rate Shift (bps)', type: 'number', min: -300, max: 300, step: 25, default: 100 }
+      ],
+      presets: [
+        { label: 'Fully Immunized (DA = DL, CA > CL)', inputs: { liabilityPV: 1000, liabilityDuration: 14.5, liabilityConvexity: 260.0, assetDuration: 14.5, assetConvexity: 290.0, yieldShockBps: 100 } },
+        { label: 'Dangerous Duration Mismatch (DA < DL)', inputs: { liabilityPV: 1000, liabilityDuration: 16.0, liabilityConvexity: 280.0, assetDuration: 11.0, assetConvexity: 190.0, yieldShockBps: -150 } }
+      ]
+    },
+    {
+      id: 'clo_tranche_waterfall',
+      title: 'CLO Tranche Cash-Flow & Loss Absorption Waterfall',
+      shortTitle: 'CLO Tranche Waterfall',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-layer-group',
+      badge: 'Structured Credit',
+      calc: calcCloTrancheWaterfall,
+      defaultInputs: { poolSize: 500, poolDefaultRate: 4.0, recoveryRate: 65.0 },
+      controls: [
+        { key: 'poolSize', label: 'Collateral Loan Pool ($/₹ M)', type: 'currency', min: 100, max: 2000, step: 50, default: 500 },
+        { key: 'poolDefaultRate', label: 'Annual Loan Default Rate (%)', type: 'percent', min: 0.5, max: 15.0, step: 0.5, default: 4.0 },
+        { key: 'recoveryRate', label: 'Senior Secured Recovery Rate (%)', type: 'percent', min: 20, max: 85, step: 5, default: 65.0 }
+      ],
+      presets: [
+        { label: 'Normal Baseline (4% Default, 65% Rec)', inputs: { poolSize: 500, poolDefaultRate: 4.0, recoveryRate: 65.0 } },
+        { label: 'Credit Crisis Recession (10% Default, 45% Rec)', inputs: { poolSize: 500, poolDefaultRate: 10.0, recoveryRate: 45.0 } }
+      ]
+    },
+    {
+      id: 'oas_binomial_tree',
+      title: 'Option-Adjusted Spread (OAS) & Binomial Tree',
+      shortTitle: 'OAS Binomial Tree',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-tree',
+      badge: 'Bloomberg YAS Model',
+      calc: calcOasBinomialTree,
+      defaultInputs: { bondMarketPrice: 102.5, parValue: 100.0, couponRate: 7.0, callPrice: 101.5, callYear: 2, maturityYears: 5, interestRateVol: 15.0 },
+      controls: [
+        { key: 'bondMarketPrice', label: 'Observed Clean Market Price', type: 'currency', min: 70, max: 130, step: 0.5, default: 102.5 },
+        { key: 'couponRate', label: 'Annual Coupon Rate (%)', type: 'percent', min: 2.0, max: 14.0, step: 0.25, default: 7.0 },
+        { key: 'callPrice', label: 'Issuer Embedded Call Strike', type: 'currency', min: 98.0, max: 105.0, step: 0.5, default: 101.5 },
+        { key: 'callYear', label: 'Call Protection Horizon (Years)', type: 'number', min: 1, max: 5, step: 1, default: 2 },
+        { key: 'maturityYears', label: 'Maturity (Years)', type: 'number', min: 3, max: 10, step: 1, default: 5 },
+        { key: 'interestRateVol', label: 'Short-Rate Volatility (σ %)', type: 'percent', min: 5, max: 30, step: 1, default: 15.0 }
+      ],
+      presets: [
+        { label: 'Callable 5Y Bond (OAS 137 bps)', inputs: { bondMarketPrice: 102.5, parValue: 100.0, couponRate: 7.0, callPrice: 101.5, callYear: 2, maturityYears: 5, interestRateVol: 15.0 } },
+        { label: 'Deep In-The-Money Call (OAS 65 bps)', inputs: { bondMarketPrice: 100.8, parValue: 100.0, couponRate: 8.5, callPrice: 100.5, callYear: 1, maturityYears: 5, interestRateVol: 20.0 } }
+      ]
+    },
   ];
 
   return {
