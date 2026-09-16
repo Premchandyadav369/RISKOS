@@ -55,7 +55,8 @@ from engine.openbb_bridge import get_openbb_historical, get_openbb_macro_indicat
 from engine.backtrader_bridge import run_backtrader_simulation
 
 from engine.forecasting_ensemble import ForecastingEnsemble
-from engine.recommender import get_daily_buy_recommendations
+from engine.market_state import build_canonical_market_state
+from engine.recommender import get_daily_buy_recommendations, RecommendationAuditLedger
 from engine.regime_research import MarketStateEngine, RegimeResearchMatrix
 from engine.portfolio_research import PortfolioResearchSuite
 from engine.research_backtest import run_research_backtest, validate_backtest_leakage
@@ -142,6 +143,19 @@ def api_market_movers():
 def api_market_breadth():
     """Fetches real-time market breadth (advances, declines, unchanged)."""
     return market_aggregator.get_market_breadth()
+
+@app.get("/api/market/state")
+def api_market_state(symbol: str = "RELIANCE", period: str = "1y", benchmark: Optional[str] = None):
+    """
+    Returns canonical single-source-of-truth MarketState object
+    with OHLCV, returns, volatility, regimes, trend, liquidity, Barra factors,
+    risk metrics, targets, and explicit data provenance metadata.
+    """
+    try:
+        ms = build_canonical_market_state(symbol=symbol, period=period, benchmark_symbol=benchmark)
+        return ms.to_dict()
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/api/market/status")
 def api_market_status():
@@ -676,6 +690,20 @@ def api_get_recommendations(
         )
     except Exception as e:
         return {"error": str(e), "recommendations": []}
+
+@app.get("/api/signals/recommendations/audit")
+def api_get_recommendations_audit(limit: int = 50):
+    """
+    Returns empirical out-of-sample audit ledger of historical recommendations
+    tracking hit rates, MFE, MAE, and cost-adjusted realized returns.
+    """
+    try:
+        return {
+            "summary": RecommendationAuditLedger.compute_summary_statistics(),
+            "audit_trail": RecommendationAuditLedger.get_audit_trail(limit=limit)
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 @app.get("/api/quant/spreads")
 def api_get_spreads(ticker1: str = "CL=F", ticker2: str = "BZ=F", period: str = "1y"):
