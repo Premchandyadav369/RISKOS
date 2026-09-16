@@ -947,6 +947,10 @@
     }
   ];
 
+  if (typeof window !== 'undefined') {
+    window.INITIAL_BOTS = INITIAL_BOTS;
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   // 3. PERSISTENT BOT STATE & AUDIT STORE
   // ══════════════════════════════════════════════════════════════════════════
@@ -1524,6 +1528,40 @@
       }
     });
 
+    if (!globalAuditBlotter || !globalAuditBlotter.length) {
+      globalAuditBlotter = [];
+      botRegistry.forEach((bot, idx) => {
+        const hist = bot.botAuditHistory || [];
+        if (hist.length) {
+          hist.slice(0, 3).forEach((t, tIdx) => {
+            const isBuy = (t.side || t.action || '').includes('BUY');
+            globalAuditBlotter.push({
+              orderId: t.orderId || `ORD-${bot.id}-${1000 + idx * 10 + tIdx}`,
+              time: t.time || '14:30:00',
+              fullTimestamp: t.fullTimestamp || new Date().toISOString(),
+              botId: bot.id,
+              botName: bot.mythName || bot.name,
+              symbol: t.symbol || bot.primarySymbol,
+              side: isBuy ? 'BUY' : 'SELL',
+              type: 'LIMIT',
+              qty: t.qty || (bot.market === 'india' ? 100 : 50),
+              limitPrice: t.fillPrice || bot.currentPrice,
+              fillPrice: t.fillPrice || bot.currentPrice,
+              slippageBps: t.slippageBps || '1.2',
+              venue: bot.venue,
+              triggerMath: bot.mathFormula ? bot.mathFormula.slice(0, 35) + '...' : 'Signal Executed',
+              status: 'FILLED',
+              realizedPnl: t.realizedPnl || 0
+            });
+          });
+        }
+      });
+    }
+
+    if (typeof window !== 'undefined') {
+      window.botRegistry = botRegistry;
+    }
+
     saveState();
     updateUptimeDisplay(elapsedDays, elapsedHours);
   };
@@ -1850,8 +1888,17 @@
       </div>
     `;
 
-    stream.prepend(row);
-    if (stream.children.length > 40) stream.removeChild(stream.lastChild);
+    if (typeof stream.prepend === 'function') {
+      stream.prepend(row);
+    } else if (typeof stream.insertBefore === 'function') {
+      stream.insertBefore(row, stream.firstChild);
+    } else {
+      stream.appendChild(row);
+    }
+    if (stream.children && stream.children.length > 40) {
+      const last = stream.lastChild || stream.children[stream.children.length - 1];
+      if (last && typeof stream.removeChild === 'function') stream.removeChild(last);
+    }
   };
 
   const renderTableRow = (item) => {
@@ -1876,8 +1923,17 @@
       <td><span class="order-state-badge ${item.status === 'FILLED' ? 'badge-filled' : 'badge-routing'}">${item.status}</span></td>
     `;
 
-    tbody.prepend(tr);
-    if (tbody.children.length > 60) tbody.removeChild(tbody.lastChild);
+    if (typeof tbody.prepend === 'function') {
+      tbody.prepend(tr);
+    } else if (typeof tbody.insertBefore === 'function') {
+      tbody.insertBefore(tr, tbody.firstChild);
+    } else {
+      tbody.appendChild(tr);
+    }
+    if (tbody.children && tbody.children.length > 60) {
+      const last = tbody.lastChild || tbody.children[tbody.children.length - 1];
+      if (last && typeof tbody.removeChild === 'function') tbody.removeChild(last);
+    }
   };
 
   const startAutonomousFleetLoops = () => {
@@ -2618,7 +2674,7 @@
   let selectedFleetJournalDay = null;
 
   function renderBotCalendarHeatmap(bot, bodyEl) {
-    const history = botAuditHistory[bot.id] || [];
+    const history = (bot && bot.botAuditHistory) ? bot.botAuditHistory : [];
     const daysInMonth = 30;
     const dailyPnl = {};
     const dailyCounts = {};
@@ -2722,8 +2778,8 @@
 
     relevantBots.forEach(b => {
       fleetNetPnl += b.realizedPnlINR;
-      fleetTotalTrades += (botAuditHistory[b.id] || []).length || b.tradesToday * 8;
-      totalWinTrades += Math.round(((botAuditHistory[b.id] || []).length || b.tradesToday * 8) * (b.winRate / 100));
+      fleetTotalTrades += (b.botAuditHistory || []).length || b.tradesToday * 8;
+      totalWinTrades += Math.round(((b.botAuditHistory || []).length || b.tradesToday * 8) * (b.winRate / 100));
     });
 
     if (netPnlEl) netPnlEl.textContent = `+₹${Math.round(fleetNetPnl).toLocaleString('en-IN')}`;
@@ -2740,7 +2796,7 @@
     const dailyCounts = {};
 
     relevantBots.forEach((bot, bIdx) => {
-      const history = botAuditHistory[bot.id] || [];
+      const history = bot.botAuditHistory || [];
       if (history.length) {
         history.forEach(item => {
           const d = item.date ? parseInt(item.date.split('-')[2] || '1', 10) : 1;
@@ -2797,7 +2853,7 @@
     if (tbody) {
       const fills = [];
       relevantBots.forEach(b => {
-        const h = botAuditHistory[b.id] || [];
+        const h = b.botAuditHistory || [];
         h.forEach(item => {
           fills.push({ bot: b, item });
         });
@@ -2855,11 +2911,11 @@
     const rows = [];
 
     botRegistry.forEach(b => {
-      const h = botAuditHistory[b.id] || [];
+      const h = b.botAuditHistory || [];
       if (h.length) {
         h.forEach(item => {
           rows.push([
-            b.id, `"${b.mythName}"`, b.division, b.primarySymbol, item.date || '2026-09-07', item.time || '12:00:00', item.side || item.action, item.qty, item.fillPrice, b.venue, item.realizedPnl || 0
+            b.id, `"${b.mythName}"`, b.division, b.primarySymbol, item.date || '2026-09-07', item.time || '12:00:00', item.side || item.action || 'BUY', item.qty || 100, item.fillPrice || b.currentPrice, b.venue, item.realizedPnl || 0
           ]);
         });
       } else {
@@ -2869,12 +2925,18 @@
       }
     });
 
-    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `RISKOS_Pantheon_Bot_Fleet_Journal_${new Date().toISOString().substring(0, 10)}.csv`;
-    a.click();
+    const csvContent = headers.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `RISKOS_Pantheon_Bot_Fleet_Journal_${new Date().toISOString().substring(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    if (typeof URL.revokeObjectURL === 'function') {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   }
 
   const renderModalContent = (bot) => {
@@ -3410,24 +3472,54 @@
   };
 
   const exportBlotterCSV = () => {
-    if (!globalAuditBlotter.length) {
+    let blotterRecords = globalAuditBlotter;
+    if (!blotterRecords || !blotterRecords.length) {
+      blotterRecords = [];
+      botRegistry.forEach(b => {
+        (b.botAuditHistory || []).forEach(t => {
+          const isBuy = (t.side || t.action || '').includes('BUY');
+          blotterRecords.push({
+            orderId: t.orderId || `ORD-${b.id}`,
+            time: t.time || '14:30:00',
+            botId: b.id,
+            symbol: t.symbol || b.primarySymbol,
+            side: isBuy ? 'BUY' : 'SELL',
+            type: 'LIMIT',
+            qty: t.qty || 100,
+            limitPrice: t.fillPrice || b.currentPrice,
+            fillPrice: t.fillPrice || b.currentPrice,
+            slippageBps: t.slippageBps || '1.2',
+            venue: b.venue,
+            triggerMath: b.mathFormula ? b.mathFormula.slice(0, 35) + '...' : 'Signal Executed',
+            status: 'FILLED',
+            realizedPnl: t.realizedPnl || 0
+          });
+        });
+      });
+    }
+
+    if (!blotterRecords.length) {
       alert('Blotter is currently empty.');
       return;
     }
 
     const headers = ['Order ID', 'Time (IST)', 'Bot ID', 'Symbol', 'Side', 'Type', 'Qty', 'Limit Price', 'Fill Price', 'Slippage bps', 'Venue', 'Trigger Math', 'Status', 'Realized PnL'];
-    const rows = globalAuditBlotter.map(o => [
-      o.orderId, o.time, o.botId, o.symbol, o.side, o.type, o.qty, o.limitPrice, o.fillPrice, o.slippageBps, o.venue, `"${o.triggerMath.replace(/"/g, '""')}"`, o.status, o.realizedPnl || 0
+    const rows = blotterRecords.map(o => [
+      o.orderId, o.time, o.botId, o.symbol, o.side, o.type, o.qty, o.limitPrice, o.fillPrice, o.slippageBps, o.venue, `"${(o.triggerMath || '').replace(/"/g, '""')}"`, o.status, o.realizedPnl || 0
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
+    const csvContent = headers.join(',') + '\n' + rows.map(e => e.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
+    link.setAttribute('href', url);
     link.setAttribute('download', `RISKOS_247_FLEET_BLOTTER_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    if (typeof URL.revokeObjectURL === 'function') {
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
   };
 
   // ── Dynamic Multi-Source Sentiment Fluctuation Engine (Every 2.5s) ────────
@@ -3477,7 +3569,7 @@
   // ══════════════════════════════════════════════════════════════════════════
   // 9. DOM INITIALIZATION
   // ══════════════════════════════════════════════════════════════════════════
-  document.addEventListener('DOMContentLoaded', () => {
+  const initFleetDOM = () => {
     initPersistentState();
     updateMissionRuntimeClock();
     setInterval(updateMissionRuntimeClock, 1000);
@@ -4020,24 +4112,33 @@
       window.botRegistry = botRegistry;
       window.openBotConsoleModal = openBotConsoleModal;
     }
-  });
+  };
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFleetDOM);
+    } else {
+      initFleetDOM();
+    }
+  }
 
 })();
 
 
 // ── Fleet TerminalBus Integration & Deep-Linking ──────────────────────────
 if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
+  const initFleetDeepLinks = () => {
     const urlParams = new URLSearchParams(window.location?.search || '');
     const botParam = urlParams.get('bot');
     const actionParam = urlParams.get('action');
 
+    const bots = window.botRegistry || window.INITIAL_BOTS || [];
     if (botParam) {
       setTimeout(() => {
         const cleanId = botParam.toUpperCase().trim();
-        const found = INITIAL_BOTS.find(b => b.id.toUpperCase() === cleanId || b.id.replace(/-/g, '') === cleanId.replace(/-/g, ''));
-        if (found && typeof openBotConsoleModal === 'function') {
-          openBotConsoleModal(found.id);
+        const found = bots.find(b => b.id.toUpperCase() === cleanId || b.id.replace(/-/g, '') === cleanId.replace(/-/g, ''));
+        if (found && typeof window.openBotConsoleModal === 'function') {
+          window.openBotConsoleModal(found.id);
         }
       }, 450);
     }
@@ -4053,13 +4154,23 @@ if (typeof window !== 'undefined') {
         else if (actionParam === 'memo' && window.ExecutiveReportGenerator) window.ExecutiveReportGenerator.openPrintableReport(window.botRegistry || window.INITIAL_BOTS);
       }, 500);
     }
-  });
+  };
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFleetDeepLinks);
+    } else {
+      initFleetDeepLinks();
+    }
+  }
 
   // Global window hook for BURST command from terminal command bar
   window.fleetBurstAllOrders = () => {
-    INITIAL_BOTS.forEach((bot, idx) => {
+    const bots = window.botRegistry || window.INITIAL_BOTS || [];
+    bots.forEach((bot, idx) => {
       setTimeout(() => {
-        if (typeof triggerBotOrderCycle === 'function') triggerBotOrderCycle(bot);
+        if (typeof triggerBotOrderPlacement === 'function') triggerBotOrderPlacement(bot);
+        else if (typeof triggerBotOrderCycle === 'function') triggerBotOrderCycle(bot);
       }, idx * 60);
     });
   };
