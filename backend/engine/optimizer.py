@@ -244,11 +244,15 @@ def black_litterman_news_optimize(
     news_views: Optional[Dict[str, float]] = None,
     risk_aversion: float = 2.5,
     tau: float = 0.05,
-    max_weight: float = 0.50
+    max_weight: float = 0.50,
+    prior_type: str = "equal_weight",
+    market_caps: Optional[Dict[str, float]] = None,
+    benchmark_weights: Optional[Dict[str, float]] = None
 ) -> Dict[str, Any]:
     """
-    Sentiment-Conditioned Black-Litterman Portfolio Optimization (He & Litterman 1999).
-    Combines CAPM implied equilibrium returns with news sentiment view vector Q.
+    Transparent Institutional Black-Litterman Portfolio Optimization (He & Litterman 1999).
+    Combines CAPM implied equilibrium returns Pi with sentiment view vector Q and view uncertainty Omega.
+    Exposes all structural matrices, priors, posteriors, and sensitivity diagnostics.
     """
     if returns.empty or len(returns.columns) == 0:
         return {"error": "Empty return data"}
@@ -258,9 +262,24 @@ def black_litterman_news_optimize(
 
     lw = LedoitWolf()
     sigma = lw.fit(returns.values).covariance_ * 252.0
+    cond_num = float(np.linalg.cond(sigma))
 
-    # 1. CAPM Equilibrium Market Implied Returns: Pi = lambda * Sigma * w_mkt
-    w_mkt = np.ones(n_assets) / n_assets  # Equal-weight proxy or market cap proxy
+    # 1. Prior Market Equilibrium Determination
+    if prior_type == "market_cap" and market_caps and any(t in market_caps for t in tickers):
+        caps = np.array([market_caps.get(t, 1.0) for t in tickers], dtype=float)
+        s_cap = np.sum(caps)
+        w_mkt = caps / s_cap if s_cap > 0 else np.ones(n_assets) / n_assets
+        prior_label = "MARKET_CAP_EQUILIBRIUM_PRIOR"
+    elif prior_type == "custom_benchmark" and benchmark_weights and any(t in benchmark_weights for t in tickers):
+        b_weights = np.array([benchmark_weights.get(t, 0.0) for t in tickers], dtype=float)
+        s_b = np.sum(b_weights)
+        w_mkt = b_weights / s_b if s_b > 0 else np.ones(n_assets) / n_assets
+        prior_label = "CUSTOM_BENCHMARK_PRIOR"
+    else:
+        w_mkt = np.ones(n_assets) / n_assets
+        prior_label = "EQUAL_WEIGHT_UNINFORMATIVE_PRIOR"
+
+    # CAPM Equilibrium Implied Returns: Pi = lambda * Sigma * w_mkt
     pi = risk_aversion * (sigma @ w_mkt)
 
     # 2. News Views Vector Q and Picking Matrix P
@@ -272,8 +291,8 @@ def black_litterman_news_optimize(
 
     k_views = len(views_active)
     if k_views == 0:
-        # If no active news views, default to CAPM equilibrium with modest tilt
-        views_active = [(0, 0.0)]
+        # Default uninformative neutral view with low confidence
+        views_active = [(0, float(pi[0]))]
         k_views = 1
 
     P = np.zeros((k_views, n_assets))
@@ -282,17 +301,17 @@ def black_litterman_news_optimize(
         P[idx, asset_idx] = 1.0
         Q[idx] = float(view_val)
 
-    # 3. View Uncertainty Matrix Omega (He & Litterman diagonal formulation)
+    # 3. View Uncertainty Matrix Omega (He & Litterman diagonal formulation: Omega = diag(P * (tau * Sigma) * P^T))
     omega = np.diag(np.diag(P @ (tau * sigma) @ P.T))
     omega_inv = np.linalg.pinv(omega + 1e-6 * np.eye(k_views))
 
-    # 4. Posterior Expected Returns: E[R]
+    # 4. Posterior Expected Returns: E[R] = [(tau*Sigma)^-1 + P^T * Omega^-1 * P]^-1 * [(tau*Sigma)^-1 * Pi + P^T * Omega^-1 * Q]
     sigma_inv = np.linalg.pinv(tau * sigma)
     m1 = np.linalg.pinv(sigma_inv + P.T @ omega_inv @ P)
     m2 = sigma_inv @ pi + P.T @ omega_inv @ Q
     mu_bl = m1 @ m2
 
-    # Posterior Covariance Matrix
+    # Posterior Covariance Matrix: Sigma_BL = Sigma + M1
     sigma_bl = sigma + m1
 
     # 5. Solve Optimal Weights subject to sum(w) = 1, 0 <= w_i <= max_weight
@@ -310,17 +329,68 @@ def black_litterman_news_optimize(
 
     opt_return = float(np.sum(opt_w * mu_bl))
     opt_vol = float(np.sqrt(np.dot(opt_w.T, np.dot(sigma_bl, opt_w))))
-    sharpe = float(opt_return / opt_vol) if opt_vol > 0 else 0.0
+    sharpe = float((opt_return - 0.05) / opt_vol) if opt_vol > 0 else 0.0
+    constraint_violation = float(abs(np.sum(opt_w) - 1.0))
+
+    # 6. Sensitivity Analysis across Tau, Omega, and Risk Aversion
+    sensitivity = []
+    for test_tau in [0.02, 0.05, 0.10]:
+        for test_lambda in [1.5, 2.5, 4.0]:
+            sig_inv_t = np.linalg.pinv(test_tau * sigma)
+            om_t = np.diag(np.diag(P @ (test_tau * sigma) @ P.T))
+            om_inv_t = np.linalg.pinv(om_t + 1e-6 * np.eye(k_views))
+            m1_t = np.linalg.pinv(sig_inv_t + P.T @ om_inv_t @ P)
+            mu_t = m1_t @ (sig_inv_t @ (test_lambda * (sigma @ w_mkt)) + P.T @ om_inv_t @ Q)
+            res_t = minimize(lambda w: -(np.dot(w, mu_t) - 0.5 * test_lambda * np.dot(w.T, np.dot(sigma + m1_t, w))),
+                             w0, method='SLSQP', bounds=bounds, constraints=constraints)
+            w_sens = res_t.x if res_t.success else w0
+            sensitivity.append({
+                "tau": test_tau,
+                "risk_aversion": test_lambda,
+                "expected_return": round(float(np.sum(w_sens * mu_t)), 4),
+                "portfolio_vol": round(float(np.sqrt(np.dot(w_sens.T, np.dot(sigma + m1_t, w_sens)))), 4)
+            })
 
     return {
-        "model": "BLACK_LITTERMAN_NEWS_OPTIMIZER",
+        "model": "BLACK_LITTERMAN_TRANSPARENT_OPTIMIZER",
+        "prior_classification": prior_label,
+        "parameters": {
+            "risk_aversion_lambda": risk_aversion,
+            "tau_scalar": tau,
+            "condition_number_sigma": round(cond_num, 2),
+            "views_count": len(views_active)
+        },
         "optimal_weights": {tickers[i]: round(float(opt_w[i]), 4) for i in range(n_assets)},
         "equilibrium_implied_returns": {tickers[i]: round(float(pi[i]), 4) for i in range(n_assets)},
         "posterior_expected_returns": {tickers[i]: round(float(mu_bl[i]), 4) for i in range(n_assets)},
-        "expected_return": round(opt_return, 4),
-        "volatility": round(opt_vol, 4),
-        "sharpe_ratio": round(sharpe, 4),
-        "views_incorporated_count": len(views_active)
+        "prior_market_weights": {tickers[i]: round(float(w_mkt[i]), 4) for i in range(n_assets)},
+        "structural_matrices": {
+            "P_matrix": P.tolist(),
+            "Q_vector": [round(float(q), 4) for q in Q],
+            "Omega_diagonal": [round(float(omega[i, i]), 6) for i in range(k_views)],
+            "Sigma_sample_diag": [round(float(sigma[i, i]), 4) for i in range(n_assets)],
+            "Sigma_bl_diag": [round(float(sigma_bl[i, i]), 4) for i in range(n_assets)],
+            "prior_equilibrium_returns_pi": [round(float(x), 4) for x in pi],
+            "picking_matrix_P": P.tolist(),
+            "view_vector_Q": [round(float(q), 4) for q in Q],
+            "view_uncertainty_omega": [round(float(omega[i, i]), 6) for i in range(k_views)],
+            "tau": tau
+        },
+        "optimizer_diagnostics": {
+            "covariance_condition_number": round(cond_num, 2),
+            "constraint_violation_norm": round(constraint_violation, 6),
+            "solver_converged": bool(res.success),
+            "solver_iterations": int(getattr(res, "nit", 10))
+        },
+        "performance_metrics": {
+            "expected_return": round(opt_return, 4),
+            "volatility": round(opt_vol, 4),
+            "sharpe_ratio": round(sharpe, 4),
+            "constraint_violation_norm": round(constraint_violation, 6),
+            "solver_converged": bool(res.success),
+            "solver_iterations": int(getattr(res, "nit", 10))
+        },
+        "sensitivity_analysis": sensitivity
     }
 
 def hierarchical_risk_parity_optimize(returns: pd.DataFrame) -> Dict[str, Any]:
@@ -557,3 +627,25 @@ def momentum_tilt_optimize(returns: pd.DataFrame, max_weight: float = 0.40, mome
         "wml_spread_pct": wml_spread,
         "momentum_rankings": rankings
     }
+
+def risk_parity_optimize(returns: pd.DataFrame) -> dict:
+    """
+    Equal Risk Contribution (ERC) Risk Parity Optimizer.
+    Finds weights such that each asset contributes equally to total portfolio risk.
+    """
+    if returns.empty or len(returns.columns) == 0:
+        return {"error": "No return data"}
+    from .attribution import solve_risk_parity
+    n_assets = len(returns.columns)
+    mu = returns.mean().values * 252
+    lw = LedoitWolf()
+    cov_matrix = lw.fit(returns.values).covariance_ * 252
+    w_rp = solve_risk_parity(cov_matrix)
+    opt_r = float(np.sum(w_rp * mu))
+    opt_vol = float(_portfolio_volatility(w_rp, cov_matrix))
+    return {
+        'optimal_weights': {returns.columns[i]: round(float(w_rp[i]), 4) for i in range(n_assets)},
+        'expected_return': round(opt_r, 4),
+        'volatility': round(opt_vol, 4)
+    }
+

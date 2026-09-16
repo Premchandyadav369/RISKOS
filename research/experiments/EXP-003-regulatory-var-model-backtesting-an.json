@@ -1,0 +1,30 @@
+{
+  "experiment_id": "EXP-003",
+  "title": "Regulatory VaR Model Backtesting & Basel Traffic Light Verification",
+  "category": "Quantitative Risk & Model Validation",
+  "author": "RISKOS Quantitative Research Group",
+  "date": "2026-09-08",
+  "models": [
+    "Historical Simulation",
+    "Parametric Gaussian",
+    "Multivariate Gaussian MC (Ledoit-Wolf)",
+    "Multivariate Student-t MC (nu=5)",
+    "Stationary Block Bootstrap MC"
+  ],
+  "confidence_levels": [
+    0.9,
+    0.95,
+    0.975,
+    0.99
+  ],
+  "lookback_bars": 250,
+  "tests": [
+    "Kupiec Proportion of Failures (POF)",
+    "Christoffersen Independence",
+    "Christoffersen Conditional Coverage",
+    "Christoffersen & Pelletier (2004) Duration Test",
+    "Basel Committee Traffic Light Zone",
+    "Pinball Loss",
+    "Regulatory Quadratic CVaR Loss"
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "experiment_id": "EXP-001",
+  "title": "TimesFM, Prophet & Merton Jump Diffusion vs Naive Baselines",
+  "category": "Time Series Forecasting & Out-of-Sample Validation",
+  "author": "RISKOS Quantitative Research Group",
+  "date": "2026-09-08",
+  "universe": [
+    "SYNTHETIC_INDEX",
+    "EQUITY_BENCHMARK"
+  ],
+  "horizons": [
+    1,
+    5,
+    20,
+    64
+  ],
+  "lookback_bars": 250,
+  "weighting_schemes": [
+    "equal",
+    "inverse_error",
+    "validation_performance",
+    "regime_conditioned"
+  ],
+  "baselines": [
+    "Random Walk",
+    "Random Walk with Drift",
+    "Historical Mean",
+    "SMA-20",
+    "EMA",
+    "Seasonal Naive"
+  ],
+  "evaluation_metrics": [
+    "MAE",
+    "RMSE",
+    "sMAPE",
+    "MASE",
+    "Directional Accuracy",
+    "Pinball Loss (tau=0.50)",
+    "PICP"
+  ],
+  "reproducibility": {
+    "random_seed": 42,
+    "tolerance": 0.0001
+  }
+}
