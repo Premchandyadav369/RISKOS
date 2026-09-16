@@ -13,4 +13,4 @@ Bollerslev conditional variance maximum likelihood estimation.
 ### KaTeX Formulation
 $$\text{GARCH}_{t} = \arg\min_{\mathbf{w} \in \mathcal{W}} \mathcal{L}(\mathbf{w}, \mathbf{\Sigma}, \boldsymbol{\mu})$$
 
-*RISKOS Institutional Bloomberg Terminal Core Engine Specification v3.5.*
+*RISKOS Institutional Bloomberg Terminal Core Engine Specification.*

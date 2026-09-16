@@ -1,7 +1,7 @@
 # Quantitative Research Audit Report: Forecasting Models vs Statistical Baselines
 **Experiment ID**: `EXP-001` | **Category**: Time Series Forecasting & Out-of-Sample Validation
-**Date**: 2026-09-08 | **Audited At**: 2026-09-08T12:43:01.654738Z
-**Platform**: RISKOS Quantitative Systems (v3.0.0-PROD)
+**Date**: 2026-09-08 | **Audited At**: 2026-09-08T13:03:54.988104Z
+**Platform**: RISKOS Quantitative Systems (PRODUCTION)
 
 ---
 

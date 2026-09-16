@@ -357,7 +357,7 @@ class ForecastingEnsemble:
                 "measured_validation_rmse": rmse_dict,
                 "validation_window_bars": val_perf.get("validation_window_size", 15),
                 "data_provenance": "EMPIRICAL_HISTORICAL_IN_SAMPLE_HOLDOUT",
-                "engine_version": "ForecastingEnsemble-v3.2-EmpiricalLearned"
+                "engine_version": "ForecastingEnsemble-EmpiricalLearned"
             },
             "individual_models": {
                 "google_timesfm_30": {

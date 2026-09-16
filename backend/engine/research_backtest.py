@@ -133,7 +133,7 @@ def generate_research_audit_report(
 
     report = {
         "report_type": "RESEARCH_AUDIT_REPORT",
-        "audit_version": "3.0.0-PROD",
+        "audit_version": "PRODUCTION",
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "platform": "RISKOS Quantitative Systems",
         "universe_specification": {

@@ -37,7 +37,7 @@ from research.report_generator import ResearchReportGenerator
 
 def run_all_benchmarks():
     print("=" * 80)
-    print("RISKOS INSTITUTIONAL QUANTITATIVE BENCHMARK SUITE (v3.0.0-PROD)")
+    print("RISKOS INSTITUTIONAL QUANTITATIVE BENCHMARK SUITE (PRODUCTION)")
     print("Zero-Fabrication Empirical Validation")
     print("=" * 80)
 

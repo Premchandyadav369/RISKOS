@@ -1,5 +1,5 @@
 # RISKOS REST API Reference Manual
-Version: 2.1.0  
+Production Platform  
 Protocol: HTTP / JSON  
 Base URL: `http://127.0.0.1:8000`
 
@@ -285,7 +285,7 @@ Compiles an institutional investment committee memorandum formatted to Goldman S
 
 ---
 
-## 11. Institutional Research Suite Endpoints (v3.0.0)
+## 11. Institutional Research Suite Endpoints
 
 ### `GET /api/research/ensemble/rolling-eval`
 Executes genuine out-of-sample rolling-origin evaluation across multi-horizons (1d, 5d, 20d, 64d) for TimesFM, Prophet, Merton Jump Diffusion, and Ensemble against 6 mandatory statistical baselines (Random Walk, RW with Drift, Historical Mean, SMA-20, EMA, Seasonal Naive). Zero heuristic error multipliers.

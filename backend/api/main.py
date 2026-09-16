@@ -67,7 +67,7 @@ from engine.model_validation import (
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
-    version="3.0.0",
+    version="1.0",
     description="Database-backed, real-time institutional quantitative intelligence platform"
 )
 

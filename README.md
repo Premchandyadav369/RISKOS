@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Platform: Web & API](https://img.shields.io/badge/Platform-Web%20%7C%20FastAPI%20%7C%20Serverless-10b981.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing%20(100%25)-success.svg?style=for-the-badge)](.github/workflows/ci.yml)
-[![Quantitative Rigor](https://img.shields.io/badge/Quantitative%20Rigor-Score%209.81%2F10-emerald.svg?style=for-the-badge)](docs/RISKOS_V3_AUDIT.md)
+[![Quantitative Rigor](https://img.shields.io/badge/Quantitative%20Rigor-Score%209.81%2F10-emerald.svg?style=for-the-badge)](docs/RISKOS_AUDIT.md)
 [![Cross-Validation](https://img.shields.io/badge/Validation-Purged%20%26%20Embargoed%20CPCV-blue.svg?style=for-the-badge)](backend/engine/purged_cv.py)
 [![Data Hygiene](https://img.shields.io/badge/Data%20Hygiene-0--100%20Scoring-indigo.svg?style=for-the-badge)](docs/DATA_PROVENANCE.md)
 [![Model Validation](https://img.shields.io/badge/Model%20Validation-Kupiec%20%7C%20Christoffersen%20%7C%20Basel-purple.svg?style=for-the-badge)](docs/models/)
@@ -20,7 +20,7 @@
 
 **A rigorous open-source quantitative finance research, stochastic risk modeling, and multi-asset portfolio analytics platform engineered for computational finance researchers, quantitative risk managers, and systematic portfolio architects.**
 
-[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [Production Rigor Audit (9.81/10)](docs/RISKOS_V3_AUDIT.md) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Data Provenance](docs/DATA_PROVENANCE.md) • [16 Model Cards](docs/models/) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [65 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md)
+[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [Production Rigor Audit (9.81/10)](docs/RISKOS_AUDIT.md) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Data Provenance](docs/DATA_PROVENANCE.md) • [16 Model Cards](docs/models/) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [65 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md)
 
 
 </div>
