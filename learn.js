@@ -291,6 +291,15 @@
       }
     }
     if (whyMatters) whyMatters.textContent = res.whyItMatters || res.investorText || '';
+
+    const laymanText = document.getElementById('laymanAnalogyText');
+    const exText = document.getElementById('realWorldExampleText');
+    if (laymanText) {
+      laymanText.textContent = res.beginnerText || res.laymanExplanation || 'Think of this metric as an intuitive gauge of risk vs reward, smoothing out market noise.';
+    }
+    if (exText) {
+      exText.textContent = res.realWorldExample || res.plainResult || 'Consider investing ₹1,00,000 in an index fund or industry leader under steady compounding.';
+    }
     if (focalSym) focalSym.textContent = res.focalSymbol || mod.badge || 'METRIC';
     if (focalLbl) focalLbl.textContent = res.focalLabel || 'Evaluated Value';
     if (focalVal) {

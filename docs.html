@@ -57,7 +57,7 @@
         <a href="app.html" class="nav-link"><i class="fa-solid fa-cubes" style="margin-right:4px;"></i> 7 Desks</a>
         <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
         <a href="observatory.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right:4px;"></i> Observatory</a>
-        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 52 Labs</a>
+        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 57 Labs</a>
         <a href="ticker.html" class="nav-link"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> Screener</a>
         <a href="portfolio_optimizer.html" class="nav-link"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
           <a href="docs.html" class="nav-link active"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:4px;"></i> System Docs</a>
@@ -95,8 +95,8 @@
       </div>
 
       <div class="docs-nav-group">
-        <div class="docs-nav-title">The 7 Bloomberg Desks</div>
-        <a href="#desks" class="docs-nav-item"><i class="fa-solid fa-cubes"></i> 7 Desks Overview</a>
+        <div class="docs-nav-title">The 8 Bloomberg Desks</div>
+        <a href="#desks" class="docs-nav-item"><i class="fa-solid fa-cubes"></i> 8 Desks Overview</a>
         <a href="#desk1" class="docs-nav-item"><i class="fa-solid fa-eye"></i> Desk 1: Market Intelligence</a>
         <a href="#desk2" class="docs-nav-item"><i class="fa-solid fa-shield"></i> Desk 2: Risk Engine &amp; VaR</a>
         <a href="#desk3" class="docs-nav-item"><i class="fa-solid fa-signal"></i> Desk 3: Signals &amp; Execution</a>
@@ -104,6 +104,19 @@
         <a href="#desk5" class="docs-nav-item"><i class="fa-solid fa-layer-group"></i> Desk 5: Derivatives &amp; SABR</a>
         <a href="#desk6" class="docs-nav-item"><i class="fa-solid fa-flask"></i> Desk 6: Backtest Sandbox</a>
         <a href="#desk7" class="docs-nav-item"><i class="fa-solid fa-brain"></i> Desk 7: AI Speculations</a>
+        <a href="#desk8" class="docs-nav-item"><i class="fa-solid fa-sliders text-cyan"></i> Desk 8: Portfolio Optimizer</a>
+      </div>
+
+      <div class="docs-nav-group">
+        <div class="docs-nav-title">Execution &amp; Risk Features</div>
+        <a href="#trade-journal" class="docs-nav-item"><i class="fa-solid fa-calendar-days text-cyan"></i> Trade Journal &amp; Calendar</a>
+        <a href="#oco-orders" class="docs-nav-item"><i class="fa-solid fa-arrows-split-up-and-left text-green"></i> OCO Bracket Orders</a>
+        <a href="#tax-harvest" class="docs-nav-item"><i class="fa-solid fa-hand-holding-dollar text-emerald"></i> Tax-Loss Harvesting</a>
+        <a href="#price-alerts" class="docs-nav-item"><i class="fa-solid fa-bell text-amber"></i> Price Alerts &amp; Audio Chimes</a>
+        <a href="#macro-radar" class="docs-nav-item"><i class="fa-solid fa-stopwatch text-purple"></i> Macro Catalyst Radar</a>
+        <a href="#dividend-projector" class="docs-nav-item"><i class="fa-solid fa-sack-dollar text-cyan"></i> Dividend Income Projector</a>
+        <a href="#correlation-matrix" class="docs-nav-item"><i class="fa-solid fa-table-cells text-gold"></i> 6x6 Correlation Matrix</a>
+        <a href="#labs-mastery" class="docs-nav-item"><i class="fa-solid fa-graduation-cap text-cyan"></i> 57 Financial Labs</a>
       </div>
 
       <div class="docs-nav-group">
@@ -578,6 +591,100 @@ u)$.
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
               <strong>Layman:</strong> Google TimesFM foundation forecasting and prediction market probabilities.<br>
               <strong>Quant:</strong> 10-quantile transformer attention heads combined with Hanson Logarithmic Market Scoring Rule: $p_i = rac{e^{q_i / b}}{\sum e^{q_j / b}}$.
+            </p>
+          </div>
+
+          <div id="desk8" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;">Desk 8: Portfolio Prediction &amp; Quant Optimizer (<code>portfolio_optimizer.html</code>)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman:</strong> Real-time portfolio autopilot that projects future wealth trajectories with AI, protects downside risk, and suggests 1-click rebalancing.<br>
+              <strong>Quant:</strong> Blends Google TimesFM 3.0 zero-shot quantiles, Meta Prophet seasonality, and Merton Jump Poisson diffusion with Bayesian Sentiment Black-Litterman ($P \cdot Q$).
+            </p>
+            <div style="font-size:0.8rem; color:#22d3ee;">$$\hat{Y}_t = 0.40 \cdot \text{TFM}_{q50} + 0.30 \cdot \text{Prophet} + 0.30 \cdot \text{Merton}_{p50}$$</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7.5: INSTITUTIONAL EXECUTION & RISK FEATURES -->
+      <section id="institutional-features" class="doc-section">
+        <div class="doc-header-row">
+          <h2 class="doc-title"><i class="fa-solid fa-bolt text-cyan"></i> New Institutional Execution &amp; Risk Suite</h2>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Live Production Architecture</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <!-- 1. Trade Journal -->
+          <div id="trade-journal" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-calendar-days"></i> 1. Trade Journal &amp; Daily P&amp;L Attribution Calendar</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A fitness tracker for your money. Instead of guessing how you performed, every day is shaded green for profit or red for loss. Clicking any day reveals every trade fill, execution price, and broker slippage.<br>
+              <strong>Institutional Quant:</strong> Granular mark-to-market execution ledger for both the User Portfolio and all 21 Pantheon Fleet Bots across a 92-day production track record. Calculates daily realized alpha, win rate (%), profit factor, and R-multiple attribution with 1-click CSV audit export.
+            </p>
+          </div>
+
+          <!-- 2. OCO Bracket Orders -->
+          <div id="oco-orders" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#10b981; margin:0 0 6px 0;"><i class="fa-solid fa-arrows-split-up-and-left"></i> 2. OCO (One-Cancels-Other) Bracket Order Engine</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> An automated safety guardrail. When you enter a trade, you simultaneously set an emergency brake (Stop-Loss, e.g. -2.5%) and a profit target (Take-Profit, e.g. +5.0%). If the price hits your target, your profits are locked in and the stop is automatically cancelled.<br>
+              <strong>Institutional Quant:</strong> Continuous tick-level state machine monitoring inside the 400ms Brownian micro-tick loop. Upon breach of either threshold $P_t \le P_{\text{SL}}$ or $P_t \ge P_{\text{TP}}$, generates automated FIX 4.4 market exits, plays audio cues, triggers visual toasts, and logs fills to AuditLedger.
+            </p>
+            <div style="font-size:0.8rem; color:#10b981;">$$P_{\text{SL}} = P_{\text{entry}} \cdot (1 - \text{SL}\%), \quad P_{\text{TP}} = P_{\text{entry}} \cdot (1 + \text{TP}\%)$$</div>
+          </div>
+
+          <!-- 3. Tax-Loss Harvesting -->
+          <div id="tax-harvest" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#10b981; margin:0 0 6px 0;"><i class="fa-solid fa-hand-holding-dollar"></i> 3. Tax-Loss Harvesting &amp; Capital Gains Alpha (STCG / LTCG)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> Turning market lemons into tax lemonade. If a stock drops, selling it lets you tell the tax department to cancel out taxes on your profitable trades. At 20% tax rate, a ₹1,00,000 loss saves you ₹20,000 in cash taxes today! Reinvesting that free cash refund in a similar company creates pure extra wealth.<br>
+              <strong>Institutional Quant:</strong> Algorithmic capital gains tax offset engine. Computes harvestable losses $L = \sum \max(0, C_i - P_i)$ across Indian STCG (20%), LTCG (12.5%), and US Federal (30%) regimes. Automatically pairs underwater assets with beta-matched substitutes to prevent wash-sale violations and injects sell orders directly into the Rebalance Blotter.
+            </p>
+            <div style="font-size:0.8rem; color:#10b981;">$$\text{Tax Alpha Savings} = \sum_{i \in \text{Losses}} Q_i \cdot (C_i - P_i) \cdot \tau_{\text{tax}}$$</div>
+          </div>
+
+          <!-- 4. Price Alerts & Audio Chimes -->
+          <div id="price-alerts" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#f59e0b; margin:0 0 6px 0;"><i class="fa-solid fa-bell"></i> 4. Price &amp; Anomaly Alert Triggers (Web Audio Synthesizer)</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A smart alarm clock for the market. Set a price ceiling or floor, and RISKOS will chime and pop up a notification the second the market reaches your level, even if you are browsing another tab.<br>
+              <strong>Institutional Quant:</strong> Browser-native Web Audio API synthesizer generating dual-frequency Bloomberg terminal alert bells (D5 587Hz $\rightarrow$ A5 880Hz) coupled with cubic-bezier sliding toast notification banners. Evaluates real-time price conditions ($P \ge T$, $P \le T$) and portfolio drawdown limits ($DD \ge 2.5\%$).
+            </p>
+          </div>
+
+          <!-- 5. Macro Radar -->
+          <div id="macro-radar" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#a855f7; margin:0 0 6px 0;"><i class="fa-solid fa-stopwatch"></i> 5. Macro Catalyst Countdown Radar</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A mission-control countdown for high-impact financial news. Tells you exactly how many days, hours, and minutes until the US Federal Reserve or RBI announces interest rates, or when inflation numbers drop.<br>
+              <strong>Institutional Quant:</strong> Real-time ticking calendar ribbon tracking global macroeconomic catalysts: US FOMC Decisions, RBI Monetary Policy Meetings, Core CPI/PPI Inflation prints, NSE NIFTY Weekly 0DTE Option Expiries, and mega-cap quarterly earnings releases.
+            </p>
+          </div>
+
+          <!-- 6. Dividend Projector -->
+          <div id="dividend-projector" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-sack-dollar"></i> 6. Dividend Income &amp; 5Y DRIP Compounding Projector</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A rental income estimator for your stock portfolio. Calculates exactly how much cash dividends you will collect each month and quarter, and shows how reinvesting dividends snowballs your wealth over 5 years compared to spending the cash.<br>
+              <strong>Institutional Quant:</strong> Computes annual projected dividend income in ₹ INR and $ USD from Security Master yield metadata, weighted portfolio yield (%), quarterly distribution waterfall (Q1-Q4), and generates an interactive Chart.js 5-year DRIP (Dividend Reinvestment Plan) compounding curve.
+            </p>
+            <div style="font-size:0.8rem; color:#22d3ee;">$$Y_{\text{portfolio}} = \sum_{i=1}^N w_i \cdot Y_i, \quad W_{\text{DRIP}}(t) = W_0 \cdot (1 + r_{\text{cagr}} + Y_{\text{port}})^t$$</div>
+          </div>
+
+          <!-- 7. Correlation Matrix -->
+          <div id="correlation-matrix" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#fab005; margin:0 0 6px 0;"><i class="fa-solid fa-table-cells"></i> 7. 6x6 Pairwise Correlation Heatmap &amp; Overlap Radar</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> A 'copycat' detector. If you own two stocks that always move in the exact same direction at the same time, you aren't truly diversified—you've just doubled your risk. The matrix flags any pair with correlation over 0.80 as a warning.<br>
+              <strong>Institutional Quant:</strong> Trailing return correlation matrix $\rho_{ij} = \frac{\text{Cov}(R_i, R_j)}{\sigma_i \sigma_j}$ rendered as an interactive color-coded grid (deep green for high co-movement, slate gray for uncorrelated, crimson for inverse hedging). Automatically flags pairs with $\rho > 0.80$ to warn of hidden factor concentration.
+            </p>
+          </div>
+
+          <!-- 8. 57 Labs Mastery -->
+          <div id="labs-mastery" class="doc-section" style="padding:16px; background:#04060a;">
+            <h4 style="color:#22d3ee; margin:0 0 6px 0;"><i class="fa-solid fa-graduation-cap"></i> 8. 57 Interactive Quantitative Labs with Everyday Layman Mode</h4>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
+              <strong>Layman Analogy:</strong> An interactive playground where every complex formula is unlocked through everyday real-world examples: car brakes, sports scoreboards, shopping discounts, and real companies like Reliance, HDFC, Apple, and Microsoft.<br>
+              <strong>Institutional Quant:</strong> 57 deterministic quantitative laboratories spanning 9 divisions. Every lab supports tri-mode depth: Beginner (Layman Analogy + Concrete Example), Investor (Buffett/Dalio evaluation), and Quant (Formal stochastic calculus, SDEs, and LaTeX proof).
             </p>
           </div>
         </div>

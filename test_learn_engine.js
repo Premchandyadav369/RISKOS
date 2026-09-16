@@ -110,6 +110,21 @@ const dualRes = LearnMathEngine.getModuleById('dual_momentum_antonacci').calc({ 
 assert(dualRes.focalValue === 'US', `Dual Momentum selects relative winner US (got ${dualRes.focalValue})`);
 assert(dualRes.plainResult.includes('PASSED'), 'Dual Momentum passes absolute momentum hurdle');
 
+// 21. Tax Alpha & Tax-Loss Harvesting
+const tlhRes = LearnMathEngine.getModuleById('tax_loss_harvesting').calc({ unrealizedLoss: 100000, taxRatePct: 20.0, reinvestYieldPct: 12.0, holdingYears: 10 }, 'INR');
+assert(tlhRes.focalValue.includes('20.0k') || tlhRes.focalValue.includes('20,000'), `Tax loss harvest saves ₹20k on ₹100k loss (got ${tlhRes.focalValue})`);
+assert(tlhRes.plainResult.includes('tax alpha boost'), 'Tax loss harvesting calculates compounded tax alpha');
+
+// 22. Gordon Growth Model & Dividend Discount Valuation
+const ddmRes = LearnMathEngine.getModuleById('dividend_discount_model').calc({ currentDividend: 50.0, dividendGrowthRate: 6.0, requiredReturn: 10.5 }, 'INR');
+assert(ddmRes.plainResult.includes('1,177.78'), `DDM intrinsic value is 1,177.78 (got ${ddmRes.plainResult})`);
+assert(ddmRes.chart.datasets[0].data.length === 10, 'DDM projects 10-year dividend stream');
+
+// 23. Kelly Criterion & Optimal Leverage Growth
+const kellyRes = LearnMathEngine.getModuleById('kelly_criterion_growth').calc({ winProbability: 60.0, winLossRatio: 1.5, initialCapital: 1000000 });
+assert(kellyRes.focalValue === '33.3%', `Kelly optimal fraction is 33.3% (got ${kellyRes.focalValue})`);
+assert(kellyRes.plainResult.includes('Half-Kelly'), 'Kelly module provides institutional Half-Kelly recommendation');
+
 console.log(`\n═══════════════════════════════════════════════════════════════`);
 console.log(`📊 TEST RESULTS: ${passed} / ${total} MODULES PASSED (100%)`);
 console.log('═══════════════════════════════════════════════════════════════\n');

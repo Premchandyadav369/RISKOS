@@ -72,7 +72,24 @@
     weightsChart: null,
     drawerSparklineChart: null,
     lastNav: 1137670,
-    lastPnl: 58520
+    lastPnl: 58520,
+    tradeJournal: [
+      { id: 'TRD-101', date: '2026-09-01', time: '09:32:15', symbol: 'RELIANCE.NS', side: 'BUY', quantity: 100, price: 2950.0, slippage_bps: 2.8, strategy: 'Trend Breakout', pnl: 4200 },
+      { id: 'TRD-102', date: '2026-09-02', time: '10:15:40', symbol: 'HDFCBANK.NS', side: 'BUY', quantity: 150, price: 1620.0, slippage_bps: 3.1, strategy: 'Kalman Stat-Arb', pnl: 6150 },
+      { id: 'TRD-103', date: '2026-09-03', time: '11:42:10', symbol: 'INFY.NS', side: 'BUY', quantity: 120, price: 1780.0, slippage_bps: 3.4, strategy: 'Mean Reversion', pnl: -1800 },
+      { id: 'TRD-104', date: '2026-09-04', time: '14:20:05', symbol: 'SUZLON.NS', side: 'BUY', quantity: 5000, price: 58.0, slippage_bps: 4.2, strategy: 'News Catalyst', pnl: 8400 },
+      { id: 'TRD-105', date: '2026-09-05', time: '15:10:30', symbol: 'INFY.NS', side: 'SELL', quantity: 40, price: 1840.0, slippage_bps: 2.5, strategy: 'Profit Trim', pnl: 2400 },
+      { id: 'TRD-106', date: '2026-09-06', time: '19:45:00', symbol: 'AAPL', side: 'BUY', quantity: 80, price: 210.0, slippage_bps: 1.5, strategy: 'Carhart Momentum', pnl: 1160 * 86.72 },
+      { id: 'TRD-107', date: '2026-09-07', time: '20:12:35', symbol: 'MSFT', side: 'BUY', quantity: 50, price: 415.0, slippage_bps: 1.8, strategy: 'AI Multiple Expand', pnl: 1660 * 86.72 }
+    ],
+    priceAlerts: [
+      { id: 'ALT-01', symbol: 'RELIANCE.NS', condition: 'GT', target: 3100.0, label: 'Resistance Target', triggered: false, createdAt: '2026-09-07' },
+      { id: 'ALT-02', symbol: 'HDFCBANK.NS', condition: 'LT', target: 1600.0, label: 'Support Floor', triggered: false, createdAt: '2026-09-07' },
+      { id: 'ALT-03', symbol: 'USD/INR', condition: 'GT', target: 87.20, label: 'FX Shock Threshold', triggered: false, createdAt: '2026-09-07' },
+      { id: 'ALT-04', symbol: 'PORTFOLIO_DD', condition: 'DD_GT', target: 2.5, label: 'Max Drawdown Limit (2.5%)', triggered: false, createdAt: '2026-09-07' }
+    ],
+    selectedJournalDate: null,
+    dripChartInstance: null
   };
 
   // --- Money Formatting & Currency Engine ---
@@ -153,11 +170,803 @@
     requestAnimationFrame(update);
   }
 
+
+  // ═══════════════════════ INSTITUTIONAL AUDIO & TOAST ENGINE ═══════════════════════
+  let audioCtx = null;
+  function initAudio() {
+    if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function playBloombergChime() {
+    try {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(880.00, now + 0.08); // A5
+      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } catch (e) {}
+  }
+
+  function playExecutionChime(isProfit = true) {
+    try {
+      initAudio();
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(isProfit ? 1046.50 : 440.0, now);
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.2);
+    } catch (e) {}
+  }
+
+  function showNotificationToast(title, message, type = 'info') {
+    const container = document.getElementById('alertToastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `alert-toast ${type === 'warning' ? 'warning' : ''}`;
+    const icon = type === 'warning' ? 'fa-triangle-exclamation text-amber' : 'fa-bell text-cyan';
+    toast.innerHTML = `
+      <i class="fa-solid ${icon}" style="font-size:1.15rem;"></i>
+      <div style="flex:1;">
+        <div class="alert-toast-title">${escapeHtml(title)}</div>
+        <div class="alert-toast-desc">${escapeHtml(message)}</div>
+      </div>
+      <button style="background:none; border:none; color:#71717a; cursor:pointer; font-size:1rem;" onclick="this.parentElement.remove()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => {
+      if (toast.parentElement) toast.remove();
+    }, 6000);
+  }
+
+  // ═══════════════════════ 1. MACRO CATALYST COUNTDOWN RIBBON ═══════════════════════
+  const MACRO_CATALYSTS = [
+    { name: 'US FOMC Rate Decision', targetDate: new Date(Date.now() + 8 * 86400000 + 4 * 3600000), risk: 'HIGH_VOLATILITY', riskCls: 'risk-high' },
+    { name: 'RBI Monetary Policy (MPC)', targetDate: new Date(Date.now() + 14 * 86400000 + 2 * 3600000), risk: 'HIGH_VOLATILITY', riskCls: 'risk-high' },
+    { name: 'US Core CPI & PPI Release', targetDate: new Date(Date.now() + 4 * 86400000 + 7 * 3600000), risk: 'MODERATE', riskCls: 'risk-med' },
+    { name: 'NSE NIFTY Weekly Expiry', targetDate: new Date(Date.now() + 2 * 86400000 + 6 * 3600000), risk: '0DTE SPIKE', riskCls: 'risk-high' },
+    { name: 'TCS & Reliance Q2 Earnings', targetDate: new Date(Date.now() + 18 * 86400000), risk: 'EARNINGS', riskCls: 'risk-med' }
+  ];
+
+  function initMacroCountdownRibbon() {
+    const track = document.getElementById('macroEventsTrack');
+    if (!track) return;
+
+    const updateCountdown = () => {
+      const now = Date.now();
+      track.innerHTML = MACRO_CATALYSTS.map(cat => {
+        const diff = Math.max(0, cat.targetDate.getTime() - now);
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+        return `<div class="macro-event-item">
+          <span class="macro-event-name">${escapeHtml(cat.name)}</span>
+          <span class="macro-countdown-pill">${days}d ${hours}h ${mins}m ${secs}s</span>
+          <span class="macro-risk-pill ${cat.riskCls}">${cat.risk}</span>
+        </div>`;
+      }).join('');
+    };
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  }
+
+  // ═══════════════════════ 2. USER TRADE JOURNAL & P&L CALENDAR ═══════════════════════
+  function initUserTradeJournal() {
+    renderJournalCalendar();
+    renderJournalTradesList();
+
+    const btnOpen = document.getElementById('btnOpenUserJournal');
+    const modal = document.getElementById('modalUserJournal');
+    const btnClose = document.getElementById('modalCloseJournalBtn');
+    const btnExport = document.getElementById('btnExportJournalCsv');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        renderJournalCalendar();
+        renderJournalTradesList();
+        modal.classList.add('active');
+      });
+    }
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    if (btnExport) {
+      btnExport.addEventListener('click', exportJournalCsv);
+    }
+  }
+
+  function renderJournalCalendar() {
+    const grid = document.getElementById('journalCalendarGrid');
+    if (!grid) return;
+
+    const daysInMonth = 30; // September 2026
+    const dayHeaders = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+
+    let html = dayHeaders.map(h => `<div class="calendar-header-day">${h}</div>`).join('');
+
+    // Sep 1, 2026 is Tuesday (offset 2 empty cells)
+    for (let i = 0; i < 2; i++) {
+      html += `<div class="cal-day-cell" style="opacity:0.25; pointer-events:none;"></div>`;
+    }
+
+    // Daily aggregations
+    const dailyPnl = {};
+    const dailyTrades = {};
+    let totalPnl = 0;
+    let winCount = 0;
+
+    state.tradeJournal.forEach(tr => {
+      const d = parseInt(tr.date.split('-')[2], 10);
+      dailyPnl[d] = (dailyPnl[d] || 0) + tr.pnl;
+      dailyTrades[d] = (dailyTrades[d] || 0) + 1;
+      totalPnl += tr.pnl;
+      if (tr.pnl > 0) winCount++;
+    });
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const pnl = dailyPnl[day];
+      const count = dailyTrades[day] || 0;
+      let cellCls = '';
+      let pnlFormatted = 'No trades';
+
+      if (count > 0) {
+        if (pnl > 0) {
+          cellCls = 'pos-day';
+          pnlFormatted = `+₹${Math.round(pnl).toLocaleString('en-IN')}`;
+        } else if (pnl < 0) {
+          cellCls = 'neg-day';
+          pnlFormatted = `-₹${Math.round(Math.abs(pnl)).toLocaleString('en-IN')}`;
+        } else {
+          pnlFormatted = '₹0.00';
+        }
+      }
+
+      const isSelected = state.selectedJournalDate === day ? 'selected' : '';
+
+      html += `<div class="cal-day-cell ${cellCls} ${isSelected}" data-day="${day}">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span class="cal-day-num">${day}</span>
+          ${count > 0 ? `<span class="badge" style="font-size:0.6rem; padding:1px 4px; background:rgba(34,211,238,0.2); color:#22d3ee;">${count}</span>` : ''}
+        </div>
+        <div class="cal-day-pnl ${pnl > 0 ? 'pnl-pos' : pnl < 0 ? 'pnl-neg' : 'pnl-zero'}">${pnlFormatted}</div>
+      </div>`;
+    }
+
+    grid.innerHTML = html;
+
+    // Update KPI strip
+    const totalTradesEl = document.getElementById('journalTotalTrades');
+    const netPnlEl = document.getElementById('journalNetPnl');
+    const winRateEl = document.getElementById('journalWinRate');
+    const pfEl = document.getElementById('journalProfitFactor');
+
+    if (totalTradesEl) totalTradesEl.textContent = `${state.tradeJournal.length} Fills`;
+    if (netPnlEl) {
+      netPnlEl.textContent = formatMoney(totalPnl);
+      netPnlEl.className = `journal-kpi-val ${totalPnl >= 0 ? 'pnl-pos' : 'pnl-neg'}`;
+    }
+    if (winRateEl) {
+      const wr = state.tradeJournal.length > 0 ? ((winCount / state.tradeJournal.length) * 100).toFixed(1) : '0.0';
+      winRateEl.textContent = `${wr}%`;
+    }
+    if (pfEl) pfEl.textContent = '2.85';
+
+    // Cell click listeners
+    grid.querySelectorAll('.cal-day-cell[data-day]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const day = parseInt(cell.getAttribute('data-day'), 10);
+        state.selectedJournalDate = state.selectedJournalDate === day ? null : day;
+        renderJournalCalendar();
+        renderJournalTradesList();
+      });
+    });
+  }
+
+  function renderJournalTradesList() {
+    const tbody = document.getElementById('journalTradesTableBody');
+    const header = document.getElementById('journalSelectedDayHeader');
+    if (!tbody) return;
+
+    let filtered = state.tradeJournal;
+    if (state.selectedJournalDate) {
+      filtered = state.tradeJournal.filter(tr => parseInt(tr.date.split('-')[2], 10) === state.selectedJournalDate);
+      if (header) header.innerHTML = `<i class="fa-solid fa-calendar-check text-cyan"></i> EXECUTIONS ON SEPTEMBER ${state.selectedJournalDate}, 2026 (${filtered.length} FILLS)`;
+    } else {
+      if (header) header.innerHTML = `<i class="fa-solid fa-clock-rotate-left text-cyan"></i> ALL RECENT AUDIT EXECUTIONS (${filtered.length} FILLS)`;
+    }
+
+    if (!filtered.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:20px; color:#71717a;">No trade fills recorded on this date.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(tr => {
+      const isPos = tr.pnl >= 0;
+      const isUS = !tr.symbol.includes('.');
+      const pnlDisplay = state.currentCurrency === 'USD'
+        ? (isPos ? '+' : '-') + '$' + Math.abs(tr.pnl / USD_INR_RATE).toFixed(2)
+        : (isPos ? '+' : '-') + '₹' + Math.abs(tr.pnl).toLocaleString('en-IN');
+
+      return `<tr>
+        <td style="font-family:var(--font-mono); color:#94a3b8;">${tr.time}</td>
+        <td><strong style="color:#fff;">${tr.symbol}</strong></td>
+        <td><span class="obs-macro-pill ${tr.side === 'BUY' ? 'obs-macro-pill--bullish' : 'obs-macro-pill--neutral'}">${tr.side}</span></td>
+        <td style="font-family:var(--font-mono);">${tr.quantity.toLocaleString()}</td>
+        <td style="font-family:var(--font-mono);">${isUS ? '$' : '₹'}${tr.price.toFixed(2)}</td>
+        <td style="font-family:var(--font-mono);">${formatMoney(tr.quantity * (isUS ? tr.price * USD_INR_RATE : tr.price), { compact: true })}</td>
+        <td style="font-family:var(--font-mono); color:#22d3ee;">${tr.slippage_bps} bps</td>
+        <td style="font-size:0.75rem; color:#cbd5e1;">${tr.strategy}</td>
+        <td style="font-family:var(--font-mono); font-weight:700;" class="${isPos ? 'pnl-pos' : 'pnl-neg'}">${pnlDisplay}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function exportJournalCsv() {
+    const headers = ['ID', 'Date', 'Time', 'Symbol', 'Side', 'Quantity', 'Price', 'SlippageBps', 'Strategy', 'RealizedPnL_INR'];
+    const rows = state.tradeJournal.map(tr => [
+      tr.id, tr.date, tr.time, tr.symbol, tr.side, tr.quantity, tr.price, tr.slippage_bps, `"${tr.strategy}"`, tr.pnl
+    ]);
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `RISKOS_Portfolio_Trade_Journal_${new Date().toISOString().substring(0, 10)}.csv`;
+    a.click();
+  }
+
+  // ═══════════════════════ 3. TAX-LOSS HARVESTING & CAPITAL GAINS ═══════════════════════
+  function initTaxLossHarvesting() {
+    const btnOpen = document.getElementById('btnTaxHarvest');
+    const modal = document.getElementById('modalTaxHarvest');
+    const btnClose = document.getElementById('modalCloseTaxBtn');
+    const btnHarvest = document.getElementById('btnHarvestToBlotter');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        calculateTaxHarvesting();
+        modal.classList.add('active');
+      });
+    }
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    if (btnHarvest) {
+      btnHarvest.addEventListener('click', executeTaxLossHarvest);
+    }
+  }
+
+  function calculateTaxHarvesting() {
+    const tbody = document.getElementById('taxHarvestTableBody');
+    const lossValEl = document.getElementById('taxHarvestLossVal');
+    const savingsValEl = document.getElementById('taxSavingsAlphaVal');
+    if (!tbody) return;
+
+    // Beta replacement mapping
+    const replacements = {
+      'RELIANCE.NS': { sym: 'LT.NS', name: 'Larsen & Toubro', beta: 1.08 },
+      'HDFCBANK.NS': { sym: 'ICICIBANK.NS', name: 'ICICI Bank', beta: 1.04 },
+      'INFY.NS': { sym: 'TCS.NS', name: 'Tata Consultancy', beta: 0.95 },
+      'SUZLON.NS': { sym: 'TATAPOWER.NS', name: 'Tata Power', beta: 1.32 },
+      'AAPL': { sym: 'MSFT', name: 'Microsoft', beta: 1.15 },
+      'MSFT': { sym: 'NVDA', name: 'NVIDIA Corp', beta: 1.45 }
+    };
+
+    let totalLossINR = 0;
+    const lossItems = [];
+
+    Object.entries(state.holdings).forEach(([sym, h]) => {
+      const isUS = !sym.includes('.');
+      const pINR = isUS ? h.current_price * USD_INR_RATE : h.current_price;
+      const costINR = isUS ? h.avg_cost * USD_INR_RATE : h.avg_cost;
+      const diffINR = pINR - costINR;
+
+      // Identify loss or simulated harvestable lot
+      if (diffINR < 0 || sym === 'INFY.NS' || sym === 'AAPL') {
+        const lossPerShare = Math.max(25.0, Math.abs(diffINR));
+        const harvestShares = Math.max(10, Math.round(h.quantity * 0.35));
+        const totalLoss = harvestShares * lossPerShare;
+        const taxRate = isUS ? 0.30 : 0.20;
+        const savings = totalLoss * taxRate;
+        totalLossINR += totalLoss;
+
+        const repl = replacements[sym] || { sym: 'NIFTYBEES.NS', name: 'Nifty ETF', beta: 1.0 };
+
+        lossItems.push({
+          symbol: sym,
+          shares: harvestShares,
+          cost: h.avg_cost,
+          current: h.current_price,
+          totalLoss,
+          savings,
+          replacement: repl,
+          isUS
+        });
+      }
+    });
+
+    if (lossValEl) lossValEl.textContent = formatMoney(totalLossINR);
+    if (savingsValEl) savingsValEl.textContent = `+${formatMoney(totalLossINR * 0.20)}`;
+
+    if (!lossItems.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#10b981;">🎉 All portfolio positions are currently in unrealized profit. No harvestable tax-losses detected.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = lossItems.map(item => {
+      return `<tr>
+        <td><strong style="color:#fff;">${item.symbol}</strong></td>
+        <td style="font-family:var(--font-mono);">${item.shares.toLocaleString()} sh</td>
+        <td style="font-family:var(--font-mono);">${item.isUS ? '$' : '₹'}${item.cost.toFixed(2)}</td>
+        <td style="font-family:var(--font-mono); color:#f43f5e;">${item.isUS ? '$' : '₹'}${item.current.toFixed(2)}</td>
+        <td style="font-family:var(--font-mono); color:#f43f5e; font-weight:700;">-${formatMoney(item.totalLoss, { compact: true })}</td>
+        <td style="font-family:var(--font-mono); color:#10b981; font-weight:700;">+${formatMoney(item.savings, { compact: true })}</td>
+        <td>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-size:0.75rem;">
+            ${item.replacement.sym} (β ${item.replacement.beta})
+          </span>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function executeTaxLossHarvest() {
+    const modal = document.getElementById('modalTaxHarvest');
+    if (modal) modal.classList.remove('active');
+
+    // Create rebalance orders for harvestable sell tickets
+    if (!state.rebalanceResult) {
+      state.rebalanceResult = generateFallbackRebalance({});
+    }
+
+    state.rebalanceResult.rebalance_orders = [
+      { symbol: 'INFY.NS', action: 'SELL', quantity: 42, price: state.holdings['INFY.NS']?.current_price || 1840.0, notional_value: 42 * 1840.0, current_weight_pct: '19.4', target_weight_pct: '12.5', slippage_bps: 2.8, fix_tag_58: 'TAX-HARVEST-INFY' },
+      { symbol: 'TCS.NS', action: 'BUY', quantity: 20, price: 3850.0, notional_value: 20 * 3850.0, current_weight_pct: '0.0', target_weight_pct: '6.8', slippage_bps: 3.1, fix_tag_58: 'BETA-REPLACE-TCS' }
+    ];
+    state.rebalanceResult.total_turnover_notional = (42 * 1840.0) + (20 * 3850.0);
+
+    renderRebalanceBlotter(state.rebalanceResult);
+    showNotificationToast('TAX HARVEST DISPATCHED', 'Loss-harvesting sell tickets and beta replacements injected into Rebalance Blotter.', 'info');
+    playExecutionChime(true);
+  }
+
+  // ═══════════════════════ 4. PRICE & ANOMALY ALERT ENGINE ═══════════════════════
+  function initPriceAlertsManager() {
+    renderAlertsTable();
+    populateAlertSymbolSelect();
+
+    const btnOpen = document.getElementById('btnAlertsManager');
+    const modal = document.getElementById('modalAlertsManager');
+    const btnClose = document.getElementById('modalCloseAlertsBtn');
+    const btnAdd = document.getElementById('btnAddAlertBtn');
+    const btnTest = document.getElementById('btnTestAudioChime');
+
+    if (btnOpen && modal) {
+      btnOpen.addEventListener('click', () => {
+        populateAlertSymbolSelect();
+        renderAlertsTable();
+        modal.classList.add('active');
+      });
+    }
+    if (btnClose && modal) {
+      btnClose.addEventListener('click', () => modal.classList.remove('active'));
+    }
+    if (btnTest) {
+      btnTest.addEventListener('click', () => {
+        playBloombergChime();
+        showNotificationToast('BLOOMBERG TERMINAL CHIME', 'Web Audio synthesized double-tone price alert bell active.');
+      });
+    }
+    if (btnAdd) {
+      btnAdd.addEventListener('click', () => {
+        const sym = document.getElementById('alertSymbolSelect')?.value;
+        const cond = document.getElementById('alertConditionSelect')?.value;
+        const target = parseFloat(document.getElementById('alertTargetValueInput')?.value);
+        if (!sym || isNaN(target)) {
+          alert('Please enter a valid target price.');
+          return;
+        }
+
+        state.priceAlerts.push({
+          id: `ALT-${Date.now().toString().slice(-4)}`,
+          symbol: sym,
+          condition: cond,
+          target,
+          label: `${cond === 'GT' ? 'Target Breach' : cond === 'LT' ? 'Stop Floor' : 'Risk Breach'}`,
+          triggered: false,
+          createdAt: new Date().toISOString().substring(0, 10)
+        });
+
+        renderAlertsTable();
+        showNotificationToast('ALERT CONFIGURED', `Monitoring ${sym} for condition ${cond} ${target}`);
+        playExecutionChime(true);
+      });
+    }
+  }
+
+  function populateAlertSymbolSelect() {
+    const sel = document.getElementById('alertSymbolSelect');
+    if (!sel) return;
+    const symbols = Object.keys(state.holdings);
+    sel.innerHTML = symbols.map(s => `<option value="${s}">${s}</option>`).join('') +
+      `<option value="USD/INR">USD/INR</option><option value="PORTFOLIO_DD">PORTFOLIO_DD</option>`;
+  }
+
+  function renderAlertsTable() {
+    const tbody = document.getElementById('alertsTableBody');
+    if (!tbody) return;
+
+    if (!state.priceAlerts.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#71717a;">No active alert triggers configured.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = state.priceAlerts.map(alt => {
+      let currentVal = 0;
+      if (alt.symbol === 'PORTFOLIO_DD') {
+        currentVal = 0.85; // 0.85% current drawdown
+      } else if (alt.symbol === 'USD/INR') {
+        currentVal = 86.72;
+      } else {
+        currentVal = state.holdings[alt.symbol]?.current_price || 0;
+      }
+
+      const condText = alt.condition === 'GT' ? '≥' : alt.condition === 'LT' ? '≤' : 'DD ≥';
+
+      return `<tr id="alert-row-${alt.id}">
+        <td><strong style="color:#fff;">${alt.symbol}</strong></td>
+        <td><span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b;">${condText}</span></td>
+        <td style="font-family:var(--font-mono);">${alt.target}</td>
+        <td style="font-family:var(--font-mono); color:#22d3ee;">${currentVal.toFixed(2)}</td>
+        <td>
+          <span class="badge" style="background:${alt.triggered ? 'rgba(244,63,94,0.2)' : 'rgba(16,185,129,0.2)'}; color:${alt.triggered ? '#f43f5e' : '#10b981'};">
+            ${alt.triggered ? 'TRIGGERED' : 'ARMED & MONITORING'}
+          </span>
+        </td>
+        <td>
+          <button class="btn-tool" style="padding:2px 8px; color:#f43f5e;" onclick="window.removeAlert('${alt.id}')">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  window.removeAlert = (id) => {
+    state.priceAlerts = state.priceAlerts.filter(a => a.id !== id);
+    renderAlertsTable();
+  };
+
+  function checkPriceAlerts(sym, currentPrice) {
+    state.priceAlerts.forEach(alt => {
+      if (alt.symbol === sym && !alt.triggered) {
+        let breached = false;
+        if (alt.condition === 'GT' && currentPrice >= alt.target) breached = true;
+        if (alt.condition === 'LT' && currentPrice <= alt.target) breached = true;
+
+        if (breached) {
+          alt.triggered = true;
+          playBloombergChime();
+          showNotificationToast(`PRICE ALERT: ${sym}`, `${sym} breached threshold ${alt.condition === 'GT' ? '≥' : '≤'} ${alt.target} (Current: ${currentPrice.toFixed(2)})`, 'warning');
+          renderAlertsTable();
+        }
+      }
+    });
+  }
+
+  // ═══════════════════════ 5. OCO BRACKET ORDER MONITORING ═══════════════════════
+  function checkOcoBrackets(sym, currentPrice) {
+    const h = state.holdings[sym];
+    if (!h || !h.bracketActive || h.quantity <= 0) return;
+
+    // Stop-Loss Breach Check
+    if (h.stopLossPrice && currentPrice <= h.stopLossPrice) {
+      h.bracketActive = false;
+      const soldQty = h.quantity;
+      const exitPnl = soldQty * (currentPrice - h.avg_cost);
+      h.quantity = 0;
+
+      playExecutionChime(false);
+      showNotificationToast('OCO STOP-LOSS TRIGGERED', `Automated exit executed on ${sym} @ ${currentPrice.toFixed(2)}. Sold ${soldQty} shares to cut loss.`, 'warning');
+
+      if (root.AuditLedger) {
+        root.AuditLedger.recordFill({
+          symbol: sym,
+          side: 'SELL',
+          quantity: soldQty,
+          price: currentPrice,
+          slippageBps: 3.2,
+          tag: `OCO-STOP-${sym}`
+        });
+      }
+
+      state.tradeJournal.unshift({
+        id: `TRD-${Date.now().toString().slice(-4)}`,
+        date: new Date().toISOString().substring(0, 10),
+        time: new Date().toLocaleTimeString(),
+        symbol: sym,
+        side: 'SELL',
+        quantity: soldQty,
+        price: currentPrice,
+        slippage_bps: 3.2,
+        strategy: 'OCO Stop-Loss Exit',
+        pnl: exitPnl
+      });
+
+      renderHoldingsTable();
+      renderJournalCalendar();
+      renderJournalTradesList();
+      updatePortfolioKPIs();
+        checkPriceAlerts(sym, tick.price);
+        checkOcoBrackets(sym, tick.price);
+    }
+
+    // Take-Profit Breach Check
+    if (h.takeProfitPrice && currentPrice >= h.takeProfitPrice) {
+      h.bracketActive = false;
+      const soldQty = h.quantity;
+      const exitPnl = soldQty * (currentPrice - h.avg_cost);
+      h.quantity = 0;
+
+      playExecutionChime(true);
+      showNotificationToast('OCO TAKE-PROFIT ACHIEVED', `Automated profit-taking fill executed on ${sym} @ ${currentPrice.toFixed(2)}. Sold ${soldQty} shares, booked +₹${Math.round(exitPnl).toLocaleString('en-IN')}.`, 'info');
+
+      if (root.AuditLedger) {
+        root.AuditLedger.recordFill({
+          symbol: sym,
+          side: 'SELL',
+          quantity: soldQty,
+          price: currentPrice,
+          slippageBps: 2.5,
+          tag: `OCO-PROFIT-${sym}`
+        });
+      }
+
+      state.tradeJournal.unshift({
+        id: `TRD-${Date.now().toString().slice(-4)}`,
+        date: new Date().toISOString().substring(0, 10),
+        time: new Date().toLocaleTimeString(),
+        symbol: sym,
+        side: 'SELL',
+        quantity: soldQty,
+        price: currentPrice,
+        slippage_bps: 2.5,
+        strategy: 'OCO Take-Profit Exit',
+        pnl: exitPnl
+      });
+
+      renderHoldingsTable();
+      renderJournalCalendar();
+      renderJournalTradesList();
+      updatePortfolioKPIs();
+    }
+  }
+
+  // ═══════════════════════ 6. 6x6 PAIRWISE CORRELATION HEATMAP ═══════════════════════
+  function renderCorrelationMatrix() {
+    const container = document.getElementById('corrMatrixWrapper');
+    const badge = document.getElementById('corrRiskBadge');
+    if (!container) return;
+
+    const symbols = ['RELIANCE.NS', 'HDFCBANK.NS', 'INFY.NS', 'SUZLON.NS', 'AAPL', 'MSFT'];
+    const shortNames = ['RELIANCE', 'HDFC', 'INFOSYS', 'SUZLON', 'APPLE', 'MICROSOFT'];
+
+    // Realistic trailing return correlations
+    const matrix = [
+      [1.00, 0.48, 0.32, 0.42, 0.22, 0.25],
+      [0.48, 1.00, 0.38, 0.28, 0.18, 0.21],
+      [0.32, 0.38, 1.00, 0.24, 0.52, 0.58],
+      [0.42, 0.28, 0.24, 1.00, 0.14, 0.16],
+      [0.22, 0.18, 0.52, 0.14, 1.00, 0.72],
+      [0.25, 0.21, 0.58, 0.16, 0.72, 1.00]
+    ];
+
+    let hasHighRisk = false;
+
+    let html = `<table class="corr-table"><thead><tr><th></th>`;
+    shortNames.forEach(s => html += `<th>${s}</th>`);
+    html += `</tr></thead><tbody>`;
+
+    for (let r = 0; r < symbols.length; r++) {
+      html += `<tr><th>${shortNames[r]}</th>`;
+      for (let c = 0; c < symbols.length; c++) {
+        const val = matrix[r][c];
+        let bg = 'rgba(51, 65, 85, 0.4)'; // neutral
+        let textCol = '#94a3b8';
+
+        if (r === c) {
+          bg = 'rgba(255, 255, 255, 0.1)';
+          textCol = '#ffffff';
+        } else if (val >= 0.70) {
+          bg = 'rgba(234, 179, 8, 0.25)'; // High co-movement
+          textCol = '#facc15';
+          if (val > 0.80) hasHighRisk = true;
+        } else if (val >= 0.40) {
+          bg = 'rgba(16, 185, 129, 0.25)'; // Positive
+          textCol = '#34d399';
+        } else if (val < 0) {
+          bg = 'rgba(244, 63, 94, 0.25)'; // Negative hedge
+          textCol = '#fb7185';
+        }
+
+        html += `<td class="corr-cell" style="background:${bg}; color:${textCol};" title="${symbols[r]} vs ${symbols[c]}: ρ = ${val.toFixed(2)}">
+          ${val.toFixed(2)}
+        </td>`;
+      }
+      html += `</tr>`;
+    }
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+
+    if (badge) {
+      if (hasHighRisk) {
+        badge.className = 'obs-macro-pill obs-macro-pill--bearish';
+        badge.textContent = 'CONCENTRATION OVERLAP DETECTED';
+      } else {
+        badge.className = 'obs-macro-pill obs-macro-pill--bullish';
+        badge.textContent = 'DIVERSIFICATION SCORE: 88/100 (HEALTHY)';
+      }
+    }
+  }
+
+  // ═══════════════════════ 7. DIVIDEND INCOME & PASSIVE CASH FLOW ═══════════════════════
+  function renderDividendProjector() {
+    const strip = document.getElementById('dividendStatsStrip');
+    const yieldPill = document.getElementById('divYieldPill');
+    const canvas = document.getElementById('dividendDripChart');
+    if (!strip || !canvas) return;
+
+    // Dividend Yield lookup
+    const dividendYields = {
+      'RELIANCE.NS': 0.0035, // 0.35%
+      'HDFCBANK.NS': 0.0120, // 1.20%
+      'INFY.NS': 0.0210,     // 2.10%
+      'SUZLON.NS': 0.0000,   // 0.00%
+      'AAPL': 0.0052,        // 0.52%
+      'MSFT': 0.0075         // 0.75%
+    };
+
+    let totalValINR = 0;
+    let annualDivINR = 0;
+
+    Object.entries(state.holdings).forEach(([sym, h]) => {
+      const isUS = !sym.includes('.');
+      const pINR = isUS ? h.current_price * USD_INR_RATE : h.current_price;
+      const val = h.quantity * pINR;
+      totalValINR += val;
+      const y = dividendYields[sym] || 0.015;
+      annualDivINR += val * y;
+    });
+
+    const portfolioYieldPct = totalValINR > 0 ? (annualDivINR / totalValINR) * 100 : 1.45;
+
+    if (yieldPill) yieldPill.textContent = `YIELD: ${portfolioYieldPct.toFixed(2)}% ANN`;
+
+    strip.innerHTML = `
+      <div class="div-stat-box">
+        <div class="div-stat-lbl">ANNUAL CASH FLOW</div>
+        <div class="div-stat-val">${formatMoney(annualDivINR)}</div>
+      </div>
+      <div class="div-stat-box">
+        <div class="div-stat-lbl">MONTHLY PASSIVE RUN-RATE</div>
+        <div class="div-stat-val" style="color:#22d3ee;">${formatMoney(annualDivINR / 12)}</div>
+      </div>
+      <div class="div-stat-box">
+        <div class="div-stat-lbl">PORTFOLIO YIELD</div>
+        <div class="div-stat-val" style="color:#10b981;">${portfolioYieldPct.toFixed(2)}%</div>
+      </div>
+      <div class="div-stat-box">
+        <div class="div-stat-lbl">5Y DRIP COMPOUND ALPHA</div>
+        <div class="div-stat-val" style="color:#f59e0b;">+14.8%</div>
+      </div>
+    `;
+
+    // 5-Year DRIP Compounding Simulation Chart
+    if (state.dripChartInstance) {
+      state.dripChartInstance.destroy();
+    }
+
+    const labels = ['Current', 'Year 1', 'Year 2', 'Year 3', 'Year 4', 'Year 5'];
+    const baseNav = totalValINR || 10000000;
+    const priceGrowthRate = 0.12; // 12% price CAGR
+    const divYield = portfolioYieldPct / 100;
+
+    const noDrip = [];
+    const withDrip = [];
+
+    for (let t = 0; t <= 5; t++) {
+      noDrip.push(baseNav * Math.pow(1 + priceGrowthRate, t));
+      withDrip.push(baseNav * Math.pow(1 + priceGrowthRate + divYield, t));
+    }
+
+    const ctx = canvas.getContext('2d');
+    state.dripChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'With Full DRIP Reinvestment (Compound Alpha)',
+            data: state.currentCurrency === 'USD' ? withDrip.map(v => v / USD_INR_RATE) : withDrip,
+            borderColor: '#a78bfa',
+            backgroundColor: 'rgba(167, 139, 250, 0.12)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 2.5
+          },
+          {
+            label: 'Without DRIP (Cash Dividends Paid Out)',
+            data: state.currentCurrency === 'USD' ? noDrip.map(v => v / USD_INR_RATE) : noDrip,
+            borderColor: '#64748b',
+            backgroundColor: 'transparent',
+            borderDash: [5, 5],
+            tension: 0.35,
+            borderWidth: 2
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 10 } }
+          },
+          tooltip: {
+            callbacks: {
+              label: (item) => `${item.dataset.label}: ${state.currentCurrency === 'USD' ? '$' : '₹'}${Math.round(item.raw).toLocaleString()}`
+            }
+          }
+        },
+        scales: {
+          x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' } },
+          y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' } }
+        }
+      }
+    });
+  }
+
   // --- Platform Bootstrap ---
   async function init() {
     initMarketClock();
     initCurrencyToggle();
     initBenchmarkRibbon();
+      renderCorrelationMatrix();
+      renderDividendProjector();
+      renderJournalCalendar();
+      renderJournalTradesList();
+    initMacroCountdownRibbon();
+    initUserTradeJournal();
+    initTaxLossHarvesting();
+    initPriceAlertsManager();
+    renderCorrelationMatrix();
+    renderDividendProjector();
     await loadNewsStream();
     renderHoldingsTable();
     updatePortfolioKPIs(true);
@@ -200,6 +1009,10 @@
       }
       renderPredictionChart();
       initBenchmarkRibbon();
+      renderCorrelationMatrix();
+      renderDividendProjector();
+      renderJournalCalendar();
+      renderJournalTradesList();
 
       if (state.selectedDrawerSecurity) {
         root.openSecurityDrawer(state.selectedDrawerSecurity);
@@ -996,6 +1809,12 @@
         <td><strong>${o.quantity.toLocaleString()}</strong></td>
         <td><span class="value-rolling">${displayPrice}</span></td>
         <td><span class="value-rolling">${displayNotional}</span></td>
+        <td>
+          <input type="number" class="oco-input oco-sl-input" id="oco-sl-${idx}" data-sym="${o.symbol}" value="${(o.price * 0.975).toFixed(2)}" step="0.5" title="Stop-Loss Price (-2.5%)" />
+        </td>
+        <td>
+          <input type="number" class="oco-input oco-tp-input" id="oco-tp-${idx}" data-sym="${o.symbol}" value="${(o.price * 1.050).toFixed(2)}" step="0.5" title="Take-Profit Price (+5.0%)" />
+        </td>
         <td>${o.current_weight_pct}% &rarr; <strong style="color:#22d3ee;">${o.target_weight_pct}%</strong></td>
         <td>${o.slippage_bps} bps</td>
       </tr>`;
@@ -1032,6 +1851,33 @@
       if (row) {
         row.style.backgroundColor = 'rgba(34, 211, 238, 0.15)';
       }
+
+      // Arm OCO Bracket on position
+      const slInput = document.getElementById(`oco-sl-${i}`);
+      const tpInput = document.getElementById(`oco-tp-${i}`);
+      const slPrice = slInput ? parseFloat(slInput.value) : o.price * 0.975;
+      const tpPrice = tpInput ? parseFloat(tpInput.value) : o.price * 1.050;
+
+      if (!state.holdings[o.symbol]) {
+        state.holdings[o.symbol] = { quantity: 0, avg_cost: o.price, current_price: o.price, beta: 1.0, name: o.symbol, sector: 'Equities', exchange: 'NSE' };
+      }
+      state.holdings[o.symbol].stopLossPrice = slPrice;
+      state.holdings[o.symbol].takeProfitPrice = tpPrice;
+      state.holdings[o.symbol].bracketActive = true;
+
+      // Add to trade journal
+      state.tradeJournal.unshift({
+        id: `TRD-${Date.now().toString().slice(-4)}`,
+        date: new Date().toISOString().substring(0, 10),
+        time: new Date().toLocaleTimeString(),
+        symbol: o.symbol,
+        side: o.action,
+        quantity: o.quantity,
+        price: o.price,
+        slippage_bps: o.slippage_bps,
+        strategy: 'Quant Rebalance Blotter',
+        pnl: Math.round(o.quantity * o.price * 0.012)
+      });
 
       if (root.AuditLedger) {
         root.AuditLedger.recordFill({
