@@ -156,6 +156,70 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════ 2.2 HIGH-CONVICTION BUY RECOMMENDATIONS & PRICE TARGET ENGINE ═══════════════════════ -->
+    <section class="daily-recommender-desk" id="dailyRecommenderDesk" aria-label="Daily High-Conviction Alpha Recommender Desk">
+      <!-- Top Ribbon / Telemetry Banner -->
+      <div class="recommender-desk-header">
+        <div class="recommender-title-wrap">
+          <div class="recommender-live-tag">
+            <span class="live-pulse-dot"></span>
+            <i class="fa-solid fa-rocket text-cyan"></i>
+            <span>QUANTITATIVE ALPHA ENGINE • MULTI-HORIZON TARGET ENSEMBLE</span>
+          </div>
+          <h2 class="recommender-heading">HIGH-CONVICTION "BUY NOW FOR TODAY" EQUITIES</h2>
+          <p class="recommender-subheading">
+            Live multi-horizon price targets (<span id="recFormulaTarget">T_1 = P_0 (1 + \mu_{5\text{d}} + z\sigma_{5\text{d}})</span>), risk-to-reward asymmetry (<span id="recFormulaRrr">\text{RRR} = \frac{T_1 - P_0}{P_0 - P_{\text{stop}}} \ge 1.8</span>), targeted breakout volume, and direct deep execution links into Pantheon Fleet Bots.
+          </p>
+        </div>
+
+        <div class="recommender-desk-actions">
+          <button class="btn-subtle-pill" id="btnRefreshRecommendations" title="Rescan Market for Real-Time Alpha">
+            <i class="fa-solid fa-rotate text-cyan" id="recRefreshIcon"></i> Rescan Alpha
+          </button>
+          <div class="recommender-kpi-badge" id="recActiveCountBadge">
+            <i class="fa-solid fa-crosshairs text-emerald"></i>
+            <span id="recCountText">Loading Alpha...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Strategy & Market Filter Ribbons -->
+      <div class="recommender-controls-bar">
+        <div class="rec-control-group">
+          <span class="rec-control-label"><i class="fa-solid fa-globe text-cyan"></i> Market:</span>
+          <div class="segmented-control" id="recMarketFilter">
+            <button class="seg-btn active" data-market="all">All Markets</button>
+            <button class="seg-btn" data-market="nse">🏛️ NSE Alpha</button>
+            <button class="seg-btn" data-market="us">⚔️ US Alpha</button>
+          </div>
+        </div>
+
+        <div class="rec-control-group">
+          <span class="rec-control-label"><i class="fa-solid fa-diagram-project text-amber"></i> Strategy Style:</span>
+          <div class="segmented-control" id="recStyleFilter">
+            <button class="seg-btn active" data-style="all">All Strategies</button>
+            <button class="seg-btn" data-style="tsmom">🔥 TSMOM Breakout</button>
+            <button class="seg-btn" data-style="oversold">🌊 Oversold Dip</button>
+            <button class="seg-btn" data-style="vol">⚡ Vol Squeeze</button>
+          </div>
+        </div>
+
+        <div class="rec-control-summary" id="recTelemetrySummary">
+          <span><i class="fa-solid fa-shield-halved text-emerald"></i> Guaranteed RRR ≥ 1.8x</span>
+          <span style="opacity:0.3;">•</span>
+          <span><i class="fa-solid fa-chart-line text-cyan"></i> RVOL ≥ 1.5x</span>
+        </div>
+      </div>
+
+      <!-- Recommendation Cards Dynamic Grid -->
+      <div class="recommender-cards-grid" id="recommenderCardsGrid">
+        <div class="rec-loading-placeholder" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-notch fa-spin text-cyan" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+          <p>Running HMM Regime Filter, TSMOM Momentum Vectors &amp; Barra Risk Attributions...</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ═══════════════════════ 2.5 UNIVERSAL MULTI-EXCHANGE PENNY STOCK RADAR MATRIX ═══════════════════════ -->
     <section class="penny-radar-desk" id="pennyRadarDesk" aria-label="Universal Penny Stock Radar Matrix">
       

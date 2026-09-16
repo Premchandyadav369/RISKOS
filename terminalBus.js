@@ -119,7 +119,13 @@ const TerminalBus = (() => {
     { cmd: 'VOL3D', desc: '3D Implied Volatility Surface & Order Book Mountain', category: '3D Viz Action', url: 'fleet.html?action=vol3d' },
     { cmd: 'DARKPOOL', desc: 'Dark Pool Hunter & Iceberg Order Tape Reader', category: 'Microstructure', url: 'fleet.html?action=darkpool' },
     { cmd: 'DEFCON', desc: 'SEC Rule 15c3-5 Defense Matrix & Panic Kill Switch', category: 'Compliance', url: 'fleet.html?action=defcon' },
-    { cmd: 'MEMO', desc: 'Generate Goldman Sachs / Bridgewater Risk Memorandum', category: 'LP Report', url: 'fleet.html?action=memo' }
+    { cmd: 'MEMO', desc: 'Generate Goldman Sachs / Bridgewater Risk Memorandum', category: 'LP Report', url: 'fleet.html?action=memo' },
+    { cmd: 'REC', desc: 'Daily Stock Alpha Recommender & Price Targets', category: 'Alpha Engine', url: 'ticker.html#dailyRecommenderDesk' },
+    { cmd: 'BUYS', desc: 'High-Conviction Buy Now for Today Equities', category: 'Alpha Engine', url: 'ticker.html#dailyRecommenderDesk' },
+    { cmd: 'TARGETS', desc: 'Predicted Multi-Horizon Price Targets (T1, T2, T3)', category: 'Alpha Engine', url: 'ticker.html#dailyRecommenderDesk' },
+    { cmd: 'ALPHA', desc: 'Alpha Recommender & Breakout Volume Engine', category: 'Alpha Engine', url: 'ticker.html#dailyRecommenderDesk' },
+    { cmd: 'NSE-BUYS', desc: 'Top NSE Alpha Buy Recommendations', category: 'Alpha Engine', url: 'ticker.html?mkt=nse#dailyRecommenderDesk' },
+    { cmd: 'US-BUYS', desc: 'Top US Equities Buy Recommendations', category: 'Alpha Engine', url: 'ticker.html?mkt=us#dailyRecommenderDesk' }
   ];
 
   // ══════════════════════════════════════════════════════════════════════════

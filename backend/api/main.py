@@ -55,6 +55,7 @@ from engine.openbb_bridge import get_openbb_historical, get_openbb_macro_indicat
 from engine.backtrader_bridge import run_backtrader_simulation
 
 from engine.forecasting_ensemble import ForecastingEnsemble
+from engine.recommender import get_daily_buy_recommendations
 from engine.regime_research import MarketStateEngine, RegimeResearchMatrix
 from engine.portfolio_research import PortfolioResearchSuite
 from engine.research_backtest import run_research_backtest, validate_backtest_leakage
@@ -654,6 +655,27 @@ def api_generate_signals(tickers: Optional[str] = None, period: str = '1y'):
         return generate_signals(t_list, period)
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/api/signals/recommendations")
+def api_get_recommendations(
+    market: str = "all",
+    min_conviction: float = 65.0,
+    limit: int = 12,
+    style: str = "all"
+):
+    """
+    Returns high-conviction daily stock recommendations with multi-horizon price targets,
+    volatility stops, projected breakout volumes, and Barra 8-factor style attribution.
+    """
+    try:
+        return get_daily_buy_recommendations(
+            market=market,
+            min_conviction=min_conviction,
+            limit=limit,
+            style=style
+        )
+    except Exception as e:
+        return {"error": str(e), "recommendations": []}
 
 @app.get("/api/quant/spreads")
 def api_get_spreads(ticker1: str = "CL=F", ticker2: str = "BZ=F", period: str = "1y"):
