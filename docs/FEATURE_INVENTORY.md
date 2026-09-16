@@ -24,7 +24,7 @@ This document provides a comprehensive, granular inventory of every page, desk, 
 | **Desk 8: Portfolio Optimizer & Predictions** | `portfolio_optimizer.html`, `portfolio_optimizer.js` | `/api/risk/optimize`, `/api/quant/portfolio-prediction` | `portfolio_optimizer.html` | Chart.js, KaTeX, MathJax | **ACTIVE (100%)** | `tests/test_mid_features.js`, `tests/test_institutional_engines.js` |
 | **Market Observatory** | `observatory.html`, `observatory.js`, `observatory.py` | `/api/observatory/overview` | `observatory.html` | Three.js / WebGL, Chart.js | **ACTIVE (100%)** | `tests/terminal_suite.js` |
 | **24/7 Autonomous Bot Fleet (41 Bots: 21 Greek/Norse + 20 Egyptian)** | `fleet.html`, `fleet.js`, `bot_fleet.py` | `/api/fleet/status`, `/api/fleet/bot/{id}` | `fleet.html` | Canvas, Chart.js | **ACTIVE (100%)** | `scratch/test_fleet_ui.js` |
-| **65 Simulation Laboratories** | `learn.html`, `learn.js`, `learnMathEngine.js` | Static / Client Deterministic Engine | `learn.html` | MathJax 3.2, Chart.js | **ACTIVE (100%)** | `test_learn_engine.js` (50/50 Passed) |
+| **75 Simulation Laboratories** | `learn.html`, `learn.js`, `learnMathEngine.js` | Static / Client Deterministic Engine | `learn.html` | MathJax 3.2, Chart.js | **ACTIVE (100%)** | `test_learn_engine.js` (50/50 Passed) |
 | **Stock Alpha Recommender & Screener** | `ticker.html`, `ticker.js`, `securityMaster.js`, `recommender.py` | `/api/signals/recommendations/daily`, `/api/signals/recommendations/audit`, `/api/market/state` | `ticker.html` | KaTeX, SecurityMaster | **ACTIVE (100%)** | `tests/test_recommender_system.js`, `pytest tests/quant/test_market_state.py` |
 | **System Docs & Command Mnemonic Suite** | `docs.html`, `docs.js`, `terminalBus.js` | Documentation REST API | `docs.html` | Prism.js, KaTeX | **ACTIVE (100%)** | `tests/terminal_suite.js` |
 
@@ -58,9 +58,9 @@ All 41 Pantheon and Egyptian Sector bots are active, verified, and mapped to the
 
 ---
 
-## 3. 65 Quantitative Laboratories (10 Divisions)
+## 3. 75 Quantitative Laboratories (11 Divisions)
 
-Every laboratory across all 10 divisions is verified operational with Beginner, Investor, and Quant (LaTeX) modes:
+Every laboratory across all 11 divisions is verified operational with Beginner, Investor, and Quant (LaTeX) modes:
 
 * **Division 1: Foundations of Wealth & Returns (Labs 1–7)**: CAGR, Compound Interest, P/E & Earnings Yield, ROE, ROCE, Operating Leverage, Debt/Equity.
 * **Division 2: Risk, Volatility & Correlation (Labs 8–14)**: Volatility, Beta, Sharpe, Sortino, Treynor, Drawdown & Calmar, Portfolio Volatility.
@@ -72,6 +72,7 @@ Every laboratory across all 10 divisions is verified operational with Beginner, 
 * **Division 8: Advanced Derivatives & Volatility Surfaces (Labs 50–55)**: Local Volatility (Dupire), Stochastic Volatility (Heston), SVI Volatility Smile, VIX Term Structure, Variance Swaps, Jump-Diffusion (Merton).
 * **Division 9: Market Microstructure & High-Frequency (Labs 56–60)**: Limit Order Book Dynamics, Roll Model Bid-Ask Spread, Kyle's Lambda Price Impact, VPIN Toxicity, Almgren-Chriss Optimal Liquidation.
 * **Division 10: Machine Learning, Statistical Arbitrage & Crisis Stress (Labs 61–65)**: Hidden Markov Regime Switching, Ornstein-Uhlenbeck Mean-Reversion, Extreme Value Theory (EVT), Copula Tail Dependence, Stress Testing & Factor Shocks.
+* **Division 11: Advanced Quantitative Alpha, Microstructure OFI & Factor Attribution (Labs 66–75)**: Sector Rotation Matrix (Relative Strength Alpha), Egyptian Pantheon Order Flow Imbalance (OFI), GARCH(1,1) Compound Poisson Jump-Diffusion, Cross-Asset Statistical Arbitrage & Cointegration, Barra Multi-Factor Risk & Covariance Decomposition, Optimal Algorithmic Order Slicing (VWAP & TWAP), SABR Stochastic Volatility Surface Calibration, Q-Learning Market Making & Inventory Control, Extreme Value Theory (EVT) Peaks-Over-Threshold CVaR, Hidden Markov Model (HMM) Multi-State Regime Matrix.
 
 ---
 
@@ -146,7 +147,7 @@ FEATURES_BEFORE == FEATURES_AFTER (100% PRESERVATION)
 Pages: 8 / 8
 Desks: 8 / 8
 Bots: 41 / 41 (21 Greek/Norse + 20 Egyptian)
-Labs: 65 / 65
+Labs: 75 / 75
 Engines: 16 / 16
 API Routes: 91 / 91
 Python Tests: 37 / 37 Passed

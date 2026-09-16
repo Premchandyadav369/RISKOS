@@ -3385,21 +3385,30 @@
   };
 
   
-  // ── Division Telemetry Scorecard (Mount Olympus vs Valhalla) ──────────────
+  // ── Division Telemetry Scorecard (Olympus vs Valhalla vs Egyptian vs Grand Total) ──────────────
   const updateDivisionScoreboard = () => {
-    const olympusBots = botRegistry.filter(b => b.market === 'india');
-    const valhallaBots = botRegistry.filter(b => b.market === 'us');
+    const olympusBots = botRegistry.filter(b => (b.division === 'Olympus' || b.id.startsWith('BOT-IN-')));
+    const valhallaBots = botRegistry.filter(b => (b.division === 'Valhalla' || b.id.startsWith('BOT-US-') || b.id.startsWith('BOT-NO-')));
+    const egyptianBots = botRegistry.filter(b => (b.division === 'Egyptian Sector Desks' || b.id.startsWith('BOT-EG-')));
 
-    const olympusPnl = olympusBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? b.activePosition.unrealizedPnlINR : 0), 0);
-    const valhallaPnl = valhallaBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? b.activePosition.unrealizedPnlINR : 0), 0);
+    const olympusPnl = olympusBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? (b.activePosition.unrealizedPnlINR || 0) : 0), 0);
+    const valhallaPnl = valhallaBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? (b.activePosition.unrealizedPnlINR || 0) : 0), 0);
+    const egyptianPnl = egyptianBots.reduce((acc, b) => acc + b.realizedPnlINR + (b.activePosition ? (b.activePosition.unrealizedPnlINR || 0) : 0), 0);
+    const grandTotalPnl = olympusPnl + valhallaPnl + egyptianPnl;
 
     const olympusWin = (olympusBots.reduce((acc, b) => acc + b.winRate, 0) / (olympusBots.length || 1)).toFixed(1);
     const valhallaWin = (valhallaBots.reduce((acc, b) => acc + b.winRate, 0) / (valhallaBots.length || 1)).toFixed(1);
+    const egyptianWin = (egyptianBots.reduce((acc, b) => acc + b.winRate, 0) / (egyptianBots.length || 1)).toFixed(1);
+    const grandWin = (botRegistry.reduce((acc, b) => acc + b.winRate, 0) / (botRegistry.length || 1)).toFixed(1);
 
     const oEl = document.getElementById('olympusPnl');
     const vEl = document.getElementById('valhallaPnl');
+    const eEl = document.getElementById('egyptianPnl');
+    const gEl = document.getElementById('grandTotalPnl');
     const oWinEl = document.getElementById('olympusWinRate');
     const vWinEl = document.getElementById('valhallaWinRate');
+    const eWinEl = document.getElementById('egyptianWinRate');
+    const gWinEl = document.getElementById('grandWinRate');
 
     if (oEl) {
       oEl.textContent = `${olympusPnl >= 0 ? '+' : ''}₹${olympusPnl.toLocaleString('en-IN')}`;
@@ -3410,13 +3419,25 @@
       vEl.textContent = `${valhallaPnl >= 0 ? '+' : ''}₹${valhallaPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
       vEl.style.color = valhallaPnl >= 0 ? '#60a5fa' : '#f43f5e';
     }
+    if (eEl) {
+      const usd = (egyptianPnl / 83.5).toFixed(0);
+      eEl.textContent = `${egyptianPnl >= 0 ? '+' : ''}₹${egyptianPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
+      eEl.style.color = egyptianPnl >= 0 ? '#fbbf24' : '#f43f5e';
+    }
+    if (gEl) {
+      const usd = (grandTotalPnl / 83.5).toFixed(0);
+      gEl.textContent = `${grandTotalPnl >= 0 ? '+' : ''}₹${grandTotalPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
+      gEl.style.color = grandTotalPnl >= 0 ? '#10b981' : '#f43f5e';
+    }
     if (oWinEl) oWinEl.textContent = `${olympusWin}% • 3.24 Sharpe`;
     if (vWinEl) vWinEl.textContent = `${valhallaWin}% • 3.52 Sharpe`;
+    if (eWinEl) eWinEl.textContent = `${egyptianWin}% • 3.42 Sharpe`;
+    if (gWinEl) gWinEl.textContent = `${grandWin}% • 3.38 Avg Sharpe`;
   };
 
   const updateGlobalTelemetry = () => {
     const runningCount = botRegistry.filter(b => b.status === 'RUNNING').length;
-    // Live Real-Time Total P&L: Realized + Live Unrealized positions across all 20 bots
+    // Live Real-Time Total P&L: Realized + Live Unrealized positions across all 41 bots
     const liveUnrealizedPnl = botRegistry.reduce((acc, b) => acc + (b.activePosition ? (b.activePosition.unrealizedPnlINR || 0) : 0), 0);
     const totalRealizedPnl = botRegistry.reduce((acc, b) => acc + b.realizedPnlINR, 0);
     const totalLivePnl = totalRealizedPnl + liveUnrealizedPnl;
@@ -3428,6 +3449,10 @@
     const activeEl = document.getElementById('telActiveBots') || document.getElementById('telUptimeAge');
     const pnlEl = document.getElementById('telDailyPnl');
     const returnEl = document.getElementById('telPnlReturn');
+    const bannerProfitEl = document.getElementById('topBannerTotalProfit');
+    const headerProfitEl = document.getElementById('headerProfitVal');
+    const realizedOnlyEl = document.getElementById('telRealizedOnly');
+    const unrealizedOnlyEl = document.getElementById('telUnrealizedOnly');
     const fillsEl = document.getElementById('telTotalFills');
     const sharpeEl = document.getElementById('telSharpe');
     const winRateEl = document.getElementById('telWinRate');
@@ -3439,16 +3464,35 @@
         activeEl.textContent = `${runningCount} / ${botRegistry.length} Running`;
       }
     }
+
+    const usdVal = (totalLivePnl / 83.5).toFixed(0);
+    const sign = totalLivePnl >= 0 ? '+' : '';
+    const formattedPnl = `${sign}₹${totalLivePnl.toLocaleString('en-IN')} ($${Number(usdVal).toLocaleString('en-US')})`;
+
+    if (bannerProfitEl) {
+      bannerProfitEl.textContent = formattedPnl;
+      bannerProfitEl.style.color = totalLivePnl >= 0 ? '#10b981' : '#f43f5e';
+    }
+    if (headerProfitEl) {
+      headerProfitEl.textContent = formattedPnl;
+    }
     if (pnlEl) {
-      const usdVal = (totalLivePnl / 83.5).toFixed(0);
-      const sign = totalLivePnl >= 0 ? '+' : '';
-      pnlEl.textContent = `${sign}₹${totalLivePnl.toLocaleString('en-IN')} ($${Number(usdVal).toLocaleString('en-US')})`;
+      pnlEl.textContent = formattedPnl;
       pnlEl.style.color = totalLivePnl >= 0 ? '#10b981' : '#f43f5e';
+    }
+    if (realizedOnlyEl) {
+      realizedOnlyEl.textContent = `₹${(totalRealizedPnl / 100000).toFixed(2)}L`;
+    }
+    if (unrealizedOnlyEl) {
+      unrealizedOnlyEl.textContent = `₹${(liveUnrealizedPnl / 100000).toFixed(2)}L`;
     }
     if (returnEl) {
       const returnPct = ((totalLivePnl / 10000000) * 100).toFixed(2);
-      const sign = totalLivePnl >= 0 ? '+' : '';
-      returnEl.innerHTML = `<i class="fa-solid fa-arrow-${totalLivePnl >= 0 ? 'up' : 'down'}"></i> ${sign}${returnPct}% on Initial Capital`;
+      returnEl.innerHTML = `<span><i class="fa-solid fa-arrow-${totalLivePnl >= 0 ? 'up' : 'down'}"></i> ${sign}${returnPct}% on Initial Capital</span> <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong style="color:#10b981;">₹${(totalRealizedPnl / 100000).toFixed(2)}L</strong> &bull; Open: <strong style="color:#22d3ee;">₹${(liveUnrealizedPnl / 100000).toFixed(2)}L</strong></span>`;
+    }
+    const journalNetPnl = document.getElementById('fleetJournalNetPnl');
+    if (journalNetPnl) {
+      journalNetPnl.textContent = `${sign}₹${totalLivePnl.toLocaleString('en-IN')}`;
     }
     if (fillsEl) fillsEl.textContent = `${totalTrades.toLocaleString()} Orders (FIX 4.4)`;
     if (sharpeEl) sharpeEl.textContent = `${avgSharpe} • -0.74% MDD`;
@@ -3467,6 +3511,7 @@
       } catch(e) {}
     }
   };
+
 
   // ══════════════════════════════════════════════════════════════════════════
   // 7. IN-DEPTH BOT CONSOLE & AUDIT TRAIL MODAL

@@ -25,8 +25,8 @@ This document provides a transparent, scientifically honest classification of al
 
 ---
 
-## 2. Institutional Quant Laboratories (`learn.html` - 65 Labs)
-All 65 laboratories operate in **EDUCATIONAL** & **SIMULATED** modes, providing dual Layman explanations alongside rigorous LaTeX mathematical derivations and deterministic evaluations:
+## 2. Institutional Quant Laboratories (`learn.html` - 75 Labs)
+All 75 laboratories operate in **EDUCATIONAL** & **SIMULATED** modes, providing dual Layman explanations alongside rigorous LaTeX mathematical derivations and deterministic evaluations:
 - Quantitative Portfolio Theory: Markowitz, Black-Litterman, HRP, Kelly Criterion (**EDUCATIONAL / STABLE MATH**)
 - Derivatives & Exotic Options: Black-Scholes, Greeks, SABR, 0DTE GEX Pinning (**EDUCATIONAL / STABLE MATH**)
 - Fixed Income & Credit: Duration, Convexity, OAS Binomial Tree, Merton Structural Credit, CLO Tranche Waterfall (**EDUCATIONAL / STABLE MATH**)

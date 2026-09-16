@@ -62,7 +62,7 @@
         <a href="app.html" class="nav-link"><i class="fa-solid fa-cubes" style="margin-right:4px;"></i> 7 Desks</a>
         <a href="fleet.html" class="nav-link active"><i class="fa-solid fa-robot text-cyan" style="margin-right:4px;"></i> 24/7 Fleet</a>
         <a href="observatory.html" class="nav-link"><i class="fa-solid fa-chart-line" style="margin-right:4px;"></i> Observatory</a>
-        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 65 Labs</a>
+        <a href="learn.html" class="nav-link"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> 75 Labs</a>
         <a href="ticker.html" class="nav-link"><i class="fa-solid fa-magnifying-glass" style="margin-right:4px;"></i> Screener</a>
         <a href="portfolio_optimizer.html" class="nav-link"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
           <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:4px;"></i> System Docs</a>
@@ -74,12 +74,17 @@
           <i class="fa-solid fa-volume-high" id="soundIcon"></i>
         </button>
 
-        <div class="market-status-pill" id="globalFleetStatusPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:700;">
-          <span class="status-dot green pulse-dot" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
-          <span id="fleetLiveUptimeText">40 / 40 AUTONOMOUS BOTS ACTIVE</span>
+        <div class="market-status-pill" id="headerProfitPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); padding:4px 12px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:800;" title="Cumulative Net Profit Across 41 Bots">
+          <i class="fa-solid fa-vault text-green"></i>
+          <span>PROFIT: <strong id="headerProfitVal" style="font-family:'JetBrains Mono', monospace;">+₹18,92,450</strong></span>
         </div>
 
-        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" onclick="if(window.setAllBots) window.setAllBots('RUNNING');" title="Start all 40 bots">
+        <div class="market-status-pill" id="globalFleetStatusPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:700;">
+          <span class="status-dot green pulse-dot" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
+          <span id="fleetLiveUptimeText">41 / 41 AUTONOMOUS BOTS ACTIVE</span>
+        </div>
+
+        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" onclick="if(window.setAllBots) window.setAllBots('RUNNING');" title="Start all 41 bots">
           <i class="fa-solid fa-play"></i> Start All
         </button>
         <button id="btnPauseAllBots" class="fleet-ctrl-btn pause-btn" onclick="if(window.setAllBots) window.setAllBots('PAUSED');" title="Pause all bots">
@@ -113,6 +118,17 @@
           <span class="clock-segment"><span class="digit" id="clockSecs">45</span><span class="unit">SECS</span></span>
         </div>
       </div>
+
+      <!-- High-Visibility Total Fleet Accumulated Profit in Top Banner -->
+      <div class="runtime-profit-display" id="runtimeTotalProfitBadge" style="display:flex; align-items:center; gap:10px; background:linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(6,78,59,0.38) 100%); border:1px solid rgba(16,185,129,0.5); padding:6px 16px; border-radius:10px; box-shadow:0 0 18px rgba(16,185,129,0.25);">
+        <i class="fa-solid fa-money-bill-trend-up text-green" style="font-size:1.35rem;"></i>
+        <div>
+          <div style="font-size:0.62rem; color:#a1a1aa; font-weight:800; letter-spacing:0.06em; text-transform:uppercase;">TOTAL ACCUMULATED PROFIT</div>
+          <div id="topBannerTotalProfit" style="font-size:1.22rem; font-weight:900; color:#10b981; font-family:'JetBrains Mono', monospace; text-shadow:0 0 10px rgba(16,185,129,0.45);">
+            +₹18,92,450 ($22,664)
+          </div>
+        </div>
+      </div>
       
       <div class="runtime-banner-right">
         <span class="badge badge-pulse-green"><i class="fa-solid fa-circle-check"></i> 100% SLA UPTIME</span>
@@ -123,6 +139,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- ═══════════════════════ LIVE TICKER MARQUEE RIBBON ═══════════════════════ -->
   <div class="ticker-ribbon-wrap" style="background:#020306; border-bottom:1px solid rgba(255,255,255,0.06); padding:4px 0; overflow:hidden;">
@@ -155,11 +172,15 @@
         </div>
         <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-satellite-dish fa-beat"></i> 40 / 40 Autonomous &bull; Zero Manual Downtime</div>
       </div>
-      <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> Real-Time Live Fleet Alpha P&amp;L</div>
-        <div class="tel-val text-green" id="telDailyPnl">+₹3,42,850 ($4,105)</div>
-        <div class="tel-sub text-green" id="telPnlReturn"><i class="fa-solid fa-arrow-up"></i> +34.28% on Initial Capital</div>
+      <div class="tel-box tel-box-profit-hero" style="background:linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(9,13,22,0.98) 100%); border:1px solid rgba(16,185,129,0.45); box-shadow:0 0 20px rgba(16,185,129,0.18);">
+        <div class="tel-label"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL CUMULATIVE FLEET PROFIT (41 BOTS)</div>
+        <div class="tel-val text-green" id="telDailyPnl" style="font-size:1.42rem; font-weight:900; text-shadow:0 0 12px rgba(16,185,129,0.4);">+₹18,92,450 ($22,664)</div>
+        <div class="tel-sub text-green" id="telPnlReturn" style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
+          <span><i class="fa-solid fa-arrow-up"></i> +189.2% on Initial Capital</span>
+          <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong id="telRealizedOnly" style="color:#10b981;">₹16.14L</strong> &bull; Open: <strong id="telUnrealizedOnly" style="color:#22d3ee;">₹2.78L</strong></span>
+        </div>
       </div>
+
       <div class="tel-box">
         <div class="tel-label"><i class="fa-solid fa-trophy text-amber"></i> Fleet Leaderboard Win Rate</div>
         <div class="tel-val text-amber" id="telWinRate">77.4% &bull; 2.85x PF</div>
@@ -301,14 +322,14 @@
         <div class="div-header">
           <div style="display:flex; align-items:center; gap:8px;">
             <span class="div-badge valhalla-badge"><i class="fa-solid fa-shield-halved"></i> VALHALLA DIVISION</span>
-            <span style="font-size:0.7rem; color:#aaa;">🇺🇸 10 Norse Quantitative Bots</span>
+            <span style="font-size:0.7rem; color:#aaa;">🇺🇸 11 Norse Quantitative Bots</span>
           </div>
           <span class="div-status live-glow"><i class="fa-solid fa-circle fa-beat text-cyan"></i> NASDAQ / 24/7 GLOBAL ACTIVE</span>
         </div>
         <div class="div-stats-row">
           <div class="div-stat">
             <span class="div-stat-lbl">Division Net Realized P&amp;L</span>
-            <strong class="div-stat-val text-cyan" id="valhallaPnl">+₹1,96,695 ($2,355)</strong>
+            <strong class="div-stat-val text-cyan" id="valhallaPnl">+₹6,84,150 ($8,193)</strong>
           </div>
           <div class="div-stat">
             <span class="div-stat-lbl">Win Rate &bull; Avg Sharpe</span>
@@ -320,7 +341,56 @@
           </div>
         </div>
       </div>
+
+      <div class="division-score-card egyptian-card">
+        <div class="div-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="div-badge egyptian-badge" style="background:rgba(234,179,8,0.2); border:1px solid rgba(234,179,8,0.5); color:#fbbf24; font-size:0.7rem; font-weight:800; padding:3px 8px; border-radius:4px;"><i class="fa-solid fa-ankh text-amber"></i> DUAT &amp; KARNAK DIVISION</span>
+            <span style="font-size:0.7rem; color:#aaa;">🏺 20 Egyptian Sector Bots (🇮🇳 &bull; 🇺🇸)</span>
+          </div>
+          <span class="div-status live-glow"><i class="fa-solid fa-circle fa-beat text-amber"></i> SECTOR ROTATION ACTIVE</span>
+        </div>
+        <div class="div-stats-row">
+          <div class="div-stat">
+            <span class="div-stat-lbl">Division Net Realized P&amp;L</span>
+            <strong class="div-stat-val text-amber" id="egyptianPnl">+₹5,65,500 ($6,772)</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Win Rate &bull; Avg Sharpe</span>
+            <strong class="div-stat-val text-green" id="egyptianWinRate">80.5% &bull; 3.42 Sharpe</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Real-Time Daily Volume</span>
+            <strong class="div-stat-val text-cyan" id="egyptianVolume">₹185.4 Cr &amp; $1.2B</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="division-score-card grand-total-card" style="background:linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(6,78,59,0.35) 100%); border:1px solid rgba(16,185,129,0.55); box-shadow:0 0 24px rgba(16,185,129,0.25);">
+        <div class="div-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="div-badge grand-badge" style="background:#10b981; color:#000; font-size:0.7rem; font-weight:900; padding:3px 8px; border-radius:4px;"><i class="fa-solid fa-trophy"></i> GRAND TOTAL FLEET ALPHA</span>
+            <span style="font-size:0.7rem; color:#d4d4d8;">All 41 Autonomous Pantheon Bots</span>
+          </div>
+          <span class="div-status live-glow" style="color:#10b981;"><i class="fa-solid fa-circle fa-beat text-green"></i> 100% PRODUCTION RUNTIME</span>
+        </div>
+        <div class="div-stats-row">
+          <div class="div-stat">
+            <span class="div-stat-lbl">Grand Total Net Realized P&amp;L</span>
+            <strong class="div-stat-val text-green" id="grandTotalPnl" style="font-size:1.15rem; font-weight:900;">+₹18,92,450 ($22,664)</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Aggregate Win Rate &bull; Sharpe</span>
+            <strong class="div-stat-val text-green" id="grandWinRate">79.8% &bull; 3.38 Avg Sharpe</strong>
+          </div>
+          <div class="div-stat">
+            <span class="div-stat-lbl">Total Executed Orders</span>
+            <strong class="div-stat-val text-amber" id="grandTotalVolume">14,820 Fills (FIX 4.4)</strong>
+          </div>
+        </div>
+      </div>
     </section>
+
 
     <!-- 4.1 View A: 20-Bot Matrix Grid -->
     <section class="bot-grid" id="botGridContainer">

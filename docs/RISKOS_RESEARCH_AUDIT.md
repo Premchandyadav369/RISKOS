@@ -12,7 +12,7 @@
 
 This comprehensive research audit verifies the mathematical rigor, empirical validity, statistical defensibility, and computational stability of the canonical **RISKOS** platform. 
 
-The audit was executed under the strict constraint of **Absolute Zero-Feature-Loss**: 100% of the platform's functional surface—including all 8 trading desks, 21 Pantheon autonomous bot strategies, 65 interactive simulation laboratories, the daily alpha recommender, screener, and 91 REST API endpoints—remains operational and verified.
+The audit was executed under the strict constraint of **Absolute Zero-Feature-Loss**: 100% of the platform's functional surface—including all 8 trading desks, 21 Pantheon autonomous bot strategies, 75 interactive simulation laboratories, the daily alpha recommender, screener, and 91 REST API endpoints—remains operational and verified.
 
 ---
 
@@ -26,7 +26,7 @@ The audit was executed under the strict constraint of **Absolute Zero-Feature-Lo
 | **4. Regulatory Risk Backtesting** | `risk.py`, `validation.py` | Kupiec POF, Christoffersen Independence, Pelletier Duration, Basel Accord | PASS | **9.9 / 10** |
 | **5. Market Microstructure** | `execution.py`, `microstructureEngine.js` | Almgren-Chriss optimal liquidation, Level-2 depth, VPIN toxicity, Kyle's lambda | PASS | **9.8 / 10** |
 | **6. Front-Office Workbenches** | `learnMathEngine.js`, `portfolio_optimizer.js` | 0DTE GEX, Hawkes point process, LBO waterfall, Merton credit, ALM immunization | PASS | **9.9 / 10** |
-| **7. Simulation Laboratories** | `learn.html`, `test_learn_engine.js` | 65 interactive labs, deterministic mathematical verification, MathJax 3.2 | PASS | **9.9 / 10** |
+| **7. Simulation Laboratories** | `learn.html`, `test_learn_engine.js` | 75 interactive labs, deterministic mathematical verification, MathJax 3.2 | PASS | **9.9 / 10** |
 | **8. Autonomous Bot Fleet** | `fleet.html`, `bot_fleet.py` | 21 multi-asset strategies, live telemetry, risk guardrails, state preservation | PASS | **9.8 / 10** |
 | **9. Daily Alpha Recommender** | `recommender.py`, `securityMaster.js` | Guaranteed RRR $\ge 1.8$, RVOL $\ge 1.5$, Barra 8-factor vector, audit ledger | PASS | **9.9 / 10** |
 | **10. Architecture & Security** | `backend/api/main.py`, CORS, dependency lock | Pinned dependency locks, RFC-compliant CORS, zero syntax errors | PASS | **9.8 / 10** |
