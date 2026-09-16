@@ -58,6 +58,7 @@ from engine.forecasting_ensemble import ForecastingEnsemble
 from engine.market_state import build_canonical_market_state
 from engine.recommender import get_daily_buy_recommendations, RecommendationAuditLedger
 from engine.regime_research import MarketStateEngine, RegimeResearchMatrix
+from engine.sectors import get_sector_indicators
 from engine.portfolio_research import PortfolioResearchSuite
 from engine.research_backtest import run_research_backtest, validate_backtest_leakage
 from engine.data_quality import DataQualityEngine
@@ -154,6 +155,18 @@ def api_market_state(symbol: str = "RELIANCE", period: str = "1y", benchmark: Op
     try:
         ms = build_canonical_market_state(symbol=symbol, period=period, benchmark_symbol=benchmark)
         return ms.to_dict()
+    except Exception as e:
+        return {"error": str(e)}
+
+@app.get("/api/market/sectors/indicators")
+def api_market_sector_indicators(market: Optional[str] = "all", period: Optional[str] = "1y"):
+    """
+    Returns quantitative sector indicators for India (NSE sectoral indices)
+    and US (GICS sectors) separately or combined, with momentum, relative strength,
+    volatility, breadth, order flow imbalance, and matching Egyptian Pantheon bots.
+    """
+    try:
+        return get_sector_indicators(market=market, period=period)
     except Exception as e:
         return {"error": str(e)}
 

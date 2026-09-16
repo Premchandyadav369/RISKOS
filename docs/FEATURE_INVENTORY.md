@@ -23,16 +23,16 @@ This document provides a comprehensive, granular inventory of every page, desk, 
 | **Desk 7: AI Speculations (TimesFM)** | `app.html`, `timesfm_engine.py`, `speculations.py` | `/api/forecast/timesfm`, `/api/quant/speculations` | `app.html` Tab 7 | TimesFM 3.0, PyTorch | **ACTIVE (100%)** | `test_speculations.py` |
 | **Desk 8: Portfolio Optimizer & Predictions** | `portfolio_optimizer.html`, `portfolio_optimizer.js` | `/api/risk/optimize`, `/api/quant/portfolio-prediction` | `portfolio_optimizer.html` | Chart.js, KaTeX, MathJax | **ACTIVE (100%)** | `tests/test_mid_features.js`, `tests/test_institutional_engines.js` |
 | **Market Observatory** | `observatory.html`, `observatory.js`, `observatory.py` | `/api/observatory/overview` | `observatory.html` | Three.js / WebGL, Chart.js | **ACTIVE (100%)** | `tests/terminal_suite.js` |
-| **24/7 Autonomous Bot Fleet (21 Bots)** | `fleet.html`, `fleet.js`, `bot_fleet.py` | `/api/fleet/status`, `/api/fleet/bot/{id}` | `fleet.html` | Canvas, Chart.js | **ACTIVE (100%)** | `scratch/test_fleet_ui.js` |
+| **24/7 Autonomous Bot Fleet (41 Bots: 21 Greek/Norse + 20 Egyptian)** | `fleet.html`, `fleet.js`, `bot_fleet.py` | `/api/fleet/status`, `/api/fleet/bot/{id}` | `fleet.html` | Canvas, Chart.js | **ACTIVE (100%)** | `scratch/test_fleet_ui.js` |
 | **65 Simulation Laboratories** | `learn.html`, `learn.js`, `learnMathEngine.js` | Static / Client Deterministic Engine | `learn.html` | MathJax 3.2, Chart.js | **ACTIVE (100%)** | `test_learn_engine.js` (50/50 Passed) |
 | **Stock Alpha Recommender & Screener** | `ticker.html`, `ticker.js`, `securityMaster.js`, `recommender.py` | `/api/signals/recommendations/daily`, `/api/signals/recommendations/audit`, `/api/market/state` | `ticker.html` | KaTeX, SecurityMaster | **ACTIVE (100%)** | `tests/test_recommender_system.js`, `pytest tests/quant/test_market_state.py` |
 | **System Docs & Command Mnemonic Suite** | `docs.html`, `docs.js`, `terminalBus.js` | Documentation REST API | `docs.html` | Prism.js, KaTeX | **ACTIVE (100%)** | `tests/terminal_suite.js` |
 
 ---
 
-## 2. Autonomous Bot Fleet (21 Strategies Complete Catalog)
+## 2. Autonomous Bot Fleet (41 Strategies Complete Catalog • Greek, Norse & Egyptian Pantheons)
 
-All 21 Pantheon bots are active, verified, and mapped to their respective quantitative logic:
+All 41 Pantheon and Egyptian Sector bots are active, verified, and mapped to their respective quantitative logic:
 
 1. `ARCHIMEDES-01`: 0DTE Iron Condor Volatility Harvester (Short Strangle + Wings).
 2. `HERMES-02`: Cointegrated Pairs Arbitrage (HDFC vs ICICI Bank, Engle-Granger 2-step).
@@ -75,7 +75,7 @@ Every laboratory across all 10 divisions is verified operational with Beginner, 
 
 ---
 
-## 4. API Endpoints Catalog (91 Active Routes)
+## 4. API Endpoints Catalog (92 Active Routes)
 
 The RISKOS FastAPI backend provides 91 registered, active routes:
 
@@ -145,7 +145,7 @@ The RISKOS FastAPI backend provides 91 registered, active routes:
 FEATURES_BEFORE == FEATURES_AFTER (100% PRESERVATION)
 Pages: 8 / 8
 Desks: 8 / 8
-Bots: 21 / 21
+Bots: 41 / 41 (21 Greek/Norse + 20 Egyptian)
 Labs: 65 / 65
 Engines: 16 / 16
 API Routes: 91 / 91

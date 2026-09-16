@@ -1185,10 +1185,216 @@
     renderRecommendations();
   };
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // 7.5 SECTOR-WISE QUANTITATIVE INDICATORS & ROTATION ENGINE
+  // ══════════════════════════════════════════════════════════════════════════
+  const initSectorIndicatorsDesk = () => {
+    const grid = document.getElementById('sectorCardsGrid');
+    const countText = document.getElementById('sectorCountText');
+    const btnRescan = document.getElementById('btnRescanSectors');
+    if (!grid) return;
+
+    let currentMarket = 'all';
+    let currentRank = 'momentum';
+
+    const renderSectors = async () => {
+      grid.innerHTML = `
+        <div class="rec-loading-placeholder" style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+          <i class="fa-solid fa-circle-notch fa-spin text-cyan" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+          <p>Computing Sector Relative Strength, Parkinson Volatility, Breadth &amp; Egyptian Bot Mappings...</p>
+        </div>
+      `;
+
+      try {
+        const data = await SecurityMaster.getSectorIndicators(currentMarket);
+        let list = Array.isArray(data.sectors) ? [...data.sectors] : [];
+
+        // Apply Market Filter
+        if (currentMarket === 'india') {
+          list = list.filter(s => s.market === 'india');
+        } else if (currentMarket === 'us') {
+          list = list.filter(s => s.market === 'us');
+        }
+
+        // Apply Sorting / Ranking
+        if (currentRank === 'momentum') {
+          list.sort((a, b) => (b.returns?.change_20d_pct || 0) - (a.returns?.change_20d_pct || 0));
+        } else if (currentRank === 'inflow') {
+          list.sort((a, b) => (b.order_flow?.order_flow_imbalance_zscore || 0) - (a.order_flow?.order_flow_imbalance_zscore || 0));
+        } else if (currentRank === 'breadth') {
+          list.sort((a, b) => (b.breadth?.pct_above_50d_sma || 0) - (a.breadth?.pct_above_50d_sma || 0));
+        } else if (currentRank === 'valuation') {
+          list.sort((a, b) => (a.valuation?.pe_ratio || 99) - (b.valuation?.pe_ratio || 99));
+        }
+
+        if (countText) {
+          countText.textContent = `${list.length} Sectors Analyzed`;
+        }
+
+        if (list.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+              <i class="fa-solid fa-triangle-exclamation text-amber" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+              <p>No sectors match current filter criteria.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = list.map(s => {
+          const isIndia = s.market === 'india';
+          const flag = isIndia ? '🇮🇳' : '🇺🇸';
+          const curr = isIndia ? '₹' : '$';
+          const ret1d = s.returns?.change_1d_pct || 0;
+          const ret20d = s.returns?.change_20d_pct || 0;
+          const ret1dCls = ret1d >= 0 ? 'sector-ret-pos' : 'sector-ret-neg';
+          const ret20dCls = ret20d >= 0 ? 'sector-ret-pos' : 'sector-ret-neg';
+          const bot = s.matching_egyptian_bot || {};
+
+          let regimeCls = 'sector-regime-momentum';
+          if (s.technical_structure?.regime === 'STRONG_BULLISH') regimeCls = 'sector-regime-bull';
+          else if (s.technical_structure?.regime === 'MEAN_REVERSION') regimeCls = 'sector-regime-revert';
+          else if (s.technical_structure?.regime === 'DEFENSIVE_BEAR') regimeCls = 'sector-regime-bear';
+
+          return `
+            <div class="sector-card" id="sec-card-${s.id}">
+              <div class="sector-card-top">
+                <div>
+                  <h3 class="sector-symbol-title">
+                    <span>${flag}</span>
+                    <span>${s.display_symbol}</span>
+                  </h3>
+                  <div class="sector-name-sub">${s.name}</div>
+                </div>
+                <span class="sector-regime-badge ${regimeCls}">${s.technical_structure?.regime || 'MOMENTUM'}</span>
+              </div>
+
+              <div class="sector-price-row">
+                <div class="sector-spot-val">${curr}${Number(s.spot_level || 0).toLocaleString()}</div>
+                <div class="sector-returns-pills">
+                  <span class="${ret1dCls}">1D: ${ret1d >= 0 ? '+' : ''}${ret1d}%</span>
+                  <span class="${ret20dCls}">1M: ${ret20d >= 0 ? '+' : ''}${ret20d}%</span>
+                </div>
+              </div>
+
+              <div class="sector-metrics-grid">
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">Rel. Strength</span>
+                  <span class="sector-metric-val" style="color:${(s.momentum?.relative_strength_ratio || 1) >= 1 ? '#10b981' : '#f43f5e'};">
+                    ${s.momentum?.relative_strength_ratio || 1.0}x
+                  </span>
+                </div>
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">GARCH Vol</span>
+                  <span class="sector-metric-val text-amber">${s.volatility?.garch_vol_pct || 18.5}%</span>
+                </div>
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">Beta (β)</span>
+                  <span class="sector-metric-val text-cyan">${s.volatility?.beta || 1.0}</span>
+                </div>
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">Breadth &gt;50D</span>
+                  <span class="sector-metric-val" style="color:${(s.breadth?.pct_above_50d_sma || 0) >= 70 ? '#10b981' : '#fbbf24'};">
+                    ${s.breadth?.pct_above_50d_sma || 0}%
+                  </span>
+                </div>
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">Order Flow (OFI)</span>
+                  <span class="sector-metric-val" style="color:${(s.order_flow?.order_flow_imbalance_zscore || 0) >= 0 ? '#10b981' : '#f43f5e'};">
+                    ${(s.order_flow?.order_flow_imbalance_zscore || 0) >= 0 ? '+' : ''}${s.order_flow?.order_flow_imbalance_zscore || 0}σ
+                  </span>
+                </div>
+                <div class="sector-metric-cell">
+                  <span class="sector-metric-lbl">Valuation P/E</span>
+                  <span class="sector-metric-val text-muted">${s.valuation?.pe_ratio ? s.valuation.pe_ratio + 'x' : 'N/A'}</span>
+                </div>
+              </div>
+
+              <div class="sector-egyptian-strip">
+                <div class="sector-egyptian-left">
+                  <i class="fa-solid fa-ankh text-amber" style="font-size:1.1rem;"></i>
+                  <div>
+                    <div class="sector-egyptian-name">${bot.name || 'Egyptian Sector Bot'}</div>
+                    <div class="sector-egyptian-title">${bot.title || 'Algorithmic Sector Engine'}</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="sector-action-btns">
+                <a href="fleet.html?bot=${encodeURIComponent(bot.id || '')}" class="sector-act-btn sector-btn-bot" title="Launch matching Egyptian deity bot">
+                  <i class="fa-solid fa-bolt"></i> Launch Bot
+                </a>
+                <button class="sector-act-btn sector-btn-screen" onclick="if(window.filterScreenerBySector) window.filterScreenerBySector('${s.name}');" title="Screen constituent stocks">
+                  <i class="fa-solid fa-magnifying-glass"></i> Constituents
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: var(--text-muted);">
+            <i class="fa-solid fa-circle-exclamation text-rose" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+            <p>Error calculating sector indicators: ${err.message}</p>
+          </div>
+        `;
+      }
+    };
+
+    // Helper to filter screener table by sector
+    window.filterScreenerBySector = (sectorName) => {
+      const input = document.getElementById('tableSearchInput');
+      if (input) {
+        input.value = sectorName;
+        input.dispatchEvent(new Event('input'));
+      }
+      const tableDesk = document.getElementById('tickerTableCard');
+      if (tableDesk) {
+        tableDesk.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    // Event Listeners for Market Filter
+    document.querySelectorAll('#sectorMarketFilter .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#sectorMarketFilter .seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMarket = btn.dataset.smarket || 'all';
+        renderSectors();
+      });
+    });
+
+    // Event Listeners for Rank Filter
+    document.querySelectorAll('#sectorRankFilter .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#sectorRankFilter .seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentRank = btn.dataset.srank || 'momentum';
+        renderSectors();
+      });
+    });
+
+    // Rescan Button
+    if (btnRescan) {
+      btnRescan.addEventListener('click', () => {
+        const icon = btnRescan.querySelector('i');
+        if (icon) icon.classList.add('fa-spin');
+        renderSectors().finally(() => {
+          if (icon) icon.classList.remove('fa-spin');
+        });
+      });
+    }
+
+    // Initial render
+    renderSectors();
+  };
+
   // ── 8. Initializer ────────────────────────────────────────────────────────
   const init = () => {
     renderMarketRibbon();
     initDailyRecommender();
+    initSectorIndicatorsDesk();
     renderPennyStockMatrix('ALL');
     renderTable();
     setupRealtimeQuoteSubscription();

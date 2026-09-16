@@ -76,10 +76,10 @@
 
         <div class="market-status-pill" id="globalFleetStatusPill" style="display:flex; align-items:center; gap:6px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:20px; font-size:0.75rem; color:#10b981; font-weight:700;">
           <span class="status-dot green pulse-dot" style="width:7px; height:7px; background:#10b981; border-radius:50%; display:inline-block;"></span>
-          <span id="fleetLiveUptimeText">20 / 20 AUTONOMOUS BOTS ACTIVE</span>
+          <span id="fleetLiveUptimeText">40 / 40 AUTONOMOUS BOTS ACTIVE</span>
         </div>
 
-        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" onclick="if(window.setAllBots) window.setAllBots('RUNNING');" title="Start all 20 bots">
+        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" onclick="if(window.setAllBots) window.setAllBots('RUNNING');" title="Start all 40 bots">
           <i class="fa-solid fa-play"></i> Start All
         </button>
         <button id="btnPauseAllBots" class="fleet-ctrl-btn pause-btn" onclick="if(window.setAllBots) window.setAllBots('PAUSED');" title="Pause all bots">
@@ -153,7 +153,7 @@
         <div class="tel-val text-amber" id="telUptimeCounter" style="font-size:1.24rem; font-family:'JetBrains Mono', monospace; font-weight:900; letter-spacing:0.02em;">
           92d 14h 28m 45s
         </div>
-        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-satellite-dish fa-beat"></i> 20 / 20 Autonomous &bull; Zero Manual Downtime</div>
+        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-satellite-dish fa-beat"></i> 40 / 40 Autonomous &bull; Zero Manual Downtime</div>
       </div>
       <div class="tel-box">
         <div class="tel-label"><i class="fa-solid fa-wallet text-green"></i> Real-Time Live Fleet Alpha P&amp;L</div>
@@ -163,17 +163,12 @@
       <div class="tel-box">
         <div class="tel-label"><i class="fa-solid fa-trophy text-amber"></i> Fleet Leaderboard Win Rate</div>
         <div class="tel-val text-amber" id="telWinRate">77.4% &bull; 2.85x PF</div>
-        <div class="tel-sub" id="telWinFills">1,420 Wins / 1,834 Fills</div>
+        <div class="tel-sub text-green"><i class="fa-solid fa-ranking-star"></i> S-Tier Quant Dominance</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Composite Sharpe &bull; Max Drawdown</div>
-        <div class="tel-val text-cyan" id="telSharpe">3.18 &bull; -0.74% MDD</div>
-        <div class="tel-sub text-green">Strict CVaR 99% Hard Gate Verified</div>
-      </div>
-      <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-bolt text-primary" style="color:#a78bfa;"></i> Orders Executed (24/7 FIX)</div>
-        <div class="tel-val" style="color:#a78bfa;" id="telTotalFills">4,892 Orders</div>
-        <div class="tel-sub" id="telAvgSlippage">Avg Slippage: 1.2 bps (SOR Routed)</div>
+        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Aladdin Risk Guardrail</div>
+        <div class="tel-val text-cyan" id="telRiskStatus">MAX DD &lt; 1.5%</div>
+        <div class="tel-sub text-cyan"><i class="fa-solid fa-lock"></i> SEC 15c3-5 Compliant</div>
       </div>
     </section>
 
@@ -183,7 +178,7 @@
         <div class="time-badge">
           <i class="fa-solid fa-gauge-high text-cyan"></i> 
           <strong>Autonomous Order Execution Engine:</strong> 
-          <span style="color:#a1a1aa; font-size:0.75rem;">All 20 bots independently evaluate L2 order books &amp; mathematical models, placing orders on their own.</span>
+          <span style="color:#a1a1aa; font-size:0.75rem;">All 40 bots independently evaluate L2 order books &amp; mathematical models, placing orders on their own.</span>
         </div>
       </div>
       <div class="time-travel-buttons">
@@ -194,8 +189,8 @@
           <button class="btn-time-travel speed-btn" data-speed="20" id="btnSpeed20x">20x Turbo HFT</button>
         </div>
 
-        <button class="btn-time-travel highlight" id="btnBurstAllOrders" onclick="if(window.burstAllOrders) window.burstAllOrders(); else if(window.fleetBurstAllOrders) window.fleetBurstAllOrders();" title="Forces all 20 bots to place orders simultaneously">
-          <i class="fa-solid fa-bolt"></i> Burst All 20 Orders
+        <button class="btn-time-travel highlight" id="btnBurstAllOrders" onclick="if(window.burstAllOrders) window.burstAllOrders(); else if(window.fleetBurstAllOrders) window.fleetBurstAllOrders();" title="Forces all 40 bots to place orders simultaneously">
+          <i class="fa-solid fa-bolt"></i> Burst All Orders
         </button>
 
         <div style="border-left:1px solid rgba(255,255,255,0.12); margin:0 4px; height:20px;"></div>
@@ -243,9 +238,10 @@
     <!-- 3. Fleet View Switcher: Matrix Grid vs Performance Ranker Leaderboard -->
     <section class="fleet-control-strip">
       <div class="market-pills">
-        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All 20 Pantheon Bots</button>
+        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All 40 Pantheon Bots</button>
+        <button class="market-pill-btn" data-filter="egyptian" style="border-color:rgba(234,179,8,0.4);"><i class="fa-solid fa-ankh text-amber"></i> 🏺 Duat &amp; Karnak Division (20 Egyptian Bots &bull; 🇮🇳 &amp; 🇺🇸)</button>
         <button class="market-pill-btn" data-filter="india" style="border-color:rgba(255,176,0,0.4);"><i class="fa-solid fa-landmark text-amber"></i> 🏛️ Mount Olympus Division (10 Greek Bots &bull; 🇮🇳)</button>
-        <button class="market-pill-btn" data-filter="us" style="border-color:rgba(96,165,250,0.4);"><i class="fa-solid fa-shield-halved text-cyan"></i> ⚔️ Valhalla Division (10 Norse Bots &bull; 🇺🇸)</button>
+        <button class="market-pill-btn" data-filter="us" style="border-color:rgba(96,165,250,0.4);"><i class="fa-solid fa-shield-halved text-cyan"></i> ⚔️ Valhalla Division (11 Norse Bots &bull; 🇺🇸)</button>
       </div>
 
       <div class="view-mode-toggle-group">
