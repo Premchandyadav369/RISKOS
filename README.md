@@ -14,13 +14,13 @@
 [![Meta Prophet GAM](https://img.shields.io/badge/Predictive%20Engine-Meta%20Prophet%20GAM-f59e0b.svg?style=for-the-badge)](#-meta-prophet-generalized-additive-model)
 [![Merton Jump-Diffusion](https://img.shields.io/badge/Stochastic%20SDE-Merton%20Jump%20MC-a855f7.svg?style=for-the-badge)](#-merton-jump-diffusion-monte-carlo)
 [![Black-Litterman](https://img.shields.io/badge/Portfolio%20Optimizer-Bayesian%20Black--Litterman-3b82f6.svg?style=for-the-badge)](#-desk-8-real-time-portfolio-prediction--quant-optimizer-desk-portfolio_optimizerhtml)
-[![Autonomous Fleet](https://img.shields.io/badge/Autonomous%20Fleet-21%20Bots-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/fleet.html)
-[![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-65%20Modules-purple.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
+[![Autonomous Fleet](https://img.shields.io/badge/Autonomous%20Fleet-41%20Bots-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/fleet.html)
+[![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-75%20Modules-purple.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
 [![FRTB Basel III](https://img.shields.io/badge/Capital%20Risk-FRTB%20Basel%20III%20CVaR-emerald.svg?style=for-the-badge)](#-frtb-basel-iii-regulatory-capital-engine)
 
 **A rigorous open-source quantitative finance research, stochastic risk modeling, and multi-asset portfolio analytics platform engineered for computational finance researchers, quantitative risk managers, and systematic portfolio architects.**
 
-[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [Production Rigor Audit (9.81/10)](docs/RISKOS_AUDIT.md) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Data Provenance](docs/DATA_PROVENANCE.md) • [16 Model Cards](docs/models/) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [65 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md)
+[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [Production Rigor Audit (9.81/10)](docs/RISKOS_AUDIT.md) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Data Provenance](docs/DATA_PROVENANCE.md) • [16 Model Cards](docs/models/) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [75 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md)
 
 
 </div>
@@ -30,9 +30,9 @@
 > RISKOS adheres strictly to verifiable quantitative methodologies and distinguishes operational states:
 > - **LIVE & CACHED DATA**: Multi-provider market feeds from NSE Direct, Yahoo Finance, and Google Finance with automatic fallback and transparent provenance tagging.
 > - **RESEARCH & WALK-FORWARD BACKTESTING**: Backtesting incorporates Almgren-Chriss quadratic slippage, Indian turnover taxes (STT), exchange fees, and liquidity volume ceilings (5% ADV).
-> - **SIMULATED AGENT FLEET**: 21 autonomous strategy bots execute in a simulated order-book environment with automated circuit breakers, drawdown limits, and deterministic seed replay.
+> - **SIMULATED AGENT FLEET**: 41 autonomous strategy bots across Greek, Norse, and Egyptian pantheons execute in a simulated order-book environment with automated circuit breakers, drawdown limits, and deterministic seed replay.
 > - **MODEL-IMPLIED SCENARIOS**: Probabilistic multi-quantile projections (TimesFM 3.0, Prophet GAM, Merton Jump) are statistical scenarios with calibrated uncertainty bands, not guaranteed forecasts.
-> - **65 DETERMINISTIC SIMULATION LABORATORIES**: Interactive financial engineering modules providing dual layman explanations alongside rigorous LaTeX mathematical derivations.
+> - **75 DETERMINISTIC SIMULATION LABORATORIES**: Interactive financial engineering modules providing dual layman explanations alongside rigorous LaTeX mathematical derivations.
 
 ---
 
@@ -105,7 +105,7 @@
    - [CLO Tranche Cash-Flow Priority of Payments Waterfall](#7-clo-tranche-cash-flow--loss-absorption-waterfall-structured-credit)
    - [Option-Adjusted Spread (OAS) & Binomial Short-Rate Tree](#8-option-adjusted-spread-oas--binomial-short-rate-tree-fixed-income)
 10. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
-11. [Master Catalog of ALL 65 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-65-interactive-quantitative-laboratories-learnhtml)
+11. [Master Catalog of ALL 75 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-75-interactive-quantitative-laboratories-learnhtml)
    - [Division I: AI, Machine Learning & Deep Predictive Alpha Labs (Labs 1–7)](#division-i-ai-machine-learning--deep-predictive-alpha-labs)
    - [Division II: Stochastic Calculus & Mathematical Finance Labs (Labs 8–14)](#division-ii-stochastic-calculus--mathematical-finance-labs)
    - [Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf) (Labs 15–21)](#division-iii-quantitative-interview-mastery-wall-street--canary-wharf)
