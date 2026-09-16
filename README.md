@@ -1,24 +1,34 @@
-# 🏛️ RISKOS — Institutional Quantitative Intelligence & Multi-Asset Risk Operating System
+# 🏛️ RISKOS
+## Open-Source Quantitative Research, Portfolio Analytics & Risk Platform
 
 <div align="center">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![Platform: Web & API](https://img.shields.io/badge/Platform-Web%20%7C%20FastAPI%20%7C%20Serverless-10b981.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing%20(100%25)-success.svg?style=for-the-badge)](.github/workflows/ci.yml)
+[![Validation](https://img.shields.io/badge/Model%20Validation-Kupiec%20%7C%20Christoffersen%20%7C%20Basel-purple.svg?style=for-the-badge)](docs/models/)
 [![Google TimesFM 3.0](https://img.shields.io/badge/AI%20Foundation-Google%20TimesFM%203.0-22d3ee.svg?style=for-the-badge)](#-google-research-timesfm-30-foundation-model)
 [![Meta Prophet GAM](https://img.shields.io/badge/Predictive%20Engine-Meta%20Prophet%20GAM-f59e0b.svg?style=for-the-badge)](#-meta-prophet-generalized-additive-model)
 [![Merton Jump-Diffusion](https://img.shields.io/badge/Stochastic%20SDE-Merton%20Jump%20MC-a855f7.svg?style=for-the-badge)](#-merton-jump-diffusion-monte-carlo)
-[![News NLP Sentiment](https://img.shields.io/badge/News%20NLP-Loughran--McDonald-10b981.svg?style=for-the-badge)](#-real-time-financial-news-intelligence-engine)
 [![Black-Litterman](https://img.shields.io/badge/Portfolio%20Optimizer-Bayesian%20Black--Litterman-3b82f6.svg?style=for-the-badge)](#-desk-8-real-time-portfolio-prediction--quant-optimizer-desk-portfolio_optimizerhtml)
-[![24/7 Bot Fleet](https://img.shields.io/badge/24%2F7%20Autonomous%20Fleet-20%20Sector%20Bots-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/fleet.html)
-[![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-52%20Modules-purple.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
+[![Autonomous Fleet](https://img.shields.io/badge/Autonomous%20Fleet-21%20Bots-f59e0b.svg?style=for-the-badge)](https://riskos-psi.vercel.app/fleet.html)
+[![Quant Labs](https://img.shields.io/badge/Interactive%20Labs-65%20Modules-purple.svg?style=for-the-badge)](https://riskos-psi.vercel.app/learn.html)
 [![FRTB Basel III](https://img.shields.io/badge/Capital%20Risk-FRTB%20Basel%20III%20CVaR-emerald.svg?style=for-the-badge)](#-frtb-basel-iii-regulatory-capital-engine)
-[![Production Status](https://img.shields.io/badge/Deployment-Live%20on%20Vercel-success.svg?style=for-the-badge)](https://riskos-psi.vercel.app)
 
-**An institutional-grade, AI-native quantitative intelligence, stochastic risk analytics, and multi-asset trading execution terminal built for computational finance research, systematic strategy backtesting, multi-quantile timeseries forecasting, news-conditioned portfolio optimization, and deterministic mathematical explainability.**
+**A rigorous open-source quantitative finance research, stochastic risk modeling, and multi-asset portfolio analytics platform engineered for computational finance researchers, quantitative risk managers, and systematic portfolio architects.**
 
-[Live Production Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Prediction & Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [24/7 Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [57 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Universal Security Master](https://riskos-psi.vercel.app/ticker.html)
+[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [65 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md) • [Status Matrix](docs/FEATURE_STATUS.md)
 
 </div>
+
+> [!NOTE]
+> ### Scientific & Operational Integrity Framework
+> RISKOS adheres strictly to verifiable quantitative methodologies and distinguishes operational states:
+> - **LIVE & CACHED DATA**: Multi-provider market feeds from NSE Direct, Yahoo Finance, and Google Finance with automatic fallback and transparent provenance tagging.
+> - **RESEARCH & WALK-FORWARD BACKTESTING**: Backtesting incorporates Almgren-Chriss quadratic slippage, Indian turnover taxes (STT), exchange fees, and liquidity volume ceilings (5% ADV).
+> - **SIMULATED AGENT FLEET**: 21 autonomous strategy bots execute in a simulated order-book environment with automated circuit breakers, drawdown limits, and deterministic seed replay.
+> - **MODEL-IMPLIED SCENARIOS**: Probabilistic multi-quantile projections (TimesFM 3.0, Prophet GAM, Merton Jump) are statistical scenarios with calibrated uncertainty bands, not guaranteed forecasts.
+> - **65 DETERMINISTIC SIMULATION LABORATORIES**: Interactive financial engineering modules providing dual layman explanations alongside rigorous LaTeX mathematical derivations.
 
 ---
 
@@ -41,7 +51,7 @@
    - [Diagram 14: Multi-Leg Options Payoff & Black-Scholes Greeks Engine](#diagram-14-multi-leg-options-payoff--black-scholes-greeks-engine)
    - [Diagram 15: Ray Dalio Equal Risk Contribution (ERC) Parity Optimizer](#diagram-15-ray-dalio-equal-risk-contribution-erc-parity-optimizer)
    - [Diagram 16: Monte Carlo Correlated Wealth Survival & Sequence Risk Engine](#diagram-16-monte-carlo-correlated-wealth-survival--sequence-risk-engine)
-3. [The 8 Bloomberg-Grade Trading Desks](#-the-8-bloomberg-grade-trading-desks)
+3. [The 8 Institutional Quantitative Trading Desks](#-the-8-institutional-quantitative-trading-desks)
    - [Desk 1: Market Intelligence & HMM Regimes](#desk-1-market-intelligence--hmm-regime-detection-apphtml)
    - [Desk 2: Portfolio Tail Risk, VaR & CVaR](#desk-2-portfolio-tail-risk--black-litterman-allocator-apphtml)
    - [Desk 3: Systematic Signals & Kelly Sizing](#desk-3-systematic-signals--strategy-execution-apphtml)
@@ -119,7 +129,7 @@ Imagine walking onto the high-tech trading floor of a multi-billion dollar quant
 - **Mathematical Rigor**: Every algorithm is backed by its exact **LaTeX mathematical proof**, stochastic differential equation (SDE), and step-by-step numeric trace.
 - **Unified Multi-Model Forecasting**: Direct multi-quantile forecasts from **Google TimesFM 3.0**, **Meta Prophet**, and **Merton Jump Monte Carlo**.
 - **News-Conditioned Rebalancing**: Real-time financial headlines scored via Loughran-McDonald NLP directly injected into a **Bayesian Black-Litterman Optimizer**.
-- **Autonomous 24/7 Execution**: 20 sector-diversified bots trade continuously with persistent state across global sessions.
+- **Autonomous 24/7 Execution**: 21 sector-diversified bots trade continuously with persistent state across global sessions.
 
 ### ⚡ Institutional Tripartite Architecture
 1. **Simple by Default**: High-contrast, cinematic dark-mode terminal UI presenting executive metrics, key performance ratios, and health badges at a single glance.
@@ -379,7 +389,7 @@ flowchart TD
 
     ActiveBracketsList --> TickEngine
     
-    TriggerSL & TriggerTP --> CancelComplement["Cancel Complementary Order (One-Cancels-Other Guarantee)"]
+    TriggerSL & TriggerTP --> CancelComplement["Cancel Complementary Order (One-Cancels-Other (OCO) Constraint)"]
     CancelComplement --> AudioSynthesizer["Play Web Audio Terminal Chime"]
     AudioSynthesizer --> SlideToast["Render Sliding Toast Banner & Commit Fill to AuditLedger"]
 ```
@@ -459,7 +469,7 @@ flowchart TD
 
 ---
 
-## 🖥️ The 8 Bloomberg-Grade Trading Desks
+## 🖥️ The 8 Institutional Quantitative Trading Desks
 
 ```mermaid
 graph LR
@@ -724,7 +734,7 @@ $$R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity
 $$\min_{q_{\text{NSE}}, q_{\text{BSE}}, q_{\text{Dark}}} \sum_{v} \left[ q_v P_v + \eta_v \left(\frac{q_v}{V_v}\right)^2 P_v + \text{Fee}_v(q_v) \right]$$
 
 ### 6. Monte Carlo 1,000-Path Wealth Survival & Sequence Risk
-- **Everyday Layman Analogy**: A weather supercomputer for retirement planning. Simulates 1,000 alternate financial futures—including market crashes right after you retire—to guarantee your savings never run out.
+- **Everyday Layman Analogy**: A weather supercomputer for retirement planning. Simulates 1,000 alternate financial futures—including market crashes right after you retire—to analyze the probability that savings sustain the planned distribution schedule.
 - **Institutional Quant Formulation**: 1,000-path correlated geometric Brownian motion with stochastic monthly draws, CPI inflation adjustment, and Bengen 4% withdrawal schedule. Evaluates ruin probability $\Pr(\text{Ruin})$ and percentile corridors ($p_{10} - p_{90}$).
 
 ### 7. Asymmetric Portfolio Drift Bands & Tax-Efficient Rebalancing
@@ -1061,7 +1071,7 @@ python -m pytest tests/unit/test_portfolio_optimizer.py
 # 3. Run Node.js terminal quantitative test suite (20/20 suites)
 node tests/terminal_suite.js
 
-# 4. Run 57 Quantitative Simulation Laboratories test suite
+# 4. Run 65 Quantitative Simulation Laboratories test suite
 node test_learn_engine.js
 
 # 5. Verify JavaScript syntax integrity

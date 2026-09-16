@@ -1,0 +1,63 @@
+name: RISKOS Quantitative CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+          pip install pytest scipy numpy pandas
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Verify JavaScript Syntax & Compilation
+        run: |
+          node -c app.js
+          node -c fleet.js
+          node -c learn.js
+          node -c learnMathEngine.js
+          node -c portfolio_optimizer.js
+          node -c docs.js
+          node -c securityMaster.js
+          node -c observatory.js
+          node -c ticker.js
+
+      - name: Run JavaScript Institutional Quantitative Engine Tests (22 Tests)
+        run: node tests/test_institutional_engines.js
+
+      - name: Run Deterministic Math Simulation Engine Tests (50 Tests)
+        run: node test_learn_engine.js
+
+      - name: Run Mid-Level Mathematical Engine Tests (6 Tests)
+        run: node tests/test_mid_features.js
+
+      - name: Run Terminal Integration Test Suite (20 Tests)
+        run: node tests/terminal_suite.js
+
+      - name: Run Python Quantitative Invariants & Validation Test Suite
+        run: python -m pytest tests/quant/ -v
+
+      - name: Verify Research Forecasting & Portfolio Benchmarks
+        run: |
+          python research/benchmark_forecasting.py
+          python research/benchmark_portfolios.py

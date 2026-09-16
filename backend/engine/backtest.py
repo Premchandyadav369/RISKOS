@@ -1,7 +1,12 @@
 import pandas as pd
 import numpy as np
+from backend.engine.research_backtest import run_research_backtest, almgren_chriss_slippage
 
 def run_backtest(returns: pd.DataFrame, weights: list[float], transaction_cost: float = 0.001) -> dict:
+    """
+    Standard walk-forward backtest (Baseline Backtest).
+    Preserves exact original interface and behaviour.
+    """
     if returns.empty or len(weights) != returns.shape[1]:
         return {"error": "Invalid inputs"}
         
@@ -16,7 +21,6 @@ def run_backtest(returns: pd.DataFrame, weights: list[float], transaction_cost: 
     port_returns_raw = returns.dot(weights).values
     
     # Apply transaction cost approximations
-    # Assuming full rebalance each day (conservative)
     cost_drag = transaction_cost * np.sum(np.abs(weights)) 
     
     port_returns = port_returns_raw - cost_drag / 252 # amortize cost
@@ -50,7 +54,7 @@ def run_backtest(returns: pd.DataFrame, weights: list[float], transaction_cost: 
     
     return {
         'equity_curve': equity_curve,
-        'dates': returns.index.strftime('%Y-%m-%d').tolist(),
+        'dates': returns.index.strftime('%Y-%m-%d').tolist() if hasattr(returns.index, 'strftime') else [str(x) for x in returns.index],
         'total_return': float(total_return),
         'annualized_return': float(ann_return),
         'sharpe_ratio': float(sharpe),
@@ -59,3 +63,13 @@ def run_backtest(returns: pd.DataFrame, weights: list[float], transaction_cost: 
         'volatility': float(ann_vol),
         'win_rate': float(win_rate)
     }
+
+# Alias for explicit clarity
+run_baseline_backtest = run_backtest
+
+__all__ = [
+    "run_backtest",
+    "run_baseline_backtest",
+    "run_research_backtest",
+    "almgren_chriss_slippage"
+]
