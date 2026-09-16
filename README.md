@@ -24,7 +24,7 @@
 
 ## 📑 Table of Contents
 1. [Executive Summary & Core Philosophy](#-executive-summary--core-philosophy)
-2. [End-to-End System Architecture (12 Diagrams)](#-end-to-end-system-architecture)
+2. [End-to-End System Architecture (16 Diagrams)](#-end-to-end-system-architecture)
    - [Diagram 1: Complete RISKOS Intelligence Ecosystem](#diagram-1-complete-riskos-intelligence-ecosystem)
    - [Diagram 2: Desk 8 — Portfolio Prediction & Quant Optimizer](#diagram-2-desk-8--portfolio-prediction--quant-optimizer-architecture)
    - [Diagram 3: Multi-Model Predictive Consensus Pipeline](#diagram-3-multi-model-predictive-consensus-pipeline)
@@ -37,6 +37,10 @@
    - [Diagram 10: Tax Alpha Harvesting & Reinvestment Compounding Workflow](#diagram-10-tax-alpha-harvesting--reinvestment-compounding-workflow)
    - [Diagram 11: Real-Time Price Anomaly Radar & Web Audio Synthesizer](#diagram-11-real-time-price-anomaly-radar--web-audio-synthesizer)
    - [Diagram 12: Dividend Income & 5Y DRIP Compound Growth Engine](#diagram-12-dividend-income--5y-drip-compound-growth-engine)
+   - [Diagram 13: Crisis Stress-Testing & Shock Propagation Pipeline](#diagram-13-crisis-stress-testing--shock-propagation-pipeline)
+   - [Diagram 14: Multi-Leg Options Payoff & Black-Scholes Greeks Engine](#diagram-14-multi-leg-options-payoff--black-scholes-greeks-engine)
+   - [Diagram 15: Ray Dalio Equal Risk Contribution (ERC) Parity Optimizer](#diagram-15-ray-dalio-equal-risk-contribution-erc-parity-optimizer)
+   - [Diagram 16: Monte Carlo Correlated Wealth Survival & Sequence Risk Engine](#diagram-16-monte-carlo-correlated-wealth-survival--sequence-risk-engine)
 3. [The 8 Bloomberg-Grade Trading Desks](#-the-8-bloomberg-grade-trading-desks)
    - [Desk 1: Market Intelligence & HMM Regimes](#desk-1-market-intelligence--hmm-regime-detection-apphtml)
    - [Desk 2: Portfolio Tail Risk, VaR & CVaR](#desk-2-portfolio-tail-risk--black-litterman-allocator-apphtml)
@@ -60,8 +64,25 @@
    - [Hierarchical Risk Parity (HRP)](#hierarchical-risk-parity-hrp)
    - [Rockafellar-Uryasev CVaR (95%) Direct LP Minimizer](#rockafellar-uryasev-cvar-95-direct-lp-minimizer)
    - [1-Click Rebalance Order Blotter with FIX 4.4 Tag 58](#1-click-rebalance-order-blotter-with-fix-44-tag-58)
-7. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
-8. [Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
+7. [Institutional Execution & Risk Management Suite](#-institutional-execution--risk-management-suite)
+   - [Trade Journal & Daily P&L Attribution Calendar](#1-trade-journal--daily-pl-calendar-attribution)
+   - [OCO Bracket Orders](#2-oco-one-cancels-other-bracket-orders)
+   - [Tax-Loss Harvesting & Capital Gains Alpha](#3-tax-loss-harvesting--capital-gains-alpha-stccltcg)
+   - [Price Alerts & Web Audio Synthesizer](#4-price--anomaly-alert-triggers-web-audio-terminal-chimes)
+   - [Macro Catalyst Countdown Radar](#5-macro-catalyst-countdown-radar)
+   - [Dividend Income & 5Y DRIP Compounding Projector](#6-dividend-income--5y-drip-compounding-projector)
+   - [6x6 Pairwise Correlation Heatmap Matrix](#7-6x6-pairwise-correlation-heatmap-matrix)
+8. [Mid-Level Institutional Execution & Quant Intelligence Suite](#-mid-level-institutional-execution--quant-intelligence-suite)
+   - [Portfolio Stress-Testing & 'What-If' Crisis Studio](#1-portfolio-stress-testing--what-if-crisis-studio)
+   - [Multi-Asset Options Greeks & Interactive Payoff Studio](#2-multi-asset-options-greeks--interactive-payoff-studio)
+   - [Ray Dalio All-Weather Risk Parity](#3-ray-dalio-all-weather-equal-risk-contribution-erc-risk-parity)
+   - [Smart Dollar-Cost Averaging (Smart-DCA) Autopilot](#4-smart-dollar-cost-averaging-smart-dca--reinvestment-scheduler)
+   - [Multi-Venue Smart Order Routing (SOR) Slicer](#5-multi-venue-smart-order-routing-sor--liquidity-slicer)
+   - [Monte Carlo 1,000-Path Wealth Survival Engine](#6-monte-carlo-1000-path-wealth-survival--sequence-risk)
+   - [Asymmetric Portfolio Drift Bands & Rebalancing](#7-asymmetric-portfolio-drift-bands--tax-efficient-rebalancing)
+   - [Quantitative Factor Radar & Barra Style Decomposition](#8-quantitative-factor-radar--barra-style-decomposition)
+9. [24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)](#-247-autonomous-bot-fleet--pantheon-segregation-fleethtml)
+10. [Master Catalog of ALL 57 Interactive Quantitative Laboratories (`learn.html`)](#-master-catalog-of-all-52-interactive-quantitative-laboratories-learnhtml)
    - [Division I: AI, Machine Learning & Deep Predictive Alpha Labs (Labs 1–7)](#division-i-ai-machine-learning--deep-predictive-alpha-labs)
    - [Division II: Stochastic Calculus & Mathematical Finance Labs (Labs 8–14)](#division-ii-stochastic-calculus--mathematical-finance-labs)
    - [Division III: Quantitative Interview Mastery (Wall Street & Canary Wharf) (Labs 15–21)](#division-iii-quantitative-interview-mastery-wall-street--canary-wharf)
@@ -70,11 +91,12 @@
    - [Division VI: Volatility Surfaces, SABR & Multi-Leg Derivatives Labs (Labs 34–39)](#division-vi-volatility-surfaces-sabr--multi-leg-derivatives-labs)
    - [Division VII: Macro Stress Testing, Crisis Replay & Tail Risk Labs (Labs 40–46)](#division-vii-macro-stress-testing-crisis-replay--tail-risk-labs)
    - [Division VIII: Wealth Accumulation, Compounding & Valuation Labs (Labs 47–52)](#division-viii-wealth-accumulation-compounding--valuation-labs)
-9. [Universal Security Master (120+ Assets across NSE, BSE, US, Crypto, Penny Stocks)](#-universal-security-master-120-assets)
-10. [Pure Vector Mathematical Rigor & LaTeX Master Index (12 Proofs)](#-pure-vector-mathematical-rigor--latex-master-index)
-11. [Institutional Executive Risk Memorandum Compiler](#-institutional-executive-risk-memorandum-compiler)
-12. [REST & Serverless API Reference (28+ Endpoints)](#-rest--serverless-api-reference)
-13. [Local Quickstart & Production Verification](#-local-quickstart--production-verification)
+   - [Division IX: Momentum, Tax Alpha, Dividend Compounding & Dynamic Growth (Labs 53–57)](#division-ix-momentum-tax-alpha-dividend-compounding--dynamic-growth-labs-5357)
+11. [Universal Security Master (120+ Assets across NSE, BSE, US, Crypto, Penny Stocks)](#-universal-security-master-120-assets)
+12. [Pure Vector Mathematical Rigor & LaTeX Master Index (25 Proofs)](#-pure-vector-mathematical-rigor--latex-master-index)
+13. [Institutional Executive Risk Memorandum Compiler](#-institutional-executive-risk-memorandum-compiler)
+14. [REST & Serverless API Reference (28+ Endpoints)](#-rest--serverless-api-reference)
+15. [Local Quickstart & Production Verification](#-local-quickstart--production-verification)
 
 ---
 
@@ -663,6 +685,48 @@ $$Y_{\text{portfolio}} = \sum_{i=1}^N w_i \cdot Y_i, \quad W_{\text{DRIP}}(t) = 
 - **Institutional Quant Formulation**: Trailing return correlation matrix $\rho_{ij} = \frac{\text{Cov}(R_i, R_j)}{\sigma_i \sigma_j}$ rendered as an interactive color-coded grid (deep green for high co-movement, slate gray for uncorrelated, crimson for inverse hedging). Automatically flags pairs with $\rho > 0.80$ to warn of hidden factor concentration.
 
 
+
+---
+
+## ⚡ Mid-Level Institutional Execution & Quant Intelligence Suite
+
+RISKOS incorporates 8 mid-level quantitative execution engines designed for intermediate and institutional market participants:
+
+### 1. Portfolio Stress-Testing & 'What-If' Crisis Studio
+- **Everyday Layman Analogy**: A crash-test dummy simulator for your portfolio. Instead of hoping a crash won't happen, it simulates the 2008 Lehman crisis or 2020 COVID shock to show exactly where your money breaks down and recommends instant emergency hedges.
+- **Institutional Quant Formulation**: Historical factor covariance propagation across 5 canonical crisis regimes (2008 GFC, 2020 COVID, 2022 Global Rate Hike, Stagflation, RBI Emergency Hike) with continuous severity multiplier ($0.5x - 2.0x$) and 1-click tactical hedge injection (Gold/OTM Puts):
+$$R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity}}, \quad \Delta V = \sum_{i=1}^N w_i V_0 R_i^{\text{shock}}$$
+
+### 2. Multi-Asset Options Greeks & Interactive Payoff Studio
+- **Everyday Layman Analogy**: A flight dashboard for options contracts. See how much money you make across different market prices at expiry and watch how overnight time-decay (Theta) eats away at option premiums while you sleep.
+- **Institutional Quant Formulation**: Closed-form Black-Scholes-Merton pricing with Abramowitz & Stegun cumulative normal distribution approximation. Computes analytical Greeks ($\Delta, \Gamma, \Theta, \mathcal{V}, \rho$) across 6 institutional multi-leg structures (Bull Call, Bear Put, Iron Condor, Straddle, Strangle, Jade Lizard).
+
+### 3. Ray Dalio All-Weather Equal Risk Contribution (ERC) Risk Parity
+- **Everyday Layman Analogy**: The seesaw balancer. Putting equal dollars in stocks and bonds is misleading because volatile stocks cause 90% of your risk. Risk parity sizes positions so each holding contributes identical risk to your peace of mind.
+- **Institutional Quant Formulation**: Solves non-linear Equal Risk Contribution equations where Total Risk Contribution $TRC_i = w_i \frac{(\mathbf{\Sigma}\mathbf{w})_i}{\sigma_p} = \frac{\sigma_p}{N}$ via cyclical coordinate descent.
+
+### 4. Smart Dollar-Cost Averaging (Smart-DCA) & Reinvestment Scheduler
+- **Everyday Layman Analogy**: Smart grocery shopping for stocks. When the market goes on sale, it automatically buys 2x more shares, and when prices are overheated, it pulls back and holds cash, dramatically beating standard blind SIPs over 10 years.
+- **Institutional Quant Formulation**: Dynamic step-in investment policy scaling monthly tranche capital $C_t = C_{\text{base}} \cdot (1 + \kappa_{\text{dip}} \cdot \text{DipFactor} - \kappa_{\text{foam}} \cdot \mathbb{I}(\text{RSI} > 70))$. Simulates 10-year forward wealth compounding curves.
+
+### 5. Multi-Venue Smart Order Routing (SOR) & Liquidity Slicer
+- **Everyday Layman Analogy**: A price comparison engine for trade executions. Slices orders across NSE, BSE, and institutional Dark Pools to get the best price and save thousands of rupees in broker slippage.
+- **Institutional Quant Formulation**: Quadratic Almgren-Chriss market impact minimization across fragmented venues with venue-specific book depth, bid-ask spread, and transaction fees:
+$$\min_{q_{\text{NSE}}, q_{\text{BSE}}, q_{\text{Dark}}} \sum_{v} \left[ q_v P_v + \eta_v \left(\frac{q_v}{V_v}\right)^2 P_v + \text{Fee}_v(q_v) \right]$$
+
+### 6. Monte Carlo 1,000-Path Wealth Survival & Sequence Risk
+- **Everyday Layman Analogy**: A weather supercomputer for retirement planning. Simulates 1,000 alternate financial futures—including market crashes right after you retire—to guarantee your savings never run out.
+- **Institutional Quant Formulation**: 1,000-path correlated geometric Brownian motion with stochastic monthly draws, CPI inflation adjustment, and Bengen 4% withdrawal schedule. Evaluates ruin probability $\Pr(\text{Ruin})$ and percentile corridors ($p_{10} - p_{90}$).
+
+### 7. Asymmetric Portfolio Drift Bands & Tax-Efficient Rebalancing
+- **Everyday Layman Analogy**: A smart thermostat for your portfolio. It doesn't adjust if the temperature changes by 0.1 degree; it only trades when an asset drifts too far outside its target range, saving 50% in broker fees and capital gains taxes.
+- **Institutional Quant Formulation**: No-trade corridor $[w_i^* - \theta_i, w_i^* + \theta_i]$ calibrated to asset volatility. Generates 'Band-Edge' rebalancing tickets that trade only to the corridor boundary to minimize turnover notional.
+
+### 8. Quantitative Factor Radar & Barra Style Decomposition
+- **Everyday Layman Analogy**: A nutrition label for your stocks. Just like food labels reveal sugar, protein, and fat, this radar tells you if your portfolio is heavy on Momentum, Value, Quality, or High Volatility.
+- **Institutional Quant Formulation**: 6-factor cross-sectional $z$-score decomposition against the NIFTY 50 and S&P 500 benchmarks rendered on an interactive Chart.js radar.
+
+
 ## 🤖 24/7 Autonomous Bot Fleet & Pantheon Segregation (`fleet.html`)
 
 A command center managing **20 quantitative algorithms** segregated into two mythological pantheons:
@@ -887,6 +951,33 @@ Flags concentration danger when $\rho_{ij} > 0.80$, prompting synthetic beta-hed
 ### 20. Almgren-Chriss OCO Slippage Bound
 $$\text{Slippage}_{\text{OCO}} = \eta \cdot \left(\frac{X}{\tau}\right)^\alpha + \gamma \cdot X$$
 where $\eta$ is temporary market impact, $\gamma$ is permanent market impact, and $X$ is the liquidated bracket quantity.
+
+---
+
+
+### 21. Black-Scholes-Merton Partial Differential Equation (PDE)
+$$\frac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S \frac{\partial V}{\partial S} - r V = 0$$
+Closed-form call and put solutions under risk-neutral measure $\mathbb{Q}$:
+$$C(S, t) = S \Phi(d_1) - K e^{-r(T-t)} \Phi(d_2), \quad P(S, t) = K e^{-r(T-t)} \Phi(-d_2) - S \Phi(-d_1)$$
+where $d_1 = \frac{\ln(S/K) + (r + \frac{1}{2}\sigma^2)(T-t)}{\sigma \sqrt{T-t}}$ and $d_2 = d_1 - \sigma \sqrt{T-t}$.
+
+### 22. Equal Risk Contribution (ERC) Cyclical Coordinate Descent
+$$TRC_i = w_i \frac{(\mathbf{\Sigma}\mathbf{w})_i}{\sigma_p} = \frac{\sigma_p}{N} \iff w_i (\mathbf{\Sigma}\mathbf{w})_i = \frac{\sigma_p^2}{N}, \quad \forall i$$
+Updating each coordinate cyclically solves:
+$$\Sigma_{ii} w_i^2 + (\mathbf{\Sigma}_{-i} \mathbf{w}_{-i})_i w_i - \frac{\sigma_p^2}{N} = 0 \implies w_i = \frac{-(\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i + \sqrt{((\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i)^2 + 4 \Sigma_{ii} \frac{\sigma_p^2}{N}}}{2 \Sigma_{ii}}$$
+
+### 23. Almgren-Chriss Multi-Venue Liquidity Allocation
+$$\min_{q_1, \dots, q_V} \sum_{v=1}^V \left[ q_v P_v + \eta_v \left(\frac{q_v}{\text{Depth}_v}\right)^{\alpha} P_v + \text{STT}_v(q_v) + \text{ExchangeFee}_v(q_v) \right] \quad \text{s.t.} \quad \sum_{v=1}^V q_v = X_0$$
+Yielding the optimal allocation vector that minimizes total implementation shortfall across fragmented lit and dark trading pools.
+
+### 24. Stochastic Correlated Geometric Brownian Motion (GBM) with Inflation Drag
+$$d\mathbf{S}_t = \text{diag}(\mathbf{S}_t) \left( \boldsymbol{\mu} dt + \mathbf{L} d\mathbf{W}_t \right), \quad \mathbf{\Sigma} = \mathbf{L} \mathbf{L}^T$$
+where $\mathbf{L}$ is the lower-triangular Cholesky factor of the asset covariance matrix. Portfolio capital under Bengen 4% withdrawal rate with CPI inflation $i$ evolves as:
+$$W_{t+\Delta t} = \max\left(0, (W_t - W_0 \cdot w \cdot e^{it} \Delta t) \cdot (1 + \mathbf{w}^T \Delta \mathbf{S}_t / \mathbf{S}_t)\right)$$
+
+### 25. Barra Multi-Factor Cross-Sectional Z-Score Decomposition
+$$z_{i, f} = \frac{X_{i, f} - \mu_f}{\sigma_f}, \quad F_{\text{portfolio}, f} = \sum_{i=1}^N w_i \cdot z_{i, f}$$
+benchmark-relative active tilt: $\Delta F_f = F_{\text{portfolio}, f} - F_{\text{benchmark}, f}$.
 
 ---
 

@@ -238,6 +238,27 @@
       </div>
     </section>
 
+    <!-- ── 2.5. QUANTITATIVE FACTOR RADAR & BARRA STYLE DECOMPOSITION ──────── -->
+    <section class="obs-main-section" id="portfolioFactorRadarSection" style="margin-bottom: 24px;">
+      <div class="obs-section-header">
+        <div>
+          <h2 class="obs-section-title"><i class="fa-solid fa-chart-pie text-cyan"></i> QUANTITATIVE FACTOR RADAR &amp; BARRA STYLE DECOMPOSITION</h2>
+          <p class="obs-section-desc">Cross-sectional 6-factor style footprint ($z$-scores) benchmarking active portfolio against NIFTY 50 &amp; S&P 500.</p>
+        </div>
+        <div id="factorAlignmentPill" class="obs-macro-pill obs-macro-pill--bullish">ACTIVE FACTOR TILT: QUALITY-MOMENTUM</div>
+      </div>
+      <div class="obs-stream-card" style="padding: 16px;">
+        <div class="factor-radar-grid">
+          <div style="height: 280px; position: relative;" class="factor-radar-canvas-wrap">
+            <canvas id="factorRadarChart"></canvas>
+          </div>
+          <div class="factor-metrics-panel" id="factorMetricsPanel">
+            <!-- Populated dynamically with 6 Barra factor z-scores & descriptions -->
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── 3. USER HOLDINGS & BREAKING NEWS DESK (2-COLUMN GRID) ──────────── -->
     <div class="obs-layout-grid">
 
@@ -267,6 +288,10 @@
               <button class="btn-tool" id="btnTaxHarvest" style="color:#10b981; border-color:rgba(16,185,129,0.3);"><i class="fa-solid fa-hand-holding-dollar"></i> Tax-Loss Harvest</button>
               <button class="btn-tool" id="btnAlertsManager" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);"><i class="fa-solid fa-bell"></i> Alerts</button>
               <button class="btn-tool" id="btnDividendProjector" style="color:#a78bfa; border-color:rgba(167,139,250,0.3);"><i class="fa-solid fa-sack-dollar"></i> Dividend Projector</button>
+              <button class="btn-tool" id="btnCrisisStress" style="color:#f43f5e; border-color:rgba(244,63,94,0.3);"><i class="fa-solid fa-radiation"></i> Crisis Stress</button>
+              <button class="btn-tool" id="btnOptionsPayoff" style="color:#38bdf8; border-color:rgba(56,189,248,0.3);"><i class="fa-solid fa-chart-line-up"></i> Options Greeks</button>
+              <button class="btn-tool" id="btnSmartDca" style="color:#34d399; border-color:rgba(52,211,153,0.3);"><i class="fa-solid fa-coins"></i> Smart-DCA</button>
+              <button class="btn-tool" id="btnWealthSurvival" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);"><i class="fa-solid fa-shield-heart"></i> Monte Carlo Survival</button>
             </div>
             <div class="toolbar-right">
               <button class="btn-tool secondary" id="btnResetDefaultHoldings"><i class="fa-solid fa-rotate-left"></i> Reset Template</button>
@@ -283,6 +308,7 @@
                   <th>LIVE PRICE</th>
                   <th>POSITION VALUE</th>
                   <th>WEIGHT</th>
+                  <th>DRIFT BAND</th>
                   <th>BETA</th>
                   <th>SENTIMENT</th>
                   <th>ACTIONS</th>
@@ -441,6 +467,11 @@
               <div class="model-card-title"><i class="fa-solid fa-bolt" style="color:#eab308;"></i> Momentum Tilt (Carhart WML)</div>
               <div class="model-card-desc">Tilts capital into top-quintile 12-1M winners minus losers with vol-target scaling.</div>
             </button>
+            <button class="model-card" data-model="RISK_PARITY">
+              <div class="model-card-badge" style="background:rgba(52,211,153,0.2);color:#34d399;">RAY DALIO</div>
+              <div class="model-card-title"><i class="fa-solid fa-scale-balanced" style="color:#34d399;"></i> Risk Parity (Equal Risk)</div>
+              <div class="model-card-desc">Equalizes total marginal risk contributions TRC_i = sigma_p / N across all portfolio holdings.</div>
+            </button>
           </div>
 
           <!-- Quantitative Sliders -->
@@ -494,7 +525,13 @@
             <h2 class="obs-section-title"><i class="fa-solid fa-receipt text-cyan"></i> 1-CLICK REBALANCE BLOTTER</h2>
             <p class="obs-section-desc">Executable buy/sell tickets transitioning current weights to target allocation with Almgren-Chriss slippage.</p>
           </div>
-          <div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button class="btn-tool" id="btnRebalanceBandEdges" style="color:#f59e0b; border-color:rgba(245,158,11,0.3);" title="Rebalances only to tolerance band boundary to minimize transaction costs and tax drag">
+              <i class="fa-solid fa-arrows-to-dot"></i> Band-Edge Rebalance
+            </button>
+            <button class="btn-tool" id="btnRouteAllSor" style="color:#a78bfa; border-color:rgba(167,139,250,0.3);" title="Simulates optimal multi-venue routing across NSE, BSE, and Dark Pools">
+              <i class="fa-solid fa-network-wired"></i> Multi-Venue SOR
+            </button>
             <button class="btn-rebalance-dispatch" id="btnDispatchRebalance">
               <i class="fa-solid fa-paper-plane"></i>
               <span>EXECUTE ALL REBALANCE FILLS</span>
@@ -912,6 +949,350 @@
               <!-- Populated dynamically -->
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════════════ CRISIS STRESS-TESTING STUDIO MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalCrisisStress">
+    <div class="modal-panel" style="max-width: 960px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-radiation text-rose"></i> CRISIS STRESS-TESTING &amp; 'WHAT-IF' SCENARIO STUDIO</h3>
+        <button class="drawer-close-btn" id="modalCloseCrisisBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">
+          Subject current portfolio weights to canonical historical crashes and severe macroeconomic factor dislocations. Real-time stress propagation models cross-asset covariance blowouts.
+        </p>
+
+        <!-- Scenario Presets Bar -->
+        <div class="stress-presets-grid" id="stressPresetsGrid">
+          <button class="stress-preset-btn active" data-scenario="gfc_2008">
+            <span class="preset-name">2008 Lehman GFC</span>
+            <span class="preset-tag">Eq -45%, Vol x3.5, Spreads +600bps</span>
+          </button>
+          <button class="stress-preset-btn" data-scenario="covid_2020">
+            <span class="preset-name">2020 COVID Panic</span>
+            <span class="preset-tag">Eq -33%, Oil -65%, Gold +18%</span>
+          </button>
+          <button class="stress-preset-btn" data-scenario="rate_shock_2022">
+            <span class="preset-name">2022 Global Rate Shock</span>
+            <span class="preset-tag">Yields +350bps, Tech P/E -32%</span>
+          </button>
+          <button class="stress-preset-btn" data-scenario="stagflation">
+            <span class="preset-name">Stagflation Squeeze</span>
+            <span class="preset-tag">Crude +60%, Eq -18%, CPI +4.5%</span>
+          </button>
+          <button class="stress-preset-btn" data-scenario="rbi_hike">
+            <span class="preset-name">RBI Emergency Hike</span>
+            <span class="preset-tag">Repo +100bps, BankNifty -8%</span>
+          </button>
+        </div>
+
+        <!-- Severity Slider & Shock Summary -->
+        <div class="stress-slider-wrap">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.75rem; color:#fff; font-weight:700;">SHOCK SEVERITY MULTIPLIER:</span>
+            <span style="font-size:0.85rem; color:#f43f5e; font-family:var(--font-mono); font-weight:800;" id="stressSeverityVal">1.00x (Baseline Crash)</span>
+          </div>
+          <input type="range" id="sliderStressSeverity" min="0.5" max="2.0" step="0.1" value="1.0" class="obs-range" />
+        </div>
+
+        <!-- Stress Impact KPI Row -->
+        <div class="stress-kpi-row" id="stressKpiRow">
+          <div class="stress-kpi-card">
+            <span class="stress-kpi-lbl">ESTIMATED PORTFOLIO LOSS</span>
+            <span class="stress-kpi-val text-rose" id="stressTotalLossVal">-₹2,84,500</span>
+          </div>
+          <div class="stress-kpi-card">
+            <span class="stress-kpi-lbl">PORTFOLIO DRAWDOWN %</span>
+            <span class="stress-kpi-val text-rose" id="stressDrawdownPctVal">-25.0%</span>
+          </div>
+          <div class="stress-kpi-card">
+            <span class="stress-kpi-lbl">STRESSED CVAR (99%)</span>
+            <span class="stress-kpi-val text-amber" id="stressCvarVal">32.8% NAV</span>
+          </div>
+          <div class="stress-kpi-card">
+            <span class="stress-kpi-lbl">WORST-HIT COMPONENT</span>
+            <span class="stress-kpi-val text-cyan" id="stressWorstAssetVal">SUZLON.NS (-42%)</span>
+          </div>
+        </div>
+
+        <!-- Detailed Asset-by-Asset Impact Breakdown Table -->
+        <div class="table-responsive" style="max-height: 220px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top:12px;">
+          <table class="obs-table" id="stressBreakdownTable">
+            <thead>
+              <tr>
+                <th>SECURITY</th>
+                <th>PRE-SHOCK VALUE</th>
+                <th>ESTIMATED RETURN</th>
+                <th>DOLLAR IMPACT</th>
+                <th>POST-SHOCK VALUE</th>
+                <th>RISK CONTRIBUTION</th>
+              </tr>
+            </thead>
+            <tbody id="stressBreakdownTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tactical Hedge Rebalancer Button -->
+        <button class="btn-execute-opt" id="btnApplyTacticalHedge" style="margin-top:14px; background:linear-gradient(135deg, #e11d48, #f43f5e);">
+          <i class="fa-solid fa-shield-virus"></i> INJECT TACTICAL CRISIS HEDGE (GOLD / OTM PUTS) INTO BLOTTER
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MULTI-ASSET OPTIONS GREEKS & PAYOFF STUDIO ═══════════════════════ -->
+  <div class="modal-overlay" id="modalOptionsStudio">
+    <div class="modal-panel" style="max-width: 960px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-chart-line-up text-cyan"></i> MULTI-ASSET OPTIONS GREEKS &amp; PAYOFF STUDIO</h3>
+        <button class="drawer-close-btn" id="modalCloseOptionsBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <!-- Strategy & Underlying Bar -->
+        <div class="options-controls-grid">
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">UNDERLYING ASSET:</label>
+            <select id="optUnderlyingSelect" class="modal-num-input" style="padding:6px 8px;">
+              <option value="NIFTY">NIFTY 50 Index (₹24,820)</option>
+              <option value="BANKNIFTY">BANK NIFTY (₹51,400)</option>
+              <option value="RELIANCE">RELIANCE.NS (₹2,984)</option>
+              <option value="TCS">TCS.NS (₹4,250)</option>
+              <option value="AAPL">AAPL ($224.50)</option>
+              <option value="NVDA">NVDA ($118.20)</option>
+              <option value="SPY">SPY ($564.10)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">INSTITUTIONAL STRATEGY:</label>
+            <select id="optStrategySelect" class="modal-num-input" style="padding:6px 8px;">
+              <option value="BULL_CALL">Bull Call Spread (Long Lower C + Short Higher C)</option>
+              <option value="BEAR_PUT">Bear Put Spread (Long Higher P + Short Lower P)</option>
+              <option value="IRON_CONDOR">Iron Condor (Delta-Neutral Theta Harvester)</option>
+              <option value="LONG_STRADDLE">Long Straddle (Long C + Long P @ ATM)</option>
+              <option value="STRANGLE">Strangle (OTM Call + OTM Put Vol Play)</option>
+              <option value="JADE_LIZARD">Jade Lizard (Bull Put Spread + OTM Call)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">DAYS TO EXPIRY (DTE):</label>
+            <input type="range" id="sliderOptDte" min="1" max="60" value="14" class="obs-range" />
+            <span style="font-size:0.75rem; color:#22d3ee; font-family:var(--font-mono);" id="optDteVal">14 Days</span>
+          </div>
+        </div>
+
+        <!-- BSM Greeks Display Bar -->
+        <div class="greeks-stat-grid" id="greeksStatGrid">
+          <div class="greek-card">
+            <span class="greek-lbl">DELTA ($\Delta$)</span>
+            <span class="greek-val" id="greekDeltaVal">+0.32</span>
+          </div>
+          <div class="greek-card">
+            <span class="greek-lbl">GAMMA ($\Gamma$)</span>
+            <span class="greek-val" id="greekGammaVal">+0.014</span>
+          </div>
+          <div class="greek-card">
+            <span class="greek-lbl">THETA ($\Theta$) / DAY</span>
+            <span class="greek-val text-green" id="greekThetaVal">+₹420/day</span>
+          </div>
+          <div class="greek-card">
+            <span class="greek-lbl">VEGA ($\mathcal{V}$) / 1% IV</span>
+            <span class="greek-val" id="greekVegaVal">+₹850</span>
+          </div>
+          <div class="greek-card">
+            <span class="greek-lbl">MAX PROFIT / LOSS</span>
+            <span class="greek-val text-cyan" id="greekMaxPlVal">+₹12.5k / -₹4.2k</span>
+          </div>
+        </div>
+
+        <!-- Options Payoff Chart Canvas -->
+        <div style="height: 270px; position: relative; margin-top: 12px;">
+          <canvas id="optionsPayoffCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ SMART-DCA AUTOPILOT MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalSmartDca">
+    <div class="modal-panel" style="max-width: 880px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-coins text-emerald"></i> SMART DOLLAR-COST AVERAGING (SMART-DCA) AUTOPILOT</h3>
+        <button class="drawer-close-btn" id="modalCloseDcaBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="dca-config-grid">
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">BASE DEPLOYMENT / MONTH:</label>
+            <input type="number" id="dcaBaseCapitalInput" class="modal-num-input" value="25000" step="1000" />
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">DIP-BUYING MULTIPLIER ($\kappa_{	ext{dip}}$):</label>
+            <select id="dcaDipMultiplierSelect" class="modal-num-input">
+              <option value="1.5">Moderate (+50% size if dip &gt; 3%)</option>
+              <option value="2.0" selected>Aggressive (2.0x size if dip &gt; 5%)</option>
+              <option value="2.5">Institutional (2.5x size on deep oversold)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">OVERBOUGHT BRAKE (RSI &gt; 70):</label>
+            <select id="dcaOverboughtSelect" class="modal-num-input">
+              <option value="0.70" selected>Reduce size to 70% (Accumulate Cash)</option>
+              <option value="0.50">Reduce size to 50% (Heavy Cash Buffer)</option>
+              <option value="1.0">No Reduction (Standard Fixed DCA)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 10-Year Compounding Comparison Chart -->
+        <div style="height: 240px; position: relative; margin-top: 14px;">
+          <canvas id="smartDcaProjectionCanvas"></canvas>
+        </div>
+
+        <!-- Upcoming Deployment Schedule Table -->
+        <div style="margin-top:14px;">
+          <div style="font-size:0.75rem; color:#22d3ee; font-family:var(--font-mono); font-weight:700; margin-bottom:6px;">
+            <i class="fa-solid fa-calendar-check"></i> UPCOMING DYNAMIC DEPLOYMENT SCHEDULE (NEXT 4 TRANCHES)
+          </div>
+          <div class="table-responsive" style="max-height: 160px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;">
+            <table class="obs-table" id="dcaScheduleTable">
+              <thead>
+                <tr>
+                  <th>TRANCHE DATE</th>
+                  <th>MARKET REGIME</th>
+                  <th>DYNAMIC SIZE</th>
+                  <th>ALLOCATION TILT</th>
+                  <th>STATUS</th>
+                </tr>
+              </thead>
+              <tbody id="dcaScheduleTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MULTI-VENUE SMART ORDER ROUTING (SOR) MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalSorViewer">
+    <div class="modal-panel" style="max-width: 860px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-network-wired text-purple"></i> MULTI-VENUE SMART ORDER ROUTER (SOR) EXECUTION SLICER</h3>
+        <button class="drawer-close-btn" id="modalCloseSorBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.75rem; color:#94a3b8; margin-bottom:12px;">
+          Simulates real-time Level-2 book depth across NSE, BSE, and Dark Pools. Slices orders using Almgren-Chriss quadratic impact models to minimize execution slippage and exchange fees.
+        </p>
+
+        <div class="sor-telemetry-banner" id="sorTelemetryBanner">
+          <div class="sor-stat-box">
+            <span class="sor-stat-lbl">TOTAL PARENT ORDER</span>
+            <span class="sor-stat-val" id="sorParentOrderVal">1,250 Shares</span>
+          </div>
+          <div class="sor-stat-box">
+            <span class="sor-stat-lbl">OPTIMAL ROUTING SPLIT</span>
+            <span class="sor-stat-val text-cyan" id="sorSplitRatioVal">NSE 62% • BSE 28% • Dark 10%</span>
+          </div>
+          <div class="sor-stat-box">
+            <span class="sor-stat-lbl">SLIPPAGE SAVED VS NAIVE</span>
+            <span class="sor-stat-val text-green" id="sorSavingsVal">+8.4 bps (₹1,420 Saved)</span>
+          </div>
+        </div>
+
+        <!-- Venue Allocation Waterfall Chart -->
+        <div style="height: 220px; position: relative; margin-top: 14px;">
+          <canvas id="sorWaterfallCanvas"></canvas>
+        </div>
+
+        <div class="table-responsive" style="max-height: 180px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; margin-top:14px;">
+          <table class="obs-table" id="sorVenuesTable">
+            <thead>
+              <tr>
+                <th>VENUE</th>
+                <th>BID / ASK</th>
+                <th>BOOK DEPTH</th>
+                <th>ROUTED SHARES</th>
+                <th>EST SLIPPAGE</th>
+                <th>EXCHANGE CHARGES</th>
+              </tr>
+            </thead>
+            <tbody id="sorVenuesTableBody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MONTE CARLO 1,000-PATH WEALTH SURVIVAL MODAL ═══════════════════════ -->
+  <div class="modal-overlay" id="modalWealthSurvival">
+    <div class="modal-panel" style="max-width: 920px; width: 95vw;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-shield-heart text-amber"></i> MONTE CARLO 1,000-PATH WEALTH SURVIVAL &amp; SEQUENCE RISK ENGINE</h3>
+        <button class="drawer-close-btn" id="modalCloseSurvivalBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="survival-input-grid">
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">ANNUAL WITHDRAWAL RATE:</label>
+            <select id="survivalWithdrawalSelect" class="modal-num-input">
+              <option value="0.03">3.0% (Ultra Conservative)</option>
+              <option value="0.04" selected>4.0% (Bengen 4% Rule)</option>
+              <option value="0.05">5.0% (Aggressive Drawdown)</option>
+              <option value="0.06">6.0% (High Ruin Risk)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">INFLATION REGIME (CPI):</label>
+            <select id="survivalInflationSelect" class="modal-num-input">
+              <option value="0.04">4.0% (Moderate Central Bank Target)</option>
+              <option value="0.055" selected>5.5% (India CPI Historical Average)</option>
+              <option value="0.075">7.5% (High Inflation Shock)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.7rem; color:#94a3b8; font-family:var(--font-mono);">TIME HORIZON (YEARS):</label>
+            <select id="survivalYearsSelect" class="modal-num-input">
+              <option value="15">15 Years</option>
+              <option value="25" selected>25 Years (Retirement Standard)</option>
+              <option value="35">35 Years (Multi-Generational)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Survival Probability Summary Bar -->
+        <div class="survival-summary-bar" id="survivalSummaryBar">
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">PORTFOLIO SURVIVAL PROBABILITY</span>
+            <span class="survival-kpi-val text-green" id="survivalProbVal">97.8% SUCCESS</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">PROBABILITY OF RUIN</span>
+            <span class="survival-kpi-val text-rose" id="survivalRuinVal">2.2% RISK</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">MEDIAN TERMINAL WEALTH (p50)</span>
+            <span class="survival-kpi-val text-cyan" id="survivalP50Val">₹2.84 Cr</span>
+          </div>
+          <div class="survival-kpi-card">
+            <span class="survival-kpi-lbl">WORST 10% TAIL (p10)</span>
+            <span class="survival-kpi-val text-amber" id="survivalP10Val">₹48.2 Lakh</span>
+          </div>
+        </div>
+
+        <!-- 1,000-Path Monte Carlo Fan Canvas -->
+        <div style="height: 250px; position: relative; margin-top: 14px;">
+          <canvas id="wealthSurvivalCanvas"></canvas>
         </div>
       </div>
     </div>
