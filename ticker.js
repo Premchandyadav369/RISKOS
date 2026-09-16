@@ -1077,6 +1077,17 @@
                 <span>${r.alpha_thesis}</span>
               </div>
 
+              <!-- Transparency, Calibration & Signal Provenance -->
+              <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:6px 8px;margin:6px 0;font-size:0.65rem;color:#8b949e;display:flex;flex-direction:column;gap:3px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span><i class="fa-solid fa-clock" style="margin-right:4px;"></i>Model Timestamp: EOD Close</span>
+                  <button type="button" onclick="if(window.UniversalExplainer)window.UniversalExplainer.open('sharpe');" style="background:transparent;border:none;color:#58a6ff;cursor:pointer;font-size:0.65rem;padding:0;display:flex;align-items:center;gap:3px;"><i class="fa-solid fa-circle-question"></i> Model Math</button>
+                </div>
+                <div style="font-size:0.6rem;color:#6e7681;line-height:1.3;">
+                  Uncalibrated statistical scoring &bull; Bounds: ±1.5σ uncertainty &bull; Research simulation
+                </div>
+              </div>
+
               <!-- 5 Deep Inter-Module Action Triggers -->
               <div class="rec-actions-grid">
                 <button class="rec-act-btn rec-btn-fleet" data-act="fleet" data-bot="${r.recommended_fleet_bot.id}" data-sym="${r.ticker}" title="Route order directly into ${r.recommended_fleet_bot.name}">
@@ -1344,7 +1355,7 @@
 
     // Helper to filter screener table by sector
     window.filterScreenerBySector = (sectorName) => {
-      const input = document.getElementById('tableSearchInput');
+      const input = document.getElementById('tickerSearchInput') || document.getElementById('tableSearchInput');
       if (input) {
         input.value = sectorName;
         input.dispatchEvent(new Event('input'));

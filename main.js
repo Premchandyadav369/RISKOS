@@ -2219,6 +2219,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const updateMarketClocks = () => {
+    if (typeof window !== 'undefined' && window.MarketDataTruth) {
+      const reg = appState.marketRegion || 'NSE';
+      const exKey = (reg === 'US') ? 'NASDAQ' : reg;
+      const status = window.MarketDataTruth.getExchangeStatus(exKey);
+      const badgeDot = document.getElementById('marketStatusDot');
+      const badgeName = document.getElementById('marketName');
+      const badgeState = document.getElementById('marketState');
+      const badgeTime = document.getElementById('marketTime');
+
+      if (badgeName && badgeState && badgeDot && badgeTime) {
+        badgeName.textContent = status.exchange;
+        badgeTime.textContent = status.timeStr;
+        badgeState.textContent = status.isOpen ? 'OPEN' : 'CLOSED';
+        badgeState.style.color = status.color;
+        badgeDot.className = status.isOpen ? 'market-status-dot dot--open' : 'market-status-dot dot--closed';
+        badgeDot.style.background = status.color;
+      }
+      return;
+    }
+
     const now = new Date();
     const istTimeStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit' });
     const estTimeStr = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit' });
@@ -2229,22 +2249,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const badgeTime = document.getElementById('marketTime');
 
     if (badgeName && badgeState && badgeDot && badgeTime) {
-      if (appState.marketRegion === 'BSE') {
-        badgeName.textContent = 'BSE';
-        badgeTime.textContent = `${istTimeStr} IST`;
-        badgeState.textContent = 'OPEN';
-        badgeDot.className = 'market-status-dot dot--open';
-      } else if (appState.marketRegion === 'US') {
-        badgeName.textContent = 'NYSE/US';
-        badgeTime.textContent = `${estTimeStr} EST`;
-        badgeState.textContent = 'OPEN';
-        badgeDot.className = 'market-status-dot dot--open';
-      } else {
-        badgeName.textContent = 'NSE';
-        badgeTime.textContent = `${istTimeStr} IST`;
-        badgeState.textContent = 'OPEN';
-        badgeDot.className = 'market-status-dot dot--open';
-      }
+      badgeName.textContent = appState.marketRegion || 'NSE';
+      badgeTime.textContent = (appState.marketRegion === 'US') ? `${estTimeStr} EST` : `${istTimeStr} IST`;
+      badgeState.textContent = 'VERIFIED';
+      badgeDot.className = 'market-status-dot dot--open';
     }
   };
 
@@ -3588,10 +3596,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!detailEl || !sideEl) return;
 
+    // Check if market is currently closed
+    if (typeof window !== 'undefined' && window.MarketDataTruth) {
+      const nseStatus = window.MarketDataTruth.getExchangeStatus('NSE');
+      if (!nseStatus.isOpen) {
+        detailEl.innerHTML = `<strong>MARKET CLOSED</strong> &bull; Order flow tape paused &bull; Final settlement recorded`;
+        sideEl.textContent = 'SESSION CLOSED';
+        sideEl.style.background = 'rgba(255, 255, 255, 0.08)';
+        sideEl.style.color = '#a1a1aa';
+        sideEl.className = 'tape-side-closed';
+        if (timeEl) timeEl.textContent = `${nseStatus.timeStr}`;
+      }
+    }
+
     SecurityMaster.subscribeLiveTape((trade) => {
       detailEl.innerHTML = `<strong>${trade.symbol}</strong> &bull; ${trade.size.toLocaleString('en-IN')} shares @ ${formatMoney(trade.price, trade.currency)} [${trade.venue}]`;
       sideEl.textContent = `${trade.side} ${trade.condition === 'BLOCK DEAL' ? '• BLOCK DEAL' : ''}`;
       sideEl.className = trade.side === 'BUY' ? 'tape-side-buy' : 'tape-side-sell';
+      sideEl.style.background = '';
+      sideEl.style.color = '';
       if (timeEl) timeEl.textContent = `${trade.time} IST`;
     });
   };

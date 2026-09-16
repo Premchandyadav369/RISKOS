@@ -4810,7 +4810,7 @@ if (typeof window !== 'undefined') {
     const urlParams = new URLSearchParams(window.location.search);
     const secParam = urlParams.get('sec') || urlParams.get('symbol') || urlParams.get('ticker');
     if (secParam) {
-      const tickerInput = document.getElementById('tickers');
+      const tickerInput = document.getElementById('ticker-input') || document.getElementById('tickers');
       if (tickerInput) {
         const current = tickerInput.value.split(',').map(s => s.trim()).filter(Boolean);
         tickerInput.value = `${secParam.toUpperCase()},${current.filter(s => s !== secParam.toUpperCase()).slice(0, 4).join(',')}`;
@@ -4840,7 +4840,7 @@ if (typeof window !== 'undefined') {
     // Listen to real-time security mutations from other tabs via BroadcastChannel
     if (typeof TerminalBus !== 'undefined') {
       TerminalBus.onSecurityChange((newSymbol) => {
-        const tickerInput = document.getElementById('tickers');
+        const tickerInput = document.getElementById('ticker-input') || document.getElementById('tickers');
         if (tickerInput && newSymbol) {
           const current = tickerInput.value.split(',').map(s => s.trim()).filter(Boolean);
           if (current[0] !== newSymbol) {

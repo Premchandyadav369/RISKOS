@@ -97,7 +97,7 @@ async function runTests() {
   console.log('\n🎉 ALL DAILY STOCK ALPHA RECOMMENDER SYSTEM TESTS PASSED (100% SUCCESS)!\n');
 }
 
-runTests().catch(err => {
+runTests().then(() => { process.exit(0); }).catch(err => {
   console.error('\n❌ TEST FAILURE:', err);
   process.exit(1);
 });

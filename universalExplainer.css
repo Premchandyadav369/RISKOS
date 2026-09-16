@@ -1,0 +1,357 @@
+/* Universal Explainer Modal Styles */
+.ue-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: ueFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ueFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ue-modal {
+  background: #0d0f12;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  animation: ueSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ueSlideUp {
+  from { transform: translateY(20px) scale(0.98); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.ue-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  background: #0d0f12;
+  z-index: 10;
+}
+
+.ue-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ue-header-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(56, 139, 253, 0.12);
+  border: 1px solid rgba(56, 139, 253, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #58a6ff;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.ue-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #f0f6fc;
+}
+
+.ue-subtitle {
+  margin: 3px 0 0 0;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.ue-close-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #8b949e;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ue-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #f0f6fc;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.ue-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0 24px;
+  background: rgba(255, 255, 255, 0.015);
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.ue-tab {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  padding: 12px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.ue-tab:hover {
+  color: #c9d1d9;
+}
+
+.ue-tab.active {
+  color: #58a6ff;
+  border-bottom-color: #58a6ff;
+}
+
+.ue-body {
+  padding: 24px;
+  flex: 1;
+}
+
+.ue-section {
+  margin-bottom: 20px;
+}
+
+.ue-section:last-child {
+  margin-bottom: 0;
+}
+
+.ue-section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8b949e;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.ue-p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c9d1d9;
+  margin: 0 0 12px 0;
+}
+
+.ue-analogy-box {
+  background: rgba(56, 139, 253, 0.06);
+  border: 1px solid rgba(56, 139, 253, 0.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 14px 0;
+}
+
+.ue-analogy-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #58a6ff;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.ue-formula-card {
+  background: #161b22;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 18px;
+  margin: 14px 0;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.ue-formula {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: #79c0ff;
+}
+
+.ue-vars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.ue-var-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.ue-var-symbol {
+  font-weight: 700;
+  color: #79c0ff;
+  font-family: monospace;
+}
+
+.ue-callout-warning {
+  background: rgba(210, 153, 34, 0.08);
+  border: 1px solid rgba(210, 153, 34, 0.25);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 13px;
+  color: #d29922;
+  line-height: 1.5;
+  margin-top: 14px;
+}
+
+.ue-callout-warning strong {
+  color: #e3b341;
+}
+
+.ue-interactive-box {
+  background: rgba(35, 134, 54, 0.08);
+  border: 1px solid rgba(46, 160, 67, 0.25);
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.ue-slider-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.ue-slider-group label {
+  font-size: 12px;
+  color: #8b949e;
+  min-width: 110px;
+}
+
+.ue-slider-group input[type="range"] {
+  flex: 1;
+  accent-color: #2ea043;
+}
+
+.ue-slider-val {
+  font-family: monospace;
+  font-size: 13px;
+  color: #56d364;
+  min-width: 60px;
+  text-align: right;
+}
+
+.ue-calc-result {
+  background: #0d1117;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.ue-calc-label {
+  font-size: 13px;
+  color: #8b949e;
+}
+
+.ue-calc-num {
+  font-size: 18px;
+  font-weight: 700;
+  color: #58a6ff;
+  font-family: monospace;
+}
+
+.ue-badge-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(56, 139, 253, 0.1);
+  border: 1px solid rgba(56, 139, 253, 0.2);
+  color: #58a6ff;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.ue-badge-trigger:hover {
+  background: rgba(56, 139, 253, 0.2);
+  border-color: rgba(56, 139, 253, 0.4);
+  color: #79c0ff;
+}
+
+.ue-badge-trigger i {
+  font-size: 10px;
+}
+
+.ue-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.015);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ue-footer-text {
+  font-size: 11px;
+  color: #6e7681;
+}
+
+.ue-footer-btn {
+  background: #21262d;
+  color: #c9d1d9;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ue-footer-btn:hover {
+  background: #30363d;
+  color: #f0f6fc;
+}

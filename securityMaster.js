@@ -409,8 +409,19 @@ const SecurityMaster = (() => {
     const tradeTypes = ['REGULAR', 'BLOCK DEAL', 'INSTITUTIONAL VWAP', 'CROSS TRADE'];
 
     _tapeTimer = setInterval(() => {
+      const truth = typeof MarketDataTruth !== 'undefined' ? MarketDataTruth : null;
+      const isSimMode = truth && (truth.activeMode === 'SIMULATION' || truth.activeMode === 'PAPER');
+
       const randIdx = Math.floor(Math.random() * LOCAL_REGISTRY.length);
       const item = LOCAL_REGISTRY[randIdx];
+      const isUS = item.currency === 'USD' || item.exchange === 'NASDAQ' || item.exchange === 'NYSE' || item.exchange === 'US';
+      const exKey = isUS ? 'NASDAQ' : 'NSE';
+      const isExchangeOpen = truth ? truth.isExchangeOpen(exKey) : false;
+
+      // When market is closed and simulation mode is inactive, pause tape executions
+      if (!isExchangeOpen && !isSimMode) {
+        return;
+      }
       const quote = _liveQuotes.get(item.symbol) || item;
       const isBuy = Math.random() > 0.45;
       const sizeMult = Math.random() > 0.88 ? Math.floor(1000 + Math.random() * 9000) : Math.floor(25 + Math.random() * 450);
@@ -456,6 +467,9 @@ const SecurityMaster = (() => {
     ];
     
     _microTickTimer = setInterval(() => {
+      const truth = typeof MarketDataTruth !== 'undefined' ? MarketDataTruth : null;
+      const isSimMode = truth && (truth.activeMode === 'SIMULATION' || truth.activeMode === 'PAPER');
+
       const count = 1 + Math.floor(Math.random() * 3);
       const updates = [];
       
@@ -463,6 +477,15 @@ const SecurityMaster = (() => {
         const sym = activeUniverse[Math.floor(Math.random() * activeUniverse.length)];
         const oldQuote = _liveQuotes.get(sym);
         if (!oldQuote || !oldQuote.price) continue;
+
+        const isUS = oldQuote.currency === 'USD' || ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'SOUN', 'TELL', 'BBAI', 'OPEN', 'CLOV', 'LCID', 'NIO', 'BITF', '^GSPC'].includes(sym);
+        const exKey = isUS ? 'NASDAQ' : 'NSE';
+        const isExchangeOpen = truth ? truth.isExchangeOpen(exKey) : false;
+
+        // CRITICAL INVARIANT: DO NOT tick if exchange is closed, unless user explicitly enabled SIMULATION mode
+        if (!isExchangeOpen && !isSimMode) {
+          continue;
+        }
         
         const isPenny = oldQuote.isPenny || oldQuote.basePrice < 25;
         const driftMag = isPenny ? 0.005 : 0.0012;
@@ -508,7 +531,7 @@ const SecurityMaster = (() => {
           changePercent: chgPct,
           volume: updated.volume,
           currency: updated.currency,
-          provider: 'Real-Time Tick Engine'
+          provider: isSimMode ? 'Simulated Order Flow Engine (Monte Carlo)' : (isUS ? 'NASDAQ Real-Time Feed' : 'NSE Real-Time Feed'), status: isSimMode ? 'SIMULATED' : 'LIVE'
         });
       }
       

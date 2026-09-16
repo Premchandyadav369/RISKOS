@@ -41,6 +41,11 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="terminalBus.css" />
   <link rel="stylesheet" href="launchpadWorkspace.css" />
+  <!-- Universal Mobile & UX Suite -->
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="progressiveDisclosure.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
 </head>
 <body data-user-mode="beginner">
 
@@ -190,7 +195,7 @@
 
         <!-- 4. Subhead -->
         <p class="subhead">
-          Turn market data into understanding with an AI-native financial intelligence platform built for equity research, event-driven causality, risk analytics, and mathematical explainability.
+          A transparent, educational, and institutional financial intelligence platform. Analyze equities, control downside risk, and master quantitative finance—without Wall Street jargon, hidden black boxes, or misleading simulations.
         </p>
 
         <!-- Live Real-Time Benchmark Ribbon -->
@@ -239,6 +244,308 @@
 
       </div>
     </main>
+
+    <!-- ═══════════════════════ 2.5 PROGRESSIVE DISCLOSURE ARCHITECTURE ═══════════════════════ -->
+    <section class="progressive-container" id="progressiveOnboarding">
+      
+      <!-- LAYER 1: GUIDED ONBOARDING & PERSONA SELECTOR -->
+      <div class="pd-section-header">
+        <span class="pd-badge badge-green"><i class="fa-solid fa-seedling"></i> Layer 1: Simple by Default</span>
+        <h2 class="pd-title">Choose Your Financial Path</h2>
+        <p class="pd-subtitle">
+          Whether you are a beginner exploring your first stock, an active investor safeguarding a portfolio, or a quant developing systematic algorithms, RISKOS adapts to your experience level.
+        </p>
+      </div>
+
+      <!-- Persona Selector Filter -->
+      <div class="persona-selector-wrap">
+        <div class="persona-pill-group" id="personaPillGroup">
+          <button class="persona-btn active" data-persona="all"><i class="fa-solid fa-shapes"></i> All Paths</button>
+          <button class="persona-btn" data-persona="beginner"><i class="fa-solid fa-seedling"></i> Beginner (Learn & Discover)</button>
+          <button class="persona-btn" data-persona="investor"><i class="fa-solid fa-chart-pie"></i> Active Investor (Portfolio)</button>
+          <button class="persona-btn" data-persona="quant"><i class="fa-solid fa-square-root-variable"></i> Quant Researcher (Math)</button>
+        </div>
+      </div>
+
+      <!-- 3 Primary Onboarding Path Cards -->
+      <div class="onboarding-cards-grid" id="onboardingCardsGrid">
+        
+        <!-- Path 1: Explore Markets -->
+        <div class="onboarding-card" data-card-persona="beginner">
+          <div class="ob-card-top">
+            <div class="ob-icon-box" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-color:rgba(56,189,248,0.25);">
+              <i class="fa-solid fa-magnifying-glass-chart"></i>
+            </div>
+            <span class="ob-target-tag">Beginner &bull; Research</span>
+          </div>
+          <h3 class="ob-title">Explore Markets</h3>
+          <p class="ob-desc">
+            Search 5,000+ Indian (NSE/BSE) and US (NYSE/NASDAQ) equities with clear, plain-English company summaries, valuation metrics, and sector indicators.
+          </p>
+          <ul class="ob-features-list">
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Plain-English business models & moats</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Sector relative strength & performance</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Penny stock & micro-cap volume radar</li>
+          </ul>
+          <a href="ticker.html" class="ob-cta-btn btn-primary">
+            <span>Open Market Screener</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- Path 2: Build a Portfolio -->
+        <div class="onboarding-card card-featured" data-card-persona="investor">
+          <div class="ob-card-top">
+            <div class="ob-icon-box" style="color:#51cf66; background:rgba(81,207,102,0.1); border-color:rgba(81,207,102,0.25);">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <span class="ob-target-tag" style="color:#51cf66;">Intermediate &bull; Protection</span>
+          </div>
+          <h3 class="ob-title">Build &amp; Optimize Portfolio</h3>
+          <p class="ob-desc">
+            Construct mathematically resilient portfolios that prioritize downside capital preservation using Conditional Value-at-Risk (CVaR) and Black-Litterman allocations.
+          </p>
+          <ul class="ob-features-list">
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Non-linear CVaR downside crash bounds</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Black Swan historical stress testing</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Interactive weight allocation sliders</li>
+          </ul>
+          <a href="portfolio_optimizer.html" class="ob-cta-btn btn-primary">
+            <span>Launch Portfolio Optimizer</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+        <!-- Path 3: Learn Quantitative Finance -->
+        <div class="onboarding-card" data-card-persona="beginner">
+          <div class="ob-card-top">
+            <div class="ob-icon-box" style="color:#f59e0b; background:rgba(245,158,11,0.1); border-color:rgba(245,158,11,0.25);">
+              <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <span class="ob-target-tag">Education &bull; 75 Labs</span>
+          </div>
+          <h3 class="ob-title">Learn Quant Finance</h3>
+          <p class="ob-desc">
+            Demystify complex Wall Street mathematics step-by-step. 75 hands-on interactive labs covering everything from compound interest to Black-Scholes options pricing.
+          </p>
+          <ul class="ob-features-list">
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Zero prior finance background required</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Interactive parameter sensitivity sliders</li>
+            <li class="ob-feature-item"><i class="fa-solid fa-check"></i> Verified formulas with LaTeX math proofs</li>
+          </ul>
+          <a href="learn.html" class="ob-cta-btn btn-primary">
+            <span>Explore 75 Interactive Labs</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Institutional Power User Banner -->
+      <div class="pro-terminal-banner" data-card-persona="quant">
+        <div class="pro-banner-content">
+          <div class="pro-banner-icon">
+            <i class="fa-solid fa-terminal"></i>
+          </div>
+          <div>
+            <h3 class="pro-banner-title">Institutional Quantitative Terminal (7 Desks &amp; 41 Bots)</h3>
+            <p class="pro-banner-desc">
+              For professional traders and quantitative researchers: multi-asset volatility modeling (GARCH/EWMA), Gaussian HMM regime detection, options gamma exposure surfaces, VWAP algorithmic execution with slippage simulation, and 41 Egyptian mythology automated quant bots.
+            </p>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <a href="app.html" class="pro-banner-btn">
+            <i class="fa-solid fa-layer-group"></i> Launch 7 Desks
+          </a>
+          <a href="fleet.html" class="pro-banner-btn" style="background:#2563eb;">
+            <i class="fa-solid fa-robot"></i> 41 Quant Bots
+          </a>
+        </div>
+      </div>
+
+      <!-- DATA TRUTH & AUDIT ASSURANCE BANNER -->
+      <div class="truth-audit-banner" id="truthBanner">
+        <div class="truth-left">
+          <div class="truth-icon">
+            <i class="fa-solid fa-fingerprint"></i>
+          </div>
+          <div>
+            <h4 class="truth-title">Market Data Truth &amp; Provenance Protocol</h4>
+            <p class="truth-desc">
+              Deterministic exchange calendar synchronization. Zero fake simulated ticks outside official trading hours. When NSE or NYSE closes, price feeds halt and display exact final timestamps.
+            </p>
+          </div>
+        </div>
+        <button class="truth-btn" type="button" onclick="if(window.MarketDataTruth){window.MarketDataTruth.openProvenanceModal();}else{alert('Data Truth Protocol Active.');}">
+          <i class="fa-solid fa-shield-halved" style="margin-right:6px;"></i> View Data Provenance Audit
+        </button>
+      </div>
+
+      <!-- LAYER 2: DEEP ON DEMAND (6 CAPABILITY CARDS WITH EXPLAIN TRIGGERS) -->
+      <div class="pd-section-header" style="margin-top:60px;">
+        <span class="pd-badge"><i class="fa-solid fa-microchip"></i> Layer 2: Deep on Demand</span>
+        <h2 class="pd-title">Institutional Capabilities Without Black Boxes</h2>
+        <p class="pd-subtitle">
+          Every model, indicator, and calculation on RISKOS includes a one-click "Explain This" breakdown detailing plain-English intuition, exact mathematical formulas, and regulatory research citations.
+        </p>
+      </div>
+
+      <div class="capability-grid">
+        
+        <!-- Cap 1: Dual-Market Intelligence -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-globe cap-icon"></i>
+            <button class="ue-badge-trigger" data-explain="market_data_truth" type="button"><i class="fa-solid fa-circle-question"></i> Explain</button>
+          </div>
+          <h4 class="cap-title">Dual-Market Intelligence</h4>
+          <p class="cap-desc">
+            Unified surveillance across Indian (NSE/BSE) and US (NYSE/NASDAQ) equities with synchronized market clocks, atomic tick timestamps, and automatic currency normalization.
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">Desks 1 &amp; Screener</span>
+            <a href="ticker.html" class="cap-link">View Screener <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Cap 2: Tail Risk Protection (CVaR) -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-shield-virus cap-icon" style="color:#51cf66;"></i>
+            <button class="ue-badge-trigger" data-explain="cvar" type="button"><i class="fa-solid fa-circle-question"></i> Explain</button>
+          </div>
+          <h4 class="cap-title">Downside Tail Risk (CVaR)</h4>
+          <p class="cap-desc">
+            Replaces flawed Gaussian VaR with sub-additive Conditional Value at Risk (Expected Shortfall) at 99% confidence, capturing fat-tailed market crash distributions.
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">Basel III &bull; Rockafellar</span>
+            <a href="portfolio_optimizer.html" class="cap-link">Test Optimizer <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Cap 3: 41 Egyptian Mythology Bots -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-robot cap-icon" style="color:#cc5de8;"></i>
+            <span class="pd-badge badge-purple" style="margin:0;">41 Bots</span>
+          </div>
+          <h4 class="cap-title">Sector Quantitative Bots</h4>
+          <p class="cap-desc">
+            41 autonomous strategy bots named after Egyptian mythology (Horus, Anubis, Osiris, Ra, Thoth) deployed across Indian and US sectors with strict SEC 15c3-5 risk limits.
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">India &amp; US Sectors</span>
+            <a href="fleet.html" class="cap-link">Explore Fleet <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Cap 4: Macro Regime HMM -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-brain cap-icon" style="color:#a855f7;"></i>
+            <button class="ue-badge-trigger" data-explain="regime_hmm" type="button"><i class="fa-solid fa-circle-question"></i> Explain</button>
+          </div>
+          <h4 class="cap-title">Macro Regime Detection</h4>
+          <p class="cap-desc">
+            Unsupervised 3-state Gaussian Hidden Markov Models automatically classify market weather into Bull, Bear, or Sideways regimes to adapt strategy parameters dynamically.
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">Hamilton (1989)</span>
+            <a href="observatory.html" class="cap-link">Open Observatory <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Cap 5: Gamma Exposure & Volatility -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-bolt cap-icon" style="color:#FAB005;"></i>
+            <button class="ue-badge-trigger" data-explain="gex" type="button"><i class="fa-solid fa-circle-question"></i> Explain</button>
+          </div>
+          <h4 class="cap-title">Gamma Exposure &amp; Volatility</h4>
+          <p class="cap-desc">
+            Tracks options market maker inventory hedging pressures, gamma flip thresholds, and conditional volatility forecasting via EWMA and GARCH(1,1).
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">Desk 5 &bull; Options Studio</span>
+            <a href="app.html?desk=5" class="cap-link">Options Desk <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <!-- Cap 6: 75 Interactive Quant Labs -->
+        <div class="cap-card">
+          <div class="cap-card-header">
+            <i class="fa-solid fa-flask-vial cap-icon" style="color:#22d3ee;"></i>
+            <button class="ue-badge-trigger" data-explain="cpcv" type="button"><i class="fa-solid fa-circle-question"></i> Explain</button>
+          </div>
+          <h4 class="cap-title">75 Interactive Quant Labs</h4>
+          <p class="cap-desc">
+            Comprehensive quantitative curriculum: from portfolio variance and Sharpe ratio to Black-Litterman, Merton credit default, and Combinatorial Purged Cross-Validation.
+          </p>
+          <div class="cap-footer">
+            <span style="font-size:0.75rem;color:#71717a;">10 Core Modules</span>
+            <a href="learn.html" class="cap-link">Enter Labs <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LAYER 3: SYSTEM PIPELINE ARCHITECTURE MAP -->
+      <div class="pd-section-header" style="margin-top:60px;">
+        <span class="pd-badge badge-purple"><i class="fa-solid fa-diagram-project"></i> Layer 3: System Pipeline</span>
+        <h2 class="pd-title">Interactive System Pipeline Architecture</h2>
+        <p class="pd-subtitle">
+          See exactly how raw exchange feeds transform into audited quantitative decisions across the RISKOS pipeline.
+        </p>
+      </div>
+
+      <div class="pipeline-card">
+        <div class="pipeline-flow">
+          
+          <div class="pipeline-node" onclick="if(window.MarketDataTruth)window.MarketDataTruth.openProvenanceModal();">
+            <div class="node-step-num">Step 1</div>
+            <div class="node-title"><i class="fa-solid fa-satellite-dish" style="color:#22d3ee;margin-right:4px;"></i> Ingestion</div>
+            <div class="node-sub">NSE, BSE, NYSE Feeds &bull; Calendar Clock</div>
+          </div>
+
+          <div class="pipeline-connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+          <div class="pipeline-node" onclick="if(window.UniversalExplainer)window.UniversalExplainer.open('market_data_truth');">
+            <div class="node-step-num">Step 2</div>
+            <div class="node-title"><i class="fa-solid fa-filter" style="color:#51cf66;margin-right:4px;"></i> Truth Gate</div>
+            <div class="node-sub">Tick Hygiene &bull; Zero Out-of-Hours Ticks</div>
+          </div>
+
+          <div class="pipeline-connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+          <div class="pipeline-node" onclick="if(window.UniversalExplainer)window.UniversalExplainer.open('cvar');">
+            <div class="node-step-num">Step 3</div>
+            <div class="node-title"><i class="fa-solid fa-calculator" style="color:#f59e0b;margin-right:4px;"></i> Risk Engines</div>
+            <div class="node-sub">CVaR &bull; GARCH Vol &bull; Ledoit-Wolf</div>
+          </div>
+
+          <div class="pipeline-connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+          <div class="pipeline-node" onclick="window.location.href='fleet.html';">
+            <div class="node-step-num">Step 4</div>
+            <div class="node-title"><i class="fa-solid fa-robot" style="color:#cc5de8;margin-right:4px;"></i> 41 Bots</div>
+            <div class="node-sub">Egyptian Strategy Signals &bull; Barra Factor</div>
+          </div>
+
+          <div class="pipeline-connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+          <div class="pipeline-node" onclick="if(window.UniversalExplainer)window.UniversalExplainer.open('market_data_truth');">
+            <div class="node-step-num">Step 5</div>
+            <div class="node-title"><i class="fa-solid fa-fingerprint" style="color:#38bdf8;margin-right:4px;"></i> Provenance</div>
+            <div class="node-sub">Immutable Audit Trail &bull; SEBI/SEC</div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
 
     <!-- ═══════════════════════ 3. FINANCIAL METRICS FOOTER ═══════════════════════ -->
     <footer class="financial-metrics" id="metricsFooter" aria-label="Platform Metrics & Provenance">
@@ -1812,5 +2119,37 @@
   <script src="auditLedger.js"></script>
   <script src="launchpadWorkspace.js"></script>
   <script src="terminalBus.js"></script>
+  <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="mobileNav.js"></script>
+
+  <script>
+    // Persona Switcher Filter Script
+    document.addEventListener('DOMContentLoaded', () => {
+      const personaBtns = document.querySelectorAll('#personaPillGroup .persona-btn');
+      const cards = document.querySelectorAll('#onboardingCardsGrid .onboarding-card, .pro-terminal-banner');
+
+      personaBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          personaBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const p = btn.dataset.persona;
+
+          cards.forEach(card => {
+            const cardP = card.dataset.cardPersona;
+            if (p === 'all' || !cardP || cardP === p) {
+              card.style.display = '';
+              card.style.opacity = '1';
+            } else {
+              card.style.opacity = '0.35';
+            }
+          });
+        });
+      });
+    });
+  </script>
+
 </body>
 </html>

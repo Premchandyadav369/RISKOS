@@ -31,6 +31,10 @@
   <link rel="stylesheet" href="docs.css" />
   <link rel="stylesheet" href="terminalBus.css" />
   <link rel="stylesheet" href="launchpadWorkspace.css" />
+  <!-- Universal Mobile & UX Suite -->
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
 </head>
 <body class="observatory-page fleet-page mode-dual">
 
@@ -82,8 +86,15 @@
     <!-- Sticky Sidebar Navigation -->
     <aside class="docs-sidebar">
       <div class="docs-nav-group">
+        <div class="docs-nav-title">Trust & Data Truth</div>
+        <a href="#trust-center" class="docs-nav-item active"><i class="fa-solid fa-shield-check" style="color:#51cf66;"></i> Trust Center &amp; Data Truth</a>
+        <a href="#ux-architecture" class="docs-nav-item"><i class="fa-solid fa-layer-group" style="color:#22d3ee;"></i> Progressive UX Architecture</a>
+        <a href="#mobile-suite" class="docs-nav-item"><i class="fa-solid fa-mobile-screen" style="color:#f59e0b;"></i> Mobile Responsiveness</a>
+      </div>
+
+      <div class="docs-nav-group">
         <div class="docs-nav-title">Platform Architecture</div>
-        <a href="#overview" class="docs-nav-item active"><i class="fa-solid fa-compass"></i> Executive Overview</a>
+        <a href="#overview" class="docs-nav-item"><i class="fa-solid fa-compass"></i> Executive Overview</a>
         <a href="#node-explorer" class="docs-nav-item"><i class="fa-solid fa-sitemap"></i> Live Node Explorer</a>
         <a href="#timesfm" class="docs-nav-item"><i class="fa-brands fa-google text-cyan"></i> Google TimesFM 3.0 Sandbox</a>
         <a href="#garch" class="docs-nav-item"><i class="fa-solid fa-chart-area text-amber"></i> GARCH Volatility Simulator</a>
@@ -165,6 +176,44 @@
       </div>
 
       <!-- SECTION 1: EXECUTIVE OVERVIEW -->
+            <!-- ═══════════════════════ TRUST CENTER & DATA TRUTH ═══════════════════════ -->
+      <section id="trust-center" class="doc-section" style="margin-bottom:36px;">
+        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:24px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <span style="width:36px;height:36px;border-radius:8px;background:rgba(16,185,129,0.15);display:flex;align-items:center;justify-content:center;color:#10b981;font-size:1.1rem;"><i class="fa-solid fa-shield-halved"></i></span>
+            <div>
+              <h2 style="font-size:1.4rem;font-weight:800;color:#f0fdf4;margin:0;">Institutional Trust Center &amp; Market Data Integrity Standard</h2>
+              <p style="font-size:0.8rem;color:#a7f3d0;margin:2px 0 0 0;">Zero-deception market data architecture, deterministic exchange calendars, and transparent simulation boundaries.</p>
+            </div>
+          </div>
+          <p style="font-size:0.88rem;color:#d1d5db;line-height:1.6;margin-bottom:16px;">
+            RISKOS strictly adheres to our <strong>Market Data Truth Protocol</strong>: when an exchange is closed, background simulated micro-ticks are halted, and feeds explicitly display <code>MARKET CLOSED</code> with the verified timestamp of the final exchange settlement.
+          </p>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:12px;margin-bottom:16px;">
+            <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;">
+              <div style="font-size:0.75rem;color:#10b981;font-weight:700;margin-bottom:4px;"><i class="fa-solid fa-clock"></i> Exchange State Machines</div>
+              <div style="font-size:0.75rem;color:#9ca3af;">NSE/BSE (09:15-15:30 IST), NYSE/NASDAQ (09:30-16:00 EST), MCX, and Crypto.</div>
+            </div>
+            <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;">
+              <div style="font-size:0.75rem;color:#22d3ee;font-weight:700;margin-bottom:4px;"><i class="fa-solid fa-calendar-check"></i> Statutory Holiday Engine</div>
+              <div style="font-size:0.75rem;color:#9ca3af;">2026 holiday calendar with weekend &amp; special session awareness.</div>
+            </div>
+            <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;">
+              <div style="font-size:0.75rem;color:#cc5de8;font-weight:700;margin-bottom:4px;"><i class="fa-solid fa-fingerprint"></i> Data Provenance Modal</div>
+              <div style="font-size:0.75rem;color:#9ca3af;">Inspect data providers, latency (&le;5ms), and contract version 2.0-PROD.</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" onclick="if(window.MarketDataTruth){window.MarketDataTruth.openProvenanceModal();}else{alert('Provenance Active');}" style="background:#10b981;color:#022c22;border:none;border-radius:6px;padding:8px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;">
+              <i class="fa-solid fa-fingerprint" style="margin-right:6px;"></i> Open Live Data Provenance Modal
+            </button>
+            <button type="button" onclick="if(window.UniversalExplainer){window.UniversalExplainer.open('market_data_truth');}" style="background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:8px 14px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+              <i class="fa-solid fa-circle-question" style="margin-right:6px;"></i> Explain Data Truth Protocol
+            </button>
+          </div>
+        </div>
+      </section>
+
       <section id="overview" class="doc-section">
         <div class="doc-header-row">
           <h2 class="doc-title"><i class="fa-solid fa-compass text-cyan"></i> Executive Architecture &amp; System Philosophy</h2>
@@ -1040,5 +1089,10 @@ Access-Control-Allow-Origin: *</pre>
   <script src="auditLedger.js"></script>
   <script src="launchpadWorkspace.js"></script>
   <script src="terminalBus.js"></script>
+  <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="mobileNav.js"></script>
 </body>
 </html>
