@@ -954,9 +954,32 @@
   // ══════════════════════════════════════════════════════════════════════════
   // 3. PERSISTENT BOT STATE & AUDIT STORE
   // ══════════════════════════════════════════════════════════════════════════
-  const EPOCH_KEY = 'RISKOS_FLEET_START_EPOCH_V3';
-  const STATE_KEY = 'RISKOS_FLEET_STATE_DATA_V3';
-  const AUDIT_KEY = 'RISKOS_FLEET_AUDIT_LOG_V3';
+  // Safe localStorage wrappers to prevent any private browsing / iframe DOMExceptions
+  const safeGetStorage = (key) => {
+    try {
+      if (typeof localStorage === 'undefined' || !localStorage) return null;
+      return localStorage.getItem(key) || localStorage.getItem(key + '_V3');
+    } catch (e) { return null; }
+  };
+  const safeSetStorage = (key, val) => {
+    try {
+      if (typeof localStorage === 'undefined' || !localStorage) return;
+      localStorage.setItem(key, val);
+    } catch (e) {}
+  };
+  const safeRemoveStorage = (key) => {
+    try {
+      if (typeof localStorage === 'undefined' || !localStorage) return;
+      localStorage.removeItem(key);
+      localStorage.removeItem(key + '_V3');
+    } catch (e) {}
+  };
+
+  const EPOCH_KEY = 'RISKOS_FLEET_START_EPOCH';
+  const STATE_KEY = 'RISKOS_FLEET_STATE_DATA';
+  const AUDIT_KEY = 'RISKOS_FLEET_AUDIT_LOG';
+  
+  
 
   let botRegistry = [];
   let globalAuditBlotter = [];
@@ -1413,58 +1436,75 @@
   };
 
   const initPersistentState = () => {
-    let startEpoch = localStorage.getItem(EPOCH_KEY);
+    let startEpoch = safeGetStorage(EPOCH_KEY);
     const now = Date.now();
 
     if (!startEpoch) {
       startEpoch = String(now - (92 * 24 * 3600 * 1000));
-      localStorage.setItem(EPOCH_KEY, startEpoch);
+      safeSetStorage(EPOCH_KEY, startEpoch);
     }
 
     const elapsedMs = now - Number(startEpoch);
     const elapsedDays = Math.max(1, Math.floor(elapsedMs / (24 * 3600 * 1000)));
     const elapsedHours = Math.floor((elapsedMs % (24 * 3600 * 1000)) / (3600 * 1000));
 
-    const savedAudit = localStorage.getItem(AUDIT_KEY);
+    const savedAudit = safeGetStorage(AUDIT_KEY);
     if (savedAudit) {
       try { globalAuditBlotter = JSON.parse(savedAudit); } catch(e) { globalAuditBlotter = []; }
     }
 
-    const savedState = localStorage.getItem(STATE_KEY);
+    const savedState = safeGetStorage(STATE_KEY);
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        botRegistry = INITIAL_BOTS.map(initBot => {
-          const existing = parsed.find(p => p.id === initBot.id);
-          if (!existing) return { ...initBot, status: 'RUNNING' };
-                    return {
-            ...initBot,
-            ...existing,
-            name: initBot.name,
-            mythName: initBot.mythName,
-            mythIcon: initBot.mythIcon,
-            mythTitle: initBot.mythTitle,
-            pantheon: initBot.pantheon,
-            division: initBot.division,
-            greekName: initBot.mythName,
-            greekIcon: initBot.mythIcon,
-            greekTitle: initBot.mythTitle,
-            norseName: initBot.mythName,
-            norseIcon: initBot.mythIcon,
-            norseTitle: initBot.mythTitle,
-            sentimentSource: initBot.sentimentSource,
-            sentimentScore: initBot.sentimentScore,
-            sentimentRegime: initBot.sentimentRegime,
-            sentimentSignal: initBot.sentimentSignal,
-            dailyVolume: initBot.dailyVolume,
-            minuteVolume: initBot.minuteVolume,
-            mathFormula: initBot.mathFormula,
-            mathDerivation: initBot.mathDerivation,
-            laymanExplanation: initBot.laymanExplanation
-          };
-        });
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          botRegistry = INITIAL_BOTS.map(initBot => {
+            const existing = parsed.find(p => p && p.id === initBot.id);
+            if (!existing) return { ...initBot, status: 'RUNNING' };
+            return {
+              ...initBot,
+              ...existing,
+              id: initBot.id,
+              name: initBot.name,
+              mythName: initBot.mythName || initBot.name,
+              mythIcon: initBot.mythIcon || '⚡',
+              mythTitle: initBot.mythTitle || 'Quantitative Engine',
+              pantheon: initBot.pantheon || 'olympus',
+              division: initBot.division || 'Olympus',
+              market: initBot.market || 'india',
+              tier: initBot.tier || 'S-TIER',
+              sector: initBot.sector || 'Multi-Asset',
+              primarySymbol: initBot.primarySymbol || 'NIFTY',
+              displayAsset: initBot.displayAsset || initBot.primarySymbol || 'NIFTY',
+              greekName: initBot.mythName,
+              greekIcon: initBot.mythIcon,
+              greekTitle: initBot.mythTitle,
+              norseName: initBot.mythName,
+              norseIcon: initBot.mythIcon,
+              norseTitle: initBot.mythTitle,
+              sentimentSource: initBot.sentimentSource,
+              sentimentScore: typeof existing.sentimentScore === 'number' ? existing.sentimentScore : initBot.sentimentScore,
+              sentimentRegime: existing.sentimentRegime || initBot.sentimentRegime,
+              sentimentSignal: existing.sentimentSignal || initBot.sentimentSignal,
+              dailyVolume: initBot.dailyVolume,
+              minuteVolume: initBot.minuteVolume,
+              mathFormula: initBot.mathFormula,
+              mathDerivation: initBot.mathDerivation,
+              laymanExplanation: initBot.laymanExplanation,
+              realizedPnlINR: typeof existing.realizedPnlINR === 'number' && !isNaN(existing.realizedPnlINR) ? existing.realizedPnlINR : initBot.realizedPnlINR,
+              tradesToday: typeof existing.tradesToday === 'number' && !isNaN(existing.tradesToday) ? existing.tradesToday : initBot.tradesToday,
+              sharpe: typeof existing.sharpe === 'number' && !isNaN(existing.sharpe) ? existing.sharpe : initBot.sharpe,
+              winRate: typeof existing.winRate === 'number' && !isNaN(existing.winRate) ? existing.winRate : initBot.winRate,
+              profitFactor: typeof existing.profitFactor === 'number' && !isNaN(existing.profitFactor) ? existing.profitFactor : initBot.profitFactor,
+              maxDD: typeof existing.maxDD === 'number' && !isNaN(existing.maxDD) ? existing.maxDD : initBot.maxDD,
+              status: existing.status === 'PAUSED' ? 'PAUSED' : 'RUNNING'
+            };
+          });
+        } else {
+          botRegistry = INITIAL_BOTS.map(b => ({ ...b, status: 'RUNNING' }));
+        }
       } catch (e) {
-        botRegistry = [...INITIAL_BOTS];
+        botRegistry = INITIAL_BOTS.map(b => ({ ...b, status: 'RUNNING' }));
       }
     } else {
       botRegistry = INITIAL_BOTS.map(bot => ({
@@ -1567,17 +1607,17 @@
   };
 
   const saveState = () => {
-    localStorage.setItem(STATE_KEY, JSON.stringify(botRegistry));
-    localStorage.setItem(AUDIT_KEY, JSON.stringify(globalAuditBlotter.slice(0, 150)));
+    safeSetStorage(STATE_KEY, JSON.stringify(botRegistry));
+    safeSetStorage(AUDIT_KEY, JSON.stringify(globalAuditBlotter.slice(0, 150)));
   };
 
   // ── High-Precision Live Fleet Mission Runtime Clock (Ticking Every 1s) ────
   const updateMissionRuntimeClock = () => {
-    let startEpoch = localStorage.getItem(EPOCH_KEY);
+    let startEpoch = safeGetStorage(EPOCH_KEY);
     const now = Date.now();
     if (!startEpoch) {
       startEpoch = String(now - (92 * 24 * 3600 * 1000 + 14 * 3600 * 1000 + 28 * 60 * 1000 + 45 * 1000));
-      localStorage.setItem(EPOCH_KEY, startEpoch);
+      safeSetStorage(EPOCH_KEY, startEpoch);
     }
 
     const elapsedMs = now - Number(startEpoch);
@@ -3566,25 +3606,170 @@
     }, 2500);
   }
 
+  const attachFleetControls = () => {
+    // 1. View Toggles (Matrix Grid vs Ranker Leaderboard)
+    const btnGrid = document.getElementById('btnViewGrid');
+    const btnRanker = document.getElementById('btnViewRanker');
+    if (btnGrid && btnRanker) {
+      btnGrid.onclick = () => window.switchFleetView('grid');
+      btnRanker.onclick = () => window.switchFleetView('ranker');
+    }
+
+    // 2. Division Filter Pills
+    document.querySelectorAll('.market-pill-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.market-pill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter || 'all';
+        renderActiveView();
+      };
+    });
+
+    // 3. Quick Rank Pills
+    document.querySelectorAll('.quick-rank-pill').forEach(pill => {
+      pill.onclick = () => {
+        const sortMode = pill.dataset.sort;
+        currentSort = sortMode;
+        document.querySelectorAll('.quick-rank-pill').forEach(p => {
+          if (p.dataset.sort === sortMode) p.classList.add('active');
+          else p.classList.remove('active');
+        });
+        const sel = document.getElementById('rankerSortSelect');
+        if (sel) sel.value = sortMode;
+        renderActiveView();
+      };
+    });
+
+    const rankerSortSelect = document.getElementById('rankerSortSelect');
+    if (rankerSortSelect) {
+      rankerSortSelect.onchange = (e) => {
+        currentSort = e.target.value;
+        document.querySelectorAll('.quick-rank-pill').forEach(p => {
+          if (p.dataset.sort === currentSort) p.classList.add('active');
+          else p.classList.remove('active');
+        });
+        renderActiveView();
+      };
+    }
+
+    // 4. Bot Search Input
+    const searchInput = document.getElementById('botSearchInput');
+    if (searchInput) {
+      searchInput.oninput = (e) => {
+        searchQuery = (e.target.value || '').toLowerCase().trim();
+        renderActiveView();
+      };
+    }
+
+    // 5. Blotter Stream vs Table View
+    const btnStream = document.getElementById('btnBlotterStream');
+    const btnTable = document.getElementById('btnBlotterTable');
+    if (btnStream && btnTable) {
+      btnStream.onclick = () => window.switchBlotterView('stream');
+      btnTable.onclick = () => window.switchBlotterView('table');
+    }
+
+    // 6. CSV Export Buttons
+    const btnCsv = document.getElementById('btnExportBlotterCsv');
+    if (btnCsv) btnCsv.onclick = exportBlotterCSV;
+
+    const btnJournalCsv = document.getElementById('btnExportBotJournalCsv');
+    if (btnJournalCsv) btnJournalCsv.onclick = exportFleetJournalCsv;
+
+    // 7. Global Bot Execution Controls
+    const btnStartAll = document.getElementById('btnStartAllBots');
+    if (btnStartAll) btnStartAll.onclick = () => setAllBots('RUNNING');
+
+    const btnPauseAll = document.getElementById('btnPauseAllBots');
+    if (btnPauseAll) btnPauseAll.onclick = () => setAllBots('PAUSED');
+
+    const btnKill = document.getElementById('btnFleetKillSwitch');
+    if (btnKill) btnKill.onclick = window.fleetKillSwitch;
+
+    const btnBurst = document.getElementById('btnBurstAllOrders');
+    if (btnBurst) btnBurst.onclick = burstAllOrders;
+
+    // 8. Sound Toggle
+    const btnSound = document.getElementById('btnToggleSound');
+    if (btnSound) {
+      btnSound.onclick = () => {
+        soundEnabled = !soundEnabled;
+        const icon = document.getElementById('soundIcon');
+        if (icon) {
+          icon.className = soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+          icon.style.color = soundEnabled ? '#22d3ee' : '#71717a';
+        }
+      };
+    }
+
+    // 9. Speed Multipliers
+    document.querySelectorAll('.speed-btn').forEach(btn => {
+      btn.onclick = () => setSpeedMultiplier(parseInt(btn.dataset.speed, 10));
+    });
+
+    // 10. Time Travel Fast-Forward Buttons
+    document.getElementById('btnFf7Days')?.addEventListener('click', () => {
+      botRegistry.forEach(b => {
+        b.tradesToday = (Number(b.tradesToday) || 0) + 80;
+        b.realizedPnlINR = (Number(b.realizedPnlINR) || 0) + Math.round((Number(b.baseDailyAlphaINR) || 2000) * 7 * (0.85 + Math.random() * 0.3));
+      });
+      saveState();
+      renderActiveView();
+      updateGlobalTelemetry();
+      try { updateEquityChart(); } catch (e) {}
+    });
+
+    document.getElementById('btnFf30Days')?.addEventListener('click', () => {
+      botRegistry.forEach(b => {
+        b.tradesToday = (Number(b.tradesToday) || 0) + 350;
+        b.realizedPnlINR = (Number(b.realizedPnlINR) || 0) + Math.round((Number(b.baseDailyAlphaINR) || 2000) * 30 * (0.85 + Math.random() * 0.3));
+      });
+      saveState();
+      renderActiveView();
+      updateGlobalTelemetry();
+      try { updateEquityChart(); } catch (e) {}
+    });
+
+    document.getElementById('btnFf90Days')?.addEventListener('click', () => {
+      botRegistry.forEach(b => {
+        b.tradesToday = (Number(b.tradesToday) || 0) + 1100;
+        b.realizedPnlINR = (Number(b.realizedPnlINR) || 0) + Math.round((Number(b.baseDailyAlphaINR) || 2000) * 90 * (0.85 + Math.random() * 0.3));
+      });
+      saveState();
+      renderActiveView();
+      updateGlobalTelemetry();
+      try { updateEquityChart(); } catch (e) {}
+    });
+
+    document.getElementById('btnResetEpoch')?.addEventListener('click', () => {
+      if (confirm('Reset fleet simulation to initial epoch?')) {
+        safeRemoveStorage(EPOCH_KEY);
+        safeRemoveStorage(STATE_KEY);
+        safeRemoveStorage(AUDIT_KEY);
+        location.reload();
+      }
+    });
+  };
+
   // ══════════════════════════════════════════════════════════════════════════
   // 9. DOM INITIALIZATION
   // ══════════════════════════════════════════════════════════════════════════
   const initFleetDOM = () => {
-    initPersistentState();
-    updateMissionRuntimeClock();
-    setInterval(updateMissionRuntimeClock, 1000);
-    startRealTimeTickerEngine();
+    try { initPersistentState(); } catch (e) { console.error('initPersistentState err:', e); botRegistry = [...INITIAL_BOTS]; }
+    try { attachFleetControls(); } catch (e) { console.error('attachFleetControls err:', e); }
+    try { updateMissionRuntimeClock(); setInterval(updateMissionRuntimeClock, 1000); } catch (e) { console.error('clock err:', e); }
+    try { startRealTimeTickerEngine(); } catch (e) { console.error('ticker err:', e); }
 
     // Real-Time live aggregate telemetry tick (every 1s)
     setInterval(() => {
-      updateGlobalTelemetry();
+      try { updateGlobalTelemetry(); } catch (e) {}
     }, 1000);
 
-    renderActiveView();
-    updateGlobalTelemetry();
-    initEquityChart();
-    startAutonomousFleetLoops();
-    startDynamicSentimentEngine();
+    try { renderActiveView(); } catch (e) { console.error('renderActiveView err:', e); }
+    try { updateGlobalTelemetry(); } catch (e) { console.error('updateGlobalTelemetry err:', e); }
+    try { initEquityChart(); } catch (e) { console.error('initEquityChart err:', e); }
+    try { startAutonomousFleetLoops(); } catch (e) { console.error('startAutonomousFleetLoops err:', e); }
+    try { startDynamicSentimentEngine(); } catch (e) { console.error('startDynamicSentimentEngine err:', e); }
 
 
     // Auto-re-rank in Ranker view every 6s so leaderboard dynamically reflects live fills
@@ -3769,9 +3954,9 @@
 
     document.getElementById('btnResetEpoch')?.addEventListener('click', () => {
       if (confirm('Reset fleet simulation to initial epoch?')) {
-        localStorage.removeItem(EPOCH_KEY);
-        localStorage.removeItem(STATE_KEY);
-        localStorage.removeItem(AUDIT_KEY);
+        safeRemoveStorage(EPOCH_KEY);
+        safeRemoveStorage(STATE_KEY);
+        safeRemoveStorage(AUDIT_KEY);
         location.reload();
       }
     });
@@ -4114,11 +4299,78 @@
     }
   };
 
-  if (typeof document !== 'undefined') {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initFleetDOM);
-    } else {
+  // Expose core operations globally so inline onclick and external calls work unconditionally
+  if (typeof window !== 'undefined') {
+    window.INITIAL_BOTS = INITIAL_BOTS;
+    window.botRegistry = botRegistry;
+    window.exportBlotterCSV = exportBlotterCSV;
+    window.exportFleetJournalCsv = exportFleetJournalCsv;
+    window.setAllBots = setAllBots;
+    window.toggleBot = toggleBot;
+    window.burstAllOrders = burstAllOrders;
+    window.fleetBurstAllOrders = burstAllOrders;
+    window.setSpeedMultiplier = setSpeedMultiplier;
+    window.renderBotGrid = renderBotGrid;
+    window.renderRankerTable = renderRankerTable;
+    window.renderActiveView = renderActiveView;
+    window.openBotConsoleModal = openBotConsoleModal;
+    window.switchFleetView = (mode) => {
+      currentViewMode = mode;
+      const btnGrid = document.getElementById('btnViewGrid');
+      const btnRanker = document.getElementById('btnViewRanker');
+      if (btnGrid && btnRanker) {
+        if (mode === 'grid') { btnGrid.classList.add('active'); btnRanker.classList.remove('active'); }
+        else { btnRanker.classList.add('active'); btnGrid.classList.remove('active'); }
+      }
+      renderActiveView();
+    };
+    window.switchBlotterView = (mode) => {
+      blotterViewMode = mode;
+      const btnStream = document.getElementById('btnBlotterStream');
+      const btnTable = document.getElementById('btnBlotterTable');
+      const streamEl = document.getElementById('fleetBlotterStream');
+      const tableWrap = document.getElementById('fleetBlotterTableWrap');
+      if (btnStream && btnTable && streamEl && tableWrap) {
+        if (mode === 'stream') {
+          btnStream.classList.add('active'); btnTable.classList.remove('active');
+          streamEl.style.display = 'flex'; tableWrap.style.display = 'none';
+        } else {
+          btnTable.classList.add('active'); btnStream.classList.remove('active');
+          streamEl.style.display = 'none'; tableWrap.style.display = 'block';
+        }
+      }
+    };
+    window.fleetKillSwitch = () => {
+      if (confirm('EMERGENCY KILL SWITCH: Liquidate all active orders and halt all 21 Pantheon bots?')) {
+        setAllBots('PAUSED');
+        botRegistry.forEach(bot => {
+          if (bot.activePosition) closeBotPosition(bot, 'CIRCUIT_BREAKER_KILL');
+        });
+        alert('All 21 bots halted & liquidated. Emergency circuit breaker logged.');
+      }
+    };
+  }
+
+  let fleetInitialized = false;
+  const safeInitFleet = () => {
+    if (fleetInitialized) return;
+    fleetInitialized = true;
+    try {
       initFleetDOM();
+    } catch (e) {
+      console.error('Safe fleet initialization caught error:', e);
+      try { renderActiveView(); } catch (err) {}
+    }
+  };
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      setTimeout(safeInitFleet, 0);
+    } else {
+      document.addEventListener('DOMContentLoaded', safeInitFleet);
+      if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        window.addEventListener('load', safeInitFleet);
+      }
     }
   }
 

@@ -79,13 +79,13 @@
           <span id="fleetLiveUptimeText">20 / 20 AUTONOMOUS BOTS ACTIVE</span>
         </div>
 
-        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" title="Start all 20 bots">
+        <button id="btnStartAllBots" class="fleet-ctrl-btn start-btn" onclick="if(window.setAllBots) window.setAllBots('RUNNING');" title="Start all 20 bots">
           <i class="fa-solid fa-play"></i> Start All
         </button>
-        <button id="btnPauseAllBots" class="fleet-ctrl-btn pause-btn" title="Pause all bots">
+        <button id="btnPauseAllBots" class="fleet-ctrl-btn pause-btn" onclick="if(window.setAllBots) window.setAllBots('PAUSED');" title="Pause all bots">
           <i class="fa-solid fa-pause"></i> Pause All
         </button>
-        <button id="btnFleetKillSwitch" class="fleet-ctrl-btn kill-btn" title="Emergency Liquidation Kill Switch">
+        <button id="btnFleetKillSwitch" class="fleet-ctrl-btn kill-btn" onclick="if(window.fleetKillSwitch) window.fleetKillSwitch();" title="Emergency Liquidation Kill Switch">
           <i class="fa-solid fa-power-off"></i> Kill Switch
         </button>
       </div>
@@ -194,7 +194,7 @@
           <button class="btn-time-travel speed-btn" data-speed="20" id="btnSpeed20x">20x Turbo HFT</button>
         </div>
 
-        <button class="btn-time-travel highlight" id="btnBurstAllOrders" title="Forces all 20 bots to place orders simultaneously">
+        <button class="btn-time-travel highlight" id="btnBurstAllOrders" onclick="if(window.burstAllOrders) window.burstAllOrders(); else if(window.fleetBurstAllOrders) window.fleetBurstAllOrders();" title="Forces all 20 bots to place orders simultaneously">
           <i class="fa-solid fa-bolt"></i> Burst All 20 Orders
         </button>
 
@@ -210,31 +210,31 @@
     <!-- 2.5 Institutional Quantum Features Toolbar -->
     <section class="quantum-feature-strip">
       <div class="q-feature-group">
-        <button class="btn-quantum-feature" id="btnOpenSynapse">
+        <button class="btn-quantum-feature" id="btnOpenSynapse" onclick="if(window.openSynapseModal) window.openSynapseModal();">
           <i class="fa-solid fa-network-wired text-amber"></i> ⚡ Cross-Hedge Synapse
         </button>
         <button class="btn-quantum-feature" id="btnToggleVoiceHud">
           <i class="fa-solid fa-microphone-lines text-cyan" id="voiceHudIcon"></i> <span id="voiceHudLabel">Voice Copilot: OFF</span>
         </button>
-        <button class="btn-quantum-feature" id="btnOpenCopilot">
+        <button class="btn-quantum-feature" id="btnOpenCopilot" onclick="if(window.openCopilotModal) window.openCopilotModal();">
           <i class="fa-solid fa-robot text-purple"></i> 🤖 AI Risk Copilot (/ask)
         </button>
-        <button class="btn-quantum-feature" id="btnOpenCrisis">
+        <button class="btn-quantum-feature" id="btnOpenCrisis" onclick="if(window.openCrisisModal) window.openCrisisModal();">
           <i class="fa-solid fa-clock-rotate-left text-rose"></i> ⏳ Crisis Replay (1987-2023)
         </button>
-        <button class="btn-quantum-feature" id="btnOpenVol3D">
+        <button class="btn-quantum-feature" id="btnOpenVol3D" onclick="if(window.openVol3dModal) window.openVol3dModal();">
           <i class="fa-solid fa-cube text-emerald"></i> 🌊 3D Vol Surface &amp; L2
         </button>
-        <button class="btn-quantum-feature" id="btnOpenDarkPool">
+        <button class="btn-quantum-feature" id="btnOpenDarkPool" onclick="if(window.openDarkPoolModal) window.openDarkPoolModal();">
           <i class="fa-solid fa-binoculars text-amber"></i> 🐋 Dark Pool &amp; Icebergs
         </button>
-        <button class="btn-quantum-feature defcon-btn" id="btnOpenDefcon">
+        <button class="btn-quantum-feature defcon-btn" id="btnOpenDefcon" onclick="if(window.openDefconModal) window.openDefconModal();">
           <i class="fa-solid fa-triangle-exclamation text-emerald" id="defconBtnIcon"></i> <span id="defconBtnLabel">DEFCON 5: NORMAL</span>
         </button>
-        <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo">
+        <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo" onclick="if(window.ExecutiveReportGenerator) window.ExecutiveReportGenerator.openPrintableReport(window.botRegistry || window.INITIAL_BOTS);">
           <i class="fa-solid fa-file-invoice-dollar text-gold"></i> 📑 LP Risk Memo
         </button>
-        <button class="btn-quantum-feature" id="btnOpenBotJournal" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
+        <button class="btn-quantum-feature" id="btnOpenBotJournal" onclick="const m=document.getElementById('botJournalModalOverlay'); if(m) m.hidden=false; if(window.renderFleetTradeJournal) window.renderFleetTradeJournal('ALL');" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
           <i class="fa-solid fa-calendar-days text-cyan"></i> 📅 Fleet &amp; Bot Trade Journal
         </button>
       </div>
@@ -250,8 +250,8 @@
 
       <div class="view-mode-toggle-group">
         <div class="view-toggle-pills">
-          <button class="view-btn active" id="btnViewGrid" title="Card Grid View"><i class="fa-solid fa-table-cells-large"></i> Matrix Grid</button>
-          <button class="view-btn" id="btnViewRanker" title="Leaderboard Ranker View"><i class="fa-solid fa-ranking-star"></i> Ranker Leaderboard</button>
+          <button class="view-btn active" id="btnViewGrid" onclick="if(window.switchFleetView) window.switchFleetView('grid');" title="Card Grid View"><i class="fa-solid fa-table-cells-large"></i> Matrix Grid</button>
+          <button class="view-btn" id="btnViewRanker" onclick="if(window.switchFleetView) window.switchFleetView('ranker');" title="Leaderboard Ranker View"><i class="fa-solid fa-ranking-star"></i> Ranker Leaderboard</button>
         </div>
 
         <div class="search-filter-wrap">
@@ -414,10 +414,10 @@
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <div class="blotter-view-toggle">
-              <button class="blot-toggle-btn active" id="btnBlotterStream"><i class="fa-solid fa-stream"></i> Stream Tape</button>
-              <button class="blot-toggle-btn" id="btnBlotterTable"><i class="fa-solid fa-table"></i> Audit Table</button>
+              <button class="blot-toggle-btn active" id="btnBlotterStream" onclick="if(window.switchBlotterView) window.switchBlotterView('stream');"><i class="fa-solid fa-stream"></i> Stream Tape</button>
+              <button class="blot-toggle-btn" id="btnBlotterTable" onclick="if(window.switchBlotterView) window.switchBlotterView('table');"><i class="fa-solid fa-table"></i> Audit Table</button>
             </div>
-            <button id="btnExportBlotterCsv" class="bot-btn-mini" title="Export Execution Audit Trail as CSV"><i class="fa-solid fa-download"></i> CSV</button>
+            <button id="btnExportBlotterCsv" class="bot-btn-mini" onclick="if(window.exportBlotterCSV) window.exportBlotterCSV();" title="Export Execution Audit Trail as CSV"><i class="fa-solid fa-download"></i> CSV</button>
           </div>
         </div>
 
