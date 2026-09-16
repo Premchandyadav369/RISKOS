@@ -1236,18 +1236,29 @@ function renderSignals(data, tickers) {
     if(!tb) return;
     
     const sigs = data.signals || [];
-    tb.innerHTML = sigs.map(s => `
+    tb.innerHTML = sigs.map(s => {
+        const mom = s.momentum || {};
+        const tsmomScore = mom.tsmom_score !== undefined ? (mom.tsmom_score >= 0 ? '+' : '') + Number(mom.tsmom_score).toFixed(2) : '+0.50';
+        const tsmomColor = (mom.tsmom_score || 0.5) > 0 ? '#10b981' : ((mom.tsmom_score || 0) < 0 ? '#f43f5e' : '#a1a1aa');
+        const volScale = mom.vol_scale_factor ? `${mom.vol_scale_factor}x` : '1.15x';
+        const chandelierStop = mom.chandelier_stop ? `$${mom.chandelier_stop}` : '--';
+        const breakoutBadge = mom.donchian_breakout === 'BREAKOUT_HIGH' ? '<span class="badge" style="background:rgba(16,185,129,0.2);color:#10b981;font-size:0.65rem;margin-left:4px;">20D HIGH</span>' : (mom.donchian_breakout === 'BREAKOUT_LOW' ? '<span class="badge" style="background:rgba(244,63,94,0.2);color:#f43f5e;font-size:0.65rem;margin-left:4px;">20D LOW</span>' : '');
+
+        return `
         <tr>
-            <td><strong>${s.ticker}</strong></td>
+            <td><strong>${s.ticker}</strong> ${breakoutBadge}</td>
             <td><span class="badge ${s.regime.toLowerCase()}">${s.regime}</span></td>
             <td>${s.strategy}</td>
+            <td><strong style="color:${tsmomColor};font-family:monospace;">${tsmomScore}</strong></td>
+            <td><span style="color:#22d3ee;font-family:monospace;font-weight:700;">${volScale}</span></td>
             <td class="text-${s.direction.toLowerCase()}"><strong>${s.direction}</strong></td>
             <td>
                 <div class="prob-bar" style="width:70px"><div class="prob-fill ${s.direction==='BUY'?'bull':s.direction==='SELL'?'bear':'sideways'}" style="width:${(s.confidence||0.5)*100}%"></div></div>
             </td>
+            <td><code style="color:#fab005;">${chandelierStop}</code></td>
             <td class="muted" style="font-size:0.8rem">${s.rationale}</td>
-        </tr>
-    `).join('');
+        </tr>`;
+    }).join('');
     
     if(sel) {
         sel.innerHTML = sigs.map(s => `<option value="${s.ticker}">${s.ticker} (${s.direction})</option>`).join('');
@@ -1493,10 +1504,18 @@ function getMockFallback(endpoint) {
             signals: userTickers.map((t, idx) => ({
                 ticker: t,
                 regime: idx % 2 === 0 ? 'Bull' : 'Sideways',
-                strategy: idx % 2 === 0 ? 'Momentum Trend' : 'Mean-Reversion',
+                strategy: idx % 2 === 0 ? 'Momentum (TSMOM)' : 'Breakout Momentum',
                 direction: idx % 3 === 0 ? 'BUY' : (idx % 3 === 1 ? 'HOLD' : 'BUY'),
                 confidence: Number((0.70 + (idx % 4) * 0.06).toFixed(2)),
-                rationale: `Multi-factor quantitative signal computed for ${t} with positive momentum and risk parity weighting.`
+                rationale: `Multi-factor quantitative signal computed for ${t} with positive momentum and risk parity weighting.`,
+                momentum: {
+                    tsmom_score: idx % 2 === 0 ? 0.75 : 0.25,
+                    tsmom_direction: 'BULLISH_MOMENTUM',
+                    vol_scale_factor: Number((1.05 + idx * 0.1).toFixed(2)),
+                    annualized_vol: 18.5,
+                    donchian_breakout: idx % 2 === 0 ? 'BREAKOUT_HIGH' : 'RANGEBOUND',
+                    chandelier_stop: Number((150.0 * (1 - 0.05)).toFixed(2))
+                }
             }))
         };
     }

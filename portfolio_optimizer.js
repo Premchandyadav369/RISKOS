@@ -1410,6 +1410,18 @@ ${escapeHtml(memo.markdown)}
       btnDispatch.addEventListener('click', dispatchRebalanceOrders);
     }
 
+    // Tilt to 12-1M Winners Shortcut
+    const btnTilt = document.getElementById('btnTiltMomentum');
+    if (btnTilt) {
+      btnTilt.addEventListener('click', () => {
+        state.activeOptModel = 'MOMENTUM_WML';
+        document.querySelectorAll('.model-card').forEach(c => {
+          c.classList.toggle('active', c.getAttribute('data-model') === 'MOMENTUM_WML');
+        });
+        runOptimization();
+      });
+    }
+
     // Compile Memorandum
     const btnMemo = document.getElementById('btnCompileMemorandum');
     if (btnMemo) {
@@ -1553,7 +1565,20 @@ ${escapeHtml(memo.markdown)}
     const weights = {};
     symbols.forEach(s => weights[s] = Number((1 / n).toFixed(4)));
 
-    if (model.includes('BLACK') && symbols.includes('RELIANCE.NS')) {
+    if (model.includes('MOMENTUM') || model.includes('WML')) {
+      const winners = ['RELIANCE.NS', 'SUZLON.NS', 'AAPL'].filter(s => symbols.includes(s));
+      if (winners.length) {
+        winners.forEach(w => {
+          weights[w] = Math.min(0.35, weights[w] + 0.08);
+        });
+        const sumWinners = winners.reduce((acc, w) => acc + weights[w], 0);
+        const losers = symbols.filter(s => !winners.includes(s));
+        if (losers.length) {
+          const rem = Math.max(0.05, 1.0 - sumWinners) / losers.length;
+          losers.forEach(l => weights[l] = Number(rem.toFixed(4)));
+        }
+      }
+    } else if (model.includes('BLACK') && symbols.includes('RELIANCE.NS')) {
       weights['RELIANCE.NS'] = Math.min(0.40, weights['RELIANCE.NS'] + 0.08);
       const rem = (1.0 - weights['RELIANCE.NS']) / (n - 1);
       symbols.filter(s => s !== 'RELIANCE.NS').forEach(s => weights[s] = Number(rem.toFixed(4)));
@@ -1562,9 +1587,9 @@ ${escapeHtml(memo.markdown)}
     return {
       model,
       optimal_weights: weights,
-      expected_return: 0.142,
-      volatility: 0.158,
-      sharpe_ratio: 1.48
+      expected_return: model.includes('MOMENTUM') ? 0.174 : 0.142,
+      volatility: model.includes('MOMENTUM') ? 0.162 : 0.158,
+      sharpe_ratio: model.includes('MOMENTUM') ? 1.62 : 1.48
     };
   }
 

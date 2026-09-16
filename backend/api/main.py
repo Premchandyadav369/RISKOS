@@ -293,6 +293,12 @@ def api_get_observatory_catalysts():
     from engine.universe_ingest import get_catalyst_timeline
     return {"catalysts": get_catalyst_timeline()}
 
+@app.get("/api/observatory/rrg")
+def api_get_observatory_rrg():
+    """Returns JdK Relative Rotation Graph (RRG) sector momentum and ratio coordinates."""
+    from engine.observatory import get_relative_rotation_graph
+    return get_relative_rotation_graph()
+
 # ── 2D. Universal Multi-Exchange & Penny Stock Endpoints ──────────────────────
 @app.get("/api/market/universe")
 def api_get_market_universe(
@@ -991,7 +997,8 @@ def api_optimize_portfolio(req: PortfolioOptimizeRequest):
         hierarchical_risk_parity_optimize,
         cvar_optimize,
         max_sharpe_optimize,
-        min_variance_optimize
+        min_variance_optimize,
+        momentum_tilt_optimize
     )
 
     symbols = list(req.holdings.keys())
@@ -1010,7 +1017,9 @@ def api_optimize_portfolio(req: PortfolioOptimizeRequest):
         })
 
     model_type = req.model.upper()
-    if "BLACK" in model_type or "LITTERMAN" in model_type or "NEWS" in model_type:
+    if "MOMENTUM" in model_type or "WML" in model_type or "CARHART" in model_type:
+        res = momentum_tilt_optimize(returns_df, max_weight=req.max_weight, momentum_intensity=0.60)
+    elif "BLACK" in model_type or "LITTERMAN" in model_type or "NEWS" in model_type:
         drift_data = compute_news_sentiment_drift(symbols)
         views = {sym: data.get("bl_view_return", 0.0) for sym, data in drift_data.items()}
         res = black_litterman_news_optimize(

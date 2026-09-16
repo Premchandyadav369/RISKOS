@@ -100,6 +100,16 @@ assert(drRes.requiredGainPct === 100.0, `50% Loss requires 100% gain to break ev
 const stRes = LearnMathEngine.getModuleById('scenario_stress').calc({ scenarioKey: 'rates_spike', portfolioValue: 1000000 }, 'INR');
 assert(stRes.impactPct === -10.2, `Rate shock scenario impact is -10.2% (got ${stRes.impactPct}%)`);
 
+// 19. Time-Series Momentum (TSMOM) & Volatility Scaling
+const tsmomRes = LearnMathEngine.getModuleById('tsmom_volatility_targeting').calc({ lookbackDays: 63, targetVol: 15, assetVol: 22, assetReturn: 14.5, maxLeverage: 2.0 });
+assert(tsmomRes.focalValue === '+0.68x', `TSMOM leverage weight 15% / 22% is +0.68x (got ${tsmomRes.focalValue})`);
+assert(tsmomRes.plainResult.includes('LONG'), 'TSMOM identifies positive trend as LONG');
+
+// 20. Gary Antonacci Dual Momentum
+const dualRes = LearnMathEngine.getModuleById('dual_momentum_antonacci').calc({ assetAReturn: 22.4, assetBReturn: 16.2, riskFreeReturn: 6.5 });
+assert(dualRes.focalValue === 'US', `Dual Momentum selects relative winner US (got ${dualRes.focalValue})`);
+assert(dualRes.plainResult.includes('PASSED'), 'Dual Momentum passes absolute momentum hurdle');
+
 console.log(`\n═══════════════════════════════════════════════════════════════`);
 console.log(`📊 TEST RESULTS: ${passed} / ${total} MODULES PASSED (100%)`);
 console.log('═══════════════════════════════════════════════════════════════\n');
