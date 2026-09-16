@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Fractional Brownian Motion Generator (validator)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

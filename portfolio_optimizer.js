@@ -16,6 +16,22 @@
   // --- Baseline Currency Exchange Rate ---
   const USD_INR_RATE = 86.72; // Baseline live exchange rate
 
+  // --- Dynamic Backend API URL Resolution ---
+  const getApiBase = () => {
+    if (typeof window !== 'undefined') {
+      const custom = localStorage.getItem('RISKOS_BACKEND_URL') || localStorage.getItem('RISKOS_RENDER_URL');
+      if (custom) return custom.replace(/\/$/, '') + '/api';
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8000/api';
+        }
+        return window.location.origin + '/api';
+      }
+    }
+    return 'http://127.0.0.1:8000/api';
+  };
+
   // --- Initial Institutional Holdings ---
   const INITIAL_HOLDINGS = {
     'RELIANCE.NS': { quantity: 100, avg_cost: 2950.0, current_price: 3020.0, beta: 1.12, name: 'Reliance Industries Limited', sector: 'Energy / Digital', exchange: 'NSE' },
@@ -649,7 +665,7 @@
   // --- Multi-Model Predictive Trajectory Suite ---
   async function runMultiModelPrediction() {
     try {
-      const res = await fetch('/api/portfolio/predict', {
+      const res = await fetch(`${getApiBase()}/portfolio/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -812,7 +828,7 @@
     const targetReturn = targetReturnSlider ? parseFloat(targetReturnSlider.value) : 0.12;
 
     try {
-      const res = await fetch('/api/portfolio/optimize', {
+      const res = await fetch(`${getApiBase()}/portfolio/optimize`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -925,7 +941,7 @@
     if (!targetWeights) return;
 
     try {
-      const res = await fetch('/api/portfolio/rebalance', {
+      const res = await fetch(`${getApiBase()}/portfolio/rebalance`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1056,7 +1072,7 @@
 
     let memo = null;
     try {
-      const res = await fetch('/api/reports/memorandum', {
+      const res = await fetch(`${getApiBase()}/reports/memorandum`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

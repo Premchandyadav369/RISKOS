@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS FIX 4.4 Institutional Engine: Tag 40 (OrdType)
 Codec and Invariant Validator #143
 """

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: De Prado Hierarchical Risk Parity Dendrogram Allocator (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

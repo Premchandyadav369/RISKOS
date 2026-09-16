@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Geometric Brownian Motion (GBM)
 Analytical SDE: $$dS_t = \mu S_t dt + \sigma S_t dW_t$$
 Module Variant #041

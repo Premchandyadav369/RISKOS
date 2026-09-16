@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Fourier Cosine COS Option Pricing Algorithm (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

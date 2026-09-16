@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Spinu Cyclical Coordinate Descent Equal Risk Contribution (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

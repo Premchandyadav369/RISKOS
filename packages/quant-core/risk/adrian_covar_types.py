@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Adrian-Brunnermeier Quantile Regression Systemic CoVaR (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

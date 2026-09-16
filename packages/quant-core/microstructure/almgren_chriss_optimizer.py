@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Almgren-Chriss Optimal Trade Slicing Engine (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

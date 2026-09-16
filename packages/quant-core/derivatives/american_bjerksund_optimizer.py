@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Bjerksund-Stensland American Call Early Exercise (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

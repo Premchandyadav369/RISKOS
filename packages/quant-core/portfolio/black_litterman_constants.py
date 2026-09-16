@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Black-Litterman Global Portfolio View Integrator (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

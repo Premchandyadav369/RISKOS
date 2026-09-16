@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Multi-Asset Barrier Reverse Convertible Autocallable (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

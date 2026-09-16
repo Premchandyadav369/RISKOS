@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Kyle Lambda Price Impact & Illiquidity Estimator (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

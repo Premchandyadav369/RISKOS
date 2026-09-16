@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Kou Double Exponential Jump Process
 Analytical SDE: $$f_Y(y) = p \eta_1 e^{-\eta_1 y} 1_{y \ge 0} + q \eta_2 e^{\eta_2 y} 1_{y < 0}$$
 Module Variant #246

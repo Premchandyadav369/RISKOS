@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Carhart 4-Factor Momentum Alpha Estimator (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

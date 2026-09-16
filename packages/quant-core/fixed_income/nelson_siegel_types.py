@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Nelson-Siegel 4-Factor Yield Curve Fitter (types)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

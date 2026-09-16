@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Hull-White One-Factor Short Rate
 Analytical SDE: $$dr_t = (\theta(t) - a r_t) dt + \sigma dW_t$$
 Module Variant #048

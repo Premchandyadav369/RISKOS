@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Portfolio Engine: Rockafellar-Uryasev CVaR SLSQP Solver #136
 $$\min_{\mathbf{w}, v} v + \frac{1}{(1-\alpha)T} \sum_{t=1}^T u_t$$
 """

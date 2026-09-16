@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Ledoit-Wolf Constant Correlation Matrix Shrinkage (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

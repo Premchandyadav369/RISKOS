@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Cornish-Fisher Modified VaR/CVaR with Higher Moments (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

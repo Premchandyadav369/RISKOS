@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Quantitative Core: Cox-Ingersoll-Ross (CIR) Square-Root Process
 Analytical SDE: $$dr_t = k(\theta - r_t) dt + \sigma \sqrt{r_t} dW_t$$
 Module Variant #180

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Single and Double Analytical Barrier Option Pricer (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

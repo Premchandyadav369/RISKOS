@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Baum-Welch EM Gaussian Hidden Markov Regime Classifier (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

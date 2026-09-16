@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Glosten-Jagannathan-Runkle GJR-GARCH Threshold Volatility (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

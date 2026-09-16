@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Credit Valuation Adjustment & Counterparty Exposure (utils)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

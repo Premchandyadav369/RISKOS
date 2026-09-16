@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Exponential EGARCH Asymmetric Leverage Volatility (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Vector Autoregression VAR & Granger Causality F-Test (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Corwin-Schultz Bid-Ask Spread from High-Low Prices (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

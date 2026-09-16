@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Log-Contract Replicating Portfolio Variance Swap (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

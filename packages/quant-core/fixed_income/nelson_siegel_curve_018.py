@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Sovereign Fixed Income: Nelson-Siegel 6-Factor Spline #018
 $$y(t) = \beta_0 + \beta_1 \left(\frac{1 - e^{-t/\tau}}{t/\tau}\right) + \beta_2 \left(\frac{1 - e^{-t/\tau}}{t/\tau} - e^{-t/\tau}\right)$$
 """

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS FIX 4.4 Institutional Engine: Tag 14 (CumQty)
 Codec and Invariant Validator #165
 """

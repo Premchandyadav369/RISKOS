@@ -7,6 +7,22 @@
 ((root) => {
   'use strict';
 
+  // --- Dynamic Backend API URL Resolution ---
+  const getApiBase = () => {
+    if (typeof window !== 'undefined') {
+      const custom = localStorage.getItem('RISKOS_BACKEND_URL') || localStorage.getItem('RISKOS_RENDER_URL');
+      if (custom) return custom.replace(/\/$/, '') + '/api';
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8000/api';
+        }
+        return window.location.origin + '/api';
+      }
+    }
+    return 'http://127.0.0.1:8000/api';
+  };
+
   const NEWS_CHANNEL = 'riskos_news_stream';
   const broadcastChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(NEWS_CHANNEL) : null;
 
@@ -152,7 +168,7 @@
     async getNewsFeed(options = {}) {
       const { symbols, limit = 50 } = options;
       try {
-        let url = '/api/news/feed?limit=' + limit;
+        let url = `${getApiBase()}/news/feed?limit=${limit}`;
         if (symbols && symbols.length) {
           url += '&symbols=' + encodeURIComponent(symbols.join(','));
         }
@@ -179,7 +195,7 @@
     async getSentimentDrift(symbols = []) {
       if (!symbols || !symbols.length) return {};
       try {
-        const url = '/api/news/sentiment?symbols=' + encodeURIComponent(symbols.join(','));
+        const url = `${getApiBase()}/news/sentiment?symbols=` + encodeURIComponent(symbols.join(','));
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();

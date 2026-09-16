@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Zero-Volatility Spread Bond Bootstrapper (constants)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Multivariate Continuous-Time Kelly Growth Sizer (engine)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture

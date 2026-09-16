@@ -68,15 +68,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (window.MathJax) triggerMathJax();
   else window.addEventListener('load', () => triggerMathJax());
 
-  // ── 4. In-Memory Request Deduplication Cache ──────────────────────────────
+  // ── 4. In-Memory Request Deduplication Cache & Dynamic API Base ───────────
+  const getApiBase = () => {
+    if (typeof window !== 'undefined') {
+      const custom = localStorage.getItem('RISKOS_BACKEND_URL') || localStorage.getItem('RISKOS_RENDER_URL');
+      if (custom) return custom.replace(/\/$/, '') + '/api';
+
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8000/api';
+        }
+        return window.location.origin + '/api';
+      }
+    }
+    return 'http://127.0.0.1:8000/api';
+  };
+
+  const resolveApiUrl = (url) => {
+    if (typeof url === 'string' && url.startsWith('/api/')) {
+      return getApiBase() + url.substring(4);
+    }
+    return url;
+  };
+
   const requestCache = new Map();
   const cachedFetch = async (url, ttlMs = 10000) => {
-    const cached = requestCache.get(url);
+    const fullUrl = resolveApiUrl(url);
+    const cached = requestCache.get(fullUrl);
     if (cached && (Date.now() - cached.timestamp < ttlMs)) return cached.data;
-    const res = await fetch(url);
+    const res = await fetch(fullUrl);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    requestCache.set(url, { timestamp: Date.now(), data });
+    requestCache.set(fullUrl, { timestamp: Date.now(), data });
     return data;
   };
 
@@ -795,7 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Try to sync with backend SQLite database if online
   try {
-    fetch('/api/portfolio/transactions')
+    fetch(resolveApiUrl('/api/portfolio/transactions'))
       .then((res) => res.ok ? res.json() : null)
       .then((data) => {
         if (data && Array.isArray(data.transactions) && data.transactions.length > 0) {
@@ -3098,7 +3121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let observations = [];
     try {
-      const res = await fetch('/api/observatory/feed');
+      const res = await fetch(resolveApiUrl('/api/observatory/feed'));
       if (res.ok) {
         const data = await res.json();
         if (data.observations && data.observations.length > 0) {

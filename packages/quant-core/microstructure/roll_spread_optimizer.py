@@ -1,4 +1,4 @@
-"""
+r"""
 RISKOS Institutional Quantitative Core Engine: Roll Serial Covariance Effective Spread Estimator (optimizer)
 Mathematical Specification: docs/math/proofs/
 Deterministic Floating Point Architecture
