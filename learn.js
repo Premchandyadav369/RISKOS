@@ -362,20 +362,37 @@
 
     const c = res.chart;
     const ctx = canvas.getContext('2d');
-
-    // Build Chart datasets based on returned format
+    let chartType = c.type || 'line';
+    let chartLabels = c.labels || [];
     let datasets = [];
-    if (c.trajectory) {
-      datasets.push({
-        label: 'Growth Trajectory',
-        data: c.trajectory,
-        borderColor: '#22d3ee',
-        backgroundColor: 'rgba(34, 211, 238, 0.08)',
-        fill: true,
-        tension: 0.3,
-        pointRadius: 2
+
+    const defaultColors = ['#22d3ee', '#10b981', '#f59e0b', '#a855f7', '#f43f5e', '#38bdf8', '#fbbf24'];
+
+    if (c.datasets && Array.isArray(c.datasets) && c.datasets.length > 0) {
+      chartLabels = c.labels || [];
+      chartType = c.type || (c.datasets[0].type || 'line');
+      datasets = c.datasets.map((d, i) => {
+        const color = d.borderColor || d.backgroundColor || defaultColors[i % defaultColors.length];
+        return {
+          ...d,
+          borderColor: d.borderColor || color,
+          backgroundColor: d.backgroundColor || (d.fill ? (typeof color === 'string' && color.startsWith('#') ? `${color}22` : 'rgba(34, 211, 238, 0.12)') : color),
+          tension: d.tension !== undefined ? d.tension : 0.3,
+          pointRadius: d.pointRadius !== undefined ? d.pointRadius : (chartType === 'line' ? 2 : undefined),
+          borderWidth: d.borderWidth !== undefined ? d.borderWidth : 2
+        };
       });
-    } else if (c.principalSeries && c.interestSeries) {
+    } else if (c.weights || (c.labels && c.weights)) {
+      // Doughnut Allocation
+      chartType = 'doughnut';
+      chartLabels = c.labels || ['Asset A', 'Asset B', 'Asset C', 'Asset D'];
+      datasets = [{
+        data: c.weights,
+        backgroundColor: c.colors || ['#22d3ee', '#10b981', '#f59e0b', '#a855f7', '#f43f5e', '#38bdf8']
+      }];
+    } else if (c.principalSeries && (c.interestSeries || c.totalSeries)) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
       datasets.push({
         label: 'Principal Invested',
         data: c.principalSeries,
@@ -385,136 +402,265 @@
         tension: 0.1
       });
       datasets.push({
-        label: 'Compound Interest Earned',
+        label: 'Compounded Portfolio Total',
         data: c.totalSeries || c.interestSeries,
-        borderColor: '#51CF66',
-        backgroundColor: 'rgba(81, 207, 102, 0.15)',
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.15)',
         fill: true,
         tension: 0.3
       });
     } else if (c.investedSeries && c.wealthSeries) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
       datasets.push({
         label: 'Total Capital Contributed',
         data: c.investedSeries,
         borderColor: '#71717a',
         backgroundColor: 'rgba(113, 113, 122, 0.2)',
-        fill: true
+        fill: true,
+        tension: 0.1
       });
       datasets.push({
-        label: 'Accumulated Wealth',
+        label: 'Accumulated SIP Wealth',
         data: c.wealthSeries,
         borderColor: '#22d3ee',
         backgroundColor: 'rgba(34, 211, 238, 0.15)',
         fill: true,
         tension: 0.3
       });
-    } else if (c.lumpsumWealth && c.sipWealth) {
+    } else if (c.lumpsumTrajectory || c.lumpsumWealth) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
       datasets.push({
         label: 'Lumpsum Strategy',
-        data: c.lumpsumWealth,
-        borderColor: '#FAB005',
-        backgroundColor: 'transparent',
-        tension: 0.2
+        data: c.lumpsumTrajectory || c.lumpsumWealth,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.08)',
+        tension: 0.25
       });
       datasets.push({
         label: 'DCA / SIP Strategy',
-        data: c.sipWealth,
+        data: c.sipTrajectory || c.sipWealth,
         borderColor: '#22d3ee',
-        backgroundColor: 'transparent',
+        backgroundColor: 'rgba(34, 211, 238, 0.08)',
+        tension: 0.25
+      });
+    } else if (c.nominalSeries && c.realSeries) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
+      datasets.push({
+        label: 'Nominal Value (Pre-Inflation)',
+        data: c.nominalSeries,
+        borderColor: '#22d3ee',
+        tension: 0.25
+      });
+      datasets.push({
+        label: 'Real Value (Inflation-Adjusted)',
+        data: c.realSeries,
+        borderColor: '#f59e0b',
+        tension: 0.25
+      });
+    } else if (c.underwaterSeries || c.drawdownCurve) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
+      datasets.push({
+        label: 'Underwater Drawdown (%)',
+        data: c.underwaterSeries || c.drawdownCurve,
+        borderColor: '#f43f5e',
+        backgroundColor: 'rgba(244, 63, 94, 0.15)',
+        fill: true,
         tension: 0.2
       });
-    } else if (c.pdf) {
+    } else if (c.recovery) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
       datasets.push({
-        label: 'Probability Density (Normal Distribution)',
-        data: c.pdf,
+        label: 'Drawdown Recovery Path',
+        data: c.recovery,
+        borderColor: '#f59e0b',
+        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+        fill: true,
+        tension: 0.25
+      });
+    } else if (c.categories && c.values) {
+      chartType = 'bar';
+      chartLabels = c.categories;
+      datasets.push({
+        label: 'Valuation & Multiples',
+        data: c.values,
+        backgroundColor: ['#22d3ee', '#10b981', '#f59e0b', '#a855f7', '#f43f5e'],
+        borderWidth: 1
+      });
+    } else if (c.factors && c.values) {
+      chartType = 'bar';
+      chartLabels = c.factors;
+      datasets.push({
+        label: 'DuPont Factor Impact',
+        data: c.values,
+        backgroundColor: ['#22d3ee', '#10b981', '#f59e0b'],
+        borderWidth: 1
+      });
+    } else if (c.metrics && c.values) {
+      chartType = 'bar';
+      chartLabels = c.metrics;
+      datasets.push({
+        label: 'Risk-Adjusted Efficiency',
+        data: c.values,
+        backgroundColor: ['#22d3ee', '#10b981', '#f59e0b', '#a855f7'],
+        borderWidth: 1
+      });
+    } else if (c.assets && c.impacts) {
+      chartType = 'bar';
+      chartLabels = c.assets;
+      datasets.push({
+        label: 'Macroeconomic Stress Impact (%)',
+        data: c.impacts,
+        backgroundColor: c.impacts.map(v => v >= 0 ? '#10b981' : '#f43f5e'),
+        borderWidth: 1
+      });
+    } else if (c.scenarios && c.asset && c.market) {
+      chartType = 'bar';
+      chartLabels = c.scenarios;
+      datasets.push({
+        label: 'Asset Movement (%)',
+        data: c.asset,
+        backgroundColor: '#22d3ee'
+      });
+      datasets.push({
+        label: 'Market Benchmark (%)',
+        data: c.market,
+        backgroundColor: '#71717a'
+      });
+    } else if (c.returns && c.volatilities) {
+      chartType = 'bar';
+      chartLabels = c.labels || [];
+      datasets.push({
+        label: 'Expected Return (%)',
+        data: c.returns,
+        backgroundColor: '#10b981'
+      });
+      datasets.push({
+        label: 'Annual Volatility (%)',
+        data: c.volatilities,
+        backgroundColor: '#f43f5e'
+      });
+    } else if (c.bellCurve) {
+      chartType = 'line';
+      const bCurve = c.bellCurve;
+      chartLabels = bCurve.labels || ['-3σ', '-2σ', '-1σ', 'Mean (0)', '+1σ', '+2σ', '+3σ'];
+      datasets.push({
+        label: 'Probability Density (Gaussian Normal)',
+        data: bCurve.density || bCurve.data || bCurve,
         borderColor: '#22d3ee',
-        backgroundColor: 'rgba(34, 211, 238, 0.12)',
+        backgroundColor: 'rgba(34, 211, 238, 0.15)',
         fill: true,
         tension: 0.4
       });
-    } else if (c.stockLine && c.marketLine) {
+    } else if (c.volTrajectory) {
+      chartType = 'line';
+      chartLabels = c.labels || [];
       datasets.push({
-        label: 'Stock Return Movement',
-        data: c.stockLine,
+        label: 'Portfolio Volatility Trajectory (%)',
+        data: c.volTrajectory,
         borderColor: '#22d3ee',
-        tension: 0.2
-      });
-      datasets.push({
-        label: 'Market Benchmark Movement',
-        data: c.marketLine,
-        borderColor: '#71717a',
-        borderDash: [4, 4],
-        tension: 0.2
-      });
-    } else if (c.drawdownCurve) {
-      datasets.push({
-        label: 'Underwater Drawdown (%)',
-        data: c.drawdownCurve,
-        borderColor: '#FF6B6B',
-        backgroundColor: 'rgba(255, 107, 107, 0.15)',
+        backgroundColor: 'rgba(34, 211, 238, 0.1)',
         fill: true,
-        tension: 0.2
+        tension: 0.3
       });
-    } else if (c.weights) {
-      // Doughnut Chart for Portfolio Allocation
-      labState.chartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: c.labels,
-          datasets: [{
-            data: c.weights,
-            backgroundColor: ['#22d3ee', '#51CF66', '#FAB005', '#CC5DE8', '#FF6B6B']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'right', labels: { color: '#a1a1aa', font: { size: 11 } } }
-          }
-        }
-      });
-      return;
-    } else {
+    } else if (c.frontier && c.current) {
+      chartType = 'line';
+      chartLabels = c.frontier.map((_, i) => `${i + 1}`);
       datasets.push({
-        label: 'Simulation Path',
-        data: c.trajectory || [100, 120, 150, 190, 250],
+        label: 'Markowitz Efficient Frontier',
+        data: c.frontier,
         borderColor: '#22d3ee',
-        tension: 0.2
+        tension: 0.3
+      });
+      if (c.current) {
+        datasets.push({
+          label: 'Current Allocation',
+          data: c.frontier.map((f, i) => i === Math.floor(c.frontier.length / 2) ? c.current : null),
+          borderColor: '#f59e0b',
+          pointRadius: 6,
+          pointBackgroundColor: '#f59e0b',
+          showLine: false
+        });
+      }
+    } else if (c.trajectory) {
+      chartType = 'line';
+      chartLabels = c.labels || c.trajectory.map((_, i) => `T${i}`);
+      datasets.push({
+        label: 'Simulation Trajectory',
+        data: c.trajectory,
+        borderColor: '#22d3ee',
+        backgroundColor: 'rgba(34, 211, 238, 0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 2
       });
     }
 
+    // Chart Configuration with Institutional Dark Aesthetics
+    const isDoughnut = chartType === 'doughnut';
+
     labState.chartInstance = new Chart(ctx, {
-      type: 'line',
+      type: chartType,
       data: {
-        labels: c.labels || ['T0', 'T1', 'T2', 'T3', 'T4', 'T5'],
+        labels: chartLabels,
         datasets
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 200 },
+        animation: { duration: 240, easing: 'easeOutQuart' },
         plugins: {
           legend: {
-            display: datasets.length > 1,
-            labels: { color: '#a1a1aa', font: { size: 11 } }
+            display: isDoughnut || datasets.length > 1,
+            position: isDoughnut ? 'right' : 'top',
+            labels: {
+              color: '#a1a1aa',
+              font: { family: 'Inter, sans-serif', size: 11, weight: 600 },
+              boxWidth: 12,
+              padding: 10
+            }
           },
           tooltip: {
-            backgroundColor: '#0d0d12',
-            titleColor: '#fff',
+            backgroundColor: '#09090c',
+            titleColor: '#ffffff',
             bodyColor: '#22d3ee',
-            borderColor: 'rgba(255,255,255,0.1)',
-            borderWidth: 1
+            borderColor: 'rgba(255, 255, 255, 0.12)',
+            borderWidth: 1,
+            padding: 10,
+            boxPadding: 4,
+            usePointStyle: true,
+            callbacks: {
+              label: (ctx) => {
+                const val = ctx.parsed.y !== undefined ? ctx.parsed.y : ctx.parsed;
+                const lbl = ctx.dataset.label || ctx.label || '';
+                if (typeof val === 'number') {
+                  return ` ${lbl}: ${val.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+                }
+                return ` ${lbl}: ${val}`;
+              }
+            }
           }
         },
-        scales: {
+        scales: isDoughnut ? {} : {
           x: {
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#71717a', font: { size: 10 } }
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#71717a', font: { family: 'Inter, sans-serif', size: 10 } }
           },
           y: {
-            grid: { color: 'rgba(255,255,255,0.04)' },
-            ticks: { color: '#71717a', font: { size: 10 } }
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: {
+              color: '#71717a',
+              font: { family: 'Inter, monospace', size: 10 },
+              callback: (val) => {
+                if (Math.abs(val) >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
+                if (Math.abs(val) >= 1000) return `${(val / 1000).toFixed(0)}k`;
+                return val;
+              }
+            }
           }
         }
       }

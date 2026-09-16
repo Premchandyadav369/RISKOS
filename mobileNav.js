@@ -1,5 +1,6 @@
 /**
- * RISKOS — Universal Mobile Navigation Component
+ * RISKOS — Universal Mobile Navigation Component (mobileNav.js)
+ * High-performance mobile bottom nav & slide-up drawer for all RISKOS pages.
  */
 (function() {
   'use strict';
@@ -116,6 +117,10 @@
     const openSheet = () => sheetOverlay.classList.add('active');
     const closeSheet = () => sheetOverlay.classList.remove('active');
 
+    // Expose globally
+    window.openMobileMoreSheet = openSheet;
+    window.closeMobileMoreSheet = closeSheet;
+
     document.getElementById('mobNavMoreBtn')?.addEventListener('click', openSheet);
     document.getElementById('closeMoreSheetBtn')?.addEventListener('click', closeSheet);
     sheetOverlay.addEventListener('click', (e) => {
@@ -137,6 +142,15 @@
       if (typeof MarketDataTruth !== 'undefined') {
         MarketDataTruth.openProvenanceModal('RELIANCE');
       }
+    });
+
+    // Automatically bind all mobile menu toggles across all pages to open the mobile drawer
+    document.querySelectorAll('#menuToggle, .menu-toggle, [aria-controls="mobileMenu"], [aria-controls="mobileMenuOverlay"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        openSheet();
+      });
     });
   }
 

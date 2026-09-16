@@ -642,12 +642,14 @@
       };
     }
 
-    renderDrawerChart(sec);
+    state.activeDrawerSec = sec;
+    renderDrawerChart(sec, '1M');
     overlay.removeAttribute('hidden');
     lockScroll();
   };
 
   const closeSecurityDrawer = () => {
+    state.activeDrawerSec = null;
     const overlay = document.getElementById('tickerDetailDrawerOverlay');
     if (overlay) {
       overlay.setAttribute('hidden', '');
@@ -655,7 +657,7 @@
     }
   };
 
-  const renderDrawerChart = async (sec) => {
+  const renderDrawerChart = async (sec, timeframe = '1M') => {
     const canvas = document.getElementById('drawerCanvas');
     if (!canvas) return;
 
@@ -664,10 +666,33 @@
       state.drawerChart = null;
     }
 
+    // Wire timeframe pill buttons
+    const pill = document.getElementById('drawerChartTimePill');
+    if (pill && !pill.dataset.wired) {
+      pill.dataset.wired = 'true';
+      pill.querySelectorAll('.c-time-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          pill.querySelectorAll('.c-time-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const tf = btn.dataset.time || '1M';
+          if (state.activeDrawerSec) {
+            renderDrawerChart(state.activeDrawerSec, tf);
+          }
+        });
+      });
+    }
+
+    // Sync active button in pill
+    if (pill) {
+      pill.querySelectorAll('.c-time-btn').forEach(b => {
+        b.classList.toggle('active', (b.dataset.time || '1M') === timeframe);
+      });
+    }
+
     // Load real OHLC historical candles
     let bars = [];
     try {
-      const ohlc = await SecurityMaster.getOHLC(sec.symbol, '1M');
+      const ohlc = await SecurityMaster.getOHLC(sec.symbol, timeframe);
       if (ohlc && Array.isArray(ohlc.bars) && ohlc.bars.length > 0) {
         bars = ohlc.bars;
       }
@@ -678,6 +703,7 @@
         canvas: canvas,
         bars: bars,
         mode: 'candle',
+        timeframe: timeframe,
         currency: sec.currency || 'INR',
         volume: true,
         sma20: true

@@ -3446,6 +3446,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mobileMenu) {
       mobileMenu.removeAttribute('hidden');
       document.body.classList.add('modal-open');
+    } else if (typeof window.openMobileMoreSheet === 'function') {
+      window.openMobileMoreSheet();
     }
   };
   const closeMobileMenu = () => {
