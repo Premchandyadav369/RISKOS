@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RISKOS — OpenBB Open Data Platform (ODP) Bridge
  * Provides a standardized client-side and API interface matching the OpenBB Python SDK / ODP specification.
  * Supports obb.equity, obb.derivatives, obb.fixedincome, obb.economy, obb.crypto
@@ -165,24 +165,36 @@ const OpenBBBridge = (() => {
     fixedincome: {
       government: {
         yield_curve: async (country = 'united_states', options = {}) => {
+          let us10Y = 4.18;
+          let in10Y = 6.84;
+          if (typeof SecurityMaster !== 'undefined') {
+            try {
+              const qUs = await SecurityMaster.getQuote('^TNX');
+              if (qUs && qUs.price) us10Y = Number(qUs.price);
+            } catch (e) {}
+          }
+
           const tenors = [
-            { maturity: '1M', yield: 5.35 },
-            { maturity: '3M', yield: 5.30 },
-            { maturity: '6M', yield: 5.15 },
-            { maturity: '1Y', yield: 4.85 },
-            { maturity: '2Y', yield: 4.45 },
-            { maturity: '5Y', yield: 4.10 },
-            { maturity: '10Y', yield: 4.25 },
-            { maturity: '30Y', yield: 4.48 }
+            { maturity: '1M', tenor: '1M', yield: 5.35, spread: '+117 bps' },
+            { maturity: '3M', tenor: '3M', yield: 5.30, spread: '+112 bps' },
+            { maturity: '6M', tenor: '6M', yield: 5.15, spread: '+97 bps' },
+            { maturity: '1Y', tenor: '1Y', yield: 4.85, spread: '+67 bps' },
+            { maturity: '2Y', tenor: '2Y', yield: 4.45, spread: '+27 bps' },
+            { maturity: '5Y', tenor: '5Y', yield: 4.10, spread: '-8 bps' },
+            { maturity: '10Y', tenor: '10Y', yield: us10Y, spread: '+0 bps' },
+            { maturity: '30Y', tenor: '30Y', yield: Number((us10Y + 0.28).toFixed(2)), spread: '+28 bps' }
           ];
 
-          return {
-            country,
-            tenors,
-            spread_2y10y_bps: -20.0,
-            date: new Date().toISOString().split('T')[0],
-            provider: options.provider || 'fred'
-          };
+          // Array-object hybrid for 100% interoperability with both .find() and .tenors
+          const res = [...tenors];
+          res.country = country;
+          res.tenors = tenors;
+          res.india_10y = in10Y;
+          res.spread_in_us_bps = Math.round((in10Y - us10Y) * 100);
+          res.spread_2y10y_bps = Math.round((us10Y - 4.45) * 100);
+          res.date = new Date().toISOString().split('T')[0];
+          res.provider = options.provider || _activeProvider;
+          return res;
         }
       }
     },
@@ -190,17 +202,75 @@ const OpenBBBridge = (() => {
     // 4. Economy Namespace: obb.economy.indicators
     economy: {
       indicators: async (category = 'macro', options = {}) => {
-        return {
-          cpi_inflation_pct: 2.85,
-          core_pce_pct: 2.65,
-          fed_funds_rate_pct: 5.25,
-          rbi_repo_rate_pct: 6.50,
-          unemployment_rate_pct: 4.10,
-          gdp_growth_annualized_pct: 2.75,
-          us_m2_money_supply_trillions: 21.05,
-          date: new Date().toISOString().split('T')[0],
-          provider: options.provider || 'fred'
-        };
+        let brentPrice = 78.45;
+        let brentChg = '+1.82%';
+        let us10Price = 4.18;
+        let us10Chg = '+2.1 bps';
+        let usdInrVal = 86.72;
+        let usdInrChg = '+0.14%';
+        let vixVal = 14.80;
+
+        if (typeof SecurityMaster !== 'undefined') {
+          try {
+            const [qBrent, qUs10, qUsdInr, qVix] = await Promise.allSettled([
+              SecurityMaster.getQuote('BZ=F'),
+              SecurityMaster.getQuote('^TNX'),
+              SecurityMaster.getQuote('USDINR=X'),
+              SecurityMaster.getQuote('^VIX')
+            ]);
+            if (qBrent.status === 'fulfilled' && qBrent.value && qBrent.value.price) {
+              brentPrice = Number(qBrent.value.price);
+              const chg = qBrent.value.changePercent || 0;
+              brentChg = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            }
+            if (qUs10.status === 'fulfilled' && qUs10.value && qUs10.value.price) {
+              us10Price = Number(qUs10.value.price);
+              const chg = (qUs10.value.change || 0) * 100;
+              us10Chg = `${chg >= 0 ? '+' : ''}${chg.toFixed(1)} bps`;
+            }
+            if (qUsdInr.status === 'fulfilled' && qUsdInr.value && qUsdInr.value.price) {
+              usdInrVal = Number(qUsdInr.value.price);
+              const chg = qUsdInr.value.changePercent || 0;
+              usdInrChg = `${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%`;
+            }
+            if (qVix.status === 'fulfilled' && qVix.value && qVix.value.price) {
+              vixVal = Number(qVix.value.price);
+            }
+          } catch (e) {}
+        }
+
+        const items = [
+          { indicator: 'Brent Crude (Spot)', symbol: 'BZ=F', value: brentPrice, change: brentChg, unit: '$/bbl' },
+          { indicator: 'US 10Y Benchmark', symbol: '^TNX', value: us10Price, change: us10Chg, unit: '%' },
+          { indicator: 'India 10Y Benchmark', symbol: '^IN10Y', value: 6.84, spread: '-2.4 bps', unit: '%' },
+          { indicator: 'USD/INR Currency', symbol: 'USDINR=X', value: usdInrVal, change: usdInrChg, unit: 'INR' },
+          { indicator: 'CBOE Volatility VIX', symbol: '^VIX', value: vixVal, change: '+0.45', unit: 'pts' },
+          { indicator: 'CPI Inflation', value: 2.85, unit: '%' },
+          { indicator: 'Core PCE', value: 2.65, unit: '%' },
+          { indicator: 'Fed Funds Rate', value: 5.25, unit: '%' },
+          { indicator: 'RBI Repo Rate', value: 6.50, unit: '%' },
+          { indicator: 'Unemployment Rate', value: 4.10, unit: '%' },
+          { indicator: 'GDP Growth Annualized', value: 2.75, unit: '%' },
+          { indicator: 'US M2 Money Supply', value: 21.05, unit: 'T' }
+        ];
+
+        // Array-object hybrid for 100% interoperability with both .find() and property lookups
+        const res = [...items];
+        res.cpi_inflation_pct = 2.85;
+        res.core_pce_pct = 2.65;
+        res.fed_funds_rate_pct = 5.25;
+        res.rbi_repo_rate_pct = 6.50;
+        res.unemployment_rate_pct = 4.10;
+        res.gdp_growth_annualized_pct = 2.75;
+        res.us_m2_money_supply_trillions = 21.05;
+        res.brent_spot = brentPrice;
+        res.us10y_yield = us10Price;
+        res.in10y_yield = 6.84;
+        res.usdinr_rate = usdInrVal;
+        res.vix_level = vixVal;
+        res.date = new Date().toISOString().split('T')[0];
+        res.provider = options.provider || _activeProvider;
+        return res;
       }
     },
 

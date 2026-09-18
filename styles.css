@@ -2834,6 +2834,36 @@ button, select, input {
   height: 100%;
 }
 
+.candle-chart-container.chart-fullscreen {
+  position: fixed !important;
+  inset: 16px !important;
+  z-index: 99999 !important;
+  background: rgba(12, 16, 23, 0.98) !important;
+  backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(34, 211, 238, 0.4) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.95), 0 0 40px rgba(34, 211, 238, 0.15) !important;
+  height: calc(100vh - 32px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.candle-chart-container.chart-fullscreen .candle-canvas-wrap {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+.candle-canvas-wrap.is-dragging {
+  cursor: grabbing !important;
+}
+
+.candle-zoom-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+
 /* ── 20. Portfolio Manager Drawer & Accounting Interface ──────────────────── */
 .pm-overlay {
   position: fixed;

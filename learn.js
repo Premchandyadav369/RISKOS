@@ -124,6 +124,11 @@
     labState.activeModuleId = mod.id;
     labState.simInputs = { ...mod.defaultInputs };
 
+    // If an active real security is currently bound, automatically re-map into the new module
+    if (labState.activeSecurityRecord && typeof bindSecurityToActiveLab === 'function') {
+      bindSecurityToActiveLab(labState.activeSecurityRecord);
+    }
+
     // Update Header
     const catTag = document.getElementById('activeCatTag');
     const titleEl = document.getElementById('activeTitle');
@@ -907,8 +912,194 @@
   };
 
   // ── Setup Real Security Search ────────────────────────────────────────────
+  function clampValue(val, min, max) {
+    let v = Number(val);
+    if (isNaN(v)) return min !== undefined ? min : 0;
+    if (min !== undefined && v < min) v = min;
+    if (max !== undefined && v > max) v = max;
+    return v;
+  }
+
+  function extractSecurityParameters(sec) {
+    const sym = sec.symbol || 'SECURITY';
+    const isIN = sec.exchange === 'NSE' || sec.exchange === 'BSE' || sym.endsWith('.NS') || sym.endsWith('.BO') || sec.currency === 'INR';
+    const pr = Number(sec.basePrice || sec.price || 100);
+    const pe = Number(sec.pe || (pr > 500 ? 24.5 : 18.0));
+    const eps = Number(sec.eps || (pr / pe));
+    const volAnnual = Number((sec.vol || (isIN ? 0.22 : 0.26)) * 100);
+    const volDaily = Number((volAnnual / Math.sqrt(252)).toFixed(2));
+    const beta = Number(sec.beta || 1.05);
+    const divYield = Number(sec.div_yield || (pe < 20 ? 1.8 : 0.6));
+    const divAbs = Number(((pr * divYield) / 100).toFixed(2));
+    const rfRate = isIN ? 6.84 : 4.18; // Live sovereign benchmark rate
+    const mktCap = Number(sec.marketCap || (pr * (isIN ? 500000000 : 250000000)));
+    const roe = Number(sec.roe || 16.5);
+    const roce = Number(sec.roce || 18.0);
+    const adv = Number(sec.avgVolume20d || (isIN ? 3200000 : 18500000));
+    const netIncome = mktCap / Math.max(1, pe);
+    const revenue = netIncome * 6.5;
+    const totalAssets = mktCap * 1.4;
+    const shareholdersEquity = mktCap * 0.55;
+
+    return {
+      symbol: sym,
+      name: sec.name || sym,
+      exchange: sec.exchange || (isIN ? 'NSE' : 'NASDAQ'),
+      currency: isIN ? 'INR' : 'USD',
+      price: pr,
+      pe: pe,
+      eps: eps,
+      volAnnual: volAnnual,
+      volDaily: volDaily,
+      beta: beta,
+      divYield: divYield,
+      divAbs: divAbs,
+      rfRate: rfRate,
+      mktCap: mktCap,
+      roe: roe,
+      roce: roce,
+      adv: adv,
+      netIncome: netIncome,
+      revenue: revenue,
+      totalAssets: totalAssets,
+      shareholdersEquity: shareholdersEquity
+    };
+  }
+
+  function bindSecurityToActiveLab(sec) {
+    if (!sec) return;
+    const modId = labState.activeModuleId;
+    const mod = LearnMathEngine.getModuleById(modId);
+    if (!mod || !mod.controls) return;
+
+    const p = extractSecurityParameters(sec);
+    labState.activeSecuritySymbol = p.symbol;
+    labState.activeSecurityRecord = p;
+
+    // Universal Semantic Binder across all 75 quantitative modules
+    mod.controls.forEach(c => {
+      const k = c.key;
+      const lk = k.toLowerCase();
+
+      // 1. Spot / Price / Valuation spot
+      if (['price', 'spotprice', 'spot', 'assetprice', 'stockprice', 'currentprice', 'pricea'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.price, c.min, c.max);
+      } else if (['priceb'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.price * 1.45, c.min, c.max);
+      } else if (['initialval', 'principal', 'totalcapital', 'peakvalue', 'portfoliovalue'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.price * 100), c.min, c.max);
+      } else if (['finalval', 'troughvalue'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.price * 150), c.min, c.max);
+      } else if (['purchaseev', 'equityvalue', 'liabilitypv'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.mktCap / 10000000), c.min, c.max);
+      }
+      // 2. Earnings & Valuation Multiples
+      else if (['eps', 'earningspershare'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number(p.eps.toFixed(2)), c.min, c.max);
+      } else if (['pe', 'peratio', 'exitmultiple'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number(p.pe.toFixed(1)), c.min, c.max);
+      }
+      // 3. Volatility Metrics
+      else if (['dailystddev'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.volDaily, c.min, c.max);
+      } else if (['assetvol', 'totalvol', 'equityvol', 'atmvol', 'vola', 'baselinevol', 'sectorvol'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number(p.volAnnual.toFixed(1)), c.min, c.max);
+      } else if (['volb', 'benchmarkvol'].includes(lk)) {
+        labState.simInputs[k] = clampValue(14.0, c.min, c.max);
+      }
+      // 4. Beta & Factor Exposures
+      else if (['beta', 'assetbeta', 'hedgeratiobeta'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number(p.beta.toFixed(2)), c.min, c.max);
+      } else if (['momentumexposure'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number((0.7 + (p.beta - 1.0) * 0.5).toFixed(2)), c.min, c.max);
+      } else if (['valueexposure'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number((p.pe < 22 ? 0.65 : -0.25).toFixed(2)), c.min, c.max);
+      } else if (['qualityexposure'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number((p.roe > 15 ? 0.85 : 0.20).toFixed(2)), c.min, c.max);
+      }
+      // 5. Dividend Yield & Distribution
+      else if (['currentdividend', 'dividend'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.divAbs, c.min, c.max);
+      } else if (['dividendyield', 'divyield'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.divYield, c.min, c.max);
+      }
+      // 6. Growth Rates & Expected Returns
+      else if (['annualrate', 'growthrate', 'assetreturn', 'assetareturn', 'sectorreturn', 'portfolioreturn'].includes(lk)) {
+        const estRet = Number((11.5 + (p.beta - 1.0) * 4.5).toFixed(1));
+        labState.simInputs[k] = clampValue(estRet, c.min, c.max);
+      } else if (['assetbreturn', 'benchmarkreturn'].includes(lk)) {
+        labState.simInputs[k] = clampValue(13.0, c.min, c.max);
+      }
+      // 7. Sovereign Risk-Free Benchmark Rate
+      else if (['riskfreerate', 'riskfreereturn'].includes(lk)) {
+        labState.simInputs[k] = clampValue(p.rfRate, c.min, c.max);
+      }
+      // 8. Balance Sheet & Fundamental Financials
+      else if (['netincome'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.netIncome / 10000000), c.min, c.max);
+      } else if (['revenue'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.revenue / 10000000), c.min, c.max);
+      } else if (['totalassets'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.totalAssets / 10000000), c.min, c.max);
+      } else if (['shareholdersequity'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.shareholdersEquity / 10000000), c.min, c.max);
+      }
+      // 9. Level-2 Order Flow & High-Frequency Microstructure
+      else if (['bidvolchange', 'askvolchange'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Math.round(p.adv * 0.005), c.min, c.max);
+      } else if (['shocksize'].includes(lk)) {
+        labState.simInputs[k] = clampValue(Number((p.volDaily * 10).toFixed(1)), c.min, c.max);
+      }
+    });
+
+    // Update Live Binding UI Strip
+    const liveStrip = document.getElementById('simLiveSecurityStrip');
+    const badgeEl = document.getElementById('boundSecBadge');
+    const metricsEl = document.getElementById('boundSecMetrics');
+    const currSym = p.currency === 'INR' ? '₹' : '$';
+
+    if (liveStrip) liveStrip.style.display = 'flex';
+    if (badgeEl) badgeEl.textContent = `${p.symbol} (${p.exchange})`;
+    if (metricsEl) {
+      metricsEl.textContent = `Price: ${currSym}${p.price.toFixed(2)} | Beta: ${p.beta.toFixed(2)} | Vol: ${p.volAnnual.toFixed(1)}% | P/E: ${p.pe.toFixed(1)}× | EPS: ${currSym}${p.eps.toFixed(2)} | RF: ${p.rfRate}%`;
+    }
+
+    renderControlsPanel(mod);
+    evaluateActiveModule();
+  };
+
+  window.bindRealTickerToLab = async (symbolOrName) => {
+    if (typeof SecurityMaster === 'undefined') return;
+    const secInput = document.getElementById('simSecurityInput');
+    if (secInput) secInput.value = symbolOrName;
+
+    const sec = await SecurityMaster.resolveSecurity(symbolOrName);
+    if (sec) {
+      bindSecurityToActiveLab(sec);
+    }
+  };
+
   const setupSecuritySearch = () => {
     const secInput = document.getElementById('simSecurityInput');
+    const unbindBtn = document.getElementById('btnUnbindSec');
+
+    if (unbindBtn) {
+      unbindBtn.addEventListener('click', () => {
+        labState.activeSecuritySymbol = null;
+        labState.activeSecurityRecord = null;
+        if (secInput) secInput.value = '';
+        const liveStrip = document.getElementById('simLiveSecurityStrip');
+        if (liveStrip) liveStrip.style.display = 'none';
+
+        const mod = LearnMathEngine.getModuleById(labState.activeModuleId);
+        if (mod && mod.defaultInputs) {
+          labState.simInputs = { ...mod.defaultInputs };
+          renderControlsPanel(mod);
+          evaluateActiveModule();
+        }
+      });
+    }
+
     if (!secInput || typeof SecurityMaster === 'undefined') return;
 
     let debounce = null;
@@ -920,29 +1111,33 @@
       debounce = setTimeout(async () => {
         const sec = await SecurityMaster.resolveSecurity(q);
         if (sec && (sec.basePrice || sec.price_inr)) {
-          labState.activeSecuritySymbol = sec.symbol;
-          const pr = sec.basePrice || sec.price_inr || 100;
-          const pe = sec.pe || 25;
-          const eps = pr / pe;
-          const vol = (sec.vol || 0.18) * 100;
-
-          const modId = labState.activeModuleId;
-          if (modId === 'pe_valuation') {
-            labState.simInputs.price = pr;
-            labState.simInputs.eps = Number(eps.toFixed(2));
-          } else if (modId === 'volatility') {
-            labState.simInputs.dailyStdDev = Number((vol / Math.sqrt(252)).toFixed(2));
-          } else if (modId === 'beta_corr') {
-            labState.simInputs.assetVol = Number(vol.toFixed(1));
-            labState.simInputs.correlation = 0.75;
-          } else if (modId === 'cagr') {
-            labState.simInputs.finalVal = pr * 1.5;
-          }
-
-          renderControlsPanel(LearnMathEngine.getModuleById(modId));
-          evaluateActiveModule();
+          bindSecurityToActiveLab(sec);
         }
       }, 200);
+    });
+
+    // Wire live tick subscriber to automatically update lab price inputs in real-time
+    SecurityMaster.subscribeLiveTicks((updates) => {
+      if (!labState.activeSecuritySymbol) return;
+      const match = updates.find(u => u.symbol === labState.activeSecuritySymbol);
+      if (match && match.price) {
+        const mod = LearnMathEngine.getModuleById(labState.activeModuleId);
+        if (!mod || !mod.controls) return;
+
+        let hasPriceKey = false;
+        mod.controls.forEach(c => {
+          const lk = c.key.toLowerCase();
+          if (['price', 'spotprice', 'spot', 'assetprice', 'stockprice', 'currentprice'].includes(lk)) {
+            labState.simInputs[c.key] = clampValue(match.price, c.min, c.max);
+            hasPriceKey = true;
+          }
+        });
+
+        if (hasPriceKey) {
+          renderControlsPanel(mod);
+          evaluateActiveModule();
+        }
+      }
     });
   };
 

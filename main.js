@@ -907,18 +907,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartCurr = sec.currency || (['US', 'NASDAQ', 'NYSE', 'COMEX', 'NYMEX', 'ICE', 'LME', 'CBOT', 'GLOBAL'].includes(sec.exchange) ? 'USD' : 'INR');
 
     let crosshairIdx = -1;
+    let visibleBarsCount = Math.min(bars.length, Math.max(15, Math.min(65, bars.length)));
+    let panOffset = 0; // 0 = rightmost (latest live candle)
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartPan = 0;
+
+    const resizeCanvas = () => {
+      const curRect = wrap.getBoundingClientRect();
+      const curW = curRect.width || 600;
+      const curH = curRect.height || 300;
+      canvas.width = curW * dpr;
+      canvas.height = curH * dpr;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+      return { curW, curH };
+    };
 
     const draw = () => {
       if (!bars.length) return;
-      ctx.clearRect(0, 0, w, h);
+      const curRect = wrap.getBoundingClientRect();
+      const currentW = curRect.width || w;
+      const currentH = curRect.height || h;
+      const currentPlotW = Math.max(10, currentW - padL - padR);
+      const currentPriceH = hasVol ? (currentH - padT - padB) * 0.74 : (currentH - padT - padB);
+      const currentVolH = hasVol ? (currentH - padT - padB) * 0.22 : 0;
+      const currentVolY = padT + currentPriceH + 8;
 
-      const minP = Math.min(...bars.map((b) => b.low)) * 0.99;
-      const maxP = Math.max(...bars.map((b) => b.high)) * 1.01;
-      const maxVol = Math.max(100, ...bars.map((b) => b.volume)) * 1.15;
+      ctx.clearRect(0, 0, currentW, currentH);
 
-      const getX = (idx) => padL + (idx / Math.max(1, bars.length - 1)) * plotW;
-      const getYPrice = (p) => padT + pricePlotH - ((p - minP) / Math.max(0.01, maxP - minP)) * pricePlotH;
-      const getYVol = (v) => volPlotY + volPlotH - (v / Math.max(1, maxVol)) * volPlotH;
+      // Clamping zoom and pan bounds
+      visibleBarsCount = Math.max(8, Math.min(bars.length, visibleBarsCount));
+      const maxPan = Math.max(0, bars.length - visibleBarsCount);
+      panOffset = Math.max(0, Math.min(maxPan, panOffset));
+
+      const startIdx = Math.max(0, bars.length - visibleBarsCount - panOffset);
+      const endIdx = Math.min(bars.length, startIdx + visibleBarsCount);
+      const visibleBars = bars.slice(startIdx, endIdx);
+      if (!visibleBars.length) return;
+
+      const minP = Math.min(...visibleBars.map((b) => b.low)) * 0.995;
+      const maxP = Math.max(...visibleBars.map((b) => b.high)) * 1.005;
+      const maxVol = Math.max(100, ...visibleBars.map((b) => b.volume)) * 1.15;
+
+      const getX = (vIdx) => padL + (vIdx / Math.max(1, visibleBars.length - 1)) * currentPlotW;
+      const getYPrice = (p) => padT + currentPriceH - ((p - minP) / Math.max(0.01, maxP - minP)) * currentPriceH;
+      const getYVol = (v) => currentVolY + currentVolH - (v / Math.max(1, maxVol)) * currentVolH;
 
       // 1. Gridlines & Price Scale
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
@@ -931,7 +965,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const yPos = getYPrice(pVal);
         ctx.beginPath();
         ctx.moveTo(padL, yPos);
-        ctx.lineTo(w - padR, yPos);
+        ctx.lineTo(currentW - padR, yPos);
         ctx.stroke();
         ctx.fillText(formatMoney(pVal, chartCurr), 6, yPos + 3);
       }
@@ -940,18 +974,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (hasVol) {
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
         ctx.beginPath();
-        ctx.moveTo(padL, volPlotY);
-        ctx.lineTo(w - padR, volPlotY);
+        ctx.moveTo(padL, currentVolY);
+        ctx.lineTo(currentW - padR, currentVolY);
         ctx.stroke();
-        ctx.fillText('VOL', 6, volPlotY + 10);
+        ctx.fillText('VOL', 6, currentVolY + 10);
       }
 
-      const candleW = Math.max(2, (plotW / bars.length) * 0.68);
+      const candleW = Math.max(2, Math.min(36, (currentPlotW / visibleBars.length) * 0.72));
 
       // 3. Render Chart Data (Line/Area vs Japanese Candlesticks)
       if (mode === 'line') {
-        const grad = ctx.createLinearGradient(0, padT, 0, padT + pricePlotH);
-        const isOverallPositive = bars[bars.length - 1].close >= bars[0].close;
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + currentPriceH);
+        const isOverallPositive = visibleBars[visibleBars.length - 1].close >= visibleBars[0].close;
         const themeColor = isOverallPositive ? '#51CF66' : '#22d3ee';
         const gradColorTop = isOverallPositive ? 'rgba(81, 207, 102, 0.35)' : 'rgba(34, 211, 238, 0.35)';
         const gradColorBot = isOverallPositive ? 'rgba(81, 207, 102, 0.0)' : 'rgba(34, 211, 238, 0.0)';
@@ -961,21 +995,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Fill Area
         ctx.beginPath();
-        ctx.moveTo(getX(0), getYPrice(bars[0].close));
-        for (let i = 1; i < bars.length; i++) {
-          ctx.lineTo(getX(i), getYPrice(bars[i].close));
+        ctx.moveTo(getX(0), getYPrice(visibleBars[0].close));
+        for (let i = 1; i < visibleBars.length; i++) {
+          ctx.lineTo(getX(i), getYPrice(visibleBars[i].close));
         }
-        ctx.lineTo(getX(bars.length - 1), padT + pricePlotH);
-        ctx.lineTo(getX(0), padT + pricePlotH);
+        ctx.lineTo(getX(visibleBars.length - 1), padT + currentPriceH);
+        ctx.lineTo(getX(0), padT + currentPriceH);
         ctx.closePath();
         ctx.fillStyle = grad;
         ctx.fill();
 
         // Stroke Line
         ctx.beginPath();
-        ctx.moveTo(getX(0), getYPrice(bars[0].close));
-        for (let i = 1; i < bars.length; i++) {
-          ctx.lineTo(getX(i), getYPrice(bars[i].close));
+        ctx.moveTo(getX(0), getYPrice(visibleBars[0].close));
+        for (let i = 1; i < visibleBars.length; i++) {
+          ctx.lineTo(getX(i), getYPrice(visibleBars[i].close));
         }
         ctx.strokeStyle = themeColor;
         ctx.lineWidth = 2.2;
@@ -983,18 +1017,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Volume Histogram in Line mode
         if (hasVol) {
-          bars.forEach((b, idx) => {
+          visibleBars.forEach((b, idx) => {
             const x = getX(idx);
             const isUp = b.close >= b.open;
             const yV = getYVol(b.volume);
-            const vH = (volPlotY + volPlotH) - yV;
+            const vH = (currentVolY + currentVolH) - yV;
             ctx.fillStyle = isUp ? 'rgba(81, 207, 102, 0.22)' : 'rgba(255, 107, 107, 0.22)';
             ctx.fillRect(x - candleW / 2, yV, candleW, vH);
           });
         }
       } else {
         // Japanese Candlestick Mode (OHLC)
-        bars.forEach((b, idx) => {
+        visibleBars.forEach((b, idx) => {
           const x = getX(idx);
           const isGreen = b.close >= b.open;
           const color = isGreen ? '#10b981' : '#f43f5e';
@@ -1002,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', () => {
           // Volume bar
           if (hasVol) {
             const yV = getYVol(b.volume);
-            const vH = (volPlotY + volPlotH) - yV;
+            const vH = (currentVolY + currentVolH) - yV;
             ctx.fillStyle = isGreen ? 'rgba(16, 185, 129, 0.35)' : 'rgba(244, 63, 94, 0.35)';
             ctx.fillRect(x - candleW / 2, yV, candleW, vH);
           }
@@ -1024,7 +1058,7 @@ document.addEventListener('DOMContentLoaded', () => {
           ctx.fillRect(x - candleW / 2, yTop, candleW, bodyH);
 
           // Highlight live trailing candle with pulse glow
-          if (idx === bars.length - 1) {
+          if (startIdx + idx === bars.length - 1) {
             ctx.strokeStyle = isGreen ? '#34d399' : '#fb7185';
             ctx.lineWidth = 1.5;
             ctx.strokeRect(x - candleW / 2 - 1, yTop - 1, candleW + 2, bodyH + 2);
@@ -1038,9 +1072,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
-        sma20.forEach((val, idx) => {
-          if (val !== null) {
-            const x = getX(idx);
+        visibleBars.forEach((b, vIdx) => {
+          const gIdx = startIdx + vIdx;
+          const val = sma20[gIdx];
+          if (val !== null && val !== undefined) {
+            const x = getX(vIdx);
             const y = getYPrice(val);
             if (!started) { ctx.moveTo(x, y); started = true; }
             else ctx.lineTo(x, y);
@@ -1055,9 +1091,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineWidth = 1.6;
         ctx.beginPath();
         let started = false;
-        ema50.forEach((val, idx) => {
-          if (val !== null) {
-            const x = getX(idx);
+        visibleBars.forEach((b, vIdx) => {
+          const gIdx = startIdx + vIdx;
+          const val = ema50[gIdx];
+          if (val !== null && val !== undefined) {
+            const x = getX(vIdx);
             const y = getYPrice(val);
             if (!started) { ctx.moveTo(x, y); started = true; }
             else ctx.lineTo(x, y);
@@ -1067,8 +1105,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // 6. Interactive Crosshair & Cursor HUD
-      if (crosshairIdx >= 0 && crosshairIdx < bars.length) {
-        const b = bars[crosshairIdx];
+      if (crosshairIdx >= 0 && crosshairIdx < visibleBars.length) {
+        const b = visibleBars[crosshairIdx];
         const hx = getX(crosshairIdx);
         const hy = getYPrice(b.close);
 
@@ -1079,23 +1117,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // Vertical guide
         ctx.beginPath();
         ctx.moveTo(hx, padT);
-        ctx.lineTo(hx, h - padB);
+        ctx.lineTo(hx, currentH - padB);
         ctx.stroke();
 
         // Horizontal guide
         ctx.beginPath();
         ctx.moveTo(padL, hy);
-        ctx.lineTo(w - padR, hy);
+        ctx.lineTo(currentW - padR, hy);
         ctx.stroke();
         ctx.setLineDash([]);
 
         // Date pill on X-axis
         ctx.fillStyle = '#18181b';
-        ctx.fillRect(hx - 42, h - padB + 2, 84, 18);
+        ctx.fillRect(hx - 42, currentH - padB + 2, 84, 18);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.strokeRect(hx - 42, h - padB + 2, 84, 18);
+        ctx.strokeRect(hx - 42, currentH - padB + 2, 84, 18);
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(b.date || b.time, hx - 36, h - padB + 14);
+        ctx.fillText(b.date || b.time, hx - 36, currentH - padB + 14);
 
         // Price badge on Y-axis
         ctx.fillStyle = '#18181b';
@@ -1131,18 +1169,80 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    // Mousemove HUD listener
+    // ── Mouse Wheel Zoom & Pan (Passive false to stop window scroll) ──────
+    wrap.onwheel = (e) => {
+      e.preventDefault();
+      if (!bars.length) return;
+
+      if (Math.abs(e.deltaY) >= Math.abs(e.deltaX)) {
+        // Vertical wheel / Pinch gesture: Zoom in or out
+        const zoomStep = Math.max(2, Math.round(visibleBarsCount * 0.15));
+        if (e.deltaY < 0) {
+          // Zoom In
+          visibleBarsCount = Math.max(8, visibleBarsCount - zoomStep);
+        } else {
+          // Zoom Out
+          visibleBarsCount = Math.min(bars.length, visibleBarsCount + zoomStep);
+        }
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, panOffset));
+      } else {
+        // Horizontal wheel: Pan Left / Right
+        const panStep = Math.sign(e.deltaX) * Math.max(1, Math.round(visibleBarsCount * 0.08));
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, panOffset - panStep));
+      }
+      draw();
+    };
+
+    // ── Click and Drag Horizontal Panning ──────────────────────────────────
+    wrap.onmousedown = (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartPan = panOffset;
+      wrap.classList.add('is-dragging');
+    };
+
+    const handleWindowMouseUp = () => {
+      if (isDragging) {
+        isDragging = false;
+        wrap.classList.remove('is-dragging');
+      }
+    };
+    window.removeEventListener('mouseup', handleWindowMouseUp);
+    window.addEventListener('mouseup', handleWindowMouseUp);
+
+    // Mousemove HUD & Drag listener
     wrap.onmousemove = (e) => {
       const bRect = wrap.getBoundingClientRect();
-      const mouseX = e.clientX - bRect.left;
-      if (mouseX < padL || mouseX > w - padR) {
+      const currentW = bRect.width || w;
+      const currentPlotW = Math.max(10, currentW - padL - padR);
+
+      if (isDragging) {
+        const deltaX = e.clientX - dragStartX;
+        const barSpacing = currentPlotW / Math.max(1, visibleBarsCount);
+        const barsShift = Math.round(deltaX / barSpacing);
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, dragStartPan + barsShift));
         crosshairIdx = -1;
         draw();
         return;
       }
-      const ratio = Math.max(0, Math.min(1, (mouseX - padL) / plotW));
-      crosshairIdx = Math.round(ratio * (bars.length - 1));
-      const b = bars[crosshairIdx];
+
+      const mouseX = e.clientX - bRect.left;
+      if (mouseX < padL || mouseX > currentW - padR) {
+        crosshairIdx = -1;
+        draw();
+        return;
+      }
+      const ratio = Math.max(0, Math.min(1, (mouseX - padL) / currentPlotW));
+      const startIdx = Math.max(0, bars.length - visibleBarsCount - panOffset);
+      const endIdx = Math.min(bars.length, startIdx + visibleBarsCount);
+      const visibleBars = bars.slice(startIdx, endIdx);
+
+      crosshairIdx = Math.round(ratio * (visibleBars.length - 1));
+      const b = visibleBars[crosshairIdx];
       if (b) {
         const chg = ((b.close - b.open) / b.open) * 100;
         const openEl = document.getElementById(`${hudPrefix}Open`);
@@ -1169,6 +1269,121 @@ document.addEventListener('DOMContentLoaded', () => {
       crosshairIdx = -1;
       draw();
     };
+
+    // ── Touch Gestures (Pinch-to-Zoom & Swipe Pan) ─────────────────────────
+    let touchStartDist = 0;
+    let touchStartBars = visibleBarsCount;
+    wrap.ontouchstart = (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        dragStartPan = panOffset;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchStartDist = Math.hypot(dx, dy);
+        touchStartBars = visibleBarsCount;
+      }
+    };
+
+    wrap.ontouchmove = (e) => {
+      const bRect = wrap.getBoundingClientRect();
+      const currentW = bRect.width || w;
+      const currentPlotW = Math.max(10, currentW - padL - padR);
+
+      if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
+        const deltaX = e.touches[0].clientX - dragStartX;
+        const barSpacing = currentPlotW / Math.max(1, visibleBarsCount);
+        const barsShift = Math.round(deltaX / barSpacing);
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, dragStartPan + barsShift));
+        draw();
+      } else if (e.touches.length === 2 && touchStartDist > 0) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const currentDist = Math.hypot(dx, dy);
+        if (currentDist > 0) {
+          const factor = touchStartDist / currentDist;
+          visibleBarsCount = Math.max(8, Math.min(bars.length, Math.round(touchStartBars * factor)));
+          const maxPan = Math.max(0, bars.length - visibleBarsCount);
+          panOffset = Math.max(0, Math.min(maxPan, panOffset));
+          draw();
+        }
+      }
+    };
+
+    wrap.ontouchend = () => {
+      isDragging = false;
+      touchStartDist = 0;
+    };
+
+    // ── Dedicated Toolbar Zoom & Maximize Button Handlers ──────────────────
+    const btnZoomIn = document.getElementById('btnCandleZoomIn');
+    const btnZoomOut = document.getElementById('btnCandleZoomOut');
+    const btnZoomReset = document.getElementById('btnCandleZoomReset');
+    const btnMaximize = document.getElementById('btnCandleMaximize');
+    const chartContainer = document.getElementById('candleChartContainer');
+
+    if (btnZoomIn) {
+      btnZoomIn.onclick = (e) => {
+        e.preventDefault();
+        const zoomStep = Math.max(2, Math.round(visibleBarsCount * 0.25));
+        visibleBarsCount = Math.max(8, visibleBarsCount - zoomStep);
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, panOffset));
+        draw();
+      };
+    }
+
+    if (btnZoomOut) {
+      btnZoomOut.onclick = (e) => {
+        e.preventDefault();
+        const zoomStep = Math.max(2, Math.round(visibleBarsCount * 0.25));
+        visibleBarsCount = Math.min(bars.length, visibleBarsCount + zoomStep);
+        const maxPan = Math.max(0, bars.length - visibleBarsCount);
+        panOffset = Math.max(0, Math.min(maxPan, panOffset));
+        draw();
+      };
+    }
+
+    if (btnZoomReset) {
+      btnZoomReset.onclick = (e) => {
+        e.preventDefault();
+        visibleBarsCount = Math.min(bars.length, Math.max(15, Math.min(65, bars.length)));
+        panOffset = 0;
+        draw();
+      };
+    }
+
+    if (btnMaximize && chartContainer) {
+      btnMaximize.onclick = (e) => {
+        e.preventDefault();
+        const isFull = chartContainer.classList.toggle('chart-fullscreen');
+        btnMaximize.innerHTML = isFull ? '<i class="fa-solid fa-compress"></i>' : '<i class="fa-solid fa-expand"></i>';
+        btnMaximize.title = isFull ? 'Minimize Chart' : 'Maximize Fullscreen (⛶)';
+        setTimeout(() => {
+          resizeCanvas();
+          draw();
+        }, 50);
+      };
+
+      const handleEscKey = (e) => {
+        if (e.key === 'Escape' && chartContainer.classList.contains('chart-fullscreen')) {
+          chartContainer.classList.remove('chart-fullscreen');
+          btnMaximize.innerHTML = '<i class="fa-solid fa-expand"></i>';
+          btnMaximize.title = 'Maximize Fullscreen (⛶)';
+          setTimeout(() => {
+            resizeCanvas();
+            draw();
+          }, 50);
+        }
+      };
+      window.removeEventListener('keydown', handleEscKey);
+      window.addEventListener('keydown', handleEscKey);
+    }
   };
 
   const renderCandlestickChart = (sec, tf = '1Y') => {
