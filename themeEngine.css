@@ -1,0 +1,127 @@
+﻿/* ==========================================================================
+   RISKOS INSTITUTIONAL THEME ENGINE (themeEngine.css)
+   Supports:
+     - Cyber Dark (Default)
+     - Bloomberg Amber Phosphor Terminal (Monochrome CRT Black & Amber)
+     - High-Contrast Paper (Print & Presentation Daylight Mode)
+   ========================================================================== */
+
+/* ── 1. BLOOMBERG AMBER PHOSPHOR TERMINAL ── */
+[data-theme="bloomberg-amber"] {
+  --bg-primary: #000000 !important;
+  --bg-secondary: #080705 !important;
+  --bg-card: #0d0a04 !important;
+  --bg-card-hover: #171206 !important;
+  --bg-surface: #0a0803 !important;
+  --text-primary: #ffaa00 !important;
+  --text-secondary: #d98804 !important;
+  --text-muted: #8c5803 !important;
+  --accent-cyan: #ffb703 !important;
+  --accent-amber: #ff9e00 !important;
+  --accent-green: #22c55e !important;
+  --accent-rose: #ef4444 !important;
+  --border-subtle: rgba(255, 170, 0, 0.2) !important;
+  --border-card: rgba(255, 170, 0, 0.28) !important;
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.9), 0 0 12px rgba(255, 158, 0, 0.08) !important;
+  color-scheme: dark !important;
+}
+
+[data-theme="bloomberg-amber"] body {
+  background-color: #000000 !important;
+  color: #ffaa00 !important;
+}
+
+[data-theme="bloomberg-amber"] .nav-pill,
+[data-theme="bloomberg-amber"] .header,
+[data-theme="bloomberg-amber"] .card,
+[data-theme="bloomberg-amber"] .bot-card,
+[data-theme="bloomberg-amber"] .b-stat-card,
+[data-theme="bloomberg-amber"] .market-ribbon-card,
+[data-theme="bloomberg-amber"] .tabs-container {
+  background: #090703 !important;
+  border-color: rgba(255, 170, 0, 0.3) !important;
+}
+
+[data-theme="bloomberg-amber"] a,
+[data-theme="bloomberg-amber"] button,
+[data-theme="bloomberg-amber"] h1,
+[data-theme="bloomberg-amber"] h2,
+[data-theme="bloomberg-amber"] h3,
+[data-theme="bloomberg-amber"] h4 {
+  color: #ffaa00 !important;
+}
+
+/* ── 2. HIGH-CONTRAST PAPER (DAYLIGHT / PRINT) ── */
+[data-theme="high-contrast-paper"] {
+  --bg-primary: #f8fafc !important;
+  --bg-secondary: #f1f5f9 !important;
+  --bg-card: #ffffff !important;
+  --bg-card-hover: #e2e8f0 !important;
+  --bg-surface: #ffffff !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #334155 !important;
+  --text-muted: #64748b !important;
+  --accent-cyan: #0284c7 !important;
+  --accent-amber: #d97706 !important;
+  --accent-green: #15803d !important;
+  --accent-rose: #b91c1c !important;
+  --border-subtle: rgba(15, 23, 42, 0.15) !important;
+  --border-card: rgba(15, 23, 42, 0.22) !important;
+  --shadow-card: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  color-scheme: light !important;
+}
+
+[data-theme="high-contrast-paper"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+[data-theme="high-contrast-paper"] .nav-pill,
+[data-theme="high-contrast-paper"] .header,
+[data-theme="high-contrast-paper"] .card,
+[data-theme="high-contrast-paper"] .bot-card,
+[data-theme="high-contrast-paper"] .b-stat-card,
+[data-theme="high-contrast-paper"] .market-ribbon-card,
+[data-theme="high-contrast-paper"] .tabs-container {
+  background: #ffffff !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="high-contrast-paper"] a,
+[data-theme="high-contrast-paper"] button,
+[data-theme="high-contrast-paper"] h1,
+[data-theme="high-contrast-paper"] h2,
+[data-theme="high-contrast-paper"] h3,
+[data-theme="high-contrast-paper"] h4 {
+  color: #0f172a !important;
+}
+
+/* ── 3. FLOATING THEME TOGGLE BUTTON ── */
+.theme-switch-floating-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50px;
+  padding: 8px 14px;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.theme-switch-floating-btn:hover {
+  transform: translateY(-2px);
+  border-color: #22d3ee;
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.25);
+}
