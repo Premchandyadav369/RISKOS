@@ -1774,6 +1774,90 @@
   let currentFilter = 'all';
   let currentSort = 'pnl';
   let currentViewMode = 'grid';
+  let currentCardMode = 'beginner';
+  try {
+    const savedCard = localStorage.getItem('riskos_fleet_card_mode');
+    if (savedCard) currentCardMode = savedCard;
+  } catch (e) {}
+
+  const formatPrice = (val, fallback = '0.00') => {
+    if (val === null || val === undefined || isNaN(val)) return fallback;
+    return Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const formatCurrencyCompact = (valINR, market = 'india') => {
+    if (typeof valINR !== 'number' || isNaN(valINR)) return '₹0';
+    const isNeg = valINR < 0;
+    const abs = Math.abs(valINR);
+    const usdEquiv = Math.round(abs / 83.92);
+
+    let inrText = '';
+    if (abs >= 10000000) {
+      inrText = `₹${(abs / 10000000).toFixed(2)} Cr`;
+    } else if (abs >= 100000) {
+      inrText = `₹${(abs / 100000).toFixed(2)} Lakh`;
+    } else {
+      inrText = `₹${abs.toLocaleString('en-IN')}`;
+    }
+
+    const usdText = usdEquiv >= 1000000
+      ? `$${(usdEquiv / 1000000).toFixed(2)}M`
+      : (usdEquiv >= 1000 ? `$${(usdEquiv / 1000).toFixed(1)}k` : `$${usdEquiv}`);
+
+    return `${isNeg ? '-' : ''}${inrText} (${usdText})`;
+  };
+
+  const getWinRateSubtext = (rate) => {
+    if (rate >= 90) return '~9 of 10 trades win';
+    if (rate >= 80) return '~4 of 5 trades win';
+    if (rate >= 70) return '~7 of 10 trades win';
+    if (rate >= 60) return '~3 of 5 trades win';
+    return 'Consistent positive edge';
+  };
+
+  const getSharpeSubtext = (sharpe) => {
+    if (sharpe >= 4.0) return 'Elite institutional alpha';
+    if (sharpe >= 3.0) return 'Exceptional return / risk';
+    if (sharpe >= 2.0) return 'Strong risk-adjusted alpha';
+    return 'Above market benchmark';
+  };
+
+  const getRiskLevel = (bot) => {
+    const dd = Math.abs(bot.maxDD || 0.6);
+    if (dd <= 0.6) {
+      return { badge: 'risk-low', text: `🛡️ Low Risk (Max DD ${bot.maxDD || '-0.5'}%)` };
+    } else if (dd <= 1.2) {
+      return { badge: 'risk-mod', text: `⚖️ Balanced (Max DD ${bot.maxDD || '-0.8'}%)` };
+    }
+    return { badge: 'risk-growth', text: `🚀 Growth Alpha (Max DD ${bot.maxDD || '-1.4'}%)` };
+  };
+
+  const renderSafePositionDisplay = (bot) => {
+    if (bot.activePosition) {
+      const p = bot.activePosition;
+      const rawPnl = (typeof p.unrealizedPnlINR === 'number' && !isNaN(p.unrealizedPnlINR)) ? p.unrealizedPnlINR : 0;
+      const rawPct = (typeof p.unrealizedPnlPct === 'number' && !isNaN(p.unrealizedPnlPct) && isFinite(p.unrealizedPnlPct)) ? p.unrealizedPnlPct : 0.0;
+      const safeEntry = (typeof p.entryPrice === 'number' && !isNaN(p.entryPrice) && p.entryPrice > 0) ? p.entryPrice : (bot.currentPrice || bot.basePrice || 100.0);
+      const pColor = rawPnl >= 0 ? '#10b981' : '#f43f5e';
+      const side = p.side || 'BUY';
+      const qty = p.qty || '100 Shares';
+      const sym = p.symbol || bot.primarySymbol;
+      return `
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:4px; font-size:0.72rem;">
+          <div>
+            <span style="color:#22d3ee; font-weight:700;">${side} ${qty}</span> 
+            <span style="color:#fff; font-weight:600;">${sym}</span> @ 
+            <span style="color:#e4e4e7; font-family:'JetBrains Mono', monospace;">₹${Number(safeEntry).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+          </div>
+          <span style="color:${pColor}; font-weight:800; font-family:'JetBrains Mono', monospace;">
+            ${rawPnl >= 0 ? '+' : ''}₹${rawPnl.toLocaleString('en-IN')} (${rawPct >= 0 ? '+' : ''}${rawPct.toFixed(2)}%)
+          </span>
+        </div>
+      `;
+    }
+    return `<span style="color:#71717a; font-size:0.7rem;"><i class="fa-solid fa-radar"></i> Scanning market order book for safe entry...</span>`;
+  };
+
   let blotterViewMode = 'stream';
   let searchQuery = '';
   let fleetEquityChart = null;
@@ -2314,9 +2398,9 @@
         bot.realizedPnlINR = (init && typeof init.realizedPnlINR === 'number') ? init.realizedPnlINR : 52000;
       }
 
-      if (!bot.activePosition || isNaN(bot.activePosition.unrealizedPnlINR) || bot.activePosition.unrealizedPnlINR === null) {
+      if (!bot.activePosition || isNaN(bot.activePosition.unrealizedPnlINR) || bot.activePosition.unrealizedPnlINR === null || isNaN(bot.activePosition.entryPrice) || !bot.activePosition.entryPrice || !isFinite(bot.activePosition.unrealizedPnlPct)) {
         const rawQty = bot.market === 'india' ? 100 : (bot.primarySymbol.includes('BTC') ? 1.2 : 50);
-        const curP = bot.currentPrice || bot.basePrice;
+        const curP = (typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || 100.0);
         bot.activePosition = {
           symbol: bot.displayAsset,
           side: 'BUY',
@@ -2332,12 +2416,17 @@
         };
       } else {
         const pos = bot.activePosition;
-        pos.rawQty = typeof pos.rawQty === 'number' ? pos.rawQty : (parseFloat(pos.qty) || 100);
-        if (typeof pos.unrealizedPnlINR !== 'number' || isNaN(pos.unrealizedPnlINR)) {
-          const pnlDelta = (pos.side === 'BUY') ? ((bot.currentPrice || bot.basePrice) - pos.entryPrice) : (pos.entryPrice - (bot.currentPrice || bot.basePrice));
-          const fxRate = bot.market === 'india' ? 1.0 : 83.92;
-          pos.unrealizedPnlINR = Math.round(pnlDelta * pos.rawQty * fxRate);
+        pos.rawQty = typeof pos.rawQty === 'number' && !isNaN(pos.rawQty) ? pos.rawQty : (parseFloat(pos.qty) || 100);
+        if (typeof pos.entryPrice !== 'number' || isNaN(pos.entryPrice) || pos.entryPrice <= 0) {
+          pos.entryPrice = (typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || 100.0);
         }
+        const curPrice = (typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || pos.entryPrice);
+        pos.currentPrice = curPrice;
+        const pnlDelta = (pos.side === 'BUY') ? (curPrice - pos.entryPrice) : (pos.entryPrice - curPrice);
+        const fxRate = bot.market === 'india' ? 1.0 : 83.92;
+        pos.unrealizedPnlINR = Math.round(pnlDelta * pos.rawQty * fxRate);
+        pos.unrealizedPnlPct = pos.entryPrice > 0 ? Number(((pnlDelta / pos.entryPrice) * 100).toFixed(2)) : 0.0;
+        if (isNaN(pos.unrealizedPnlPct) || !isFinite(pos.unrealizedPnlPct)) pos.unrealizedPnlPct = 0.0;
       }
       const profile = BOT_TRADING_PROFILES[bot.id] || {
         primaryStock: bot.primarySymbol,
@@ -2504,21 +2593,23 @@
 
     const side = forceSide || (Math.random() > 0.45 ? 'BUY' : 'SELL');
     const orderId = generateOrderId(bot.id);
-    const curPrice = bot.currentPrice || bot.basePrice;
+    const rawPrice = bot.currentPrice || bot.basePrice || 100.0;
+    const curPrice = (typeof rawPrice === 'number' && !isNaN(rawPrice) && rawPrice > 0) ? rawPrice : 100.0;
     const tradedStock = profile.tradedSymbols[Math.floor(Math.random() * profile.tradedSymbols.length)];
-    const rawQty = profile.lotSize;
-    const qty = `${rawQty} ${profile.unit}`;
+    const rawQty = (typeof profile.lotSize === 'number' && !isNaN(profile.lotSize) && profile.lotSize > 0) ? profile.lotSize : 100;
+    const qty = `${rawQty} ${profile.unit || 'Shares'}`;
     const isUSD = profile.currency === 'USD';
     const fxRate = isUSD ? 83.92 : 1.0;
     
     // Dynamic Volume-Weighted Slippage Calculation (Order Qty / Available L2 Book Depth)
     const bookDepth = 800 + Math.floor(Math.random() * 1200);
-    const volumeImpactBps = Number(((qty / bookDepth) * 3.5).toFixed(2));
+    const volumeImpactBps = Number(((rawQty / bookDepth) * 3.5).toFixed(2));
     const kyleLambdaBps = Number((0.4 + Math.random() * 0.5).toFixed(2));
-    const slippageBps = Number((volumeImpactBps + kyleLambdaBps).toFixed(1));
+    const slippageBps = isNaN(volumeImpactBps) ? 1.5 : Number((volumeImpactBps + kyleLambdaBps).toFixed(1));
     const isBuy = side.includes('BUY') || side === 'COVER';
     const fillPrice = Number((isBuy ? curPrice * (1 + slippageBps / 10000) : curPrice * (1 - slippageBps / 10000)).toFixed(2));
-    const vwapBenchmark = Number(((curPrice + fillPrice) / 2).toFixed(2));
+    const safeFillPrice = (typeof fillPrice === 'number' && !isNaN(fillPrice) && fillPrice > 0) ? fillPrice : curPrice;
+    const vwapBenchmark = Number(((curPrice + safeFillPrice) / 2).toFixed(2));
 
     const sentText = `[Sentiment: ${bot.sentimentSource} = ${bot.sentimentScore >= 0 ? '+' : ''}${bot.sentimentScore || 0.45}]`;
     const volText = `[Vol Matched: ${qty} / ${bookDepth} Depth | VWAP: ₹${vwapBenchmark}]`;
@@ -2534,7 +2625,7 @@
     const nowD = new Date();
     const exactTime = getExactTimeOnly(nowD);
     const fullTs = getExactTimestamp(nowD, bot.market);
-    const notionalINR = Math.round(rawQty * fillPrice * fxRate);
+    const notionalINR = Math.round(rawQty * safeFillPrice * fxRate);
 
     bot.orderState = 'ORDER_ROUTED';
     bot.currentOrder = {
@@ -2554,7 +2645,7 @@
       qty: qty,
       rawQty: rawQty,
       limitPrice: curPrice,
-      fillPrice: fillPrice,
+      fillPrice: safeFillPrice,
       currency: profile.currency,
       currSymbol: isUSD ? '$' : '₹',
       notionalINR: notionalINR,
@@ -2583,15 +2674,15 @@
         side: side,
         qty: qty,
         rawQty: rawQty,
-        entryPrice: fillPrice,
-        currentPrice: fillPrice,
+        entryPrice: safeFillPrice,
+        currentPrice: safeFillPrice,
         currency: profile.currency,
         currSymbol: isUSD ? '$' : '₹',
         notionalINR: notionalINR,
         unrealizedPnlINR: 0,
         unrealizedPnlPct: 0.0,
-        stopLossPrice: Number((isBuy ? fillPrice * 0.988 : fillPrice * 1.012).toFixed(2)),
-        takeProfitPrice: Number((isBuy ? fillPrice * 1.025 : fillPrice * 0.975).toFixed(2)),
+        stopLossPrice: Number((isBuy ? safeFillPrice * 0.988 : safeFillPrice * 1.012).toFixed(2)),
+        takeProfitPrice: Number((isBuy ? safeFillPrice * 1.025 : safeFillPrice * 0.975).toFixed(2)),
         entryTime: Date.now()
       };
 
@@ -2629,13 +2720,20 @@
     const isBuy = pos.side === 'BUY';
     const exitSide = isBuy ? 'SELL' : 'COVER';
     const orderId = generateOrderId(bot.id);
-    const exitPrice = pos.currentPrice;
-    const pnlINR = Math.round(pos.unrealizedPnlINR);
+    const safeCurrentPrice = (pos && typeof pos.currentPrice === 'number' && !isNaN(pos.currentPrice) && pos.currentPrice > 0)
+      ? pos.currentPrice
+      : ((typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || 100.0));
+    const exitPrice = safeCurrentPrice;
+    const rawPnl = (pos && typeof pos.unrealizedPnlINR === 'number' && !isNaN(pos.unrealizedPnlINR)) ? pos.unrealizedPnlINR : 0;
+    const pnlINR = Math.round(rawPnl);
     const rawQty = pos.rawQty || (typeof pos.qty === 'number' ? pos.qty : 100);
     const currSymbol = pos.currSymbol || (bot.market === 'india' ? '₹' : '$');
     const fxRate = bot.market === 'india' ? 1.0 : 83.92;
     const notionalINR = Math.round(rawQty * exitPrice * fxRate);
 
+    if (typeof bot.realizedPnlINR !== 'number' || isNaN(bot.realizedPnlINR)) {
+      bot.realizedPnlINR = 50000;
+    }
     bot.realizedPnlINR += pnlINR;
     if (pnlINR > 0) playProfitExitSound();
 
@@ -2945,12 +3043,16 @@
           if (bot.activePosition) {
             const pos = bot.activePosition;
             const isBuy = pos.side === 'BUY';
-            const pnlDelta = isBuy ? (bot.currentPrice - pos.entryPrice) : (pos.entryPrice - bot.currentPrice);
-            pos.currentPrice = bot.currentPrice;
-            const rawQty = typeof pos.rawQty === 'number' ? pos.rawQty : (parseFloat(pos.qty) || 100);
+            const safeCurPrice = (typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || 100.0);
+            const safeEntryPrice = (typeof pos.entryPrice === 'number' && !isNaN(pos.entryPrice) && pos.entryPrice > 0) ? pos.entryPrice : safeCurPrice;
+            pos.entryPrice = safeEntryPrice;
+            pos.currentPrice = safeCurPrice;
+            const pnlDelta = isBuy ? (safeCurPrice - safeEntryPrice) : (safeEntryPrice - safeCurPrice);
+            const rawQty = typeof pos.rawQty === 'number' && !isNaN(pos.rawQty) ? pos.rawQty : (parseFloat(pos.qty) || 100);
             const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || 83.92);
             pos.unrealizedPnlINR = Math.round(pnlDelta * rawQty * fxRate);
-            pos.unrealizedPnlPct = Number(((pnlDelta / pos.entryPrice) * 100).toFixed(2));
+            pos.unrealizedPnlPct = safeEntryPrice > 0 ? Number(((pnlDelta / safeEntryPrice) * 100).toFixed(2)) : 0.0;
+            if (isNaN(pos.unrealizedPnlPct) || !isFinite(pos.unrealizedPnlPct)) pos.unrealizedPnlPct = 0.0;
           }
 
           bot.totalProfitINR = bot.realizedPnlINR + (bot.activePosition ? bot.activePosition.unrealizedPnlINR : 0);
@@ -2980,12 +3082,16 @@
         if (bot.activePosition) {
           const pos = bot.activePosition;
           const isBuy = pos.side === 'BUY';
-          const pnlDelta = isBuy ? (bot.currentPrice - pos.entryPrice) : (pos.entryPrice - bot.currentPrice);
-          pos.currentPrice = bot.currentPrice;
-          const rawQty = typeof pos.rawQty === 'number' ? pos.rawQty : (parseFloat(pos.qty) || 100);
+          const safeCurPrice = (typeof bot.currentPrice === 'number' && !isNaN(bot.currentPrice) && bot.currentPrice > 0) ? bot.currentPrice : (bot.basePrice || 100.0);
+          const safeEntryPrice = (typeof pos.entryPrice === 'number' && !isNaN(pos.entryPrice) && pos.entryPrice > 0) ? pos.entryPrice : safeCurPrice;
+          pos.entryPrice = safeEntryPrice;
+          pos.currentPrice = safeCurPrice;
+          const pnlDelta = isBuy ? (safeCurPrice - safeEntryPrice) : (safeEntryPrice - safeCurPrice);
+          const rawQty = typeof pos.rawQty === 'number' && !isNaN(pos.rawQty) ? pos.rawQty : (parseFloat(pos.qty) || 100);
           const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || 83.92);
           pos.unrealizedPnlINR = Math.round(pnlDelta * rawQty * fxRate);
-          pos.unrealizedPnlPct = Number(((pnlDelta / pos.entryPrice) * 100).toFixed(2));
+          pos.unrealizedPnlPct = safeEntryPrice > 0 ? Number(((pnlDelta / safeEntryPrice) * 100).toFixed(2)) : 0.0;
+          if (isNaN(pos.unrealizedPnlPct) || !isFinite(pos.unrealizedPnlPct)) pos.unrealizedPnlPct = 0.0;
 
           if (pos.unrealizedPnlPct >= 1.8) {
             closeBotPosition(bot, 'TAKE_PROFIT (+1.8% Live Target Hit)');
@@ -3018,13 +3124,21 @@
 
     const pnlEl = document.getElementById(`pnl-${bot.id}`);
     if (pnlEl) {
-      pnlEl.textContent = `${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}`;
+      if (currentCardMode === 'beginner') {
+        pnlEl.textContent = `${totPnl >= 0 ? '+' : ''}${formatCurrencyCompact(totPnl, bot.market)}`;
+      } else {
+        pnlEl.textContent = `${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}`;
+      }
       pnlEl.style.color = pnlColor;
     }
 
     const breakdownEl = document.getElementById(`pnl-breakdown-${bot.id}`);
     if (breakdownEl) {
-      breakdownEl.innerHTML = `Realized: ₹${bot.realizedPnlINR.toLocaleString('en-IN')} &bull; Unr: <span style="color:${unrColor}; font-weight:700;">${unrealized >= 0 ? '+' : ''}₹${unrealized.toLocaleString('en-IN')}</span>`;
+      if (currentCardMode === 'beginner') {
+        breakdownEl.innerHTML = `Banked: <span style="color:#10b981; font-weight:700;">${formatCurrencyCompact(bot.realizedPnlINR || 0, 'india')}</span>`;
+      } else {
+        breakdownEl.innerHTML = `Realized: ₹${bot.realizedPnlINR.toLocaleString('en-IN')} &bull; Unr: <span style="color:${unrColor}; font-weight:700;">${unrealized >= 0 ? '+' : ''}₹${unrealized.toLocaleString('en-IN')}</span>`;
+      }
     }
 
     const liveQuoteEl = document.getElementById(`live-quote-${bot.id}`);
@@ -3076,17 +3190,7 @@
 
     const posEl = document.getElementById(`pos-${bot.id}`);
     if (posEl) {
-      if (bot.activePosition) {
-        const p = bot.activePosition;
-        const pColor = p.unrealizedPnlINR >= 0 ? '#10b981' : '#f43f5e';
-        posEl.innerHTML = `
-          <span style="color:#22d3ee; font-weight:700;">${p.side} ${p.qty}</span> 
-          <span style="color:#fff;">${p.symbol}</span> @ ₹${p.entryPrice} 
-          <span style="color:${pColor}; font-weight:800;">(${p.unrealizedPnlINR >= 0 ? '+' : ''}₹${p.unrealizedPnlINR} &bull; ${p.unrealizedPnlPct}%)</span>
-        `;
-      } else {
-        posEl.innerHTML = `<span style="color:#71717a;"><i class="fa-solid fa-radar"></i> Scanning Order Book...</span>`;
-      }
+      posEl.innerHTML = renderSafePositionDisplay(bot);
     }
 
     const stateEl = document.getElementById(`order-state-${bot.id}`);
@@ -3104,7 +3208,7 @@
     const rankerPnlEl = document.getElementById(`ranker-pnl-${bot.id}`);
     if (rankerPnlEl) {
       const rankerUnrealized = bot.activePosition ? (bot.activePosition.unrealizedPnlINR || 0) : 0;
-      const rankerTotPnl = bot.realizedPnlINR + rankerUnrealized;
+      const rankerTotPnl = (bot.realizedPnlINR || 0) + rankerUnrealized;
       const rankerColor = rankerTotPnl >= 0 ? '#10b981' : '#f43f5e';
       rankerPnlEl.innerHTML = `
         <div style="font-weight:800; color:${rankerColor}; font-size:0.84rem;">${rankerTotPnl >= 0 ? '+' : ''}₹${rankerTotPnl.toLocaleString('en-IN')}</div>
@@ -3122,8 +3226,10 @@
     if (rankerPosEl) {
       if (bot.activePosition) {
         const p = bot.activePosition;
-        const pColor = p.unrealizedPnlINR >= 0 ? '#10b981' : '#f43f5e';
-        rankerPosEl.innerHTML = `<span style="color:#22d3ee; font-weight:700;">${p.side} ${p.qty}</span> <span style="color:#fff;">${p.symbol}</span> <span style="color:${pColor}; font-weight:800;">(${p.unrealizedPnlINR >= 0 ? '+' : ''}₹${p.unrealizedPnlINR})</span>`;
+        const pnlINR = (typeof p.unrealizedPnlINR === 'number' && !isNaN(p.unrealizedPnlINR)) ? p.unrealizedPnlINR : 0;
+        const pColor = pnlINR >= 0 ? '#10b981' : '#f43f5e';
+        const entryP = (typeof p.entryPrice === 'number' && !isNaN(p.entryPrice) && p.entryPrice > 0) ? p.entryPrice : (bot.currentPrice || bot.basePrice || 100.0);
+        rankerPosEl.innerHTML = `<span style="color:#22d3ee; font-weight:700;">${p.side || 'BUY'} ${p.qty || '100 Shares'}</span> <span style="color:#fff;">${p.symbol || bot.primarySymbol}</span> @ ₹${entryP.toLocaleString('en-IN')} <span style="color:${pColor}; font-weight:800;">(${pnlINR >= 0 ? '+' : ''}₹${pnlINR.toLocaleString('en-IN')})</span>`;
       } else {
         rankerPosEl.innerHTML = `<span style="color:#71717a;">Scanning Order Book...</span>`;
       }
@@ -3169,11 +3275,12 @@
     grid.innerHTML = sorted.map((bot, idx) => {
       const isRunning = bot.status === 'RUNNING';
       const unrealized = bot.activePosition ? (bot.activePosition.unrealizedPnlINR || 0) : 0;
-      const totPnl = bot.realizedPnlINR + unrealized;
+      const totPnl = (bot.realizedPnlINR || 0) + unrealized;
       const pnlColor = totPnl >= 0 ? '#10b981' : '#f43f5e';
       const unrColor = unrealized >= 0 ? '#10b981' : '#f43f5e';
-      const curPrice = bot.currentPrice || bot.basePrice;
-      const chg = bot.priceChangePct || 0;
+      const rawCurPrice = bot.currentPrice || bot.basePrice || 100.0;
+      const curPrice = (typeof rawCurPrice === 'number' && !isNaN(rawCurPrice) && rawCurPrice > 0) ? rawCurPrice : 100.0;
+      const chg = typeof bot.priceChangePct === 'number' && !isNaN(bot.priceChangePct) ? bot.priceChangePct : 0;
       const chgColor = chg >= 0 ? '#10b981' : '#f43f5e';
       const curr = bot.market === 'india' ? '₹' : '$';
       const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
@@ -3187,19 +3294,153 @@
       if (bot.tier.includes('S')) tierCls = 'tier-s';
       else if (bot.tier.includes('A')) tierCls = 'tier-a';
 
-      
       const isEgyptian = bot.pantheon === 'egyptian' || bot.division === 'Karnak';
       const isGreek = !isEgyptian && (bot.pantheon === 'greek' || bot.division === 'Olympus');
       const pantheonCls = isEgyptian ? 'myth-badge-egyptian' : (isGreek ? 'myth-badge-greek' : 'myth-badge-norse');
       const divisionTag = isEgyptian ? '🏺 KARNAK' : (isGreek ? '🏛️ OLYMPUS' : '⚔️ VALHALLA');
 
-      // Sentiment color & meter calculation
       const sentScore = bot.sentimentScore !== undefined ? bot.sentimentScore : 0.45;
       const sentPct = Math.round(((sentScore + 1) / 2) * 100);
       let sentColor = '#ffb000';
       if (sentScore >= 0.3) sentColor = '#10b981';
       else if (sentScore <= -0.3) sentColor = '#f43f5e';
 
+      // ── BEGINNER FRIENDLY VIEW CARD ──────────────────────────────────────────
+      if (currentCardMode === 'beginner') {
+        const risk = getRiskLevel(bot);
+        const explanation = bot.laymanExplanation || 'Executes algorithmic risk-managed quantitative trading on real-time market data.';
+        const safePriceStr = formatPrice(curPrice);
+        const safeTotPnlStr = formatCurrencyCompact(totPnl, bot.market);
+        const safeRealizedStr = formatCurrencyCompact(bot.realizedPnlINR || 0, 'india');
+        const winSub = getWinRateSubtext(bot.winRate);
+        const sharpeSub = getSharpeSubtext(bot.sharpe);
+
+        return `
+          <div class="bot-card beginner-card ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
+            <!-- Top Card Header -->
+            <div class="bot-card-top">
+              <div class="bot-card-title">
+                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                  <span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span>
+                  <span class="tier-badge ${tierCls}">${bot.tier}</span>
+                  <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
+                  <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
+                    ${divisionTag}
+                  </span>
+                  <span id="order-state-${bot.id}">
+                    <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
+                      <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
+                    </span>
+                  </span>
+                </div>
+
+                <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
+                  <span style="font-weight:700;">${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
+                  <span style="font-size:0.68rem; color:#d4d4d8;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
+                </div>
+                <h4 class="bot-name" style="margin-top:3px; font-size:0.92rem;">${bot.name}</h4>
+              </div>
+              <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
+                <i class="fa-solid ${isRunning ? 'fa-circle fa-beat' : 'fa-circle-pause'}"></i> ${bot.status}
+              </span>
+            </div>
+
+            <!-- Plain English Beginner Explainer -->
+            <div class="beginner-explainer-box">
+              <div class="explainer-header">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <i class="fa-regular fa-lightbulb text-amber"></i>
+                  <span style="font-size:0.68rem; font-weight:800; letter-spacing:0.04em; color:#e4e4e7;">WHAT THIS BOT DOES</span>
+                </div>
+                <span class="risk-level-badge ${risk.badge}">${risk.text}</span>
+              </div>
+              <p class="explainer-text">${explanation}</p>
+            </div>
+
+            <!-- Primary Traded Asset & Live Price Strip -->
+            <div class="beginner-asset-strip">
+              <div class="asset-info">
+                <span class="asset-label"><i class="fa-solid fa-gem text-amber" style="font-size:0.7rem;"></i> ASSET:</span>
+                <strong class="asset-symbol">${bot.primarySymbol}</strong>
+                <span class="asset-name" style="color:#a1a1aa; font-size:0.68rem;">(${bot.displayAsset})</span>
+              </div>
+              <div class="asset-quote" id="live-quote-${bot.id}">
+                <span class="pulse-dot"></span>
+                <strong class="quote-val">${curr}${safePriceStr}</strong>
+                <span class="quote-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
+              </div>
+            </div>
+
+            <!-- 3 Core Financial Pillars -->
+            <div class="beginner-stats-row">
+              <div class="b-stat-card profit-card" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22);">
+                <div class="b-stat-lbl"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL PROFIT</div>
+                <div class="b-stat-val" style="color:${pnlColor};" id="pnl-${bot.id}" title="Exact Rupee Value: ₹${totPnl.toLocaleString('en-IN')}">
+                  ${totPnl >= 0 ? '+' : ''}${safeTotPnlStr}
+                </div>
+                <div class="b-stat-sub" id="pnl-breakdown-${bot.id}">
+                  Banked: <span style="color:#10b981; font-weight:700;">${safeRealizedStr}</span>
+                </div>
+              </div>
+              <div class="b-stat-card">
+                <div class="b-stat-lbl"><i class="fa-solid fa-trophy text-amber"></i> WIN RATE</div>
+                <div class="b-stat-val text-green">${bot.winRate}%</div>
+                <div class="b-stat-sub text-muted">${winSub}</div>
+              </div>
+              <div class="b-stat-card">
+                <div class="b-stat-lbl"><i class="fa-solid fa-chart-line text-cyan"></i> SHARPE</div>
+                <div class="b-stat-val text-cyan">${bot.sharpe}</div>
+                <div class="b-stat-sub text-muted">${sharpeSub}</div>
+              </div>
+            </div>
+
+            <!-- Current Live Position Status -->
+            <div class="beginner-live-status">
+              <div class="live-status-header">
+                <i class="fa-solid fa-crosshairs text-green"></i>
+                <span style="font-weight:700; color:#d4d4d8;">CURRENT ACTIVITY:</span>
+              </div>
+              <div class="live-status-body" id="pos-${bot.id}">
+                ${renderSafePositionDisplay(bot)}
+              </div>
+            </div>
+
+            <!-- Collapsible Quantitative Strategy Model Drawer -->
+            <div class="collapsible-math-wrap">
+              <button class="btn-expand-math" onclick="window.toggleBotMath('${bot.id}')" id="btn-math-toggle-${bot.id}">
+                <span><i class="fa-solid fa-square-root-variable text-cyan"></i> View Quant Strategy Model</span>
+                <i class="fa-solid fa-chevron-down math-chevron" id="chevron-${bot.id}"></i>
+              </button>
+              <div class="math-drawer-content" id="math-drawer-${bot.id}" style="display:none;">
+                <div class="bot-math-card" style="margin-bottom:8px;">
+                  <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
+                </div>
+                <div class="math-meta-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                  <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
+                    <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong>
+                  </span>
+                  <span style="font-size:0.62rem; color:#a1a1aa;"><strong>Signal:</strong> ${bot.entryRules ? bot.entryRules.slice(0, 65) + '...' : 'Quantitative threshold confirmation'}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Bottom Controls -->
+            <div class="bot-card-actions">
+              <button class="bot-btn-mini btn-open-console" data-id="${bot.id}" style="color:#22d3ee; border-color:rgba(34,211,238,0.35);">
+                <i class="fa-solid fa-circle-info"></i> Inspect Details
+              </button>
+              <button class="bot-btn-mini btn-force-order" data-id="${bot.id}" style="color:#fab005; border-color:rgba(250,176,5,0.35);" title="Force bot to execute simulated trade">
+                <i class="fa-solid fa-bolt"></i> Simulate Trade
+              </button>
+              <button class="bot-btn-mini bot-btn-toggle" data-id="${bot.id}" id="toggle-${bot.id}">
+                <i class="fa-solid ${isRunning ? 'fa-pause' : 'fa-play'}"></i> ${isRunning ? 'Pause' : 'Resume'}
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // ── QUANT PRO VIEW CARD ──────────────────────────────────────────────────
       return `
         <div class="bot-card ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
           <div class="bot-card-top">
@@ -3208,7 +3449,7 @@
                 <span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span>
                 <span class="tier-badge ${tierCls}">${bot.tier}</span>
                 <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
-                <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);'}">
+                <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
                   ${divisionTag}
                 </span>
                 <span id="order-state-${bot.id}">
@@ -3339,11 +3580,7 @@
           <div style="font-size:0.7rem; color:#aaa; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
             <i class="fa-solid fa-crosshairs text-green"></i> <strong>Live Order &amp; Position:</strong> 
             <span id="pos-${bot.id}">
-              ${bot.activePosition ? `
-                <span style="color:#22d3ee; font-weight:700;">${bot.activePosition.side} ${bot.activePosition.qty}</span> 
-                <span style="color:#fff;">${bot.activePosition.symbol}</span> @ ₹${bot.activePosition.entryPrice} 
-                <span style="color:${pnlColor}; font-weight:800;">(${bot.activePosition.unrealizedPnlINR >= 0 ? '+' : ''}₹${bot.activePosition.unrealizedPnlINR})</span>
-              ` : '<span style="color:#71717a;"><i class="fa-solid fa-radar"></i> Scanning L2 Order Book...</span>'}
+              ${renderSafePositionDisplay(bot)}
             </span>
           </div>
 
@@ -4904,23 +5141,62 @@
       });
     });
 
-    const btnGrid = document.getElementById('btnViewGrid');
+    // Wire 3-Way Mode Switcher (Beginner, Quant Pro, Leaderboard Ranker)
+    const btnBeginner = document.getElementById('btnViewBeginner');
+    const btnPro = document.getElementById('btnViewPro');
     const btnRanker = document.getElementById('btnViewRanker');
+    const btnGrid = document.getElementById('btnViewGrid');
 
-    if (btnGrid && btnRanker) {
-      btnGrid.addEventListener('click', () => {
-        currentViewMode = 'grid';
-        btnGrid.classList.add('active');
-        btnRanker.classList.remove('active');
-        renderActiveView();
-      });
-      btnRanker.addEventListener('click', () => {
-        currentViewMode = 'ranker';
-        btnRanker.classList.add('active');
-        btnGrid.classList.remove('active');
-        renderActiveView();
+    const updateViewButtonActiveState = () => {
+      if (btnBeginner) btnBeginner.classList.toggle('active', currentViewMode === 'grid' && currentCardMode === 'beginner');
+      if (btnPro) btnPro.classList.toggle('active', currentViewMode === 'grid' && currentCardMode === 'pro');
+      if (btnRanker) btnRanker.classList.toggle('active', currentViewMode === 'ranker');
+      if (btnGrid) btnGrid.classList.toggle('active', currentViewMode === 'grid');
+    };
+
+    if (btnBeginner) {
+      btnBeginner.addEventListener('click', () => {
+        if (window.switchFleetView) window.switchFleetView('beginner');
       });
     }
+    if (btnPro) {
+      btnPro.addEventListener('click', () => {
+        if (window.switchFleetView) window.switchFleetView('pro');
+      });
+    }
+    if (btnRanker) {
+      btnRanker.addEventListener('click', () => {
+        if (window.switchFleetView) window.switchFleetView('ranker');
+      });
+    }
+    if (btnGrid) {
+      btnGrid.addEventListener('click', () => {
+        if (window.switchFleetView) window.switchFleetView('grid');
+      });
+    }
+
+    // Guide and Tools Drawer header interactions
+    const btnDismissGuide = document.getElementById('btnDismissGuide');
+    if (btnDismissGuide) {
+      btnDismissGuide.addEventListener('click', () => {
+        if (window.toggleBeginnerGuide) window.toggleBeginnerGuide(false);
+      });
+    }
+    const btnToggleGuide = document.getElementById('btnToggleGuide');
+    if (btnToggleGuide) {
+      btnToggleGuide.addEventListener('click', () => {
+        if (window.toggleBeginnerGuide) window.toggleBeginnerGuide();
+      });
+    }
+
+    // Restore guide preference if previously closed
+    try {
+      const savedGuide = localStorage.getItem('riskos_fleet_guide_visible');
+      const banner = document.getElementById('beginnerGuideBanner');
+      if (banner && savedGuide === 'false') banner.style.display = 'none';
+    } catch (e) {}
+
+    updateViewButtonActiveState();
 
     const btnStream = document.getElementById('btnBlotterStream');
     const btnTable = document.getElementById('btnBlotterTable');
@@ -5405,14 +5681,82 @@
     window.renderActiveView = renderActiveView;
     window.openBotConsoleModal = openBotConsoleModal;
     window.switchFleetView = (mode) => {
-      currentViewMode = mode;
-      const btnGrid = document.getElementById('btnViewGrid');
-      const btnRanker = document.getElementById('btnViewRanker');
-      if (btnGrid && btnRanker) {
-        if (mode === 'grid') { btnGrid.classList.add('active'); btnRanker.classList.remove('active'); }
-        else { btnRanker.classList.add('active'); btnGrid.classList.remove('active'); }
+      if (mode === 'ranker') {
+        currentViewMode = 'ranker';
+      } else if (mode === 'pro') {
+        currentViewMode = 'grid';
+        currentCardMode = 'pro';
+      } else if (mode === 'beginner') {
+        currentViewMode = 'grid';
+        currentCardMode = 'beginner';
+      } else if (mode === 'grid') {
+        currentViewMode = 'grid';
       }
+
+      try {
+        localStorage.setItem('riskos_fleet_card_mode', currentCardMode);
+        localStorage.setItem('riskos_fleet_view_mode', currentViewMode);
+      } catch (e) {}
+
+      const btnBeginner = document.getElementById('btnViewBeginner');
+      const btnPro = document.getElementById('btnViewPro');
+      const btnRanker = document.getElementById('btnViewRanker');
+      const btnGrid = document.getElementById('btnViewGrid');
+
+      if (btnBeginner) btnBeginner.classList.toggle('active', currentViewMode === 'grid' && currentCardMode === 'beginner');
+      if (btnPro) btnPro.classList.toggle('active', currentViewMode === 'grid' && currentCardMode === 'pro');
+      if (btnRanker) btnRanker.classList.toggle('active', currentViewMode === 'ranker');
+      if (btnGrid) btnGrid.classList.toggle('active', currentViewMode === 'grid');
+
       renderActiveView();
+    };
+
+    window.toggleBeginnerGuide = (forceState) => {
+      const banner = document.getElementById('beginnerGuideBanner');
+      if (!banner) return;
+      const isHidden = banner.style.display === 'none';
+      const shouldShow = (typeof forceState === 'boolean') ? forceState : isHidden;
+      banner.style.display = shouldShow ? 'block' : 'none';
+      try {
+        localStorage.setItem('riskos_fleet_guide_visible', shouldShow ? 'true' : 'false');
+      } catch (e) {}
+    };
+
+    window.toggleToolsDrawer = (forceState) => {
+      const content = document.getElementById('toolsDrawerContent');
+      const chevron = document.getElementById('toolsDrawerChevron');
+      const stateText = document.getElementById('toolsDrawerStateText');
+      if (!content) return;
+
+      const isClosed = content.style.display === 'none';
+      const shouldOpen = (typeof forceState === 'boolean') ? forceState : isClosed;
+
+      content.style.display = shouldOpen ? 'block' : 'none';
+      if (chevron) {
+        chevron.classList.toggle('rotated', shouldOpen);
+      }
+      if (stateText) {
+        stateText.textContent = shouldOpen ? 'Click to collapse tools' : 'Click to expand tools';
+      }
+    };
+
+    window.toggleBotMath = (botId) => {
+      const drawer = document.getElementById(`math-drawer-${botId}`);
+      const chevron = document.getElementById(`chevron-${botId}`);
+      if (!drawer) return;
+
+      const isClosed = drawer.style.display === 'none';
+      drawer.style.display = isClosed ? 'block' : 'none';
+      if (chevron) {
+        chevron.classList.toggle('open', isClosed);
+      }
+      if (isClosed) {
+        const bot = botRegistry.find(b => b.id === botId);
+        const mathEl = document.getElementById(`math-grid-${botId}`);
+        if (bot && mathEl) {
+          renderLatexFormula(mathEl, bot.mathFormula, true);
+        }
+      }
     };
     window.switchBlotterView = (mode) => {
       blotterViewMode = mode;

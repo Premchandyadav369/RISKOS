@@ -196,94 +196,167 @@
         <div class="tel-sub text-cyan"><i class="fa-solid fa-lock"></i> SEC 15c3-5 Compliant</div>
       </div>
     </section>
-
-    <!-- 2. Execution Speed Controller & Time-Travel Toolbar -->
-    <section class="time-travel-bar">
-      <div class="time-travel-left">
-        <div class="time-badge">
-          <i class="fa-solid fa-gauge-high text-cyan"></i> 
-          <strong>Autonomous Order Execution Engine:</strong> 
-          <span style="color:#a1a1aa; font-size:0.75rem;">All 41 bots across Greek, Norse &amp; Egyptian Pantheons continuously evaluate real-time live quotes, executing algorithmic strategies on genuine market data.</span>
+    
+    <!-- ═══════════════════ BEGINNER QUICK-START ONBOARDING GUIDE ═══════════════════ -->
+    <section class="beginner-onboarding-banner" id="beginnerGuideBanner">
+      <div class="beginner-guide-card">
+        <div class="guide-header">
+          <div class="guide-title">
+            <i class="fa-solid fa-graduation-cap text-amber"></i>
+            <span><strong>Quick-Start Guide:</strong> How the 24/7 Bot Fleet Works</span>
+            <span class="badge badge-beginner">Beginner Friendly</span>
+          </div>
+          <button class="btn-dismiss-guide" id="btnDismissGuide" onclick="window.toggleBeginnerGuide(false)" title="Hide Guide">
+            <i class="fa-solid fa-xmark"></i> Dismiss
+          </button>
         </div>
-      </div>
-      <div class="time-travel-buttons">
-        <div class="speed-toggle-group">
-          <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase; margin-right:4px;">Speed:</span>
-          <button class="btn-time-travel speed-btn active" data-speed="1" id="btnSpeed1x">1x Real-Time</button>
-          <button class="btn-time-travel speed-btn" data-speed="5" id="btnSpeed5x">5x Fast Alpha</button>
-          <button class="btn-time-travel speed-btn" data-speed="20" id="btnSpeed20x">20x Turbo HFT</button>
+        <div class="guide-grid">
+          <div class="guide-col">
+            <div class="guide-icon-wrap bg-cyan-soft"><i class="fa-solid fa-robot text-cyan"></i></div>
+            <div class="guide-body">
+              <h4>1. 41 Autonomous Bots</h4>
+              <p>Each bot is a dedicated mathematical algorithm trading stocks, crypto, or commodities without human emotion. They buy dips, hedge risks, and take profits automatically.</p>
+            </div>
+          </div>
+          <div class="guide-col">
+            <div class="guide-icon-wrap bg-purple-soft"><i class="fa-solid fa-landmark text-purple"></i></div>
+            <div class="guide-body">
+              <h4>2. Three Pantheons</h4>
+              <p><strong>Olympus:</strong> 10 Indian equities &amp; derivatives (NSE/MCX).<br/><strong>Valhalla:</strong> 11 US Mega-Caps &amp; Crypto (NASDAQ/Binance).<br/><strong>Karnak:</strong> 20 Sector-rotation algorithmic bots.</p>
+            </div>
+          </div>
+          <div class="guide-col">
+            <div class="guide-icon-wrap bg-green-soft"><i class="fa-solid fa-chart-line text-green"></i></div>
+            <div class="guide-body">
+              <h4>3. Reading Key Numbers</h4>
+              <p><strong>P&amp;L:</strong> Total profit earned.<br/><strong>Win Rate:</strong> Percentage of profitable trades (e.g., 78% = ~4 of 5 win).<br/><strong>Sharpe:</strong> Return per risk (&gt;2.0 is institutional grade).</p>
+            </div>
+          </div>
+          <div class="guide-col">
+            <div class="guide-icon-wrap bg-amber-soft"><i class="fa-solid fa-sliders text-amber"></i></div>
+            <div class="guide-body">
+              <h4>4. Simple Controls</h4>
+              <p>Switch between <strong>Beginner View</strong> (plain English) and <strong>Quant Pro</strong> (advanced math formulas). Use <strong>Start / Pause</strong> to control any bot.</p>
+            </div>
+          </div>
         </div>
-
-        <button class="btn-time-travel highlight" id="btnBurstAllOrders" onclick="if(window.burstAllOrders) window.burstAllOrders(); else if(window.fleetBurstAllOrders) window.fleetBurstAllOrders();" title="Forces all 41 bots to place orders simultaneously">
-          <i class="fa-solid fa-bolt"></i> Burst All Orders
-        </button>
-
-        <button class="btn-time-travel highlight" id="btnSyncLiveFeeds" onclick="if(window.syncFleetRealTimeQuotes) window.syncFleetRealTimeQuotes(true);" title="Sync all 41 bots with live real-time market data (Binance 24/7 + Yahoo Finance + NSE/NYSE)" style="background:rgba(16,185,129,0.18); border-color:rgba(16,185,129,0.5); color:#10b981;">
-          <i class="fa-solid fa-satellite-dish fa-beat"></i> ⚡ Sync Live Market Feeds
-        </button>
-
-        <div style="border-left:1px solid rgba(255,255,255,0.12); margin:0 4px; height:20px;"></div>
-
-        <button class="btn-time-travel" id="btnFf7Days" title="Fast forward 7 days"><i class="fa-solid fa-forward"></i> +7D</button>
-        <button class="btn-time-travel" id="btnFf30Days" title="Fast forward 30 days"><i class="fa-solid fa-forward-fast"></i> +30D</button>
-        <button class="btn-time-travel" id="btnFf90Days" title="Fast forward 90 days"><i class="fa-solid fa-angles-right"></i> +90D (3M)</button>
-        <button class="btn-time-travel reset" id="btnResetEpoch" title="Reset epoch"><i class="fa-solid fa-rotate-left"></i></button>
       </div>
     </section>
 
-    <!-- 2.5 Institutional Quantum Features Toolbar -->
-    <section class="quantum-feature-strip">
-      <div class="q-feature-group">
-        <button class="btn-quantum-feature" id="btnOpenSynapse" onclick="if(window.openSynapseModal) window.openSynapseModal();">
-          <i class="fa-solid fa-network-wired text-amber"></i> ⚡ Cross-Hedge Synapse
-        </button>
-        <button class="btn-quantum-feature" id="btnToggleVoiceHud">
-          <i class="fa-solid fa-microphone-lines text-cyan" id="voiceHudIcon"></i> <span id="voiceHudLabel">Voice Copilot: OFF</span>
-        </button>
-        <button class="btn-quantum-feature" id="btnOpenCopilot" onclick="if(window.openCopilotModal) window.openCopilotModal();">
-          <i class="fa-solid fa-robot text-purple"></i> 🤖 AI Risk Copilot (/ask)
-        </button>
-        <button class="btn-quantum-feature" id="btnOpenCrisis" onclick="if(window.openCrisisModal) window.openCrisisModal();">
-          <i class="fa-solid fa-clock-rotate-left text-rose"></i> ⏳ Crisis Replay (1987-2023)
-        </button>
-        <button class="btn-quantum-feature" id="btnOpenVol3D" onclick="if(window.openVol3dModal) window.openVol3dModal();">
-          <i class="fa-solid fa-cube text-emerald"></i> 🌊 3D Vol Surface &amp; L2
-        </button>
-        <button class="btn-quantum-feature" id="btnOpenDarkPool" onclick="if(window.openDarkPoolModal) window.openDarkPoolModal();">
-          <i class="fa-solid fa-binoculars text-amber"></i> 🐋 Dark Pool &amp; Icebergs
-        </button>
-        <button class="btn-quantum-feature defcon-btn" id="btnOpenDefcon" onclick="if(window.openDefconModal) window.openDefconModal();">
-          <i class="fa-solid fa-triangle-exclamation text-emerald" id="defconBtnIcon"></i> <span id="defconBtnLabel">DEFCON 5: NORMAL</span>
-        </button>
-        <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo" onclick="if(window.ExecutiveReportGenerator) window.ExecutiveReportGenerator.openPrintableReport(window.botRegistry || window.INITIAL_BOTS);">
-          <i class="fa-solid fa-file-invoice-dollar text-gold"></i> 📑 LP Risk Memo
-        </button>
-        <button class="btn-quantum-feature" id="btnOpenBotJournal" onclick="const m=document.getElementById('botJournalModalOverlay'); if(m) m.hidden=false; if(window.renderFleetTradeJournal) window.renderFleetTradeJournal('ALL');" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
-          <i class="fa-solid fa-calendar-days text-cyan"></i> 📅 Fleet &amp; Bot Trade Journal
-        </button>
+    <!-- 2. Integrated Execution & Institutional Tools Drawer (Collapsible) -->
+    <div class="tools-drawer-wrapper">
+      <div class="tools-drawer-header" onclick="window.toggleToolsDrawer()">
+        <div class="drawer-header-left">
+          <i class="fa-solid fa-toolbox text-cyan"></i>
+          <strong>Institutional Execution Suite &amp; Speed Controls (9 Tools)</strong>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-size:0.65rem; padding:2px 8px;">Advanced Cockpit</span>
+        </div>
+        <div class="drawer-header-right">
+          <span style="font-size:0.72rem; color:#71717a;" id="toolsDrawerStateText">Click to expand tools</span>
+          <i class="fa-solid fa-chevron-down drawer-chevron" id="toolsDrawerChevron"></i>
+        </div>
       </div>
-    </section>
 
-    <!-- 3. Fleet View Switcher: Matrix Grid vs Performance Ranker Leaderboard -->
+      <div class="tools-drawer-content" id="toolsDrawerContent" style="display:none;">
+        <!-- Speed & Time-Travel Controller -->
+        <div class="time-travel-bar" style="margin-bottom:12px;">
+          <div class="time-travel-left">
+            <div class="time-badge">
+              <i class="fa-solid fa-gauge-high text-cyan"></i> 
+              <strong>Autonomous Order Execution Engine:</strong> 
+              <span style="color:#a1a1aa; font-size:0.75rem;">All 41 bots evaluate real-time live quotes, executing algorithmic strategies on genuine market data.</span>
+            </div>
+          </div>
+          <div class="time-travel-buttons">
+            <div class="speed-toggle-group">
+              <span style="font-size:0.7rem; color:#71717a; font-weight:700; text-transform:uppercase; margin-right:4px;">Speed:</span>
+              <button class="btn-time-travel speed-btn active" data-speed="1" id="btnSpeed1x">1x Real-Time</button>
+              <button class="btn-time-travel speed-btn" data-speed="5" id="btnSpeed5x">5x Fast Alpha</button>
+              <button class="btn-time-travel speed-btn" data-speed="20" id="btnSpeed20x">20x Turbo HFT</button>
+            </div>
+
+            <button class="btn-time-travel highlight" id="btnBurstAllOrders" onclick="if(window.burstAllOrders) window.burstAllOrders(); else if(window.fleetBurstAllOrders) window.fleetBurstAllOrders();" title="Forces all 41 bots to place orders simultaneously">
+              <i class="fa-solid fa-bolt"></i> Burst All Orders
+            </button>
+
+            <button class="btn-time-travel highlight" id="btnSyncLiveFeeds" onclick="if(window.syncFleetRealTimeQuotes) window.syncFleetRealTimeQuotes(true);" title="Sync all 41 bots with live real-time market data (Binance 24/7 + Yahoo Finance + NSE/NYSE)" style="background:rgba(16,185,129,0.18); border-color:rgba(16,185,129,0.5); color:#10b981;">
+              <i class="fa-solid fa-satellite-dish fa-beat"></i> ⚡ Sync Live Market Feeds
+            </button>
+
+            <div style="border-left:1px solid rgba(255,255,255,0.12); margin:0 4px; height:20px;"></div>
+
+            <button class="btn-time-travel" id="btnFf7Days" title="Fast forward 7 days"><i class="fa-solid fa-forward"></i> +7D</button>
+            <button class="btn-time-travel" id="btnFf30Days" title="Fast forward 30 days"><i class="fa-solid fa-forward-fast"></i> +30D</button>
+            <button class="btn-time-travel" id="btnFf90Days" title="Fast forward 90 days"><i class="fa-solid fa-angles-right"></i> +90D (3M)</button>
+            <button class="btn-time-travel reset" id="btnResetEpoch" title="Reset epoch"><i class="fa-solid fa-rotate-left"></i></button>
+          </div>
+        </div>
+
+        <!-- 9 Quantum Institutional Tools -->
+        <div class="quantum-feature-strip" style="margin-bottom:0;">
+          <div class="q-feature-group">
+            <button class="btn-quantum-feature" id="btnOpenSynapse" onclick="if(window.openSynapseModal) window.openSynapseModal();">
+              <i class="fa-solid fa-network-wired text-amber"></i> ⚡ Cross-Hedge Synapse
+            </button>
+            <button class="btn-quantum-feature" id="btnToggleVoiceHud">
+              <i class="fa-solid fa-microphone-lines text-cyan" id="voiceHudIcon"></i> <span id="voiceHudLabel">Voice Copilot: OFF</span>
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenCopilot" onclick="if(window.openCopilotModal) window.openCopilotModal();">
+              <i class="fa-solid fa-robot text-purple"></i> 🤖 AI Risk Copilot (/ask)
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenCrisis" onclick="if(window.openCrisisModal) window.openCrisisModal();">
+              <i class="fa-solid fa-clock-rotate-left text-rose"></i> ⏳ Crisis Replay (1987-2023)
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenVol3D" onclick="if(window.openVol3dModal) window.openVol3dModal();">
+              <i class="fa-solid fa-cube text-emerald"></i> 🌊 3D Vol Surface &amp; L2
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenDarkPool" onclick="if(window.openDarkPoolModal) window.openDarkPoolModal();">
+              <i class="fa-solid fa-binoculars text-amber"></i> 🐋 Dark Pool &amp; Icebergs
+            </button>
+            <button class="btn-quantum-feature defcon-btn" id="btnOpenDefcon" onclick="if(window.openDefconModal) window.openDefconModal();">
+              <i class="fa-solid fa-triangle-exclamation text-emerald" id="defconBtnIcon"></i> <span id="defconBtnLabel">DEFCON 5: NORMAL</span>
+            </button>
+            <button class="btn-quantum-feature highlight-memo" id="btnOpenExecutiveMemo" onclick="if(window.ExecutiveReportGenerator) window.ExecutiveReportGenerator.openPrintableReport(window.botRegistry || window.INITIAL_BOTS);">
+              <i class="fa-solid fa-file-invoice-dollar text-gold"></i> 📑 LP Risk Memo
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenBotJournal" onclick="const m=document.getElementById('botJournalModalOverlay'); if(m) m.hidden=false; if(window.renderFleetTradeJournal) window.renderFleetTradeJournal('ALL');" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
+              <i class="fa-solid fa-calendar-days text-cyan"></i> 📅 Fleet &amp; Bot Trade Journal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Master Fleet Control Strip (Clean 3-Way Mode Switcher & Division Tabs) -->
     <section class="fleet-control-strip">
       <div class="market-pills">
-        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All 40 Pantheon Bots</button>
-        <button class="market-pill-btn" data-filter="egyptian" style="border-color:rgba(234,179,8,0.4);"><i class="fa-solid fa-ankh text-amber"></i> 🏺 Duat &amp; Karnak Division (20 Egyptian Bots &bull; 🇮🇳 &amp; 🇺🇸)</button>
-        <button class="market-pill-btn" data-filter="india" style="border-color:rgba(255,176,0,0.4);"><i class="fa-solid fa-landmark text-amber"></i> 🏛️ Mount Olympus Division (10 Greek Bots &bull; 🇮🇳)</button>
-        <button class="market-pill-btn" data-filter="us" style="border-color:rgba(96,165,250,0.4);"><i class="fa-solid fa-shield-halved text-cyan"></i> ⚔️ Valhalla Division (11 Norse Bots &bull; 🇺🇸)</button>
+        <button class="market-pill-btn active" data-filter="all"><i class="fa-solid fa-layer-group"></i> All 41 Pantheon Bots</button>
+        <button class="market-pill-btn" data-filter="egyptian" style="border-color:rgba(234,179,8,0.4);"><i class="fa-solid fa-ankh text-amber"></i> 🏺 Duat &amp; Karnak (20 Sectors)</button>
+        <button class="market-pill-btn" data-filter="india" style="border-color:rgba(255,176,0,0.4);"><i class="fa-solid fa-landmark text-amber"></i> 🏛️ Mount Olympus (10 India)</button>
+        <button class="market-pill-btn" data-filter="us" style="border-color:rgba(96,165,250,0.4);"><i class="fa-solid fa-shield-halved text-cyan"></i> ⚔️ Valhalla (11 US &amp; Crypto)</button>
       </div>
 
       <div class="view-mode-toggle-group">
         <div class="view-toggle-pills">
-          <button class="view-btn active" id="btnViewGrid" onclick="if(window.switchFleetView) window.switchFleetView('grid');" title="Card Grid View"><i class="fa-solid fa-table-cells-large"></i> Matrix Grid</button>
-          <button class="view-btn" id="btnViewRanker" onclick="if(window.switchFleetView) window.switchFleetView('ranker');" title="Leaderboard Ranker View"><i class="fa-solid fa-ranking-star"></i> Ranker Leaderboard</button>
+          <button class="view-btn active" id="btnViewBeginner" onclick="if(window.switchFleetView) window.switchFleetView('beginner');" title="Simplified, Beginner-Friendly Cards with Plain English Explanations">
+            <i class="fa-solid fa-seedling text-green"></i> Beginner View
+          </button>
+          <button class="view-btn" id="btnViewPro" onclick="if(window.switchFleetView) window.switchFleetView('pro');" title="Full Quantitative Equations, TimesFM Skews &amp; Blotters">
+            <i class="fa-solid fa-flask text-purple"></i> Quant Pro
+          </button>
+          <button class="view-btn" id="btnViewRanker" onclick="if(window.switchFleetView) window.switchFleetView('ranker');" title="Compact Leaderboard Ranker Table">
+            <i class="fa-solid fa-ranking-star text-cyan"></i> Leaderboard
+          </button>
         </div>
+
+        <button class="guide-toggle-btn" id="btnToggleGuide" onclick="window.toggleBeginnerGuide()" title="Toggle Beginner Guide">
+          <i class="fa-solid fa-graduation-cap text-amber"></i> Guide
+        </button>
 
         <div class="search-filter-wrap">
           <i class="fa-solid fa-magnifying-glass search-icon-mini"></i>
           <input type="text" id="botSearchInput" placeholder="Search bot, symbol, strategy..." class="bot-filter-input" />
         </div>
-      </div>
     </section>
 
     <!-- Global Multi-Criteria Sorting Bar -->
