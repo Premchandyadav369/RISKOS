@@ -1626,3 +1626,103 @@
   font-weight: 800;
 }
 
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REAL-TIME LIVE PRICE STRIP & TOAST NOTIFICATION STYLES
+   ══════════════════════════════════════════════════════════════════════════ */
+.bot-live-price-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 6px;
+  padding: 5px 10px;
+  margin: 6px 0 10px 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.76rem;
+  flex-wrap: wrap;
+}
+
+.bot-live-price-strip .pulse-dot {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseBeacon 1.5s infinite ease-in-out;
+  display: inline-block;
+}
+
+.bot-live-price-strip .live-symbol {
+  color: #a1a1aa;
+  font-weight: 600;
+}
+
+.bot-live-price-strip .live-price {
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 0.82rem;
+}
+
+.bot-live-price-strip .live-chg {
+  font-weight: 700;
+  font-size: 0.74rem;
+}
+
+.bot-live-price-strip .live-src-badge {
+  margin-left: auto;
+  font-size: 0.62rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Fleet Live Toast Notifications */
+.fleet-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.fleet-toast-msg {
+  background: rgba(9, 13, 22, 0.96);
+  border: 1px solid #10b981;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 16px rgba(16, 185, 129, 0.35);
+  color: #ffffff;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.fleet-toast-msg.fade-out {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+@keyframes pulseBeacon {
+  0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #10b981; }
+  50% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 12px #10b981; }
+  100% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 4px #10b981; }
+}
+
+@keyframes toastSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

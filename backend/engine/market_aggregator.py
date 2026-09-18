@@ -49,7 +49,9 @@ class MarketAggregator:
         }
         if sym in us_known:
             return False
-        if symbol.upper().startswith("^GSPC") or symbol.upper().startswith("^IXIC") or symbol.upper().startswith("^DJI"):
+        if any(token in sym for token in ["-USD", "=X", "PRED", "EVENT", "LMSR", "BTC", "ETH", "SOL", "BNB"]):
+            return False
+        if symbol.upper().startswith("^GSPC") or symbol.upper().startswith("^IXIC") or symbol.upper().startswith("^DJI") or symbol.upper().startswith("^IRX"):
             return False
         return True
 
