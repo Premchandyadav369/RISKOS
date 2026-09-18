@@ -36,32 +36,35 @@
     const allMods = LearnMathEngine.MODULES_DIRECTORY;
     if (!categoryKey || categoryKey === 'all') return allMods;
     
+    if (categoryKey === 'institutional') {
+      return allMods.filter(m => m.categoryKey === 'institutional' || ['gex_0dte_pinning', 'hawkes_liquidity_cascades', 'lbo_debt_waterfall', 'merton_structural_default', 'solvency_ii_evt_cat', 'redington_alm_immunization', 'clo_tranche_waterfall', 'oas_binomial_tree', 'barra_multi_factor_risk'].includes(m.id));
+    }
     if (categoryKey === 'ai_predictive') {
-      return allMods.filter(m => ['merton_jump_diffusion', 'black_litterman', 'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process', 'openbb_odp', 'perspective_streaming_grid', 'rough_volatility', 'malliavin_calculus', 'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'ai_predictive' || ['merton_jump_diffusion', 'black_litterman', 'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process', 'openbb_odp', 'perspective_streaming_grid', 'rough_volatility', 'malliavin_calculus', 'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching'].includes(m.id));
     }
     if (categoryKey === 'quant_interview') {
-      return allMods.filter(m => ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id) || m.categoryKey === 'quant_interview');
+      return allMods.filter(m => m.categoryKey === 'quant_interview' || ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
     }
     if (categoryKey === 'growth') {
-      return allMods.filter(m => ['cagr', 'compounding', 'sip_dca', 'lumpsum_vs_sip', 'compound_interest'].includes(m.id));
+      return allMods.filter(m => ['growth', 'portfolio_mgmt'].includes(m.categoryKey) || ['cagr', 'compounding', 'sip_dca', 'lumpsum_vs_sip', 'compound_interest'].includes(m.id));
     }
     if (categoryKey === 'valuation') {
-      return allMods.filter(m => ['pe_valuation', 'roe_roce', 'openbb_odp'].includes(m.id));
+      return allMods.filter(m => ['valuation', 'fundamental_analysis'].includes(m.categoryKey) || ['pe_valuation', 'roe_roce', 'openbb_odp'].includes(m.id));
     }
     if (categoryKey === 'risk') {
-      return allMods.filter(m => ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery', 'copulas_evt', 'merton_jump_diffusion', 'tsmom_volatility_targeting', 'garch_jump_diffusion', 'barra_multi_factor_risk', 'evt_pot_tail_risk', 'hmm_regime_switching'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'risk' || ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery', 'copulas_evt', 'merton_jump_diffusion', 'tsmom_volatility_targeting', 'garch_jump_diffusion', 'barra_multi_factor_risk', 'evt_pot_tail_risk', 'hmm_regime_switching'].includes(m.id));
     }
     if (categoryKey === 'portfolio') {
-      return allMods.filter(m => ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs', 'backtrader_cerebro', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'cross_asset_stat_arb', 'barra_multi_factor_risk', 'hmm_regime_switching'].includes(m.id));
+      return allMods.filter(m => ['portfolio', 'portfolio_mgmt'].includes(m.categoryKey) || ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs', 'backtrader_cerebro', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'cross_asset_stat_arb', 'barra_multi_factor_risk', 'hmm_regime_switching'].includes(m.id));
     }
     if (categoryKey === 'simulators') {
-      return allMods.filter(m => ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'egyptian_pantheon_hft', 'garch_jump_diffusion', 'cross_asset_stat_arb', 'optimal_vwap_execution', 'reinforcement_learning_mm', 'evt_pot_tail_risk'].includes(m.id));
+      return allMods.filter(m => ['simulators', 'quant_trading'].includes(m.categoryKey) || ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'egyptian_pantheon_hft', 'garch_jump_diffusion', 'cross_asset_stat_arb', 'optimal_vwap_execution', 'reinforcement_learning_mm', 'evt_pot_tail_risk'].includes(m.id));
     }
     if (categoryKey === 'mathematics') {
-      return allMods.filter(m => ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'mathematics' || ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
     }
     
-    return allMods.filter(m => m.categoryKey === categoryKey);
+    return allMods.filter(m => m.categoryKey === categoryKey || (m.category && m.category.toLowerCase() === categoryKey.toLowerCase()));
   };
 
   // ── Render Top Modules Quick-Switcher Bar ─────────────────────────────────
@@ -342,9 +345,21 @@
       `;
     }
 
-    // Trigger MathJax typesetting
-    if (window.MathJax && window.MathJax.typesetPromise) {
-      window.MathJax.typesetPromise([eqDiv, subDiv, deepProofContent]).catch(() => {});
+    // Trigger KaTeX instant typesetting
+    if (typeof renderMathInElement === 'function') {
+      [eqDiv, subDiv, deepProofContent].forEach(el => {
+        if (el) {
+          renderMathInElement(el, {
+            delimiters: [
+              { left: '$$', right: '$$', display: true },
+              { left: '$', right: '$', display: false },
+              { left: '\\[', right: '\\]', display: true },
+              { left: '\\(', right: '\\)', display: false }
+            ],
+            throwOnError: false
+          });
+        }
+      });
     }
 
     // 4. Step 4: Boundaries & Limitations
