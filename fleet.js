@@ -5822,6 +5822,12 @@
       if (btnRanker) btnRanker.classList.toggle('active', currentViewMode === 'ranker');
       if (btnGrid) btnGrid.classList.toggle('active', currentViewMode === 'grid');
 
+      // Synchronize division filter pills with active currentFilter
+      document.querySelectorAll('.market-pill-btn').forEach(btn => {
+        const filterVal = btn.dataset.filter || 'all';
+        btn.classList.toggle('active', filterVal === currentFilter);
+      });
+
       renderActiveView();
     };
 
