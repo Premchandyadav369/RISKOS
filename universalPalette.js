@@ -130,22 +130,59 @@
           item.badge.toLowerCase().includes(q)
         );
 
-        // Also check SecurityMaster registry if available
+        // Also check SecurityMaster registry if available with smart asset routing
         if (typeof SecurityMaster !== 'undefined' && SecurityMaster.LOCAL_REGISTRY) {
           const matchedSecs = SecurityMaster.LOCAL_REGISTRY
             .filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
             .slice(0, 4)
-            .map(s => ({
-              id: `sec_${s.symbol}`,
-              title: `${s.symbol} — ${s.name}`,
-              desc: `${s.exchange} &bull; ${s.sector} &bull; Base Price: ${s.currency === 'USD' ? '$' : '₹'}${s.basePrice}`,
-              category: 'Securities',
-              badge: s.exchange,
-              icon: 'fa-building-columns',
-              url: `ticker.html?symbol=${encodeURIComponent(s.symbol)}`
-            }));
+            .map(s => {
+              const isMacroOrYield = ['BZ=F', '^TNX', 'USDINR=X', '^VIX', 'GC=F', 'CL=F', 'SI=F', '^GSPC', '^NSEI'].includes(s.symbol) || 
+                                     s.sector === 'Commodity' || s.sector === 'Macro / Sovereign';
+              const targetUrl = isMacroOrYield 
+                ? `observatory.html?macro=${encodeURIComponent(s.symbol)}` 
+                : `index.html?ticker=${encodeURIComponent(s.symbol)}`;
+
+              return {
+                id: `sec_${s.symbol}`,
+                title: `${s.symbol} — ${s.name}`,
+                desc: `${s.exchange} &bull; ${s.sector} &bull; Base Price: ${s.currency === 'USD' ? '$' : '₹'}${s.basePrice}`,
+                category: isMacroOrYield ? 'Macro & Observatories' : 'Securities & Equities',
+                badge: s.exchange,
+                icon: isMacroOrYield ? 'fa-chart-pie' : 'fa-building-columns',
+                url: targetUrl
+              };
+            });
           matched = [...matched, ...matchedSecs];
         }
+
+        // Also match 41 Pantheon Bots
+        const pantheonBotNames = [
+          { id: 'BOT-IN-01', name: 'Zeus Sovereign Index', pantheon: 'Olympus', sym: 'NIFTY 50' },
+          { id: 'BOT-IN-02', name: 'Athena Adaptive Vol', pantheon: 'Olympus', sym: 'BANKNIFTY' },
+          { id: 'BOT-IN-03', name: 'Apollo Energy Momentum', pantheon: 'Olympus', sym: 'RELIANCE.NS' },
+          { id: 'BOT-IN-04', name: 'Hermes Stat-Arb Sentry', pantheon: 'Olympus', sym: 'TCS.NS' },
+          { id: 'BOT-US-01', name: 'Odin All-Father Micro', pantheon: 'Valhalla', sym: 'AAPL' },
+          { id: 'BOT-US-02', name: 'Thor Mjolnir Vol Surge', pantheon: 'Valhalla', sym: 'NVDA' },
+          { id: 'BOT-US-07', name: 'Loki Quantum Chaos', pantheon: 'Valhalla', sym: 'BTC-USD' },
+          { id: 'BOT-EG-IN-01', name: 'Anubis Liquidity Sentinel', pantheon: 'Karnak', sym: 'HDFCBANK.NS' },
+          { id: 'BOT-EG-IN-02', name: 'Horus Micro-Tick Hunter', pantheon: 'Karnak', sym: 'INFY.NS' },
+          { id: 'BOT-EG-US-01', name: 'Ra Sun God Solar Core', pantheon: 'Karnak', sym: 'MSFT' },
+          { id: 'BOT-EG-US-03', name: 'Sobek Nile Liquidity Sentry', pantheon: 'Karnak', sym: 'AMZN' }
+        ];
+
+        const matchedBots = pantheonBotNames
+          .filter(b => b.name.toLowerCase().includes(q) || b.sym.toLowerCase().includes(q) || b.id.toLowerCase().includes(q) || b.pantheon.toLowerCase().includes(q))
+          .slice(0, 3)
+          .map(b => ({
+            id: `bot_${b.id}`,
+            title: `${b.name} (${b.id})`,
+            desc: `${b.pantheon} Division &bull; Live Target: ${b.sym}`,
+            category: 'Autonomous Pantheon Fleet',
+            badge: b.pantheon,
+            icon: 'fa-robot',
+            url: `fleet.html?bot=${encodeURIComponent(b.id)}`
+          }));
+        matched = [...matched, ...matchedBots];
       }
 
       currentResults = matched;
