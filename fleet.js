@@ -3141,6 +3141,18 @@
       }
     }
 
+    const begQuoteEl = document.getElementById(`live-quote-beginner-${bot.id}`);
+    if (begQuoteEl && bot.currentPrice) {
+      const chg = bot.priceChangePct || 0;
+      const chgColor = chg >= 0 ? '#10b981' : '#f43f5e';
+      const curr = bot.market === 'india' ? '₹' : '$';
+      begQuoteEl.innerHTML = `
+        <span class="pulse-dot"></span>
+        <strong class="quote-val">${curr}${Number(bot.currentPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+        <span class="quote-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
+      `;
+    }
+
     const liveQuoteEl = document.getElementById(`live-quote-${bot.id}`);
     if (liveQuoteEl && bot.currentPrice) {
       const chg = bot.priceChangePct || 0;
@@ -3244,15 +3256,30 @@
     return Number((sharpeScore + winScore + pfScore + ddScore).toFixed(1));
   };
 
-  const getSortedBots = () => {
+  const getSortedBots = (pantheonFilter = null) => {
     const filtered = botRegistry.filter(bot => {
-      const matchMarket = currentFilter === 'all' || bot.market === currentFilter || bot.pantheon === currentFilter || (bot.division && bot.division.toLowerCase() === currentFilter.toLowerCase());
+      if (pantheonFilter) {
+        if (pantheonFilter === 'greek') {
+          if (bot.pantheon !== 'greek' && bot.division !== 'Olympus') return false;
+        } else if (pantheonFilter === 'norse') {
+          if (bot.pantheon !== 'norse' && bot.division !== 'Valhalla') return false;
+        } else if (pantheonFilter === 'egyptian') {
+          if (bot.pantheon !== 'egyptian' && bot.division !== 'Karnak' && !bot.id.includes('EG')) return false;
+        }
+      } else if (currentFilter !== 'all') {
+        const matchOlympus = (currentFilter === 'india' || currentFilter === 'greek') && (bot.pantheon === 'greek' || bot.division === 'Olympus');
+        const matchValhalla = (currentFilter === 'us' || currentFilter === 'norse') && (bot.pantheon === 'norse' || bot.division === 'Valhalla');
+        const matchEgyptian = currentFilter === 'egyptian' && (bot.pantheon === 'egyptian' || bot.division === 'Karnak' || bot.id.includes('EG'));
+        const matchDirect = bot.pantheon === currentFilter || bot.market === currentFilter;
+        if (!matchOlympus && !matchValhalla && !matchEgyptian && !matchDirect) return false;
+      }
+
       const matchSearch = !searchQuery || 
         bot.name.toLowerCase().includes(searchQuery) ||
         bot.sector.toLowerCase().includes(searchQuery) ||
         bot.displayAsset.toLowerCase().includes(searchQuery) ||
         bot.strategyType.toLowerCase().includes(searchQuery);
-      return matchMarket && matchSearch;
+      return matchSearch;
     });
 
     return filtered.sort((a, b) => {
@@ -3266,183 +3293,53 @@
     });
   };
 
-  const renderBotGrid = () => {
-    const grid = document.getElementById('botGridContainer');
-    if (!grid) return;
+  const renderSingleBotCard = (bot, idx, cardPantheonClass = '') => {
+    const isRunning = bot.status === 'RUNNING';
+    const unrealized = bot.activePosition ? (bot.activePosition.unrealizedPnlINR || 0) : 0;
+    const totPnl = (bot.realizedPnlINR || 0) + unrealized;
+    const pnlColor = totPnl >= 0 ? '#10b981' : '#f43f5e';
+    const unrColor = unrealized >= 0 ? '#10b981' : '#f43f5e';
+    const rawCurPrice = bot.currentPrice || bot.basePrice || 100.0;
+    const curPrice = (typeof rawCurPrice === 'number' && !isNaN(rawCurPrice) && rawCurPrice > 0) ? rawCurPrice : 100.0;
+    const chg = typeof bot.priceChangePct === 'number' && !isNaN(bot.priceChangePct) ? bot.priceChangePct : 0;
+    const chgColor = chg >= 0 ? '#10b981' : '#f43f5e';
+    const curr = bot.market === 'india' ? '₹' : '$';
+    const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
 
-    const sorted = getSortedBots();
+    let rankBadgeCls = 'rank-other';
+    if (idx === 0) rankBadgeCls = 'rank-1';
+    else if (idx === 1) rankBadgeCls = 'rank-2';
+    else if (idx === 2) rankBadgeCls = 'rank-3';
 
-    grid.innerHTML = sorted.map((bot, idx) => {
-      const isRunning = bot.status === 'RUNNING';
-      const unrealized = bot.activePosition ? (bot.activePosition.unrealizedPnlINR || 0) : 0;
-      const totPnl = (bot.realizedPnlINR || 0) + unrealized;
-      const pnlColor = totPnl >= 0 ? '#10b981' : '#f43f5e';
-      const unrColor = unrealized >= 0 ? '#10b981' : '#f43f5e';
-      const rawCurPrice = bot.currentPrice || bot.basePrice || 100.0;
-      const curPrice = (typeof rawCurPrice === 'number' && !isNaN(rawCurPrice) && rawCurPrice > 0) ? rawCurPrice : 100.0;
-      const chg = typeof bot.priceChangePct === 'number' && !isNaN(bot.priceChangePct) ? bot.priceChangePct : 0;
-      const chgColor = chg >= 0 ? '#10b981' : '#f43f5e';
-      const curr = bot.market === 'india' ? '₹' : '$';
-      const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
+    let tierCls = 'tier-b';
+    if (bot.tier.includes('S')) tierCls = 'tier-s';
+    else if (bot.tier.includes('A')) tierCls = 'tier-a';
 
-      let rankBadgeCls = 'rank-other';
-      if (idx === 0) rankBadgeCls = 'rank-1';
-      else if (idx === 1) rankBadgeCls = 'rank-2';
-      else if (idx === 2) rankBadgeCls = 'rank-3';
+    const isEgyptian = bot.pantheon === 'egyptian' || bot.division === 'Karnak' || bot.id.includes('EG');
+    const isGreek = !isEgyptian && (bot.pantheon === 'greek' || bot.division === 'Olympus');
+    const pantheonCls = isEgyptian ? 'myth-badge-egyptian' : (isGreek ? 'myth-badge-greek' : 'myth-badge-norse');
+    const divisionTag = isEgyptian ? '🏺 KARNAK' : (isGreek ? '🏛️ OLYMPUS' : '⚔️ VALHALLA');
+    const pantheonBorderClass = cardPantheonClass || (isEgyptian ? 'card-pantheon-egyptian' : (isGreek ? 'card-pantheon-greek' : 'card-pantheon-norse'));
 
-      let tierCls = 'tier-b';
-      if (bot.tier.includes('S')) tierCls = 'tier-s';
-      else if (bot.tier.includes('A')) tierCls = 'tier-a';
+    const sentScore = bot.sentimentScore !== undefined ? bot.sentimentScore : 0.45;
+    const sentPct = Math.round(((sentScore + 1) / 2) * 100);
+    let sentColor = '#ffb000';
+    if (sentScore >= 0.3) sentColor = '#10b981';
+    else if (sentScore <= -0.3) sentColor = '#f43f5e';
 
-      const isEgyptian = bot.pantheon === 'egyptian' || bot.division === 'Karnak';
-      const isGreek = !isEgyptian && (bot.pantheon === 'greek' || bot.division === 'Olympus');
-      const pantheonCls = isEgyptian ? 'myth-badge-egyptian' : (isGreek ? 'myth-badge-greek' : 'myth-badge-norse');
-      const divisionTag = isEgyptian ? '🏺 KARNAK' : (isGreek ? '🏛️ OLYMPUS' : '⚔️ VALHALLA');
+    // ── BEGINNER FRIENDLY VIEW CARD ──────────────────────────────────────────
+    if (currentCardMode === 'beginner') {
+      const risk = getRiskLevel(bot);
+      const explanation = bot.laymanExplanation || 'Executes algorithmic risk-managed quantitative trading on real-time market data.';
+      const safePriceStr = formatPrice(curPrice);
+      const safeTotPnlStr = formatCurrencyCompact(totPnl, bot.market);
+      const safeRealizedStr = formatCurrencyCompact(bot.realizedPnlINR || 0, 'india');
+      const winSub = getWinRateSubtext(bot.winRate);
+      const sharpeSub = getSharpeSubtext(bot.sharpe);
 
-      const sentScore = bot.sentimentScore !== undefined ? bot.sentimentScore : 0.45;
-      const sentPct = Math.round(((sentScore + 1) / 2) * 100);
-      let sentColor = '#ffb000';
-      if (sentScore >= 0.3) sentColor = '#10b981';
-      else if (sentScore <= -0.3) sentColor = '#f43f5e';
-
-      // ── BEGINNER FRIENDLY VIEW CARD ──────────────────────────────────────────
-      if (currentCardMode === 'beginner') {
-        const risk = getRiskLevel(bot);
-        const explanation = bot.laymanExplanation || 'Executes algorithmic risk-managed quantitative trading on real-time market data.';
-        const safePriceStr = formatPrice(curPrice);
-        const safeTotPnlStr = formatCurrencyCompact(totPnl, bot.market);
-        const safeRealizedStr = formatCurrencyCompact(bot.realizedPnlINR || 0, 'india');
-        const winSub = getWinRateSubtext(bot.winRate);
-        const sharpeSub = getSharpeSubtext(bot.sharpe);
-
-        return `
-          <div class="bot-card beginner-card ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
-            <!-- Top Card Header -->
-            <div class="bot-card-top">
-              <div class="bot-card-title">
-                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                  <span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span>
-                  <span class="tier-badge ${tierCls}">${bot.tier}</span>
-                  <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
-                  <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
-                    ${divisionTag}
-                  </span>
-                  <span id="order-state-${bot.id}">
-                    <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
-                      <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
-                    </span>
-                  </span>
-                </div>
-
-                <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
-                  <span style="font-weight:700;">${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
-                  <span style="font-size:0.68rem; color:#d4d4d8;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
-                </div>
-                <h4 class="bot-name" style="margin-top:3px; font-size:0.92rem;">${bot.name}</h4>
-              </div>
-              <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
-                <i class="fa-solid ${isRunning ? 'fa-circle fa-beat' : 'fa-circle-pause'}"></i> ${bot.status}
-              </span>
-            </div>
-
-            <!-- Plain English Beginner Explainer -->
-            <div class="beginner-explainer-box">
-              <div class="explainer-header">
-                <div style="display:flex; align-items:center; gap:6px;">
-                  <i class="fa-regular fa-lightbulb text-amber"></i>
-                  <span style="font-size:0.68rem; font-weight:800; letter-spacing:0.04em; color:#e4e4e7;">WHAT THIS BOT DOES</span>
-                </div>
-                <span class="risk-level-badge ${risk.badge}">${risk.text}</span>
-              </div>
-              <p class="explainer-text">${explanation}</p>
-            </div>
-
-            <!-- Primary Traded Asset & Live Price Strip -->
-            <div class="beginner-asset-strip">
-              <div class="asset-info">
-                <span class="asset-label"><i class="fa-solid fa-gem text-amber" style="font-size:0.7rem;"></i> ASSET:</span>
-                <strong class="asset-symbol">${bot.primarySymbol}</strong>
-                <span class="asset-name" style="color:#a1a1aa; font-size:0.68rem;">(${bot.displayAsset})</span>
-              </div>
-              <div class="asset-quote" id="live-quote-${bot.id}">
-                <span class="pulse-dot"></span>
-                <strong class="quote-val">${curr}${safePriceStr}</strong>
-                <span class="quote-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
-              </div>
-            </div>
-
-            <!-- 3 Core Financial Pillars -->
-            <div class="beginner-stats-row">
-              <div class="b-stat-card profit-card" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22);">
-                <div class="b-stat-lbl"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL PROFIT</div>
-                <div class="b-stat-val" style="color:${pnlColor};" id="pnl-${bot.id}" title="Exact Rupee Value: ₹${totPnl.toLocaleString('en-IN')}">
-                  ${totPnl >= 0 ? '+' : ''}${safeTotPnlStr}
-                </div>
-                <div class="b-stat-sub" id="pnl-breakdown-${bot.id}">
-                  Banked: <span style="color:#10b981; font-weight:700;">${safeRealizedStr}</span>
-                </div>
-              </div>
-              <div class="b-stat-card">
-                <div class="b-stat-lbl"><i class="fa-solid fa-trophy text-amber"></i> WIN RATE</div>
-                <div class="b-stat-val text-green">${bot.winRate}%</div>
-                <div class="b-stat-sub text-muted">${winSub}</div>
-              </div>
-              <div class="b-stat-card">
-                <div class="b-stat-lbl"><i class="fa-solid fa-chart-line text-cyan"></i> SHARPE</div>
-                <div class="b-stat-val text-cyan">${bot.sharpe}</div>
-                <div class="b-stat-sub text-muted">${sharpeSub}</div>
-              </div>
-            </div>
-
-            <!-- Current Live Position Status -->
-            <div class="beginner-live-status">
-              <div class="live-status-header">
-                <i class="fa-solid fa-crosshairs text-green"></i>
-                <span style="font-weight:700; color:#d4d4d8;">CURRENT ACTIVITY:</span>
-              </div>
-              <div class="live-status-body" id="pos-${bot.id}">
-                ${renderSafePositionDisplay(bot)}
-              </div>
-            </div>
-
-            <!-- Collapsible Quantitative Strategy Model Drawer -->
-            <div class="collapsible-math-wrap">
-              <button class="btn-expand-math" onclick="window.toggleBotMath('${bot.id}')" id="btn-math-toggle-${bot.id}">
-                <span><i class="fa-solid fa-square-root-variable text-cyan"></i> View Quant Strategy Model</span>
-                <i class="fa-solid fa-chevron-down math-chevron" id="chevron-${bot.id}"></i>
-              </button>
-              <div class="math-drawer-content" id="math-drawer-${bot.id}" style="display:none;">
-                <div class="bot-math-card" style="margin-bottom:8px;">
-                  <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
-                </div>
-                <div class="math-meta-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                  <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
-                    <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong>
-                  </span>
-                  <span style="font-size:0.62rem; color:#a1a1aa;"><strong>Signal:</strong> ${bot.entryRules ? bot.entryRules.slice(0, 65) + '...' : 'Quantitative threshold confirmation'}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Card Bottom Controls -->
-            <div class="bot-card-actions">
-              <button class="bot-btn-mini btn-open-console" data-id="${bot.id}" style="color:#22d3ee; border-color:rgba(34,211,238,0.35);">
-                <i class="fa-solid fa-circle-info"></i> Inspect Details
-              </button>
-              <button class="bot-btn-mini btn-force-order" data-id="${bot.id}" style="color:#fab005; border-color:rgba(250,176,5,0.35);" title="Force bot to execute simulated trade">
-                <i class="fa-solid fa-bolt"></i> Simulate Trade
-              </button>
-              <button class="bot-btn-mini bot-btn-toggle" data-id="${bot.id}" id="toggle-${bot.id}">
-                <i class="fa-solid ${isRunning ? 'fa-pause' : 'fa-play'}"></i> ${isRunning ? 'Pause' : 'Resume'}
-              </button>
-            </div>
-          </div>
-        `;
-      }
-
-      // ── QUANT PRO VIEW CARD ──────────────────────────────────────────────────
       return `
-        <div class="bot-card ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
+        <div class="bot-card beginner-card ${pantheonBorderClass} ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
+          <!-- Top Card Header -->
           <div class="bot-card-top">
             <div class="bot-card-title">
               <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
@@ -3454,142 +3351,108 @@
                 </span>
                 <span id="order-state-${bot.id}">
                   <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
-                    ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
+                    <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
                   </span>
                 </span>
               </div>
 
               <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
-                <span>${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
-                <span style="font-size:0.65rem; color:#d4d4d8; font-weight:500;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
+                <span style="font-weight:700;">${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
+                <span style="font-size:0.68rem; color:#d4d4d8;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
               </div>
-              <h4 class="bot-name" style="margin-top:2px;">${bot.name}</h4>
-              <div style="display:flex; gap:8px; align-items:center; margin-top:2px;">
-                <span class="bot-sector-tag"><i class="fa-solid fa-layer-group"></i> ${bot.sector}</span>
-                <span style="font-size:0.64rem; color:#71717a; font-family:'JetBrains Mono', monospace;">
-                  <i class="fa-solid fa-chart-simple text-purple"></i> 24h Vol: <strong style="color:#e4e4e7;">${bot.dailyVolume || '₹1,200 Cr'}</strong>
-                </span>
-              </div>
-
-              <!-- Real-Time Market Live Quote Strip -->
-              <div class="bot-live-price-strip" id="live-quote-${bot.id}">
-                <span class="pulse-dot"></span>
-                <span class="live-symbol">${bot.primarySymbol}</span>:
-                <strong class="live-price">${curr}${Number(curPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
-                <span class="live-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
-                <span class="live-src-badge">${bot.liveProvider || (bot.id.includes('US-07') || bot.id.includes('US-08') ? 'Binance 24/7' : 'Exchange Real-Time')}</span>
-              </div>
+              <h4 class="bot-name" style="margin-top:3px; font-size:0.92rem;">${bot.name}</h4>
             </div>
             <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
               <i class="fa-solid ${isRunning ? 'fa-circle fa-beat' : 'fa-circle-pause'}"></i> ${bot.status}
             </span>
           </div>
 
-          <!-- Dynamic Sentiment Barometer Widget -->
-          <div class="sentiment-barometer-box">
-            <div class="sentiment-header">
-              <span style="color:#a1a1aa;"><i class="fa-solid fa-brain text-cyan"></i> ${bot.sentimentSource || 'FinBERT News NLP'}:</span>
-              <strong style="color:${sentColor};" id="sent-score-${bot.id}">
-                ${sentScore >= 0 ? '+' : ''}${sentScore.toFixed(2)} (${bot.sentimentRegime || 'BULLISH'})
-              </strong>
+          <!-- Plain English Beginner Explainer -->
+          <div class="beginner-explainer-box">
+            <div class="explainer-header">
+              <div style="display:flex; align-items:center; gap:6px;">
+                <i class="fa-regular fa-lightbulb text-amber"></i>
+                <span style="font-size:0.68rem; font-weight:800; letter-spacing:0.04em; color:#e4e4e7;">WHAT THIS BOT DOES</span>
+              </div>
+              <span class="risk-level-badge ${risk.badge}">${risk.text}</span>
             </div>
-            <div class="sentiment-meter-track">
-              <div class="sentiment-meter-fill" id="sent-fill-${bot.id}" style="width:${sentPct}%; background:${sentColor};"></div>
-            </div>
-            <div class="sentiment-signal-text" id="sent-sig-${bot.id}">${bot.sentimentSignal || ''}</div>
+            <p class="explainer-text">${explanation}</p>
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-            <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
-              <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong>
-            </span>
-            <span class="bot-card-uptime-tag"><i class="fa-solid fa-stopwatch text-amber"></i> Running: <strong style="color:#ffb000;" class="bot-card-uptime">92d 14h 28m</strong></span>
-          </div>
-
-          <div class="bot-math-card">
-            <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model</div>
-            <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
-          </div>
-
-          <!-- Traded Stock & Execution Blotter Box -->
-          <div class="bot-traded-stocks-box">
-            <div class="traded-stocks-header">
-              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <i class="fa-solid fa-arrow-right-arrow-left text-cyan" style="font-size:0.75rem;"></i>
-                <span class="traded-stocks-label">Traded Asset:</span>
-                <span class="traded-stock-pill"><i class="fa-solid fa-gem text-amber"></i> ${bot.primarySymbol} &bull; ${bot.displayAsset}</span>
-              </div>
-              <div class="traded-vol-tally">
-                <span class="tally-buy" id="tally-buy-${bot.id}"><i class="fa-solid fa-arrow-trend-up"></i> BOUGHT: <strong>${(bot.totalBoughtQty || 12450).toLocaleString()}</strong></span>
-                <span class="tally-divider">&bull;</span>
-                <span class="tally-sell" id="tally-sell-${bot.id}"><i class="fa-solid fa-arrow-trend-down"></i> SOLD: <strong>${(bot.totalSoldQty || 12300).toLocaleString()}</strong></span>
-              </div>
+          <!-- Primary Traded Asset & Live Price Strip (Zero Overlap Guaranteed) -->
+          <div class="beginner-asset-strip">
+            <div class="asset-info">
+              <span class="asset-label"><i class="fa-solid fa-gem text-amber"></i> ASSET:</span>
+              <strong class="asset-symbol">${bot.primarySymbol}</strong>
+              <span class="asset-name" title="${bot.displayAsset}">(${bot.displayAsset})</span>
             </div>
-
-            <!-- Recent Executed Fills Mini-Blotter -->
-            <div class="mini-blotter-container">
-              <div class="mini-blotter-header">
-                <span><i class="fa-solid fa-receipt text-cyan"></i> Recent Executed Fills (Live Ledger):</span>
-                <span style="font-size:0.6rem; color:#71717a;">Microsecond Fills</span>
-              </div>
-              <div id="mini-blotter-${bot.id}">
-                ${(bot.botAuditHistory || []).slice(0, 2).map(trade => {
-                  const isBuy = (trade.side || '').includes('BUY');
-                  const pnl = trade.realizedPnl;
-                  const curr = trade.currency === 'USD' ? '$' : '₹';
-                  return `
-                    <div class="mini-blotter-row">
-                      <div style="display:flex; align-items:center; gap:6px;">
-                        <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
-                          ${trade.action || (isBuy ? 'BOUGHT' : 'SOLD')}
-                        </span>
-                        <strong class="mini-trade-stock">${trade.symbol || bot.primarySymbol}</strong>
-                        <span class="mini-trade-qty">${trade.qty} @ ${curr}${Number(trade.fillPrice || trade.limitPrice || 0).toLocaleString('en-IN')}</span>
-                      </div>
-                      <div style="display:flex; align-items:center; gap:8px;">
-                        ${pnl ? `<span class="mini-trade-pnl" style="color:${pnl >= 0 ? '#10b981' : '#f43f5e'}; font-weight:800;">${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')}</span>` : ''}
-                        <span class="mini-trade-time"><i class="fa-regular fa-clock"></i> ${trade.time || trade.fullTimestamp || ''}</span>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
+            <div class="asset-quote" id="live-quote-beginner-${bot.id}">
+              <span class="pulse-dot"></span>
+              <strong class="quote-val">${curr}${safePriceStr}</strong>
+              <span class="quote-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
             </div>
           </div>
 
-          <div class="bot-stats-grid">
-            <div class="bot-stat-box">
-              <div class="bot-stat-label">Total Net Profit</div>
-              <div class="bot-stat-val" style="color:${pnlColor}; font-size:1.02rem;" id="pnl-${bot.id}">
-                ${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}
+          <!-- 3 Core Financial Pillars -->
+          <div class="beginner-stats-row">
+            <div class="b-stat-card profit-card" style="background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.22);">
+              <div class="b-stat-lbl"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL PROFIT</div>
+              <div class="b-stat-val" style="color:${pnlColor};" id="pnl-${bot.id}" title="Exact Rupee Value: ₹${totPnl.toLocaleString('en-IN')}">
+                ${totPnl >= 0 ? '+' : ''}${safeTotPnlStr}
               </div>
-              <div class="bot-stat-sub" id="pnl-breakdown-${bot.id}" style="font-size:0.62rem; color:#71717a; margin-top:2px;">
-                Realized: ₹${bot.realizedPnlINR.toLocaleString('en-IN')} &bull; Unr: <span style="color:${unrColor}; font-weight:700;">${unrealized >= 0 ? '+' : ''}₹${unrealized.toLocaleString('en-IN')}</span>
+              <div class="b-stat-sub" id="pnl-breakdown-${bot.id}">
+                Banked: <span style="color:#10b981; font-weight:700;">${safeRealizedStr}</span>
               </div>
             </div>
-            <div class="bot-stat-box">
-              <div class="bot-stat-label">Sharpe &bull; Win Rate</div>
-              <div class="bot-stat-val text-cyan">${bot.sharpe} &bull; ${bot.winRate}%</div>
+            <div class="b-stat-card">
+              <div class="b-stat-lbl"><i class="fa-solid fa-trophy text-amber"></i> WIN RATE</div>
+              <div class="b-stat-val text-green">${bot.winRate}%</div>
+              <div class="b-stat-sub text-muted">${winSub}</div>
             </div>
-            <div class="bot-stat-box">
-              <div class="bot-stat-label">Fills &bull; Matched Vol</div>
-              <div class="bot-stat-val text-amber" id="trades-${bot.id}">${bot.tradesToday.toLocaleString()} Fills</div>
+            <div class="b-stat-card">
+              <div class="b-stat-lbl"><i class="fa-solid fa-chart-line text-cyan"></i> SHARPE</div>
+              <div class="b-stat-val text-cyan">${bot.sharpe}</div>
+              <div class="b-stat-sub text-muted">${sharpeSub}</div>
             </div>
           </div>
 
-          <div style="font-size:0.7rem; color:#aaa; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-            <i class="fa-solid fa-crosshairs text-green"></i> <strong>Live Order &amp; Position:</strong> 
-            <span id="pos-${bot.id}">
+          <!-- Current Live Position Status -->
+          <div class="beginner-live-status">
+            <div class="live-status-header">
+              <i class="fa-solid fa-crosshairs text-green"></i>
+              <span style="font-weight:700; color:#d4d4d8;">CURRENT ACTIVITY:</span>
+            </div>
+            <div class="live-status-body" id="pos-${bot.id}">
               ${renderSafePositionDisplay(bot)}
-            </span>
+            </div>
           </div>
 
+          <!-- Collapsible Quantitative Strategy Model Drawer -->
+          <div class="collapsible-math-wrap">
+            <button class="btn-expand-math" onclick="window.toggleBotMath('${bot.id}')" id="btn-math-toggle-${bot.id}">
+              <span><i class="fa-solid fa-square-root-variable text-cyan"></i> View Quant Strategy Model</span>
+              <i class="fa-solid fa-chevron-down math-chevron" id="chevron-${bot.id}"></i>
+            </button>
+            <div class="math-drawer-content" id="math-drawer-${bot.id}" style="display:none;">
+              <div class="bot-math-card" style="margin-bottom:8px;">
+                <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
+              </div>
+              <div class="math-meta-row" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                <span class="badge" style="background:rgba(34,211,238,0.12); color:#22d3ee; font-size:0.62rem; padding:2px 6px;">
+                  <i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong>
+                </span>
+                <span style="font-size:0.62rem; color:#a1a1aa;"><strong>Signal:</strong> ${bot.entryRules ? bot.entryRules.slice(0, 65) + '...' : 'Quantitative threshold confirmation'}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Bottom Controls -->
           <div class="bot-card-actions">
             <button class="bot-btn-mini btn-open-console" data-id="${bot.id}" style="color:#22d3ee; border-color:rgba(34,211,238,0.35);">
-              <i class="fa-solid fa-terminal"></i> Live Console &amp; Audit
+              <i class="fa-solid fa-circle-info"></i> Inspect Details
             </button>
-            <button class="bot-btn-mini btn-force-order" data-id="${bot.id}" style="color:#fab005; border-color:rgba(250,176,5,0.35);" title="Force bot to place order right now">
-              <i class="fa-solid fa-bolt"></i> Force Trade
+            <button class="bot-btn-mini btn-force-order" data-id="${bot.id}" style="color:#fab005; border-color:rgba(250,176,5,0.35);" title="Force bot to execute simulated trade">
+              <i class="fa-solid fa-bolt"></i> Simulate Trade
             </button>
             <button class="bot-btn-mini bot-btn-toggle" data-id="${bot.id}" id="toggle-${bot.id}">
               <i class="fa-solid ${isRunning ? 'fa-pause' : 'fa-play'}"></i> ${isRunning ? 'Pause' : 'Resume'}
@@ -3597,10 +3460,260 @@
           </div>
         </div>
       `;
-    }).join('');
+    }
 
-    // Synchronously compile all 20 bot LaTeX formulas directly via KaTeX / MathJax
-    sorted.forEach(bot => {
+    // ── QUANT PRO VIEW CARD ──────────────────────────────────────────────────
+    return `
+      <div class="bot-card ${pantheonBorderClass} ${!isRunning ? 'paused' : ''}" id="card-${bot.id}">
+        <div class="bot-card-top">
+          <div class="bot-card-title">
+            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+              <span class="rank-badge ${rankBadgeCls}">#${idx + 1}</span>
+              <span class="tier-badge ${tierCls}">${bot.tier}</span>
+              <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
+              <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
+                ${divisionTag}
+              </span>
+              <span id="order-state-${bot.id}">
+                <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
+                  <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
+                </span>
+              </span>
+            </div>
+
+            <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
+              <span style="font-weight:700;">${bot.mythIcon || bot.greekIcon} ${bot.mythName || bot.greekName}</span>
+              <span style="font-size:0.68rem; color:#d4d4d8;">&bull; ${bot.mythTitle || bot.greekTitle}</span>
+            </div>
+            <h4 class="bot-name" style="margin-top:3px;">${bot.name}</h4>
+          </div>
+          <span class="bot-status-pill ${isRunning ? 'status-running' : 'status-paused'}" id="status-${bot.id}">
+            <i class="fa-solid ${isRunning ? 'fa-circle fa-beat' : 'fa-circle-pause'}"></i> ${bot.status}
+          </span>
+        </div>
+
+        <div class="bot-live-price-strip" id="live-quote-${bot.id}">
+          <span class="pulse-dot"></span>
+          <span class="live-symbol">${bot.primarySymbol}</span>:
+          <strong class="live-price">${curr}${Number(curPrice).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong>
+          <span class="live-chg" style="color:${chgColor};">(${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%)</span>
+          <span class="live-src-badge">${bot.liveProvider || (bot.id.includes('US-07') || bot.id.includes('US-08') ? 'Binance 24/7' : 'Exchange Real-Time')}</span>
+        </div>
+
+        <div class="bot-sentiment-strip">
+          <div style="display:flex; justify-content:space-between; font-size:0.68rem; margin-bottom:4px;">
+            <span style="color:#aaa;"><i class="fa-solid fa-brain"></i> Neural TimesFM Skew</span>
+            <span style="color:${sentColor}; font-weight:700;">${bot.sentimentRegime || 'BULLISH'} (${sentScore >= 0 ? '+' : ''}${sentScore.toFixed(2)})</span>
+          </div>
+          <div class="sentiment-meter-bar">
+            <div class="sentiment-meter-fill" style="width:${sentPct}%; background:${sentColor};"></div>
+          </div>
+        </div>
+
+        <div class="bot-math-card">
+          <div class="bot-math-title"><i class="fa-solid fa-square-root-variable text-cyan"></i> Quantitative Strategy Model (LaTeX)</div>
+          <div class="math-jax-block" id="math-grid-${bot.id}" data-bot-id="${bot.id}"></div>
+          <div style="font-size:0.65rem; color:#888; margin-top:4px; display:flex; justify-content:space-between;">
+            <span><i class="fa-brands fa-google"></i> TimesFM 3.0: <strong>+${(0.18 + Math.abs(sentScore)*0.1).toFixed(3)} Skew</strong></span>
+            <span>Signal: ${bot.entryRules ? bot.entryRules.slice(0, 35) + '...' : 'Momentum / Carry'}</span>
+          </div>
+        </div>
+
+        <div class="bot-strategy-desc">
+          <p>${bot.strategyDesc}</p>
+        </div>
+
+        <div class="bot-metrics-row">
+          <span class="bot-metric-chip"><i class="fa-solid fa-microchip"></i> HFT ${bot.evalSpeedSec}s</span>
+          <span class="bot-metric-chip"><i class="fa-solid fa-shield-halved"></i> Max DD: ${bot.maxDD}%</span>
+          <span class="bot-metric-chip"><i class="fa-solid fa-scale-balanced"></i> Profit Factor: ${bot.profitFactor}x</span>
+        </div>
+
+        <div class="bot-trade-tally" id="tally-${bot.id}">
+          <span class="tally-buy" id="tally-buy-${bot.id}"><i class="fa-solid fa-arrow-trend-up"></i> BOUGHT: <strong>${(bot.totalBoughtQty || 0).toLocaleString()}</strong></span>
+          <span class="tally-sell" id="tally-sell-${bot.id}"><i class="fa-solid fa-arrow-trend-down"></i> SOLD: <strong>${(bot.totalSoldQty || 0).toLocaleString()}</strong></span>
+        </div>
+
+        <div class="bot-mini-blotter" id="mini-blotter-${bot.id}">
+          ${(bot.botAuditHistory || []).slice(0, 2).map(trade => {
+            const isBuy = (trade.side || '').includes('BUY');
+            const pnl = trade.realizedPnl;
+            const tcurr = trade.currency === 'USD' ? '$' : '₹';
+            return `
+              <div class="mini-blotter-row">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span class="mini-side-tag ${isBuy ? 'tag-buy' : 'tag-sell'}">
+                    ${trade.action || (isBuy ? 'BOUGHT' : 'SOLD')}
+                  </span>
+                  <strong class="mini-trade-stock">${trade.symbol || bot.primarySymbol}</strong>
+                  <span class="mini-trade-qty">${trade.qty} @ ${tcurr}${Number(trade.fillPrice || trade.limitPrice || 0).toLocaleString('en-IN')}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  ${pnl ? `<span class="mini-trade-pnl" style="color:${pnl >= 0 ? '#10b981' : '#f43f5e'}; font-weight:800;">${pnl >= 0 ? '+' : ''}₹${pnl.toLocaleString('en-IN')}</span>` : ''}
+                  <span class="mini-trade-time"><i class="fa-regular fa-clock"></i> ${trade.time || trade.fullTimestamp || ''}</span>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <div class="bot-stats-grid">
+          <div class="bot-stat-box">
+            <div class="bot-stat-label">Total Net Profit</div>
+            <div class="bot-stat-val" style="color:${pnlColor}; font-size:1.02rem;" id="pnl-${bot.id}">
+              ${totPnl >= 0 ? '+' : ''}₹${totPnl.toLocaleString('en-IN')}
+            </div>
+            <div class="bot-stat-sub" id="pnl-breakdown-${bot.id}" style="font-size:0.62rem; color:#71717a; margin-top:2px;">
+              Realized: ₹${bot.realizedPnlINR.toLocaleString('en-IN')} &bull; Unr: <span style="color:${unrColor}; font-weight:700;">${unrealized >= 0 ? '+' : ''}₹${unrealized.toLocaleString('en-IN')}</span>
+            </div>
+          </div>
+          <div class="bot-stat-box">
+            <div class="bot-stat-label">Sharpe &bull; Win Rate</div>
+            <div class="bot-stat-val text-cyan">${bot.sharpe} &bull; ${bot.winRate}%</div>
+          </div>
+          <div class="bot-stat-box">
+            <div class="bot-stat-label">Fills &bull; Matched Vol</div>
+            <div class="bot-stat-val text-amber" id="trades-${bot.id}">${bot.tradesToday.toLocaleString()} Fills</div>
+          </div>
+        </div>
+
+        <div style="font-size:0.7rem; color:#aaa; margin-bottom:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          <i class="fa-solid fa-crosshairs text-green"></i> <strong>Live Order &amp; Position:</strong> 
+          <span id="pos-${bot.id}">
+            ${renderSafePositionDisplay(bot)}
+          </span>
+        </div>
+
+        <div class="bot-card-actions">
+          <button class="bot-btn-mini btn-open-console" data-id="${bot.id}" style="color:#22d3ee; border-color:rgba(34,211,238,0.35);">
+            <i class="fa-solid fa-terminal"></i> Live Console &amp; Audit
+          </button>
+          <button class="bot-btn-mini btn-force-order" data-id="${bot.id}" style="color:#fab005; border-color:rgba(250,176,5,0.35);" title="Force bot to place order right now">
+            <i class="fa-solid fa-bolt"></i> Force Trade
+          </button>
+          <button class="bot-btn-mini bot-btn-toggle" data-id="${bot.id}" id="toggle-${bot.id}">
+            <i class="fa-solid ${isRunning ? 'fa-pause' : 'fa-play'}"></i> ${isRunning ? 'Pause' : 'Resume'}
+          </button>
+        </div>
+      </div>
+    `;
+  };
+
+  const renderBotGrid = () => {
+    const grid = document.getElementById('botGridContainer');
+    if (!grid) return;
+
+    // Define the 3 Pantheon Divisions in canonical institutional order:
+    // 1. Mount Olympus Division (10 Greek bots • India Equities & F&O)
+    // 2. Valhalla Division (11 Norse bots • US Mega-Caps & Crypto)
+    // 3. Duat & Karnak Division (20 Egyptian Sector bots • Cross-Market Sector Rotation)
+    const divisionConfigs = [
+      {
+        key: 'greek',
+        title: 'MOUNT OLYMPUS DIVISION',
+        icon: '🏛️',
+        flag: '🇮🇳',
+        subtitle: '10 Greek Algorithms &bull; India Equities, F&amp;O &amp; Derivatives Carry (NSE / MCX)',
+        pantheonClass: 'division-header-olympus',
+        badgeClass: 'olympus-badge',
+        cardPantheonClass: 'card-pantheon-greek'
+      },
+      {
+        key: 'norse',
+        title: 'VALHALLA DIVISION',
+        icon: '⚔️',
+        flag: '🇺🇸',
+        subtitle: '11 Norse Algorithms &bull; US Mega-Caps &amp; 24/7 Global Binance Crypto',
+        pantheonClass: 'division-header-valhalla',
+        badgeClass: 'valhalla-badge',
+        cardPantheonClass: 'card-pantheon-norse'
+      },
+      {
+        key: 'egyptian',
+        title: 'DUAT &amp; KARNAK DIVISION',
+        icon: '🏺',
+        flag: '🇮🇳 &bull; 🇺🇸',
+        subtitle: '20 Egyptian Sector Bots &bull; Cross-Market Sector Rotation &amp; Risk Hedge',
+        pantheonClass: 'division-header-egyptian',
+        badgeClass: 'egyptian-badge',
+        cardPantheonClass: 'card-pantheon-egyptian'
+      }
+    ];
+
+    // Filter divisions based on currentFilter
+    const activeDivisions = divisionConfigs.filter(div => {
+      if (currentFilter === 'all') return true;
+      if (currentFilter === 'india' || currentFilter === 'greek') return div.key === 'greek';
+      if (currentFilter === 'us' || currentFilter === 'norse') return div.key === 'norse';
+      if (currentFilter === 'egyptian') return div.key === 'egyptian';
+      return true;
+    });
+
+    let htmlBuffer = '';
+    const allRenderedBots = [];
+
+    activeDivisions.forEach(div => {
+      const divBots = getSortedBots(div.key);
+      if (divBots.length === 0) return;
+
+      allRenderedBots.push(...divBots);
+
+      const divTotalPnl = divBots.reduce((sum, b) => sum + (b.realizedPnlINR || 0) + (b.activePosition ? (b.activePosition.unrealizedPnlINR || 0) : 0), 0);
+      const divAvgWin = (divBots.reduce((sum, b) => sum + (b.winRate || 0), 0) / (divBots.length || 1)).toFixed(1);
+      const divActiveCount = divBots.filter(b => b.status === 'RUNNING').length;
+
+      // Division Section Header spanning full grid
+      htmlBuffer += `
+        <div class="pantheon-division-header ${div.pantheonClass}">
+          <div class="div-header-left">
+            <div class="div-icon-symbol">${div.icon}</div>
+            <div class="div-titles">
+              <div class="div-flag-row">
+                <span class="div-badge ${div.badgeClass}">${div.title}</span>
+                <span class="div-sub">${div.flag} ${div.subtitle}</span>
+              </div>
+              <div class="div-status-line">
+                <span class="live-beacon-dot"></span>
+                <span style="color:#10b981; font-weight:800; font-size:0.72rem;">${divActiveCount} / ${divBots.length} BOTS ACTIVE</span>
+                <span style="color:rgba(255,255,255,0.25);">&bull;</span>
+                <span style="color:#a1a1aa; font-size:0.7rem;">Continuous Production Execution</span>
+              </div>
+            </div>
+          </div>
+          <div class="div-header-right">
+            <div class="div-metric-chip profit">
+              <span class="chip-lbl">DIVISION NET PROFIT</span>
+              <strong class="chip-val text-green">${formatCurrencyCompact(divTotalPnl, 'india')}</strong>
+            </div>
+            <div class="div-metric-chip">
+              <span class="chip-lbl">AVG WIN RATE</span>
+              <strong class="chip-val text-amber">${divAvgWin}%</strong>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Render cards for this division
+      divBots.forEach((bot, idx) => {
+        htmlBuffer += renderSingleBotCard(bot, idx, div.cardPantheonClass);
+      });
+    });
+
+    if (allRenderedBots.length === 0) {
+      grid.innerHTML = `
+        <div style="grid-column:1/-1; text-align:center; padding:60px 20px; color:#71717a;">
+          <i class="fa-solid fa-robot" style="font-size:2rem; margin-bottom:12px; display:block; opacity:0.4;"></i>
+          <h4 style="color:#e4e4e7; margin:0 0 6px 0;">No Quantitative Bots Found</h4>
+          <p style="font-size:0.8rem; margin:0;">No bots matched your search "${searchQuery}". Try clearing your search query or switching filters.</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = htmlBuffer;
+
+    // Synchronously compile all LaTeX formulas directly via KaTeX / MathJax
+    allRenderedBots.forEach(bot => {
       const mathEl = document.getElementById(`math-grid-${bot.id}`);
       if (mathEl) {
         renderLatexFormula(mathEl, bot.mathFormula, true);
@@ -3620,9 +3733,10 @@
       const totPnl = bot.realizedPnlINR;
       const pnlColor = totPnl >= 0 ? '#10b981' : '#f43f5e';
       const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
-      const isGreek = bot.pantheon === 'greek' || bot.market === 'india';
-      const pantheonCls = isGreek ? 'myth-badge-greek' : 'myth-badge-norse';
-      const divisionTag = isGreek ? '🏛️ Olympus' : '⚔️ Valhalla';
+      const isEgyptian = bot.pantheon === 'egyptian' || bot.division === 'Karnak' || bot.id.includes('EG');
+      const isGreek = !isEgyptian && (bot.pantheon === 'greek' || bot.division === 'Olympus');
+      const pantheonCls = isEgyptian ? 'myth-badge-egyptian' : (isGreek ? 'myth-badge-greek' : 'myth-badge-norse');
+      const divisionTag = isEgyptian ? '🏺 Karnak' : (isGreek ? '🏛️ Olympus' : '⚔️ Valhalla');
 
       let rankBadgeCls = 'rank-other';
       if (idx === 0) rankBadgeCls = 'rank-1';
