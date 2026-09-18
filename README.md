@@ -20,7 +20,7 @@
 
 **A rigorous open-source quantitative finance research, stochastic risk modeling, and multi-asset portfolio analytics platform engineered for computational finance researchers, quantitative risk managers, and systematic portfolio architects.**
 
-[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer Desk](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Bot Fleet](https://riskos-psi.vercel.app/fleet.html) • [Production Rigor Audit (9.81/10)](docs/RISKOS_AUDIT.md) • [System Architecture Docs](https://riskos-psi.vercel.app/docs.html) • [Data Provenance](docs/DATA_PROVENANCE.md) • [16 Model Cards](docs/models/) • [Market Observatory](https://riskos-psi.vercel.app/observatory.html) • [75 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Security Master](https://riskos-psi.vercel.app/ticker.html) • [API Manual](docs/API.md) • [Feature Inventory](docs/FEATURE_INVENTORY.md)
+[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [75 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Interactive Docs Portal](https://riskos-psi.vercel.app/docs.html) • [Architecture](docs/ARCHITECTURE.md) • [Bot Fleet Catalog](docs/BOT_FLEET.md) • [Quant Labs Compendium](docs/QUANT_LABS.md) • [System Spec](docs/SYSTEM_SPEC.md) • [API Manual](docs/API.md) • [Model Cards](docs/models/) • [Audit (9.81/10)](docs/RISKOS_AUDIT.md)
 
 
 </div>
@@ -1297,3 +1297,19 @@ $$V_{i,j} = \begin{cases} \min(K_i, \widetilde{V}_{i,j}) & \text{if bond is call
 The model price $P_{\text{model}}(s) = V_{0,0}(s)$ is monotonically decreasing in $s$. The unique Option-Adjusted Spread $s^*$ satisfies $P_{\text{model}}(s^*) = P_{\text{market}}^{\text{clean}}$.
 The embedded call option value is $V_{\text{call}} = P_{\text{straight}} - P_{\text{market}}$, with option cost in spread basis points:
 $$\text{Option Cost (bps)} = z_{\text{nominal}} - s^*. \quad \blacksquare$$
+
+---
+
+## 📚 Institutional System Documentation Suite
+
+RISKOS maintains front-office Wall Street grade system documentation detailing mathematical proofs, low-latency engine architecture, 41-bot swarm kinematics, 75 closed-form laboratories, and complete regulatory compliance invariants:
+
+| Document | Scope & Focus | Primary Audience | Key Topics Covered |
+| :--- | :--- | :--- | :--- |
+| [**Architecture Blueprint**](docs/ARCHITECTURE.md) | Multi-tier low-latency system topologies | System Architects, DevOps, HFT Leads | L1-L3 Cache hierarchy, memory ring buffers, JAX JIT execution budgets (<5ms SLA), failover matrix |
+| [**41-Bot Pantheon Fleet Catalog**](docs/BOT_FLEET.md) | Exhaustive 41-strategy swarm catalog | Quant PMs, Systematic Traders | Olympus (10), Valhalla (11), Karnak (20) models, closed-form LaTeX formulations, alpha targets |
+| [**75 Quant Labs Compendium**](docs/QUANT_LABS.md) | Encyclopedic 75 laboratory guide | Financial Engineers, Quants | Stochastic calculus, martingales, Heston FFT, SABR smiles, Almgren-Chriss, Hawkes, Kelly growth |
+| [**System Specification & Compliance**](docs/SYSTEM_SPEC.md) | Formal front-office technical contracts | Compliance Officers, Risk Officers | Security Master data schema, FIX 4.4 tag dictionary, SEC Rule 15c3-5 & SEBI pre-trade limits |
+| [**Master REST API Reference**](docs/API.md) | Master front-office API manual | Integration Engineers, Full-Stack Devs | 24+ REST endpoints across 11 disciplines, JSON schemas, curl, Python httpx, TypeScript examples |
+| [**Interactive Documentation Portal**](https://riskos-psi.vercel.app/docs.html) | Live interactive documentation portal | All Practitioners | Interactive TimesFM 3.0 / GARCH / Almgren-Chriss / CVaR sandboxes, 38 commands, live REST console |
+

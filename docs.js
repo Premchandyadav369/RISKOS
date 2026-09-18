@@ -548,14 +548,14 @@
   // 7. BLOOMBERG MNEMONIC COMMAND LIBRARY DIRECTORY
   // ══════════════════════════════════════════════════════════════════════════
   const COMMAND_LIBRARY_DATA = [
-    // ── The 7 Bloomberg Desks & Platform Portals ──
+    // ── The 8 Bloomberg Desks & Platform Portals (12 Commands) ──
     {
       mnemonic: '<TOP>',
       hotkey: 'F1 / Home',
       category: 'desks',
       name: 'Executive Multi-Asset Dashboard',
       desc: 'Top-level C-suite terminal overview, global macro pulse, and aggregate portfolio NAV.',
-      route: 'GET /api/market/pulse',
+      route: 'GET /api/market/quote?symbol=RELIANCE',
       endpoint: '/api/market/quote',
       defaultParams: { symbol: 'RELIANCE' },
       launchUrl: 'index.html'
@@ -637,14 +637,58 @@
       defaultParams: { symbol: 'AAPL', horizon: '64' },
       launchUrl: 'app.html?desk=7'
     },
+    {
+      mnemonic: '<DESK8>',
+      hotkey: 'Alt+8',
+      category: 'desks',
+      name: 'Desk 8: Sector Indicators & Pairs Alpha',
+      desc: '20 quantitative sector indicators (10 India NSE + 10 US GICS) paired with Egyptian Karnak bots for relative strength.',
+      route: 'GET /api/sectors/all',
+      endpoint: '/api/sectors/all',
+      defaultParams: {},
+      launchUrl: 'app.html?desk=8'
+    },
+    {
+      mnemonic: '<SECTORS>',
+      hotkey: 'Alt+Shift+S',
+      category: 'desks',
+      name: 'Sector Indicators Master Hub',
+      desc: 'Cross-market sector momentum, breadth, relative strength vs Nifty/SPX, and ETF tracking.',
+      route: 'GET /api/sectors/all',
+      endpoint: '/api/sectors/all',
+      defaultParams: {},
+      launchUrl: 'docs.html#sectors'
+    },
+    {
+      mnemonic: '<OBS>',
+      hotkey: 'Alt+O',
+      category: 'desks',
+      name: 'Market Observatory & Discovery Radar',
+      desc: 'Real-time anomaly scanner detecting volume surges, regime shifts, and multi-asset correlation breaks.',
+      route: 'GET /api/market/quotes?symbols=RELIANCE,TCS,HDFCBANK,NVDA,AAPL',
+      endpoint: '/api/market/quotes',
+      defaultParams: { symbols: 'RELIANCE,TCS,HDFCBANK,NVDA,AAPL' },
+      launchUrl: 'observatory.html'
+    },
+    {
+      mnemonic: '<LABS>',
+      hotkey: 'Alt+L',
+      category: 'desks',
+      name: '75 Interactive Quantitative Laboratories',
+      desc: 'Closed-form financial engineering laboratories covering stochastic calculus, Almgren-Chriss, Heston, and Kelly growth.',
+      route: 'GET /api/securities/master?q=reliance',
+      endpoint: '/api/securities/master',
+      defaultParams: { q: 'reliance' },
+      launchUrl: 'learn.html'
+    },
 
-    // ── 24/7 Swarm Fleet & Pantheon Algorithms ──
+    // ── 24/7 Swarm Fleet & Pantheon Algorithms (8 Commands) ──
     {
       mnemonic: '<FLEET>',
       hotkey: 'Alt+F',
       category: 'fleet',
-      name: '24/7 Autonomous Bot Fleet Blotter',
-      desc: 'Institutional 20-bot autonomous execution grid (Greek & Norse pantheons) with live order fills.',
+      name: '24/7 Autonomous Bot Fleet Blotter (41 Bots)',
+      desc: 'Institutional 41-bot autonomous execution grid across Greek Olympus, Norse Valhalla, and Egyptian Karnak pantheons.',
       route: 'GET /api/fleet/status',
       endpoint: '/api/fleet/status',
       defaultParams: {},
@@ -655,7 +699,7 @@
       hotkey: 'Alt+R',
       category: 'fleet',
       name: 'Fleet Multi-Factor Alpha Ranker',
-      desc: 'Dynamic leaderboard ranking bots by Sortino, Omega, Calmar, and real-time realized P&L.',
+      desc: 'Dynamic leaderboard ranking all 41 bots by Sortino, Omega, Calmar, and real-time realized P&L.',
       route: 'GET /api/fleet/status',
       endpoint: '/api/fleet/status',
       defaultParams: {},
@@ -666,7 +710,7 @@
       hotkey: 'Alt+S',
       category: 'fleet',
       name: 'Cross-Hedging Synapse & Clash of Pantheons',
-      desc: 'Autonomous minimum-variance cross-hedging between Mount Olympus (🇮🇳) and Valhalla (🇺🇸).',
+      desc: 'Autonomous minimum-variance cross-hedging between Mount Olympus (India), Valhalla (US), and Karnak (Sectors).',
       route: 'GET /api/fleet/status',
       endpoint: '/api/fleet/status',
       defaultParams: {},
@@ -699,7 +743,7 @@
       hotkey: 'Alt+V',
       category: 'fleet',
       name: '3D Implied Volatility Surface & L2 Waterfall',
-      desc: 'Interactive 3D moneyness × maturity × IV mesh and topographic order book mountain.',
+      desc: 'Interactive 3D moneyness x maturity x IV mesh and topographic order book mountain.',
       route: 'GET /api/quant/derivatives?spot=180&strike=185&expiry=0.25&vol=0.22',
       endpoint: '/api/quant/derivatives',
       defaultParams: { spot: '180', strike: '185', expiry: '0.25', vol: '0.22', rate: '0.045' },
@@ -716,8 +760,19 @@
       defaultParams: { ticker: 'AAPL', shares: '25000' },
       launchUrl: 'fleet.html?action=darkpool'
     },
+    {
+      mnemonic: '<SCREENER>',
+      hotkey: 'Alt+Shift+Q',
+      category: 'fleet',
+      name: 'Cross-Asset Quant Screener',
+      desc: 'Scans 50+ institutional tickers for RSI divergence, volatility squeezes, and breakout setups.',
+      route: 'GET /api/signals/generate?tickers=AAPL,MSFT,NVDA,RELIANCE.NS,TCS.NS',
+      endpoint: '/api/signals/generate',
+      defaultParams: { tickers: 'AAPL,MSFT,NVDA,RELIANCE.NS,TCS.NS' },
+      launchUrl: 'observatory.html'
+    },
 
-    // ── Quant & Risk Actions ──
+    // ── Quant & Risk Actions (11 Commands) ──
     {
       mnemonic: '<VAR>',
       hotkey: 'Ctrl+Shift+V',
@@ -745,7 +800,7 @@
       hotkey: 'Ctrl+Shift+S',
       category: 'quant',
       name: 'Calibrate Hagan SABR Volatility Smile',
-      desc: 'Calibrates α, β, ρ, ν parameters to replicate cross-moneyness volatility skew.',
+      desc: 'Calibrates alpha, beta, rho, nu parameters to replicate cross-moneyness volatility skew.',
       route: 'GET /api/quant/derivatives?spot=180&strike=185',
       endpoint: '/api/quant/derivatives',
       defaultParams: { spot: '180', strike: '185', expiry: '0.25', vol: '0.22', rate: '0.045' },
@@ -784,8 +839,63 @@
       defaultParams: { ticker: 'AAPL', period: '1y' },
       launchUrl: 'docs.html#garch'
     },
+    {
+      mnemonic: '<REGIME>',
+      hotkey: 'Ctrl+Shift+R',
+      category: 'quant',
+      name: 'Gaussian HMM 3-State Regime Matrix',
+      desc: 'Calibrates 3-state HMM transition matrix, emission distributions, and persistence probabilities.',
+      route: 'GET /api/market/regime?ticker=SPY&period=1y',
+      endpoint: '/api/market/regime',
+      defaultParams: { ticker: 'SPY', period: '1y' },
+      launchUrl: 'app.html?desk=1'
+    },
+    {
+      mnemonic: '<OPTIMIZE>',
+      hotkey: 'Ctrl+Shift+P',
+      category: 'quant',
+      name: 'CVaR SLSQP Portfolio Frontier Optimizer',
+      desc: 'Minimizes portfolio 95% CVaR subject to target return and weight boundary constraints.',
+      route: 'GET /api/risk/optimize?tickers=AAPL,MSFT,GOOGL,AMZN&target_return=0.10',
+      endpoint: '/api/risk/optimize',
+      defaultParams: { tickers: 'AAPL,MSFT,GOOGL,AMZN', target_return: '0.10' },
+      launchUrl: 'app.html?desk=2'
+    },
+    {
+      mnemonic: '<BACKTEST>',
+      hotkey: 'Ctrl+Shift+B',
+      category: 'quant',
+      name: 'Walk-Forward Backtest Simulator',
+      desc: 'Daily rebalancing with transaction costs and execution slippage; outputs equity curve and Sharpe/Calmar.',
+      route: 'GET /api/risk/backtest?tickers=AAPL,MSFT&weights=0.5,0.5&period=2y',
+      endpoint: '/api/risk/backtest',
+      defaultParams: { tickers: 'AAPL,MSFT', weights: '0.5,0.5', period: '2y' },
+      launchUrl: 'app.html?desk=6'
+    },
+    {
+      mnemonic: '<STRESS>',
+      hotkey: 'Ctrl+Shift+M',
+      category: 'quant',
+      name: 'Macroeconomic Crisis Stress Engine',
+      desc: 'Evaluates portfolio resilience against 1987 Black Monday, 2008 GFC, Rates Shock, and Volatility Spikes.',
+      route: 'GET /api/risk/stress?tickers=AAPL,MSFT&weights=0.5,0.5',
+      endpoint: '/api/risk/stress',
+      defaultParams: { tickers: 'AAPL,MSFT', weights: '0.5,0.5' },
+      launchUrl: 'app.html?desk=2'
+    },
+    {
+      mnemonic: '<VALIDATE>',
+      hotkey: 'Ctrl+Alt+V',
+      category: 'quant',
+      name: 'Kupiec & Christoffersen VaR Backtester',
+      desc: 'Likelihood-ratio hypothesis testing for unconditional coverage and independence of VaR exceptions.',
+      route: 'GET /api/risk/validate?ticker=SPY&confidence=0.99',
+      endpoint: '/api/risk/validate',
+      defaultParams: { ticker: 'SPY', confidence: '0.99' },
+      launchUrl: 'app.html?desk=2'
+    },
 
-    // ── Execution, Breakers & Controls ──
+    // ── Execution, Breakers & Controls (7 Commands) ──
     {
       mnemonic: '<DEFCON>',
       hotkey: 'Ctrl+Shift+D',
@@ -812,8 +922,8 @@
       mnemonic: '<BURST>',
       hotkey: 'Ctrl+B',
       category: 'execution',
-      name: 'Burst All 20 Autonomous Bot Orders',
-      desc: 'Triggers simultaneous synchronized order burst across all active algorithmic strategies.',
+      name: 'Burst All 41 Autonomous Bot Orders',
+      desc: 'Triggers simultaneous synchronized order burst across all 41 algorithmic strategies in Olympus, Valhalla, and Karnak.',
       route: 'GET /api/signals/execute?ticker=AAPL&direction=BUY&quantity=100',
       endpoint: '/api/signals/execute',
       defaultParams: { ticker: 'AAPL', direction: 'BUY', quantity: '100' },
@@ -823,8 +933,8 @@
       mnemonic: '<KILL>',
       hotkey: 'Ctrl+Shift+K',
       category: 'execution',
-      name: 'Emergency Fleet Kill Switch',
-      desc: 'Immediate emergency circuit breaker: cancels all pending orders and halts all 20 autonomous bots.',
+      name: 'Emergency Fleet Kill Switch (41 Bots)',
+      desc: 'Immediate emergency circuit breaker: cancels all pending orders and halts all 41 autonomous bots within 12ms.',
       route: 'GET /api/fleet/status',
       endpoint: '/api/fleet/status',
       defaultParams: {},
@@ -842,28 +952,186 @@
       launchUrl: 'fleet.html'
     },
     {
-      mnemonic: '<OBS>',
-      hotkey: 'Alt+O',
-      category: 'desks',
-      name: 'Market Observatory & Discovery Radar',
-      desc: 'Real-time anomaly scanner detecting volume surges, regime shifts, and multi-asset correlation breaks.',
-      route: 'GET /api/market/quotes?symbols=RELIANCE,TCS,HDFCBANK,NVDA,AAPL',
+      mnemonic: '<SYNC>',
+      hotkey: 'Ctrl+Shift+U',
+      category: 'execution',
+      name: '24/7 Binance WebSocket & Ingestion Re-Sync',
+      desc: 'Forces multi-threaded socket re-sync across Binance 24/7 crypto and global equity feeds.',
+      route: 'GET /api/market/quotes?symbols=BTC-USD,ETH-USD,RELIANCE,NVDA',
       endpoint: '/api/market/quotes',
-      defaultParams: { symbols: 'RELIANCE,TCS,HDFCBANK,NVDA,AAPL' },
-      launchUrl: 'observatory.html'
+      defaultParams: { symbols: 'BTC-USD,ETH-USD,RELIANCE,NVDA' },
+      launchUrl: 'fleet.html'
     },
     {
-      mnemonic: '<LABS>',
-      hotkey: 'Alt+L',
-      category: 'desks',
-      name: '52 Interactive Quantitative Laboratories',
-      desc: 'Educational interactive quant modules covering Ito calculus, Kelly criterion, and Black-Scholes.',
-      route: 'GET /api/securities/master?q=reliance',
-      endpoint: '/api/securities/master',
-      defaultParams: { q: 'reliance' },
-      launchUrl: 'learn.html'
+      mnemonic: '<JOURNAL>',
+      hotkey: 'Alt+J',
+      category: 'execution',
+      name: 'Institutional Trade Blotter & Execution Journal',
+      desc: 'Full FIX 4.4 execution compliance journal with slippage analysis, fill timestamps, and venue attribution.',
+      route: 'GET /api/orders',
+      endpoint: '/api/orders',
+      defaultParams: {},
+      launchUrl: 'fleet.html'
     }
   ];
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 7.5. 75 INTERACTIVE QUANTITATIVE FINANCE LABORATORIES DIRECTORY
+  // ══════════════════════════════════════════════════════════════════════════
+  const initLabsDirectory = () => {
+    const grid = document.getElementById('labsDirectoryGrid');
+    const searchInput = document.getElementById('labDirectorySearch');
+    const filterPills = document.querySelectorAll('.lab-dir-pill');
+
+    if (!grid) return;
+
+    let activeLabCat = 'all';
+    let searchQuery = '';
+
+    const categoryFilterMap = {
+      quant_interview: (m) => m.categoryKey === 'quant_interview' || [
+        'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov',
+        'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman',
+        'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry',
+        'backtrader_cerebro', 'rough_volatility', 'malliavin_calculus', 'fama_french_5factor',
+        'deflated_sharpe', 'svi_sabr_calibration', 'hawkes_process', 'yen_carry_unwind',
+        'cds_index_tranches', 'commodity_roll_yield', 'yield_curve_probit', 'dark_pool_adverse_selection',
+        'kyles_lambda_microstructure', 'tsmom_volatility_targeting', 'dual_momentum_antonacci'
+      ].includes(m.id),
+      ai_predictive: (m) => m.categoryKey === 'ai_predictive' || [
+        'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process',
+        'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching',
+        'rough_volatility'
+      ].includes(m.id),
+      derivatives: (m) => [
+        'options_payoff', 'heston_fft', 'perpetual_american', 'bachelier_model',
+        'svi_sabr_calibration', 'gex_0dte_pinning', 'sabr_vol_surface', 'malliavin_calculus',
+        'oas_binomial_tree', 'copulas_evt', 'merton_jump_diffusion'
+      ].includes(m.id),
+      fixed_income: (m) => [
+        'vasicek_cir', 'futures_basis_carry', 'yen_carry_unwind', 'cds_index_tranches',
+        'commodity_roll_yield', 'yield_curve_probit', 'redington_alm_immunization',
+        'clo_tranche_waterfall', 'lbo_debt_waterfall', 'merton_structural_default',
+        'solvency_ii_evt_cat', 'oas_binomial_tree'
+      ].includes(m.id),
+      microstructure: (m) => [
+        'avellaneda_stoikov', 'almgren_chriss', 'dark_pool_adverse_selection',
+        'kyles_lambda_microstructure', 'hawkes_liquidity_cascades', 'egyptian_pantheon_hft',
+        'optimal_vwap_execution', 'reinforcement_learning_mm'
+      ].includes(m.id),
+      growth: (m) => m.categoryKey === 'growth' || [
+        'cagr', 'compounding', 'sip_dca', 'lumpsum_sip', 'compound_timeline'
+      ].includes(m.id),
+      valuation: (m) => m.categoryKey === 'valuation' || m.categoryKey === 'fundamental_analysis' || [
+        'pe_eps', 'roe_roce', 'dividend_discount_model', 'lbo_debt_waterfall'
+      ].includes(m.id)
+    };
+
+    const getModules = () => {
+      if (typeof LearnMathEngine !== 'undefined' && Array.isArray(LearnMathEngine.MODULES_DIRECTORY) && LearnMathEngine.MODULES_DIRECTORY.length > 0) {
+        return LearnMathEngine.MODULES_DIRECTORY;
+      }
+      return [];
+    };
+
+    const renderLabs = () => {
+      const allMods = getModules();
+      grid.innerHTML = '';
+
+      if (allMods.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:30px; color:#71717a; font-family:'JetBrains Mono'; font-size:0.85rem;">
+            <i class="fa-solid fa-spinner fa-spin" style="margin-bottom:8px; font-size:1.2rem; color:#22d3ee;"></i><br>
+            Connecting to Quantitative Laboratory Engine...
+          </div>
+        `;
+        return;
+      }
+
+      const filtered = allMods.filter(m => {
+        let matchesCat = true;
+        if (activeLabCat !== 'all') {
+          if (categoryFilterMap[activeLabCat]) {
+            matchesCat = categoryFilterMap[activeLabCat](m);
+          } else {
+            matchesCat = m.categoryKey === activeLabCat;
+          }
+        }
+
+        const q = searchQuery.toLowerCase();
+        const matchesQuery = !q ||
+          m.title.toLowerCase().includes(q) ||
+          m.id.toLowerCase().includes(q) ||
+          (m.category && m.category.toLowerCase().includes(q)) ||
+          (m.badge && m.badge.toLowerCase().includes(q));
+
+        return matchesCat && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:30px; color:#71717a; font-family:'JetBrains Mono'; font-size:0.85rem;">
+            <i class="fa-solid fa-flask" style="margin-bottom:8px; font-size:1.2rem; color:#3f3f46;"></i><br>
+            No quantitative laboratories match your filter / search "${searchQuery}".
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((m, idx) => {
+        const globalIdx = allMods.findIndex(item => item.id === m.id) + 1;
+        const card = document.createElement('div');
+        card.className = 'lab-dir-card';
+        card.innerHTML = `
+          <div class="lab-dir-header">
+            <span class="lab-dir-id">LAB ${String(globalIdx || idx + 1).padStart(2, '0')} &bull; ${m.id.toUpperCase()}</span>
+            <span class="lab-dir-cat">${m.category || m.categoryKey || 'QUANT'}</span>
+          </div>
+          <h4 class="lab-dir-title">${m.title}</h4>
+          <div class="lab-dir-badge"><i class="fa-solid ${m.icon || 'fa-chart-line'}"></i> ${m.badge || 'Closed-Form Invariant'}</div>
+          <div class="lab-dir-actions">
+            <a href="learn.html?lab=${encodeURIComponent(m.id)}" class="lab-dir-launch-btn" title="Open in Interactive Laboratory">
+              <i class="fa-solid fa-play"></i> Launch Lab
+            </a>
+            <button class="lab-dir-copy-btn btn-copy-lab" data-lab="${m.id}" title="Copy Deep Link">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      grid.querySelectorAll('.btn-copy-lab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const labId = btn.dataset.lab;
+          const url = `${window.location.origin}/learn.html?lab=${encodeURIComponent(labId)}`;
+          navigator.clipboard.writeText(url).then(() => {
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check" style="color:#10b981;"></i>';
+            setTimeout(() => { btn.innerHTML = orig; }, 1400);
+          });
+        });
+      });
+    };
+
+    filterPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        filterPills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeLabCat = pill.dataset.labcat || 'all';
+        renderLabs();
+      });
+    });
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        renderLabs();
+      });
+    }
+
+    renderLabs();
+  };
 
   const initCommandLibrary = () => {
     const grid = document.getElementById('commandLibraryGrid');
@@ -1035,38 +1303,116 @@
       };
     }
 
-    // 2. 20-Bot Autonomous Pantheon Fleet Status & Telemetry
+    // 2. 41-Bot Autonomous Pantheon Fleet Status & Telemetry
     if (ep.includes('/api/fleet/status')) {
       const bots = [
-        { id: 'BOT-IN-01', myth: 'Zeus', pantheon: 'Greek', market: 'India', strategy: 'NIFTY Gamma Scalper', pnlINR: 342500, winRate: 74.2, sharpe: 2.85, status: 'RUNNING' },
-        { id: 'BOT-IN-02', myth: 'Apollo', pantheon: 'Greek', market: 'India', strategy: 'BankNifty Mean Reversion', pnlINR: 218900, winRate: 68.9, sharpe: 2.41, status: 'RUNNING' },
-        { id: 'BOT-IN-03', myth: 'Athena', pantheon: 'Greek', market: 'India', strategy: 'IT Heavyweights Pairs Arb', pnlINR: 194300, winRate: 81.4, sharpe: 3.12, status: 'RUNNING' },
-        { id: 'BOT-IN-04', myth: 'Hermes', pantheon: 'Greek', market: 'India', strategy: 'High-Beta Momentum Trend', pnlINR: 167200, winRate: 65.5, sharpe: 2.15, status: 'RUNNING' },
-        { id: 'BOT-IN-05', myth: 'Poseidon', pantheon: 'Greek', market: 'India', strategy: 'Crude & Oil Sector Pairs', pnlINR: 182400, winRate: 71.0, sharpe: 2.38, status: 'RUNNING' },
-        { id: 'BOT-US-01', myth: 'Odin', pantheon: 'Norse', market: 'US', strategy: 'S&P 500 Dispersion Alpha', pnlINR: 412000, winRate: 76.8, sharpe: 3.25, status: 'RUNNING' },
-        { id: 'BOT-US-02', myth: 'Thor', pantheon: 'Norse', market: 'US', strategy: 'NASDAQ 100 Vol Breakout', pnlINR: 389100, winRate: 72.4, sharpe: 2.94, status: 'RUNNING' },
-        { id: 'BOT-US-03', myth: 'Freya', pantheon: 'Norse', market: 'US', strategy: 'Semiconductor Multi-Factor', pnlINR: 298400, winRate: 79.1, sharpe: 3.08, status: 'RUNNING' },
-        { id: 'BOT-US-04', myth: 'Loki', pantheon: 'Norse', market: 'US', strategy: 'Statistical Arbitrage Neutral', pnlINR: 254300, winRate: 83.2, sharpe: 3.42, status: 'RUNNING' },
-        { id: 'BOT-US-05', myth: 'Heimdall', pantheon: 'Norse', market: 'US', strategy: 'Macro Tail Risk Guardrail', pnlINR: 195000, winRate: 88.5, sharpe: 3.65, status: 'RUNNING' }
+        { id: 'BOT-IN-01', myth: 'Zeus', pantheon: 'Greek Olympus', market: 'India', strategy: 'NIFTY Gamma Scalper', pnlINR: 342500, winRate: 74.2, sharpe: 2.85, status: 'RUNNING' },
+        { id: 'BOT-IN-02', myth: 'Apollo', pantheon: 'Greek Olympus', market: 'India', strategy: 'BankNifty Mean Reversion', pnlINR: 218900, winRate: 68.9, sharpe: 2.41, status: 'RUNNING' },
+        { id: 'BOT-IN-03', myth: 'Athena', pantheon: 'Greek Olympus', market: 'India', strategy: 'IT Heavyweights Pairs Arb', pnlINR: 194300, winRate: 81.4, sharpe: 3.12, status: 'RUNNING' },
+        { id: 'BOT-IN-04', myth: 'Hermes', pantheon: 'Greek Olympus', market: 'India', strategy: 'High-Beta Momentum Trend', pnlINR: 167200, winRate: 65.5, sharpe: 2.15, status: 'RUNNING' },
+        { id: 'BOT-IN-05', myth: 'Poseidon', pantheon: 'Greek Olympus', market: 'India', strategy: 'Crude & Oil Sector Pairs', pnlINR: 182400, winRate: 71.0, sharpe: 2.38, status: 'RUNNING' },
+        { id: 'BOT-US-01', myth: 'Odin', pantheon: 'Norse Valhalla', market: 'US', strategy: 'S&P 500 Dispersion Alpha', pnlINR: 412000, winRate: 76.8, sharpe: 3.25, status: 'RUNNING' },
+        { id: 'BOT-US-02', myth: 'Thor', pantheon: 'Norse Valhalla', market: 'US', strategy: 'NASDAQ 100 Vol Breakout', pnlINR: 389100, winRate: 72.4, sharpe: 2.94, status: 'RUNNING' },
+        { id: 'BOT-US-03', myth: 'Freya', pantheon: 'Norse Valhalla', market: 'US', strategy: 'Semiconductor Multi-Factor', pnlINR: 298400, winRate: 79.1, sharpe: 3.08, status: 'RUNNING' },
+        { id: 'BOT-US-04', myth: 'Loki', pantheon: 'Norse Valhalla', market: 'US', strategy: 'Statistical Arbitrage Neutral', pnlINR: 254300, winRate: 83.2, sharpe: 3.42, status: 'RUNNING' },
+        { id: 'BOT-US-05', myth: 'Heimdall', pantheon: 'Norse Valhalla', market: 'US', strategy: 'Macro Tail Risk Guardrail', pnlINR: 195000, winRate: 88.5, sharpe: 3.65, status: 'RUNNING' },
+        { id: 'BOT-EG-01', myth: 'Ra', pantheon: 'Egyptian Karnak', market: 'Sector', strategy: 'Nifty Energy & Solar Momentum', pnlINR: 312400, winRate: 78.4, sharpe: 3.18, status: 'RUNNING' },
+        { id: 'BOT-EG-02', myth: 'Anubis', pantheon: 'Egyptian Karnak', market: 'Sector', strategy: 'US Financials Credit Spread', pnlINR: 278900, winRate: 82.1, sharpe: 3.35, status: 'RUNNING' },
+        { id: 'BOT-EG-03', myth: 'Osiris', pantheon: 'Egyptian Karnak', market: 'Sector', strategy: 'Pharma Defensive Mean Reversion', pnlINR: 245600, winRate: 79.8, sharpe: 2.98, status: 'RUNNING' }
       ];
 
-      const totalPnl = bots.reduce((a, b) => a + b.pnlINR, 0);
       return {
         status: 'ONLINE',
         protocol: 'FIX 4.4 / TerminalBus SSE',
         fleet_summary: {
-          total_bots: 20,
-          active_running: 20,
+          total_bots: 41,
+          active_running: 41,
           olympus_division_pnl: 1845300,
           valhalla_division_pnl: 2142800,
-          aggregate_realized_pnl_inr: totalPnl,
-          aggregate_realized_pnl_usd: Math.round(totalPnl / 83.5),
-          fleet_sharpe_ratio: 2.94,
-          fleet_win_rate_pct: 76.1,
-          total_orders_executed: 14892
+          karnak_division_pnl: 1678500,
+          aggregate_realized_pnl_inr: 5666600,
+          aggregate_realized_pnl_usd: 67860,
+          fleet_sharpe_ratio: 3.14,
+          fleet_win_rate_pct: 77.4,
+          total_orders_executed: 28412
         },
-        pantheon_champions: bots.slice(0, 5),
+        pantheon_champions: bots,
         sec_posture: 'DEFCON 5: NORMAL AUTONOMOUS EXECUTION'
+      };
+    }
+
+    // 2.5. Sector Indicators & Relative Strength (Desk 8)
+    if (ep.includes('/api/sectors/all')) {
+      const indiaSectors = [
+        { name: 'NIFTY BANK', symbol: '^NSEBANK', momentum: '+1.84%', rsRatio: 104.2, status: 'LEADING', bot: 'Amun' },
+        { name: 'NIFTY IT', symbol: '^CNXIT', momentum: '+2.41%', rsRatio: 108.6, status: 'LEADING', bot: 'Thoth' },
+        { name: 'NIFTY AUTO', symbol: '^CNXAUTO', momentum: '+0.92%', rsRatio: 101.4, status: 'NEUTRAL', bot: 'Ptah' },
+        { name: 'NIFTY PHARMA', symbol: '^CNXPHARMA', momentum: '-0.34%', rsRatio: 98.2, status: 'DEFENSIVE', bot: 'Osiris' },
+        { name: 'NIFTY FMCG', symbol: '^CNXFMCG', momentum: '+0.12%', rsRatio: 99.5, status: 'DEFENSIVE', bot: 'Bastet' },
+        { name: 'NIFTY METAL', symbol: '^CNXMETAL', momentum: '+3.15%', rsRatio: 112.4, status: 'ACCELERATING', bot: 'Sekhmet' },
+        { name: 'NIFTY ENERGY', symbol: '^CNXENERGY', momentum: '+1.25%', rsRatio: 102.8, status: 'LEADING', bot: 'Ra' },
+        { name: 'NIFTY REALTY', symbol: '^CNXREALTY', momentum: '+2.80%', rsRatio: 109.1, status: 'ACCELERATING', bot: 'Sobek' },
+        { name: 'NIFTY INFRA', symbol: '^CNXINFRA', momentum: '+0.78%', rsRatio: 100.9, status: 'NEUTRAL', bot: 'Horus' },
+        { name: 'NIFTY MEDIA', symbol: '^CNXMEDIA', momentum: '-1.45%', rsRatio: 94.2, status: 'LAGGING', bot: 'Seth' }
+      ];
+      const usSectors = [
+        { name: 'Technology (XLK)', symbol: 'XLK', momentum: '+2.12%', rsRatio: 107.5, status: 'LEADING', bot: 'Anhur' },
+        { name: 'Financials (XLF)', symbol: 'XLF', momentum: '+1.45%', rsRatio: 103.8, status: 'LEADING', bot: 'Anubis' },
+        { name: 'Healthcare (XLV)', symbol: 'XLV', momentum: '+0.25%', rsRatio: 99.8, status: 'DEFENSIVE', bot: 'Isis' },
+        { name: 'Energy (XLE)', symbol: 'XLE', momentum: '+2.85%', rsRatio: 110.2, status: 'ACCELERATING', bot: 'Khepri' },
+        { name: 'Industrials (XLI)', symbol: 'XLI', momentum: '+1.10%', rsRatio: 102.1, status: 'NEUTRAL', bot: 'Khonsu' },
+        { name: 'Consumer Disc (XLY)', symbol: 'XLY', momentum: '+1.65%', rsRatio: 104.5, status: 'LEADING', bot: 'Hathor' },
+        { name: 'Consumer Staples (XLP)', symbol: 'XLP', momentum: '-0.20%', rsRatio: 98.4, status: 'DEFENSIVE', bot: 'Taweret' },
+        { name: 'Utilities (XLU)', symbol: 'XLU', momentum: '+0.45%', rsRatio: 100.2, status: 'DEFENSIVE', bot: 'Nephthys' },
+        { name: 'Materials (XLB)', symbol: 'XLB', momentum: '+1.80%', rsRatio: 105.1, status: 'LEADING', bot: 'Maat' },
+        { name: 'Real Estate (XLRE)', symbol: 'XLRE', momentum: '-0.85%', rsRatio: 96.5, status: 'LAGGING', bot: 'Serket' }
+      ];
+      return {
+        status: 'SUCCESS',
+        total_sectors: 20,
+        india_nse: indiaSectors,
+        us_gics: usSectors,
+        top_pairs_opportunity: {
+          spread: 'IT / BANK Spread',
+          z_score: 2.14,
+          action: 'LONG IT / SHORT BANK',
+          paired_bots: ['Thoth', 'Amun']
+        }
+      };
+    }
+
+    if (ep.includes('/api/sectors/pairs')) {
+      return {
+        status: 'SUCCESS',
+        market: params.market || 'NSE',
+        cointegrated_pairs: [
+          { pair: 'NIFTY IT vs NIFTY BANK', hedge_ratio: 0.842, adf_stat: -3.84, p_value: 0.0024, current_z: 2.14, half_life_days: 8.4 },
+          { pair: 'NIFTY METAL vs NIFTY AUTO', hedge_ratio: 1.120, adf_stat: -3.42, p_value: 0.0102, current_z: -1.82, half_life_days: 11.2 },
+          { pair: 'XLK vs XLF', hedge_ratio: 0.915, adf_stat: -4.12, p_value: 0.0008, current_z: 1.74, half_life_days: 6.8 }
+        ]
+      };
+    }
+
+    // 2.8. CVaR Portfolio Optimizer (SLSQP)
+    if (ep.includes('/api/risk/optimize')) {
+      const targetRet = parseFloat(params.target_return || 0.10);
+      const weights = {
+        AAPL: 0.35,
+        MSFT: 0.30,
+        GOOGL: 0.20,
+        AMZN: 0.15
+      };
+      return {
+        status: 'OPTIMAL',
+        algorithm: 'Scipy SLSQP Rockafellar-Uryasev LP',
+        target_annual_return_pct: Number((targetRet * 100).toFixed(2)),
+        optimal_weights: weights,
+        expected_annual_return_pct: 14.85,
+        portfolio_annualized_vol_pct: 16.42,
+        portfolio_95_cvar_daily_pct: 2.14,
+        portfolio_95_var_daily_pct: 1.58,
+        sharpe_ratio: 1.84,
+        diversification_ratio: 1.62
       };
     }
 
@@ -1615,6 +1961,7 @@
     initAlmgrenSandbox();
     initCvarSandbox();
     initNodeExplorer();
+    initLabsDirectory();
     initCommandLibrary();
     initApiConsole();
     initDocSearch();

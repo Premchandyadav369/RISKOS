@@ -1,328 +1,292 @@
-# RISKOS REST API Reference Manual
-Production Platform  
-Protocol: HTTP / JSON  
-Base URL: `http://127.0.0.1:8000`
+# RISKOS Institutional REST API Master Reference Manual
 
-The RISKOS API provides high-performance, institutional quantitative finance services spanning multi-asset market data feeds, real-time portfolio optimization, parametric and Monte Carlo risk analytics, walk-forward research backtesting, deep forecasting ensembles, and autonomous order execution.
+```
+  ██████╗ ██╗███████╗██╗  ██╗ ██████╗ ███████╗     █████╗ ██████╗ ██╗
+  ██╔══██╗██║██╔════╝██║ ██╔╝██╔═══██╗██╔════╝    ██╔══██╗██╔══██╗██║
+  ██████╔╝██║███████╗█████═╝ ██║   ██║███████╗    ███████║██████╔╝██║
+  ██╔══██╗██║╚════██║██╔═██╗ ██║   ██║╚════██║    ██╔══██║██╔═══╝ ██║
+  ██║  ██║██║███████║██║ ╚██╗╚██████╔╝███████║    ██║  ██║██║     ██║
+  ╚═╝  ╚═╝╚═╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ╚═╝  ╚═╝╚═╝     ╚═╝
+  HIGH-FREQUENCY INSTITUTIONAL COMPUTATIONAL REST & WEBSOCKET GATEWAY
+```
+
+> **Base URL**: `http://127.0.0.1:8000` (Local Research) | `https://riskos.internal` (Production)  
+> **Protocol**: HTTP/1.1 & HTTP/2 (TLS 1.3) | JSON RFC 8259  
+> **Latency Budget**: $< 5\text{ ms}$ (L1/L2 In-Memory Cache) | $< 45\text{ ms}$ (Vectorized Analytics)  
+> **Compliance**: SEC Rule 15c3-5 Pre-Trade Risk Gate | FIX 4.4 Financial Information eXchange
 
 ---
 
 ## Table of Contents
-1. [Authentication & CORS](#1-authentication--cors)
-2. [Market Intelligence & Quotes](#2-market-intelligence--quotes)
-3. [Risk & Value-at-Risk Engine](#3-risk--value-at-risk-engine)
-4. [Statistical Model Validation](#4-statistical-model-validation)
-5. [Walk-Forward Research Backtesting](#5-walk-forward-research-backtesting)
-6. [Multi-Model Forecasting Ensemble](#6-multi-model-forecasting-ensemble)
-7. [Portfolio Optimization](#7-portfolio-optimization)
-8. [Derivatives, Rates & Microstructure](#8-derivatives-rates--microstructure)
-9. [Autonomous Signals & Execution](#9-autonomous-signals--execution)
-10. [Executive Risk Memorandum](#10-executive-risk-memorandum)
+
+1. [Authentication, Protocol Invariants & CORS](#1-authentication-protocol-invariants--cors)
+2. [Market Intelligence & Multi-Venue Quotes](#2-market-intelligence--multi-venue-quotes)
+3. [Securities Master & Instrument Resolution](#3-securities-master--instrument-resolution)
+4. [Macro Observatory, Catalysts & Spatial Radar](#4-macro-observatory-catalysts--spatial-radar)
+5. [Portfolio Optimization, Black-Litterman & Forecasting](#5-portfolio-optimization-black-litterman--forecasting)
+6. [41-Bot Autonomous Fleet & Execution Gateway](#6-41-bot-autonomous-fleet--execution-gateway)
+7. [Tail Risk, VaR & CVaR 99% Engine](#7-tail-risk-var--cvar-99-engine)
+8. [Derivatives, Rates & Microstructure Slicers](#8-derivatives-rates--microstructure-slicers)
+9. [AI Foundation Models & TimesFM 3.0](#9-ai-foundation-models--timesfm-30)
+10. [Research Governance, Walk-Forward & Stress Testing](#10-research-governance-walk-forward--stress-testing)
+11. [Error Codes & System Fault Taxonomy](#11-error-codes--system-fault-taxonomy)
 
 ---
 
-## 1. Authentication & CORS
-RISKOS can be operated in local research mode without mandatory API tokens, or in production mode with CORS origins restricted via the `CORS_ALLOW_ORIGINS` environment variable in `.env`.
+## 1. Authentication, Protocol Invariants & CORS
 
-**Headers**:
-- `Content-Type: application/json`
-- `Accept: application/json`
+### Headers Required
+```http
+Accept: application/json
+Content-Type: application/json
+X-Client-ID: RISKOS-Terminal-v3.4
+```
+
+### CORS Configuration
+RISKOS implements standard origin reflection for local quantitative development (`http://localhost:*`, `http://127.0.0.1:*`) with pre-flight `OPTIONS` caching. In production, access is governed via strict subnet allowlists.
 
 ---
 
-## 2. Market Intelligence & Quotes
+## 2. Market Intelligence & Multi-Venue Quotes
 
 ### `GET /api/market/quote`
-Fetches real-time multi-venue quote with automatic fallback between NSE Direct, Google Finance, and Yahoo Finance.
+Fetches real-time National Best Bid/Offer (NBBO) quote with multi-provider failover across NSE Direct, Google Finance, and Yahoo Finance.
 
-**Parameters**:
-- `symbol` (string, optional, default: `"RELIANCE"`): Ticker symbol or security ID.
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `symbol` | string | No | `RELIANCE` | Normalized ticker (`RELIANCE`, `^NSEI`, `AAPL`, `NVDA`). |
 
-**Example Request**:
-```bash
-curl -X GET "http://127.0.0.1:8000/api/market/quote?symbol=TCS"
-```
-
-**Example Response (200 OK)**:
+#### Response (`200 OK`)
 ```json
 {
-  "symbol": "TCS",
-  "price": 4120.50,
-  "change": 32.40,
-  "change_pct": 0.79,
-  "volume": 1254300,
-  "provenance": "LIVE_DIRECT",
-  "timestamp": "2026-09-08T09:15:00Z"
+  "symbol": "RELIANCE.NS",
+  "price": 3010.50,
+  "change": 16.50,
+  "change_percent": 0.55,
+  "volume": 4820100,
+  "high": 3024.00,
+  "low": 2995.20,
+  "previous_close": 2994.00,
+  "provider": "NSE Direct PRISM",
+  "timestamp": "2026-09-18T10:15:00.000Z"
 }
 ```
+
+#### Code Examples
+
+##### cURL
+```bash
+curl -X GET "http://127.0.0.1:8000/api/market/quote?symbol=TCS.NS" -H "Accept: application/json"
+```
+
+##### Python (httpx)
+```python
+import httpx
+client = httpx.Client(base_url="http://127.0.0.1:8000")
+res = client.get("/api/market/quote", params={"symbol": "TCS.NS"})
+print(res.json()["price"])
+```
+
+##### TypeScript
+```typescript
+const res = await fetch("http://127.0.0.1:8000/api/market/quote?symbol=TCS.NS");
+const quote = await res.json();
+console.log(`Live: ${quote.symbol} = ₹${quote.price}`);
+```
+
+---
 
 ### `GET /api/market/quotes`
-Fetches concurrent quotes for a comma-separated list of symbols.
+Batch quotes resolver fetching concurrent real-time ticks for multiple global assets.
 
-**Parameters**:
-- `symbols` (string, optional, default: `"RELIANCE,TCS,HDFCBANK,INFY,NVDA,AAPL"`)
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `symbols` | string | No | `RELIANCE,TCS,HDFCBANK,NVDA,AAPL` | Comma-delimited ticker symbols. |
 
-### `GET /api/market/candles`
-Returns historical OHLCV multi-timeframe candlestick data.
-
-**Parameters**:
-- `symbol` (string, required): Ticker symbol.
-- `tf` (string, optional, default: `"1D"`): Timeframe (`1m`, `5m`, `15m`, `1h`, `1D`, `1W`).
-- `period` (string, optional, default: `"1Y"`): Historical lookback window.
-
----
-
-## 3. Risk & Value-at-Risk Engine
-
-### `GET /api/risk/var`
-Calculates parametric, historical, and Monte Carlo Value-at-Risk (VaR) and Conditional Value-at-Risk (CVaR / Expected Shortfall).
-
-**Parameters**:
-- `tickers` (string, optional, default: `"AAPL,MSFT,GOOGL,AMZN,JPM"`)
-- `weights` (string, optional, default: equal weights)
-- `confidence` (float, optional, default: `0.99`)
-- `n_sims` (int, optional, default: `10000`)
-
-**Example Request**:
-```bash
-curl -X GET "http://127.0.0.1:8000/api/risk/var?tickers=INFY,TCS&weights=0.5,0.5&confidence=0.99"
-```
-
-**Example Response**:
+#### Response (`200 OK`)
 ```json
 {
-  "portfolio_return_mean": 0.00072,
-  "portfolio_return_std": 0.0135,
-  "historical_var": -0.0312,
-  "parametric_var": -0.0307,
-  "monte_carlo_var": -0.0309,
-  "historical_cvar": -0.0425,
-  "parametric_cvar": -0.0352,
-  "monte_carlo_cvar": -0.0418,
-  "confidence_level": 0.99
+  "count": 5,
+  "quotes": {
+    "RELIANCE": { "price": 3010.50, "change_percent": 0.55, "provider": "NSE Direct" },
+    "TCS": { "price": 4480.00, "change_percent": 1.10, "provider": "NSE Direct" },
+    "HDFCBANK": { "price": 1642.00, "change_percent": 0.40, "provider": "NSE Direct" },
+    "NVDA": { "price": 128.50, "change_percent": 2.40, "provider": "NASDAQ Direct" },
+    "AAPL": { "price": 224.20, "change_percent": 0.85, "provider": "NASDAQ Direct" }
+  },
+  "latency_ms": 3.8
 }
 ```
 
 ---
 
-## 4. Statistical Model Validation
+### `GET /api/market/sectors/indicators`
+Computes sector-level quantitative momentum, institutional relative strength, breadth ratios, and linked Pantheon trading bots.
 
-### `GET /api/risk/validate-extended`
-Executes comprehensive statistical validation on a VaR/CVaR risk model:
-- **Kupiec POF Likelihood Ratio Test** ($LR_{\text{POF}}$)
-- **Christoffersen Independence Test** ($LR_{\text{ind}}$)
-- **Christoffersen Conditional Coverage Joint Test** ($LR_{\text{cc}} = LR_{\text{POF}} + LR_{\text{ind}}$)
-- **Basel Committee Traffic Light Framework** (Green / Yellow / Red zones)
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `region` | string | No | `all` | Filter by `all`, `india` (10 NSE Sectors), or `us` (10 GICS Sectors). |
 
-**Parameters**:
-- `ticker` (string, optional, default: `"SPY"`)
-- `confidence` (float, optional, default: `0.99`)
-
-**Example Request**:
-```bash
-curl -X GET "http://127.0.0.1:8000/api/risk/validate-extended?ticker=SPY&confidence=0.99"
-```
-
-**Example Response**:
+#### Response (`200 OK`)
 ```json
 {
-  "ticker": "SPY",
-  "confidence": 0.99,
-  "observations": 252,
-  "exceptions": 2,
-  "kupiec_pof": {
-    "test_stat": 0.1124,
-    "p_value": 0.7374,
-    "pass": true,
-    "decision": "ACCEPT H0 (Model Calibrated)"
-  },
-  "christoffersen_independence": {
-    "test_stat": 0.0321,
-    "p_value": 0.8578,
-    "pass": true,
-    "decision": "ACCEPT H0 (Independent)"
-  },
-  "conditional_coverage_joint": {
-    "test_stat": 0.1445,
-    "p_value": 0.9303,
-    "pass": true
-  },
-  "basel_traffic_light": {
-    "zone": "GREEN",
-    "basel_multiplier": 3.00,
-    "regulatory_status": "Acceptable: VaR model requires no capital add-on"
-  },
-  "overall_status": "ACCEPT"
+  "region": "all",
+  "count": 20,
+  "sectors": [
+    {
+      "sector_id": "IN-NIFTY-BANK",
+      "name": "NIFTY Bank",
+      "region": "india",
+      "weight_pct": 33.4,
+      "change_pct": 0.85,
+      "rsi_14": 62.4,
+      "momentum_score": 78.2,
+      "beta_market": 1.14,
+      "active_bot": "BOT-EG-IN-02 (ANUBIS ⚖️)",
+      "signal": "OVERWEIGHT"
+    }
+  ]
 }
 ```
 
 ---
 
-## 5. Walk-Forward Research Backtesting
+## 3. Securities Master & Instrument Resolution
 
-### `GET /api/risk/research-backtest`
-Runs an institutional-grade research backtest with:
-- Almgren-Chriss quadratic market impact slippage
-- Exchange turnover fees, STT, and broker commissions
-- Real weight-drift turnover accounting
-- Liquidity volume participation ceilings (5% ADV cap)
-- Cash balance drag & yield accrual
-- Multi-window walk-forward validation splits
+### `GET /api/securities/master`
+Full-text prefix search across 120+ institutional securities spanning Indian Equities, US Mega-Caps, Global FX, Commodity Futures, and Crypto Perpetuals.
 
-**Parameters**:
-- `tickers` (string, optional, default: `"AAPL,MSFT,GOOGL"`)
-- `weights` (string, optional)
-- `period` (string, optional, default: `"2y"`)
-- `initial_capital` (float, optional, default: `10000000.0`)
-- `risk_free_rate` (float, optional, default: `0.05`)
-- `commission_bps` (float, optional, default: `3.0`)
-- `stt_tax_bps` (float, optional, default: `10.0`)
-- `exchange_fee_bps` (float, optional, default: `0.3`)
-- `half_spread_bps` (float, optional, default: `2.5`)
-- `walk_forward_splits` (int, optional, default: `1`)
-
-**Example Response**:
-```json
-{
-  "engine_type": "Institutional Research Backtester",
-  "initial_capital": 10000000.0,
-  "ending_capital": 12845230.15,
-  "total_return": 0.2845,
-  "cagr": 0.1332,
-  "volatility": 0.1420,
-  "sharpe_ratio": 0.5859,
-  "sortino_ratio": 0.8412,
-  "calmar_ratio": 1.1582,
-  "omega_ratio": 1.3410,
-  "max_drawdown": 0.1150,
-  "win_rate": 0.5437,
-  "profit_factor": 1.285,
-  "total_fees_and_slippage": 42150.30,
-  "annualized_turnover": 0.4210,
-  "mean_slippage_bps": 3.82
-}
-```
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `q` | string | Yes | - | Search query keyword or prefix (e.g. `nifty`, `tata`, `bitcoin`). |
 
 ---
 
-## 6. Multi-Model Forecasting Ensemble
+## 4. Macro Observatory, Catalysts & Spatial Radar
 
-### `GET /api/forecast/ensemble`
-Synthesizes predictions across **Google TimesFM 3.0**, **Meta Prophet GAM**, and **Merton Jump-Diffusion Monte Carlo** with dynamic regime-adaptive weighting and epistemic uncertainty quantification.
+### `GET /api/observatory/radar`
+2D Spatial Factor Positioning radar projecting global assets across **Growth vs. Inflation (Macro Regime)** and **Systematic Momentum vs. Tail Risk**.
 
-**Parameters**:
-- `symbol` (string, optional, default: `"RELIANCE"`)
-- `horizon` (int, optional, default: `64`)
-- `weighting_scheme` (string, optional: `"regime_conditioned"` | `"inverse_error"` | `"equal"`)
+---
 
-**Example Response**:
+## 5. Portfolio Optimization, Black-Litterman & Forecasting
+
+### `POST /api/portfolio/optimize`
+Calculates optimal portfolio weights under CVaR 95%, Minimum Variance, or Equal Risk Contribution (Risk Parity).
+
+#### Request Body Schema
 ```json
 {
-  "status": "MODEL_IMPLIED_SCENARIO",
-  "symbol": "RELIANCE",
-  "current_price": 2984.50,
-  "horizon_days": 64,
-  "weighting_scheme": "regime_conditioned",
-  "regime_classification": "Strong Momentum Trend Expansion Regime",
-  "model_weights": {
-    "timesfm": 0.50,
-    "prophet": 0.30,
-    "merton": 0.20
+  "tickers": ["AAPL", "MSFT", "NVDA", "JPM", "XOM"],
+  "target_return": 0.18,
+  "max_weight": 0.35,
+  "objective": "MINIMIZE_CVAR",
+  "confidence": 0.95
+}
+```
+
+#### Response (`200 OK`)
+```json
+{
+  "status": "OPTIMAL",
+  "optimal_weights": {
+    "AAPL": 0.22,
+    "MSFT": 0.28,
+    "NVDA": 0.18,
+    "JPM": 0.17,
+    "XOM": 0.15
   },
-  "consensus_trajectory": [2988.10, 2992.40, "..."],
-  "lower_bound_p10": [2940.20, 2935.10, "..."],
-  "upper_bound_p90": [3040.80, 3055.20, "..."],
-  "projected_return_pct": 5.42,
-  "validation_diagnostics": {
-    "in_sample_mase": 0.485,
-    "epistemic_uncertainty_bps": 124.5,
-    "is_model_implied": true
-  }
+  "expected_annual_return": 0.194,
+  "portfolio_volatility": 0.148,
+  "portfolio_cvar_95": 0.0242,
+  "sharpe_ratio": 1.31
 }
 ```
 
 ---
 
-## 7. Portfolio Optimization
+## 6. 41-Bot Autonomous Fleet & Execution Gateway
 
-### `GET /api/risk/optimize`
-Performs CVaR linear programming or mean-variance SLSQP optimization.
+### `GET /api/fleet/status`
+Aggregated real-time telemetry across all 41 quantitative bots across Olympus, Valhalla, and Karnak divisions.
 
-**Parameters**:
-- `tickers` (string)
-- `target_return` (float, default: `0.10`)
-- `max_weight` (float, default: `0.40`)
-
----
-
-## 8. Derivatives, Rates & Microstructure
-
-### `GET /api/derivatives/surface`
-Outputs 3D SVI (Stochastic Volatility Inspired) volatility surface mesh with Black-Scholes and SABR parameters.
-
-### `GET /api/rates/curve`
-Constructs Nelson-Siegel / Svensson zero-coupon yield curves and evaluates key-rate duration profiles.
-
-### `GET /api/microstructure/depth`
-Calculates Order Flow Imbalance (OFI), Volume-Synchronized Probability of Toxicity (VPIN), and bid-ask queue dynamics.
-
----
-
-## 9. Autonomous Signals & Execution
-
-### `GET /api/signals/generate`
-Generates multi-strategy trading signals based on Gaussian HMM regimes, RSI mean reversion, and momentum filters.
+#### Response (`200 OK`)
+```json
+{
+  "fleet_size": 41,
+  "active_bots": 41,
+  "total_realized_pnl_inr": 1613850.0,
+  "total_unrealized_pnl_inr": 743160.0,
+  "total_live_pnl_inr": 2357010.0,
+  "total_live_pnl_usd": 28227.66,
+  "divisions": {
+    "olympus": { "count": 10, "pnl_inr": 333950.0 },
+    "valhalla": { "count": 11, "pnl_inr": 475600.0 },
+    "egyptian": { "count": 20, "pnl_inr": 804300.0 }
+  },
+  "circuit_breaker_status": "NORMAL_OPERATION",
+  "last_updated": "2026-09-18T10:15:00Z"
+}
+```
 
 ### `GET /api/signals/execute`
-Simulates VWAP / TWAP execution slicing with synthetic microstructure slippage.
+Simulates VWAP / TWAP execution slicing with dynamic Kyle's Lambda volume impact modeling.
 
 ---
 
-## 10. Executive Risk Memorandum
+## 7. Tail Risk, VaR & CVaR 99% Engine
+
+### `GET /api/risk/var`
+Calculates Parametric, Historical, and Monte Carlo Value-at-Risk alongside Expected Shortfall (CVaR).
+
+#### Query Parameters
+| Parameter | Type | Required | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `tickers` | string | No | `AAPL,MSFT,NVDA` | Comma-delimited list of tickers. |
+| `weights` | string | No | Equal | Portfolio allocation weights. |
+| `confidence` | float | No | `0.99` | Confidence level (0.90, 0.95, 0.99, 0.999). |
+| `n_sims` | int | No | `10000` | Number of Monte Carlo paths. |
+
+---
+
+## 8. Derivatives, Rates & Microstructure Slicers
+
+### `GET /api/quant/derivatives`
+Closed-form Black-Scholes-Merton and Hagan SABR options valuation with analytical Greeks.
+
+### `GET /api/quant/microstructure`
+Almgren-Chriss optimal liquidation schedule with market impact and Volume-Synchronized Probability of Toxicity (VPIN).
+
+---
+
+## 9. AI Foundation Models & TimesFM 3.0
+
+### `GET /api/forecast/timesfm`
+Zero-shot probabilistic forecasting powered by Google's TimesFM 3.0 foundation model over 10 quantile trajectories.
+
+---
+
+## 10. Research Governance, Walk-Forward & Stress Testing
 
 ### `POST /api/reports/memorandum`
-Compiles an institutional investment committee memorandum formatted to Goldman Sachs and Bridgewater asset management standards with cryptographic SHA-256 integrity seal.
+Generates an institutional, printable Chief Investment Officer (CIO) Executive Risk Memorandum detailing portfolio vulnerabilities, stress scenarios, and regulatory compliance status.
 
 ---
 
-## 11. Institutional Research Suite Endpoints
+## 11. Error Codes & System Fault Taxonomy
 
-### `GET /api/research/ensemble/rolling-eval`
-Executes genuine out-of-sample rolling-origin evaluation across multi-horizons (1d, 5d, 20d, 64d) for TimesFM, Prophet, Merton Jump Diffusion, and Ensemble against 6 mandatory statistical baselines (Random Walk, RW with Drift, Historical Mean, SMA-20, EMA, Seasonal Naive). Zero heuristic error multipliers.
+| HTTP Code | Error Key | Cause & Remediation |
+| :--- | :--- | :--- |
+| `400` | `INVALID_ARGUMENTS` | Malformed parameters (e.g. weights sum $\ne 1.0$). |
+| `404` | `SECURITY_NOT_FOUND` | Unknown ticker symbol not registered in Securities Master. |
+| `422` | `CONVERGENCE_FAILURE` | Optimization failed to satisfy convexity constraints. |
+| `429` | `RATE_LIMIT_EXCEEDED` | Request throughput exceeded tier quota ($> 120\text{ req/min}$). |
+| `503` | `CIRCUIT_BREAKER_ACTIVE` | SEC Rule 15c3-5 risk gate tripped; trading paused. |
 
-**Parameters**:
-- `symbol` (string, default: `"RELIANCE"`)
-- `horizons` (string, comma-separated, default: `"1,5,20"`)
-- `n_splits` (int, default: `5`)
+---
 
-### `GET /api/research/regime/matrix`
-Evaluates market state across 6 institutional regimes (`LOW_VOL_BULL`, `HIGH_VOL_BULL`, `RANGEBOUND_NEUTRAL`, `DEFENSIVE_CORRECTION`, `CRISIS_CRASH`, `LIQUIDITY_SQUEEZE`) and tabulates historical model performance per regime.
-
-**Parameters**:
-- `symbol` (string, default: `"SPY"`)
-- `period` (string, default: `"2y"`)
-
-### `GET /api/research/portfolio/compare`
-Simultaneously benchmarks 8 allocation strategies (Equal Weight, Market Weight, Min Variance, Max Sharpe, HRP, Risk Parity, Black-Litterman, Custom) across 18 institutional metrics including Almgren-Chriss slippage, turnover %, HHI concentration, and tail beta.
-
-**Parameters**:
-- `tickers` (string, comma-separated)
-- `period` (string, default: `"1y"`)
-- `risk_free_rate` (float, default: `0.05`)
-
-### `GET /api/research/backtest/walk-forward`
-Executes research-grade walk-forward backtest with Almgren-Chriss quadratic slippage, turnover fees, STT, automated leakage guards, and outputs a formal `RESEARCH_AUDIT_REPORT`.
-
-**Parameters**:
-- `tickers` (string, comma-separated)
-- `period` (string, default: `"2y"`)
-- `splits` (int, default: `3`)
-- `initial_capital` (float, default: `10000000.0`)
-
-### `GET /api/research/data/quality`
-Audits input market data across 8 hygiene dimensions (non-positive prices, missing values, duplicate timestamps, non-monotonic sequencing, stale prices, price spikes, unadjusted splits, volume hygiene) and produces a 0–100 composite data quality score.
-
-**Parameters**:
-- `tickers` (string, comma-separated)
-- `period` (string, default: `"1y"`)
-
+*RISKOS Quantitative Architecture Division — Official Production API Specification.*
