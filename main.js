@@ -936,10 +936,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ctx.clearRect(0, 0, currentW, currentH);
 
-      // Clamping zoom and pan bounds
-      visibleBarsCount = Math.max(8, Math.min(bars.length, visibleBarsCount));
+      if (!bars || bars.length === 0) {
+        ctx.fillStyle = '#71717a';
+        ctx.font = '12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('Ingesting real-time market bars...', currentW / 2, currentH / 2);
+        return;
+      }
+
+      // Defensive clamping of zoom and pan bounds across all timeframes
+      visibleBarsCount = Math.max(5, Math.min(bars.length, visibleBarsCount || 30));
       const maxPan = Math.max(0, bars.length - visibleBarsCount);
-      panOffset = Math.max(0, Math.min(maxPan, panOffset));
+      panOffset = Math.max(0, Math.min(maxPan, panOffset || 0));
 
       const startIdx = Math.max(0, bars.length - visibleBarsCount - panOffset);
       const endIdx = Math.min(bars.length, startIdx + visibleBarsCount);
