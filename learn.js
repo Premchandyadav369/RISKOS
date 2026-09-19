@@ -267,6 +267,67 @@
     });
   };
 
+  // ── Bulletproof Synchronous KaTeX / MathJax Math Renderer ────────────────
+  const renderLatexFormula = (containerEl, rawLatex, isDisplayMode = true) => {
+    if (!containerEl || !rawLatex) return;
+
+    // Clean off any outer delimiters: $$, $, \[, \], \(, \)
+    let clean = String(rawLatex).trim();
+    if (clean.startsWith('$$') && clean.endsWith('$$') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    } else if (clean.startsWith('\\[') && clean.endsWith('\\]') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    } else if (clean.startsWith('\\(') && clean.endsWith('\\)') && clean.length >= 4) {
+      clean = clean.slice(2, -2).trim();
+    }
+
+    // 1. Primary: Direct Synchronous KaTeX Compilation (Instant 0ms, Zero text flash)
+    if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
+      try {
+        containerEl.innerHTML = '';
+        katex.render(clean, containerEl, {
+          displayMode: isDisplayMode,
+          throwOnError: false
+        });
+        return;
+      } catch (e) {
+        console.warn('KaTeX direct render notice:', e);
+      }
+    }
+
+    // 2. Secondary: MathJax 3 SVG Compilation
+    if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+      containerEl.textContent = isDisplayMode ? `\\[ ${clean} \\]` : `\\( ${clean} \\)`;
+      window.MathJax.typesetPromise([containerEl]).catch(() => {});
+      return;
+    }
+
+    // 3. Fallback: Wait for KaTeX or MathJax initialization if loading asynchronously
+    containerEl.textContent = isDisplayMode ? `\\[ ${clean} \\]` : `\\( ${clean} \\)`;
+    let attempts = 0;
+    const poll = setInterval(() => {
+      attempts++;
+      if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
+        clearInterval(poll);
+        try {
+          containerEl.innerHTML = '';
+          katex.render(clean, containerEl, {
+            displayMode: isDisplayMode,
+            throwOnError: false
+          });
+        } catch (e) {}
+      } else if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+        clearInterval(poll);
+        window.MathJax.typesetPromise([containerEl]).catch(() => {});
+      }
+      if (attempts > 30) clearInterval(poll);
+    }, 100);
+  };
+
+  if (typeof window !== 'undefined') {
+    window.renderLatexFormula = renderLatexFormula;
+  }
+
   // ── Main Deterministic Evaluator ──────────────────────────────────────────
   const evaluateActiveModule = () => {
     if (typeof LearnMathEngine === 'undefined') return;
@@ -333,33 +394,31 @@
     const subDiv = document.getElementById('proveSubstitutedMath');
     const deepProofContent = document.getElementById('mathDeepProofContent');
 
-    if (eqDiv) eqDiv.innerHTML = res.equationLatex || '\\[ \\text{Formula} \\]';
-    if (subDiv) subDiv.innerHTML = res.substitutedLatex || '\\[ \\text{Calculation} \\]';
+    if (eqDiv && res.equationLatex) {
+      renderLatexFormula(eqDiv, res.equationLatex, true);
+    }
+    if (subDiv && res.substitutedLatex) {
+      renderLatexFormula(subDiv, res.substitutedLatex, true);
+    }
     if (deepProofContent) {
       deepProofContent.innerHTML = `
-        <p style="margin-top:0;"><strong>Model Spec:</strong> ${res.quantText || res.whatIsIt}</p>
+        <p style="margin-top:0;"><strong>Model Spec:</strong> ${res.quantText || res.whatIsIt || ''}</p>
         <p><strong>Interactive Variables &amp; Parameters:</strong></p>
         <ul style="margin:8px 0 0 16px;padding:0;color:var(--text-secondary);font-size:0.8rem;line-height:1.6;">
           ${Object.entries(labState.simInputs).map(([k, v]) => `<li><code style="color:var(--accent-cyan);">${k}</code> = <strong>${v}</strong></li>`).join('')}
         </ul>
       `;
-    }
-
-    // Trigger KaTeX instant typesetting
-    if (typeof renderMathInElement === 'function') {
-      [eqDiv, subDiv, deepProofContent].forEach(el => {
-        if (el) {
-          renderMathInElement(el, {
-            delimiters: [
-              { left: '$$', right: '$$', display: true },
-              { left: '$', right: '$', display: false },
-              { left: '\\[', right: '\\]', display: true },
-              { left: '\\(', right: '\\)', display: false }
-            ],
-            throwOnError: false
-          });
-        }
-      });
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(deepProofContent, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false }
+          ],
+          throwOnError: false
+        });
+      }
     }
 
     // 4. Step 4: Boundaries & Limitations
@@ -1477,6 +1536,21 @@
           evaluateActiveModule();
         }
       });
+    // 11. Render static ambient math tags across the entire laboratory
+    if (typeof renderMathInElement === 'function') {
+      try {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false }
+          ],
+          throwOnError: false
+        });
+      } catch (e) {
+        console.warn('Initial ambient KaTeX render notice:', e);
+      }
     }
   };
 

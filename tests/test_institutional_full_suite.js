@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RISKOS COMPREHENSIVE INSTITUTIONAL TEST SUITE (tests/test_institutional_full_suite.js)
  * End-to-end verification covering all 12 institutional upgrades:
  * 1. 75 Labs Categorization & KaTeX Optimization
@@ -50,7 +50,23 @@ it('Learn: 75 labs categorized with KaTeX and zero MathJax overhead', () => {
 
   const learnJs = fs.readFileSync(path.join(ROOT, 'learn.js'), 'utf8');
   assert(learnJs.includes('renderMathInElement'), 'learn.js must use renderMathInElement');
+  assert(learnJs.includes('renderLatexFormula'), 'learn.js must define renderLatexFormula');
   assert(learnJs.includes('getFilteredModules'), 'learn.js must define dynamic getFilteredModules');
+
+  // Verify all 75 quantitative labs have valid closed-form LaTeX formulas
+  const LearnMathEngine = require(path.join(ROOT, 'learnMathEngine.js'));
+  assert(LearnMathEngine.MODULES_DIRECTORY.length === 75, 'Must have exactly 75 quantitative labs');
+  LearnMathEngine.MODULES_DIRECTORY.forEach(mod => {
+    const res = mod.calc(mod.defaultInputs || {}, 'INR');
+    assert(res.equationLatex && res.equationLatex.length > 5, `Module ${mod.id} missing equationLatex`);
+    assert(res.substitutedLatex && res.substitutedLatex.length > 5, `Module ${mod.id} missing substitutedLatex`);
+  });
+
+  // Verify README.md contains zero malformed single-line math blocks
+  const readmeContent = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
+  const readmeLines = readmeContent.split('\n');
+  const malformed = readmeLines.filter(l => l.trim().startsWith('$$') && l.trim().endsWith('$$') && l.trim().length > 4);
+  assert(malformed.length === 0, `README.md has ${malformed.length} malformed single-line math blocks`);
 });
 
 // ── 2. CHART VIEWPORT AUTO-RESET ON TIMEFRAME SWITCH ────────────────────────

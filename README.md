@@ -501,26 +501,46 @@ graph LR
 
 ### Desk 3: Systematic Signals & Strategy Execution (`app.html`)
 - **Multi-Horizon Time-Series Momentum (TSMOM - Moskowitz, Ooi, Pedersen 2012)**:
-  $$S_t^{\text{TSMOM}} = \frac{1}{K} \sum_{k \in \{21, 63, 126, 252\}} \text{sign}\left( \frac{P_t - P_{t-k}}{P_{t-k}} \right)$$
+
+$$
+S_t^{\text{TSMOM}} = \frac{1}{K} \sum_{k \in \{21, 63, 126, 252\}} \text{sign}\left( \frac{P_t - P_{t-k}}{P_{t-k}} \right)
+$$
+
 - **Volatility-Targeted Position Scaling (Risk-Parity Momentum)**:
   Scales position size inversely to trailing 60-day realized EWMA volatility ($\hat{\sigma}_t$):
-  $$w_t = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_t}, 2.0\right) \cdot S_t^{\text{TSMOM}}$$
+
+$$
+w_t = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_t}, 2.0\right) \cdot S_t^{\text{TSMOM}}
+$$
+
 - **Donchian 20D Channel Breakouts & Chandelier ATR Trailing Stop**:
   Identifies explosive range breakouts ($P_t \ge \max_{20}(H)$) with dynamic trailing exits at $\max_{22}(H) - 3 \times \text{ATR}_{22}$.
 - **Fractional Kelly Criterion Position Sizing & Pre-Trade Guardrails**:
-  $$f^* = \frac{p \cdot b - q}{b}, \quad f_{\text{safe}} = 0.50 \cdot f^*$$
+
+$$
+f^* = \frac{p \cdot b - q}{b}, \quad f_{\text{safe}} = 0.50 \cdot f^*
+$$
+
   Enforces automatic fat-finger checks ($< 3\%$ price deviation) and notional collar caps ($< ₹50\text{ Lakh}$).
 
 ### Desk 4: Algorithmic Order Execution Slicer (SOR) (`app.html`)
 - **Almgren-Chriss Optimal Execution Trajectory**:
-  $$x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
+
+$$
+x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}
+$$
+
 - **Execution Schedules**: Smart Order Routing (SOR) across Volume-Weighted Average Price (VWAP), Time-Weighted Average Price (TWAP), and Percentage of Volume (POV 10% / 20%).
 - **Implementation Shortfall (IS)**: Real-time tracking of permanent vs temporary market impact slippage in basis points.
 
 ### Desk 5: Multi-Leg Derivatives Strategy Studio & SABR Smile (`app.html`)
 - **7 Institutional Multi-Leg Structures**: Iron Condor, Long Straddle, Strangle, Bull Call Spread, Bear Put Spread, Butterfly Spread, and 25Δ Risk Reversal.
 - **Hagan SABR Implied Volatility Model Calibration**:
-  $$\sigma_{\text{SABR}}(K, F) \approx \frac{\alpha}{(F K)^{(1-\beta)/2}} \cdot \left(\frac{z}{\chi(z)}\right) \cdot \left[ 1 + \left( \frac{(1-\beta)^2}{24}\frac{\alpha^2}{(FK)^{1-\beta}} + \frac{\rho \beta \nu \alpha}{4(FK)^{(1-\beta)/2}} + \frac{2-3\rho^2}{24}\nu^2 \right) T \right]$$
+
+$$
+\sigma_{\text{SABR}}(K, F) \approx \frac{\alpha}{(F K)^{(1-\beta)/2}} \cdot \left(\frac{z}{\chi(z)}\right) \cdot \left[ 1 + \left( \frac{(1-\beta)^2}{24}\frac{\alpha^2}{(FK)^{1-\beta}} + \frac{\rho \beta \nu \alpha}{4(FK)^{(1-\beta)/2}} + \frac{2-3\rho^2}{24}\nu^2 \right) T \right]
+$$
+
 - **Dynamic Greeks Visualizer**: Real-time evaluation of Delta ($\Delta$), Gamma ($\Gamma$), Vega ($\mathcal{V}$), Theta ($\Theta$), and Rho ($\rho$).
 
 ### Desk 6: Quantitative Strategy Sandbox & Monthly Alpha Heatmap (`app.html`)
@@ -530,7 +550,10 @@ graph LR
 ### Desk 7: AI Speculations & Google TimesFM 3.0 (`app.html`)
 - **Google Research TimesFM 3.0 Foundation Forecaster**: 10-quantile probabilistic price trajectory ($q_{10}$ to $q_{99}$).
 - **Hanson Logarithmic Market Scoring Rule (LMSR)**: Automated market-maker cost function for prediction market probability pricing:
-  $$C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right)$$
+
+$$
+C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right)
+$$
 
 ---
 
@@ -572,7 +595,11 @@ A dedicated institutional portfolio intelligence and execution desk that connect
 7. **Multi-Objective Quant Optimizer Sandbox**:
    - 5 selectable optimization objectives: `Sentiment Black-Litterman`, `Hierarchical Risk Parity (HRP)`, `Momentum Tilt (Carhart 4-Factor WML)`, `Rockafellar-Uryasev CVaR (95%)`, and `Markowitz Max Sharpe`.
    - **Carhart 4-Factor WML Formulation**: Calculates 12-month minus 1-month cross-sectional returns ($R_{i, 12-1}$), skipping the most recent 21 days to avoid mean-reversion distortions. Standardizes returns into $z$-scores:
-     $$\mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)$$
+
+$$
+\mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)
+$$
+
    - **1-Click "Tilt to Winners" Button (`#btnTiltMomentum`)**: Instantly tilts portfolio weights towards top-quintile winners while trimming lagging losers.
    - Quantitative parameter controls: Max Single Asset Weight Cap, Risk Aversion Parameter ($\lambda$), Target Return Floor.
    - Dynamic bar chart comparing Current Weights vs Optimal Target Weights.
@@ -593,28 +620,50 @@ Integrated directly from `google/timesfm-3.0-pytorch` (arXiv:2310.10688 by Das e
 * **Context Patch Length ($L_p$)**: 32 bars per dense token embedding.
 * **Forecast Horizon Patch ($H_p$)**: 64 bars zero-shot trajectory.
 * **Iterative RevIN**: Reversible instance normalization eliminating non-stationary drift:
-  $$\tilde{x}_t = \frac{x_t - \mu_x}{\sigma_x}, \quad \hat{y}_t = \hat{\tilde{y}}_t \cdot \sigma_x + \mu_x$$
+
+$$
+\tilde{x}_t = \frac{x_t - \mu_x}{\sigma_x}, \quad \hat{y}_t = \hat{\tilde{y}}_t \cdot \sigma_x + \mu_x
+$$
+
 * **Multi-Quantile Pinball Loss**: Evaluates predictive dispersion across $q_{10}, q_{25}, q_{50}, q_{75}, q_{90}, q_{99}$.
 
 ### 📈 Meta Prophet Generalized Additive Model
 Decomposes price trajectories into non-linear trends, Fourier seasonality, and holidays:
-$$y(t) = g(t) + s(t) + h(t) + \epsilon_t$$
+
+$$
+y(t) = g(t) + s(t) + h(t) + \epsilon_t
+$$
+
 * **Piecewise Linear Growth $g(t)$**: Automatically detects historical trend changepoints.
 * **Fourier Series Seasonality $s(t)$**:
-  $$s(t) = \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right)$$
+
+$$
+s(t) = \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right)
+$$
+
 * **Bayesian Uncertainty Corridors**: Evaluates 95% credible intervals for downside capital preservation.
 
 ### 🌊 Merton Jump-Diffusion Monte Carlo
 Augments continuous Black-Scholes geometric Brownian motion with a compound Poisson jump process:
-$$\frac{dS_t}{S_{t^-}} = (\mu - \lambda k) dt + \sigma dW_t + (J - 1) dN_t$$
+
+$$
+\frac{dS_t}{S_{t^-}} = (\mu - \lambda k) dt + \sigma dW_t + (J - 1) dN_t
+$$
+
 * **Continuous Diffusion**: $W_t$ standard Wiener process with annual volatility $\sigma$.
 * **Poisson Jump Counter $N_t$**: Jump arrival intensity $\lambda$ jumps/year, conditioned dynamically on news headline frequency.
 * **Lognormal Jump Severity $J$**: $\ln(J) \sim \mathcal{N}(\mu_J, \sigma_J^2)$, capturing asymmetric fat-tail crash shocks and gap-up breakouts.
 * **Compensator Drift**: $k = \mathbb{E}[J - 1] = e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1$.
 
 ### 🎯 Multi-Model Consensus Calibration Formula
-$$\hat{Y}_t = 0.40 \cdot \text{TimesFM}_{q50}(t) + 0.30 \cdot \text{Prophet}_{\text{trend}}(t) + 0.30 \cdot \text{Merton}_{p50}(t)$$
-$$\text{Win Probability} = \frac{1}{N_{\text{sim}}} \sum_{i=1}^{N_{\text{sim}}} \mathbb{I}\left(\hat{Y}_{T, i} > Y_0\right) = 78.4\%$$
+
+$$
+\hat{Y}_t = 0.40 \cdot \text{TimesFM}_{q50}(t) + 0.30 \cdot \text{Prophet}_{\text{trend}}(t) + 0.30 \cdot \text{Merton}_{p50}(t)
+$$
+
+$$
+\text{Win Probability} = \frac{1}{N_{\text{sim}}} \sum_{i=1}^{N_{\text{sim}}} \mathbb{I}\left(\hat{Y}_{T, i} > Y_0\right) = 78.4\%
+$$
 
 ---
 
@@ -628,7 +677,10 @@ Standard general-purpose NLP lexicons misinterpret financial language (e.g. clas
 - **Litigious & Constraining Language** (e.g. *injunction*, *regulatory scrutiny*, *penalized*)
 
 The aggregate sentiment score $S_{\text{news}}$ is computed as:
-$$S_{\text{news}} = \frac{N_{\text{pos}} - N_{\text{neg}}}{N_{\text{pos}} + N_{\text{neg}} + \epsilon} \in [-1.0, +1.0]$$
+
+$$
+S_{\text{news}} = \frac{N_{\text{pos}} - N_{\text{neg}}}{N_{\text{pos}} + N_{\text{neg}} + \epsilon} \in [-1.0, +1.0]
+$$
 
 ### Catalyst Taxonomy & Entity Extraction
 Incoming wires are parsed through regular-expression entity recognizers that extract ticker symbols (e.g. `RELIANCE.NS`, `SUZLON.NS`, `NVDA`, `PLUG`) and categorize headlines into institutional catalyst taxonomies:
@@ -639,7 +691,11 @@ Incoming wires are parsed through regular-expression entity recognizers that ext
 
 ### 1-Click Subjective View Vector Injection ($Q$)
 When an investor clicks **"INJECT VIEW"** on any breaking headline, RISKOS maps the sentiment score $S_{\text{news}}$ into a calibrated Bayesian Black-Litterman view vector:
-$$Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}$$
+
+$$
+Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}
+$$
+
 where $\alpha$ is the sentiment sensitivity scaler, $\sigma_k$ is the asset's annualized volatility, and $\Delta t$ is the forecast horizon.
 
 ---
@@ -648,8 +704,15 @@ where $\alpha$ is the sentiment sensitivity scaler, $\sigma_k$ is the asset's an
 
 ### Sentiment-Conditioned Black-Litterman
 Blends CAPM implied equilibrium returns $\boldsymbol{\Pi} = \lambda \mathbf{\Sigma} \mathbf{w}_{\text{mkt}}$ with the news-derived view vector $\mathbf{Q}$:
-$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right]$$
-$$\mathbf{w}_{\text{BL}}^* = (\lambda \mathbf{\Sigma})^{-1} \boldsymbol{\mu}_{\text{BL}}$$
+
+$$
+\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right]
+$$
+
+$$
+\mathbf{w}_{\text{BL}}^* = (\lambda \mathbf{\Sigma})^{-1} \boldsymbol{\mu}_{\text{BL}}
+$$
+
 where $\mathbf{P}$ is the asset picking matrix, $\mathbf{\Omega}$ is the diagonal view uncertainty covariance matrix calibrated via He-Litterman $\mathbf{\Omega} = \text{diag}(\mathbf{P}(\tau \mathbf{\Sigma})\mathbf{P}^T)$, and $\tau = 0.05$.
 
 ### Hierarchical Risk Parity (HRP)
@@ -657,16 +720,29 @@ Invented by Marcos López de Prado, HRP solves the instability of Markowitz mean
 1. **Tree Clustering**: Converts the correlation matrix into an ultrametric distance metric $d_{i,j} = \sqrt{\frac{1}{2}(1 - \rho_{i,j})}$.
 2. **Quasi-Diagonalization**: Reorders assets such that highest correlations cluster along the diagonal.
 3. **Recursive Bisection**: Allocates inverse-variance weights hierarchically through the dendrogram tree:
-   $$w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)$$
+
+$$
+w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)
+$$
 
 ### Rockafellar-Uryasev CVaR (95%) Direct LP Minimizer
 Directly minimizes expected tail loss beyond the 95th percentile through linear programming:
-$$\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\}$$
-$$\text{subject to } \sum_{i=1}^n w_i = 1, \quad 0 \le w_i \le w_{\text{max}}, \quad \mathbf{w}^T \mathbb{E}[\mathbf{r}] \ge R_{\text{target}}$$
+
+$$
+\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\}
+$$
+
+$$
+\text{subject to } \sum_{i=1}^n w_i = 1, \quad 0 \le w_i \le w_{\text{max}}, \quad \mathbf{w}^T \mathbb{E}[\mathbf{r}] \ge R_{\text{target}}
+$$
 
 ### 1-Click Rebalance Order Blotter with FIX 4.4 Tag 58
 Executable rebalance tickets calculate the share differential between current weights and optimal target weights:
-$$\Delta x_i = \text{round}\left( \frac{w_{i, \text{target}} \cdot V_{\text{NAV}} - w_{i, \text{curr}} \cdot V_{\text{NAV}}}{P_i} \right)$$
+
+$$
+\Delta x_i = \text{round}\left( \frac{w_{i, \text{target}} \cdot V_{\text{NAV}} - w_{i, \text{curr}} \cdot V_{\text{NAV}}}{P_i} \right)
+$$
+
 Each ticket is marked with FIX 4.4 Tag 58 (`Text` = `PORT-REBAL-EXEC`), estimated Almgren-Chriss slippage, and dispatched step-by-step into the persistent trade audit ledger.
 
 ---
@@ -701,7 +777,10 @@ RISKOS incorporates seven institutional-grade risk management and automated exec
 ### 6. Dividend Income & 5Y DRIP Compounding Projector
 - **Everyday Layman Analogy**: A rental income estimator for your stock portfolio. Calculates exactly how much cash dividends you will collect each month and quarter, and shows how reinvesting dividends snowballs your wealth over 5 years compared to spending the cash.
 - **Institutional Quant Formulation**: Computes annual projected dividend income in ₹ INR and $ USD from Security Master yield metadata, weighted portfolio yield (%), quarterly distribution waterfall (Q1-Q4), and generates an interactive Chart.js 5-year DRIP (Dividend Reinvestment Plan) compounding curve:
-$$Y_{\text{portfolio}} = \sum_{i=1}^N w_i \cdot Y_i, \quad W_{\text{DRIP}}(t) = W_0 \cdot (1 + r_{\text{cagr}} + Y_{\text{port}})^t$$
+
+$$
+Y_{\text{portfolio}} = \sum_{i=1}^N w_i \cdot Y_i, \quad W_{\text{DRIP}}(t) = W_0 \cdot (1 + r_{\text{cagr}} + Y_{\text{port}})^t
+$$
 
 ### 7. 6x6 Pairwise Correlation Heatmap Matrix
 - **Everyday Layman Analogy**: A 'copycat' detector. If you own two stocks that always move in the exact same direction at the same time, you aren't truly diversified—you've just doubled your risk. The matrix flags any pair with correlation over 0.80 as a warning.
@@ -718,7 +797,10 @@ RISKOS incorporates 8 mid-level quantitative execution engines designed for inte
 ### 1. Portfolio Stress-Testing & 'What-If' Crisis Studio
 - **Everyday Layman Analogy**: A crash-test dummy simulator for your portfolio. Instead of hoping a crash won't happen, it simulates the 2008 Lehman crisis or 2020 COVID shock to show exactly where your money breaks down and recommends instant emergency hedges.
 - **Institutional Quant Formulation**: Historical factor covariance propagation across 5 canonical crisis regimes (2008 GFC, 2020 COVID, 2022 Global Rate Hike, Stagflation, RBI Emergency Hike) with continuous severity multiplier ($0.5x - 2.0x$) and 1-click tactical hedge injection (Gold/OTM Puts):
-$$R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity}}, \quad \Delta V = \sum_{i=1}^N w_i V_0 R_i^{\text{shock}}$$
+
+$$
+R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity}}, \quad \Delta V = \sum_{i=1}^N w_i V_0 R_i^{\text{shock}}
+$$
 
 ### 2. Multi-Asset Options Greeks & Interactive Payoff Studio
 - **Everyday Layman Analogy**: A flight dashboard for options contracts. See how much money you make across different market prices at expiry and watch how overnight time-decay (Theta) eats away at option premiums while you sleep.
@@ -735,7 +817,10 @@ $$R_i^{\text{shock}} = R_{\text{scenario}} \cdot \beta_i \cdot M_{\text{severity
 ### 5. Multi-Venue Smart Order Routing (SOR) & Liquidity Slicer
 - **Everyday Layman Analogy**: A price comparison engine for trade executions. Slices orders across NSE, BSE, and institutional Dark Pools to get the best price and save thousands of rupees in broker slippage.
 - **Institutional Quant Formulation**: Quadratic Almgren-Chriss market impact minimization across fragmented venues with venue-specific book depth, bid-ask spread, and transaction fees:
-$$\min_{q_{\text{NSE}}, q_{\text{BSE}}, q_{\text{Dark}}} \sum_{v} \left[ q_v P_v + \eta_v \left(\frac{q_v}{V_v}\right)^2 P_v + \text{Fee}_v(q_v) \right]$$
+
+$$
+\min_{q_{\text{NSE}}, q_{\text{BSE}}, q_{\text{Dark}}} \sum_{v} \left[ q_v P_v + \eta_v \left(\frac{q_v}{V_v}\right)^2 P_v + \text{Fee}_v(q_v) \right]
+$$
 
 ### 6. Monte Carlo 1,000-Path Wealth Survival & Sequence Risk
 - **Everyday Layman Analogy**: A weather supercomputer for retirement planning. Simulates 1,000 alternate financial futures—including market crashes right after you retire—to analyze the probability that savings sustain the planned distribution schedule.
@@ -908,98 +993,196 @@ The central security master (`securityMaster.js` & `universe_ingest.py`) continu
 ## 🧮 Pure Vector Mathematical Rigor & LaTeX Master Index
 
 ### 1. Google TimesFM 3.0 Quantile Loss
-$$\mathcal{L}_q(y, \hat{y}) = \max \Big( q \cdot (y - \hat{y}), \, (q - 1) \cdot (y - \hat{y}) \Big), \quad q \in \{0.10, 0.25, 0.50, 0.75, 0.90, 0.99\}$$
+
+$$
+\mathcal{L}_q(y, \hat{y}) = \max \Big( q \cdot (y - \hat{y}), \, (q - 1) \cdot (y - \hat{y}) \Big), \quad q \in \{0.10, 0.25, 0.50, 0.75, 0.90, 0.99\}
+$$
 
 ### 2. Meta Prophet Generalized Additive Seasonality
-$$y(t) = g(t) + \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right) + \epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2)$$
+
+$$
+y(t) = g(t) + \sum_{n=1}^N \left( a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right) + \epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0, \sigma^2)
+$$
 
 ### 3. Merton Jump-Diffusion Fat-Tail SDE
-$$S_t = S_0 \exp\left( \left(\mu - \lambda k - \frac{1}{2}\sigma^2\right)t + \sigma W_t \right) \prod_{i=1}^{N_t} J_i, \quad k = e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1$$
+
+$$
+S_t = S_0 \exp\left( \left(\mu - \lambda k - \frac{1}{2}\sigma^2\right)t + \sigma W_t \right) \prod_{i=1}^{N_t} J_i, \quad k = e^{\mu_J + \frac{1}{2}\sigma_J^2} - 1
+$$
 
 ### 4. Sentiment-Conditioned Black-Litterman Master Formula
-$$\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right], \quad Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}$$
+
+$$
+\boldsymbol{\mu}_{\text{BL}} = \left[ (\tau \mathbf{\Sigma})^{-1} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{P} \right]^{-1} \left[ (\tau \mathbf{\Sigma})^{-1} \boldsymbol{\Pi} + \mathbf{P}^T \mathbf{\Omega}^{-1} \mathbf{Q} \right], \quad Q_k = \alpha \cdot S_{\text{news}} \cdot \sigma_k \sqrt{\Delta t}
+$$
 
 ### 5. Hierarchical Risk Parity (HRP) Matrix Clustering
-$$d_{i,j} = \sqrt{\frac{1}{2}(1 - \rho_{i,j})}, \quad w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)$$
+
+$$
+d_{i,j} = \sqrt{\frac{1}{2}(1 - \rho_{i,j})}, \quad w_1 = w \cdot \frac{V_2}{V_1 + V_2}, \quad w_2 = w \cdot \left(1 - \frac{V_2}{V_1 + V_2}\right)
+$$
 
 ### 6. Rockafellar-Uryasev CVaR (95%) Linear Programming Minimizer
-$$\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\} \quad \text{s.t.} \quad \sum w_i = 1, \quad 0 \le w_i \le w_{\text{max}}$$
+
+$$
+\min_{\mathbf{w}, \alpha} \left\{ \alpha + \frac{1}{(1-\beta) T} \sum_{t=1}^T \left[ -\mathbf{w}^T \mathbf{r}_t - \alpha \right]^+ \right\} \quad \text{s.t.} \quad \sum w_i = 1, \quad 0 \le w_i \le w_{\text{max}}
+$$
 
 ### 7. Almgren-Chriss Optimal Execution Trajectory
-$$x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa = \text{arcosh}\left( \frac{\lambda \sigma^2 \tau^2}{2\eta} + 1 \right) \cdot \frac{1}{\tau} \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
+
+$$
+x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X_0, \quad \kappa = \text{arcosh}\left( \frac{\lambda \sigma^2 \tau^2}{2\eta} + 1 \right) \cdot \frac{1}{\tau} \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}
+$$
 
 ### 8. Ledoit-Wolf Analytical Covariance Shrinkage
-$$\mathbf{\Sigma}_{\text{LW}} = \delta^* \mathbf{F} + (1 - \delta^*) \mathbf{S}, \quad \delta^* = \frac{\sum_{i \ne j} \text{Var}(s_{ij})}{\sum_{i \ne j} (s_{ij} - f_{ij})^2}$$
+
+$$
+\mathbf{\Sigma}_{\text{LW}} = \delta^* \mathbf{F} + (1 - \delta^*) \mathbf{S}, \quad \delta^* = \frac{\sum_{i \ne j} \text{Var}(s_{ij})}{\sum_{i \ne j} (s_{ij} - f_{ij})^2}
+$$
 
 ### 9. GARCH(1,1) Volatility Clustering
-$$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \text{with } \alpha + \beta < 1, \quad \sigma_{\text{long-term}} = \sqrt{\frac{\omega}{1 - \alpha - \beta}}$$
+
+$$
+\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \text{with } \alpha + \beta < 1, \quad \sigma_{\text{long-term}} = \sqrt{\frac{\omega}{1 - \alpha - \beta}}
+$$
 
 ### 10. 3-State Gaussian Hidden Markov Model (HMM)
-$$\Pr(S_t = j \mid S_{t-1} = i) = A_{ij}, \quad r_t \mid (S_t = k) \sim \mathcal{N}(\mu_k, \sigma_k^2), \quad k \in \{\text{Bull}, \text{Bear}, \text{Sideways}\}$$
+
+$$
+\Pr(S_t = j \mid S_{t-1} = i) = A_{ij}, \quad r_t \mid (S_t = k) \sim \mathcal{N}(\mu_k, \sigma_k^2), \quad k \in \{\text{Bull}, \text{Bear}, \text{Sideways}\}
+$$
 
 ### 11. Hanson Logarithmic Market Scoring Rule (LMSR)
-$$C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right), \quad p_i = \frac{\partial C}{\partial q_i} = \frac{e^{q_i / b}}{\sum_{j=1}^n e^{q_j / b}}$$
+
+$$
+C(\mathbf{q}) = b \cdot \ln \left( \sum_{i=1}^n e^{q_i / b} \right), \quad p_i = \frac{\partial C}{\partial q_i} = \frac{e^{q_i / b}}{\sum_{j=1}^n e^{q_j / b}}
+$$
 
 ### 12. FRTB Basel III Regulatory Expected Shortfall Capital Charge
-$$\text{ES}_{\text{FRTB}} = \frac{1}{1 - \alpha} \int_\alpha^1 \text{VaR}_u(L) du \approx \frac{1}{N_{\text{tail}}} \sum_{i \in \text{Loss} > \text{VaR}} L_i, \quad \text{Capital Charge} = k \cdot \text{ES}_{\text{FRTB}} \cdot \sqrt{\Delta t}$$
+
+$$
+\text{ES}_{\text{FRTB}} = \frac{1}{1 - \alpha} \int_\alpha^1 \text{VaR}_u(L) du \approx \frac{1}{N_{\text{tail}}} \sum_{i \in \text{Loss} > \text{VaR}} L_i, \quad \text{Capital Charge} = k \cdot \text{ES}_{\text{FRTB}} \cdot \sqrt{\Delta t}
+$$
 
 ### 13. Carhart 4-Factor WML Cross-Sectional Momentum Tilt
-$$R_{i, 12-1} = \frac{P_{i, t-21} - P_{i, t-252}}{P_{i, t-252}}, \quad z_i^{\text{mom}} = \frac{R_{i, 12-1} - \mu}{\sigma}, \quad \mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)$$
+
+$$
+R_{i, 12-1} = \frac{P_{i, t-21} - P_{i, t-252}}{P_{i, t-252}}, \quad z_i^{\text{mom}} = \frac{R_{i, 12-1} - \mu}{\sigma}, \quad \mathbf{w}_{\text{optimal}} = (1 - \lambda_{\text{mom}}) \mathbf{w}_{\text{base}} + \lambda_{\text{mom}} \cdot \text{softmax}\left(\frac{z_i^{\text{mom}}}{\tau}\right)
+$$
 
 ### 14. Moskowitz-Ooi-Pedersen Volatility-Targeted Time-Series Momentum (TSMOM)
-$$w_{i, t} = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_{i, t}}, \text{MaxLev}\right) \cdot \text{sign}\left(\sum_{k \in \{21, 63, 126, 252\}} R_{i, t, k}\right), \quad \text{Stop}_{\text{Chandelier}} = \max_{22}(H) - 2.5 \cdot \text{ATR}_{22}$$
+
+$$
+w_{i, t} = \min\left(\frac{\sigma_{\text{target}}}{\hat{\sigma}_{i, t}}, \text{MaxLev}\right) \cdot \text{sign}\left(\sum_{k \in \{21, 63, 126, 252\}} R_{i, t, k}\right), \quad \text{Stop}_{\text{Chandelier}} = \max_{22}(H) - 2.5 \cdot \text{ATR}_{22}
+$$
 
 ### 15. John Carter TTM Momentum Squeeze & Velocity Slope
-$$\text{SqueezeOn}_t = \mathbb{I}\left( \text{EMA}_{20} + 2\hat{\sigma}_{20} < \text{EMA}_{20} + 1.5\text{ATR}_{20} \right), \quad \text{Slope}_t = \frac{d}{dt}\left(P - \frac{\text{Donchian}_{20} + \text{SMA}_{20}}{2}\right)$$
+
+$$
+\text{SqueezeOn}_t = \mathbb{I}\left( \text{EMA}_{20} + 2\hat{\sigma}_{20} < \text{EMA}_{20} + 1.5\text{ATR}_{20} \right), \quad \text{Slope}_t = \frac{d}{dt}\left(P - \frac{\text{Donchian}_{20} + \text{SMA}_{20}}{2}\right)
+$$
 
 ---
 
 ### 16. Algorithmic Capital Gains Tax-Loss Harvesting Alpha
-$$\text{Tax Alpha Savings} = \sum_{i=1}^N \max(0, C_i - P_i) \cdot Q_i \cdot \tau_{\text{tax}}$$
+
+$$
+\text{Tax Alpha Savings} = \sum_{i=1}^N \max(0, C_i - P_i) \cdot Q_i \cdot \tau_{\text{tax}}
+$$
+
 where $C_i$ is cost basis per share, $P_i$ is current market price, $Q_i$ is position quantity, and $\tau_{\text{tax}} \in \{0.20, 0.125, 0.30\}$ represents statutory STCG/LTCG rates. Reinvesting this tax saving yields incremental terminal compound wealth:
-$$W_T = W_0 (1 + r)^T + \text{Tax Alpha} \cdot (1 + r)^{T - t}$$
+
+$$
+W_T = W_0 (1 + r)^T + \text{Tax Alpha} \cdot (1 + r)^{T - t}
+$$
 
 ### 17. Gordon Growth Dividend Discount Model (DDM)
-$$P_0 = \sum_{t=1}^{\infty} \frac{D_t}{(1 + r)^t} = \frac{D_0 (1 + g)}{r - g} = \frac{D_1}{r - g}, \quad r > g$$
+
+$$
+P_0 = \sum_{t=1}^{\infty} \frac{D_t}{(1 + r)^t} = \frac{D_0 (1 + g)}{r - g} = \frac{D_1}{r - g}, \quad r > g
+$$
+
 where $P_0$ is the intrinsic equity fair value, $D_1$ is next year's dividend per share, $r$ is the required rate of return (hurdle rate), and $g$ is the perpetual constant dividend growth rate.
 
 ### 18. Continuous Kelly Optimal Capital Growth Rate
-$$g(f) = r_f + f(\mu - r_f) - \frac{1}{2} f^2 \sigma^2 \implies f^* = \frac{\mu - r_f}{\sigma^2}$$
+
+$$
+g(f) = r_f + f(\mu - r_f) - \frac{1}{2} f^2 \sigma^2 \implies f^* = \frac{\mu - r_f}{\sigma^2}
+$$
+
 where $f^*$ is the fraction of total wealth to risk in the asset to maximize the expected geometric compounding growth rate $\mathbb{E}[\ln(W_T)]$.
 
 ### 19. Trailing Pairwise Pearson Correlation Matrix
-$$\rho_{ij} = \frac{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)(R_{j,t} - \bar{R}_j)}{\sqrt{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)^2 \sum_{t=1}^T (R_{j,t} - \bar{R}_j)^2}}$$
+
+$$
+\rho_{ij} = \frac{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)(R_{j,t} - \bar{R}_j)}{\sqrt{\sum_{t=1}^T (R_{i,t} - \bar{R}_i)^2 \sum_{t=1}^T (R_{j,t} - \bar{R}_j)^2}}
+$$
+
 Flags concentration danger when $\rho_{ij} > 0.80$, prompting synthetic beta-hedging or factor diversification.
 
 ### 20. Almgren-Chriss OCO Slippage Bound
-$$\text{Slippage}_{\text{OCO}} = \eta \cdot \left(\frac{X}{\tau}\right)^\alpha + \gamma \cdot X$$
+
+$$
+\text{Slippage}_{\text{OCO}} = \eta \cdot \left(\frac{X}{\tau}\right)^\alpha + \gamma \cdot X
+$$
+
 where $\eta$ is temporary market impact, $\gamma$ is permanent market impact, and $X$ is the liquidated bracket quantity.
 
 ---
 
 
 ### 21. Black-Scholes-Merton Partial Differential Equation (PDE)
-$$\frac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S \frac{\partial V}{\partial S} - r V = 0$$
+
+$$
+\frac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S \frac{\partial V}{\partial S} - r V = 0
+$$
+
 Closed-form call and put solutions under risk-neutral measure $\mathbb{Q}$:
-$$C(S, t) = S \Phi(d_1) - K e^{-r(T-t)} \Phi(d_2), \quad P(S, t) = K e^{-r(T-t)} \Phi(-d_2) - S \Phi(-d_1)$$
+
+$$
+C(S, t) = S \Phi(d_1) - K e^{-r(T-t)} \Phi(d_2), \quad P(S, t) = K e^{-r(T-t)} \Phi(-d_2) - S \Phi(-d_1)
+$$
+
 where $d_1 = \frac{\ln(S/K) + (r + \frac{1}{2}\sigma^2)(T-t)}{\sigma \sqrt{T-t}}$ and $d_2 = d_1 - \sigma \sqrt{T-t}$.
 
 ### 22. Equal Risk Contribution (ERC) Cyclical Coordinate Descent
-$$TRC_i = w_i \frac{(\mathbf{\Sigma}\mathbf{w})_i}{\sigma_p} = \frac{\sigma_p}{N} \iff w_i (\mathbf{\Sigma}\mathbf{w})_i = \frac{\sigma_p^2}{N}, \quad \forall i$$
+
+$$
+TRC_i = w_i \frac{(\mathbf{\Sigma}\mathbf{w})_i}{\sigma_p} = \frac{\sigma_p}{N} \iff w_i (\mathbf{\Sigma}\mathbf{w})_i = \frac{\sigma_p^2}{N}, \quad \forall i
+$$
+
 Updating each coordinate cyclically solves:
-$$\Sigma_{ii} w_i^2 + (\mathbf{\Sigma}_{-i} \mathbf{w}_{-i})_i w_i - \frac{\sigma_p^2}{N} = 0 \implies w_i = \frac{-(\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i + \sqrt{((\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i)^2 + 4 \Sigma_{ii} \frac{\sigma_p^2}{N}}}{2 \Sigma_{ii}}$$
+
+$$
+\Sigma_{ii} w_i^2 + (\mathbf{\Sigma}_{-i} \mathbf{w}_{-i})_i w_i - \frac{\sigma_p^2}{N} = 0 \implies w_i = \frac{-(\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i + \sqrt{((\mathbf{\Sigma}_{-i}\mathbf{w}_{-i})_i)^2 + 4 \Sigma_{ii} \frac{\sigma_p^2}{N}}}{2 \Sigma_{ii}}
+$$
 
 ### 23. Almgren-Chriss Multi-Venue Liquidity Allocation
-$$\min_{q_1, \dots, q_V} \sum_{v=1}^V \left[ q_v P_v + \eta_v \left(\frac{q_v}{\text{Depth}_v}\right)^{\alpha} P_v + \text{STT}_v(q_v) + \text{ExchangeFee}_v(q_v) \right] \quad \text{s.t.} \quad \sum_{v=1}^V q_v = X_0$$
+
+$$
+\min_{q_1, \dots, q_V} \sum_{v=1}^V \left[ q_v P_v + \eta_v \left(\frac{q_v}{\text{Depth}_v}\right)^{\alpha} P_v + \text{STT}_v(q_v) + \text{ExchangeFee}_v(q_v) \right] \quad \text{s.t.} \quad \sum_{v=1}^V q_v = X_0
+$$
+
 Yielding the optimal allocation vector that minimizes total implementation shortfall across fragmented lit and dark trading pools.
 
 ### 24. Stochastic Correlated Geometric Brownian Motion (GBM) with Inflation Drag
-$$d\mathbf{S}_t = \text{diag}(\mathbf{S}_t) \left( \boldsymbol{\mu} dt + \mathbf{L} d\mathbf{W}_t \right), \quad \mathbf{\Sigma} = \mathbf{L} \mathbf{L}^T$$
+
+$$
+d\mathbf{S}_t = \text{diag}(\mathbf{S}_t) \left( \boldsymbol{\mu} dt + \mathbf{L} d\mathbf{W}_t \right), \quad \mathbf{\Sigma} = \mathbf{L} \mathbf{L}^T
+$$
+
 where $\mathbf{L}$ is the lower-triangular Cholesky factor of the asset covariance matrix. Portfolio capital under Bengen 4% withdrawal rate with CPI inflation $i$ evolves as:
-$$W_{t+\Delta t} = \max\left(0, (W_t - W_0 \cdot w \cdot e^{it} \Delta t) \cdot (1 + \mathbf{w}^T \Delta \mathbf{S}_t / \mathbf{S}_t)\right)$$
+
+$$
+W_{t+\Delta t} = \max\left(0, (W_t - W_0 \cdot w \cdot e^{it} \Delta t) \cdot (1 + \mathbf{w}^T \Delta \mathbf{S}_t / \mathbf{S}_t)\right)
+$$
 
 ### 25. Barra Multi-Factor Cross-Sectional Z-Score Decomposition
-$$z_{i, f} = \frac{X_{i, f} - \mu_f}{\sigma_f}, \quad F_{\text{portfolio}, f} = \sum_{i=1}^N w_i \cdot z_{i, f}$$
+
+$$
+z_{i, f} = \frac{X_{i, f} - \mu_f}{\sigma_f}, \quad F_{\text{portfolio}, f} = \sum_{i=1}^N w_i \cdot z_{i, f}
+$$
+
 benchmark-relative active tilt: $\Delta F_f = F_{\text{portfolio}, f} - F_{\text{benchmark}, f}$.
 
 ---
@@ -1012,7 +1195,10 @@ Integrated into `backend/engine/report_engine.py` and `executiveReportGenerator.
 3. **Black-Litterman Rebalance Blotter**: Pre-trade vs target asset allocation weights with Almgren-Chriss slippage in basis points.
 4. **Regulatory Basel III Disclosures**: FRTB Expected Shortfall (CVaR 95%), Parametric VaR (99%), and Stress Scenario survivability scores.
 5. **Cryptographic State Seal**: Every generated memorandum is hashed with **SHA-256** to prevent tampering in audit committees:
-   $$\text{Seal} = \text{SHA-256}\left( \text{NAV} \parallel \mathbf{w}_{\text{target}} \parallel \text{CVaR} \parallel \text{Timestamp} \right)$$
+
+$$
+\text{Seal} = \text{SHA-256}\left( \text{NAV} \parallel \mathbf{w}_{\text{target}} \parallel \text{CVaR} \parallel \text{Timestamp} \right)
+$$
 
 ---
 
@@ -1109,42 +1295,66 @@ Bridging the gap between academic theory and front-office production workflows a
 ### 1. 0DTE Gamma Exposure (GEX) & Dealer Pinning Engine (Quant / Prop Trading)
 * **Real-World Impact**: Over 50% of daily option volume in SPX and NIFTY is 0DTE. Market maker delta-hedging flows dictate intraday volatility suppression and sudden trend breakout surges.
 * **Mathematical Core**:
-  $$\text{GEX}_K = \sum_{i \in \text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{j \in \text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100, \quad S^* = S \left(1 - \kappa \frac{\text{Net GEX}}{\text{Gross GEX}}\right)$$
+
+$$
+\text{GEX}_K = \sum_{i \in \text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{j \in \text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100, \quad S^* = S \left(1 - \kappa \frac{\text{Net GEX}}{\text{Gross GEX}}\right)
+$$
 
 ### 2. Self-Exciting Hawkes Point Process & Flash-Crash Radar (HFT Microstructure)
 * **Real-World Impact**: Order arrivals exhibit clustering in microsecond space. Captures self-feeding child order cascades and alerts before order book liquidity evaporation leads to flash crashes.
 * **Mathematical Core**:
-  $$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta}, \quad \mathbb{E}[C] = \frac{1}{1 - \min(0.99, \eta)}$$
+
+$$
+\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta}, \quad \mathbb{E}[C] = \frac{1}{1 - \min(0.99, \eta)}
+$$
 
 ### 3. Dynamic Leveraged Buyout (LBO) Debt Waterfall & Sponsor IRR (Investment Banking)
 * **Real-World Impact**: The analytical lifeblood of private equity acquisitions. Decomposes returns into EBITDA growth, multiple expansion, and cash-sweep deleveraging across 5-year holding periods.
 * **Mathematical Core**:
-  $$\text{MOIC} = \frac{\text{EBITDA}_T \cdot M_{\text{exit}} - (D_0 - \sum \text{FCF}_t)}{E_0}, \quad \text{IRR} = (\text{MOIC})^{1/T} - 1$$
+
+$$
+\text{MOIC} = \frac{\text{EBITDA}_T \cdot M_{\text{exit}} - (D_0 - \sum \text{FCF}_t)}{E_0}, \quad \text{IRR} = (\text{MOIC})^{1/T} - 1
+$$
 
 ### 4. Merton Structural Credit & Distance-to-Default (DCM & Moody's KMV)
 * **Real-World Impact**: Inverts equity prices and stock volatility to estimate the unobservable market value of firm enterprise assets $V_A$ and asset volatility $\sigma_A$, calculating 1Y default probabilities and credit spreads.
 * **Mathematical Core**:
-  $$\text{DD} = \frac{\ln(V_A/D) + (r - \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad \text{EDF} = \mathcal{N}(-\text{DD})$$
+
+$$
+\text{DD} = \frac{\ln(V_A/D) + (r - \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad \text{EDF} = \mathcal{N}(-\text{DD})
+$$
 
 ### 5. Extreme Value Theory (EVT) & Solvency II 99.5% SCR Engine (Insurance & Reinsurance)
 * **Real-World Impact**: Reinsurance capital requirements under European Solvency II mandate holding reserves for 99.5% 1-in-200 year catastrophe losses. EVT fits Generalized Pareto tails to extreme cyclone, flood, and earthquake claims.
 * **Mathematical Core**:
-  $$\text{SCR}_{99.5} = u + \frac{\beta}{\xi} \left[ \left(\frac{N}{N_u}(0.005)\right)^{-\xi} - 1 \right], \quad \text{ES}_{99.5} = \frac{\text{SCR}_{99.5}}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}$$
+
+$$
+\text{SCR}_{99.5} = u + \frac{\beta}{\xi} \left[ \left(\frac{N}{N_u}(0.005)\right)^{-\xi} - 1 \right], \quad \text{ES}_{99.5} = \frac{\text{SCR}_{99.5}}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}
+$$
 
 ### 6. Actuarial ALM & Redington Key-Rate Immunization (Life & Pension Solvency)
 * **Real-World Impact**: Defined benefit pension schemes and life insurers face multi-decade annuity liabilities. Immunizes balance-sheet equity surplus against interest rate shifts by matching duration ($D_A = D_L$) and enforcing convexity surplus ($C_A > C_L$).
 * **Mathematical Core**:
-  $$\Delta E \approx -L(D_A - D_L)\Delta y + \frac{1}{2} L(C_A - C_L)(\Delta y)^2$$
+
+$$
+\Delta E \approx -L(D_A - D_L)\Delta y + \frac{1}{2} L(C_A - C_L)(\Delta y)^2
+$$
 
 ### 7. CLO Tranche Cash-Flow & Loss Absorption Waterfall (Structured Credit)
 * **Real-World Impact**: $1.2 Trillion market financing corporate debt. Simulates correlated defaults in leveraged loan collateral pools via Gaussian Copula, distributing cash flows through Senior AAA, AA, BBB, BB, and First-Loss Equity tranches.
 * **Mathematical Core**:
-  $$L_{\text{pool}} = \text{Pool} \cdot P_D \cdot (1 - R), \quad L_k = \min(S_k, \max(0, L_{\text{rem}}))$$
+
+$$
+L_{\text{pool}} = \text{Pool} \cdot P_D \cdot (1 - R), \quad L_k = \min(S_k, \max(0, L_{\text{rem}}))
+$$
 
 ### 8. Option-Adjusted Spread (OAS) & Binomial Short-Rate Tree (Fixed Income)
 * **Real-World Impact**: The gold standard on every Bloomberg `YAS` screen. Strips away the value of embedded early borrower call/prepayment options to reveal the pure, honest credit spread.
 * **Mathematical Core**:
-  $$P_{\text{callable}} = P_{\text{straight}} - V_{\text{call}}, \quad \text{OAS} = z_{\text{nominal}} - \frac{V_{\text{call}}}{P_0}\cdot 10000$$
+
+$$
+P_{\text{callable}} = P_{\text{straight}} - V_{\text{call}}, \quad \text{OAS} = z_{\text{nominal}} - \frac{V_{\text{call}}}{P_0}\cdot 10000
+$$
 
 ---
 
@@ -1249,38 +1459,80 @@ flowchart TD
 
 #### Proof 26: Dealer Delta-Hedging Velocity & Zero-Gamma Inversion
 Let market maker delta be $\Delta_{\text{MM}}(S) = -\sum_{i} \phi_i \Delta_i(S)$. The change in dealer shares required per unit change in underlying price is:
-$$\frac{\partial \Delta_{\text{MM}}}{\partial S} = -\text{GEX}(S) = -\left[ \sum_{\text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{\text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100 \right]$$
+
+$$
+\frac{\partial \Delta_{\text{MM}}}{\partial S} = -\text{GEX}(S) = -\left[ \sum_{\text{Calls}} \Gamma_i S \cdot \text{OI}_i \cdot 100 - \sum_{\text{Puts}} \Gamma_j S \cdot \text{OI}_j \cdot 100 \right]
+$$
+
 When underlying price moves by $dS_t$, dealers execute hedging flow $dQ_t = -\text{GEX}(S_t) dS_t$. By market microstructure equilibrium ($dS_t = \lambda_{\text{Kyle}} dQ_t^{\text{net}}$):
-$$\frac{dS_t}{dt} = \mu S_t - \lambda \cdot \text{GEX}(S_t) \frac{dS_t}{dt} \implies \frac{dS_t}{dt} = \frac{\mu S_t}{1 + \lambda \cdot \text{GEX}(S_t)}$$
+
+$$
+\frac{dS_t}{dt} = \mu S_t - \lambda \cdot \text{GEX}(S_t) \frac{dS_t}{dt} \implies \frac{dS_t}{dt} = \frac{\mu S_t}{1 + \lambda \cdot \text{GEX}(S_t)}
+$$
+
 * If $\text{GEX} > 0$, the denominator exceeds 1, dampening price velocity (mean-reverting volatility suppression).
 * If $\text{GEX} < -1/\lambda$, the denominator flips negative, triggering finite-time explosive trend runaway.
 The zero-gamma boundary satisfies $\text{GEX}(S^*) = 0$. $\blacksquare$
 
 #### Proof 27: Merton Structural Credit Bivariate Inversion & Distance-to-Default
 Let firm asset value follow geometric Brownian motion $dV_t = \mu V_t dt + \sigma_A V_t dW_t$. Equity is a call option on firm assets maturing at debt maturity $T$:
-$$E = V_A \mathcal{N}(d_1) - D e^{-rT} \mathcal{N}(d_2), \quad d_1 = \frac{\ln(V_A/D) + (r + \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad d_2 = d_1 - \sigma_A \sqrt{T}$$
+
+$$
+E = V_A \mathcal{N}(d_1) - D e^{-rT} \mathcal{N}(d_2), \quad d_1 = \frac{\ln(V_A/D) + (r + \frac{1}{2}\sigma_A^2)T}{\sigma_A \sqrt{T}}, \quad d_2 = d_1 - \sigma_A \sqrt{T}
+$$
+
 By Itô's lemma, the diffusion coefficient of equity satisfies $\sigma_E E = \frac{\partial E}{\partial V_A} \sigma_A V_A = \mathcal{N}(d_1) \sigma_A V_A$. This defines a non-linear bivariate system in unobservables $(V_A, \sigma_A)$:
-$$\begin{cases} f_1(V_A, \sigma_A) = V_A \mathcal{N}(d_1) - D e^{-rT}\mathcal{N}(d_2) - E = 0 \\ f_2(V_A, \sigma_A) = \mathcal{N}(d_1) \sigma_A V_A - \sigma_E E = 0 \end{cases}$$
+
+$$
+\begin{cases} f_1(V_A, \sigma_A) = V_A \mathcal{N}(d_1) - D e^{-rT}\mathcal{N}(d_2) - E = 0 \\ f_2(V_A, \sigma_A) = \mathcal{N}(d_1) \sigma_A V_A - \sigma_E E = 0 \end{cases}
+$$
+
 Solving via 2D Newton-Raphson yields $(V_A^*, \sigma_A^*)$. Distance-to-Default is the number of standard deviations firm asset value sits above debt barrier $D$:
-$$\text{DD} = \frac{\ln(V_A^* / D) + (\mu_A - \frac{1}{2}{\sigma_A^*}^2)T}{\sigma_A^* \sqrt{T}} \implies \text{EDF} = \mathcal{N}(-\text{DD}). \quad \blacksquare$$
+
+$$
+\text{DD} = \frac{\ln(V_A^* / D) + (\mu_A - \frac{1}{2}{\sigma_A^*}^2)T}{\sigma_A^* \sqrt{T}} \implies \text{EDF} = \mathcal{N}(-\text{DD}). \quad \blacksquare
+$$
 
 #### Proof 28: Pickands-Balkema-de Haan Theorem & Solvency II 99.5% SCR
 Let $X$ have distribution function $F$. The conditional excess distribution over threshold $u$ is $F_u(y) = \Pr(X - u \le y \mid X > u)$. By the Pickands-Balkema-de Haan theorem (1974, 1975):
-$$\lim_{u \to x_F} \sup_{0 \le y < x_F - u} |F_u(y) - G_{\xi, \beta(u)}(y)| = 0$$
+
+$$
+\lim_{u \to x_F} \sup_{0 \le y < x_F - u} |F_u(y) - G_{\xi, \beta(u)}(y)| = 0
+$$
+
 where $G_{\xi, \beta}(y) = 1 - (1 + \xi y / \beta)^{-1/\xi}$ is the Generalized Pareto Distribution.
 The tail probability for $x > u$ is $P(X > x) = P(X > u) P(X - u > x - u \mid X > u) = \frac{N_u}{N} \left( 1 + \xi \frac{x - u}{\beta} \right)^{-1/\xi}$.
 Setting $P(X > x) = 1 - q$ with Solvency II quantile $q = 0.995$:
-$$\text{VaR}_q = u + \frac{\beta}{\xi} \left[ \left( \frac{N}{N_u} (1 - q) \right)^{-\xi} - 1 \right]$$
+
+$$
+\text{VaR}_q = u + \frac{\beta}{\xi} \left[ \left( \frac{N}{N_u} (1 - q) \right)^{-\xi} - 1 \right]
+$$
+
 Expected Shortfall integrates the conditional excess:
-$$\text{ES}_q = \mathbb{E}[X \mid X > \text{VaR}_q] = \text{VaR}_q + \frac{\beta + \xi(\text{VaR}_q - u)}{1 - \xi} = \frac{\text{VaR}_q}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}. \quad \blacksquare$$
+
+$$
+\text{ES}_q = \mathbb{E}[X \mid X > \text{VaR}_q] = \text{VaR}_q + \frac{\beta + \xi(\text{VaR}_q - u)}{1 - \xi} = \frac{\text{VaR}_q}{1 - \xi} + \frac{\beta - \xi u}{1 - \xi}. \quad \blacksquare
+$$
 
 #### Proof 29: Redington Duration & Convexity Immunization of Balance Sheet Surplus
 Let equity surplus be $E(y) = A(y) - L(y)$ where $A(y)$ and $L(y)$ are asset and liability present values at yield $y$. Expanding $E(y + \Delta y)$ via second-order Taylor series around current yield $y_0$:
-$$\Delta E = \frac{dE}{dy} \Delta y + \frac{1}{2} \frac{d^2E}{dy^2} (\Delta y)^2 + \mathcal{O}((\Delta y)^3)$$
+
+$$
+\Delta E = \frac{dE}{dy} \Delta y + \frac{1}{2} \frac{d^2E}{dy^2} (\Delta y)^2 + \mathcal{O}((\Delta y)^3)
+$$
+
 Substituting modified duration $D = -\frac{1}{P} \frac{dP}{dy}$ and convexity $C = \frac{1}{P} \frac{d^2P}{dy^2}$:
-$$\frac{dE}{dy} = \frac{dA}{dy} - \frac{dL}{dy} = -A D_A + L D_L, \quad \frac{d^2E}{dy^2} = A C_A - L C_L$$
+
+$$
+\frac{dE}{dy} = \frac{dA}{dy} - \frac{dL}{dy} = -A D_A + L D_L, \quad \frac{d^2E}{dy^2} = A C_A - L C_L
+$$
+
 Assuming fully funded initial surplus $A = L$:
-$$\Delta E \approx -L(D_A - D_L) \Delta y + \frac{1}{2} L(C_A - C_L) (\Delta y)^2$$
+
+$$
+\Delta E \approx -L(D_A - D_L) \Delta y + \frac{1}{2} L(C_A - C_L) (\Delta y)^2
+$$
+
 For $\Delta E \ge 0$ for all arbitrary yield shifts $\Delta y \in \mathbb{R}$:
 1. First-order condition: $\frac{dE}{dy} = 0 \implies D_A = D_L$ (Duration Matching).
 2. Second-order condition: $\frac{d^2E}{dy^2} > 0 \implies C_A > C_L$ (Convexity Surplus). $\blacksquare$
@@ -1290,13 +1542,24 @@ Let short rate $r_{i,j}$ evolve on a recombining binomial lattice: $r_{i,j} = r_
 For a bond with face value $M$, coupon $C$, and call protection schedule with call price $K_i$:
 At maturity $T = N \Delta t$: $V_{N,j} = M + C$.
 For time steps $i = N-1, \dots, 0$, backward induction discounts expected next-period cash flows adjusted for spread $s = \text{OAS}$:
-$$\widetilde{V}_{i,j} = \frac{1}{1 + (r_{i,j} + s)\Delta t} \left[ q V_{i+1, j+1} + (1 - q) V_{i+1, j} \right] + C$$
+
+$$
+\widetilde{V}_{i,j} = \frac{1}{1 + (r_{i,j} + s)\Delta t} \left[ q V_{i+1, j+1} + (1 - q) V_{i+1, j} \right] + C
+$$
+
 where risk-neutral branching probability $q = 0.5$.
 Applying the issuer early exercise call boundary:
-$$V_{i,j} = \begin{cases} \min(K_i, \widetilde{V}_{i,j}) & \text{if bond is callable at step } i \\ \widetilde{V}_{i,j} & \text{otherwise} \end{cases}$$
+
+$$
+V_{i,j} = \begin{cases} \min(K_i, \widetilde{V}_{i,j}) & \text{if bond is callable at step } i \\ \widetilde{V}_{i,j} & \text{otherwise} \end{cases}
+$$
+
 The model price $P_{\text{model}}(s) = V_{0,0}(s)$ is monotonically decreasing in $s$. The unique Option-Adjusted Spread $s^*$ satisfies $P_{\text{model}}(s^*) = P_{\text{market}}^{\text{clean}}$.
 The embedded call option value is $V_{\text{call}} = P_{\text{straight}} - P_{\text{market}}$, with option cost in spread basis points:
-$$\text{Option Cost (bps)} = z_{\text{nominal}} - s^*. \quad \blacksquare$$
+
+$$
+\text{Option Cost (bps)} = z_{\text{nominal}} - s^*. \quad \blacksquare
+$$
 
 ---
 

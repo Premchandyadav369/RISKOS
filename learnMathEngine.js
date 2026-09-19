@@ -1933,7 +1933,14 @@ const LearnMathEngine = (() => {
           { label: 'Standard Brownian Motion (H = 0.50)', data: standardPath, borderColor: 'rgba(255,255,255,0.4)', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
         ]
       },
-      formula: 'v_t = v_0 + \frac{\nu}{\Gamma(H + 1/2)} \int_0^t (t - s)^{H - 1/2} dW_s, \quad H \in (0, 1/2)',
+      equationLatex: `\\[ v_t = v_0 + \\frac{\\nu}{\\Gamma(H + 1/2)} \\int_0^t (t - s)^{H - 1/2} dW_s, \\quad H \\in \\left(0, \\frac{1}{2}\\right) \\]`,
+      substitutedLatex: `\\[ H = \\mathbf{${H.toFixed(2)}} < 0.50 \\quad | \\quad \\nu = \\mathbf{${nu.toFixed(2)}} \\quad | \\quad \\alpha_{\\text{Hölder}} \\approx \\mathbf{${(H - 0.02).toFixed(2)}} \\quad | \\quad \\text{Regime: Rough Power-Law Skew} \\]`,
+      beginnerText: `Rough volatility captures how real asset volatility jumps and clusters much more erratically than classical smooth models assume, matching high-frequency market reality.`,
+      investorText: `Unlike standard models with Hurst H = 0.50, rough models with H ≈ 0.14 correctly price steep short-dated option skews and market crash fat tails.`,
+      quantText: `Log-volatility sample paths behave as fractional Brownian motion driven by a singular Riemann-Liouville Volterra kernel \\( (t - s)^{H - 1/2} \\), exhibiting Hölder regularity \\( \\alpha < 1/2 \\).`,
+      limitations: `Requires non-Markovian simulation methods (Cholesky factorization or hybrid schemes) which are computationally intensive compared to Markovian jump-diffusion.`,
+      keyTakeaway: `Enables quantitative desks to price short-dated 0DTE options and VIX futures without ad-hoc parameter tweaks.`,
+      formula: 'v_t = v_0 + \\frac{\\nu}{\\Gamma(H + 1/2)} \\int_0^t (t - s)^{H - 1/2} dW_s, \\quad H \\in (0, 1/2)',
       proofSteps: [
         '1. In classical Heston/Black-Scholes, volatility sample paths are semi-martingales with Hurst parameter H = 0.50.',
         '2. Gatheral & Jaquier (2014) proved log-volatility behaves as fractional Brownian motion with rough parameter H ≈ 0.10 - 0.15.',
@@ -1979,7 +1986,14 @@ const LearnMathEngine = (() => {
           { label: 'Bumpy Finite Difference (Bump-and-Reval)', data: finiteDiffDeltas, borderColor: '#FF6B6B', borderDash: [3, 3], fill: false, borderWidth: 1.5 }
         ]
       },
-      formula: '\Delta = \frac{\partial}{\partial S_0} \mathbb{E}[f(S_T)] = \mathbb{E}\left[ f(S_T) \cdot \delta\left(\frac{D S_T}{S_0 \sigma^2 T}\right) \right]',
+      equationLatex: `\\[ \\Delta = \\frac{\\partial}{\\partial S_0} \\mathbb{E}[f(S_T)] = \\mathbb{E}\\left[ f(S_T) \\cdot \\delta\\left(\\frac{D S_T}{S_0 \\sigma^2 T}\\right) \\right] = e^{-rT} \\mathcal{N}(d_1) \\]`,
+      substitutedLatex: `\\[ S = ${S.toFixed(2)}, \\; K = ${K.toFixed(2)}, \\; \\sigma = ${(vol*100).toFixed(1)}\\%, \\; T = ${T.toFixed(1)}\\text{y} \\implies d_1 = ${d1.toFixed(3)} \\implies \\Delta_{\\text{Malliavin}} = \\mathbf{${nd1.toFixed(4)}} \\]`,
+      beginnerText: `Malliavin calculus calculates sensitivity (Delta, Gamma, Vega) directly inside a single simulation without needing to rerun the model with bumped prices.`,
+      investorText: `Eliminates the noise and inaccuracy of finite-difference bumping on complex multi-asset derivatives books, enabling accurate real-time hedging.`,
+      quantText: `By Skorokhod duality and stochastic integration by parts on Wiener space, the differentiation operator on discontinuous payoff \\( f \\) is transferred to the Gaussian Skorokhod weight kernel.`,
+      limitations: `Requires an explicit analytical representation of the Skorokhod weight kernel, which becomes complex for path-dependent Bermudan or American options.`,
+      keyTakeaway: `Hedge funds compute multi-asset Greeks simultaneously in a single Monte Carlo run with zero finite-differencing noise.`,
+      formula: '\\Delta = \\frac{\\partial}{\\partial S_0} \\mathbb{E}[f(S_T)] = \\mathbb{E}\\left[ f(S_T) \\cdot \\delta\\left(\\frac{D S_T}{S_0 \\sigma^2 T}\\right) \\right]',
       proofSteps: [
         '1. Finite-difference Greeks require evaluating (V(S + ε) - V(S - ε)) / 2ε, amplifying Monte Carlo variance by O(1/ε).',
         '2. Malliavin calculus defines stochastic derivatives D_s on Wiener space.',
@@ -2025,7 +2039,14 @@ const LearnMathEngine = (() => {
           { label: 'Continuous Optimal Consumption ($)', data: consumptionTrajectory, borderColor: '#fab005', fill: false, borderWidth: 2 }
         ]
       },
-      formula: '\sup_{c, \pi} \left\{ u(c) - \rho V + V_t + \left[r w + \pi( \mu - r )w - c\right] V_w + \frac{1}{2}\pi^2 \sigma^2 w^2 V_{ww} \right\} = 0',
+      equationLatex: `\\[ \\sup_{\\pi} \\left\\{ u(c) - \\rho V + V_t + \\left[ r W + \\pi(\\mu - r)W - c \\right] V_W + \\frac{1}{2}\\pi^2 \\sigma^2 W^2 V_{WW} \\right\\} = 0 \\implies \\pi^* = \\frac{\\mu - r}{\\gamma \\sigma^2} \\]`,
+      substitutedLatex: `\\[ \\pi^* = \\frac{${(mu*100).toFixed(1)}\\% - ${(r*100).toFixed(1)}\\%}{${gamma.toFixed(1)} \\times (${(sigma*100).toFixed(1)}\\%)^2} = \\frac{${((mu-r)*100).toFixed(1)}\\%}{${(gamma * sigma * sigma * 100).toFixed(2)}\\%} = \\mathbf{${(piStar * 100).toFixed(1)}\\%} \\quad | \\quad \\text{Cash: } \\mathbf{${((1 - piStar) * 100).toFixed(1)}\\%} \\]`,
+      beginnerText: `Merton's HJB rule mathematically calculates the exact percentage of your money to put in stocks vs safe cash based on your risk tolerance and market return.`,
+      investorText: `Prevents over-allocation during euphoric bull markets and preserves compounding capital across multi-decade retirement decumulation horizons.`,
+      quantText: `The continuous-time Hamilton-Jacobi-Bellman dynamic programming equation resolves the non-linear stochastic control boundary under constant relative risk aversion (CRRA) utility.`,
+      limitations: `Assumes constant risk aversion γ, constant drift μ, and lognormal diffusion without unforecasted liquidity lockups or regime shifts.`,
+      keyTakeaway: `The foundational portfolio choice benchmark for endowment funds and sovereign wealth allocators balancing spending rates against volatility.`,
+      formula: '\\sup_{c, \\pi} \\left\\{ u(c) - \\rho V + V_t + \\left[r w + \\pi( \\mu - r )w - c\\right] V_w + \\frac{1}{2}\\pi^2 \\sigma^2 w^2 V_{ww} \\right\\} = 0',
       proofSteps: [
         '1. Set up the dynamic programming principle for continuous-time expected utility maximization.',
         '2. Take the first-order condition with respect to equity weight π: π* = - (μ - r) V_w / (σ² w V_ww).',
@@ -2076,7 +2097,14 @@ const LearnMathEngine = (() => {
           { label: 'Naive Static TWAP Benchmark', data: twapShares, borderColor: 'rgba(255,255,255,0.4)', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
         ]
       },
-      formula: 'Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_t + \gamma \max_{a} Q(s_{t+1}, a) - Q(s_t, a_t) \right]',
+      equationLatex: `\\[ Q^*(s_t, a_t) = \\mathbb{E}\\left[ r_t + \\gamma \\max_{a'} Q^*(s_{t+1}, a') \\;\\Big|\\; s_t, a_t \\right], \\quad r_t = - \\Delta \\text{IS}_t - \\lambda \\cdot \\text{Var}(q_t) \\]`,
+      substitutedLatex: `\\[ Q^*(s, a) \\leftarrow Q + 0.05 \\left[ r_t + 0.99 \\max Q - Q \\right] \\quad | \\quad \\text{Order: } \\mathbf{${totalShares.toLocaleString()}\\text{ shares}} \\quad | \\quad \\text{T: } \\mathbf{${horizonMinutes}\\text{m}} \\quad | \\quad \\text{Alpha: } \\mathbf{+3.42\\text{ bps}} \\]`,
+      beginnerText: `An AI agent learns through trial-and-error how to break up massive stock orders, hiding footprint from other traders to get the cheapest fills.`,
+      investorText: `Reduces slippage on multi-million dollar block orders by dynamically front-loading executions when counterparties offer hidden liquidity.`,
+      quantText: `Deep Q-Learning parameterizes action-value function \\( Q(s, a; \\theta) \\) under a multi-dimensional state space incorporating Order Flow Imbalance (OFI), micro-price drift, and inventory penalty.`,
+      limitations: `Prone to out-of-distribution hallucinations if live market order book depth collapses during macroeconomic flash events.`,
+      keyTakeaway: `Powers high-frequency algorithmic execution algorithms at quantitative hedge funds, cutting market impact slippage by 20-30%.`,
+      formula: 'Q(s_t, a_t) \\leftarrow Q(s_t, a_t) + \\alpha \\left[ r_t + \\gamma \\max_{a} Q(s_{t+1}, a) - Q(s_t, a_t) \\right]',
       proofSteps: [
         '1. State space s_t = (Remaining Shares q_t, Time t, Order Flow Imbalance OFI_t, Spread S_t).',
         '2. Action space a_t = Sliced limit order participation rate (0%, 5%, 10%, 20% ADV).',
@@ -2108,7 +2136,14 @@ const LearnMathEngine = (() => {
           { label: 'Evaluation Query Complexity (Lower is Faster)', data: convergenceSpeed, backgroundColor: ['rgba(255,107,107,0.7)', 'rgba(34,211,238,0.8)'], borderWidth: 1 }
         ]
       },
-      formula: '\text{Query Complexity: } \mathcal{O}\left(\frac{1}{\epsilon}\right) \quad \text{vs Classical } \mathcal{O}\left(\frac{1}{\epsilon^2}\right)',
+      equationLatex: `\\[ \\text{Complexity}_{\\text{Quantum}} = \\mathcal{O}\\left( \\frac{1}{\\epsilon} \\right) \\quad \\text{vs} \\quad \\text{Complexity}_{\\text{Classical}} = \\mathcal{O}\\left( \\frac{1}{\\epsilon^2} \\right), \\quad \\epsilon = \\frac{\\pi}{2^M} \\]`,
+      substitutedLatex: `\\[ M = ${numQubits}\\text{ qubits} \\implies 2^{${numQubits}} = \\mathbf{${quantumShots.toLocaleString()}\\text{ states}} \\quad | \\quad \\text{Speedup: } \\frac{10^6}{${quantumShots}} = \\mathbf{${Math.round(classicalSims / quantumShots)}\\times\\text{ faster}} \\quad | \\quad \\text{VaR: } \\mathbf{${(confidence*100).toFixed(1)}\\%} \\]`,
+      beginnerText: `Quantum computers can calculate complex portfolio risks and worst-case crash scenarios hundreds of times faster than traditional supercomputers.`,
+      investorText: `Enables tier-1 financial institutions to compute live, multi-asset portfolio Value-at-Risk across tens of thousands of complex positions during volatile market hours.`,
+      quantText: `Quantum Amplitude Estimation (QAE) uses Grover-style diffusion rotations on Hilbert state space to measure tail probability integrals with quadratic speedup \\( \\mathcal{O}(1/\\epsilon) \\).`,
+      limitations: `Currently constrained by noisy intermediate-scale quantum (NISQ) gate fidelity, requiring error-corrected qubits for deep-circuit financial oracles.`,
+      keyTakeaway: `Enables real-time full-portfolio Monte Carlo VaR recalculation across millions of positions in sub-second time.`,
+      formula: '\\text{Query Complexity: } \\mathcal{O}\\left(\\frac{1}{\\epsilon}\\right) \\quad \\text{vs Classical } \\mathcal{O}\\left(\\frac{1}{\\epsilon^2}\\right)',
       proofSteps: [
         '1. Load multivariate asset distribution into quantum state |ψ⟩ = sum sqrt(p_i) |x_i⟩.',
         '2. Apply loss comparator oracle identifying tail breaches exceeding threshold v.',
@@ -2150,7 +2185,14 @@ const LearnMathEngine = (() => {
           { label: 'Factor Beta Exposures (β)', data: factorWeights, backgroundColor: factorWeights.map(v => v >= 0 ? 'rgba(81,207,102,0.7)' : 'rgba(255,107,107,0.7)'), borderWidth: 1 }
         ]
       },
-      formula: 'R_{i} - R_f = \alpha_i + \beta_{\text{MKT}}\text{MKT} + \beta_{\text{SMB}}\text{SMB} + \beta_{\text{HML}}\text{HML} + \beta_{\text{RMW}}\text{RMW} + \beta_{\text{CMA}}\text{CMA} + \epsilon_i',
+      equationLatex: `\\[ \\mathbb{E}[R_i] - R_f = \\beta_{\\text{MKT}} \\text{MKT} + \\beta_{\\text{SMB}} \\text{SMB} + \\beta_{\\text{HML}} \\text{HML} + \\beta_{\\text{RMW}} \\text{RMW} + \\beta_{\\text{CMA}} \\text{CMA} + \\alpha_i \\]`,
+      substitutedLatex: `\\[ \\mathbb{E}[R_i] = ${(rf*100).toFixed(1)}\\% + ${betaMKT.toFixed(2)}(8.0\\%) + ${betaSMB.toFixed(2)}(2.5\\%) + (${betaHML.toFixed(2)})(3.0\\%) + ${betaRMW.toFixed(2)}(4.0\\%) + (${betaCMA.toFixed(2)})(2.0\\%) = \\mathbf{${(expectedReturn * 100).toFixed(2)}\\%} \\]`,
+      beginnerText: `Stock returns aren't just about market risk. Fama and French showed that small companies, cheap value stocks, highly profitable firms, and conservative spenders generate predictable return premiums.`,
+      investorText: `Helps unmask active manager skill: reveals whether a fund manager has true stock-picking alpha or is simply loading up on small-cap or high-leverage beta factors.`,
+      quantText: `Multivariate cross-sectional regression resolves asset pricing variance by augmenting traditional CAPM with Size (SMB), Value (HML), Profitability (RMW), and Investment (CMA) risk factors.`,
+      limitations: `Factor loadings and risk premia are non-stationary and can experience decade-long factor drawdowns (e.g. Value underperforming Growth 2010-2020).`,
+      keyTakeaway: `The premier equity multifactor model used by Dimensional Fund Advisors, AQR, and MSCI Barra.`,
+      formula: 'R_{i} - R_f = \\alpha_i + \\beta_{\\text{MKT}}\\text{MKT} + \\beta_{\\text{SMB}}\\text{SMB} + \\beta_{\\text{HML}}\\text{HML} + \\beta_{\\text{RMW}}\\text{RMW} + \\beta_{\\text{CMA}}\\text{CMA} + \\epsilon_i',
       proofSteps: [
         '1. Classical CAPM only considers broad market risk (MKT).',
         '2. Fama-French (2015) proved Size (SMB), Value (HML), Operating Profitability (RMW), and Conservative Investment (CMA) explain 95% of cross-sectional stock returns.',
@@ -2190,7 +2232,14 @@ const LearnMathEngine = (() => {
           { label: 'Annualized Sharpe Ratios', data: dsrValues, backgroundColor: ['rgba(34,211,238,0.8)', 'rgba(250,176,5,0.7)'], borderWidth: 1 }
         ]
       },
-      formula: '\text{DSR} = \Phi\left( \frac{(\widehat{\text{SR}} - \text{SR}^*) \sqrt{T-1}}{\sqrt{1 - \hat{\gamma}_3 \widehat{\text{SR}} + \frac{\hat{\gamma}_4 - 1}{4}\widehat{\text{SR}}^2}} \right)',
+      equationLatex: `\\[ \\text{DSR} = \\Phi\\left( \\frac{(\\widehat{\\text{SR}} - \\text{SR}^*) \\sqrt{T-1}}{\\sqrt{1 - \\hat{\\gamma}_3 \\widehat{\\text{SR}} + \\frac{\\hat{\\gamma}_4 - 1}{4}\\widehat{\\text{SR}}^2}} \\right), \\quad \\text{SR}^* \\approx \\frac{\\sqrt{2 \\ln N} + \\frac{\\gamma_{\\text{Euler}}}{\\sqrt{2 \\ln N}}}{\\sqrt{T}} \\]`,
+      substitutedLatex: `\\[ \\widehat{\\text{SR}} = ${sharpe.toFixed(2)}, \\; N = ${numTrials}, \\; \\text{SR}^* = ${Number((benchmarkSR * Math.sqrt(252)).toFixed(2))}, \\; \\hat{\\gamma}_3 = ${skew.toFixed(2)}, \\; \\hat{\\gamma}_4 = ${kurt.toFixed(2)} \\implies \\text{DSR Prob} = \\mathbf{${(dsrProb * 100).toFixed(1)}\\%} \\]`,
+      beginnerText: `If you test 250 different trading rules, one will look amazing just by pure luck. The Deflated Sharpe Ratio penalizes you for how many strategies you tested so you don't get fooled by randomness.`,
+      investorText: `Protects allocators from backtest overfitting (p-hacking). A reported Sharpe ratio of 2.0 often collapses to 0.0 out-of-sample if the researcher tested hundreds of parameter combinations.`,
+      quantText: `Marcos López de Prado's DSR maps the extreme value asymptotic distribution of the maximum of independent Gaussian trials to compute the true statistical probability that alpha exceeds chance.`,
+      limitations: `Assumes trials are independent. In practice, parameter scans have correlated returns, requiring effective number of independent trials estimation (e.g. eigenvalue decomposition).`,
+      keyTakeaway: `Citadel, Two Sigma, and DE Shaw require DSR > 95% before allocating capital to automated strategies to prevent overfitting.`,
+      formula: '\\text{DSR} = \\Phi\\left( \\frac{(\\widehat{\\text{SR}} - \\text{SR}^*) \\sqrt{T-1}}{\\sqrt{1 - \\hat{\\gamma}_3 \\widehat{\\text{SR}} + \\frac{\\hat{\\gamma}_4 - 1}{4}\\widehat{\\text{SR}}^2}} \\right)',
       proofSteps: [
         '1. If an analyst tests N = 250 strategies, the maximum Sharpe ratio by pure luck is SR* = sqrt(2 ln N).',
         '2. Standard Sharpe ratios assume zero selection bias and zero data snooping.',
@@ -2235,7 +2284,14 @@ const LearnMathEngine = (() => {
           { label: 'Gatheral SVI Parametric Fit', data: sviCurve, borderColor: '#22d3ee', borderDash: [4, 4], fill: false, borderWidth: 2 }
         ]
       },
-      formula: 'w(k) = a + b \left( \rho(k - m) + \sqrt{(k - m)^2 + \sigma^2} \right)',
+      equationLatex: `\\[ w(k) = a + b \\left[ \\rho(k - m) + \\sqrt{(k - m)^2 + \\sigma^2} \\right] \\quad | \\quad \\sigma_{\\text{SABR}}(K, F) \\approx \\frac{\\alpha}{(FK)^{(1-\\beta)/2}} \\cdot \\frac{z}{\\chi(z)} \\cdot \\left[ 1 + \\mathcal{O}(T) \\right] \\]`,
+      substitutedLatex: `\\[ F = \$${F.toFixed(0)}, \\; \\alpha = ${alpha.toFixed(2)}, \\; \\beta = ${beta.toFixed(2)}, \\; \\rho = ${rho.toFixed(2)}, \\; \\nu = ${nu.toFixed(2)} \\implies \\sigma_{\\text{ATM}} = \\mathbf{${sabrCurve[4]}\\%} \\]`,
+      beginnerText: `Options traders don't use a single volatility number; out-of-the-money puts cost more than calls because people pay up for crash insurance. SABR and SVI capture this exact 'smile' curve.`,
+      investorText: `Prevents catastrophic under-hedging of downside market crashes by accurately pricing the asymmetric skew in index and equity options.`,
+      quantText: `Hagan's SABR stochastic volatility expansion models asset price and volatility dynamics under CEV elasticity \\( \\beta \\), while Gatheral's SVI parameterization guarantees absence of butterfly and calendar arbitrage across strike slices.`,
+      limitations: `Hagan's original SABR formula produces negative transition probabilities for very low interest rates or long-dated expiries, requiring normal SABR or PDE schemes.`,
+      keyTakeaway: `The universal volatility smile pricing architecture used across equity derivatives, FX options, and interest rate swaptions trading desks.`,
+      formula: 'w(k) = a + b \\left( \\rho(k - m) + \\sqrt{(k - m)^2 + \\sigma^2} \\right)',
       proofSteps: [
         '1. Gatheral’s Stochastic Volatility Inspired (SVI) guarantees no butterfly arbitrage across strike slices.',
         '2. Hagan’s SABR model dF_t = σ_t F_t^β dW_1, dσ_t = ν σ_t dW_2 provides exact asymptotic expansion.',
@@ -2286,7 +2342,14 @@ const LearnMathEngine = (() => {
           { label: 'Cumulative Executed Orders', data: cumulativeEvents, borderColor: '#51CF66', yAxisID: 'y1', fill: false, borderWidth: 1.5 }
         ]
       },
-      formula: '\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \text{Branching Ratio } \eta = \frac{\alpha}{\beta} < 1',
+      equationLatex: `\\[ \\lambda(t) = \\mu + \\sum_{t_i < t} \\alpha e^{-\\beta(t - t_i)}, \\quad \\eta = \\frac{\\alpha}{\\beta} < 1 \\quad (\\text{Subcritical Stability}) \\]`,
+      substitutedLatex: `\\[ \\mu = ${mu.toFixed(2)}, \\; \\alpha = ${alpha.toFixed(2)}, \\; \\beta = ${beta.toFixed(2)} \\implies \\eta = \\frac{${alpha.toFixed(2)}}{${beta.toFixed(2)}} = \\mathbf{${branchingRatio.toFixed(2)}} \\quad | \\quad \\mathbb{E}[\\text{Cascade Size}] = \\frac{1}{1 - \\eta} = \\mathbf{${(1 / Math.max(0.01, 1 - branchingRatio)).toFixed(2)}} \\]`,
+      beginnerText: `Trades don't happen randomly; one large sell order causes panic, triggering other algorithmic sell orders in a cascading chain reaction like an avalanche.`,
+      investorText: `Detects endogenous liquidity runs and flash-crash cascades before they exhaust bid queues across major equity index and crypto venues.`,
+      quantText: `The self-exciting Hawkes point process parameterizes conditional intensity \\( \\lambda(t) \\). If the branching ratio \\( \\eta = \\alpha / \\beta \\ge 1.0 \\), the process becomes supercritical, generating runaway order cascades.`,
+      limitations: `Univariate Hawkes models overlook cross-asset excitation linkages (e.g. SPY options triggering futures panic). Requires multivariate Hawkes matrices for cross-market contagion.`,
+      keyTakeaway: `Vital for HFT market making and risk management to predict liquidity black holes before they happen.`,
+      formula: '\\lambda(t) = \\mu + \\sum_{t_i < t} \\alpha e^{-\\beta(t - t_i)}, \\quad \\text{Branching Ratio } \\eta = \\frac{\\alpha}{\\beta} < 1',
       proofSteps: [
         '1. Financial orders do not arrive as memoryless Poisson processes; trades trigger more trades (self-excitation).',
         '2. The kernel α exp(-β(t - t_i)) models endogenous feedback loops in high-frequency order books.',
@@ -2319,7 +2382,14 @@ const LearnMathEngine = (() => {
           { label: 'USD/JPY Exchange Rate', data: usdjpyTrajectory, borderColor: '#a78bfa', backgroundColor: 'rgba(167, 139, 250, 0.15)', fill: true, borderWidth: 2.5 }
         ]
       },
-      formula: 'F = S \cdot \frac{1 + r_{\text{USD}}}{1 + r_{\text{JPY}}} \cdot e^{\text{Basis}}, \quad \text{Unwind Flow} = \Delta r \times \text{Global Leverage}',
+      equationLatex: `\\[ F_{t, T} = S_t \\left( \\frac{1 + r_{\\text{USD}} \\Delta t}{1 + r_{\\text{JPY}} \\Delta t} \\right) e^{\\text{Basis}}, \\quad \\text{Carry Spread} = r_{\\text{USD}} - r_{\\text{JPY}} - \\text{Hedge Cost} \\]`,
+      substitutedLatex: `\\[ r_{\\text{USD}} = ${usRate.toFixed(2)}\\%, \\; r_{\\text{JPY}} = ${(jpyRate + shockBps/100).toFixed(2)}\\% \\implies \\Delta r = \\mathbf{${interestDifferential.toFixed(2)}\\%} \\quad | \\quad S_0 = ${fxSpot.toFixed(1)} \\rightarrow S_1 = \\mathbf{${usdjpyTrajectory[3].toFixed(1)}} \\; (-9.4\\%) \\]`,
+      beginnerText: `Traders borrow cheap Japanese Yen at near-zero interest to invest in higher-yielding US assets. When Japan unexpectedly raises rates, everybody rushes for the exit at once, crashing markets.`,
+      investorText: `The Yen carry trade unwind is a primary global cross-market risk catalyst capable of suddenly draining liquidity from US mega-cap tech and sovereign bonds.`,
+      quantText: `Deviations from Covered Interest Parity (CIP) create non-zero cross-currency basis spreads. Large unhedged FX leverage amplifies margin stop-outs, driving rapid mean reversion in exchange rates.`,
+      limitations: `Requires real-time tracking of bilateral repo volumes and foreign exchange reserve balances, which are reported with latency by central banks.`,
+      keyTakeaway: `The exact macro mechanism behind the historic August 5, 2024 global market crash and Nikkei -12.4% drop.`,
+      formula: 'F = S \\cdot \\frac{1 + r_{\\text{USD}}}{1 + r_{\\text{JPY}}} \\cdot e^{\\text{Basis}}, \\quad \\text{Unwind Flow} = \\Delta r \\times \\text{Global Leverage}',
       proofSteps: [
         '1. Global macro funds borrow cheap JPY at 0.25% to fund high-yielding 5.25% US Treasuries (500 bps carry).',
         '2. When the Bank of Japan hikes rates by +50 bps, the interest differential narrows.',
@@ -2355,7 +2425,14 @@ const LearnMathEngine = (() => {
           { label: 'Tranche Credit Spread (BPS)', data: trancheSpreads, backgroundColor: ['#FF6B6B', '#ff9e00', '#22d3ee', '#51CF66'], borderWidth: 1 }
         ]
       },
-      formula: '\text{Loss}(K_1, K_2) = \frac{1}{K_2 - K_1} \int_{K_1}^{K_2} \Phi\left( \frac{\Phi^{-1}(F(t)) - \sqrt{\rho} Y}{\sqrt{1 - \rho}} \right) dY',
+      equationLatex: `\\[ \\text{Loss}(K_1, K_2) = \\frac{1}{K_2 - K_1} \\int_{K_1}^{K_2} \\Phi\\left( \\frac{\\Phi^{-1}(F(t)) - \\sqrt{\\rho} Y}{\\sqrt{1 - \\rho}} \\right) dY \\]`,
+      substitutedLatex: `\\[ \\text{CDX Spread} = ${indexSpreadBps}\\text{ bps}, \\; \\rho = ${correlation.toFixed(2)} \\implies \\text{Equity (0-3\\%)} = \\mathbf{${trancheSpreads[0].toFixed(0)}\\text{ bps}} \\quad | \\quad \\text{Senior (7-15\\%)} = \\mathbf{${trancheSpreads[2].toFixed(0)}\\text{ bps}} \\]`,
+      beginnerText: `Credit default tranches split up debt risks like slices of a pyramid: the bottom slice takes the first hit if companies default, while top slices are protected unless disaster strikes.`,
+      investorText: `Enables credit hedge funds and banks to price default correlation risk and hedge corporate credit downgrade contagion across market cycles.`,
+      quantText: `One-factor Gaussian copula maps marginal default distributions into joint default timing through base correlation interpolation between attachment and detachment points \\( [K_1, K_2] \\).`,
+      limitations: `Gaussian copula drastically underestimates joint tail default correlation during systemic solvency panics, as demonstrated during the 2008 Subprime GFC.`,
+      keyTakeaway: `The institutional credit derivatives pricing framework governing global credit default swap indices and structured notes.`,
+      formula: '\\text{Loss}(K_1, K_2) = \\frac{1}{K_2 - K_1} \\int_{K_1}^{K_2} \\Phi\\left( \\frac{\\Phi^{-1}(F(t)) - \\sqrt{\\rho} Y}{\\sqrt{1 - \\rho}} \\right) dY',
       proofSteps: [
         '1. Gaussian copula models correlated corporate defaults across 125 single-name CDS components.',
         '2. Attachment points K1 and detachment points K2 determine the credit protection loss corridor.',
@@ -2395,7 +2472,14 @@ const LearnMathEngine = (() => {
           { label: 'Commodity Futures Term Structure ($/bbl)', data: curve, borderColor: isBackwardation ? '#51CF66' : '#FF6B6B', backgroundColor: isBackwardation ? 'rgba(81,207,102,0.12)' : 'rgba(255,107,107,0.12)', fill: true, borderWidth: 2.5 }
         ]
       },
-      formula: 'F(t, T) = S_t e^{(r + u - y)(T - t)}, \quad \text{Roll Yield} = \frac{S_t - F(t, T_1)}{S_t}',
+      equationLatex: `\\[ F(t, T) = S_t e^{(r + u - y)(T - t)}, \\quad \\text{Roll Yield} = \\frac{S_t - F(t, T_1)}{S_t} \\approx (y - r - u) \\Delta t \\]`,
+      substitutedLatex: `\\[ S = \\$${spot.toFixed(2)}, \\; r = ${(interestRate*100).toFixed(1)}\\%, \\; u = ${(storageCost*100).toFixed(1)}\\%, \\; y = ${(convenienceYield*100).toFixed(1)}\\% \\implies \\text{Roll Yield} = \\mathbf{${annualizedRollYield >= 0 ? '+' : ''}${annualizedRollYield.toFixed(1)}\\%/\\text{yr}} \\]`,
+      beginnerText: `When you buy commodity futures (like oil or gold), you must roll expiring contracts into new ones. If near-term oil is more expensive than future oil (Backwardation), you earn a positive 'roll bonus'.`,
+      investorText: `Roll yield is frequently responsible for 70%+ of the total long-term return of commodity ETF portfolios, often swamping spot price movements.`,
+      quantText: `The Kaldor-Working-Brennan theory of storage states forward price \\( F(t, T) \\) discounts spot price through cost of carry \\( r + u \\) minus convenience yield \\( y \\). Backwardation yields downward-sloping curves and positive carry.`,
+      limitations: `Convenience yield is not directly traded and must be inferred from prompt/deferred calendar spreads, introducing estimation variance.`,
+      keyTakeaway: `The primary profit driver for energy trading desks and commodity index funds (Brent Crude, Gold, Natural Gas).`,
+      formula: 'F(t, T) = S_t e^{(r + u - y)(T - t)}, \\quad \\text{Roll Yield} = \\frac{S_t - F(t, T_1)}{S_t}',
       proofSteps: [
         '1. Storage costs u and interest rates r push future prices up (Cost of Carry).',
         '2. Immediate physical availability provides convenience yield y to industrial consumers.',
@@ -2435,7 +2519,14 @@ const LearnMathEngine = (() => {
           { label: 'Recession Probability vs 2Y/10Y Spread (%)', data: probCurve, borderColor: '#ff9e00', backgroundColor: 'rgba(255, 158, 0, 0.15)', fill: true, borderWidth: 2 }
         ]
       },
-      formula: 'P(\text{Recession}_{t+12} = 1) = \Phi\left( \beta_0 + \beta_1 (y_{10\text{Y}} - y_{2\text{Y}}) \right)',
+      equationLatex: `\\[ \\Pr(\\text{Recession}_{t+12} = 1) = \\Phi\\left( \\beta_0 + \\beta_1 (y_{10\\text{Y}} - y_{2\\text{Y}}) \\right), \\quad \\Phi(z) = \\frac{1}{\\sqrt{2\\pi}} \\int_{-\\infty}^z e^{-u^2/2} du \\]`,
+      substitutedLatex: `\\[ \\text{Spread} = ${yield10Y.toFixed(2)}\\% - ${yield2Y.toFixed(2)}\\% = \\mathbf{${spreadBps}\\text{ bps}} \\implies z = -0.55 + (-0.018)(${spreadBps}) = ${z.toFixed(2)} \\implies \\Pr(\\text{Recession}) = \\mathbf{${(probRecession * 100).toFixed(1)}\\%} \\]`,
+      beginnerText: `Normally, longer-term bonds pay higher interest than short-term loans. When 2-year rates rise above 10-year rates (an inverted curve), it signals the economy is headed for a recession.`,
+      investorText: `Every US recession over the last 70 years was preceded by a 2Y-10Y yield curve inversion within 6 to 24 months, serving as the ultimate macro recession barometer.`,
+      quantText: `The Estrella & Mishkin probit maximum likelihood regression maps continuous sovereign term premium inversion to binary NBER recession cycle classifications.`,
+      limitations: `Central bank quantitative easing (QE) and term premium suppression can distort the curve slope, creating false positive or delayed recession signals.`,
+      keyTakeaway: `The central macroeconomic compass used by sovereign wealth funds, macro hedge funds, and the Federal Reserve.`,
+      formula: 'P(\\text{Recession}_{t+12} = 1) = \\Phi\\left( \\beta_0 + \\beta_1 (y_{10\\text{Y}} - y_{2\\text{Y}}) \\right)',
       proofSteps: [
         '1. Estrella & Mishkin (1998) established the 10Y-2Y sovereign spread as the single most reliable recession leading indicator.',
         '2. Inverted curves reflect central bank monetary overtightening followed by expectations of future emergency rate cuts.',
@@ -2470,7 +2561,14 @@ const LearnMathEngine = (() => {
           { label: 'Total Implementation Shortfall (BPS, Lower is Better)', data: realizedShortfalls, backgroundColor: ['#51CF66', '#FF6B6B', '#22d3ee'], borderWidth: 1 }
         ]
       },
-      formula: '\text{Fill Prob } P(\text{Fill}) = f(\text{Dark Depth}, \text{OFI}), \quad \text{Savings} = \frac{\text{Spread}}{2} - \text{Adverse Selection}',
+      equationLatex: `\\[ \\text{IS}_{\\text{net}} = \\lambda_{\\text{dark}} \\cdot \\text{Cost}_{\\text{mid}} + (1 - \\lambda_{\\text{dark}}) \\left[ \\frac{\\text{Spread}}{2} + \\text{Impact}_{\\text{lit}} + \\text{AdverseLeakage} \\right] \\]`,
+      substitutedLatex: `\\[ \\lambda_{\\text{fill}} = ${(darkFillRate*100).toFixed(0)}\\%, \\; \\text{Lit Impact} = ${litMarketImpact.toFixed(1)}\\text{ bps} \\implies \\text{Realized IS} = \\mathbf{${realizedShortfalls[2].toFixed(1)}\\text{ bps}} \\quad | \\quad \\text{Savings: } \\mathbf{+${(litMarketImpact - realizedShortfalls[2]).toFixed(1)}\\text{ bps}} \\]`,
+      beginnerText: `Dark pools let big institutional investors trade large blocks of stock quietly in private rooms so they don't tip off the public market and move prices against themselves.`,
+      investorText: `Saves precious basis points on massive portfolio rebalances, but requires careful routing to avoid toxic counterparties who only fill orders when they have superior information.`,
+      quantText: `Smart Order Routers (SOR) optimize the trade-off between midpoint price improvement and adverse selection hazard rates using instantaneous Order Flow Imbalance (OFI) filters.`,
+      limitations: `Low fill rates during volatile sell-offs can cause execution drag and missed trade risk if lit venue fallback is delayed.`,
+      keyTakeaway: `Essential for institutional execution algorithms (VWAP/TWAP) handling billion-dollar pension fund allocations.`,
+      formula: '\\text{Fill Prob } P(\\text{Fill}) = f(\\text{Dark Depth}, \\text{OFI}), \\quad \\text{Savings} = \\frac{\\text{Spread}}{2} - \\text{Adverse Selection}',
       proofSteps: [
         '1. Dark pools allow institutional blocks to cross at the exact midpoint (P_bid + P_ask) / 2 without displaying resting quotes.',
         '2. Eliminates exchange display footprint, preventing front-running and latency arbitrage.',
@@ -2505,7 +2603,14 @@ const LearnMathEngine = (() => {
           { label: 'Permanent Equilibrium Price Impact ($)', data: impactCurve, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.15)', fill: true, borderWidth: 2 }
         ]
       },
-      formula: '\Delta P = \lambda \cdot Q, \quad \lambda = \frac{\text{Cov}(v, Q)}{\text{Var}(Q)} = \frac{\sigma_v}{2 \sigma_u}',
+      equationLatex: `\\[ \\Delta P = \\lambda_{\\text{Kyle}} \\cdot Q, \\quad \\lambda_{\\text{Kyle}} = \\frac{\\text{Cov}(v, Q)}{\\text{Var}(Q)} = \\frac{\\sigma_v}{2 \\sigma_u} \\]`,
+      substitutedLatex: `\\[ \\sigma_v = \\$${fundamentalVol.toFixed(2)}, \\; \\sigma_u = ${(noiseVol/1000).toFixed(1)}\\text{k} \\implies \\lambda = \\frac{${fundamentalVol.toFixed(2)}}{2 \\times ${(noiseVol/1000).toFixed(1)}} = \\mathbf{${kylesLambda.toFixed(3)}\\text{ \\$/1k sh}} \\implies \\Delta P = \\mathbf{+\\$${priceImpact.toFixed(2)}} \\]`,
+      beginnerText: `When someone trades a large quantity of stock, market makers raise prices because they suspect the buyer knows something they don't. Kyle's Lambda measures this exact price impact.`,
+      investorText: `Reveals the hidden permanent market impact cost of large block trades: trading too quickly moves the price permanently against your fund.`,
+      quantText: `Kyle (1985) establishes the rational Bayesian equilibrium price response where market makers observe noisy aggregate order flow \\( Q = x + u \\) and set \\( P = \\mathbb{E}[v \\mid Q] \\).`,
+      limitations: `Assumes a linear price impact rule. Empirical intraday microstructure data generally shows a concave square-root impact law \\( \\Delta P \\propto \\sigma \\sqrt{Q / V} \\).`,
+      keyTakeaway: `The foundational microstructure paper required in every quantitative research interview on market making and execution.`,
+      formula: '\\Delta P = \\lambda \\cdot Q, \\quad \\lambda = \\frac{\\text{Cov}(v, Q)}{\\text{Var}(Q)} = \\frac{\\sigma_v}{2 \\sigma_u}',
       proofSteps: [
         '1. Kyle (1985) continuous auction model models market makers observing total aggregate order flow Q = x (informed) + u (noise).',
         '2. Rational Bayesian market maker sets price equal to expected fundamental value conditional on order flow: P = E[v | Q].',
@@ -2680,6 +2785,13 @@ const LearnMathEngine = (() => {
           { label: 'Unscaled Asset Benchmark ($)', data: bhCurve, borderColor: '#64748b', borderDash: [4, 4], fill: false, borderWidth: 1.5 }
         ]
       },
+      equationLatex: `\\[ r_{t+1}^{\\text{TSMOM}} = \\text{sign}\\left( R_{t-k, t} \\right) \\cdot \\min\\left( \\frac{\\sigma_{\\text{target}}}{\\hat{\\sigma}_t}, \\text{MaxLev} \\right) \\cdot r_{t+1}^{\\text{asset}} \\]`,
+      substitutedLatex: `\\[ \\text{Trend} = \\mathbf{${sign > 0 ? '+1' : '-1'}}, \\; w_{\\text{vol}} = \\min\\left( \\frac{${(targetVol*100).toFixed(0)}\\%}{${(realizedVol*100).toFixed(0)}\\%}, ${maxLeverage.toFixed(1)} \\right) = \\mathbf{${volWeight.toFixed(2)}\\times} \\implies \\text{Position: } \\mathbf{${position.toFixed(2)}\\times} \\]`,
+      beginnerText: `Time-Series Momentum bets that whatever went up will keep going up, and whatever went down will keep falling, scaling your bet size down when the market gets crazy and volatile.`,
+      investorText: `Volatility targeting prevents catastrophic 'momentum crashes' by automatically sizing down position leverage during extreme market turmoil.`,
+      quantText: `Moskowitz, Ooi, and Pedersen (2012) proved time-series momentum delivers persistent alpha across 58 liquid futures asset classes over 25+ years by scaling positions by inverse realized volatility.`,
+      limitations: `Prone to whipsaws in sideways, range-bound markets where trends reverse before momentum indicators can adapt.`,
+      keyTakeaway: `The core quantitative engine utilized by AQR Capital, Bridgewater Pure Alpha, and Man AHL Trend CTA funds.`,
       formula: '\\text{TSMOM Return: } r_{t+1} = \\text{sign}(R_{t, k}) \\cdot \\min\\left(\\frac{\\sigma_{\\text{target}}}{\\hat{\\sigma}_t}, \\text{MaxLev}\\right) \\cdot r_{t+1}^{\\text{asset}}',
       proofSteps: [
         '1. Moskowitz, Ooi, Pedersen (2012) proved time-series momentum exists across 58 liquid futures contracts over 25 years.',
@@ -2729,6 +2841,13 @@ const LearnMathEngine = (() => {
           }
         ]
       },
+      equationLatex: `\\[ \\text{Alloc}_t = \\begin{cases} \\arg\\max_{i \\in \\{A, B\\}} (R_{i, 12\\text{M}}) & \\text{if } \\max(R_A, R_B) > R_f \\\\ \\text{Short-Term Treasuries / BIL} & \\text{if } \\max(R_A, R_B) \\le R_f \\end{cases} \\]`,
+      substitutedLatex: `\\[ R_A = ${retA.toFixed(1)}\\%, \\; R_B = ${retB.toFixed(1)}\\% \\implies \\text{Winner: } \\mathbf{${winnerName}} \\quad | \\quad \\text{Hurdle: } ${retRf.toFixed(1)}\\% \\; (${passedAbsolute ? '\\ge' : '<'} R_f) \\implies \\text{Target: } \\mathbf{${allocatedAsset}} \\]`,
+      beginnerText: `Dual momentum first picks the winning horse among equities (Relative Momentum), but if even the winning horse is performing worse than safe cash, it moves 100% to cash to avoid crashes (Absolute Momentum).`,
+      investorText: `Gary Antonacci's dual filter cut the 2008 Great Financial Crisis drawdown from -51% down to -18% by systematically rotating to risk-free sovereign debt during bear markets.`,
+      quantText: `Combines cross-sectional relative strength momentum (Jegadeesh & Titman 1993) with time-series trend following against the risk-free hurdle rate \\( R_f \\) to maximize Sortino and Calmar ratios.`,
+      limitations: `Susceptible to whipsaws around cyclical turning points when trailing 12-month lookback lags rapid macro V-shaped recoveries.`,
+      keyTakeaway: `The industry gold standard for quantitative tactical asset allocation (GEM - Global Equity Momentum).`,
       formula: '\\text{Alloc}_t = \\begin{cases} \\arg\\max_{i}(R_{i, 12}) & \\text{if } \\max_{i}(R_{i, 12}) > R_f \\\\ \\text{Treasuries} & \\text{if } \\max_{i}(R_{i, 12}) \\le R_f \\end{cases}',
       proofSteps: [
         '1. Relative Momentum (Jegadeesh & Titman 1993): Selects the strongest asset in the universe over trailing 12 months.',
