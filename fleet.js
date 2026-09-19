@@ -5860,6 +5860,94 @@
       }
     };
 
+    window.openPaperBrokerModal = () => {
+      const broker = root.PaperBroker || window.PaperBroker;
+      if (!broker) return;
+      const acc = broker.getAccount();
+      const pos = broker.getPositions();
+      const trd = broker.getTradeHistory();
+
+      let modal = document.getElementById('paperBrokerModalOverlay');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'paperBrokerModalOverlay';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-card" style="max-width:700px; max-height:85vh; overflow-y:auto; background:#0c0f1d; border:1px solid rgba(16,185,129,0.3); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.8);">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; padding:16px 20px; border-bottom:1px solid rgba(255,255,255,0.08);">
+              <h3 style="color:#10b981; margin:0; font-size:1.05rem;"><i class="fa-solid fa-briefcase"></i> Institutional Paper Trading Sandbox</h3>
+              <button class="modal-close-btn" onclick="document.getElementById('paperBrokerModalOverlay').style.display='none'" style="background:transparent; border:none; color:#a1a1aa; font-size:1.3rem; cursor:pointer;">&times;</button>
+            </div>
+            <div id="paperBrokerModalBody" style="padding:16px 20px;"></div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+
+      const body = document.getElementById('paperBrokerModalBody');
+      if (body) {
+        body.innerHTML = `
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-bottom:16px;">
+            <div class="b-stat-card">
+              <span class="b-stat-lbl">Total Equity</span>
+              <div class="b-stat-val text-green">₹${acc.totalEquity.toLocaleString('en-IN', {maximumFractionDigits:2})}</div>
+            </div>
+            <div class="b-stat-card">
+              <span class="b-stat-lbl">Free Cash</span>
+              <div class="b-stat-val">₹${acc.cash.toLocaleString('en-IN', {maximumFractionDigits:2})}</div>
+            </div>
+            <div class="b-stat-card">
+              <span class="b-stat-lbl">Unrealized P&L</span>
+              <div class="b-stat-val ${acc.unrealizedPnl >= 0 ? 'text-green' : 'text-rose'}">₹${acc.unrealizedPnl.toFixed(2)}</div>
+            </div>
+            <div class="b-stat-card">
+              <span class="b-stat-lbl">Realized P&L</span>
+              <div class="b-stat-val ${acc.realizedPnl >= 0 ? 'text-green' : 'text-rose'}">₹${acc.realizedPnl.toFixed(2)}</div>
+            </div>
+          </div>
+
+          <h4 style="color:#fff; font-size:0.85rem; margin:16px 0 8px 0;">Active Positions (${pos.length})</h4>
+          ${pos.length === 0 ? '<p style="color:#71717a; font-size:0.75rem; margin:0 0 16px 0;">No active positions. Click "Copy Trade" on any bot below to mirror trades!</p>' : `
+            <table style="width:100%; font-size:0.75rem; border-collapse:collapse; margin-bottom:16px;">
+              <thead>
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.1); color:#71717a;">
+                  <th style="text-align:left; padding:6px;">Symbol</th>
+                  <th style="text-align:right; padding:6px;">Qty</th>
+                  <th style="text-align:right; padding:6px;">Avg Price</th>
+                  <th style="text-align:right; padding:6px;">P&L</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pos.map(p => `
+                  <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:6px; font-weight:700;">${p.symbol}</td>
+                    <td style="text-align:right; padding:6px;">${p.qty}</td>
+                    <td style="text-align:right; padding:6px;">₹${p.avgPrice.toFixed(2)}</td>
+                    <td style="text-align:right; padding:6px; color:${p.pnl >= 0 ? '#10b981' : '#f43f5e'};">₹${p.pnl.toFixed(2)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+
+          <h4 style="color:#fff; font-size:0.85rem; margin:16px 0 8px 0;">Recent Sandbox Executions (${trd.length})</h4>
+          <div style="max-height:160px; overflow-y:auto; background:rgba(0,0,0,0.3); border-radius:6px; padding:8px;">
+            ${trd.length === 0 ? '<p style="color:#71717a; font-size:0.75rem; margin:0;">No executions logged yet.</p>' : trd.slice(0, 10).map(t => `
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.72rem;">
+                <span><strong style="color:${t.side === 'BUY' ? '#10b981' : '#f43f5e'};">${t.side}</strong> ${t.qty} ${t.symbol} @ ₹${t.fillPrice}</span>
+                <span style="color:#71717a;">${t.timestamp} &bull; Slip: ${t.slippageBps} bps</span>
+              </div>
+            `).join('')}
+          </div>
+          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+            <button class="fleet-ctrl-btn" onclick="if(confirm('Reset paper portfolio to initial ₹10 Lakh?')) { PaperBroker.resetAccount(); window.openPaperBrokerModal(); }" style="background:rgba(244,63,94,0.15); border-color:#f43f5e; color:#f43f5e; font-size:0.7rem; padding:4px 10px; border-radius:4px; cursor:pointer;">Reset Account</button>
+          </div>
+        `;
+      }
+
+      modal.style.display = 'flex';
+    };
+
     window.toggleBotMath = (botId) => {
       const drawer = document.getElementById(`math-drawer-${botId}`);
       const chevron = document.getElementById(`chevron-${botId}`);

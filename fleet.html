@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -322,6 +322,9 @@
             </button>
             <button class="btn-quantum-feature" id="btnOpenBotJournal" onclick="const m=document.getElementById('botJournalModalOverlay'); if(m) m.hidden=false; if(window.renderFleetTradeJournal) window.renderFleetTradeJournal('ALL');" style="border-color:rgba(34,211,238,0.4); color:#22d3ee;">
               <i class="fa-solid fa-calendar-days text-cyan"></i> 📅 Fleet &amp; Bot Trade Journal
+            </button>
+            <button class="btn-quantum-feature" id="btnOpenPaperSandbox" onclick="window.openPaperBrokerModal()" style="border-color:rgba(16,185,129,0.4); color:#10b981;">
+              <i class="fa-solid fa-briefcase text-emerald"></i> 💼 Paper Trading Sandbox (₹10L)
             </button>
           </div>
         </div>
@@ -912,6 +915,7 @@
   <script src="darkPoolHunter.js"></script>
   <script src="defconRiskMatrix.js"></script>
   <script src="executiveReportGenerator.js"></script>
+  <script src="paperBroker.js"></script>
   <script src="fleet.js"></script>
   <script src="microstructureEngine.js"></script>
   <script src="riskGuardrails.js"></script>
