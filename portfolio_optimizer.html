@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -71,6 +71,11 @@
       <!-- Right: Currency Toggle, Clock & Mode -->
       <div class="header-right header-right--clean">
         
+        <!-- Institutional Quant Tear Sheet Export Trigger -->
+        <button id="btnExportTearSheet" class="bbg-action-btn" onclick="window.openQuantTearSheet ? window.openQuantTearSheet({ name: 'OPTIMIZED PORTFOLIO TEAR SHEET' }) : null" title="Export Institutional Quant Tear Sheet" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          <i class="fa-solid fa-file-invoice"></i> Tear Sheet
+        </button>
+
         <!-- Interactive INR <-> USD Currency Switcher -->
         <div class="currency-toggle-pill" id="currencyTogglePill" title="Switch Global Currency (INR ₹ / USD $)">
           <button class="curr-btn active" data-curr="INR">₹ INR</button>
@@ -1830,6 +1835,7 @@
   <script src="securityMaster.js"></script>
   <script src="auditLedger.js"></script>
   <script src="newsEngine.js"></script>
+  <script src="quantTearSheet.js"></script>
   <script src="portfolio_optimizer.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
   <script src="marketDataTruth.js"></script>

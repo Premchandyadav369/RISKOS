@@ -5939,7 +5939,8 @@
               </div>
             `).join('')}
           </div>
-          <div style="margin-top:14px; display:flex; justify-content:flex-end;">
+          <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+            <button class="fleet-ctrl-btn" onclick="window.openQuantTearSheet ? window.openQuantTearSheet({ name: 'PAPER TRADING SANDBOX FACTSHEET', capital: PaperBroker.getAccount().nav }) : null" style="background:rgba(34,211,238,0.15); border-color:#22d3ee; color:#22d3ee; font-size:0.75rem; padding:6px 12px; border-radius:6px; cursor:pointer; font-weight:700;"><i class="fa-solid fa-file-invoice"></i> Export Quant Tear Sheet</button>
             <button class="fleet-ctrl-btn" onclick="if(confirm('Reset paper portfolio to initial ₹10 Lakh?')) { PaperBroker.resetAccount(); window.openPaperBrokerModal(); }" style="background:rgba(244,63,94,0.15); border-color:#f43f5e; color:#f43f5e; font-size:0.7rem; padding:4px 10px; border-radius:4px; cursor:pointer;">Reset Account</button>
           </div>
         `;

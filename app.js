@@ -1999,7 +1999,17 @@ const initTearSheetModal = () => {
     const openModal = () => {
         const input = document.getElementById('ticker-input');
         const tickers = input ? input.value.split(',').map(t => t.trim().toUpperCase()).filter(Boolean) : ['AAPL', 'MSFT', 'GOOGL'];
-        
+
+        if (window.QuantTearSheet && typeof window.QuantTearSheet.openModal === 'function') {
+            window.QuantTearSheet.openModal({
+                name: `RISKOS QUANT TEAR SHEET: ${tickers.join(' / ')}`,
+                benchmark: 'NIFTY 50 / S&P 500 BLEND',
+                capital: typeof BASE_CAPITAL !== 'undefined' ? BASE_CAPITAL : 10000000,
+                currency: typeof currentCurrency !== 'undefined' ? currentCurrency : 'INR'
+            });
+            return;
+        }
+
         content.innerHTML = `
             <!-- Left Column: Core Risk & Performance Profile -->
             <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;">
