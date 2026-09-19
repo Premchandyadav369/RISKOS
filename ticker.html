@@ -587,6 +587,22 @@
           </div>
         </div>
 
+        <!-- Single-Stock News & Intraday Lexical Sentiment Stream (OpenTerminal) -->
+        <div class="drawer-section-card" id="tickerNewsCard" style="margin-top:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-newspaper" style="color:var(--accent-cyan);"></i>
+              <strong style="font-size:0.85rem; color:#fff;">Institutional News &amp; Sentiment Stream</strong>
+            </div>
+            <div id="tickerSentimentBadge" class="badge-tag" style="font-size:0.7rem; font-weight:700; background:rgba(81,207,102,0.15); color:#51CF66;">
+              BULLISH (+0.58)
+            </div>
+          </div>
+          <div id="tickerNewsContainer" style="display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto; padding-right:4px;">
+            <!-- Populated dynamically by initTickerNewsFeed -->
+          </div>
+        </div>
+
         <!-- Universal Cross-Platform Action Center -->
         <div class="drawer-action-center">
           <h4 class="action-heading">Connect Across RISKOS Platform</h4>

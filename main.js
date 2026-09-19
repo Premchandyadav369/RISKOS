@@ -1253,13 +1253,22 @@ document.addEventListener('DOMContentLoaded', () => {
       const b = visibleBars[crosshairIdx];
       if (b) {
         const chg = ((b.close - b.open) / b.open) * 100;
+        const actualBarIdx = startIdx + crosshairIdx;
+
+        const dateEl = document.getElementById(`${hudPrefix}Date`) || document.getElementById('hudDate');
         const openEl = document.getElementById(`${hudPrefix}Open`);
         const highEl = document.getElementById(`${hudPrefix}High`);
         const lowEl = document.getElementById(`${hudPrefix}Low`);
         const closeEl = document.getElementById(`${hudPrefix}Close`);
         const chgEl = document.getElementById(`${hudPrefix}Chg`);
         const volEl = document.getElementById(`${hudPrefix}Vol`);
+        const smaEl = document.getElementById(`${hudPrefix}Sma`) || document.getElementById('hudSma');
+        const emaEl = document.getElementById(`${hudPrefix}Ema`) || document.getElementById('hudEma');
+        const vwapEl = document.getElementById(`${hudPrefix}Vwap`) || document.getElementById('hudVwap');
+        const bbEl = document.getElementById(`${hudPrefix}Bb`) || document.getElementById('hudBb');
+        const rsiEl = document.getElementById(`${hudPrefix}Rsi`) || document.getElementById('hudRsi');
 
+        if (dateEl) dateEl.textContent = b.date || b.time || '-';
         if (openEl) openEl.textContent = formatMoney(b.open, chartCurr);
         if (highEl) highEl.textContent = formatMoney(b.high, chartCurr);
         if (lowEl) lowEl.textContent = formatMoney(b.low, chartCurr);
@@ -1269,6 +1278,51 @@ document.addEventListener('DOMContentLoaded', () => {
           chgEl.style.color = chg >= 0 ? '#10b981' : '#f43f5e';
         }
         if (volEl) volEl.textContent = b.volume > 1000000 ? `${(b.volume / 1000000).toFixed(2)}M` : `${(b.volume / 1000).toFixed(0)}k`;
+
+        const smaVal = sma20[actualBarIdx];
+        if (smaEl) smaEl.textContent = smaVal ? formatMoney(smaVal, chartCurr) : '-';
+        const emaVal = ema50[actualBarIdx];
+        if (emaEl) emaEl.textContent = emaVal ? formatMoney(emaVal, chartCurr) : '-';
+
+        if (vwapEl) {
+          let cumPV = 0, cumV = 0;
+          for (let j = Math.max(0, actualBarIdx - 20); j <= actualBarIdx; j++) {
+            const barJ = bars[j];
+            const typ = (barJ.high + barJ.low + barJ.close) / 3;
+            cumPV += typ * barJ.volume;
+            cumV += barJ.volume;
+          }
+          const vwap = cumV > 0 ? cumPV / cumV : b.close;
+          vwapEl.textContent = formatMoney(vwap, chartCurr);
+        }
+
+        if (bbEl) {
+          if (actualBarIdx >= 19 && smaVal) {
+            const slice = bars.slice(actualBarIdx - 19, actualBarIdx + 1).map(x => x.close);
+            const variance = slice.reduce((sum, val) => sum + Math.pow(val - smaVal, 2), 0) / 20;
+            const sd = Math.sqrt(variance);
+            bbEl.textContent = `[${formatMoney(smaVal - 2 * sd, chartCurr)} - ${formatMoney(smaVal + 2 * sd, chartCurr)}]`;
+          } else {
+            bbEl.textContent = '-';
+          }
+        }
+
+        if (rsiEl) {
+          if (actualBarIdx >= 14) {
+            let gains = 0, losses = 0;
+            for (let j = actualBarIdx - 13; j <= actualBarIdx; j++) {
+              const diff = bars[j].close - bars[j - 1].close;
+              if (diff >= 0) gains += diff;
+              else losses -= diff;
+            }
+            const rs = losses === 0 ? 100 : (gains / 14) / (losses / 14);
+            const rsi = 100 - (100 / (1 + rs));
+            rsiEl.textContent = rsi.toFixed(1);
+            rsiEl.style.color = rsi > 70 ? '#f43f5e' : (rsi < 30 ? '#10b981' : '#38bdf8');
+          } else {
+            rsiEl.textContent = '-';
+          }
+        }
       }
       draw();
     };
@@ -3784,9 +3838,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const cEl = el.querySelector('.ribbon-chg');
           if (pEl) {
             pEl.textContent = formatMoney(u.price, u.currency);
-            pEl.classList.remove('price-flash-up', 'price-flash-down');
+            pEl.classList.remove('price-flash-up', 'price-flash-down', 'tick-flash-up', 'tick-flash-down');
             void pEl.offsetWidth;
-            pEl.classList.add(u.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+            pEl.classList.add(u.delta >= 0 ? 'tick-flash-up' : 'tick-flash-down');
           }
           if (cEl) {
             cEl.textContent = `${u.change >= 0 ? '▲ +' : '▼ '}${u.changePercent.toFixed(2)}%`;

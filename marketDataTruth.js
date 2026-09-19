@@ -575,11 +575,80 @@
     }
   }
 
+  // ── OpenTerminal Fallback Chain & SWR Caching Architecture ─────────────────
+  const _swrCache = new Map();
+
+  const getWithSwr = async (cacheKey, ttlMs, fetchFn, fallbackFn) => {
+    const now = Date.now();
+    const cached = _swrCache.get(cacheKey);
+
+    if (cached && (now - cached.timestamp < ttlMs)) {
+      return Object.assign({}, cached.data, { _swr: { cached: true, stale: false, ageMs: now - cached.timestamp } });
+    }
+
+    if (cached) {
+      // Stale-While-Revalidate background revalidation
+      (async () => {
+        try {
+          const fresh = await fetchFn();
+          if (fresh) _swrCache.set(cacheKey, { timestamp: Date.now(), data: fresh });
+        } catch (err) {
+          if (fallbackFn) {
+            try {
+              const fb = await fallbackFn();
+              if (fb) _swrCache.set(cacheKey, { timestamp: Date.now(), data: fb });
+            } catch (_) {}
+          }
+        }
+      })();
+      return Object.assign({}, cached.data, { _swr: { cached: true, stale: true, ageMs: now - cached.timestamp } });
+    }
+
+    try {
+      const fresh = await fetchFn();
+      if (fresh) {
+        _swrCache.set(cacheKey, { timestamp: now, data: fresh });
+        return Object.assign({}, fresh, { _swr: { cached: false, stale: false, ageMs: 0 } });
+      }
+    } catch (primaryErr) {
+      if (fallbackFn) {
+        const fallbackData = await fallbackFn();
+        _swrCache.set(cacheKey, { timestamp: now, data: fallbackData });
+        return Object.assign({}, fallbackData, { _swr: { cached: false, stale: false, fallback: true } });
+      }
+      throw primaryErr;
+    }
+  };
+
+  const clearSwrCache = (prefix) => {
+    if (!prefix) _swrCache.clear();
+    else {
+      for (const key of _swrCache.keys()) {
+        if (key.startsWith(prefix)) _swrCache.delete(key);
+      }
+    }
+  };
+
+  const getSwrCacheStats = () => ({
+    size: _swrCache.size,
+    totalEntries: _swrCache.size,
+    keys: Array.from(_swrCache.keys())
+  });
+
+  const PROVIDER_FALLBACK_CHAINS = {
+    EQUITIES: ['NASDAQ_API', 'YAHOO_FINANCE', 'STOOG', 'SYNTHETIC_DRIFT'],
+    OPTIONS: ['NASDAQ_OPTIONS', 'YAHOO_OPTIONS', 'SABR_SYNTHESIZER'],
+    MACRO_YIELDS: ['FRED_TREASURY', 'RBI_GSEC', 'SVENSSON_NSS_ENGINE'],
+    CALENDAR: ['FOREX_FACTORY', 'FRED_CALENDAR', 'INTERNAL_EVENT_SCHEDULE'],
+    CRYPTO: ['BINANCE_PUBLIC_24_7', 'COINGECKO_PUBLIC']
+  };
+
   // ── Public API ─────────────────────────────────────────────────────────────
   const MarketDataTruth = {
     EXCHANGES,
     DATA_STATES,
     MODES,
+    PROVIDER_FALLBACK_CHAINS,
     get activeMode() { return _activeMode; },
     get activeExchange() { return _activeExchange; },
     set activeExchange(ex) { _activeExchange = ex; },
@@ -598,7 +667,10 @@
     subscribe: (cb) => {
       _subscribers.add(cb);
       return () => _subscribers.delete(cb);
-    }
+    },
+    getWithSwr,
+    clearSwrCache,
+    getSwrCacheStats
   };
 
   root.MarketDataTruth = MarketDataTruth;

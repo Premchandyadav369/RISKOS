@@ -644,9 +644,54 @@
 
     state.activeDrawerSec = sec;
     renderDrawerChart(sec, '1M');
+    initTickerNewsFeed(sec.symbol);
     overlay.removeAttribute('hidden');
     lockScroll();
   };
+
+  // ── 5B. Single-Stock News & Lexical Sentiment Stream (OpenTerminal) ─────────
+  const initTickerNewsFeed = (sym) => {
+    const container = document.getElementById('tickerNewsContainer');
+    const badge = document.getElementById('tickerSentimentBadge');
+    if (!container || typeof SecurityMaster === 'undefined' || !SecurityMaster.getTickerNews) return;
+
+    const newsData = SecurityMaster.getTickerNews(sym);
+    if (!newsData || !newsData.articles) return;
+
+    if (badge) {
+      badge.textContent = `${newsData.sentimentLabel} (${newsData.aggregateSentiment >= 0 ? '+' : ''}${newsData.aggregateSentiment.toFixed(2)})`;
+      badge.style.color = newsData.aggregateSentiment >= 0.2 ? '#51CF66' : newsData.aggregateSentiment <= -0.2 ? '#FF6B6B' : '#FAB005';
+      badge.style.background = newsData.aggregateSentiment >= 0.2 ? 'rgba(81,207,102,0.15)' : newsData.aggregateSentiment <= -0.2 ? 'rgba(255,107,107,0.15)' : 'rgba(250,176,5,0.15)';
+    }
+
+    container.innerHTML = newsData.articles.map(art => {
+      const isBull = art.sentimentTag === 'BULLISH';
+      const isBear = art.sentimentTag === 'BEARISH';
+      const tagColor = isBull ? '#51CF66' : isBear ? '#FF6B6B' : '#FAB005';
+      const tagBg = isBull ? 'rgba(81,207,102,0.12)' : isBear ? 'rgba(255,107,107,0.12)' : 'rgba(250,176,5,0.12)';
+
+      return `
+        <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <span style="font-size:0.68rem; color:#71717a; font-weight:700;">${art.source} &bull; ${art.timestamp}</span>
+            <span style="font-size:0.62rem; font-weight:800; color:${tagColor}; background:${tagBg}; padding:2px 6px; border-radius:4px;">
+              ${art.sentimentTag}
+            </span>
+          </div>
+          <div style="font-size:0.78rem; font-weight:600; color:#e4e4e7; line-height:1.35; margin-bottom:4px;">
+            ${art.headline}
+          </div>
+          <div style="font-size:0.7rem; color:#a1a1aa;">
+            <i class="fa-solid fa-arrow-right text-cyan" style="font-size:0.65rem; margin-right:4px;"></i>${art.impact}
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
+  if (typeof window !== 'undefined') {
+    window.initTickerNewsFeed = initTickerNewsFeed;
+  }
 
   const closeSecurityDrawer = () => {
     state.activeDrawerSec = null;

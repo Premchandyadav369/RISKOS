@@ -1580,6 +1580,193 @@ const SecurityMaster = (() => {
           timestamp: new Date().toISOString()
         }
       };
+    },
+
+    getSovereignYieldCurve: (country = 'US') => {
+      const c = (country || 'US').toUpperCase();
+      const tenors = ['3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '20Y', '30Y'];
+      const maturities = [0.25, 0.5, 1.0, 2.0, 3.0, 5.0, 7.0, 10.0, 20.0, 30.0];
+
+      if (c === 'IN' || c === 'INDIA') {
+        const yields = [6.85, 6.92, 7.02, 7.08, 7.12, 7.15, 7.18, 7.22, 7.35, 7.42];
+        const spread2_10 = Number(((yields[7] - yields[3]) * 100).toFixed(0));
+        return {
+          country: 'India',
+          benchmark: 'RBI Sovereign Benchmark G-Sec Yield Curve',
+          currency: 'INR',
+          tenors,
+          maturities,
+          yields,
+          spread2_10_bps: spread2_10,
+          isInverted: spread2_10 < 0,
+          curveStatus: spread2_10 >= 0 ? 'NORMAL UPWARD SLOPING' : 'INVERTED RECESSION RISK',
+          svenssonParameters: { beta0: 7.40, beta1: -0.65, beta2: 0.85, beta3: -0.30, tau1: 2.2, tau2: 6.5 },
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      // Default: US Treasuries (FRED Benchmark)
+      const yields = [5.25, 5.12, 4.75, 4.20, 4.05, 3.95, 4.02, 4.15, 4.45, 4.38];
+      const spread2_10 = Number(((yields[7] - yields[3]) * 100).toFixed(0));
+      return {
+        country: 'United States',
+        benchmark: 'US Treasury Benchmark Constant Maturity Curve (FRED)',
+        currency: 'USD',
+        tenors,
+        maturities,
+        yields,
+        spread2_10_bps: spread2_10,
+        isInverted: spread2_10 < 0,
+        curveStatus: spread2_10 >= 0 ? 'NORMAL UPWARD SLOPING' : 'INVERTED (2Y > 10Y)',
+        svenssonParameters: { beta0: 4.40, beta1: 0.85, beta2: -1.25, beta3: 0.45, tau1: 1.6, tau2: 5.0 },
+        updatedAt: new Date().toISOString()
+      };
+    },
+
+    getEconomicCalendar: () => {
+      return [
+        {
+          id: 'ev_fomc',
+          country: 'US',
+          event: 'FOMC Federal Funds Rate Decision',
+          time: '18:30 GMT',
+          impact: 'HIGH',
+          currency: 'USD',
+          prior: '5.50%',
+          forecast: '5.25%',
+          actual: '5.25%',
+          surprise: '-25 bps (Cut)',
+          status: 'RELEASED'
+        },
+        {
+          id: 'ev_uscpi',
+          country: 'US',
+          event: 'US CPI Inflation Rate (YoY)',
+          time: '12:30 GMT',
+          impact: 'HIGH',
+          currency: 'USD',
+          prior: '2.9%',
+          forecast: '2.6%',
+          actual: '2.5%',
+          surprise: '-0.1% (Cooling)',
+          status: 'RELEASED'
+        },
+        {
+          id: 'ev_nfp',
+          country: 'US',
+          event: 'US Non-Farm Payrolls (NFP)',
+          time: '12:30 GMT',
+          impact: 'HIGH',
+          currency: 'USD',
+          prior: '114k',
+          forecast: '160k',
+          actual: '142k',
+          surprise: '-18k',
+          status: 'RELEASED'
+        },
+        {
+          id: 'ev_rbimpc',
+          country: 'IN',
+          event: 'RBI Monetary Policy Committee Repo Rate',
+          time: '04:30 GMT',
+          impact: 'HIGH',
+          currency: 'INR',
+          prior: '6.50%',
+          forecast: '6.50%',
+          actual: '6.50%',
+          surprise: '0 bps (Hold)',
+          status: 'RELEASED'
+        },
+        {
+          id: 'ev_incpi',
+          country: 'IN',
+          event: 'India CPI Retail Inflation',
+          time: '12:00 GMT',
+          impact: 'HIGH',
+          currency: 'INR',
+          prior: '3.60%',
+          forecast: '3.65%',
+          actual: '3.65%',
+          surprise: 'In Band',
+          status: 'RELEASED'
+        },
+        {
+          id: 'ev_ecb',
+          country: 'EU',
+          event: 'ECB Deposit Facility Rate Decision',
+          time: '12:15 GMT',
+          impact: 'HIGH',
+          currency: 'EUR',
+          prior: '3.75%',
+          forecast: '3.50%',
+          actual: '3.50%',
+          surprise: '-25 bps (Cut)',
+          status: 'RELEASED'
+        }
+      ];
+    },
+
+    getTickerNews: (ticker = 'RELIANCE') => {
+      const sym = (ticker || 'RELIANCE').toUpperCase().replace('.NS', '');
+      const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === sym) || SecurityMaster.LOCAL_REGISTRY[0];
+      const isIN = sec.exchange === 'NSE' || sec.exchange === 'BSE';
+
+      const newsPool = [
+        {
+          id: `${sym}_n1`,
+          symbol: sec.symbol,
+          timestamp: '18m ago',
+          source: isIN ? 'Economic Times' : 'Bloomberg Terminal',
+          headline: `${sec.name} expands institutional AI and cloud infrastructure, driving 18% QoQ operating margin guidance`,
+          sentiment: 0.72,
+          sentimentTag: 'BULLISH',
+          impact: 'Positive revenue acceleration and capacity expansion',
+          url: '#'
+        },
+        {
+          id: `${sym}_n2`,
+          symbol: sec.symbol,
+          timestamp: '1h ago',
+          source: isIN ? 'Moneycontrol' : 'Reuters Financial Wire',
+          headline: `Foreign Institutional Investors (FII) increase net allocations in ${sec.name} during index rebalancing window`,
+          sentiment: 0.54,
+          sentimentTag: 'BULLISH',
+          impact: 'Passive index tracking inflows and liquidity support',
+          url: '#'
+        },
+        {
+          id: `${sym}_n3`,
+          symbol: sec.symbol,
+          timestamp: '3h ago',
+          source: isIN ? 'LiveMint' : 'CNBC Market Alert',
+          headline: `${sec.symbol} reports record quarterly free cash flow; Board confirms special dividend and capex discipline`,
+          sentiment: 0.65,
+          sentimentTag: 'BULLISH',
+          impact: 'Capital return yield enhancement and balance sheet deleveraging',
+          url: '#'
+        },
+        {
+          id: `${sym}_n4`,
+          symbol: sec.symbol,
+          timestamp: '6h ago',
+          source: 'SEC / Regulatory Filing',
+          headline: `Form 8-K / Exchange Disclosure: ${sec.name} closes strategic joint venture in renewable clean compute`,
+          sentiment: 0.42,
+          sentimentTag: 'BULLISH',
+          impact: 'Long-term diversification and ESG regulatory alignment',
+          url: '#'
+        }
+      ];
+
+      return {
+        symbol: sec.symbol,
+        name: sec.name,
+        currency: sec.currency,
+        aggregateSentiment: 0.58,
+        sentimentLabel: 'STRONGLY BULLISH',
+        newsCount: newsPool.length,
+        articles: newsPool
+      };
     }
   };
 })();

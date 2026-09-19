@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -839,12 +839,21 @@
                   </div>
                 </div>
                 <div class="candle-hud" id="candleHud">
-                  <span>O: <span class="candle-hud-val" id="hudOpen">-</span></span>
-                  <span>H: <span class="candle-hud-val" id="hudHigh">-</span></span>
-                  <span>L: <span class="candle-hud-val" id="hudLow">-</span></span>
-                  <span>C: <span class="candle-hud-val" id="hudClose">-</span></span>
-                  <span>CHG: <span class="candle-hud-val" id="hudChg">-</span></span>
-                  <span>VOL: <span class="candle-hud-val" id="hudVol">-</span></span>
+                  <div id="chartHoverHud" style="display:flex; flex-wrap:wrap; gap:10px; width:100%; align-items:center; font-family:var(--font-mono, monospace); font-size:0.72rem;">
+                    <span id="hudDate" style="color:var(--accent-cyan, #22d3ee); font-weight:700;">-</span>
+                    <span>O: <span class="candle-hud-val" id="hudOpen">-</span></span>
+                    <span>H: <span class="candle-hud-val" id="hudHigh">-</span></span>
+                    <span>L: <span class="candle-hud-val" id="hudLow">-</span></span>
+                    <span>C: <span class="candle-hud-val" id="hudClose">-</span></span>
+                    <span>CHG: <span class="candle-hud-val" id="hudChg">-</span></span>
+                    <span>VOL: <span class="candle-hud-val" id="hudVol">-</span></span>
+                    <span style="color:#64748b;">|</span>
+                    <span style="color:#f59e0b;">SMA(20): <span class="candle-hud-val" id="hudSma">-</span></span>
+                    <span style="color:#38bdf8;">EMA(50): <span class="candle-hud-val" id="hudEma">-</span></span>
+                    <span style="color:#a855f7;">VWAP: <span class="candle-hud-val" id="hudVwap">-</span></span>
+                    <span style="color:#ec4899;">BB(20,2): <span class="candle-hud-val" id="hudBb">-</span></span>
+                    <span style="color:#10b981;">RSI(14): <span class="candle-hud-val" id="hudRsi">-</span></span>
+                  </div>
                 </div>
                 <div class="candle-canvas-wrap" id="candleCanvasWrap">
                   <canvas id="candlestickCanvas"></canvas>

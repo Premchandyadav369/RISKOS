@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    RISKOS INSTITUTIONAL THEME ENGINE (themeEngine.css)
    Supports:
      - Cyber Dark (Default)
@@ -125,3 +125,37 @@
   border-color: #22d3ee;
   box-shadow: 0 8px 24px rgba(34, 211, 238, 0.25);
 }
+
+/* ── 4. OPENTERMINAL HARDWARE-ACCELERATED TICK PRICE FLASH ── */
+@keyframes tickFlashUp {
+  0% {
+    background-color: rgba(16, 185, 129, 0.42) !important;
+    color: #10b981 !important;
+    text-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+  100% {
+    background-color: transparent;
+    text-shadow: none;
+  }
+}
+
+@keyframes tickFlashDown {
+  0% {
+    background-color: rgba(244, 63, 94, 0.42) !important;
+    color: #f43f5e !important;
+    text-shadow: 0 0 8px rgba(244, 63, 94, 0.6);
+  }
+  100% {
+    background-color: transparent;
+    text-shadow: none;
+  }
+}
+
+.tick-flash-up {
+  animation: tickFlashUp 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.tick-flash-down {
+  animation: tickFlashDown 0.45s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+

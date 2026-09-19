@@ -1796,6 +1796,198 @@
     }
   };
 
+  /* ══════════════════════════════════════════════════════════════════════════
+     OPENTERMINAL SOVEREIGN YIELD CURVE & ECONOMIC CALENDAR DESK
+     ══════════════════════════════════════════════════════════════════════════ */
+  let activeYieldCountry = 'US';
+  const initSovereignYieldDesk = () => {
+    const chartCanvas = document.getElementById('obsYieldCurveChart');
+    const tableBody = document.getElementById('obsCalendarTableBody');
+    if (!chartCanvas && !tableBody) return;
+
+    // 1. Render Economic Calendar
+    if (tableBody && typeof SecurityMaster !== 'undefined' && SecurityMaster.getEconomicCalendar) {
+      const events = SecurityMaster.getEconomicCalendar();
+      tableBody.innerHTML = events.map(ev => {
+        const flag = ev.country === 'US' ? '🇺🇸' : ev.country === 'IN' ? '🇮🇳' : '🇪🇺';
+        const surpriseColor = ev.surprise.includes('Cut') || ev.surprise.includes('-') ? '#22d3ee' : '#51CF66';
+        return `
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+            <td style="padding:8px 8px; font-weight:600; color:#fff;">
+              <span style="margin-right:4px;">${flag}</span>${ev.event}
+            </td>
+            <td style="padding:8px 8px; color:var(--text-muted); font-size:0.72rem;">${ev.time}</td>
+            <td style="padding:8px 8px; font-weight:700; color:#fff;">${ev.actual}</td>
+            <td style="padding:8px 8px; color:var(--text-muted);">${ev.forecast}</td>
+            <td style="padding:8px 8px; color:var(--text-muted);">${ev.prior}</td>
+            <td style="padding:8px 8px; font-weight:600; color:${surpriseColor};">${ev.surprise}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 2. Render Yield Curve on Canvas
+    const renderYieldCurve = (country = 'US') => {
+      activeYieldCountry = country;
+      if (!chartCanvas || typeof SecurityMaster === 'undefined' || !SecurityMaster.getSovereignYieldCurve) return;
+      const data = SecurityMaster.getSovereignYieldCurve(country);
+      if (!data) return;
+
+      const titleEl = document.getElementById('yieldCurveTitle');
+      const subtitleEl = document.getElementById('yieldCurveSubtitle');
+      const spreadBadge = document.getElementById('yieldSpreadBadge');
+      const statusEl = document.getElementById('yieldInversionStatus');
+      const updatedEl = document.getElementById('yieldCurveUpdated');
+
+      if (titleEl) titleEl.textContent = `${data.benchmark}`;
+      if (subtitleEl) subtitleEl.textContent = `Currency: ${data.currency} • Svensson Tau1: ${data.svenssonParameters.tau1}y, Tau2: ${data.svenssonParameters.tau2}y`;
+      if (spreadBadge) {
+        spreadBadge.textContent = `2Y-10Y Spread: ${data.spread2_10_bps >= 0 ? '+' : ''}${data.spread2_10_bps} bps`;
+        spreadBadge.style.color = data.isInverted ? '#FF6B6B' : '#22d3ee';
+        spreadBadge.style.background = data.isInverted ? 'rgba(255,107,107,0.15)' : 'rgba(34,211,238,0.15)';
+      }
+      if (statusEl) {
+        statusEl.textContent = data.curveStatus;
+        statusEl.style.color = data.isInverted ? '#FF6B6B' : '#51CF66';
+      }
+      if (updatedEl) updatedEl.textContent = `Updated ${new Date(data.updatedAt).toLocaleTimeString()}`;
+
+      // Canvas Drawing
+      const ctx = chartCanvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      const rect = chartCanvas.getBoundingClientRect();
+      const width = (rect.width || 400);
+      const height = (rect.height || 260);
+      chartCanvas.width = width * dpr;
+      chartCanvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+
+      ctx.clearRect(0, 0, width, height);
+
+      const padding = { top: 30, right: 30, bottom: 40, left: 45 };
+      const plotW = width - padding.left - padding.right;
+      const plotH = height - padding.top - padding.bottom;
+
+      const yields = data.yields;
+      const tenors = data.tenors;
+      const minY = Math.floor(Math.min(...yields) * 0.95);
+      const maxY = Math.ceil(Math.max(...yields) * 1.05);
+
+      // Grid Lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+      ctx.lineWidth = 1;
+      const yTicks = 5;
+      for (let i = 0; i <= yTicks; i++) {
+        const yVal = minY + (maxY - minY) * (i / yTicks);
+        const y = padding.top + plotH - (i / yTicks) * plotH;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.font = '10px Inter, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(`${yVal.toFixed(1)}%`, padding.left - 6, y + 3);
+      }
+
+      // Curve Points
+      const points = yields.map((yVal, idx) => {
+        const x = padding.left + (idx / (tenors.length - 1)) * plotW;
+        const y = padding.top + plotH - ((yVal - minY) / (maxY - minY)) * plotH;
+        return { x, y, val: yVal, tenor: tenors[idx] };
+      });
+
+      // Gradient Fill Under Curve
+      const grad = ctx.createLinearGradient(0, padding.top, 0, height - padding.bottom);
+      if (data.isInverted) {
+        grad.addColorStop(0, 'rgba(255, 107, 107, 0.25)');
+        grad.addColorStop(1, 'rgba(255, 107, 107, 0.0)');
+      } else {
+        grad.addColorStop(0, 'rgba(34, 211, 238, 0.25)');
+        grad.addColorStop(1, 'rgba(34, 211, 238, 0.0)');
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const xc = (points[i].x + points[i - 1].x) / 2;
+        const yc = (points[i].y + points[i - 1].y) / 2;
+        ctx.quadraticCurveTo(points[i - 1].x, points[i - 1].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.lineTo(points[points.length - 1].x, padding.top + plotH);
+      ctx.lineTo(points[0].x, padding.top + plotH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Stroke Line
+      ctx.beginPath();
+      ctx.strokeStyle = data.isInverted ? '#FF6B6B' : '#22d3ee';
+      ctx.lineWidth = 2.5;
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        const xc = (points[i].x + points[i - 1].x) / 2;
+        const yc = (points[i].y + points[i - 1].y) / 2;
+        ctx.quadraticCurveTo(points[i - 1].x, points[i - 1].y, xc, yc);
+      }
+      ctx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
+      ctx.stroke();
+
+      // Draw Points & Labels
+      points.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#0a0d14';
+        ctx.fill();
+        ctx.strokeStyle = data.isInverted ? '#FF6B6B' : '#22d3ee';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // X-axis Tenor Label
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.font = '10px Inter, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.tenor, p.x, height - padding.bottom + 16);
+
+        // Point Yield Value
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px Inter, monospace';
+        ctx.fillText(`${p.val.toFixed(2)}%`, p.x, p.y - 8);
+      });
+    };
+
+    renderYieldCurve('US');
+
+    // Button toggle listeners
+    const btnUs = document.getElementById('btnYieldUs');
+    const btnIn = document.getElementById('btnYieldIn');
+    if (btnUs) {
+      btnUs.addEventListener('click', () => {
+        btnUs.classList.add('active');
+        if (btnIn) btnIn.classList.remove('active');
+        renderYieldCurve('US');
+      });
+    }
+    if (btnIn) {
+      btnIn.addEventListener('click', () => {
+        btnIn.classList.add('active');
+        if (btnUs) btnUs.classList.remove('active');
+        renderYieldCurve('IN');
+      });
+    }
+
+    // Resize listener
+    window.addEventListener('resize', () => {
+      renderYieldCurve(activeYieldCountry);
+    });
+  };
+
+  if (typeof window !== 'undefined') {
+    window.initSovereignYieldDesk = initSovereignYieldDesk;
+  }
+
   // Run on DOM Ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
@@ -1804,6 +1996,7 @@
       initCentralBankPolicy();
       initTaylorRuleForecaster();
       initOpenBBMacroHub();
+      initSovereignYieldDesk();
       setupLiveTickSubscribers();
       setTimeout(triggerMathRendering, 250);
     });
@@ -1813,6 +2006,7 @@
     initCentralBankPolicy();
     initTaylorRuleForecaster();
     initOpenBBMacroHub();
+    initSovereignYieldDesk();
     setupLiveTickSubscribers();
     setTimeout(triggerMathRendering, 250);
   }
