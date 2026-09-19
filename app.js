@@ -346,6 +346,40 @@ function initVol3DSurface() {
     const modelSelect = document.getElementById('vol3dModelSelect');
     if (!canvas) return;
 
+    if (window.VolatilitySurface3D && typeof window.VolatilitySurface3D.init === 'function') {
+        window.VolatilitySurface3D.init(canvas);
+
+        const updateMetricsUI = (metrics) => {
+            if (!metrics) return;
+            const slopeEl = document.getElementById('vol3dAtmSlopeVal');
+            const skewEl = document.getElementById('vol3dPutSkewVal');
+            const vovEl = document.getElementById('vol3dVolOfVolVal');
+            const arbEl = document.getElementById('vol3dArbStatusVal');
+
+            if (slopeEl) slopeEl.textContent = metrics.atmSlopeText || (metrics.atmSlope >= 0 ? `+${metrics.atmSlope.toFixed(1)}% / yr (Contango)` : `${metrics.atmSlope.toFixed(1)}% / yr (Backwardation)`);
+            if (skewEl) skewEl.textContent = `+${metrics.putSkew.toFixed(1)}% Vol Spread`;
+            if (vovEl) vovEl.textContent = `ν = ${metrics.volOfVol.toFixed(2)}`;
+            if (arbEl) {
+                arbEl.textContent = metrics.arbStatusText || (metrics.isArbitrageFree ? 'NO BUTTERFLY ARB' : 'CALENDAR ARB DETECTED');
+                arbEl.style.color = metrics.isArbitrageFree ? '#51CF66' : '#f43f5e';
+            }
+        };
+
+        window.VolatilitySurface3D.onMetricsUpdate = updateMetricsUI;
+        if (modelSelect && modelSelect.value) {
+            window.VolatilitySurface3D.setModel(modelSelect.value);
+        }
+        updateMetricsUI(window.VolatilitySurface3D.getMetrics());
+
+        if (modelSelect) {
+            modelSelect.addEventListener('change', () => {
+                window.VolatilitySurface3D.setModel(modelSelect.value);
+                updateMetricsUI(window.VolatilitySurface3D.getMetrics());
+            });
+        }
+        return;
+    }
+
     const ctx = canvas.getContext('2d');
     let rotX = 0.55;
     let rotY = -0.65;
@@ -371,16 +405,12 @@ function initVol3DSurface() {
         const scale = Math.min(w, h) * 0.7;
 
         function project(x, y, z) {
-            // Isometric perspective rotation
             const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
             const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-
             const x1 = x * cosY + z * sinY;
             const z1 = -x * sinY + z * cosY;
-
             const y2 = y * cosX - z1 * sinX;
             const z2 = y * sinX + z1 * cosX;
-
             const fov = 400 / (400 + z2);
             return {
                 px: cx + x1 * scale * fov * 0.005,
@@ -389,7 +419,6 @@ function initVol3DSurface() {
             };
         }
 
-        // Draw 3D Grid Polygons with Volatility Gradient
         for (let i = 0; i < tenors.length - 1; i++) {
             for (let j = 0; j < strikes.length - 1; j++) {
                 const k1 = strikes[j] - 100;
@@ -397,7 +426,6 @@ function initVol3DSurface() {
                 const t1 = (tenors[i] - 0.5) * 100;
                 const t2 = (tenors[i + 1] - 0.5) * 100;
 
-                // Parabolic SVI / SABR vol height calculation
                 const v11 = (20 + (k1 * k1) * 0.012 - (k1 * 0.08) + tenors[i] * 6.0) * 1.5;
                 const v12 = (20 + (k2 * k2) * 0.012 - (k2 * 0.08) + tenors[i] * 6.0) * 1.5;
                 const v21 = (20 + (k1 * k1) * 0.012 - (k1 * 0.08) + tenors[i + 1] * 6.0) * 1.5;
@@ -418,17 +446,14 @@ function initVol3DSurface() {
                 ctx.lineTo(p4.px, p4.py);
                 ctx.closePath();
 
-                // Gradient Shading (Purple to Cyan to Amber)
                 ctx.fillStyle = `rgba(${Math.floor(139 + normVol * 115)}, ${Math.floor(92 + normVol * 119)}, 246, ${0.25 + normVol * 0.5})`;
                 ctx.fill();
-
                 ctx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
                 ctx.lineWidth = 1;
                 ctx.stroke();
             }
         }
 
-        // Draw Axis Legends
         ctx.fillStyle = '#71717a';
         ctx.font = '10px Inter, monospace';
         const kLabel = project(50, 0, 0);
