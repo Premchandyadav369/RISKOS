@@ -37,13 +37,13 @@
     if (!categoryKey || categoryKey === 'all') return allMods;
     
     if (categoryKey === 'institutional') {
-      return allMods.filter(m => m.categoryKey === 'institutional' || ['gex_0dte_pinning', 'hawkes_liquidity_cascades', 'lbo_debt_waterfall', 'merton_structural_default', 'solvency_ii_evt_cat', 'redington_alm_immunization', 'clo_tranche_waterfall', 'oas_binomial_tree', 'barra_multi_factor_risk'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'institutional' || ['gex_0dte_pinning', 'hawkes_liquidity_cascades', 'lbo_debt_waterfall', 'merton_structural_default', 'solvency_ii_evt_cat', 'redington_alm_immunization', 'clo_tranche_waterfall', 'oas_binomial_tree', 'barra_multi_factor_risk', 'deep_hedging_neural_sde', 'nelson_siegel_svensson', 'propagator_market_impact'].includes(m.id));
     }
     if (categoryKey === 'ai_predictive') {
-      return allMods.filter(m => m.categoryKey === 'ai_predictive' || ['merton_jump_diffusion', 'black_litterman', 'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process', 'openbb_odp', 'perspective_streaming_grid', 'rough_volatility', 'malliavin_calculus', 'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'ai_predictive' || ['merton_jump_diffusion', 'black_litterman', 'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process', 'openbb_odp', 'perspective_streaming_grid', 'rough_volatility', 'malliavin_calculus', 'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching', 'deep_hedging_neural_sde'].includes(m.id));
     }
     if (categoryKey === 'quant_interview') {
-      return allMods.filter(m => m.categoryKey === 'quant_interview' || ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'quant_interview' || ['ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'risk_constrained_kelly', 'hayashi_yoshida_lead_lag', 'propagator_market_impact'].includes(m.id));
     }
     if (categoryKey === 'growth') {
       return allMods.filter(m => ['growth', 'portfolio_mgmt'].includes(m.categoryKey) || ['cagr', 'compounding', 'sip_dca', 'lumpsum_vs_sip', 'compound_interest'].includes(m.id));
@@ -55,13 +55,13 @@
       return allMods.filter(m => m.categoryKey === 'risk' || ['volatility', 'beta_corr', 'sharpe', 'mdd', 'drawdown_recovery', 'copulas_evt', 'merton_jump_diffusion', 'tsmom_volatility_targeting', 'garch_jump_diffusion', 'barra_multi_factor_risk', 'evt_pot_tail_risk', 'hmm_regime_switching'].includes(m.id));
     }
     if (categoryKey === 'portfolio') {
-      return allMods.filter(m => ['portfolio', 'portfolio_mgmt'].includes(m.categoryKey) || ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs', 'backtrader_cerebro', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'cross_asset_stat_arb', 'barra_multi_factor_risk', 'hmm_regime_switching'].includes(m.id));
+      return allMods.filter(m => ['portfolio', 'portfolio_mgmt', 'quant_trading'].includes(m.categoryKey) || ['diversification', 'port_variance', 'capm', 'port_allocator', 'risk_return_scatter', 'quant_backtest', 'black_litterman', 'kalman_pairs', 'backtrader_cerebro', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'cross_asset_stat_arb', 'barra_multi_factor_risk', 'hmm_regime_switching', 'risk_constrained_kelly'].includes(m.id));
     }
     if (categoryKey === 'simulators') {
-      return allMods.filter(m => ['simulators', 'quant_trading'].includes(m.categoryKey) || ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'egyptian_pantheon_hft', 'garch_jump_diffusion', 'cross_asset_stat_arb', 'optimal_vwap_execution', 'reinforcement_learning_mm', 'evt_pot_tail_risk'].includes(m.id));
+      return allMods.filter(m => ['simulators', 'quant_trading'].includes(m.categoryKey) || ['sip_dca', 'lumpsum_vs_sip', 'compound_interest', 'port_allocator', 'risk_return_scatter', 'drawdown_recovery', 'scenario_stress', 'options_payoff', 'quant_backtest', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'sector_relative_strength', 'egyptian_pantheon_hft', 'garch_jump_diffusion', 'cross_asset_stat_arb', 'optimal_vwap_execution', 'reinforcement_learning_mm', 'evt_pot_tail_risk', 'hayashi_yoshida_lead_lag', 'propagator_market_impact'].includes(m.id));
     }
     if (categoryKey === 'mathematics') {
-      return allMods.filter(m => m.categoryKey === 'mathematics' || ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid'].includes(m.id));
+      return allMods.filter(m => m.categoryKey === 'mathematics' || ['cagr', 'compounding', 'volatility', 'beta_corr', 'sharpe', 'port_variance', 'capm', 'options_payoff', 'ito_calculus', 'feynman_kac', 'heston_fft', 'vasicek_cir', 'avellaneda_stoikov', 'copulas_evt', 'merton_jump_diffusion', 'almgren_chriss', 'kalman_pairs', 'black_litterman', 'perpetual_american', 'bachelier_model', 'prediction_markets_lmsr', 'futures_basis_carry', 'backtrader_cerebro', 'openbb_odp', 'perspective_streaming_grid', 'deep_hedging_neural_sde', 'nelson_siegel_svensson'].includes(m.id));
     }
     
     return allMods.filter(m => m.categoryKey === categoryKey || (m.category && m.category.toLowerCase() === categoryKey.toLowerCase()));
@@ -388,6 +388,7 @@
     if (simResText) simResText.textContent = res.plainResult || '';
 
     renderChart(res);
+    renderSensitivityMatrix(mod, res);
 
     // 3. Step 3: Mathematical Proof & Substituted Calculation
     const eqDiv = document.getElementById('proveMathEquation');
@@ -744,6 +745,91 @@
         }
       }
     });
+  };
+
+  // ── Render Dynamic Sensitivity & Stress Testing Matrix ─────────────────────
+  const renderSensitivityMatrix = (mod, res) => {
+    const container = document.getElementById('labSensitivityMatrix');
+    const paramNameEl = document.getElementById('sensitivityParamName');
+    if (!container || !mod) return;
+
+    const ctrl = (mod.controls && mod.controls.length > 0) ? mod.controls[0] : null;
+    if (!ctrl || ctrl.type === 'select') {
+      container.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;padding:8px;">Continuous parameter stress testing not applicable for this discrete model.</div>';
+      if (paramNameEl) paramNameEl.textContent = 'Discrete Model Controls';
+      return;
+    }
+
+    const currentVal = labState.simInputs[ctrl.key] !== undefined ? parseFloat(labState.simInputs[ctrl.key]) : parseFloat(ctrl.default || 0);
+    if (isNaN(currentVal)) {
+      container.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Parameter evaluation unavailable.</div>';
+      return;
+    }
+
+    if (paramNameEl) {
+      paramNameEl.textContent = `Target: ${ctrl.label || ctrl.key} (Current: ${currentVal})`;
+    }
+
+    const shifts = [
+      { pct: -0.50, label: '-50%' },
+      { pct: -0.25, label: '-25%' },
+      { pct: -0.10, label: '-10%' },
+      { pct: 0.00,  label: 'BASE', isBase: true },
+      { pct: 0.10,  label: '+10%' },
+      { pct: 0.25,  label: '+25%' },
+      { pct: 0.50,  label: '+50%' }
+    ];
+
+    const cardsHtml = shifts.map(s => {
+      let perturbed = currentVal * (1 + s.pct);
+      if (ctrl.min !== undefined && perturbed < ctrl.min) perturbed = ctrl.min;
+      if (ctrl.max !== undefined && perturbed > ctrl.max) perturbed = ctrl.max;
+
+      if (ctrl.step && ctrl.step >= 1) {
+        perturbed = Math.round(perturbed);
+      } else {
+        perturbed = Number(perturbed.toFixed(2));
+      }
+
+      let outcomeMetric = '-';
+      try {
+        const testInputs = Object.assign({}, labState.simInputs, { [ctrl.key]: perturbed });
+        const testRes = mod.calc(testInputs, labState.currency);
+        if (testRes) {
+          if (testRes.focalValue !== undefined) outcomeMetric = testRes.focalValue;
+          else if (testRes.cagr !== undefined) outcomeMetric = `${testRes.cagr >= 0 ? '+' : ''}${testRes.cagr}%`;
+          else if (testRes.finalAmount !== undefined) outcomeMetric = LearnMathEngine.formatMoney(testRes.finalAmount, labState.currency, true);
+          else if (testRes.pe !== undefined) outcomeMetric = `${testRes.pe}×`;
+          else if (testRes.beta !== undefined) outcomeMetric = `${testRes.beta}`;
+          else if (testRes.sharpe !== undefined) outcomeMetric = `${testRes.sharpe}`;
+          else if (testRes.mdd !== undefined) outcomeMetric = `-${testRes.mdd}%`;
+          else if (testRes.plainResult) outcomeMetric = testRes.plainResult.split('.')[0];
+        }
+      } catch (err) {
+        outcomeMetric = 'Err';
+      }
+
+      const isBase = s.isBase;
+      const borderCol = isBase ? 'rgba(34, 211, 238, 0.6)' : 'rgba(148, 163, 184, 0.15)';
+      const bgCol = isBase ? 'rgba(34, 211, 238, 0.12)' : 'rgba(15, 23, 42, 0.45)';
+      const badgeCol = isBase ? '#22d3ee' : (s.pct > 0 ? '#10b981' : '#f59e0b');
+
+      return `
+        <div class="sensitivity-card" style="border:1px solid ${borderCol}; background:${bgCol}; border-radius:6px; padding:8px 10px; text-align:center;">
+          <div style="font-size:0.65rem; font-weight:700; color:${badgeCol}; margin-bottom:2px; font-family:var(--font-mono, monospace);">
+            ${s.label}
+          </div>
+          <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono, monospace); margin-bottom:4px;">
+            ${perturbed}
+          </div>
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-bright, #fff); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${outcomeMetric}">
+            ${outcomeMetric}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.innerHTML = cardsHtml;
   };
 
   // ── Render Saved Scenarios Shelf ──────────────────────────────────────────
@@ -1536,6 +1622,8 @@
           evaluateActiveModule();
         }
       });
+    }
+
     // 11. Render static ambient math tags across the entire laboratory
     if (typeof renderMathInElement === 'function') {
       try {

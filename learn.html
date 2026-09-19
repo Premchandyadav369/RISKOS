@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -170,10 +170,10 @@
     <!-- ═══════════════════════ 3. HORIZONTAL CATEGORY NAVIGATION & TOP MODULES ═══════════════════════ -->
     <nav class="lab-nav-pill-bar" aria-label="Category Filters">
       <div class="lab-nav-pill-track" id="labCatTrack">
-        <button class="lab-cat-pill active" data-category="all">ALL (75)</button>
-        <button class="lab-cat-pill" data-category="institutional"><i class="fa-solid fa-building-columns text-cyan" style="margin-right:4px;"></i> INSTITUTIONAL &amp; IB (9)</button>
-        <button class="lab-cat-pill" data-category="ai_predictive"><i class="fa-solid fa-wand-magic-sparkles text-cyan" style="margin-right:4px;"></i> AI &amp; PREDICTIVE ALPHA</button>
-        <button class="lab-cat-pill" data-category="quant_interview"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> QUANT INTERVIEWS (34)</button>
+        <button class="lab-cat-pill active" data-category="all">ALL (80)</button>
+        <button class="lab-cat-pill" data-category="institutional"><i class="fa-solid fa-building-columns text-cyan" style="margin-right:4px;"></i> INSTITUTIONAL &amp; IB (10)</button>
+        <button class="lab-cat-pill" data-category="ai_predictive"><i class="fa-solid fa-wand-magic-sparkles text-cyan" style="margin-right:4px;"></i> AI &amp; PREDICTIVE ALPHA (15)</button>
+        <button class="lab-cat-pill" data-category="quant_interview"><i class="fa-solid fa-graduation-cap" style="margin-right:4px;"></i> QUANT INTERVIEWS (35)</button>
         <button class="lab-cat-pill" data-category="growth">RETURNS</button>
         <button class="lab-cat-pill" data-category="valuation">VALUATION</button>
         <button class="lab-cat-pill" data-category="risk">RISK</button>
@@ -321,6 +321,20 @@
         <div class="sim-result-box">
           <i class="fa-solid fa-circle-check sim-result-icon"></i>
           <div class="sim-result-text" id="simResultText"></div>
+        </div>
+
+        <!-- Dynamic Sensitivity & Stress Testing Perturbation Matrix -->
+        <div class="lab-sensitivity-panel" id="labSensitivityPanel" style="margin-top: 14px; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(148, 163, 184, 0.15); border-radius: 8px; padding: 12px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px; flex-wrap:wrap; gap:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-gauge-high text-cyan"></i>
+              <span style="font-size:0.75rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-bright, #fff);">DYNAMIC PARAMETER SENSITIVITY &amp; STRESS MATRIX</span>
+            </div>
+            <span id="sensitivityParamName" style="font-size:0.72rem; color:var(--accent-cyan, #22d3ee); font-family:var(--font-mono, monospace); font-weight:600;"></span>
+          </div>
+          <div class="sensitivity-matrix-grid" id="labSensitivityMatrix" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap:8px;">
+            <!-- Rendered reactively in learn.js -->
+          </div>
         </div>
       </section>
 

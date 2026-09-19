@@ -994,7 +994,10 @@ Every laboratory in RISKOS is a deterministic, closed-form computational module 
 - **Module ID**: `hmm_regime_switching` | **Discipline**: 🤖 AI, Machine Learning & Alternative Alpha
 - **Focus**: Advanced Quantitative Model
 - **Mathematical Formulation**:
-  $$\text{Metric} = f(\mathbf{X})$$
+
+$$
+P(S_t = j \mid S_{t-1} = i) = A_{ij}, \quad \alpha_t(j) = P(Y_{1:t}, S_t = j)
+$$
 
 - **Analytical Engine & Interactive Features**:
   - Reactive sliders for parameter sensitivity and stress bounds.
@@ -1002,4 +1005,85 @@ Every laboratory in RISKOS is a deterministic, closed-form computational module 
   - 1-Click export to scenario ledger and interactive Chart.js visualization.
 
 ---
+
+### Lab 76: Deep Hedging & Neural SDE Friction Minimization
+- **Module ID**: `deep_hedging_neural_sde` | **Discipline**: 🔬 Institutional Front-Office & IB
+- **Focus**: Buehler-Gonon-Teichmann Deep Neural Recurrent Hedging under Transaction Frictions
+- **Mathematical Formulation**:
+
+$$
+\min_{\theta \in \mathcal{H}} \rho\left(-Z + (H_T \cdot S)_T - \sum_{t=0}^{T-1} c |\Delta \theta_t| S_t\right), \quad \rho(X) = \frac{1}{\lambda} \ln \mathbb{E}\left[e^{-\lambda X}\right]
+$$
+
+- **Analytical Engine & Interactive Features**:
+  - Solves the Davis-Norman-Shreve non-linear singular control boundary via recurrent neural policy gradients.
+  - Interactive comparison of naive Black-Scholes over-hedging versus friction-optimal neural no-transaction bands.
+  - Real-time sensitivity and stress perturbation matrix analyzing shifts from $-50\%$ to $+50\%$.
+
+---
+
+### Lab 77: Risk-Constrained Kelly Criterion & Drawdown Bounding
+- **Module ID**: `risk_constrained_kelly` | **Discipline**: 📈 Quantitative Trading & Asset Allocation
+- **Focus**: Bielecki-Pliska & Busseti-Boyd Drawdown-Capped Capital Growth Optimization
+- **Mathematical Formulation**:
+
+$$
+f^* = \text{argmax}_{f} \left\{ \mu f - \frac{1}{2} \sigma^2 f^2 \right\} \quad \text{subject to} \quad \mathbb{P}(\text{MaxDD} \ge D_{\max}) \le \alpha
+$$
+
+- **Analytical Engine & Interactive Features**:
+  - Solves HJB stochastic control with state-dependent penalty on running high-water mark drawdown process $D_t = 1 - W_t / M_t$.
+  - Bounds unconstrained full Kelly leverage to prevent catastrophic tail ruin while preserving 80%+ asymptotic growth rate.
+  - Real-time interactive leverage vs growth curve visualizer with institutional confidence intervals.
+
+---
+
+### Lab 78: Hayashi-Yoshida Asynchronous HFT Lead-Lag Cross-Correlation
+- **Module ID**: `hayashi_yoshida_lead_lag` | **Discipline**: ⚡ Quantitative Simulators & Microstructure
+- **Focus**: High-Frequency Asynchronous Tick Cross-Correlation Overcoming the Epps Effect
+- **Mathematical Formulation**:
+
+$$
+\hat{\rho}_{HY}(\tau) = \frac{\sum_{i,j} \Delta X_i \Delta Y_j \mathbb{I}_{\{I_i \cap (J_j + \tau) \neq \emptyset\}}}{\sqrt{\sum_i (\Delta X_i)^2 \sum_j (\Delta Y_j)^2}}
+$$
+
+- **Analytical Engine & Interactive Features**:
+  - Overcomes the Epps effect where standard Pearson correlation collapses to zero at sub-second tick intervals.
+  - Scans continuous latency offsets $\tau \in [-100\text{ms}, +100\text{ms}]$ to identify latent lead-lag cross-asset alpha.
+  - Interactive cross-correlation trajectory displaying the exact lead time and latency arbitrage edge.
+
+---
+
+### Lab 79: Nelson-Siegel-Svensson (NSS) 6-Factor Sovereign Term Structure
+- **Module ID**: `nelson_siegel_svensson` | **Discipline**: 🏛️ Institutional Front-Office & IB
+- **Focus**: Sovereign Yield Curve Calibration & Macroeconomic Interest Rate Expectations
+- **Mathematical Formulation**:
+
+$$
+y(t) = \beta_0 + \beta_1 \left(\frac{1 - e^{-t/\tau_1}}{t/\tau_1}\right) + \beta_2 \left(\frac{1 - e^{-t/\tau_1}}{t/\tau_1} - e^{-t/\tau_1}\right) + \beta_3 \left(\frac{1 - e^{-t/\tau_2}}{t/\tau_2} - e^{-t/\tau_2}\right)
+$$
+
+- **Analytical Engine & Interactive Features**:
+  - Central bank standard term structure engine used by the US Federal Reserve, ECB, and RBI.
+  - Decomposes sovereign yield curves into Long-term Level ($\beta_0$), Short-term Slope ($\beta_1$), and dual Hump Curvatures ($\beta_2, \beta_3$).
+  - Evaluates benchmark 10Y yields, 2Y-10Y spreads, and detects yield curve inversions signaling recession risk.
+
+---
+
+### Lab 80: Bouchaud Transient Propagator Non-Markovian Market Impact
+- **Module ID**: `propagator_market_impact` | **Discipline**: 🏛️ Institutional Front-Office & IB
+- **Focus**: Power-Law Propagator Kernel & Algorithmic Implementation Shortfall
+- **Mathematical Formulation**:
+
+$$
+I(t) = \sum_{t' < t} G(t - t') \epsilon_{t'} f(V_{t'}), \quad G(\tau) = \frac{\Gamma_0}{(1 + \tau / \tau_0)^\gamma}
+$$
+
+- **Analytical Engine & Interactive Features**:
+  - Solves non-Markovian order flow memory decay and permanent vs transient price impact.
+  - Reconciles the Square-Root Law of market impact with long-memory order flow autocorrelation to prevent arbitrage.
+  - Interactive visualizer modeling parent order execution footprint and post-trade relaxation dynamics.
+
+---
+
 

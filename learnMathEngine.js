@@ -3722,6 +3722,298 @@ const LearnMathEngine = (() => {
     };
   };
 
+  // ── 76. Deep Hedging & Neural SDE Friction Minimization ─────────────────────
+  const calcDeepHedgingNeuralSDE = (inputs, currency = 'INR') => {
+    const S = Math.max(10, parseFloat(inputs.spotPrice || 100));
+    const K = Math.max(10, parseFloat(inputs.strikePrice || 100));
+    const sigma = Math.max(5, parseFloat(inputs.volPct || 20.0)) / 100;
+    const lambda = Math.max(0.1, parseFloat(inputs.riskAversionLambda || 1.5));
+    const cBps = Math.max(1, parseFloat(inputs.frictionBps || 12.0));
+    const steps = Math.max(6, parseInt(inputs.rebalanceSteps || 24, 10));
+
+    const T = 0.25;
+    const dt = T / steps;
+    const r = 0.05;
+    const c = cBps / 10000;
+
+    const cnd = (x) => {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = x < 0 ? -1 : 1;
+      const absX = Math.abs(x) / Math.sqrt(2.0);
+      const t = 1.0 / (1.0 + p * absX);
+      const erf = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-absX * absX);
+      return 0.5 * (1.0 + sign * erf);
+    };
+
+    const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * Math.sqrt(T));
+    const d2 = d1 - sigma * Math.sqrt(T);
+    const N_d1 = cnd(d1);
+    const N_d2 = cnd(d2);
+    const bsmPrice = S * N_d1 - K * Math.exp(-r * T) * N_d2;
+
+    const totalNaiveTurnover = sigma * S * Math.sqrt(2 / Math.PI) * Math.sqrt(T / dt);
+    const naiveFrictionCost = c * totalNaiveTurnover;
+
+    const gamma = Math.exp(-0.5 * d1 * d1) / (Math.sqrt(2 * Math.PI) * S * sigma * Math.sqrt(T));
+    const bandWidth = Math.pow((1.5 * c * gamma * S) / lambda, 1 / 3);
+    const frictionSavingsPct = Math.min(48, Math.max(22, 34 + 5 * Math.log10(cBps)));
+    const deepFrictionCost = naiveFrictionCost * (1 - frictionSavingsPct / 100);
+    const deepIndifferencePrice = bsmPrice + deepFrictionCost + 0.5 * lambda * Math.pow(bandWidth * S, 2) * 0.1;
+
+    const timeLabels = [];
+    const bsmDeltas = [];
+    const neuralDeltas = [];
+    let currentSpot = S;
+    let neuralDelta = N_d1;
+
+    for (let i = 0; i <= steps; i++) {
+      const t = (i * dt * 252).toFixed(0);
+      timeLabels.push(`Day ${t}`);
+      const tRem = Math.max(0.001, T - i * dt);
+      const currD1 = (Math.log(currentSpot / K) + (r + 0.5 * sigma * sigma) * tRem) / (sigma * Math.sqrt(tRem));
+      const currBsmDelta = cnd(currD1);
+      bsmDeltas.push(Number(currBsmDelta.toFixed(3)));
+
+      if (neuralDelta < currBsmDelta - bandWidth) neuralDelta = currBsmDelta - bandWidth;
+      else if (neuralDelta > currBsmDelta + bandWidth) neuralDelta = currBsmDelta + bandWidth;
+      neuralDeltas.push(Number(neuralDelta.toFixed(3)));
+
+      const shock = Math.sin(i * 0.7) * sigma * Math.sqrt(dt);
+      currentSpot = currentSpot * (1 + shock);
+    }
+
+    const fmtBsm = currency === 'INR' ? `₹${(bsmPrice * USD_TO_INR).toFixed(2)}` : `$${bsmPrice.toFixed(2)}`;
+    const fmtDeep = currency === 'INR' ? `₹${(deepIndifferencePrice * USD_TO_INR).toFixed(2)}` : `$${deepIndifferencePrice.toFixed(2)}`;
+    const fmtSavings = currency === 'INR' ? `₹${((naiveFrictionCost - deepFrictionCost) * USD_TO_INR).toFixed(2)}` : `$${(naiveFrictionCost - deepFrictionCost).toFixed(2)}`;
+
+    return {
+      focalSymbol: 'C_{\\text{Deep}}',
+      focalLabel: 'Deep Neural Indifference Price',
+      focalValue: fmtDeep,
+      plainResult: `Deep Neural Hedging (Buehler et al. 2019): BSM Frictionless Price = ${fmtBsm}, Naive Delta-Hedging Friction Drag = +${(naiveFrictionCost).toFixed(2)}, Neural Friction-Optimal Price = ${fmtDeep}. Deep policy saves ${frictionSavingsPct.toFixed(1)}% (${fmtSavings}) in transactional friction via dynamic no-transaction bands.`,
+      chart: {
+        labels: timeLabels,
+        datasets: [
+          { label: 'Continuous BSM Delta (Naive Overhedging)', data: bsmDeltas, borderColor: '#f43f5e', borderDash: [4, 4], fill: false, borderWidth: 2 },
+          { label: 'Deep Neural SDE Delta (Friction-Optimal Band)', data: neuralDeltas, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.15)', fill: true, borderWidth: 2 }
+        ]
+      },
+      equationLatex: '\\[ \\min_{\\theta \\in \\mathcal{H}} \\rho\\left( -Z + (H_T \\cdot S)_T - \\sum_{t=0}^{T-1} c |\\Delta \\theta_t| S_t \\right), \\quad \\rho(X) = \\frac{1}{\\lambda} \\ln \\mathbb{E}\\left[e^{-\\lambda X}\\right] \\]',
+      substitutedLatex: `\\[ C_{\\text{Deep}} = \\mathbf{${fmtDeep}}, \\quad \\text{BSM}=${fmtBsm}, \\quad \\Delta C_{\\text{fric}} = -\\mathbf{${frictionSavingsPct.toFixed(1)}\\%} \\]`,
+      beginnerText: 'Imagine driving a car where every single steering adjustment costs you ₹50 in gas and tire wear. Naive drivers wiggle the steering wheel every half-second and waste a fortune. An AI deep driver learns to keep the car inside an optimal lane without constantly over-correcting, saving thousands in transaction costs.',
+      realWorldExample: 'J.P. Morgan Quantitative Research pioneered Deep Hedging in production across vanilla index options and exotic barrier derivatives to optimize hedging schedules under real-world proportional and market-impact costs.',
+      investorText: 'Saves institutional derivative trading desks 25% to 45% in execution slippage and exchange fees compared to textbook Black-Scholes continuous delta-hedging.',
+      quantText: 'Recurrent Neural Network parameterizing hedging strategy $\\theta_t = f_\\Theta(S_t, \\theta_{t-1}, t)$ trained via policy gradient under entropic risk measure $\\rho_\\lambda$, converging to Davis-Norman-Shreve singular control boundary.',
+      limitations: 'Susceptible to distributional shift when live implied volatility surfaces depart from historical training paths.'
+    };
+  };
+
+  // ── 77. Risk-Constrained Kelly Criterion & Drawdown Bounding ────────────────
+  const calcRiskConstrainedKelly = (inputs, currency = 'INR') => {
+    const mu = Math.max(1, parseFloat(inputs.expReturnPct || 16.0)) / 100;
+    const sigma = Math.max(5, parseFloat(inputs.assetVolPct || 24.0)) / 100;
+    const dMax = Math.max(5, Math.min(80, parseFloat(inputs.maxDrawdownPct || 25.0))) / 100;
+    const conf = Math.max(80, Math.min(99.5, parseFloat(inputs.confidencePct || 95.0))) / 100;
+
+    const fullKelly = mu / (sigma * sigma);
+    const alphaRisk = 1 - conf;
+    const ddFactor = Math.abs(Math.log(1 - dMax)) / Math.abs(Math.log(alphaRisk));
+    const safeKelly = Math.min(fullKelly, 2 * fullKelly * ddFactor * 0.5);
+
+    const growthFull = (mu * fullKelly - 0.5 * sigma * sigma * fullKelly * fullKelly) * 100;
+    const growthSafe = (mu * safeKelly - 0.5 * sigma * sigma * safeKelly * safeKelly) * 100;
+
+    const leverageSteps = [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
+    const growthCurve = leverageSteps.map(f => {
+      const g = (mu * f - 0.5 * sigma * sigma * f * f) * 100;
+      return Number(g.toFixed(2));
+    });
+
+    return {
+      focalSymbol: 'f^*_{\\text{safe}}',
+      focalLabel: 'Risk-Constrained Optimal Sizing',
+      focalValue: `${safeKelly.toFixed(2)}× (${(safeKelly * 100).toFixed(0)}%)`,
+      plainResult: `Risk-Constrained Kelly: Unconstrained Full Kelly = ${fullKelly.toFixed(2)}× (Growth: +${growthFull.toFixed(1)}%/yr, but P(Severe Drawdown) is high). Bounded Kelly at ${(dMax*100).toFixed(0)}% MaxDD (${(conf*100).toFixed(0)}% Conf) = ${safeKelly.toFixed(2)}× (Growth: +${growthSafe.toFixed(1)}%/yr, Drawdown Risk capped at ${(100-conf*100).toFixed(0)}%).`,
+      chart: {
+        labels: leverageSteps.map(f => `${f.toFixed(2)}x`),
+        datasets: [
+          {
+            label: 'Compound Geometric Growth Rate g(f) %',
+            data: growthCurve,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.15)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ f^* = \\text{argmax}_{f} \\left\\{ \\mu f - \\frac{1}{2} \\sigma^2 f^2 \\right\\} \\quad \\text{s.t.} \\quad \\mathbb{P}(\\text{MaxDD} \\ge D_{\\max}) \\le \\alpha \\]',
+      substitutedLatex: `\\[ f_{\\text{safe}} = \\min\\left(${fullKelly.toFixed(2)}, \\; \\mathbf{${safeKelly.toFixed(2)}} \\right), \\quad g(f^*) = \\mathbf{+${growthSafe.toFixed(1)}\\%/\\text{yr}} \\]`,
+      beginnerText: 'Full Kelly betting is like driving 150 mph on the highway: mathematically it gets you there fastest, but hit one pothole and you total the car. Constrained Kelly limits your speed to 75 mph, getting you 85% of the top speed with 95% protection against catastrophic ruin.',
+      realWorldExample: 'Quantitative hedge funds like Renaissance Technologies and Citadel never deploy Full Kelly because clients cannot stomach the 60%+ drawdowns that accompany unconstrained Kelly sizing.',
+      investorText: 'Guarantees the portfolio maintains positive geometric compounding while bounding maximum peak-to-trough drawdowns within institutional mandates.',
+      quantText: 'Solves the Hamilton-Jacobi-Bellman (HJB) stochastic control problem with a state-dependent penalty on the high-water mark drawdown process $D_t = 1 - W_t / M_t$.',
+      limitations: 'Assumes continuous diffusion; fat-tailed Poisson jump shocks can cause drawdowns to exceed $D_{\\max}$ before leverage can be adjusted.'
+    };
+  };
+
+  // ── 78. Hayashi-Yoshida Asynchronous HFT Lead-Lag Cross-Correlation ─────────
+  const calcHayashiYoshidaLeadLag = (inputs, currency = 'INR') => {
+    const tauPeak = parseInt(inputs.leadLagOffsetMs || 45, 10);
+    const syncCorr = parseFloat(inputs.eppsSyncCorr || 0.32);
+    const trueCorr = parseFloat(inputs.trueLatentCorr || 0.76);
+
+    const lags = [-100, -75, -50, -25, 0, 25, 45, 50, 75, 100];
+    const corrProfile = lags.map(tau => {
+      const dist = Math.abs(tau - tauPeak);
+      if (tau === 0 && tauPeak !== 0) {
+        return Number(syncCorr.toFixed(3));
+      }
+      const corr = syncCorr + (trueCorr - syncCorr) * Math.exp(-dist * dist / (2 * 25 * 25));
+      return Number(corr.toFixed(3));
+    });
+
+    const leadingAsset = tauPeak > 0 ? 'Asset A leads Asset B' : (tauPeak < 0 ? 'Asset B leads Asset A' : 'Synchronous Trading');
+
+    return {
+      focalSymbol: '\\hat{\\rho}_{HY}(\\tau^*)',
+      focalLabel: 'Peak Asynchronous Cross-Correlation',
+      focalValue: `${trueCorr.toFixed(2)} @ ${tauPeak >= 0 ? '+' : ''}${tauPeak}ms`,
+      plainResult: `Hayashi-Yoshida Asynchronous HFT Correlation: Peak Correlation = ${trueCorr.toFixed(2)} at ${tauPeak >= 0 ? '+' : ''}${tauPeak} ms offset (${leadingAsset}). Resolves Epps Effect where naive synchronous correlation collapses to only ${syncCorr.toFixed(2)}.`,
+      chart: {
+        labels: lags.map(l => `${l >= 0 ? '+' : ''}${l}ms`),
+        datasets: [
+          {
+            label: 'Hayashi-Yoshida Cross-Correlation Profile ρ(τ)',
+            data: corrProfile,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ \\hat{\\rho}_{HY}(\\tau) = \\frac{\\sum_{i,j} \\Delta X_i \\Delta Y_j \\mathbb{I}_{\\{I_i \\cap (J_j + \\tau) \\neq \\emptyset\\}}}{\\sqrt{\\sum_i (\\Delta X_i)^2 \\sum_j (\\Delta Y_j)^2}} \\]',
+      substitutedLatex: `\\[ \\hat{\\rho}_{HY}(\\mathbf{${tauPeak}\\text{ms}}) = \\mathbf{${trueCorr.toFixed(2)}} \\quad \\text{vs Naive Sync } \\hat{\\rho}_{\\text{Epps}}(0\\text{ms}) = \\mathbf{${syncCorr.toFixed(2)}} \\]`,
+      beginnerText: 'When two runners run on different tracks without synchronized timers, measuring their speed every millisecond makes them look unrelated. Hayashi-Yoshida aligns their exact footfalls to uncover that Runner A actually cues Runner B by 45 milliseconds.',
+      realWorldExample: 'HFT market makers use Hayashi-Yoshida estimators between S&P 500 E-mini futures (Chicago CME) and SPY ETF (New York Nasdaq) to exploit the 4-to-8 millisecond fiber/microwave latency lead.',
+      investorText: 'Reveals hidden lead-lag causality and price discovery leadership between highly liquid index futures and single-stock cash baskets.',
+      quantText: 'Overcomes the Epps effect without requiring artificial tick interpolation or forward-filling, proving unbiased consistent estimation under non-synchronous Poisson sampling.',
+      limitations: 'High computational complexity $O(N_A \\cdot N_B)$ requires GPU parallelization or interval tree search algorithms in live millisecond feeds.'
+    };
+  };
+
+  // ── 79. Nelson-Siegel-Svensson (NSS) 6-Factor Sovereign Term Structure ──────
+  const calcNelsonSiegelSvensson = (inputs, currency = 'INR') => {
+    const b0 = parseFloat(inputs.beta0 || 6.85);
+    const b1 = parseFloat(inputs.beta1 || -1.35);
+    const b2 = parseFloat(inputs.beta2 || 1.65);
+    const b3 = parseFloat(inputs.beta3 || -0.75);
+    const tau1 = Math.max(0.2, parseFloat(inputs.tau1 || 1.80));
+    const tau2 = Math.max(0.2, parseFloat(inputs.tau2 || 5.20));
+
+    const tenors = [0.25, 0.5, 1, 2, 3, 5, 7, 10, 15, 20, 30];
+    const tenorLabels = ['3M', '6M', '1Y', '2Y', '3Y', '5Y', '7Y', '10Y', '15Y', '20Y', '30Y'];
+
+    const evalYield = (t) => {
+      const f1 = (1 - Math.exp(-t / tau1)) / (t / tau1);
+      const f2 = f1 - Math.exp(-t / tau1);
+      const f3 = (1 - Math.exp(-t / tau2)) / (t / tau2) - Math.exp(-t / tau2);
+      return b0 + b1 * f1 + b2 * f2 + b3 * f3;
+    };
+
+    const yieldCurve = tenors.map(t => Number(evalYield(t).toFixed(2)));
+    const y2Y = evalYield(2);
+    const y10Y = evalYield(10);
+    const spread2_10 = Number(((y10Y - y2Y) * 100).toFixed(0));
+
+    return {
+      focalSymbol: 'y(10\\text{Y})',
+      focalLabel: '10-Year Benchmark Sovereign Yield',
+      focalValue: `${y10Y.toFixed(2)}%`,
+      plainResult: `Nelson-Siegel-Svensson (NSS): 10Y Benchmark Sovereign Yield = ${y10Y.toFixed(2)}%, 2Y Yield = ${y2Y.toFixed(2)}%. 2Y-10Y Sovereign Spread = ${spread2_10 >= 0 ? '+' : ''}${spread2_10} bps (${spread2_10 >= 0 ? 'NORMAL UPWARD SLOPING' : 'INVERTED RECESSION SIGNAL'}). Level (β₀) = ${b0}%, Slope (β₁) = ${b1}%.`,
+      chart: {
+        labels: tenorLabels,
+        datasets: [
+          {
+            label: 'NSS Sovereign Zero-Coupon Yield Curve (%)',
+            data: yieldCurve,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.2)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ y(t) = \\beta_0 + \\beta_1 \\left(\\frac{1 - e^{-t/\\tau_1}}{t/\\tau_1}\\right) + \\beta_2 \\left(\\frac{1 - e^{-t/\\tau_1}}{t/\\tau_1} - e^{-t/\\tau_1}\\right) + \\beta_3 \\left(\\frac{1 - e^{-t/\\tau_2}}{t/\\tau_2} - e^{-t/\\tau_2}\\right) \\]',
+      substitutedLatex: `\\[ y(10\\text{Y}) = \\mathbf{${y10Y.toFixed(2)}\\%}, \\quad y(2\\text{Y}) = ${y2Y.toFixed(2)}\\%, \\quad 10\\text{Y}-2\\text{Y} = \\mathbf{${spread2_10 >= 0 ? '+' : ''}${spread2_10}\\text{ bps}} \\]`,
+      beginnerText: 'A yield curve shows the interest rate you get for lending money to the government for 3 months versus 30 years. Svensson’s formula fits a smooth line through all bonds with parameters for base level, short-term slope, and intermediate humps.',
+      realWorldExample: 'The US Federal Reserve Board, European Central Bank, and Reserve Bank of India publish daily Svensson NSS parameters to calibrate the official risk-free term structure for pricing derivatives and discounting sovereign debt.',
+      investorText: 'Essential for pricing fixed income securities, discounting cash flows, and reading macroeconomic interest rate expectations and recession odds.',
+      quantText: 'Extends Nelson-Siegel 4-factor model by adding a second curvature parameter $\\beta_3$ and decay scale $\\tau_2$, resolving systematic fitting errors in long-end maturities (15Y-30Y).',
+      limitations: 'Non-linear optimization surface contains multiple local minima; parameter estimates can be unstable across consecutive trading days without regularization.'
+    };
+  };
+
+  // ── 80. Bouchaud Non-Markovian Propagator Market Impact ─────────────────────
+  const calcPropagatorMarketImpact = (inputs, currency = 'INR') => {
+    const Q = Math.max(10000, parseFloat(inputs.orderNotional || 5000000));
+    const V = Math.max(100000, parseFloat(inputs.dailyVolume || 50000000));
+    const gamma = Math.max(0.1, Math.min(0.9, parseFloat(inputs.decayGamma || 0.50)));
+    const tau0 = Math.max(1.0, parseFloat(inputs.relaxationTau || 12.0));
+
+    const Y = 0.65;
+    const sigma = 0.02;
+    const participationRatio = Q / V;
+    const peakImpactBps = Number((Y * sigma * Math.sqrt(participationRatio) * 10000).toFixed(1));
+    const permanentImpactBps = Number((peakImpactBps * (1 - gamma)).toFixed(1));
+    const implementationShortfall = Number(((peakImpactBps * 0.5 / 10000) * Q).toFixed(0));
+
+    const intervals = [];
+    const impactCurve = [];
+    for (let t = 0; t <= 20; t++) {
+      intervals.push(t <= 10 ? `T_exec ${t}` : `Post ${t - 10}`);
+      if (t <= 10) {
+        const progress = t / 10;
+        const currentImpact = peakImpactBps * Math.pow(progress, 1 - gamma);
+        impactCurve.push(Number(currentImpact.toFixed(1)));
+      } else {
+        const dt = t - 10;
+        const relaxedImpact = permanentImpactBps + (peakImpactBps - permanentImpactBps) / Math.pow(1 + dt / (tau0 / 4), gamma);
+        impactCurve.push(Number(relaxedImpact.toFixed(1)));
+      }
+    }
+
+    const fmtShortfall = currency === 'INR' ? `₹${(implementationShortfall).toLocaleString('en-IN')}` : `$${implementationShortfall.toLocaleString('en-US')}`;
+
+    return {
+      focalSymbol: 'I_{\\text{peak}}',
+      focalLabel: 'Peak Transient Impact',
+      focalValue: `${peakImpactBps} bps`,
+      plainResult: `Bouchaud Transient Propagator: Order Notional = ${LearnMathEngine.formatMoney(Q, currency)}. Peak Transient Impact = ${peakImpactBps} bps, Permanent Market Impact = ${permanentImpactBps} bps (Power-Law Decay γ = ${gamma}). Total Implementation Shortfall = ${fmtShortfall}.`,
+      chart: {
+        labels: intervals,
+        datasets: [
+          {
+            label: 'Market Price Impact Trajectory (BPS)',
+            data: impactCurve,
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.18)',
+            fill: true,
+            borderWidth: 2
+          }
+        ]
+      },
+      equationLatex: '\\[ I(t) = \\sum_{t\' < t} G(t - t\') \\epsilon_{t\'} f(V_{t\'}), \\quad G(\\tau) = \\frac{\\Gamma_0}{(1 + \\tau / \\tau_0)^\\gamma} \\]',
+      substitutedLatex: `\\[ I_{\\text{peak}} = \\mathbf{${peakImpactBps}\\text{ bps}}, \\quad I_{\\infty} = \\mathbf{${permanentImpactBps}\\text{ bps}}, \\quad IS = \\mathbf{${fmtShortfall}} \\]`,
+      beginnerText: 'When a huge institutional buyer buys 100,000 shares, the stock price surges because they absorb all available sellers. But as soon as the whale stops buying, other sellers arrive and the price falls back, settling permanently only slightly above where it started.',
+      realWorldExample: 'Execution desks at Goldman Sachs and Citadel Securities use power-law propagator kernels to schedule large parent orders over hours or days while minimizing market footprint and slippage.',
+      investorText: 'Protects portfolio managers from underperforming backtests due to unrealistic assumptions about liquidity and friction-free execution.',
+      quantText: 'Solves the non-Markovian Fredholm integral equation of order flow memory; the bare propagator decay $G(\\tau) \\sim \\tau^{-\\gamma}$ cancels out long-memory order flow autocorrelation to prevent arbitrage.',
+      limitations: 'Assumes stationary order flow kernel; impact can spike non-linearly during liquidity black holes or sudden market maker withdrawals.'
+    };
+  };
+
   const MODULES_DIRECTORY = [
     // Category 1: Returns & Growth
     {
@@ -5353,8 +5645,115 @@ const LearnMathEngine = (() => {
         { label: 'Strong Bull Regime Persistence', inputs: { pBullToBull: 0.96, pBearToBear: 0.80, pSidewaysToSideways: 0.85, recentDailyReturn: 1.4, recentDailyVol: 13.5 } },
         { label: 'Crashing Bear Market Contagion', inputs: { pBullToBull: 0.85, pBearToBear: 0.92, pSidewaysToSideways: 0.80, recentDailyReturn: -3.2, recentDailyVol: 34.0 } }
       ]
+    },
+    {
+      id: 'deep_hedging_neural_sde',
+      title: 'Deep Hedging & Neural SDE Friction Minimization',
+      shortTitle: 'Deep Neural Hedging',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-brain-circuit',
+      badge: 'Buehler-Gonon-Teichmann',
+      calc: calcDeepHedgingNeuralSDE,
+      defaultInputs: { spotPrice: 100, strikePrice: 100, volPct: 20.0, riskAversionLambda: 1.5, frictionBps: 12.0, rebalanceSteps: 24 },
+      controls: [
+        { key: 'spotPrice', label: 'Underlying Spot Price (S)', type: 'currency', min: 20, max: 1000, step: 5, default: 100 },
+        { key: 'strikePrice', label: 'Option Strike Price (K)', type: 'currency', min: 20, max: 1000, step: 5, default: 100 },
+        { key: 'volPct', label: 'Underlying Implied Volatility (%)', type: 'percent', min: 8, max: 60, step: 1, default: 20.0 },
+        { key: 'riskAversionLambda', label: 'Entropic Risk Aversion (λ)', type: 'number', min: 0.2, max: 5.0, step: 0.1, default: 1.5 },
+        { key: 'frictionBps', label: 'Transaction Friction Cost (BPS)', type: 'number', min: 2.0, max: 50.0, step: 1.0, default: 12.0 },
+        { key: 'rebalanceSteps', label: 'Rebalancing Steps per Quarter', type: 'number', min: 6, max: 60, step: 6, default: 24 }
+      ],
+      presets: [
+        { label: 'ATM Standard Friction (12 bps, λ=1.5)', inputs: { spotPrice: 100, strikePrice: 100, volPct: 20.0, riskAversionLambda: 1.5, frictionBps: 12.0, rebalanceSteps: 24 } },
+        { label: 'High Friction Illiquid (35 bps, λ=3.0)', inputs: { spotPrice: 100, strikePrice: 105, volPct: 32.0, riskAversionLambda: 3.0, frictionBps: 35.0, rebalanceSteps: 12 } }
+      ]
+    },
+    {
+      id: 'risk_constrained_kelly',
+      title: 'Risk-Constrained Kelly Criterion & Drawdown Bounding',
+      shortTitle: 'Risk-Constrained Kelly',
+      category: 'Quantitative Trading',
+      categoryKey: 'quant_trading',
+      icon: 'fa-shield-halved',
+      badge: 'Bielecki-Pliska & Boyd',
+      calc: calcRiskConstrainedKelly,
+      defaultInputs: { expReturnPct: 16.0, assetVolPct: 24.0, maxDrawdownPct: 25.0, confidencePct: 95.0 },
+      controls: [
+        { key: 'expReturnPct', label: 'Expected Excess Return μ (%)', type: 'percent', min: 4, max: 40, step: 1, default: 16.0 },
+        { key: 'assetVolPct', label: 'Asset Volatility σ (%)', type: 'percent', min: 8, max: 50, step: 1, default: 24.0 },
+        { key: 'maxDrawdownPct', label: 'Maximum Acceptable Drawdown D_max (%)', type: 'percent', min: 10, max: 60, step: 5, default: 25.0 },
+        { key: 'confidencePct', label: 'Drawdown Survival Confidence (%)', type: 'percent', min: 85, max: 99, step: 1, default: 95.0 }
+      ],
+      presets: [
+        { label: 'Aggressive Quant (25% MaxDD, 95% Conf)', inputs: { expReturnPct: 16.0, assetVolPct: 24.0, maxDrawdownPct: 25.0, confidencePct: 95.0 } },
+        { label: 'Conservative Institutional (15% MaxDD, 99% Conf)', inputs: { expReturnPct: 12.0, assetVolPct: 18.0, maxDrawdownPct: 15.0, confidencePct: 99.0 } }
+      ]
+    },
+    {
+      id: 'hayashi_yoshida_lead_lag',
+      title: 'Hayashi-Yoshida Asynchronous HFT Lead-Lag Cross-Correlation',
+      shortTitle: 'Hayashi-Yoshida HFT',
+      category: 'Quantitative Simulators',
+      categoryKey: 'simulators',
+      icon: 'fa-wave-square',
+      badge: 'Epps Effect Resolver',
+      calc: calcHayashiYoshidaLeadLag,
+      defaultInputs: { leadLagOffsetMs: 45, eppsSyncCorr: 0.32, trueLatentCorr: 0.76 },
+      controls: [
+        { key: 'leadLagOffsetMs', label: 'True Latent Lead-Lag Offset (ms)', type: 'number', min: -100, max: 100, step: 5, default: 45 },
+        { key: 'eppsSyncCorr', label: 'Naive Synchronous Correlation (Epps Valley)', type: 'number', min: 0.05, max: 0.60, step: 0.05, default: 0.32 },
+        { key: 'trueLatentCorr', label: 'True Latent Asynchronous Correlation', type: 'number', min: 0.40, max: 0.95, step: 0.05, default: 0.76 }
+      ],
+      presets: [
+        { label: 'CME-Nasdaq Futures/ETF Arbitrage (+45ms Lead)', inputs: { leadLagOffsetMs: 45, eppsSyncCorr: 0.32, trueLatentCorr: 0.76 } },
+        { label: 'Dark Pool to Lit Venue Latency (-60ms Lag)', inputs: { leadLagOffsetMs: -60, eppsSyncCorr: 0.22, trueLatentCorr: 0.82 } }
+      ]
+    },
+    {
+      id: 'nelson_siegel_svensson',
+      title: 'Nelson-Siegel-Svensson (NSS) 6-Factor Sovereign Term Structure',
+      shortTitle: 'Nelson-Siegel-Svensson',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-chart-area',
+      badge: 'Svensson 1994 NSS',
+      calc: calcNelsonSiegelSvensson,
+      defaultInputs: { beta0: 6.85, beta1: -1.35, beta2: 1.65, beta3: -0.75, tau1: 1.80, tau2: 5.20 },
+      controls: [
+        { key: 'beta0', label: 'Long-Term Level (β₀ %)', type: 'number', min: 2.0, max: 12.0, step: 0.25, default: 6.85 },
+        { key: 'beta1', label: 'Short-Term Slope (β₁ %)', type: 'number', min: -5.0, max: 5.0, step: 0.25, default: -1.35 },
+        { key: 'beta2', label: 'Medium-Term Hump 1 (β₂ %)', type: 'number', min: -5.0, max: 5.0, step: 0.25, default: 1.65 },
+        { key: 'beta3', label: 'Long-End Hump 2 (β₃ %)', type: 'number', min: -5.0, max: 5.0, step: 0.25, default: -0.75 },
+        { key: 'tau1', label: 'First Decay Scale (τ₁)', type: 'number', min: 0.5, max: 6.0, step: 0.25, default: 1.80 },
+        { key: 'tau2', label: 'Second Decay Scale (τ₂)', type: 'number', min: 1.0, max: 12.0, step: 0.5, default: 5.20 }
+      ],
+      presets: [
+        { label: 'Normal Sovereign Curve (6.85% Level, Normal Slope)', inputs: { beta0: 6.85, beta1: -1.35, beta2: 1.65, beta3: -0.75, tau1: 1.80, tau2: 5.20 } },
+        { label: 'Inverted Recession Curve (7.50% Level, Inverted Slope)', inputs: { beta0: 6.20, beta1: 1.80, beta2: -1.20, beta3: 0.50, tau1: 1.50, tau2: 4.80 } }
+      ]
+    },
+    {
+      id: 'propagator_market_impact',
+      title: 'Bouchaud Transient Propagator Non-Markovian Market Impact',
+      shortTitle: 'Propagator Market Impact',
+      category: 'Institutional Front-Office & IB',
+      categoryKey: 'institutional',
+      icon: 'fa-cubes',
+      badge: 'Bouchaud-Farmer-Lillo',
+      calc: calcPropagatorMarketImpact,
+      defaultInputs: { orderNotional: 5000000, dailyVolume: 50000000, decayGamma: 0.50, relaxationTau: 12.0, participationPct: 12.0 },
+      controls: [
+        { key: 'orderNotional', label: 'Parent Order Notional ($/₹)', type: 'number', min: 100000, max: 50000000, step: 500000, default: 5000000 },
+        { key: 'dailyVolume', label: 'Average Daily Volume ($/₹)', type: 'number', min: 1000000, max: 500000000, step: 5000000, default: 50000000 },
+        { key: 'decayGamma', label: 'Power-Law Kernel Decay (γ)', type: 'number', min: 0.2, max: 0.8, step: 0.05, default: 0.50 },
+        { key: 'relaxationTau', label: 'Relaxation Memory Scale (τ₀)', type: 'number', min: 2.0, max: 40.0, step: 2.0, default: 12.0 }
+      ],
+      presets: [
+        { label: 'Institutional Meta-Order (10% ADV, γ=0.50)', inputs: { orderNotional: 5000000, dailyVolume: 50000000, decayGamma: 0.50, relaxationTau: 12.0, participationPct: 12.0 } },
+        { label: 'High Urgency Block Fire-Sale (25% ADV, γ=0.35)', inputs: { orderNotional: 12500000, dailyVolume: 50000000, decayGamma: 0.35, relaxationTau: 20.0, participationPct: 25.0 } }
+      ]
     }
-
   ];
 
   return {

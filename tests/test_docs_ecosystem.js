@@ -1,4 +1,4 @@
-﻿const fs = require('fs');
+const fs = require('fs');
 
 const assert = (cond, msg) => {
   if (!cond) {
@@ -22,7 +22,7 @@ const fleetMd = fs.readFileSync('docs/BOT_FLEET.md', 'utf8');
 assert(fleetMd.includes('THANATOS') && fleetMd.includes('ODIN') && fleetMd.includes('RA'), 'BOT_FLEET.md covers Greek, Norse, Egyptian pantheons');
 
 const labsMd = fs.readFileSync('docs/QUANT_LABS.md', 'utf8');
-assert(labsMd.includes('Lab 75:'), 'QUANT_LABS.md documents all 75 laboratories');
+assert(labsMd.includes('Lab 80:'), 'QUANT_LABS.md documents all 80 laboratories');
 
 const specMd = fs.readFileSync('docs/SYSTEM_SPEC.md', 'utf8');
 assert(specMd.includes('SEC Rule 15c3-5') && specMd.includes('FIX 4.4 Tag Mapping'), 'SYSTEM_SPEC.md includes SEC Rule 15c3-5 and FIX 4.4 schemas');
