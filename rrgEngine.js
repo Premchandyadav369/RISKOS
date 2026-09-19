@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RISKOS — RELATIVE ROTATION GRAPH (RRG) & 4-QUADRANT SECTOR MOMENTUM ENGINE (rrgEngine.js)
  * Institutional Bloomberg RRG <GO> implementation analyzing cross-market sector rotation.
  * 
@@ -69,6 +69,10 @@
       if (market === 'india') return items.filter(i => i.market === 'india');
       if (market === 'us') return items.filter(i => i.market === 'us');
       return items;
+    },
+
+    calculateRRG(market = 'all') {
+      return this.getSectorData(market);
     },
 
     renderCanvas(canvasId, options = {}) {

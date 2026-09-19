@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RISKOS — TERMINAL THEME ENGINE (themeEngine.js)
  * Manages 3 institutional color palettes:
  *   1. 'cyber-dark' (default)
@@ -87,6 +87,7 @@
     THEMES,
     getTheme() { return currentTheme; },
     applyTheme,
+    setTheme: applyTheme,
     cycleTheme
   };
 

@@ -972,6 +972,50 @@
       endpoint: '/api/orders',
       defaultParams: {},
       launchUrl: 'fleet.html'
+    },
+    {
+      mnemonic: '<PAPER>',
+      hotkey: 'Alt+P',
+      category: 'execution',
+      name: 'Institutional Sandbox Paper Broker',
+      desc: 'Simulated multi-asset execution broker with ₹10 Lakh virtual capital, Almgren-Chriss slippage, and copy-trading.',
+      route: 'GET /api/broker/account',
+      endpoint: '/api/broker/account',
+      defaultParams: {},
+      launchUrl: 'fleet.html?action=sandbox'
+    },
+    {
+      mnemonic: '<THEME>',
+      hotkey: 'Ctrl+Shift+T',
+      category: 'execution',
+      name: 'Bloomberg Amber Phosphor & High-Contrast Switcher',
+      desc: 'Switches between Cyber Dark, Bloomberg Monochrome Amber Phosphor CRT (#ffaa00), and Paper-White high contrast modes.',
+      route: 'LOCAL /theme/toggle',
+      endpoint: '/theme/toggle',
+      defaultParams: {},
+      launchUrl: 'app.html'
+    },
+    {
+      mnemonic: '<RRG>',
+      hotkey: 'Ctrl+Shift+M',
+      category: 'quant',
+      name: 'Relative Rotation Graph (RRG) 4-Quadrant Momentum Matrix',
+      desc: 'Calculates J-Ratio and J-Momentum relative to benchmark, mapping 20 sectors into Leading, Weakening, Lagging, and Improving.',
+      route: 'GET /api/quant/sectors/rrg',
+      endpoint: '/api/quant/sectors/rrg',
+      defaultParams: { market: 'all' },
+      launchUrl: 'ticker.html'
+    },
+    {
+      mnemonic: '<TEAR>',
+      hotkey: 'F9',
+      category: 'quant',
+      name: 'QuantStats Institutional Hedge Fund Tear Sheet',
+      desc: 'Generates printable factsheet with CAGR, Sharpe, Sortino, 99% CVaR, Monthly Returns Heatmap, and Underwater Drawdown curve.',
+      route: 'GET /api/portfolio/tearsheet',
+      endpoint: '/api/portfolio/tearsheet',
+      defaultParams: {},
+      launchUrl: 'portfolio_optimizer.html'
     }
   ];
 

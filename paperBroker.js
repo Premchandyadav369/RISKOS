@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RISKOS — INSTITUTIONAL PAPER TRADING & SANDBOX BROKER (paperBroker.js)
  * High-performance virtual execution broker supporting:
  *   - Virtual Multi-Currency Accounts (₹10,00,000 INR / $100,000 USD)
@@ -63,8 +63,10 @@
         realizedPnl: state.realizedPnl,
         unrealizedPnl,
         totalEquity,
+        nav: totalEquity,
         marginUsed,
         marginFree,
+        positions: state.positions,
         positionsCount: Object.keys(state.positions).length,
         tradesCount: state.trades.length
       };
@@ -149,39 +151,54 @@
         root.showToast(`[Paper Sandbox] Executed ${side} ${qty} ${symbol} @ ₹${effectivePrice.toFixed(2)} (Slippage: ${slippageBps.toFixed(1)} bps)`);
       }
 
-      return { success: true, trade: tradeRecord };
+      return { success: true, trade: tradeRecord, ...tradeRecord };
     },
 
-    copyBotTrade(botId) {
+    copyBotTrade(botOrId, allocAmount = 50000) {
       let bot = null;
-      if (root.fleetState && root.fleetState.bots) {
-        bot = root.fleetState.bots.find(b => b.id === botId);
-      }
-      if (!bot && root.botRegistry) {
-        bot = root.botRegistry.find(b => b.id === botId);
+      if (typeof botOrId === 'object' && botOrId !== null) {
+        bot = botOrId;
+      } else {
+        const botId = botOrId;
+        if (root.fleetState && root.fleetState.bots) {
+          bot = root.fleetState.bots.find(b => b.id === botId);
+        }
+        if (!bot && root.botRegistry) {
+          bot = root.botRegistry.find(b => b.id === botId);
+        }
       }
 
       if (!bot) {
-        if (root.showToast) root.showToast(`Bot ${botId} not found in fleet registry`, 'error');
-        return;
+        if (root.showToast) root.showToast(`Bot ${botOrId} not found in fleet registry`, 'error');
+        return { success: false, reason: 'Bot not found' };
       }
 
-      const sym = bot.primarySymbol || bot.displayAsset || 'NIFTY 50';
+      const sym = bot.symbol || bot.primarySymbol || bot.displayAsset || 'NIFTY 50';
       const price = bot.currentPrice || bot.basePrice || 1000;
-      const qty = Math.max(1, Math.round(50000 / price)); // allocate ~₹50,000
+      const qty = Math.max(1, Math.round(allocAmount / price));
 
       const res = this.placeOrder({
         symbol: sym,
-        side: 'BUY',
+        side: bot.action === 'SELL' ? 'SELL' : 'BUY',
         qty,
         price,
-        botCopySource: bot.name,
+        botCopySource: bot.botName || bot.name || bot.id,
         exchange: bot.market === 'india' ? 'NSE' : 'NASDAQ'
       });
 
-      if (res.success) {
-        alert(`Successfully copied ${bot.name} into Sandbox Paper Account!\n\nExecuted: BUY ${qty} ${sym} @ ${bot.market === 'india' ? '₹' : '$'}${price.toFixed(2)}\nSlippage: ${res.trade.slippageBps} bps\n\nTrack your live equity in the Sandbox Paper Trading Drawer.`);
+      if (res.success && typeof alert === 'function' && typeof window !== 'undefined' && window.document) {
+        alert(`Successfully copied ${bot.name || bot.id} into Sandbox Paper Account!\n\nExecuted: BUY ${qty} ${sym} @ ${bot.market === 'india' ? '₹' : '$'}${price.toFixed(2)}\nSlippage: ${res.trade.slippageBps} bps\n\nTrack your live equity in the Sandbox Paper Trading Drawer.`);
       }
+
+      return res;
+    },
+
+    copyTradeBot(botOrId, allocAmount) {
+      return this.copyBotTrade(botOrId, allocAmount);
+    },
+
+    executeOrder(params) {
+      return this.placeOrder(params);
     },
 
     resetAccount(capital = DEFAULT_CAPITAL_INR) {
