@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -279,6 +279,26 @@
           <span><i class="fa-solid fa-ankh text-amber"></i> 20 Egyptian Sector Bots Active</span>
           <span style="opacity:0.3;">•</span>
           <span><i class="fa-solid fa-scale-balanced text-cyan"></i> GARCH Vol &bull; Breadth Monitored</span>
+        </div>
+      </div>
+
+      <!-- Relative Rotation Graph (RRG) Visualizer Pane -->
+      <div class="rrg-container-card" id="rrgContainerCard" style="background:rgba(10,14,26,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:16px; margin-bottom:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <h3 style="font-size:0.95rem; font-weight:800; color:#fff; margin:0; display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-compass-drafting text-cyan"></i> 2D Relative Rotation Graph (RRG) &bull; Quadrant Momentum
+            </h3>
+            <span style="font-size:0.72rem; color:#71717a;">Tracking cross-market relative strength (RS-Ratio) vs momentum velocity (RS-Momentum) centered at 100.0</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-subtle-pill active" id="btnRrgAll" onclick="if(window.RRGEngine) window.RRGEngine.renderCanvas('rrgSectorCanvas', {market:'all'});">All 20 Sectors</button>
+            <button class="btn-subtle-pill" id="btnRrgIndia" onclick="if(window.RRGEngine) window.RRGEngine.renderCanvas('rrgSectorCanvas', {market:'india'});">🇮🇳 NSE Sectors</button>
+            <button class="btn-subtle-pill" id="btnRrgUs" onclick="if(window.RRGEngine) window.RRGEngine.renderCanvas('rrgSectorCanvas', {market:'us'});">🇺🇸 US Sectors</button>
+          </div>
+        </div>
+        <div id="rrgCanvasWrap" style="width:100%; height:420px; position:relative; background:#04060c; border-radius:8px; border:1px solid rgba(255,255,255,0.06); overflow:hidden;">
+          <canvas id="rrgSectorCanvas"></canvas>
         </div>
       </div>
 
@@ -656,6 +676,7 @@
   <script src="securityMaster.js"></script>
   <script src="engine.js"></script>
   <script src="chartSuite.js"></script>
+  <script src="rrgEngine.js"></script>
   <script src="ticker.js"></script>
   <script src="microstructureEngine.js"></script>
   <script src="riskGuardrails.js"></script>
