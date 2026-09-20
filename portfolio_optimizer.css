@@ -9,7 +9,25 @@ body.portfolio-page {
   color: #ffffff !important;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+
+.portfolio-page .obs-container {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 24px 20px 80px 20px !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+.portfolio-page .obs-hero-section {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  padding: 24px 0 8px 0 !important;
 }
 
 /* ── Streamlined Universal Header ───────────────────────────────────────────── */
@@ -235,14 +253,23 @@ body.portfolio-page {
 
 /* ── Beast KPI Cards with Glow & Odometer Meters ────────────────────────────── */
 .beast-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 16px;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
   .beast-kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .beast-kpi-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
@@ -251,8 +278,10 @@ body.portfolio-page {
   background: rgba(12, 14, 20, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-radius: 12px !important;
-  padding: 16px 20px !important;
+  padding: 16px 18px !important;
   overflow: hidden;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
@@ -1071,19 +1100,30 @@ body.portfolio-page {
 
 /* ═══════════════════════ MACRO CATALYST COUNTDOWN RIBBON ═══════════════════════ */
 .macro-countdown-ribbon {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   background: rgba(10, 15, 29, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
-  padding: 8px 16px;
+  padding: 8px 12px;
   margin-top: 14px;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .macro-ribbon-tag {
+  position: sticky;
+  left: 0;
+  background: rgba(10, 15, 29, 0.98);
+  backdrop-filter: blur(8px);
+  z-index: 5;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1100,8 +1140,9 @@ body.portfolio-page {
 .macro-events-track {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   flex: 1;
+  min-width: max-content;
 }
 
 .macro-event-item {

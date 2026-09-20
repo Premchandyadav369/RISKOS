@@ -167,6 +167,37 @@
       </div>
     </div>
 
+    <!-- ═══════════════════════ 2.5 STRUCTURED MASTERY CURRICULUM (LAYMAN & PROFESSIONAL) ═══════════════════════ -->
+    <section class="structured-curriculum-section" id="structuredCurriculumSection" style="margin: 0 auto 20px auto; max-width: 1380px; padding: 0 16px;">
+      <div class="curriculum-container">
+        
+        <!-- Header & Persona Switcher -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 14px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="chip-dot chip-dot--cyan"></span>
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.06em; text-transform: uppercase;">Structured Financial Knowledge Pathways</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">PLATFORM MASTERY CURRICULUM &bull; 4 STRUCTURED PATHS</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Step-by-step interactive simulations designed to master all financial concepts powering RISKOS for both layman and professional.</p>
+          </div>
+
+          <!-- Persona Filter Tabs -->
+          <div class="curriculum-persona-filter" style="display: flex; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px; gap: 4px;">
+            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">All 4 Tracks</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Layman &amp; Retail</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumPro" data-curriculum="professional" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-graduation-cap text-cyan" style="margin-right: 5px;"></i> Professional Quant</button>
+          </div>
+        </div>
+
+        <!-- 4 Structured Tracks Grid -->
+        <div class="curriculum-tracks-grid" id="curriculumTracksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px;">
+          <!-- Track Cards populated dynamically by initStructuredLearningTracks in learn.js -->
+        </div>
+
+      </div>
+    </section>
+
     <!-- ═══════════════════════ 3. HORIZONTAL CATEGORY NAVIGATION & TOP MODULES ═══════════════════════ -->
     <nav class="lab-nav-pill-bar" aria-label="Category Filters">
       <div class="lab-nav-pill-track" id="labCatTrack">
@@ -385,6 +416,25 @@
           <div class="key-takeaways-box">
             <span class="takeaways-title"><i class="fa-solid fa-bookmark"></i> Key Takeaway</span>
             <p class="takeaways-text" id="keyTakeawayText"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── STEP 5: STRUCTURED TRACK PROGRESSION & NEXT STEP GUIDE ── -->
+      <section class="lab-step-card step-track-progress" id="trackProgressBanner" style="background:rgba(34,211,238,0.04); border:1px solid rgba(34,211,238,0.25); border-radius:12px; padding:18px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="step-badge" id="trackProgressBadge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-weight:800; font-size:0.68rem; padding:2px 8px; border-radius:4px;">CURRICULUM PROGRESSION</span>
+              <span id="trackProgressName" style="font-size:0.75rem; font-weight:700; color:#22d3ee;">Retail &amp; Layman Foundations</span>
+            </div>
+            <h4 id="trackProgressTitle" style="margin:4px 0 2px 0; font-size:1.05rem; font-weight:700; color:#fff;">Step 2 of 7: CAGR Growth Rate</h4>
+            <span id="trackProgressUnlock" style="font-size:0.75rem; color:var(--text-muted);"><i class="fa-solid fa-unlock-keyhole text-emerald" style="margin-right:5px;"></i>Powers: Strategy Benchmarking on RISKOS Dashboard</span>
+          </div>
+
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="lab-act-btn" id="btnPrevTrackStep" title="Go to previous curriculum step"><i class="fa-solid fa-arrow-left"></i> Previous</button>
+            <button class="lab-act-btn primary" id="btnNextTrackStep" title="Advance to next curriculum step"><span>Next in Track</span> <i class="fa-solid fa-arrow-right"></i></button>
           </div>
         </div>
       </section>

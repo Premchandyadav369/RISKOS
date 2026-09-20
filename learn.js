@@ -151,6 +151,8 @@
     // Refresh Top Modules Bar & Bottom Directory Grid
     renderTopModulesBar();
     renderAllModulesGrid();
+    if (typeof renderCurriculumTracks === 'function') renderCurriculumTracks();
+    if (typeof updateTrackProgressBanner === 'function') updateTrackProgressBanner();
 
     // Update URL query state for deep-linking
     if (updateUrl && window.history && window.history.pushState) {
@@ -1382,6 +1384,293 @@
     });
   };
 
+  // ── Structured Financial Knowledge Curriculum & Progression Tracks ─────────
+  let activeCurriculumFilter = 'all';
+
+  const STRUCTURED_TRACKS = [
+    {
+      id: 'retail_layman',
+      title: 'Retail & Layman Foundations',
+      subtitle: 'Wealth Building, Compounding & Safety',
+      badge: 'Layman / Retail',
+      persona: 'layman',
+      color: '#10b981',
+      icon: 'fa-seedling',
+      description: 'Master core intuition for wealth building, inflation beat, DCA mechanics, volatility, and safe drawdown recovery before touching any complex models.',
+      steps: [
+        { moduleId: 'compounding', title: 'Compounding & Rule of 72', role: 'Exponential growth mechanics', unlock: 'Wealth Compounding Visualizer on Analytics Desk' },
+        { moduleId: 'cagr', title: 'CAGR Growth Rate', role: 'Geometric vs arithmetic returns', unlock: 'Strategy Benchmarking & Performance on RISKOS Dashboard' },
+        { moduleId: 'sip_dca', title: 'SIP / Rupee-Cost Averaging', role: 'Systematic accumulation math', unlock: 'Rupee-Cost Averaging & Systematic Portfolio Accumulator' },
+        { moduleId: 'volatility', title: 'Volatility & Gaussian Bell Curve', role: 'Standard deviation & dispersion', unlock: 'Asset Volatility Gauges & Risk Heatmaps' },
+        { moduleId: 'diversification', title: 'Diversification & Free Lunch', role: 'Uncorrelated asset variance', unlock: 'Correlation Diversification Matrix & Markowitz Frontier' },
+        { moduleId: 'pe_eps', title: 'P/E Ratio & Earnings Yield', role: 'Fundamental value anchor', unlock: 'Fundamental Valuation & Multiples in Security Master' },
+        { moduleId: 'drawdown_recovery', title: 'Drawdown Math & Recovery', role: 'Asymmetric loss dynamics', unlock: 'Maximum Drawdown Monitor & Recovery Forecaster' }
+      ]
+    },
+    {
+      id: 'frtb_risk',
+      title: 'FRTB, Basel III & Risk Architecture',
+      subtitle: 'Regulatory Capital, VaR & Default',
+      badge: 'Professional Quant',
+      persona: 'professional',
+      color: '#3b82f6',
+      icon: 'fa-shield-halved',
+      description: 'Institutional risk management: Parametric/Historical VaR, Extreme Value Theory (EVT), structural default, and Basel III regulatory stress.',
+      steps: [
+        { moduleId: 'beta_corr', title: 'Beta & Pearson Correlation', role: 'Systematic risk & covariance', unlock: 'Benchmark Beta Regression & Systemic Factor Exposure' },
+        { moduleId: 'sharpe', title: 'Sharpe, Sortino & Omega', role: 'Risk-adjusted performance', unlock: 'Sharpe, Sortino & Deflated Performance Scoring' },
+        { moduleId: 'evt_pot_tail_risk', title: 'EVT Peaks-Over-Threshold', role: 'Fat tails & Black Swans', unlock: 'Basel III Tail Risk, VaR 99%, and Expected Shortfall Engine' },
+        { moduleId: 'merton_structural_default', title: 'Merton Structural Default', role: 'Distance to default & credit spreads', unlock: 'Credit Spread Analyzer & Distance-to-Default Warning' },
+        { moduleId: 'solvency_ii_evt_cat', title: 'Solvency II & 1-in-200yr VaR', role: 'Insurance balance sheet stress', unlock: 'Solvency II 1-in-200 Year Catastrophic Capital Requirement' },
+        { moduleId: 'nelson_siegel_svensson', title: 'Nelson-Siegel-Svensson Curve', role: 'Sovereign yield term structure', unlock: 'Sovereign Yield Curve Modeling & Fixed Income Desk' },
+        { moduleId: 'barra_multi_factor_risk', title: 'Barra Multi-Factor Risk', role: 'Systematic factor decomposition', unlock: 'Institutional Multi-Factor Risk Decomposition' }
+      ]
+    },
+    {
+      id: 'microstructure_execution',
+      title: 'Microstructure, OFI & Execution',
+      subtitle: 'Order Books, Slippage & Market Impact',
+      badge: 'Professional Quant',
+      persona: 'professional',
+      color: '#f59e0b',
+      icon: 'fa-bolt-lightning',
+      description: 'L3 limit order book dynamics, Kyle’s Lambda price impact, Hawkes order arrival cascades, dark pool adverse selection, and Almgren-Chriss optimal liquidation.',
+      steps: [
+        { moduleId: 'options_payoff', title: 'Options Black-Scholes & Greeks', role: 'Delta, Gamma, Vega sensitivities', unlock: 'Derivatives Payoff Visualizer & Multi-Leg Options Desk' },
+        { moduleId: 'gex_0dte_pinning', title: '0DTE Gamma Exposure (GEX)', role: 'Market maker delta-hedging reflexivity', unlock: '0DTE Options Gamma Exposure (GEX) & Strike Pinning Radar' },
+        { moduleId: 'kyles_lambda_microstructure', title: 'Kyle’s Lambda & Microstructure', role: 'Informed trading & adverse selection', unlock: 'Order Book OFI, Spread Breakdown & Toxic Flow Analysis' },
+        { moduleId: 'dark_pool_adverse_selection', title: 'Dark Pool Adverse Selection', role: 'Lit vs dark routing & toxicity', unlock: 'Dark Pool Routing & Execution Toxicity Assessment' },
+        { moduleId: 'hawkes_liquidity_cascades', title: 'Hawkes Self-Exciting Cascades', role: 'Liquidity flashes & clustering', unlock: 'Hawkes Liquidity Flash Crash & Event Arrival Predictor' },
+        { moduleId: 'almgren_chriss', title: 'Almgren-Chriss Optimal Execution', role: 'Volatility vs impact cost trade-off', unlock: 'Almgren-Chriss Optimal Trade Execution on Execution Desk' },
+        { moduleId: 'propagator_market_impact', title: 'Bouchaud Transient Propagator', role: 'Memory kernels & market impact decay', unlock: 'Bouchaud Market Impact & Transient Slippage Forecaster' }
+      ]
+    },
+    {
+      id: 'ai_alpha',
+      title: 'AI, Stochastic Control & Alpha Models',
+      subtitle: 'HMM Regimes, SDEs & Deep Hedging',
+      badge: 'Professional Quant',
+      persona: 'professional',
+      color: '#a855f7',
+      icon: 'fa-brain',
+      description: 'Advanced quantitative modeling: Hidden Markov Regimes, Jump-Diffusion, Deep Hedging with Neural SDEs, and Reinforcement Learning execution.',
+      steps: [
+        { moduleId: 'merton_jump_diffusion', title: 'Merton Jump-Diffusion', role: 'Poisson jumps in asset returns', unlock: 'Jump-Diffusion Option Pricing & Discontinuous Gap Simulation' },
+        { moduleId: 'black_litterman', title: 'Black-Litterman Bayesian Tilt', role: 'Subjective views with market equilibrium', unlock: 'Institutional Black-Litterman Portfolio Optimizer' },
+        { moduleId: 'hmm_regime_switching', title: 'Hamilton HMM Regime Switching', role: 'Bull/Bear transition probabilities', unlock: 'AI Market Regime Detection (Bull/Bear/Chop) on Observatory' },
+        { moduleId: 'dqn_optimal_execution', title: 'DQN Reinforcement Learning', role: 'Deep Q-Networks for TWAP/VWAP', unlock: 'Reinforcement Learning Optimal VWAP/TWAP Execution Agent' },
+        { moduleId: 'risk_constrained_kelly', title: 'Risk-Constrained Kelly Criterion', role: 'Fractional capital allocation', unlock: 'Optimal Bet Sizing & Capital Allocation with Ruin Constraints' },
+        { moduleId: 'deep_hedging_neural_sde', title: 'Deep Hedging & Neural SDE', role: 'Convex risk neural network optimization', unlock: 'Neural Network Non-Linear Hedging under Friction' },
+        { moduleId: 'hayashi_yoshida_lead_lag', title: 'Hayashi-Yoshida Lead-Lag', role: 'High-frequency non-synchronous correlation', unlock: 'High-Frequency Cross-Asset Lead-Lag Arbitrage Detector' }
+      ]
+    }
+  ];
+
+  const setExplanationMode = (mode) => {
+    if (!['beginner', 'investor', 'quant'].includes(mode)) return;
+    labState.explanationMode = mode;
+    document.body.setAttribute('data-user-mode', mode);
+    document.querySelectorAll('#modeSelectorPill .mode-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.mode === mode);
+    });
+    evaluateActiveModule();
+  };
+
+  const renderCurriculumTracks = () => {
+    const container = document.getElementById('curriculumTracksGrid');
+    if (!container) return;
+
+    const visibleTracks = STRUCTURED_TRACKS.filter(t => {
+      if (activeCurriculumFilter === 'all') return true;
+      return t.persona === activeCurriculumFilter;
+    });
+
+    container.innerHTML = visibleTracks.map(track => {
+      const isCurrentInTrack = track.steps.some(s => s.moduleId === labState.activeModuleId);
+
+      return `
+        <div class="curriculum-card ${isCurrentInTrack ? 'active-track' : ''}" style="border-top: 3px solid ${track.color};">
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 4px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="width:30px; height:30px; border-radius:8px; background:${track.color}20; display:flex; align-items:center; justify-content:center; color:${track.color};">
+                <i class="fa-solid ${track.icon}"></i>
+              </div>
+              <div>
+                <h4 style="font-size:0.92rem; font-weight:800; color:#fff; margin:0;">${track.title}</h4>
+                <span style="font-size:0.7rem; color:var(--text-muted);">${track.subtitle}</span>
+              </div>
+            </div>
+            <span style="font-size:0.65rem; font-weight:700; color:${track.color}; background:${track.color}15; border:1px solid ${track.color}35; padding:2px 7px; border-radius:4px; text-transform:uppercase;">${track.badge}</span>
+          </div>
+
+          <p style="font-size:0.73rem; color:var(--text-secondary); line-height:1.4; margin:0 0 6px 0;">${track.description}</p>
+
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${track.steps.map((step, idx) => {
+              const isActive = step.moduleId === labState.activeModuleId;
+              return `
+                <div class="curriculum-step-item ${isActive ? 'active' : ''}" data-module-id="${step.moduleId}" data-persona="${track.persona}" title="Load ${step.title}">
+                  <span class="step-num-badge" style="${isActive ? `color:${track.color}; background:${track.color}25;` : ''}">0${idx + 1}</span>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:0.75rem; font-weight:${isActive ? '800' : '600'}; color:${isActive ? '#fff' : 'var(--text-primary)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      ${step.title}
+                    </div>
+                    <div style="font-size:0.66rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                      ${step.role}
+                    </div>
+                  </div>
+                  ${isActive ? `<i class="fa-solid fa-circle-play" style="color:${track.color}; font-size:0.8rem; margin-top:3px;"></i>` : `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.65rem; margin-top:5px; opacity:0.4;"></i>`}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    container.querySelectorAll('.curriculum-step-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const modId = el.dataset.moduleId;
+        const persona = el.dataset.persona;
+        if (persona === 'layman' && labState.explanationMode !== 'beginner') {
+          setExplanationMode('beginner');
+        } else if (persona === 'professional' && labState.explanationMode === 'beginner') {
+          setExplanationMode('quant');
+        }
+        switchModule(modId);
+        const workspace = document.getElementById('activeLabWorkspace');
+        if (workspace) workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  };
+
+  const updateTrackProgressBanner = () => {
+    const banner = document.getElementById('trackProgressBanner');
+    if (!banner) return;
+
+    let matchedTrack = null;
+    let stepIndex = -1;
+
+    for (const track of STRUCTURED_TRACKS) {
+      const idx = track.steps.findIndex(s => s.moduleId === labState.activeModuleId);
+      if (idx !== -1) {
+        matchedTrack = track;
+        stepIndex = idx;
+        break;
+      }
+    }
+
+    const nameEl = document.getElementById('trackProgressName');
+    const titleEl = document.getElementById('trackProgressTitle');
+    const unlockEl = document.getElementById('trackProgressUnlock');
+    const badgeEl = document.getElementById('trackProgressBadge');
+    const btnPrev = document.getElementById('btnPrevTrackStep');
+    const btnNext = document.getElementById('btnNextTrackStep');
+
+    if (matchedTrack && stepIndex !== -1) {
+      const currentStep = matchedTrack.steps[stepIndex];
+      if (badgeEl) {
+        badgeEl.textContent = `${matchedTrack.badge.toUpperCase()} • STEP ${stepIndex + 1}/${matchedTrack.steps.length}`;
+        badgeEl.style.color = matchedTrack.color;
+        badgeEl.style.background = `${matchedTrack.color}20`;
+      }
+      if (nameEl) {
+        nameEl.textContent = matchedTrack.title;
+        nameEl.style.color = matchedTrack.color;
+      }
+      if (titleEl) {
+        titleEl.textContent = `Step ${stepIndex + 1} of ${matchedTrack.steps.length}: ${currentStep.title}`;
+      }
+      if (unlockEl) {
+        unlockEl.innerHTML = `<i class="fa-solid fa-unlock-keyhole text-emerald" style="margin-right:5px;"></i>Powers: ${currentStep.unlock}`;
+      }
+
+      if (btnPrev) {
+        btnPrev.disabled = stepIndex === 0;
+        btnPrev.style.opacity = stepIndex === 0 ? '0.4' : '1';
+        btnPrev.onclick = () => {
+          if (stepIndex > 0) switchModule(matchedTrack.steps[stepIndex - 1].moduleId);
+        };
+      }
+      if (btnNext) {
+        btnNext.disabled = stepIndex === matchedTrack.steps.length - 1;
+        btnNext.style.opacity = stepIndex === matchedTrack.steps.length - 1 ? '0.4' : '1';
+        btnNext.onclick = () => {
+          if (stepIndex < matchedTrack.steps.length - 1) switchModule(matchedTrack.steps[stepIndex + 1].moduleId);
+        };
+      }
+    } else {
+      const currentMod = (typeof LearnMathEngine !== 'undefined') ? LearnMathEngine.getModuleById(labState.activeModuleId) : null;
+      if (badgeEl) {
+        badgeEl.textContent = 'ADVANCED SPECIALIZED LAB';
+        badgeEl.style.color = '#38bdf8';
+        badgeEl.style.background = 'rgba(56, 189, 248, 0.15)';
+      }
+      if (nameEl) {
+        nameEl.textContent = currentMod ? currentMod.category.toUpperCase() : 'SPECIALIZED QUANTITATIVE';
+        nameEl.style.color = '#38bdf8';
+      }
+      if (titleEl) {
+        titleEl.textContent = currentMod ? currentMod.title : 'Quantitative Simulation';
+      }
+      if (unlockEl) {
+        unlockEl.innerHTML = `<i class="fa-solid fa-microchip text-cyan" style="margin-right:5px;"></i>Deep specialized engine connected to RISKOS Multi-Asset Platform`;
+      }
+      if (btnPrev) {
+        btnPrev.disabled = false;
+        btnPrev.style.opacity = '1';
+        btnPrev.onclick = () => {
+          if (typeof LearnMathEngine !== 'undefined') {
+            const all = LearnMathEngine.MODULES_DIRECTORY;
+            const idx = all.findIndex(m => m.id === labState.activeModuleId);
+            if (idx > 0) switchModule(all[idx - 1].id);
+          }
+        };
+      }
+      if (btnNext) {
+        btnNext.disabled = false;
+        btnNext.style.opacity = '1';
+        btnNext.onclick = () => {
+          if (typeof LearnMathEngine !== 'undefined') {
+            const all = LearnMathEngine.MODULES_DIRECTORY;
+            const idx = all.findIndex(m => m.id === labState.activeModuleId);
+            if (idx !== -1 && idx < all.length - 1) switchModule(all[idx + 1].id);
+          }
+        };
+      }
+    }
+  };
+
+  const initStructuredLearningTracks = () => {
+    const filterAll = document.getElementById('filterCurriculumAll');
+    const filterLayman = document.getElementById('filterCurriculumLayman');
+    const filterPro = document.getElementById('filterCurriculumPro');
+
+    const setCurriculumFilter = (filter) => {
+      activeCurriculumFilter = filter;
+      [filterAll, filterLayman, filterPro].forEach(btn => {
+        if (!btn) return;
+        const isMatch = btn.dataset.curriculum === filter;
+        btn.classList.toggle('active', isMatch);
+        if (isMatch) {
+          btn.style.background = 'rgba(34, 211, 238, 0.15)';
+          btn.style.color = '#22d3ee';
+        } else {
+          btn.style.background = 'transparent';
+          btn.style.color = 'var(--text-muted)';
+        }
+      });
+      renderCurriculumTracks();
+    };
+
+    if (filterAll) filterAll.addEventListener('click', () => setCurriculumFilter('all'));
+    if (filterLayman) filterLayman.addEventListener('click', () => setCurriculumFilter('layman'));
+    if (filterPro) filterPro.addEventListener('click', () => setCurriculumFilter('professional'));
+
+    renderCurriculumTracks();
+    updateTrackProgressBanner();
+  };
+
   // ── Init Controller & Deep-Link Synchronization ───────────────────────────
   const init = () => {
     // 1. Category Pill Navigation
@@ -1408,11 +1697,7 @@
     // 2. Depth Mode Switcher (Beginner | Investor | Quant)
     document.querySelectorAll('#modeSelectorPill .mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#modeSelectorPill .mode-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        labState.explanationMode = btn.dataset.mode;
-        document.body.setAttribute('data-user-mode', labState.explanationMode);
-        evaluateActiveModule();
+        setExplanationMode(btn.dataset.mode);
       });
     });
 
@@ -1602,6 +1887,7 @@
 
     renderTopModulesBar();
     renderAllModulesGrid();
+    initStructuredLearningTracks();
     switchModule(targetMod || 'cagr', false);
 
     window.addEventListener('popstate', (e) => {
