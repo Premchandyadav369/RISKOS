@@ -385,6 +385,131 @@
       </div>
     </section>
 
+    <!-- ═══════════════════════ 2.9 INTERACTIVE SYSTEMATIC STRATEGY SIMULATOR & EXECUTION DESK ═══════════════════════ -->
+    <section class="quant-sim-desk-section" id="quantSimDeskSection" style="margin: 0 auto 24px auto; max-width: 1380px; padding: 0 16px;">
+      <div class="sim-desk-container" style="background: rgba(10, 15, 29, 0.75); border: 1px solid rgba(34, 211, 238, 0.2); border-radius: 12px; padding: 18px; backdrop-filter: blur(12px);">
+        
+        <!-- Header with Live Market Indicator -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 12px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="live-pulse-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #10b981; letter-spacing: 0.06em; text-transform: uppercase;">Live Algorithmic Execution Simulator</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">INTERACTIVE QUANT STRATEGY SIMULATION SANDBOX &amp; EXECUTION DESK</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Simulate high-frequency &amp; systematic quantitative trading strategies with live tick replay, slippage models, and order execution.</p>
+          </div>
+
+          <!-- Strategy Chooser Pills -->
+          <div class="sim-strat-selector" id="simStratSelector" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <button class="strat-pill-btn active" data-strat="dual_momentum" style="background: rgba(236,72,153,0.2); color: #ec4899; border: 1px solid rgba(236,72,153,0.4); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Dual Momentum</button>
+            <button class="strat-pill-btn" data-strat="kalman_pairs" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Kalman Stat-Arb</button>
+            <button class="strat-pill-btn" data-strat="avellaneda" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Avellaneda HFT MM</button>
+            <button class="strat-pill-btn" data-strat="gex_pinning" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">0DTE GEX Pinning</button>
+            <button class="strat-pill-btn" data-strat="basis_carry" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Futures Basis Carry</button>
+            <button class="strat-pill-btn" data-strat="hawkes" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Hawkes Cascades</button>
+          </div>
+        </div>
+
+        <!-- Simulator Grid: Controls + Live Canvas + Live Order Tape -->
+        <div style="display: grid; grid-template-columns: 1fr 1.6fr 1fr; gap: 16px; align-items: start;" class="sim-sandbox-grid">
+          
+          <!-- Column 1: Interactive Execution Controls -->
+          <div class="sim-desk-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em;">
+              <i class="fa-solid fa-sliders" style="margin-right: 5px;"></i> Execution Parameters
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">Initial Capital: <strong id="simDeskCapitalVal" style="color: #fff;">₹10,00,000</strong></label>
+                <input type="range" id="simDeskCapital" min="100000" max="10000000" step="100000" value="1000000" style="width: 100%; accent-color: var(--accent-cyan);" />
+              </div>
+
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">Market Regime:</label>
+                <select id="simDeskRegime" style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; padding: 5px 8px; font-size: 0.75rem; margin-top: 4px;">
+                  <option value="bull_trend">Steady Bull Trend (Low Vol, Steady Drift)</option>
+                  <option value="range_bound">High-Vol Range Bound (Mean Reversion)</option>
+                  <option value="bear_crash">Bear Market Selloff (-20% Drawdown)</option>
+                  <option value="flash_crash">Flash Crash &amp; Liquidity Hole Spike</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">Slippage &amp; Market Impact:</label>
+                <select id="simDeskSlippage" style="width: 100%; background: #0b1120; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 6px; padding: 5px 8px; font-size: 0.75rem; margin-top: 4px;">
+                  <option value="sqrt_impact">Almgren-Chriss Square-Root Impact (Realistic)</option>
+                  <option value="zero_slip">Zero Slippage (Ideal Benchmark)</option>
+                  <option value="toxic_adverse">Adverse Selection (Toxic Flow Penalty)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">Simulation Speed: <strong id="simDeskSpeedVal" style="color: #22d3ee;">5× (Fast)</strong></label>
+                <input type="range" id="simDeskSpeed" min="1" max="20" step="1" value="5" style="width: 100%; accent-color: var(--accent-cyan);" />
+              </div>
+
+              <!-- Control Buttons -->
+              <div style="display: flex; gap: 8px; margin-top: 6px;">
+                <button id="btnSimDeskRun" class="lab-act-btn primary" style="flex: 1; justify-content: center; font-size: 0.75rem;"><i class="fa-solid fa-play"></i> Run Sim</button>
+                <button id="btnSimDeskStep" class="lab-act-btn" style="font-size: 0.75rem;" title="Advance single tick"><i class="fa-solid fa-forward-step"></i></button>
+                <button id="btnSimDeskReset" class="lab-act-btn" style="font-size: 0.75rem;" title="Reset simulation"><i class="fa-solid fa-rotate-left"></i></button>
+              </div>
+
+              <button id="btnSimDeskOpenLab" class="strat-launch-btn" style="border-color: rgba(34, 211, 238, 0.4); color: #22d3ee; margin-top: 4px; font-size: 0.72rem;">
+                <i class="fa-solid fa-flask"></i> Open Full Mathematical Lab
+              </button>
+            </div>
+          </div>
+
+          <!-- Column 2: Live Equity Curve & KPI Metrics -->
+          <div class="sim-desk-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 14px;">
+            <!-- KPI Strip -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px;" class="sim-desk-kpis">
+              <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); display: block;">PORTFOLIO NAV</span>
+                <strong id="simDeskNav" style="font-size: 0.95rem; color: #fff; font-family: var(--font-mono);">₹10,00,000</strong>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); display: block;">NET P&amp;L</span>
+                <strong id="simDeskPnl" style="font-size: 0.95rem; color: #10b981; font-family: var(--font-mono);">+₹0 (0.00%)</strong>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); display: block;">SHARPE RATIO</span>
+                <strong id="simDeskSharpe" style="font-size: 0.95rem; color: #22d3ee; font-family: var(--font-mono);">1.45</strong>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); display: block;">MAX DRAWDOWN</span>
+                <strong id="simDeskMdd" style="font-size: 0.95rem; color: #ef4444; font-family: var(--font-mono);">-0.00%</strong>
+              </div>
+            </div>
+
+            <!-- Canvas Container -->
+            <div style="position: relative; height: 210px; width: 100%;">
+              <canvas id="simDeskCanvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Column 3: Live Order Execution Tape -->
+          <div class="sim-desk-card" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 14px; max-height: 310px; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-size: 0.72rem; font-weight: 800; color: #ec4899; text-transform: uppercase; letter-spacing: 0.05em;">
+                <i class="fa-solid fa-list-check" style="margin-right: 5px;"></i> Live Execution Tape
+              </span>
+              <span id="simDeskFillsCount" style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--font-mono);">0 Fills</span>
+            </div>
+
+            <div id="simDeskTapeContainer" style="overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 0.68rem;">
+              <div style="color: var(--text-muted); text-align: center; padding: 20px 0;">Simulation idle. Click "Run Sim" to stream live fills.</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
     <!-- ═══════════════════════ 3. HORIZONTAL CATEGORY NAVIGATION & TOP MODULES ═══════════════════════ -->
     <nav class="lab-nav-pill-bar" aria-label="Category Filters">
       <div class="lab-nav-pill-track" id="labCatTrack">
@@ -479,41 +604,40 @@
 
           <!-- Source Toggle: Simulation vs Real Security -->
           <div class="sim-source-toggle" id="simSourceToggle">
-            <button class="sim-source-btn active" data-source="custom"><i class="fa-solid fa-sliders"></i> Simulation Mode</button>
-            <button class="sim-source-btn" data-source="security"><i class="fa-solid fa-building-columns"></i> Real Security</button>
+            <button class="sim-source-btn" data-source="custom"><i class="fa-solid fa-sliders"></i> Simulation Mode</button>
+            <button class="sim-source-btn active" data-source="security"><i class="fa-solid fa-building-columns"></i> Real Security (Live Feed)</button>
           </div>
         </div>
 
         <!-- Real Security Search Bar -->
-        <div class="sim-real-security-bar" id="simRealSecurityBar">
+        <div class="sim-real-security-bar active" id="simRealSecurityBar" style="display: flex;">
           <i class="fa-solid fa-magnifying-glass" style="color:var(--accent-cyan);"></i>
-          <input type="text" id="simSecurityInput" class="sim-security-input" placeholder="Search real security (e.g. RELIANCE.NS, SUZLON.NS, IDEA.NS, NVDA, AAPL, PLUG, BBAI)..." />
-          <span style="font-size:0.75rem;color:var(--text-muted);">Loads real market fundamentals &amp; beta</span>
+          <input type="text" id="simSecurityInput" class="sim-security-input" value="RELIANCE.NS" placeholder="Search real security (e.g. RELIANCE.NS, TCS.NS, HDFCBANK.NS, NVDA, AAPL, BTC-USD)..." />
+          <span style="font-size:0.75rem;color:var(--text-muted);"><i class="fa-solid fa-bolt" style="color:#10b981;margin-right:3px;"></i> Real-Time Live Market Feed Connected</span>
         </div>
 
         <!-- Quick Ticker Discovery Chips -->
         <div class="sim-quick-ticker-chips" style="display:flex; gap:6px; flex-wrap:wrap; margin: 8px 0 12px 0;">
-          <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; align-self:center;">REAL ASSETS:</span>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('RELIANCE.NS')">RELIANCE.NS</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('TCS.NS')">TCS.NS</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('HDFCBANK.NS')">HDFCBANK.NS</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('SUZLON.NS')">SUZLON.NS (₹64.5)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('IDEA.NS')">IDEA.NS (₹8.25)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('NVDA')">NVDA ($217)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('AAPL')">AAPL ($228)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('BTC-USD')">BTC-USD ($64.2k)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('GOLD')">GOLD ($2,510)</button>
-          <button class="lab-chip" onclick="window.bindRealTickerToLab('BRENT')">BRENT ($78.5)</button>
+          <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; align-self:center;">REAL-TIME TICKERS:</span>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('RELIANCE.NS')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>RELIANCE.NS</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('TCS.NS')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>TCS.NS</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('HDFCBANK.NS')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>HDFCBANK.NS</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('^NSEI')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>NIFTY 50</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('NVDA')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>NVDA ($217)</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('AAPL')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>AAPL ($228)</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('BTC-USD')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>BTC-USD (24/7)</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('GOLD')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>GOLD ($2,510)</button>
+          <button class="lab-chip" onclick="window.bindRealTickerToLab('BRENT')"><span class="live-pulse-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;margin-right:4px;"></span>BRENT CRUDE</button>
         </div>
 
         <!-- Live Security Data Binding Strip -->
-        <div class="sim-live-security-strip" id="simLiveSecurityStrip" style="display:none; align-items:center; justify-content:space-between; background:rgba(34, 211, 238, 0.08); border:1px solid rgba(34, 211, 238, 0.3); border-radius:8px; padding:8px 14px; margin-bottom:12px; font-family:var(--font-mono); font-size:0.75rem; flex-wrap:wrap; gap:8px;">
+        <div class="sim-live-security-strip" id="simLiveSecurityStrip" style="display:flex; align-items:center; justify-content:space-between; background:rgba(34, 211, 238, 0.08); border:1px solid rgba(34, 211, 238, 0.3); border-radius:8px; padding:8px 14px; margin-bottom:12px; font-family:var(--font-mono); font-size:0.75rem; flex-wrap:wrap; gap:8px;">
           <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-            <span class="badge-tag" style="background:rgba(81,207,102,0.15); color:#51CF66; padding:2px 8px; border-radius:4px; font-weight:700;"><i class="fa-solid fa-circle-nodes"></i> LIVE REAL DATA ACTIVE</span>
-            <span id="boundSecBadge" style="font-weight:700; color:#22d3ee;">-</span>
-            <span id="boundSecMetrics" style="color:#d1d5db;">-</span>
+            <span class="badge-tag" style="background:rgba(16,185,129,0.15); color:#10b981; padding:3px 8px; border-radius:4px; font-weight:800; display:inline-flex; align-items:center; gap:6px;"><span class="live-pulse-dot" style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981;"></span> LIVE REAL-TIME STREAM ACTIVE (NO MOCKUP)</span>
+            <span id="boundSecBadge" style="font-weight:700; color:#22d3ee;">RELIANCE.NS (NSE)</span>
+            <span id="boundSecMetrics" style="color:#d1d5db;">Streaming Live Ticks...</span>
           </div>
-          <button class="lab-chip" id="btnUnbindSec" style="padding:3px 10px; font-size:0.68rem; cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> Reset to Defaults</button>
+          <button class="lab-chip" id="btnUnbindSec" style="padding:3px 10px; font-size:0.68rem; cursor:pointer;"><i class="fa-solid fa-rotate-left"></i> Reset to Custom Sliders</button>
         </div>
 
         <!-- Presets Bar -->
@@ -738,6 +862,7 @@
   <script src="perspectiveGrid.js"></script>
   <script src="engine.js"></script>
   <script src="chartSuite.js"></script>
+  <script src="learnLaymanKnowledge.js"></script>
   <script src="learnMathEngine.js"></script>
   <script src="learn.js"></script>
   <script src="microstructureEngine.js"></script>

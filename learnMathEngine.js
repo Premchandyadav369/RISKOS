@@ -5756,12 +5756,46 @@ const LearnMathEngine = (() => {
     }
   ];
 
+  // ── Bulletproof LaTeX Sanitization & Layman Knowledge Enrichment ─────────────
+  const sanitizeLatexString = (raw) => {
+    if (!raw) return '';
+    let clean = String(raw).trim();
+    clean = clean.replace(/(^|[^\\])%/g, '$1\\%');
+    clean = clean.replace(/₹/g, '\\text{₹}');
+    clean = clean.replace(/(^|[^\\])\$(?!\$)/g, '$1\\$');
+    return clean;
+  };
+
+  const LaymanKnowledge = (typeof LearnLaymanKnowledge !== 'undefined')
+    ? LearnLaymanKnowledge
+    : (typeof require !== 'undefined' ? (() => { try { return require('./learnLaymanKnowledge.js'); } catch (e) { return {}; } })() : {});
+
+  MODULES_DIRECTORY.forEach(mod => {
+    const rawCalc = mod.calc;
+    mod.calc = function(inputs, currency) {
+      const res = rawCalc(inputs, currency);
+      if (res) {
+        if (res.equationLatex) res.equationLatex = sanitizeLatexString(res.equationLatex);
+        if (res.substitutedLatex) res.substitutedLatex = sanitizeLatexString(res.substitutedLatex);
+        const k = LaymanKnowledge[mod.id];
+        if (k) {
+          if (!res.whatIsIt) res.whatIsIt = k.whatIsIt;
+          if (!res.laymanExplanation) res.laymanExplanation = k.analogy;
+          if (!res.whyItMatters) res.whyItMatters = k.whyItMatters;
+          if (!res.realWorldExample) res.realWorldExample = k.realWorldExample;
+        }
+      }
+      return res;
+    };
+  });
+
   return {
     USD_TO_INR,
     formatMoney,
     formatPercent,
     convertCurrency,
     MODULES_DIRECTORY,
+    LAYMAN_KNOWLEDGE_MAP: LaymanKnowledge,
     getModuleById: (id) => MODULES_DIRECTORY.find(m => m.id === id) || MODULES_DIRECTORY[0]
   };
 })();

@@ -1435,4 +1435,39 @@ header.header {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 
+/* ── Interactive Quantitative Strategy Simulator Sandbox ──────────────── */
+.quant-sim-desk-section {
+  position: relative;
+  z-index: 10;
+}
+
+.sim-desk-container {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 960px) {
+  .sim-sandbox-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.live-pulse-dot {
+  animation: pulse-live-green 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse-live-green {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    transform: scale(1.15);
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
 

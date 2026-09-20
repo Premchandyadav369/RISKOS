@@ -23,8 +23,8 @@
     activeCategory: 'all',
     explanationMode: 'beginner', // 'beginner' | 'investor' | 'quant'
     currency: 'INR',
-    sourceMode: 'custom', // 'custom' | 'security'
-    activeSecuritySymbol: 'RELIANCE',
+    sourceMode: 'security', // Default to Real-Time Live Security Data (No Mockups)
+    activeSecuritySymbol: 'RELIANCE.NS',
     simInputs: {},
     chartInstance: null,
     savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]')
@@ -270,11 +270,9 @@
   };
 
   // ── Bulletproof Synchronous KaTeX / MathJax Math Renderer ────────────────
-  const renderLatexFormula = (containerEl, rawLatex, isDisplayMode = true) => {
-    if (!containerEl || !rawLatex) return;
-
-    // Clean off any outer delimiters: $$, $, \[, \], \(, \)
-    let clean = String(rawLatex).trim();
+  const sanitizeLatex = (raw) => {
+    if (!raw) return '';
+    let clean = String(raw).trim();
     if (clean.startsWith('$$') && clean.endsWith('$$') && clean.length >= 4) {
       clean = clean.slice(2, -2).trim();
     } else if (clean.startsWith('\\[') && clean.endsWith('\\]') && clean.length >= 4) {
@@ -282,6 +280,19 @@
     } else if (clean.startsWith('\\(') && clean.endsWith('\\)') && clean.length >= 4) {
       clean = clean.slice(2, -2).trim();
     }
+    // Escape unescaped % so it never comments out the formula in KaTeX
+    clean = clean.replace(/(^|[^\\])%/g, '$1\\%');
+    // Wrap raw ₹ in \text{₹}
+    clean = clean.replace(/₹/g, '\\text{₹}');
+    // Escape single unescaped $
+    clean = clean.replace(/(^|[^\\])\$(?!\$)/g, '$1\\$');
+    return clean;
+  };
+
+  const renderLatexFormula = (containerEl, rawLatex, isDisplayMode = true) => {
+    if (!containerEl || !rawLatex) return;
+
+    const clean = sanitizeLatex(rawLatex);
 
     // 1. Primary: Direct Synchronous KaTeX Compilation (Instant 0ms, Zero text flash)
     if (typeof katex !== 'undefined' && typeof katex.render === 'function') {
@@ -348,7 +359,18 @@
     const focalLbl = document.getElementById('focalLabel');
     const depthBadge = document.getElementById('currentDepthBadge');
 
-    if (underLead) underLead.textContent = res.whatIsIt || res.beginnerText || '';
+    const k = (typeof LearnLaymanKnowledge !== 'undefined' && LearnLaymanKnowledge[mod.id])
+      ? LearnLaymanKnowledge[mod.id]
+      : (typeof LearnMathEngine !== 'undefined' && LearnMathEngine.LAYMAN_KNOWLEDGE_MAP && LearnMathEngine.LAYMAN_KNOWLEDGE_MAP[mod.id])
+        ? LearnMathEngine.LAYMAN_KNOWLEDGE_MAP[mod.id]
+        : null;
+
+    const whatText = (k && k.whatIsIt) || res.whatIsIt || res.beginnerText || '';
+    const analogyText = (k && k.analogy) || res.laymanExplanation || res.beginnerText || '';
+    const whyText = (k && k.whyItMatters) || res.whyItMatters || res.investorText || '';
+    const exTextVal = (k && k.realWorldExample) || res.realWorldExample || res.plainResult || '';
+
+    if (underLead) underLead.textContent = whatText;
     if (underBody) {
       if (labState.explanationMode === 'quant') {
         underBody.textContent = res.quantText || res.plainResult;
@@ -356,21 +378,17 @@
         underBody.textContent = res.investorText || res.plainResult;
       } else {
         // Beginner mode: avoid duplicate of underLead
-        underBody.textContent = (res.beginnerText && res.beginnerText !== res.whatIsIt)
+        underBody.textContent = (res.beginnerText && res.beginnerText !== whatText)
           ? res.beginnerText
-          : `Adjust the sliders in the experiment panel below to observe the immediate effect on the ${mod.shortTitle} calculation.`;
+          : `Use the interactive simulation sliders in the panel below to observe how changing key variables immediately affects the ${mod.shortTitle} calculation in real-time.`;
       }
     }
-    if (whyMatters) whyMatters.textContent = res.whyItMatters || res.investorText || '';
+    if (whyMatters) whyMatters.textContent = whyText;
 
     const laymanText = document.getElementById('laymanAnalogyText');
     const exText = document.getElementById('realWorldExampleText');
-    if (laymanText) {
-      laymanText.textContent = res.beginnerText || res.laymanExplanation || 'Think of this metric as an intuitive gauge of risk vs reward, smoothing out market noise.';
-    }
-    if (exText) {
-      exText.textContent = res.realWorldExample || res.plainResult || 'Consider investing ₹1,00,000 in an index fund or industry leader under steady compounding.';
-    }
+    if (laymanText) laymanText.textContent = analogyText;
+    if (exText) exText.textContent = exTextVal;
     if (focalSym) focalSym.textContent = res.focalSymbol || mod.badge || 'METRIC';
     if (focalLbl) focalLbl.textContent = res.focalLabel || 'Evaluated Value';
     if (focalVal) {
@@ -1278,10 +1296,47 @@
       }, 200);
     });
 
+    // Source Mode Toggle (Custom vs Live Security)
+    const simSourceToggle = document.getElementById('simSourceToggle');
+    if (simSourceToggle) {
+      simSourceToggle.querySelectorAll('.sim-source-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.dataset.source;
+          labState.sourceMode = mode;
+          simSourceToggle.querySelectorAll('.sim-source-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+
+          const secBar = document.getElementById('simRealSecurityBar');
+          const liveStrip = document.getElementById('simLiveSecurityStrip');
+
+          if (mode === 'security') {
+            if (secBar) {
+              secBar.classList.add('active');
+              secBar.style.display = 'flex';
+            }
+            if (liveStrip) liveStrip.style.display = 'flex';
+            window.bindRealTickerToLab(labState.activeSecuritySymbol || 'RELIANCE.NS');
+          } else {
+            if (secBar) {
+              secBar.classList.remove('active');
+              secBar.style.display = 'none';
+            }
+            if (liveStrip) liveStrip.style.display = 'none';
+            const mod = LearnMathEngine.getModuleById(labState.activeModuleId);
+            if (mod && mod.defaultInputs) {
+              labState.simInputs = { ...mod.defaultInputs };
+              renderControlsPanel(mod);
+              evaluateActiveModule();
+            }
+          }
+        });
+      });
+    }
+
     // Wire live tick subscriber to automatically update lab price inputs in real-time
     SecurityMaster.subscribeLiveTicks((updates) => {
       if (!labState.activeSecuritySymbol) return;
-      const match = updates.find(u => u.symbol === labState.activeSecuritySymbol);
+      const match = updates.find(u => u.symbol === labState.activeSecuritySymbol || u.symbol === labState.activeSecuritySymbol.replace('.NS', ''));
       if (match && match.price) {
         const mod = LearnMathEngine.getModuleById(labState.activeModuleId);
         if (!mod || !mod.controls) return;
@@ -1294,6 +1349,16 @@
             hasPriceKey = true;
           }
         });
+
+        // Flash Live Security strip metrics
+        const metricsEl = document.getElementById('boundSecMetrics');
+        if (metricsEl) {
+          const currSym = match.currency === 'INR' ? '₹' : '$';
+          metricsEl.textContent = `Price: ${currSym}${match.price.toFixed(2)} | Change: ${match.change >= 0 ? '+' : ''}${match.changePercent.toFixed(2)}% | High: ${currSym}${match.high || match.price} | Low: ${currSym}${match.low || match.price}`;
+          metricsEl.classList.remove('price-flash-up', 'price-flash-down');
+          void metricsEl.offsetWidth;
+          metricsEl.classList.add(match.delta >= 0 ? 'price-flash-up' : 'price-flash-down');
+        }
 
         if (hasPriceKey) {
           renderControlsPanel(mod);
@@ -1980,6 +2045,7 @@
     renderTopModulesBar();
     renderAllModulesGrid();
     initStructuredLearningTracks();
+    initStrategySimulatorDesk();
     switchModule(targetMod || 'cagr', false);
 
     window.addEventListener('popstate', (e) => {
@@ -1989,17 +2055,10 @@
     });
 
     if (targetSec && typeof SecurityMaster !== 'undefined') {
-      SecurityMaster.resolveSecurity(targetSec).then(sec => {
-        if (sec && (sec.basePrice || sec.price_inr)) {
-          const pr = sec.basePrice || sec.price_inr;
-          if (labState.activeModuleId === 'pe_valuation') {
-            labState.simInputs.price = pr;
-            labState.simInputs.eps = Number((pr / (sec.pe || 25)).toFixed(2));
-          }
-          renderControlsPanel(LearnMathEngine.getModuleById(labState.activeModuleId));
-          evaluateActiveModule();
-        }
-      });
+      window.bindRealTickerToLab(targetSec);
+    } else if (typeof window.bindRealTickerToLab === 'function') {
+      // Default to Live Real-Time Blue Chip Benchmark (Zero Mockups)
+      window.bindRealTickerToLab('RELIANCE.NS');
     }
 
     // 11. Render static ambient math tags across the entire laboratory
@@ -2018,6 +2077,317 @@
         console.warn('Initial ambient KaTeX render notice:', e);
       }
     }
+  };
+
+  // ── Interactive Systematic Strategy Simulation Sandbox ───────────────────
+  const initStrategySimulatorDesk = () => {
+    const deskSection = document.getElementById('quantSimDeskSection');
+    if (!deskSection) return;
+
+    const stratBtns = deskSection.querySelectorAll('.strat-pill-btn');
+    const capitalSlider = document.getElementById('simDeskCapital');
+    const capitalVal = document.getElementById('simDeskCapitalVal');
+    const regimeSelect = document.getElementById('simDeskRegime');
+    const slippageSelect = document.getElementById('simDeskSlippage');
+    const speedSlider = document.getElementById('simDeskSpeed');
+    const speedVal = document.getElementById('simDeskSpeedVal');
+    const btnRun = document.getElementById('btnSimDeskRun');
+    const btnStep = document.getElementById('btnSimDeskStep');
+    const btnReset = document.getElementById('btnSimDeskReset');
+    const btnOpenLab = document.getElementById('btnSimDeskOpenLab');
+
+    const navEl = document.getElementById('simDeskNav');
+    const pnlEl = document.getElementById('simDeskPnl');
+    const sharpeEl = document.getElementById('simDeskSharpe');
+    const mddEl = document.getElementById('simDeskMdd');
+    const fillsCountEl = document.getElementById('simDeskFillsCount');
+    const tapeContainer = document.getElementById('simDeskTapeContainer');
+    const canvas = document.getElementById('simDeskCanvas');
+
+    let currentStrat = 'dual_momentum';
+    let isRunning = false;
+    let timer = null;
+    let tickCount = 0;
+    let initialCapital = 1000000;
+    let currentNAV = 1000000;
+    let peakNAV = 1000000;
+    let maxDrawdown = 0;
+    let fills = [];
+    let navHistory = [1000000];
+    let labelsHistory = ['T0'];
+    let chartInstance = null;
+
+    const STRAT_MAP = {
+      dual_momentum: { name: 'Dual Momentum & Vol Targeting', labId: 'dual_momentum_antonacci', basePrice: 2500, symbol: 'NIFTY/RELIANCE' },
+      kalman_pairs: { name: 'Kalman Cointegration Stat-Arb', labId: 'kalman_pairs', basePrice: 1550, symbol: 'HDFCBANK/ICICIBANK' },
+      avellaneda: { name: 'Avellaneda-Stoikov HFT Market Making', labId: 'avellaneda_stoikov', basePrice: 100, symbol: 'OFI-L2-TICK' },
+      gex_pinning: { name: '0DTE Gamma Exposure Pinning', labId: 'gex_0dte_pinning', basePrice: 24200, symbol: 'NIFTY-0DTE' },
+      basis_carry: { name: 'Cash & Carry Futures Basis Roll', labId: 'futures_basis_carry', basePrice: 24350, symbol: 'NIFTY-FUT-BASIS' },
+      hawkes: { name: 'Hawkes Liquidity Cascades', labId: 'hawkes_liquidity_cascades', basePrice: 215, symbol: 'OFI-CASCADES' }
+    };
+
+    const initDeskChart = () => {
+      if (!canvas || typeof Chart === 'undefined') return;
+      const ctx = canvas.getContext('2d');
+      if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labelsHistory,
+          datasets: [{
+            label: 'Portfolio Equity (₹)',
+            data: navHistory,
+            borderColor: '#22d3ee',
+            backgroundColor: 'rgba(34, 211, 238, 0.08)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.2,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 120 },
+          scales: {
+            x: {
+              display: false,
+              grid: { color: 'rgba(255,255,255,0.04)' }
+            },
+            y: {
+              grid: { color: 'rgba(255,255,255,0.06)' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10, family: 'JetBrains Mono' },
+                callback: (v) => LearnMathEngine ? LearnMathEngine.formatMoney(v, 'INR', true) : `₹${v}`
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `NAV: ${LearnMathEngine ? LearnMathEngine.formatMoney(ctx.parsed.y, 'INR', false) : '₹' + ctx.parsed.y}`
+              }
+            }
+          }
+        }
+      });
+    };
+
+    const resetSimulation = () => {
+      isRunning = false;
+      if (timer) clearInterval(timer);
+      timer = null;
+      if (btnRun) {
+        btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run Sim';
+        btnRun.classList.add('primary');
+      }
+
+      initialCapital = Number(capitalSlider ? capitalSlider.value : 1000000);
+      currentNAV = initialCapital;
+      peakNAV = initialCapital;
+      maxDrawdown = 0;
+      tickCount = 0;
+      fills = [];
+      navHistory = [initialCapital];
+      labelsHistory = ['T0'];
+
+      updateUI();
+      initDeskChart();
+      if (tapeContainer) {
+        tapeContainer.innerHTML = `<div style="color: var(--text-muted); text-align: center; padding: 20px 0;">Simulation ready with ${LearnMathEngine ? LearnMathEngine.formatMoney(initialCapital, 'INR', true) : '₹' + initialCapital}. Click "Run Sim" to stream live fills.</div>`;
+      }
+    };
+
+    const stepTick = () => {
+      tickCount++;
+      const reg = regimeSelect ? regimeSelect.value : 'bull_trend';
+      const slipModel = slippageSelect ? slippageSelect.value : 'sqrt_impact';
+      const stratInfo = STRAT_MAP[currentStrat] || STRAT_MAP.dual_momentum;
+
+      let drift = 0.0004;
+      let vol = 0.004;
+      if (reg === 'bull_trend') { drift = 0.0008; vol = 0.003; }
+      else if (reg === 'range_bound') { drift = 0.0000; vol = 0.005; }
+      else if (reg === 'bear_crash') { drift = -0.0012; vol = 0.009; }
+      else if (reg === 'flash_crash') { drift = tickCount % 8 === 0 ? -0.015 : 0.002; vol = 0.012; }
+
+      let stratEdge = 0.0005;
+      if (currentStrat === 'kalman_pairs' && reg === 'range_bound') stratEdge = 0.0012;
+      if (currentStrat === 'dual_momentum' && reg === 'bull_trend') stratEdge = 0.0015;
+      if (currentStrat === 'basis_carry') { drift = 0.0003; vol = 0.0004; stratEdge = 0.0004; }
+
+      const z = (Math.random() - 0.5) * 2;
+      const returnPct = drift + stratEdge + z * vol;
+
+      let slipBps = 1.5;
+      if (slipModel === 'sqrt_impact') slipBps = 3.2 + Math.random() * 2.0;
+      else if (slipModel === 'toxic_adverse') slipBps = 7.5 + Math.random() * 4.0;
+      else if (slipModel === 'zero_slip') slipBps = 0.0;
+
+      const netReturn = returnPct - (slipBps / 10000);
+      currentNAV = Math.max(10000, currentNAV * (1 + netReturn));
+      if (currentNAV > peakNAV) peakNAV = currentNAV;
+      const dd = ((peakNAV - currentNAV) / peakNAV) * 100;
+      if (dd > maxDrawdown) maxDrawdown = dd;
+
+      navHistory.push(Math.round(currentNAV));
+      labelsHistory.push(`T${tickCount}`);
+      if (navHistory.length > 50) {
+        navHistory.shift();
+        labelsHistory.shift();
+      }
+
+      const side = netReturn >= 0 ? 'BUY' : 'SELL';
+      const qty = Math.max(1, Math.round((currentNAV * 0.05) / stratInfo.basePrice));
+      const execPrice = Number((stratInfo.basePrice * (1 + (tickCount * 0.0002) + z * 0.005)).toFixed(2));
+      const fillPnL = Math.round(currentNAV * netReturn);
+
+      fills.unshift({
+        tick: tickCount,
+        time: new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+        side,
+        qty,
+        price: execPrice,
+        slip: slipBps.toFixed(1),
+        pnl: fillPnL
+      });
+      if (fills.length > 25) fills.pop();
+
+      updateUI();
+      if (chartInstance) {
+        chartInstance.update();
+      }
+      renderTape();
+    };
+
+    const renderTape = () => {
+      if (!tapeContainer) return;
+      tapeContainer.innerHTML = fills.slice(0, 8).map(f => {
+        const isWin = f.pnl >= 0;
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 5px 8px; border-radius: 4px; border-left: 3px solid ${isWin ? '#10b981' : '#ef4444'};">
+            <div>
+              <span style="color: ${f.side === 'BUY' ? '#10b981' : '#f59e0b'}; font-weight: 700;">${f.side}</span>
+              <span style="color: #94a3b8; margin-left: 4px;">${f.qty}x @ ₹${f.price}</span>
+            </div>
+            <div style="text-align: right;">
+              <span style="color: ${isWin ? '#10b981' : '#ef4444'}; font-weight: 700;">${isWin ? '+' : ''}₹${Math.abs(f.pnl).toLocaleString('en-IN')}</span>
+              <span style="color: #64748b; font-size: 0.62rem; margin-left: 4px;">(${f.slip}bps)</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    };
+
+    const updateUI = () => {
+      if (capitalVal && capitalSlider) {
+        capitalVal.textContent = LearnMathEngine ? LearnMathEngine.formatMoney(capitalSlider.value, 'INR', true) : `₹${capitalSlider.value}`;
+      }
+      if (speedVal && speedSlider) {
+        speedVal.textContent = `${speedSlider.value}× (${speedSlider.value > 10 ? 'Hyper' : speedSlider.value > 3 ? 'Fast' : 'Real-Time'})`;
+      }
+      if (navEl) {
+        navEl.textContent = LearnMathEngine ? LearnMathEngine.formatMoney(currentNAV, 'INR', true) : `₹${currentNAV.toFixed(0)}`;
+      }
+      if (pnlEl) {
+        const absPnl = currentNAV - initialCapital;
+        const pctPnl = ((absPnl / initialCapital) * 100).toFixed(2);
+        const isPos = absPnl >= 0;
+        pnlEl.textContent = `${isPos ? '+' : ''}${LearnMathEngine ? LearnMathEngine.formatMoney(absPnl, 'INR', true) : '₹' + absPnl} (${isPos ? '+' : ''}${pctPnl}%)`;
+        pnlEl.style.color = isPos ? '#10b981' : '#ef4444';
+      }
+      if (sharpeEl) {
+        const annReturn = ((currentNAV - initialCapital) / initialCapital) * (252 / Math.max(1, tickCount));
+        const sharpe = Math.max(0, Math.min(3.5, 1.25 + (annReturn * 2) - (maxDrawdown * 0.05))).toFixed(2);
+        sharpeEl.textContent = sharpe;
+      }
+      if (mddEl) {
+        mddEl.textContent = `-${maxDrawdown.toFixed(2)}%`;
+      }
+      if (fillsCountEl) {
+        fillsCountEl.textContent = `${fills.length} Fills`;
+      }
+    };
+
+    // Event Listeners
+    if (capitalSlider) capitalSlider.addEventListener('input', resetSimulation);
+    if (speedSlider) {
+      speedSlider.addEventListener('input', () => {
+        updateUI();
+        if (isRunning) {
+          clearInterval(timer);
+          const ms = Math.max(50, Math.round(1000 / Number(speedSlider.value)));
+          timer = setInterval(stepTick, ms);
+        }
+      });
+    }
+    if (regimeSelect) regimeSelect.addEventListener('change', () => { updateUI(); });
+    if (slippageSelect) slippageSelect.addEventListener('change', () => { updateUI(); });
+
+    stratBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        stratBtns.forEach(b => {
+          b.classList.remove('active');
+          b.style.background = 'rgba(255,255,255,0.04)';
+          b.style.color = 'var(--text-muted)';
+          b.style.borderColor = 'rgba(255,255,255,0.08)';
+        });
+        btn.classList.add('active');
+        btn.style.background = 'rgba(34,211,238,0.2)';
+        btn.style.color = '#22d3ee';
+        btn.style.borderColor = 'rgba(34,211,238,0.4)';
+        currentStrat = btn.dataset.strat;
+        resetSimulation();
+      });
+    });
+
+    if (btnRun) {
+      btnRun.addEventListener('click', () => {
+        isRunning = !isRunning;
+        if (isRunning) {
+          btnRun.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+          btnRun.classList.remove('primary');
+          const spd = speedSlider ? Number(speedSlider.value) : 5;
+          const ms = Math.max(50, Math.round(1000 / spd));
+          timer = setInterval(stepTick, ms);
+        } else {
+          btnRun.innerHTML = '<i class="fa-solid fa-play"></i> Run Sim';
+          btnRun.classList.add('primary');
+          clearInterval(timer);
+          timer = null;
+        }
+      });
+    }
+
+    if (btnStep) {
+      btnStep.addEventListener('click', () => {
+        if (!isRunning) stepTick();
+      });
+    }
+
+    if (btnReset) {
+      btnReset.addEventListener('click', resetSimulation);
+    }
+
+    if (btnOpenLab) {
+      btnOpenLab.addEventListener('click', () => {
+        const stratInfo = STRAT_MAP[currentStrat];
+        if (stratInfo && stratInfo.labId) {
+          switchModule(stratInfo.labId);
+          const targetEl = document.getElementById('activeLabWorkspace');
+          if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+
+    initDeskChart();
+    updateUI();
   };
 
   const initLearnMarketRibbon = () => {
@@ -2048,17 +2418,8 @@
         item.addEventListener('click', () => {
           const sym = item.dataset.symbol;
           SecurityMaster.resolveSecurity(sym).then(sec => {
-            if (sec) {
-              labState.activeSecuritySymbol = sec.symbol;
-              const pr = sec.basePrice || 1000;
-              if (labState.simInputs.price !== undefined) labState.simInputs.price = pr;
-              if (labState.simInputs.eps !== undefined) labState.simInputs.eps = Number((pr / (sec.pe || 25)).toFixed(2));
-              if (labState.simInputs.pv !== undefined) labState.simInputs.pv = pr;
-              if (labState.simInputs.pe !== undefined) labState.simInputs.pe = sec.pe || 25;
-              if (labState.simInputs.beta !== undefined) labState.simInputs.beta = sec.beta || 1.0;
-              if (labState.simInputs.volatility !== undefined) labState.simInputs.volatility = (sec.vol || 0.20) * 100;
-              renderControlsPanel(LearnMathEngine.getModuleById(labState.activeModuleId));
-              evaluateActiveModule();
+            if (sec && typeof bindSecurityToActiveLab === 'function') {
+              bindSecurityToActiveLab(sec);
             }
           });
         });
