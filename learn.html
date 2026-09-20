@@ -178,23 +178,210 @@
               <span class="chip-dot chip-dot--cyan"></span>
               <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.06em; text-transform: uppercase;">Structured Financial Knowledge Pathways</span>
             </div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">PLATFORM MASTERY CURRICULUM &bull; 4 STRUCTURED PATHS</h3>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">PLATFORM MASTERY CURRICULUM &bull; 8 STRUCTURED PATHS (56 SIMULATIONS)</h3>
             <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Step-by-step interactive simulations designed to master all financial concepts powering RISKOS for both layman and professional.</p>
           </div>
 
           <!-- Persona Filter Tabs -->
-          <div class="curriculum-persona-filter" style="display: flex; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px; gap: 4px;">
-            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">All 4 Tracks</button>
-            <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Layman &amp; Retail</button>
-            <button class="curriculum-filter-btn" id="filterCurriculumPro" data-curriculum="professional" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 14px; font-size: 0.75rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-graduation-cap text-cyan" style="margin-right: 5px;"></i> Professional Quant</button>
+          <div class="curriculum-persona-filter" style="display: flex; flex-wrap: wrap; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px; gap: 4px;">
+            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">All 8 Tracks (56 Labs)</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Layman &amp; Retail</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumTrading" data-curriculum="trading" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-chart-line text-pink" style="margin-right: 5px;"></i> Trading Strategies</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumInst" data-curriculum="institutional" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-building-columns text-cyan" style="margin-right: 5px;"></i> Institutional Risk</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumAiHft" data-curriculum="ai_hft" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-brain text-purple" style="margin-right: 5px;"></i> HFT &amp; AI Alpha</button>
           </div>
         </div>
 
-        <!-- 4 Structured Tracks Grid -->
+        <!-- 8 Structured Tracks Grid -->
         <div class="curriculum-tracks-grid" id="curriculumTracksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px;">
           <!-- Track Cards populated dynamically by initStructuredLearningTracks in learn.js -->
         </div>
 
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 2.8 QUANTITATIVE TRADING STRATEGIES BLUEPRINTS ═══════════════════════ -->
+    <section class="trading-strategies-section" id="tradingStrategiesSection" style="margin: 0 auto 24px auto; max-width: 1380px; padding: 0 16px;">
+      <div class="strategies-container">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; margin-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); padding-bottom: 14px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="chip-dot chip-dot--pink"></span>
+              <span style="font-size: 0.72rem; font-weight: 800; color: #ec4899; letter-spacing: 0.06em; text-transform: uppercase;">Quantitative Trading Blueprints</span>
+            </div>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">INSTITUTIONAL QUANTITATIVE TRADING STRATEGIES</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Comprehensive architectural blueprints of top systematic strategies running across RISKOS. Click any strategy to load its simulation lab immediately.</p>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-muted); background: rgba(236, 72, 153, 0.1); border: 1px solid rgba(236, 72, 153, 0.25); padding: 4px 10px; border-radius: 6px;"><i class="fa-solid fa-code-branch text-pink" style="margin-right: 5px;"></i>6 Production Strategy Paradigms</span>
+        </div>
+
+        <!-- 6 Strategy Cards Grid -->
+        <div class="strategies-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 18px;">
+          
+          <!-- Card 1: Dual Momentum -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #ec4899;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(236, 72, 153, 0.15); color: #ec4899;"><i class="fa-solid fa-chart-line"></i></div>
+                <div>
+                  <h4 class="strat-title">Dual Momentum &amp; Volatility Targeting</h4>
+                  <span class="strat-sub">Absolute Trend + Cross-Asset Relative Strength</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #ec4899; border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.1);">TREND / MOMENTUM</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">Execution Invariant:</span>
+              <div class="formula-math">$$w_i(t) = \min\left(w_{\max}, \frac{\sigma_{\text{tgt}}}{\sigma_i(t)}\right) \cdot \mathbf{1}_{\{ R_i(12\text{M}) > R_f \}} \cdot \mathbf{1}_{\{ \text{Rank}(R_i) \le K \}}$$</div>
+            </div>
+            <p class="strat-desc">Combines Antonacci absolute momentum (flight to cash/T-Bills if 12M return is negative) with cross-sectional relative strength. Volatility targeting dynamically rescales position size inverse to 20-day realized volatility.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Lookback: 252D</span>
+              <span class="param-tag"><i class="fa-solid fa-bullseye"></i> Vol Target: 15%</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> Sharpe: ~1.45</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="dual_momentum_antonacci" style="border-color: rgba(236, 72, 153, 0.4); color: #ec4899;">
+              <i class="fa-solid fa-flask"></i> Launch Dual Momentum Simulation Lab
+            </button>
+          </div>
+
+          <!-- Card 2: Kalman Stat Arb -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #3b82f6;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6;"><i class="fa-solid fa-arrows-split-up-and-left"></i></div>
+                <div>
+                  <h4 class="strat-title">Kalman Filter Cointegration Stat-Arb</h4>
+                  <span class="strat-sub">Dynamic State-Space Pairs &amp; Basket Mean Reversion</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #3b82f6; border-color: rgba(59, 130, 246, 0.3); background: rgba(59, 130, 246, 0.1);">STAT ARB / PAIRS</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">State-Space Model:</span>
+              <div class="formula-math">$$y_t = \beta_t x_t + \epsilon_t, \quad \beta_t = \beta_{t-1} + \omega_t, \quad z_t = \frac{\epsilon_t - \mu_\epsilon}{\sigma_\epsilon}$$</div>
+            </div>
+            <p class="strat-desc">Replaces static linear regression with recursive Kalman filtering to estimate time-varying hedge ratios $\beta_t$. Triggers mean-reversion long/short entry when spread z-score exceeds $\pm 2.0\sigma$, exiting at $z=0$.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Entry: |z| &ge; 2.0&sigma;</span>
+              <span class="param-tag"><i class="fa-solid fa-stopwatch"></i> Half-Life: ~8.4D</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> Market-Neutral: &beta; = 0</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="kalman_pairs" style="border-color: rgba(59, 130, 246, 0.4); color: #3b82f6;">
+              <i class="fa-solid fa-flask"></i> Launch Kalman Stat-Arb Simulation Lab
+            </button>
+          </div>
+
+          <!-- Card 3: Avellaneda-Stoikov -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #06b6d4;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(6, 182, 212, 0.15); color: #06b6d4;"><i class="fa-solid fa-network-wired"></i></div>
+                <div>
+                  <h4 class="strat-title">Avellaneda-Stoikov HFT Market Making</h4>
+                  <span class="strat-sub">Optimal Inventory Risk Skew &amp; Spread Capture</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #06b6d4; border-color: rgba(6, 182, 212, 0.3); background: rgba(6, 182, 212, 0.1);">HFT / MARKET MAKING</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">Reservation Price:</span>
+              <div class="formula-math">$$r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$</div>
+            </div>
+            <p class="strat-desc">High-frequency market making model where the quoting engine continuously shades bid and ask distances based on active inventory $q$. Long inventory skews quotes downward to attract aggressive sells and deter buys.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Risk Aversion: &gamma; = 0.1</span>
+              <span class="param-tag"><i class="fa-solid fa-bolt"></i> Latency: &lt; 500&mu;s</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> Max Inventory: &plusmn;500</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="avellaneda_stoikov" style="border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
+              <i class="fa-solid fa-flask"></i> Launch Avellaneda-Stoikov Lab
+            </button>
+          </div>
+
+          <!-- Card 4: 0DTE GEX Pinning -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #f59e0b;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b;"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <div>
+                  <h4 class="strat-title">0DTE Options Gamma Exposure (GEX)</h4>
+                  <span class="strat-sub">Market Maker Hedging Reflexivity &amp; Strike Pinning</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.1);">DERIVATIVES / GEX</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">Net Market GEX:</span>
+              <div class="formula-math">$$\text{Net GEX} = \sum_i \Gamma_i \cdot \text{OI}_{i, \text{call}} \cdot S - \sum_j \Gamma_j \cdot \text{OI}_{j, \text{put}} \cdot S$$</div>
+            </div>
+            <p class="strat-desc">Tracks dealer hedging constraints across weekly expiry options chains. High positive Net GEX acts as a volatility sponge pinning price to maximum open interest strikes; negative GEX triggers violent trending breakouts.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Flip Strike: K_zero</span>
+              <span class="param-tag"><i class="fa-solid fa-clock"></i> Expiry: 0DTE / Weekly</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> Reflexivity: 85%</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="gex_0dte_pinning" style="border-color: rgba(245, 158, 11, 0.4); color: #f59e0b;">
+              <i class="fa-solid fa-flask"></i> Launch 0DTE GEX Pinning Lab
+            </button>
+          </div>
+
+          <!-- Card 5: Futures Basis Carry -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #10b981;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(16, 185, 129, 0.15); color: #10b981;"><i class="fa-solid fa-coins"></i></div>
+                <div>
+                  <h4 class="strat-title">Cash &amp; Carry Futures Basis Roll</h4>
+                  <span class="strat-sub">Spot-Futures Yield Capture &amp; Term Structure Arbitrage</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #10b981; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.1);">CARRY / COMMODITIES</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">Annualized Basis APR:</span>
+              <div class="formula-math">$$\text{APR} = \left( \frac{F_t - S_t}{S_t} \right) \times \frac{365}{T - t} - (r_{\text{borrow}} + \text{Carry Cost})$$</div>
+            </div>
+            <p class="strat-desc">Capitalizes on futures basis contango/backwardation spreads. Buys spot and shorts near-month futures when basis yield exceeds money market financing costs, capturing mechanical price convergence at contract expiry.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Basis APR: 8.5% - 14%</span>
+              <span class="param-tag"><i class="fa-solid fa-repeat"></i> Roll Cadence: Monthly</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> Delta Risk: ~0</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="futures_basis_carry" style="border-color: rgba(16, 185, 129, 0.4); color: #10b981;">
+              <i class="fa-solid fa-flask"></i> Launch Futures Basis Carry Lab
+            </button>
+          </div>
+
+          <!-- Card 6: Hawkes Liquidity Cascades -->
+          <div class="strategy-blueprint-card" style="border-top: 3px solid #a855f7;">
+            <div class="strat-header">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="strat-icon-wrap" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;"><i class="fa-solid fa-burst"></i></div>
+                <div>
+                  <h4 class="strat-title">Hawkes Point Process &amp; Order Cascades</h4>
+                  <span class="strat-sub">Self-Exciting Flow &amp; Flash Crash Early Warning</span>
+                </div>
+              </div>
+              <span class="strat-pill" style="color: #a855f7; border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.1);">ORDER FLOW / OFI</span>
+            </div>
+            <div class="strat-formula-box">
+              <span class="formula-label">Conditional Intensity:</span>
+              <div class="formula-math">$$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta} \quad (\eta \ge 1 \implies \text{Runaway Crash})$$</div>
+            </div>
+            <p class="strat-desc">Models mutual excitation of aggressive market orders across limit order book queues. When the branching ratio $\eta = \alpha/\beta$ nears 1.0, order arrival clusters create severe liquidity holes, triggering autonomous defensive de-risking.</p>
+            <div class="strat-tags">
+              <span class="param-tag"><i class="fa-solid fa-sliders"></i> Branching Ratio: &eta; &lt; 0.85</span>
+              <span class="param-tag"><i class="fa-solid fa-triangle-exclamation"></i> Criticality: &eta; &ge; 1.0</span>
+              <span class="param-tag"><i class="fa-solid fa-shield"></i> False Alarms: &lt; 4%</span>
+            </div>
+            <button class="strat-launch-btn" data-module-id="hawkes_liquidity_cascades" style="border-color: rgba(168, 85, 247, 0.4); color: #a855f7;">
+              <i class="fa-solid fa-flask"></i> Launch Hawkes Cascades Lab
+            </button>
+          </div>
+
+        </div>
       </div>
     </section>
 

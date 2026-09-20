@@ -1393,7 +1393,7 @@
       title: 'Retail & Layman Foundations',
       subtitle: 'Wealth Building, Compounding & Safety',
       badge: 'Layman / Retail',
-      persona: 'layman',
+      personas: ['layman'],
       color: '#10b981',
       icon: 'fa-seedling',
       description: 'Master core intuition for wealth building, inflation beat, DCA mechanics, volatility, and safe drawdown recovery before touching any complex models.',
@@ -1411,8 +1411,8 @@
       id: 'frtb_risk',
       title: 'FRTB, Basel III & Risk Architecture',
       subtitle: 'Regulatory Capital, VaR & Default',
-      badge: 'Professional Quant',
-      persona: 'professional',
+      badge: 'Institutional Risk',
+      personas: ['institutional'],
       color: '#3b82f6',
       icon: 'fa-shield-halved',
       description: 'Institutional risk management: Parametric/Historical VaR, Extreme Value Theory (EVT), structural default, and Basel III regulatory stress.',
@@ -1430,8 +1430,8 @@
       id: 'microstructure_execution',
       title: 'Microstructure, OFI & Execution',
       subtitle: 'Order Books, Slippage & Market Impact',
-      badge: 'Professional Quant',
-      persona: 'professional',
+      badge: 'Microstructure',
+      personas: ['institutional', 'trading'],
       color: '#f59e0b',
       icon: 'fa-bolt-lightning',
       description: 'L3 limit order book dynamics, Kyle’s Lambda price impact, Hawkes order arrival cascades, dark pool adverse selection, and Almgren-Chriss optimal liquidation.',
@@ -1449,8 +1449,8 @@
       id: 'ai_alpha',
       title: 'AI, Stochastic Control & Alpha Models',
       subtitle: 'HMM Regimes, SDEs & Deep Hedging',
-      badge: 'Professional Quant',
-      persona: 'professional',
+      badge: 'AI & Machine Learning',
+      personas: ['ai_hft', 'institutional'],
       color: '#a855f7',
       icon: 'fa-brain',
       description: 'Advanced quantitative modeling: Hidden Markov Regimes, Jump-Diffusion, Deep Hedging with Neural SDEs, and Reinforcement Learning execution.',
@@ -1462,6 +1462,82 @@
         { moduleId: 'risk_constrained_kelly', title: 'Risk-Constrained Kelly Criterion', role: 'Fractional capital allocation', unlock: 'Optimal Bet Sizing & Capital Allocation with Ruin Constraints' },
         { moduleId: 'deep_hedging_neural_sde', title: 'Deep Hedging & Neural SDE', role: 'Convex risk neural network optimization', unlock: 'Neural Network Non-Linear Hedging under Friction' },
         { moduleId: 'hayashi_yoshida_lead_lag', title: 'Hayashi-Yoshida Lead-Lag', role: 'High-frequency non-synchronous correlation', unlock: 'High-Frequency Cross-Asset Lead-Lag Arbitrage Detector' }
+      ]
+    },
+    {
+      id: 'quant_strategies',
+      title: 'Quantitative Trading Strategies & Alpha Signals',
+      subtitle: 'Momentum, Stat-Arb, Pairs & Carry',
+      badge: 'Trading Strategies',
+      personas: ['trading'],
+      color: '#ec4899',
+      icon: 'fa-chart-line',
+      description: 'Systematic alpha generation: Time Series Momentum (TSMOM), Antonacci Dual Momentum, Kalman Filter cointegration pairs, and cash & carry futures roll.',
+      steps: [
+        { moduleId: 'tsmom_volatility_targeting', title: 'TSMOM Volatility Targeting', role: 'Time-series momentum & sizing', unlock: 'Volatility-Targeted Trend Following on Ticker Desk' },
+        { moduleId: 'dual_momentum_antonacci', title: 'Dual Momentum (Antonacci)', role: 'Absolute & relative trend filter', unlock: 'Dual Momentum Cross-Asset Allocator' },
+        { moduleId: 'kalman_pairs', title: 'Kalman Filter Pairs Trading', role: 'Dynamic state-space cointegration', unlock: 'Statistical Arbitrage & Pairs Engine' },
+        { moduleId: 'futures_basis_carry', title: 'Futures Cash & Carry Basis', role: 'Spot-futures annualized roll yield', unlock: 'Commodities & Derivatives Carry Scanner' },
+        { moduleId: 'cross_asset_stat_arb', title: 'Cross-Asset Statistical Arbitrage', role: 'Multi-asset mean reversion', unlock: 'Cross-Asset Stat-Arb Matrix on Fleet Desk' },
+        { moduleId: 'sector_relative_strength', title: 'Sector Rotation & RRG Matrix', role: 'Relative rotation graph momentum', unlock: '20-Sector Indicators Desk on Ticker Page' },
+        { moduleId: 'quant_backtest', title: 'Vectorized Quant Backtester', role: 'Historical walk-forward validation', unlock: 'Backtest Sandbox on Analytics Desk' }
+      ]
+    },
+    {
+      id: 'algo_mm',
+      title: 'Algorithmic Market Making & High-Frequency Trading',
+      subtitle: 'Inventory Risk, OFI & Queue Dynamics',
+      badge: 'HFT & Market Making',
+      personas: ['trading', 'ai_hft'],
+      color: '#06b6d4',
+      icon: 'fa-network-wired',
+      description: 'Ultra-low latency front-office algorithms: Avellaneda-Stoikov inventory control, RL market making, and order flow imbalance (OFI) queue prediction.',
+      steps: [
+        { moduleId: 'avellaneda_stoikov', title: 'Avellaneda-Stoikov Market Maker', role: 'Optimal inventory reservation price', unlock: 'High-Frequency Quoting & Inventory Skew Engine' },
+        { moduleId: 'reinforcement_learning_mm', title: 'Reinforcement Learning MM Agent', role: 'Q-learning quoting under adverse flow', unlock: 'Autonomous AI Market Making Swarm' },
+        { moduleId: 'egyptian_pantheon_hft', title: 'Sub-Millisecond L3 OFI Engine', role: 'Microsecond order flow imbalances', unlock: 'Egyptian Pantheon 20-Bot Ultra HFT Swarm' },
+        { moduleId: 'optimal_vwap_execution', title: 'Optimal VWAP Slicing Trajectory', role: 'Volume profile execution schedule', unlock: 'Multi-Venue Smart Order Router (SOR)' },
+        { moduleId: 'hawkes_process', title: 'Hawkes Mutually Exciting Point Process', role: 'Order arrival self-excitation', unlock: 'Liquidity Shock & Toxic Flow Early Warning' },
+        { moduleId: 'hayashi_yoshida_lead_lag', title: 'High-Frequency Lead-Lag Detection', role: 'Non-synchronous cross-venue arbitrage', unlock: 'Cross-Exchange Arbitrage Synapse' },
+        { moduleId: 'perspective_streaming_grid', title: 'High-Throughput Streaming Telemetry', role: 'Real-time order book telemetry grid', unlock: 'Institutional L3 Stream Visualizer' }
+      ]
+    },
+    {
+      id: 'macro_liquidity',
+      title: 'Macroeconomics, Sovereign Debt & Global Liquidity',
+      subtitle: 'Yield Curves, Central Banks & Crises',
+      badge: 'Macro & Liquidity',
+      personas: ['institutional', 'layman'],
+      color: '#8b5cf6',
+      icon: 'fa-earth-americas',
+      description: 'Global macro causality: Yield curve inversion probit recession forecasting, sovereign debt term structures, global currency carry, and liquidity cycles.',
+      steps: [
+        { moduleId: 'yield_curve_probit', title: 'Yield Curve Probit Recession Model', role: '10Y-2Y inversion probability forecast', unlock: 'Macro Observatory Recession Forecaster' },
+        { moduleId: 'nelson_siegel_svensson', title: 'Nelson-Siegel-Svensson Yield Curve', role: 'Zero-coupon sovereign term structure', unlock: 'Sovereign Yield Curve Desk on Observatory' },
+        { moduleId: 'yen_carry_unwind', title: 'Global FX Carry Trade Unwind', role: 'Interest rate differential unwinds', unlock: 'Cross-Currency Margin & Liquidity Radar' },
+        { moduleId: 'commodity_roll_yield', title: 'Commodity Term Structure & Roll', role: 'Contango vs backwardation yields', unlock: 'Commodity Supercycle & Energy Desk' },
+        { moduleId: 'fama_french_5factor', title: 'Fama-French 5-Factor Model', role: 'Size, value, profitability, investment', unlock: 'Barra Multi-Factor Risk Decomposition' },
+        { moduleId: 'cds_index_tranches', title: 'Credit Default Swap (CDX) Tranches', role: 'Synthetic credit correlation pricing', unlock: 'Institutional Credit Risk Engine' },
+        { moduleId: 'scenario_stress', title: 'Black Swan Crisis Stress Replay', role: 'Historical 2008 & 2020 crash replays', unlock: 'Crisis Replay Simulator on Analytics Desk' }
+      ]
+    },
+    {
+      id: 'valuation_pe',
+      title: 'Corporate Valuation, M&A & Private Equity',
+      subtitle: 'DCF, LBO Waterfalls & Capital Efficiency',
+      badge: 'Corporate Finance & PE',
+      personas: ['layman', 'institutional'],
+      color: '#14b8a6',
+      icon: 'fa-coins',
+      description: 'Fundamental analysis and corporate balance sheet modeling: Graham valuation multiples, Gordon dividend growth, DuPont ROE, and private equity LBO debt sweeps.',
+      steps: [
+        { moduleId: 'pe_eps', title: 'P/E Valuation & Earnings Yield', role: 'Graham number anchor & multiple', unlock: 'Fundamental Multiples in Security Master' },
+        { moduleId: 'dividend_discount_model', title: 'Gordon Dividend Discount Model', role: 'Intrinsic equity value capitalization', unlock: 'Dividend Income Projector on Analytics Desk' },
+        { moduleId: 'roe_roce', title: 'DuPont 5-Way ROE / ROCE Breakdown', role: 'Operating margin & financial leverage', unlock: 'Financial Statement Deconstruction Desk' },
+        { moduleId: 'lbo_debt_waterfall', title: 'Private Equity LBO Debt Waterfall', role: 'Senior debt sweep, MOIC & IRR returns', unlock: 'Private Equity / M&A Financial Suite' },
+        { moduleId: 'clo_tranche_waterfall', title: 'CLO Structured Debt Waterfalls', role: 'Subordinated credit loss absorption', unlock: 'Structured Finance & Securitization Desk' },
+        { moduleId: 'redington_alm_immunization', title: 'Redington ALM Immunization', role: 'Duration & convexity matching', unlock: 'Asset-Liability Management (ALM) Desk' },
+        { moduleId: 'tax_loss_harvesting', title: 'Tax-Loss Harvesting & Alpha', role: 'After-tax tax credit optimization', unlock: 'Autonomous Tax-Loss Harvester Engine' }
       ]
     }
   ];
@@ -1482,7 +1558,7 @@
 
     const visibleTracks = STRUCTURED_TRACKS.filter(t => {
       if (activeCurriculumFilter === 'all') return true;
-      return t.persona === activeCurriculumFilter;
+      return t.personas && t.personas.includes(activeCurriculumFilter);
     });
 
     container.innerHTML = visibleTracks.map(track => {
@@ -1509,7 +1585,7 @@
             ${track.steps.map((step, idx) => {
               const isActive = step.moduleId === labState.activeModuleId;
               return `
-                <div class="curriculum-step-item ${isActive ? 'active' : ''}" data-module-id="${step.moduleId}" data-persona="${track.persona}" title="Load ${step.title}">
+                <div class="curriculum-step-item ${isActive ? 'active' : ''}" data-module-id="${step.moduleId}" data-personas="${(track.personas || []).join(',')}" title="Load ${step.title}">
                   <span class="step-num-badge" style="${isActive ? `color:${track.color}; background:${track.color}25;` : ''}">0${idx + 1}</span>
                   <div style="flex:1; min-width:0;">
                     <div style="font-size:0.75rem; font-weight:${isActive ? '800' : '600'}; color:${isActive ? '#fff' : 'var(--text-primary)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
@@ -1531,10 +1607,10 @@
     container.querySelectorAll('.curriculum-step-item').forEach(el => {
       el.addEventListener('click', () => {
         const modId = el.dataset.moduleId;
-        const persona = el.dataset.persona;
-        if (persona === 'layman' && labState.explanationMode !== 'beginner') {
+        const personas = (el.dataset.personas || '').split(',');
+        if (personas.includes('layman') && !personas.includes('institutional') && labState.explanationMode !== 'beginner') {
           setExplanationMode('beginner');
-        } else if (persona === 'professional' && labState.explanationMode === 'beginner') {
+        } else if ((personas.includes('institutional') || personas.includes('trading') || personas.includes('ai_hft')) && labState.explanationMode === 'beginner') {
           setExplanationMode('quant');
         }
         switchModule(modId);
@@ -1644,12 +1720,15 @@
   const initStructuredLearningTracks = () => {
     const filterAll = document.getElementById('filterCurriculumAll');
     const filterLayman = document.getElementById('filterCurriculumLayman');
-    const filterPro = document.getElementById('filterCurriculumPro');
+    const filterTrading = document.getElementById('filterCurriculumTrading');
+    const filterInst = document.getElementById('filterCurriculumInst');
+    const filterAiHft = document.getElementById('filterCurriculumAiHft');
+
+    const filterBtns = [filterAll, filterLayman, filterTrading, filterInst, filterAiHft].filter(Boolean);
 
     const setCurriculumFilter = (filter) => {
       activeCurriculumFilter = filter;
-      [filterAll, filterLayman, filterPro].forEach(btn => {
-        if (!btn) return;
+      filterBtns.forEach(btn => {
         const isMatch = btn.dataset.curriculum === filter;
         btn.classList.toggle('active', isMatch);
         if (isMatch) {
@@ -1663,9 +1742,22 @@
       renderCurriculumTracks();
     };
 
-    if (filterAll) filterAll.addEventListener('click', () => setCurriculumFilter('all'));
-    if (filterLayman) filterLayman.addEventListener('click', () => setCurriculumFilter('layman'));
-    if (filterPro) filterPro.addEventListener('click', () => setCurriculumFilter('professional'));
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => setCurriculumFilter(btn.dataset.curriculum));
+    });
+
+    // Setup Trading Strategy Blueprint Launch Buttons
+    document.querySelectorAll('.strat-launch-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const modId = btn.dataset.moduleId;
+        if (modId) {
+          setExplanationMode('quant');
+          switchModule(modId);
+          const workspace = document.getElementById('activeLabWorkspace');
+          if (workspace) workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
 
     renderCurriculumTracks();
     updateTrackProgressBanner();
