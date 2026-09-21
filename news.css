@@ -31,6 +31,158 @@ body.news-terminal-body {
   overflow-x: hidden;
 }
 
+/* ── Universal Header Terminal Alignment & Strict Logo Constraint ── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 56px;
+  background: rgba(8, 10, 14, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-inner {
+  width: 100% !important;
+  max-width: 1780px !important;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.logo-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  max-width: 38px !important;
+  max-height: 38px !important;
+  background: #09090c !important;
+  border: 1px solid rgba(34, 211, 238, 0.3) !important;
+  border-radius: 9px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6), 0 0 12px rgba(34, 211, 238, 0.12) !important;
+  transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+}
+
+.logo-btn:hover {
+  transform: scale(1.05);
+  border-color: rgba(34, 211, 238, 0.6) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8), 0 0 18px rgba(34, 211, 238, 0.25) !important;
+}
+
+.logo-img, .brand-logo {
+  width: 34px !important;
+  height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  border-radius: 7px !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.brand-title-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-subtle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--news-text-secondary);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-subtle-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.live-sync-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  color: var(--news-accent-cyan);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.live-sync-trigger-btn:hover {
+  background: rgba(34, 211, 238, 0.16);
+  border-color: var(--news-accent-cyan);
+}
+
+.live-sync-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--news-accent-cyan);
+  box-shadow: 0 0 6px var(--news-accent-cyan);
+}
+
+.mode-selector-pill {
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.mode-btn {
+  background: none;
+  border: none;
+  color: var(--news-text-muted);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-weight: 600;
+}
+
 .news-main-container {
   max-width: 1780px;
   margin: 0 auto;
@@ -132,21 +284,21 @@ body.news-terminal-body {
 /* ── 3-Column Terminal Layout ── */
 .news-terminal-grid {
   display: grid;
-  grid-template-columns: 460px minmax(520px, 1fr) 420px;
+  grid-template-columns: minmax(360px, 440px) minmax(480px, 1fr) minmax(340px, 400px);
   gap: 20px;
   align-items: start;
 }
 
-@media (max-width: 1440px) {
+@media (max-width: 1400px) {
   .news-terminal-grid {
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: 380px 1fr;
   }
   .news-right-col {
     grid-column: span 2;
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 992px) {
   .news-terminal-grid {
     grid-template-columns: 1fr;
   }

@@ -21,19 +21,22 @@
 </head>
 <body class="news-terminal-body">
 
-  <!-- ═══════════════════════ 1. UNIVERSAL TERMINAL HEADER ═══════════════════════ -->
-  <header class="app-header">
-    <div class="header-container">
+  <!-- ═══════════════════════ 1. UNIVERSAL APPLICATION HEADER ═══════════════════════ -->
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
       
-      <!-- Brand & Market Clock -->
-      <div class="brand-cluster">
-        <a href="index.html" class="brand-link" title="RISKOS Terminal Home">
-          <img src="assets/logo.webp" alt="RISKOS" class="brand-logo" onerror="this.src='assets/logo.png'">
-          <span class="brand-text">RISKOS</span>
-          <span class="brand-tag">NEWS CORNER</span>
+      <!-- Brand Logo & Market Clock -->
+      <div class="header-left">
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home" title="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" onerror="this.src='assets/logo.png'" />
         </a>
         
-        <div class="market-clock-badge" id="marketClockBadge" title="Live Market State & Session Clock">
+        <div class="brand-title-wrap" style="display:flex; flex-direction:column; margin-right:4px;">
+          <span style="font-size:0.92rem; font-weight:800; letter-spacing:0.04em; color:#fff; line-height:1.1;">RISKOS</span>
+          <span style="font-size:0.62rem; font-weight:700; color:var(--news-accent-cyan, #22d3ee); letter-spacing:0.06em; text-transform:uppercase;">NEWS CORNER</span>
+        </div>
+
+        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
           <span class="market-status-dot dot--open" id="marketStatusDot"></span>
           <span class="market-name" id="marketName">NSE</span>
           <span class="market-state" id="marketState">OPEN</span>
@@ -57,7 +60,7 @@
       <!-- Right Header Actions -->
       <div class="header-actions">
         <button class="btn-subtle-pill" id="globalOpenCommandPalette" title="Press ~ or Ctrl+K to open Bloomberg Command Bar">
-          <i class="fa-solid fa-terminal text-cyan"></i> <span style="font-family:var(--news-font-mono);">CMD &lt;GO&gt;</span>
+          <i class="fa-solid fa-terminal text-cyan"></i> <span style="font-family:var(--news-font-mono, monospace);">CMD &lt;GO&gt;</span>
         </button>
         <button class="live-sync-trigger-btn" id="newsRefreshTriggerBtn" title="Sync live news from Alpha Vantage">
           <span class="live-sync-dot"></span>

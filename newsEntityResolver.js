@@ -224,6 +224,14 @@
 
     /**
      * Resolves all entities for a normalized article.
+     * Alias for enrichArticleEntities to provide consistent API across all news engines.
+     */
+    enrichArticle(article) {
+      return this.enrichArticleEntities(article);
+    }
+
+    /**
+     * Resolves all entities for a normalized article.
      */
     enrichArticleEntities(article) {
       if (!article) return article;

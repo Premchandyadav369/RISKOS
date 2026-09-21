@@ -94,6 +94,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     } catch (err) {
       console.error('Failed to load news intelligence:', err);
+      // Emergency fallback to prevent blank screen
+      if (window.NewsEngine && window.NewsEngine.cachedFeed) {
+        currentArticles = window.NewsEngine.cachedFeed.map(item => ({
+          ...item,
+          publishedAt: item.published_at || new Date().toISOString(),
+          overallSentiment: item.sentiment_score || 0.5,
+          overallSentimentLabel: item.sentiment_class || 'Bullish',
+          materialityScore: 85,
+          noveltyScore: 90,
+          newsAlpha: Math.round((item.sentiment_score || 0.5) * 80),
+          eventType: item.catalyst_type || 'EARNINGS',
+          eventLabel: item.catalyst_type || 'Earnings',
+          primaryEntity: { canonicalSymbol: item.symbols?.[0] || 'RELIANCE', company: item.symbols?.[0] || 'Reliance', sector: 'Diversified' }
+        }));
+        renderFeed();
+        if (currentArticles.length > 0) setActiveArticle(currentArticles[0]);
+      }
     } finally {
       if (refreshBtn) {
         refreshBtn.classList.remove('syncing');
@@ -114,8 +131,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Ticker filter
       if (activeTickerFilter !== 'ALL') {
         const canonical = art.primaryEntity?.canonicalSymbol?.toUpperCase();
+        const rawTok = art.primaryEntity?.rawToken?.toUpperCase();
         const hasTicker = (art.tickerSentiments || []).some(ts => ts.ticker.toUpperCase().includes(activeTickerFilter));
-        if (canonical !== activeTickerFilter && !hasTicker) return false;
+        if (canonical !== activeTickerFilter && rawTok !== activeTickerFilter && !hasTicker) return false;
       }
 
       // Topic filter
@@ -127,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (query) {
         const titleMatch = (art.title || '').toLowerCase().includes(query);
         const summaryMatch = (art.summary || '').toLowerCase().includes(query);
-        const tickerMatch = (art.primaryEntity?.canonicalSymbol || '').toLowerCase().includes(query);
+        const tickerMatch = (art.primaryEntity?.canonicalSymbol || art.primaryEntity?.rawToken || '').toLowerCase().includes(query);
         const sectorMatch = (art.primaryEntity?.sector || '').toLowerCase().includes(query);
         if (!titleMatch && !summaryMatch && !tickerMatch && !sectorMatch) return false;
       }
@@ -140,11 +158,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (filtered.length === 0) {
       feedContainer.innerHTML = `
-        <div style="padding:32px 16px; text-align:center; color:var(--news-text-muted);">
-          <i class="fa-solid fa-filter-circle-xmark" style="font-size:1.8rem; margin-bottom:10px;"></i>
-          <div>No articles match active filter criteria.</div>
+        <div style="padding:40px 16px; text-align:center; color:var(--news-text-muted);">
+          <i class="fa-solid fa-filter-circle-xmark" style="font-size:2rem; margin-bottom:12px; color:var(--news-accent-cyan);"></i>
+          <div style="font-weight:600; color:var(--news-text-primary); margin-bottom:6px;">No articles match active filter criteria</div>
+          <div style="font-size:0.8rem; margin-bottom:14px;">Try clearing search terms or selecting 'ALL' tickers.</div>
+          <button id="resetNewsFiltersBtn" class="btn-subtle-pill" style="font-size:0.75rem; padding:6px 14px; margin:0 auto;">
+            <i class="fa-solid fa-arrows-rotate text-cyan"></i> Reset Filters
+          </button>
         </div>
       `;
+      const resetBtn = document.getElementById('resetNewsFiltersBtn');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          searchQuery = '';
+          if (searchInput) searchInput.value = '';
+          activeTickerFilter = 'ALL';
+          activeTopicFilter = 'ALL';
+          if (tickerFilterRow) {
+            tickerFilterRow.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+            const allBtn = tickerFilterRow.querySelector('[data-filter-ticker="ALL"]');
+            if (allBtn) allBtn.classList.add('active');
+          }
+          if (topicFilterRow) {
+            topicFilterRow.querySelectorAll('.filter-pill-btn').forEach(b => b.classList.remove('active'));
+            const allTopicBtn = topicFilterRow.querySelector('[data-filter-topic="ALL"]');
+            if (allTopicBtn) allTopicBtn.classList.add('active');
+          }
+          renderFeed();
+        });
+      }
       return;
     }
 
@@ -164,6 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const sentFormatted = `${sentScore > 0 ? '+' : ''}${sentScore.toFixed(2)}`;
 
       const pubTime = art.publishedAt ? new Date(art.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Wire';
+      const displayTicker = art.primaryEntity?.canonicalSymbol || art.primaryEntity?.rawToken || (art.tickerSentiments && art.tickerSentiments[0] ? art.tickerSentiments[0].ticker : 'MARKET');
 
       card.innerHTML = `
         <div class="card-top-meta">
@@ -173,7 +216,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <h4 class="article-headline">${art.title}</h4>
         <p class="article-summary-snippet">${art.summary || 'Summary unavailable from primary wire feed.'}</p>
         <div class="article-entity-tag-row">
-          <span class="ticker-pill">${art.primaryEntity?.canonicalSymbol || 'MARKET'}</span>
+          <span class="ticker-pill">${displayTicker}</span>
           <span class="source-pill"><i class="fa-solid fa-satellite-dish" style="margin-right:4px;"></i>${art.source}</span>
         </div>
         <div class="article-metrics-bar">
@@ -213,7 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!marketEffectCard) return;
 
-    const sym = art.primaryEntity?.canonicalSymbol || 'MARKET';
+    const sym = art.primaryEntity?.canonicalSymbol || art.primaryEntity?.rawToken || (art.tickerSentiments && art.tickerSentiments[0] ? art.tickerSentiments[0].ticker : 'MARKET');
     const compName = art.primaryEntity?.company || sym;
     const sector = art.primaryEntity?.sector || 'Diversified';
 
@@ -284,21 +327,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       <div class="reaction-stat-grid">
         <div class="reaction-card">
           <div class="reaction-label">Asset Price Δ</div>
-          <div class="reaction-val ${reaction.priceChangePct >= 0 ? 'text-emerald' : 'text-rose'}">
-            ${reaction.priceChangePct >= 0 ? '+' : ''}${reaction.priceChangePct.toFixed(2)}%
+          <div class="reaction-val ${(typeof reaction.priceChangePct === 'number' ? reaction.priceChangePct : 0) >= 0 ? 'text-emerald' : 'text-rose'}">
+            ${(typeof reaction.priceChangePct === 'number' ? reaction.priceChangePct : 0) >= 0 ? '+' : ''}${(typeof reaction.priceChangePct === 'number' ? reaction.priceChangePct : 0).toFixed(2)}%
           </div>
         </div>
         <div class="reaction-card">
           <div class="reaction-label">Volume (RVOL)</div>
-          <div class="reaction-val text-cyan">${reaction.rvol.toFixed(1)}x</div>
+          <div class="reaction-val text-cyan">${(typeof reaction.rvol === 'number' ? reaction.rvol : 1.0).toFixed(1)}x</div>
         </div>
         <div class="reaction-card">
           <div class="reaction-label">Sector Move</div>
-          <div class="reaction-val">${reaction.sectorChangePct >= 0 ? '+' : ''}${reaction.sectorChangePct.toFixed(2)}%</div>
+          <div class="reaction-val">${(typeof reaction.sectorChangePct === 'number' ? reaction.sectorChangePct : 0) >= 0 ? '+' : ''}${(typeof reaction.sectorChangePct === 'number' ? reaction.sectorChangePct : 0).toFixed(2)}%</div>
         </div>
         <div class="reaction-card">
           <div class="reaction-label">Benchmark Move</div>
-          <div class="reaction-val">${reaction.marketChangePct >= 0 ? '+' : ''}${reaction.marketChangePct.toFixed(2)}%</div>
+          <div class="reaction-val">${(typeof reaction.marketChangePct === 'number' ? reaction.marketChangePct : 0) >= 0 ? '+' : ''}${(typeof reaction.marketChangePct === 'number' ? reaction.marketChangePct : 0).toFixed(2)}%</div>
         </div>
       </div>
 
