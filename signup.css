@@ -1,0 +1,720 @@
+/**
+ * RISKOS — Institutional Flagship Sign Up & Onboarding Page Styles (signup.css)
+ * High-performance Bloomberg / Aladdin Terminal Aesthetic
+ */
+
+:root {
+  --su-bg-root: #040507;
+  --su-bg-card: rgba(10, 13, 20, 0.88);
+  --su-bg-card-hover: rgba(16, 21, 32, 0.94);
+  --su-border: rgba(255, 255, 255, 0.08);
+  --su-border-accent: rgba(34, 211, 238, 0.35);
+  --su-accent-cyan: #22d3ee;
+  --su-accent-emerald: #10b981;
+  --su-accent-amber: #f59e0b;
+  --su-accent-rose: #f43f5e;
+  --su-accent-purple: #a855f7;
+  --su-text-primary: #f8fafc;
+  --su-text-secondary: #94a3b8;
+  --su-text-muted: #64748b;
+  --su-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --su-font-mono: 'JetBrains Mono', monospace;
+}
+
+body.signup-page {
+  margin: 0;
+  padding: 0;
+  background-color: var(--su-bg-root);
+  color: var(--su-text-primary);
+  font-family: var(--su-font-sans);
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(ellipse at top left, rgba(34, 211, 238, 0.06), transparent 50%),
+    radial-gradient(ellipse at bottom right, rgba(16, 185, 129, 0.05), transparent 50%);
+}
+
+/* ── 1. Animated Stochastic Canvas Background ── */
+.signup-bg-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.65;
+}
+
+.signup-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(circle at 50% 50%, rgba(4, 5, 7, 0.45) 0%, rgba(4, 5, 7, 0.92) 85%);
+}
+
+/* ── 2. Page Shell ── */
+.signup-shell {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── 3. Application Header ── */
+.signup-header {
+  height: 60px;
+  border-bottom: 1px solid var(--su-border);
+  background: rgba(6, 8, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signup-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.signup-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #fff;
+}
+
+.signup-logo-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+}
+
+.signup-brand-title {
+  font-family: var(--su-font-mono);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+}
+
+.signup-brand-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--su-accent-cyan);
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.signup-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.signup-nav-link {
+  color: var(--su-text-muted);
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: color 0.15s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.signup-nav-link:hover, .signup-nav-link.active {
+  color: var(--su-accent-cyan);
+}
+
+/* ── 4. Main Two-Column Layout ── */
+.signup-main-wrap {
+  flex: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 28px 24px 40px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+/* ── 5. Left Hero & Persona Column ── */
+.signup-hero-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.signup-hero-badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: var(--su-accent-emerald);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.signup-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--su-accent-emerald);
+  box-shadow: 0 0 8px var(--su-accent-emerald);
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.signup-hero-headline {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.signup-hero-headline .gradient-text {
+  background: linear-gradient(135deg, #fff 20%, var(--su-accent-cyan) 80%, var(--su-accent-emerald) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.signup-hero-sub {
+  font-size: 0.95rem;
+  color: var(--su-text-secondary);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Persona Selection Grid ── */
+.persona-section-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--su-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.persona-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.persona-select-card {
+  background: var(--su-bg-card);
+  border: 1px solid var(--su-border);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+}
+
+.persona-select-card:hover {
+  background: var(--su-bg-card-hover);
+  border-color: rgba(34, 211, 238, 0.3);
+  transform: translateY(-2px);
+}
+
+.persona-select-card.active {
+  background: rgba(14, 22, 36, 0.95);
+  border-color: var(--su-accent-cyan);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+}
+
+.persona-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.persona-card-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+
+.persona-card-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  margin: 0;
+}
+
+.persona-card-badge {
+  font-size: 0.65rem;
+  font-family: var(--su-font-mono);
+  color: var(--su-text-muted);
+}
+
+.persona-card-desc {
+  font-size: 0.72rem;
+  color: var(--su-text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.persona-active-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.75rem;
+  color: var(--su-accent-cyan);
+  display: none;
+}
+
+.persona-select-card.active .persona-active-check {
+  display: block;
+}
+
+/* ── Platform Feature Pillars ── */
+.platform-highlights-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.highlight-stat-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--su-border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.highlight-stat-num {
+  font-family: var(--su-font-mono);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  display: block;
+}
+
+.highlight-stat-num.text-cyan { color: var(--su-accent-cyan); }
+.highlight-stat-num.text-emerald { color: var(--su-accent-emerald); }
+.highlight-stat-num.text-amber { color: var(--su-accent-amber); }
+.highlight-stat-num.text-purple { color: var(--su-accent-purple); }
+
+.highlight-stat-label {
+  font-size: 0.65rem;
+  color: var(--su-text-muted);
+  text-transform: uppercase;
+  margin-top: 2px;
+  display: block;
+}
+
+/* ── 6. Right Interactive Authentication Box ── */
+.signup-form-card {
+  background: var(--su-bg-card);
+  border: 1px solid var(--su-border);
+  border-radius: 14px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+
+.signup-card-topbar {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--su-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.signup-card-title {
+  font-family: var(--su-font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Mode Tabs ── */
+.signup-tab-group {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid var(--su-border);
+}
+
+.signup-tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--su-text-muted);
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.signup-tab-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.signup-tab-btn.active {
+  color: var(--su-accent-cyan);
+  border-bottom-color: var(--su-accent-cyan);
+  background: rgba(34, 211, 238, 0.04);
+}
+
+.signup-tab-pane {
+  display: none;
+  padding: 24px;
+}
+
+.signup-tab-pane.active {
+  display: block;
+}
+
+/* ── Form Groups ── */
+.su-form-group {
+  margin-bottom: 16px;
+}
+
+.su-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--su-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.su-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.su-input-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--su-text-muted);
+  font-size: 0.8rem;
+  pointer-events: none;
+}
+
+.su-input {
+  width: 100%;
+  background: #06090e;
+  border: 1px solid var(--su-border);
+  border-radius: 8px;
+  padding: 10px 14px 10px 36px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-family: var(--su-font-mono);
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.su-input:focus {
+  outline: none;
+  border-color: var(--su-accent-cyan);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.2);
+  background: #090e17;
+}
+
+.su-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Password Strength Meter ── */
+.pw-strength-bar-wrap {
+  margin-top: 8px;
+}
+
+.pw-strength-bar-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.pw-strength-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.pw-strength-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+}
+
+.pw-strength-label {
+  font-weight: 700;
+  font-family: var(--su-font-mono);
+}
+
+.pw-requirements-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.pw-req-item {
+  font-size: 0.65rem;
+  color: var(--su-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pw-req-item.met {
+  color: var(--su-accent-emerald);
+}
+
+.pw-req-item.met i {
+  color: var(--su-accent-emerald);
+}
+
+/* ── Currency / Sandbox Selector ── */
+.sandbox-alloc-row {
+  display: flex;
+  gap: 10px;
+}
+
+.sandbox-alloc-btn {
+  flex: 1;
+  background: #06090e;
+  border: 1px solid var(--su-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.sandbox-alloc-btn.active {
+  background: rgba(34, 211, 238, 0.08);
+  border-color: var(--su-accent-cyan);
+}
+
+.sandbox-alloc-amount {
+  font-family: var(--su-font-mono);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #fff;
+}
+
+.sandbox-alloc-desc {
+  font-size: 0.65rem;
+  color: var(--su-text-muted);
+}
+
+/* ── Primary Submit Button ── */
+.su-submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #0ea5e9, #0284c7);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 12px 16px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(14, 165, 233, 0.3);
+  transition: all 0.2s ease;
+  margin-top: 18px;
+}
+
+.su-submit-btn:hover {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.45);
+  transform: translateY(-1px);
+}
+
+.su-submit-btn:active {
+  transform: translateY(0);
+}
+
+.su-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Fast Guest Access Button ── */
+.su-guest-btn {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--su-border);
+  border-radius: 8px;
+  color: var(--su-text-secondary);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  margin-top: 10px;
+}
+
+.su-guest-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Status Message Box ── */
+.su-status-msg {
+  font-size: 0.75rem;
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: none;
+  font-family: var(--su-font-mono);
+}
+
+.su-status-msg.error {
+  display: block;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #fb7185;
+}
+
+.su-status-msg.success {
+  display: block;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.su-status-msg.info {
+  display: block;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  color: #38bdf8;
+}
+
+/* ── Toast Notifications ── */
+.su-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.su-toast {
+  background: rgba(10, 14, 22, 0.95);
+  border: 1px solid var(--su-border-accent);
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #fff;
+  font-size: 0.78rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideInRight 0.25s ease-out;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Responsive Layout Rules ── */
+@media (max-width: 1024px) {
+  .signup-main-wrap {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 18px 16px;
+  }
+  .signup-form-card {
+    position: static;
+    max-width: 580px;
+    margin: 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .persona-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .platform-highlights-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .signup-hero-headline {
+    font-size: 1.75rem;
+  }
+  .pw-requirements-grid {
+    grid-template-columns: 1fr;
+  }
+}

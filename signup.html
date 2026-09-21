@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Sign Up &bull; RISKOS Institutional Financial Intelligence Platform</title>
+  <meta name="description" content="Create your institutional account on RISKOS. Access 80 quantitative laboratories, 41 algorithmic bots, real-time Alpha Vantage news intelligence, and cloud PostgreSQL database.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="signup.css">
+</head>
+<body class="signup-page">
+
+  <!-- Animated Stochastic Euler-Maruyama Canvas -->
+  <canvas class="signup-bg-canvas" id="signupBgCanvas"></canvas>
+  <div class="signup-bg-overlay"></div>
+
+  <!-- Page Shell -->
+  <div class="signup-shell">
+
+    <!-- ═══════════════════════ APPLICATION HEADER ═══════════════════════ -->
+    <header class="signup-header" id="siteHeader">
+      <div class="signup-header-left">
+        <a href="index.html" class="signup-logo-link" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="32" height="32" class="signup-logo-img" onerror="this.src='assets/logo.png'" />
+          <span class="signup-brand-title">RISKOS</span>
+        </a>
+        <span class="signup-brand-badge">SUPABASE ENTERPRISE</span>
+      </div>
+
+      <!-- Navigation Links (Includes 8 Desks assertion) -->
+      <nav class="signup-nav-links" aria-label="Terminal Navigation">
+        <a href="index.html" class="signup-nav-link"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="app.html" class="signup-nav-link"><i class="fa-solid fa-layer-group"></i> 8 Desks</a>
+        <a href="fleet.html" class="signup-nav-link"><i class="fa-solid fa-robot"></i> Fleet</a>
+        <a href="learn.html" class="signup-nav-link"><i class="fa-solid fa-flask"></i> 80 Labs</a>
+        <a href="ticker.html" class="signup-nav-link"><i class="fa-solid fa-chart-line"></i> Screener</a>
+        <a href="news.html" class="signup-nav-link"><i class="fa-solid fa-newspaper"></i> News</a>
+        <a href="docs.html" class="signup-nav-link"><i class="fa-solid fa-book"></i> Docs</a>
+      </nav>
+    </header>
+
+    <!-- ═══════════════════════ MAIN CONTENT GRID ═══════════════════════ -->
+    <main class="signup-main-wrap">
+
+      <!-- LEFT COLUMN: Brand Hero, Trader Personas & Metrics -->
+      <section class="signup-hero-col">
+        
+        <div class="signup-hero-badge">
+          <span class="signup-pulse-dot"></span>
+          <span>Institutional Quant Environment Active</span>
+        </div>
+
+        <h1 class="signup-hero-headline">
+          Deploy Institutional Alpha.<br>
+          <span class="gradient-text">Master Mathematical Finance.</span>
+        </h1>
+
+        <p class="signup-hero-sub">
+          One unified operating system uniting 80 deterministic quantitative laboratories, 41 Greek/Norse/Egyptian algorithmic trading bots, real-time Alpha Vantage news intelligence, and a cloud PostgreSQL database protected by Row Level Security.
+        </p>
+
+        <!-- Persona Selection Grid -->
+        <div>
+          <div class="persona-section-title">
+            <span>Select Your Trader Persona / Specialization</span>
+            <span style="color:var(--su-accent-cyan);" id="selectedRoleBadge">Quantitative Researcher</span>
+          </div>
+
+          <div class="persona-cards-grid">
+
+            <!-- Persona 1: Retail & Beginner -->
+            <div class="persona-select-card" data-persona="retail">
+              <i class="fa-solid fa-circle-check persona-active-check"></i>
+              <div class="persona-card-header">
+                <div class="persona-card-icon" style="background:rgba(16,185,129,0.15); color:var(--su-accent-emerald);">
+                  <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div>
+                  <h3 class="persona-card-name">Retail Investor</h3>
+                  <span class="persona-card-badge">Foundations &bull; Screener</span>
+                </div>
+              </div>
+              <p class="persona-card-desc">Intuitive wealth accumulation, DCA/SIP calculators, fundamental health diagnostics &amp; plain-English guidance.</p>
+            </div>
+
+            <!-- Persona 2: Quant Researcher (Default) -->
+            <div class="persona-select-card active" data-persona="quant">
+              <i class="fa-solid fa-circle-check persona-active-check"></i>
+              <div class="persona-card-header">
+                <div class="persona-card-icon" style="background:rgba(34,211,238,0.15); color:var(--su-accent-cyan);">
+                  <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                  <h3 class="persona-card-name">Quant Researcher</h3>
+                  <span class="persona-card-badge">80 Labs &bull; SDEs &bull; HMMs</span>
+                </div>
+              </div>
+              <p class="persona-card-desc">Closed-form LaTeX mathematics, Hamilton regime switching, Black-Litterman optimization &amp; walk-forward backtests.</p>
+            </div>
+
+            <!-- Persona 3: Prop Firm HFT -->
+            <div class="persona-select-card" data-persona="prop_trader">
+              <i class="fa-solid fa-circle-check persona-active-check"></i>
+              <div class="persona-card-header">
+                <div class="persona-card-icon" style="background:rgba(245,158,11,0.15); color:var(--su-accent-amber);">
+                  <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <div>
+                  <h3 class="persona-card-name">Prop Firm HFT Trader</h3>
+                  <span class="persona-card-badge">FIX 4.4 &bull; Blotter &bull; 41 Bots</span>
+                </div>
+              </div>
+              <p class="persona-card-desc">High-frequency order routing, Almgren-Chriss slippage, Kyle's Lambda market impact &amp; automated execution tape.</p>
+            </div>
+
+            <!-- Persona 4: Chief Risk Officer -->
+            <div class="persona-select-card" data-persona="risk_officer">
+              <i class="fa-solid fa-circle-check persona-active-check"></i>
+              <div class="persona-card-header">
+                <div class="persona-card-icon" style="background:rgba(168,85,247,0.15); color:var(--su-accent-purple);">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <h3 class="persona-card-name">Chief Risk Officer</h3>
+                  <span class="persona-card-badge">Basel III &bull; VaR/CVaR</span>
+                </div>
+              </div>
+              <p class="persona-card-desc">Portfolio tail risk, Extreme Value Theory POT, Merton distance-to-default, and Solvency II 1-in-200yr cat modeling.</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Platform Highlight Pillars -->
+        <div class="platform-highlights-strip">
+          <div class="highlight-stat-box">
+            <span class="highlight-stat-num text-cyan">80</span>
+            <span class="highlight-stat-label">Quant Labs</span>
+          </div>
+          <div class="highlight-stat-box">
+            <span class="highlight-stat-num text-emerald">41</span>
+            <span class="highlight-stat-label">Pantheon Bots</span>
+          </div>
+          <div class="highlight-stat-box">
+            <span class="highlight-stat-num text-amber">20</span>
+            <span class="highlight-stat-label">Sectors Tracked</span>
+          </div>
+          <div class="highlight-stat-box">
+            <span class="highlight-stat-num text-purple">100%</span>
+            <span class="highlight-stat-label">Deterministic Math</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Interactive Terminal Authentication Box -->
+      <section class="signup-form-card">
+        
+        <div class="signup-card-topbar">
+          <div class="signup-card-title">
+            <i class="fa-solid fa-terminal text-cyan"></i>
+            <span>RISKOS &bull; CLOUD ACCESS GATEWAY</span>
+          </div>
+          <span style="font-size:0.65rem; color:var(--su-accent-emerald); font-family:var(--su-font-mono); font-weight:700;">
+            🟢 ONLINE
+          </span>
+        </div>
+
+        <!-- Tabs: Sign Up vs Sign In -->
+        <div class="signup-tab-group">
+          <button class="signup-tab-btn active" data-tab="signup">
+            <i class="fa-solid fa-user-plus"></i> Create Account
+          </button>
+          <button class="signup-tab-btn" data-tab="signin">
+            <i class="fa-solid fa-arrow-right-to-bracket"></i> Sign In
+          </button>
+        </div>
+
+        <!-- TAB 1: SIGN UP -->
+        <div class="signup-tab-pane active" id="pane_signup">
+          <form id="formSignUp" autocomplete="on">
+            
+            <div class="su-form-group">
+              <label class="su-label" for="suFullName">Full Name / Institutional Handle</label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-user su-input-icon"></i>
+                <input type="text" class="su-input" id="suFullName" placeholder="Alexander Hamilton" autocomplete="name" required>
+              </div>
+            </div>
+
+            <div class="su-form-group">
+              <label class="su-label" for="suEmail">Institutional Email</label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-envelope su-input-icon"></i>
+                <input type="email" class="su-input" id="suEmail" placeholder="trader@hedgefund.com" autocomplete="email" required>
+              </div>
+            </div>
+
+            <div class="su-form-group">
+              <label class="su-label" for="suPhone">
+                <span>Phone Number (For SMS / Phone Alerts)</span>
+                <span style="color:var(--su-accent-cyan); text-transform:none; font-weight:400;">Optional</span>
+              </label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-phone su-input-icon"></i>
+                <input type="tel" class="su-input" id="suPhone" placeholder="+91 98765 43210" autocomplete="tel">
+              </div>
+            </div>
+
+            <div class="su-form-group">
+              <label class="su-label" for="suPassword">Password</label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-lock su-input-icon"></i>
+                <input type="password" class="su-input" id="suPassword" placeholder="••••••••••••" autocomplete="new-password" required minlength="8">
+              </div>
+              
+              <!-- Real-Time Password Strength Meter -->
+              <div class="pw-strength-bar-wrap">
+                <div class="pw-strength-bar-track">
+                  <div class="pw-strength-fill" id="pwStrengthFill"></div>
+                </div>
+                <div class="pw-strength-meta">
+                  <span style="color:var(--su-text-muted);">Entropy Strength:</span>
+                  <span class="pw-strength-label" id="pwStrengthLabel" style="color:var(--su-text-muted);">None</span>
+                </div>
+                <div class="pw-requirements-grid">
+                  <span class="pw-req-item" id="reqLength"><i class="fa-solid fa-circle-check"></i> Min 8 characters</span>
+                  <span class="pw-req-item" id="reqUpper"><i class="fa-solid fa-circle-check"></i> Upper &amp; lower case</span>
+                  <span class="pw-req-item" id="reqNumber"><i class="fa-solid fa-circle-check"></i> Number (0-9)</span>
+                  <span class="pw-req-item" id="reqSpecial"><i class="fa-solid fa-circle-check"></i> Special character (!@#)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Virtual Sandbox Initial Capital -->
+            <div class="su-form-group" style="margin-top: 14px;">
+              <label class="su-label">Starting Virtual Sandbox Capital</label>
+              <div class="sandbox-alloc-row">
+                <button type="button" class="sandbox-alloc-btn active" data-curr="INR">
+                  <span class="sandbox-alloc-amount">₹10,00,000</span>
+                  <span class="sandbox-alloc-desc">Indian Rupee (NSE/BSE)</span>
+                </button>
+                <button type="button" class="sandbox-alloc-btn" data-curr="USD">
+                  <span class="sandbox-alloc-amount">$100,000</span>
+                  <span class="sandbox-alloc-desc">US Dollar (NYSE/NASDAQ)</span>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="su-submit-btn" id="btnSubmitSignUp">
+              <i class="fa-solid fa-bolt"></i>
+              <span>Initialize Quant Terminal</span>
+            </button>
+
+            <button type="button" class="su-guest-btn">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>Skip Login &bull; Instant Guest Sandbox Access</span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- TAB 2: SIGN IN -->
+        <div class="signup-tab-pane" id="pane_signin">
+          <form id="formSignIn" autocomplete="on">
+            
+            <div class="su-form-group">
+              <label class="su-label" for="siEmail">Institutional Email</label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-envelope su-input-icon"></i>
+                <input type="email" class="su-input" id="siEmail" placeholder="trader@hedgefund.com" autocomplete="email" required>
+              </div>
+            </div>
+
+            <div class="su-form-group">
+              <label class="su-label" for="siPassword">Password</label>
+              <div class="su-input-wrap">
+                <i class="fa-solid fa-lock su-input-icon"></i>
+                <input type="password" class="su-input" id="siPassword" placeholder="••••••••••••" autocomplete="current-password" required>
+              </div>
+            </div>
+
+            <button type="submit" class="su-submit-btn" id="btnSubmitSignIn">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span>Authenticate &amp; Enter Terminal</span>
+            </button>
+
+            <div style="text-align:center; margin-top:14px;">
+              <button type="button" id="btnMagicLink" style="background:none; border:none; color:var(--su-accent-cyan); font-size:0.75rem; cursor:pointer; text-decoration:underline;">
+                <i class="fa-solid fa-paper-plane" style="margin-right:4px;"></i> Email me a passwordless Magic Link
+              </button>
+            </div>
+
+            <button type="button" class="su-guest-btn">
+              <i class="fa-solid fa-arrow-right"></i>
+              <span>Continue as Guest (Offline Mode)</span>
+            </button>
+
+          </form>
+        </div>
+
+        <!-- Dynamic Status Notification Box -->
+        <div id="authStatusMsg" class="su-status-msg"></div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="signup.js"></script>
+</body>
+</html>

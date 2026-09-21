@@ -27,13 +27,37 @@
     activeSecuritySymbol: 'RELIANCE.NS',
     simInputs: {},
     chartInstance: null,
-    savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]')
+    savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]'),
+    completedLabs: new Set(JSON.parse(localStorage.getItem('riskos_completed_labs') || '[]')),
+    activeFilterMode: 'all' // 'all' | 'completed' | 'remaining'
+  };
+
+  const isLabCompleted = (id) => labState.completedLabs.has(id);
+
+  const saveCompletedLabs = () => {
+    try {
+      localStorage.setItem('riskos_completed_labs', JSON.stringify([...labState.completedLabs]));
+    } catch (e) {
+      console.warn('Failed to persist completed labs:', e);
+    }
+    if (window.RISKOS_SUPABASE && typeof window.RISKOS_SUPABASE.syncUserPreferences === 'function') {
+      try {
+        window.RISKOS_SUPABASE.syncUserPreferences({ completed_labs: [...labState.completedLabs] });
+      } catch (err) {}
+    }
   };
 
   // ── Category to Modules Filter Mapping ────────────────────────────────────
   const getFilteredModules = (categoryKey) => {
     if (typeof LearnMathEngine === 'undefined') return [];
-    const allMods = LearnMathEngine.MODULES_DIRECTORY;
+    let allMods = LearnMathEngine.MODULES_DIRECTORY;
+
+    if (labState.activeFilterMode === 'completed') {
+      allMods = allMods.filter(m => isLabCompleted(m.id));
+    } else if (labState.activeFilterMode === 'remaining') {
+      allMods = allMods.filter(m => !isLabCompleted(m.id));
+    }
+
     if (!categoryKey || categoryKey === 'all') return allMods;
     
     if (categoryKey === 'institutional') {
@@ -74,13 +98,16 @@
 
     const modules = getFilteredModules(labState.activeCategory);
 
-    track.innerHTML = modules.map(m => `
-      <button class="top-module-pill ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}" title="${m.title}">
-        <i class="fa-solid ${m.icon || 'fa-chart-line'} top-pill-icon"></i>
-        <span>${m.shortTitle || m.title}</span>
-        <span class="top-pill-badge">${m.badge || m.categoryKey.toUpperCase()}</span>
-      </button>
-    `).join('');
+    track.innerHTML = modules.map(m => {
+      const isDone = isLabCompleted(m.id);
+      return `
+        <button class="top-module-pill ${m.id === labState.activeModuleId ? 'active' : ''} ${isDone ? 'is-completed' : ''}" data-module-id="${m.id}" title="${m.title}">
+          <i class="fa-solid ${isDone ? 'fa-circle-check text-emerald' : (m.icon || 'fa-chart-line')} top-pill-icon"></i>
+          <span>${m.shortTitle || m.title}</span>
+          <span class="top-pill-badge">${isDone ? '✓' : (m.badge || m.categoryKey.toUpperCase())}</span>
+        </button>
+      `;
+    }).join('');
 
     track.querySelectorAll('.top-module-pill').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -89,23 +116,26 @@
     });
   };
 
-  // ── Render All 18 Laboratory Modules Grid (Bottom Directory) ──────────────
+  // ── Render All Laboratory Modules Grid (Bottom Directory) ──────────────────
   const renderAllModulesGrid = () => {
     const grid = document.getElementById('allLabModulesGrid');
     if (!grid || typeof LearnMathEngine === 'undefined') return;
 
     const filtered = getFilteredModules(labState.activeCategory);
 
-    grid.innerHTML = filtered.map(m => `
-      <div class="module-card-item ${m.id === labState.activeModuleId ? 'active' : ''}" data-module-id="${m.id}">
-        <div class="card-top-row">
-          <span class="card-tag">${m.badge || m.category.toUpperCase()}</span>
-          <i class="fa-solid ${m.icon || 'fa-chart-line'} card-icon"></i>
+    grid.innerHTML = filtered.map(m => {
+      const isDone = isLabCompleted(m.id);
+      return `
+        <div class="module-card-item ${m.id === labState.activeModuleId ? 'active' : ''} ${isDone ? 'is-completed' : ''}" data-module-id="${m.id}">
+          <div class="card-top-row">
+            <span class="card-tag">${m.badge || m.category.toUpperCase()}</span>
+            ${isDone ? '<span class="card-completed-indicator" title="Mastered"><i class="fa-solid fa-circle-check text-emerald"></i></span>' : `<i class="fa-solid ${m.icon || 'fa-chart-line'} card-icon"></i>`}
+          </div>
+          <h4 class="card-title">${m.title}</h4>
+          <span class="card-formula">${m.shortTitle} &bull; ${m.category.toUpperCase()}${isDone ? ' • MASTERED' : ''}</span>
         </div>
-        <h4 class="card-title">${m.title}</h4>
-        <span class="card-formula">${m.shortTitle} &bull; ${m.category.toUpperCase()}</span>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
     grid.querySelectorAll('.module-card-item').forEach(card => {
       card.addEventListener('click', () => {
@@ -153,6 +183,8 @@
     renderAllModulesGrid();
     if (typeof renderCurriculumTracks === 'function') renderCurriculumTracks();
     if (typeof updateTrackProgressBanner === 'function') updateTrackProgressBanner();
+    if (typeof updateLabCompleteButton === 'function') updateLabCompleteButton();
+    if (typeof updateCourseProgressHUD === 'function') updateCourseProgressHUD();
 
     // Update URL query state for deep-linking
     if (updateUrl && window.history && window.history.pushState) {
@@ -1461,151 +1493,374 @@
       personas: ['layman'],
       color: '#10b981',
       icon: 'fa-seedling',
-      description: 'Master core intuition for wealth building, inflation beat, DCA mechanics, volatility, and safe drawdown recovery before touching any complex models.',
+      description: 'Master core intuition for wealth building, compounding, inflation-hedging, DCA mechanics, and fundamentals before touching advanced math.',
       steps: [
-        { moduleId: 'compounding', title: 'Compounding & Rule of 72', role: 'Exponential growth mechanics', unlock: 'Wealth Compounding Visualizer on Analytics Desk' },
-        { moduleId: 'cagr', title: 'CAGR Growth Rate', role: 'Geometric vs arithmetic returns', unlock: 'Strategy Benchmarking & Performance on RISKOS Dashboard' },
-        { moduleId: 'sip_dca', title: 'SIP / Rupee-Cost Averaging', role: 'Systematic accumulation math', unlock: 'Rupee-Cost Averaging & Systematic Portfolio Accumulator' },
-        { moduleId: 'volatility', title: 'Volatility & Gaussian Bell Curve', role: 'Standard deviation & dispersion', unlock: 'Asset Volatility Gauges & Risk Heatmaps' },
-        { moduleId: 'diversification', title: 'Diversification & Free Lunch', role: 'Uncorrelated asset variance', unlock: 'Correlation Diversification Matrix & Markowitz Frontier' },
-        { moduleId: 'pe_eps', title: 'P/E Ratio & Earnings Yield', role: 'Fundamental value anchor', unlock: 'Fundamental Valuation & Multiples in Security Master' },
-        { moduleId: 'drawdown_recovery', title: 'Drawdown Math & Recovery', role: 'Asymmetric loss dynamics', unlock: 'Maximum Drawdown Monitor & Recovery Forecaster' }
+        { moduleId: 'compounding', title: 'Wealth Compounding & Rule of 72', role: 'Exponential growth & doubling periods', unlock: 'Wealth Compounding Visualizer on Analytics Desk' },
+        { moduleId: 'cagr', title: 'CAGR Growth Rate', role: 'Geometric vs arithmetic annualized returns', unlock: 'Strategy Benchmarking & Performance on RISKOS Dashboard' },
+        { moduleId: 'sip_dca', title: 'SIP / Rupee-Cost Averaging', role: 'Systematic accumulation & volatility dampening', unlock: 'Rupee-Cost Averaging & Systematic Portfolio Accumulator' },
+        { moduleId: 'lumpsum_sip', title: 'Lump Sum vs SIP Allocator', role: 'Cost of waiting vs volatility drag', unlock: 'Cash Deployment Timing & Systematic Deployment' },
+        { moduleId: 'compound_timeline', title: 'Multi-Goal Milestone Forecaster', role: 'Sequential compounding with inflation adjustments', unlock: 'Retirement & Long-Term Financial Goal Engine' },
+        { moduleId: 'pe_eps', title: 'P/E Ratio & Earnings Yield', role: 'Fundamental valuation & Graham anchors', unlock: 'Fundamental Multiples in Security Master' },
+        { moduleId: 'roe_roce', title: 'DuPont 5-Way ROE & ROCE', role: 'Operational margin & financial leverage deconstruction', unlock: 'Financial Statement Deconstruction Desk' },
+        { moduleId: 'dividend_discount_model', title: 'Gordon Dividend Growth Model', role: 'Intrinsic equity value capitalization', unlock: 'Dividend Income Projector on Analytics Desk' }
       ]
     },
     {
-      id: 'frtb_risk',
-      title: 'FRTB, Basel III & Risk Architecture',
-      subtitle: 'Regulatory Capital, VaR & Default',
-      badge: 'Institutional Risk',
-      personas: ['institutional'],
+      id: 'portfolio_risk',
+      title: 'Portfolio Theory & Risk Analytics',
+      subtitle: 'Markowitz, Beta, Sharpe & Drawdown',
+      badge: 'Portfolio Risk',
+      personas: ['layman', 'institutional'],
       color: '#3b82f6',
       icon: 'fa-shield-halved',
-      description: 'Institutional risk management: Parametric/Historical VaR, Extreme Value Theory (EVT), structural default, and Basel III regulatory stress.',
+      description: 'Modern Portfolio Theory (MPT), systematic beta, risk-adjusted returns, and asymmetric drawdown recovery dynamics.',
       steps: [
-        { moduleId: 'beta_corr', title: 'Beta & Pearson Correlation', role: 'Systematic risk & covariance', unlock: 'Benchmark Beta Regression & Systemic Factor Exposure' },
-        { moduleId: 'sharpe', title: 'Sharpe, Sortino & Omega', role: 'Risk-adjusted performance', unlock: 'Sharpe, Sortino & Deflated Performance Scoring' },
-        { moduleId: 'evt_pot_tail_risk', title: 'EVT Peaks-Over-Threshold', role: 'Fat tails & Black Swans', unlock: 'Basel III Tail Risk, VaR 99%, and Expected Shortfall Engine' },
-        { moduleId: 'merton_structural_default', title: 'Merton Structural Default', role: 'Distance to default & credit spreads', unlock: 'Credit Spread Analyzer & Distance-to-Default Warning' },
-        { moduleId: 'solvency_ii_evt_cat', title: 'Solvency II & 1-in-200yr VaR', role: 'Insurance balance sheet stress', unlock: 'Solvency II 1-in-200 Year Catastrophic Capital Requirement' },
-        { moduleId: 'nelson_siegel_svensson', title: 'Nelson-Siegel-Svensson Curve', role: 'Sovereign yield term structure', unlock: 'Sovereign Yield Curve Modeling & Fixed Income Desk' },
-        { moduleId: 'barra_multi_factor_risk', title: 'Barra Multi-Factor Risk', role: 'Systematic factor decomposition', unlock: 'Institutional Multi-Factor Risk Decomposition' }
+        { moduleId: 'volatility', title: 'Volatility & Gaussian Bell Curve', role: 'Standard deviation & return dispersion', unlock: 'Asset Volatility Gauges & Risk Heatmaps' },
+        { moduleId: 'beta_corr', title: 'Beta & Pearson Correlation', role: 'Systematic benchmark sensitivity & covariance', unlock: 'Benchmark Beta Regression & Systemic Factor Exposure' },
+        { moduleId: 'mdd', title: 'Maximum Drawdown & Ulcer Index', role: 'Peak-to-trough capital devastation metric', unlock: 'Drawdown Stress Monitor & Risk Analytics Desk' },
+        { moduleId: 'drawdown_recovery', title: 'Drawdown Math & Recovery Asymmetry', role: 'The brutal non-linear cost of losing capital', unlock: 'Recovery Forecaster & Portfolio Safeguard Engine' },
+        { moduleId: 'sharpe', title: 'Sharpe, Sortino & Omega Ratios', role: 'Risk-adjusted reward and downside semi-variance', unlock: 'Sharpe, Sortino & Deflated Performance Scoring' },
+        { moduleId: 'diversification', title: 'Diversification & The Free Lunch', role: 'Non-correlated asset combination mechanics', unlock: 'Correlation Diversification Matrix & Markowitz Frontier' },
+        { moduleId: 'port_variance', title: 'Portfolio Variance Matrix', role: 'N-asset covariance & analytical portfolio risk', unlock: 'Cross-Asset Variance & Markowitz Efficient Frontier' },
+        { moduleId: 'capm', title: 'Capital Asset Pricing Model (CAPM)', role: 'Expected return equilibrium & equity risk premium', unlock: 'Asset Pricing & Cost of Capital Valuation Desk' }
+      ]
+    },
+    {
+      id: 'simulators_construction',
+      title: 'Portfolio Construction & Stress Simulators',
+      subtitle: 'Allocation, Scenarios, Tax & Kelly Growth',
+      badge: 'Portfolio Construction',
+      personas: ['trading', 'institutional'],
+      color: '#06b6d4',
+      icon: 'fa-sliders',
+      description: 'Practical institutional portfolio construction, multi-asset allocation, scenario stress testing, options payoff, and tax-loss optimization.',
+      steps: [
+        { moduleId: 'port_allocator', title: 'Multi-Asset Strategic Allocator', role: 'Interactive asset weighting & efficient weights', unlock: 'Institutional Multi-Asset Portfolio Allocator' },
+        { moduleId: 'risk_return_scatter', title: 'Risk-Return Efficient Frontier Scatter', role: 'Simulated random portfolios & Sharpe tangency', unlock: 'Interactive Markowitz Efficient Frontier Sandbox' },
+        { moduleId: 'scenario_stress', title: 'Macro Scenario & Crisis Stress Replay', role: 'Historical 2008 & 2020 crash replays & shocks', unlock: 'Crisis Replay Simulator on Analytics Desk' },
+        { moduleId: 'options_payoff', title: 'Options Multi-Leg Payoff Visualizer', role: 'Interactive calls, puts, spreads & Greeks', unlock: 'Derivatives Payoff Visualizer & Multi-Leg Options Desk' },
+        { moduleId: 'quant_backtest', title: 'Vectorized Quant Strategy Backtester', role: 'Historical walk-forward validation & equity curves', unlock: 'Backtest Sandbox on Analytics Desk' },
+        { moduleId: 'black_litterman', title: 'Black-Litterman Bayesian Portfolio Tilt', role: 'Combining market equilibrium with active views', unlock: 'Institutional Black-Litterman Portfolio Optimizer' },
+        { moduleId: 'tax_loss_harvesting', title: 'Tax-Loss Harvesting & Alpha Engine', role: 'Optimizing wash-sale compliant tax savings', unlock: 'Autonomous Tax-Loss Harvester Engine' },
+        { moduleId: 'kelly_criterion_growth', title: 'Continuous Kelly Growth Simulator', role: 'Optimal logarithmic wealth trajectory & leverage', unlock: 'Continuous Compound Growth & Leverage Optimizer' }
+      ]
+    },
+    {
+      id: 'derivatives_exotics',
+      title: 'Exotic Derivatives & Volatility Surfaces',
+      subtitle: 'SABR, Heston FFT, 0DTE GEX & Malliavin',
+      badge: 'Derivatives & Exotics',
+      personas: ['trading', 'institutional'],
+      color: '#8b5cf6',
+      icon: 'fa-cubes',
+      description: 'State-of-the-art quantitative volatility modeling, 0DTE GEX pinning, SABR/SVI smiles, rough volatility, and Malliavin calculus Greeks.',
+      steps: [
+        { moduleId: 'gex_0dte_pinning', title: '0DTE Gamma Exposure (GEX) & Pinning', role: 'Market maker delta-hedging reflexivity & pins', unlock: '0DTE Options Gamma Exposure (GEX) & Strike Pinning Radar' },
+        { moduleId: 'heston_fft', title: 'Heston Stochastic Volatility (FFT)', role: 'Semi-analytical Carr-Madan characteristic pricing', unlock: 'Stochastic Volatility Calibration Engine' },
+        { moduleId: 'svi_sabr_calibration', title: 'SVI / SABR Smile Calibration', role: 'Arbitrage-free implied volatility smile fitting', unlock: 'Arbitrage-Free Volatility Surface Fitter' },
+        { moduleId: 'sabr_vol_surface', title: 'Parametric SABR Volatility Surface', role: 'Cross-strike and tenor volatility surface generator', unlock: '3D Implied Volatility Surface Visualizer' },
+        { moduleId: 'perpetual_american', title: 'Perpetual American Option & Smooth Pasting', role: 'Optimal early exercise boundary analytic solution', unlock: 'Optimal Stopping & American Contingent Claims' },
+        { moduleId: 'bachelier_model', title: 'Bachelier Normal Volatility Model', role: 'Negative rate options & spread options pricing', unlock: 'Negative Price / Normal Volatility Pricing Desk' },
+        { moduleId: 'rough_volatility', title: 'Rough Volatility (Fractional Brownian H<0.5)', role: 'Sub-diffusive Hurst exponent for steep short smiles', unlock: 'Rough Volatility High-Frequency Fitter' },
+        { moduleId: 'malliavin_calculus', title: 'Malliavin Calculus Monte Carlo Greeks', role: 'Pathwise differentiation for discontinuous payoffs', unlock: 'Exotic Monte Carlo Greeks Sensitivity Engine' }
       ]
     },
     {
       id: 'microstructure_execution',
-      title: 'Microstructure, OFI & Execution',
-      subtitle: 'Order Books, Slippage & Market Impact',
+      title: 'Microstructure, OFI & Trade Execution',
+      subtitle: 'Limit Order Books, Hawkes & Optimal Execution',
       badge: 'Microstructure',
-      personas: ['institutional', 'trading'],
+      personas: ['trading', 'institutional'],
       color: '#f59e0b',
       icon: 'fa-bolt-lightning',
-      description: 'L3 limit order book dynamics, Kyle’s Lambda price impact, Hawkes order arrival cascades, dark pool adverse selection, and Almgren-Chriss optimal liquidation.',
+      description: 'Front-office electronic trading: L3 order book queues, Kyle’s Lambda price impact, Hawkes point cascades, and Almgren-Chriss liquidation.',
       steps: [
-        { moduleId: 'options_payoff', title: 'Options Black-Scholes & Greeks', role: 'Delta, Gamma, Vega sensitivities', unlock: 'Derivatives Payoff Visualizer & Multi-Leg Options Desk' },
-        { moduleId: 'gex_0dte_pinning', title: '0DTE Gamma Exposure (GEX)', role: 'Market maker delta-hedging reflexivity', unlock: '0DTE Options Gamma Exposure (GEX) & Strike Pinning Radar' },
-        { moduleId: 'kyles_lambda_microstructure', title: 'Kyle’s Lambda & Microstructure', role: 'Informed trading & adverse selection', unlock: 'Order Book OFI, Spread Breakdown & Toxic Flow Analysis' },
-        { moduleId: 'dark_pool_adverse_selection', title: 'Dark Pool Adverse Selection', role: 'Lit vs dark routing & toxicity', unlock: 'Dark Pool Routing & Execution Toxicity Assessment' },
-        { moduleId: 'hawkes_liquidity_cascades', title: 'Hawkes Self-Exciting Cascades', role: 'Liquidity flashes & clustering', unlock: 'Hawkes Liquidity Flash Crash & Event Arrival Predictor' },
-        { moduleId: 'almgren_chriss', title: 'Almgren-Chriss Optimal Execution', role: 'Volatility vs impact cost trade-off', unlock: 'Almgren-Chriss Optimal Trade Execution on Execution Desk' },
-        { moduleId: 'propagator_market_impact', title: 'Bouchaud Transient Propagator', role: 'Memory kernels & market impact decay', unlock: 'Bouchaud Market Impact & Transient Slippage Forecaster' }
-      ]
-    },
-    {
-      id: 'ai_alpha',
-      title: 'AI, Stochastic Control & Alpha Models',
-      subtitle: 'HMM Regimes, SDEs & Deep Hedging',
-      badge: 'AI & Machine Learning',
-      personas: ['ai_hft', 'institutional'],
-      color: '#a855f7',
-      icon: 'fa-brain',
-      description: 'Advanced quantitative modeling: Hidden Markov Regimes, Jump-Diffusion, Deep Hedging with Neural SDEs, and Reinforcement Learning execution.',
-      steps: [
-        { moduleId: 'merton_jump_diffusion', title: 'Merton Jump-Diffusion', role: 'Poisson jumps in asset returns', unlock: 'Jump-Diffusion Option Pricing & Discontinuous Gap Simulation' },
-        { moduleId: 'black_litterman', title: 'Black-Litterman Bayesian Tilt', role: 'Subjective views with market equilibrium', unlock: 'Institutional Black-Litterman Portfolio Optimizer' },
-        { moduleId: 'hmm_regime_switching', title: 'Hamilton HMM Regime Switching', role: 'Bull/Bear transition probabilities', unlock: 'AI Market Regime Detection (Bull/Bear/Chop) on Observatory' },
-        { moduleId: 'dqn_optimal_execution', title: 'DQN Reinforcement Learning', role: 'Deep Q-Networks for TWAP/VWAP', unlock: 'Reinforcement Learning Optimal VWAP/TWAP Execution Agent' },
-        { moduleId: 'risk_constrained_kelly', title: 'Risk-Constrained Kelly Criterion', role: 'Fractional capital allocation', unlock: 'Optimal Bet Sizing & Capital Allocation with Ruin Constraints' },
-        { moduleId: 'deep_hedging_neural_sde', title: 'Deep Hedging & Neural SDE', role: 'Convex risk neural network optimization', unlock: 'Neural Network Non-Linear Hedging under Friction' },
-        { moduleId: 'hayashi_yoshida_lead_lag', title: 'Hayashi-Yoshida Lead-Lag', role: 'High-frequency non-synchronous correlation', unlock: 'High-Frequency Cross-Asset Lead-Lag Arbitrage Detector' }
+        { moduleId: 'kyles_lambda_microstructure', title: 'Kyle’s Lambda & Microstructure Invariance', role: 'Informed flow adverse selection & market depth', unlock: 'Order Book OFI, Spread Breakdown & Toxic Flow Analysis' },
+        { moduleId: 'dark_pool_adverse_selection', title: 'Dark Pool Adverse Selection & Routing', role: 'Lit vs dark venue toxicity & execution quality', unlock: 'Dark Pool Routing & Execution Toxicity Assessment' },
+        { moduleId: 'hawkes_liquidity_cascades', title: 'Hawkes Self-Exciting Liquidity Cascades', role: 'Flash crash branching ratios & event clustering', unlock: 'Hawkes Liquidity Flash Crash & Event Arrival Predictor' },
+        { moduleId: 'hawkes_process', title: 'Hawkes Mutually Exciting Point Process', role: 'Cross-order arrival self & cross excitation', unlock: 'Microstructure Shock Propagation Engine' },
+        { moduleId: 'almgren_chriss', title: 'Almgren-Chriss Optimal Execution', role: 'Permanent vs temporary market impact trade-off', unlock: 'Almgren-Chriss Optimal Trade Execution on Execution Desk' },
+        { moduleId: 'propagator_market_impact', title: 'Bouchaud Transient Propagator Impact', role: 'Power-law memory decay of metaorder footprints', unlock: 'Bouchaud Market Impact & Transient Slippage Forecaster' },
+        { moduleId: 'optimal_vwap_execution', title: 'Optimal VWAP Slicing Trajectory', role: 'Intraday volume curve dynamic schedule', unlock: 'Multi-Venue Smart Order Router (SOR)' },
+        { moduleId: 'hayashi_yoshida_lead_lag', title: 'Hayashi-Yoshida High-Frequency Lead-Lag', role: 'Non-synchronous cross-venue tick arbitrage', unlock: 'High-Frequency Cross-Asset Lead-Lag Arbitrage Detector' }
       ]
     },
     {
       id: 'quant_strategies',
-      title: 'Quantitative Trading Strategies & Alpha Signals',
-      subtitle: 'Momentum, Stat-Arb, Pairs & Carry',
-      badge: 'Trading Strategies',
+      title: 'Quantitative Alpha Strategies & Stat-Arb',
+      subtitle: 'Momentum, Pairs, Futures Carry & Prediction Markets',
+      badge: 'Quant Trading',
       personas: ['trading'],
       color: '#ec4899',
       icon: 'fa-chart-line',
-      description: 'Systematic alpha generation: Time Series Momentum (TSMOM), Antonacci Dual Momentum, Kalman Filter cointegration pairs, and cash & carry futures roll.',
+      description: 'Systematic statistical arbitrage: Time-series momentum with vol targeting, Kalman filter cointegration, commodity roll yield, and LMSR prediction markets.',
       steps: [
-        { moduleId: 'tsmom_volatility_targeting', title: 'TSMOM Volatility Targeting', role: 'Time-series momentum & sizing', unlock: 'Volatility-Targeted Trend Following on Ticker Desk' },
-        { moduleId: 'dual_momentum_antonacci', title: 'Dual Momentum (Antonacci)', role: 'Absolute & relative trend filter', unlock: 'Dual Momentum Cross-Asset Allocator' },
-        { moduleId: 'kalman_pairs', title: 'Kalman Filter Pairs Trading', role: 'Dynamic state-space cointegration', unlock: 'Statistical Arbitrage & Pairs Engine' },
-        { moduleId: 'futures_basis_carry', title: 'Futures Cash & Carry Basis', role: 'Spot-futures annualized roll yield', unlock: 'Commodities & Derivatives Carry Scanner' },
-        { moduleId: 'cross_asset_stat_arb', title: 'Cross-Asset Statistical Arbitrage', role: 'Multi-asset mean reversion', unlock: 'Cross-Asset Stat-Arb Matrix on Fleet Desk' },
-        { moduleId: 'sector_relative_strength', title: 'Sector Rotation & RRG Matrix', role: 'Relative rotation graph momentum', unlock: '20-Sector Indicators Desk on Ticker Page' },
-        { moduleId: 'quant_backtest', title: 'Vectorized Quant Backtester', role: 'Historical walk-forward validation', unlock: 'Backtest Sandbox on Analytics Desk' }
+        { moduleId: 'tsmom_volatility_targeting', title: 'TSMOM Volatility Targeting', role: 'Time-series momentum with dynamic target risk', unlock: 'Volatility-Targeted Trend Following on Ticker Desk' },
+        { moduleId: 'dual_momentum_antonacci', title: 'Dual Momentum (Antonacci)', role: 'Absolute & relative trend-following filter', unlock: 'Dual Momentum Cross-Asset Allocator' },
+        { moduleId: 'kalman_pairs', title: 'Kalman Filter Dynamic Pairs Trading', role: 'Real-time cointegrating hedge ratio tracking', unlock: 'Statistical Arbitrage & Pairs Engine' },
+        { moduleId: 'cross_asset_stat_arb', title: 'Cross-Asset Statistical Arbitrage', role: 'Multi-asset mean-reverting eigenvector spreads', unlock: 'Cross-Asset Stat-Arb Matrix on Fleet Desk' },
+        { moduleId: 'futures_basis_carry', title: 'Futures Cash & Carry Basis Scorer', role: 'Spot-futures annualized roll yield & funding rate', unlock: 'Commodities & Derivatives Carry Scanner' },
+        { moduleId: 'commodity_roll_yield', title: 'Commodity Term Structure & Roll Yield', role: 'Contango vs backwardation storage cost carry', unlock: 'Commodity Supercycle & Energy Desk' },
+        { moduleId: 'prediction_markets_lmsr', title: 'Hanson’s LMSR Prediction Market Maker', role: 'Logarithmic market scoring rule automated liquidity', unlock: 'Prediction Market & Event Probability Desk' },
+        { moduleId: 'sector_relative_strength', title: 'Sector Rotation & RRG Momentum Matrix', role: 'Relative rotation graph leading/lagging quadrants', unlock: '20-Sector Indicators Desk on Ticker Page' }
       ]
     },
     {
-      id: 'algo_mm',
-      title: 'Algorithmic Market Making & High-Frequency Trading',
-      subtitle: 'Inventory Risk, OFI & Queue Dynamics',
-      badge: 'HFT & Market Making',
-      personas: ['trading', 'ai_hft'],
-      color: '#06b6d4',
-      icon: 'fa-network-wired',
-      description: 'Ultra-low latency front-office algorithms: Avellaneda-Stoikov inventory control, RL market making, and order flow imbalance (OFI) queue prediction.',
+      id: 'fixed_income_credit',
+      title: 'Fixed Income, Rates & Credit Architecture',
+      subtitle: 'Nelson-Siegel, Vasicek, CDS & OAS',
+      badge: 'Fixed Income & Credit',
+      personas: ['institutional'],
+      color: '#6366f1',
+      icon: 'fa-landmark',
+      description: 'Sovereign yield curve fitting, short-rate interest rate dynamics, probit recession forecasting, ALM immunization, and structured credit waterfall.',
       steps: [
-        { moduleId: 'avellaneda_stoikov', title: 'Avellaneda-Stoikov Market Maker', role: 'Optimal inventory reservation price', unlock: 'High-Frequency Quoting & Inventory Skew Engine' },
-        { moduleId: 'reinforcement_learning_mm', title: 'Reinforcement Learning MM Agent', role: 'Q-learning quoting under adverse flow', unlock: 'Autonomous AI Market Making Swarm' },
-        { moduleId: 'egyptian_pantheon_hft', title: 'Sub-Millisecond L3 OFI Engine', role: 'Microsecond order flow imbalances', unlock: 'Egyptian Pantheon 20-Bot Ultra HFT Swarm' },
-        { moduleId: 'optimal_vwap_execution', title: 'Optimal VWAP Slicing Trajectory', role: 'Volume profile execution schedule', unlock: 'Multi-Venue Smart Order Router (SOR)' },
-        { moduleId: 'hawkes_process', title: 'Hawkes Mutually Exciting Point Process', role: 'Order arrival self-excitation', unlock: 'Liquidity Shock & Toxic Flow Early Warning' },
-        { moduleId: 'hayashi_yoshida_lead_lag', title: 'High-Frequency Lead-Lag Detection', role: 'Non-synchronous cross-venue arbitrage', unlock: 'Cross-Exchange Arbitrage Synapse' },
-        { moduleId: 'perspective_streaming_grid', title: 'High-Throughput Streaming Telemetry', role: 'Real-time order book telemetry grid', unlock: 'Institutional L3 Stream Visualizer' }
+        { moduleId: 'nelson_siegel_svensson', title: 'Nelson-Siegel-Svensson Yield Curve', role: 'Sovereign yield term structure & curvature', unlock: 'Sovereign Yield Curve Desk on Observatory' },
+        { moduleId: 'vasicek_cir', title: 'Vasicek & Cox-Ingersoll-Ross (CIR) Rates', role: 'Mean-reverting affine term structure models', unlock: 'Short-Rate Interest Rate Simulation Desk' },
+        { moduleId: 'yield_curve_probit', title: 'Yield Curve Probit Recession Forecaster', role: '10Y-2Y inversion recession probability model', unlock: 'Macro Observatory Recession Forecaster' },
+        { moduleId: 'redington_alm_immunization', title: 'Redington ALM Immunization', role: 'Duration and convexity matching for balance sheets', unlock: 'Asset-Liability Management (ALM) Desk' },
+        { moduleId: 'merton_structural_default', title: 'Merton Structural Credit Default', role: 'Equity as a call option on corporate firm value', unlock: 'Credit Spread Analyzer & Distance-to-Default Warning' },
+        { moduleId: 'cds_index_tranches', title: 'Credit Default Swap (CDX) Index Tranches', role: 'Synthetic CDO copula tranche correlation pricing', unlock: 'Institutional Credit Risk Engine' },
+        { moduleId: 'clo_tranche_waterfall', title: 'CLO Structured Finance Debt Waterfall', role: 'Subordinated cash flow priority & credit enhancement', unlock: 'Structured Finance & Securitization Desk' },
+        { moduleId: 'oas_binomial_tree', title: 'Option-Adjusted Spread (OAS) Binomial Tree', role: 'Valuing bonds with embedded call/put options', unlock: 'Callable Bond & Embedded Option Valuation Desk' }
       ]
     },
     {
-      id: 'macro_liquidity',
-      title: 'Macroeconomics, Sovereign Debt & Global Liquidity',
-      subtitle: 'Yield Curves, Central Banks & Crises',
-      badge: 'Macro & Liquidity',
-      personas: ['institutional', 'layman'],
-      color: '#8b5cf6',
-      icon: 'fa-earth-americas',
-      description: 'Global macro causality: Yield curve inversion probit recession forecasting, sovereign debt term structures, global currency carry, and liquidity cycles.',
-      steps: [
-        { moduleId: 'yield_curve_probit', title: 'Yield Curve Probit Recession Model', role: '10Y-2Y inversion probability forecast', unlock: 'Macro Observatory Recession Forecaster' },
-        { moduleId: 'nelson_siegel_svensson', title: 'Nelson-Siegel-Svensson Yield Curve', role: 'Zero-coupon sovereign term structure', unlock: 'Sovereign Yield Curve Desk on Observatory' },
-        { moduleId: 'yen_carry_unwind', title: 'Global FX Carry Trade Unwind', role: 'Interest rate differential unwinds', unlock: 'Cross-Currency Margin & Liquidity Radar' },
-        { moduleId: 'commodity_roll_yield', title: 'Commodity Term Structure & Roll', role: 'Contango vs backwardation yields', unlock: 'Commodity Supercycle & Energy Desk' },
-        { moduleId: 'fama_french_5factor', title: 'Fama-French 5-Factor Model', role: 'Size, value, profitability, investment', unlock: 'Barra Multi-Factor Risk Decomposition' },
-        { moduleId: 'cds_index_tranches', title: 'Credit Default Swap (CDX) Tranches', role: 'Synthetic credit correlation pricing', unlock: 'Institutional Credit Risk Engine' },
-        { moduleId: 'scenario_stress', title: 'Black Swan Crisis Stress Replay', role: 'Historical 2008 & 2020 crash replays', unlock: 'Crisis Replay Simulator on Analytics Desk' }
-      ]
-    },
-    {
-      id: 'valuation_pe',
-      title: 'Corporate Valuation, M&A & Private Equity',
-      subtitle: 'DCF, LBO Waterfalls & Capital Efficiency',
-      badge: 'Corporate Finance & PE',
-      personas: ['layman', 'institutional'],
+      id: 'corporate_pe_cat',
+      title: 'Corporate Finance, PE, Catastrophe & Risk Models',
+      subtitle: 'LBO Waterfalls, Solvency II, EVT & Factor Risk',
+      badge: 'Corporate & Risk Models',
+      personas: ['institutional'],
       color: '#14b8a6',
-      icon: 'fa-coins',
-      description: 'Fundamental analysis and corporate balance sheet modeling: Graham valuation multiples, Gordon dividend growth, DuPont ROE, and private equity LBO debt sweeps.',
+      icon: 'fa-building-columns',
+      description: 'Corporate valuation, private equity LBO waterfalls, Solvency II insurance risk, Extreme Value Theory fat tails, and Barra factor decomposition.',
       steps: [
-        { moduleId: 'pe_eps', title: 'P/E Valuation & Earnings Yield', role: 'Graham number anchor & multiple', unlock: 'Fundamental Multiples in Security Master' },
-        { moduleId: 'dividend_discount_model', title: 'Gordon Dividend Discount Model', role: 'Intrinsic equity value capitalization', unlock: 'Dividend Income Projector on Analytics Desk' },
-        { moduleId: 'roe_roce', title: 'DuPont 5-Way ROE / ROCE Breakdown', role: 'Operating margin & financial leverage', unlock: 'Financial Statement Deconstruction Desk' },
-        { moduleId: 'lbo_debt_waterfall', title: 'Private Equity LBO Debt Waterfall', role: 'Senior debt sweep, MOIC & IRR returns', unlock: 'Private Equity / M&A Financial Suite' },
-        { moduleId: 'clo_tranche_waterfall', title: 'CLO Structured Debt Waterfalls', role: 'Subordinated credit loss absorption', unlock: 'Structured Finance & Securitization Desk' },
-        { moduleId: 'redington_alm_immunization', title: 'Redington ALM Immunization', role: 'Duration & convexity matching', unlock: 'Asset-Liability Management (ALM) Desk' },
-        { moduleId: 'tax_loss_harvesting', title: 'Tax-Loss Harvesting & Alpha', role: 'After-tax tax credit optimization', unlock: 'Autonomous Tax-Loss Harvester Engine' }
+        { moduleId: 'lbo_debt_waterfall', title: 'Private Equity LBO Debt Sweep Waterfall', role: 'Senior debt sweep, sponsor MOIC & IRR returns', unlock: 'Private Equity / M&A Financial Suite' },
+        { moduleId: 'solvency_ii_evt_cat', title: 'Solvency II 1-in-200yr Catastrophe VaR', role: 'Solvency capital requirement & insurance tail shocks', unlock: 'Solvency II 1-in-200 Year Catastrophic Capital Requirement' },
+        { moduleId: 'evt_pot_tail_risk', title: 'EVT Peaks-Over-Threshold & Basel III ES', role: 'Generalized Pareto tail risk & Expected Shortfall', unlock: 'Basel III Tail Risk, VaR 99%, and Expected Shortfall Engine' },
+        { moduleId: 'copulas_evt', title: 'Clayton & Gumbel Copulas Tail Dependence', role: 'Asymmetric joint tail crashes vs Gaussian copulas', unlock: 'Multivariate Non-Linear Risk & Copula Engine' },
+        { moduleId: 'merton_jump_diffusion', title: 'Merton Jump-Diffusion Asset Pricing', role: 'Compound Poisson jump risk with Gaussian shocks', unlock: 'Jump-Diffusion Option Pricing & Discontinuous Gap Simulation' },
+        { moduleId: 'garch_jump_diffusion', title: 'GARCH(1,1) with Jump-Diffusion Volatility', role: 'Time-varying volatility clustering with fat-tailed jumps', unlock: 'Heteroskedastic Risk & Volatility Clustered Forecasting' },
+        { moduleId: 'barra_multi_factor_risk', title: 'Barra Multi-Factor Risk Decomposition', role: 'Cross-sectional factor covariance and specific risk', unlock: 'Institutional Multi-Factor Risk Decomposition' },
+        { moduleId: 'fama_french_5factor', title: 'Fama-French 5-Factor Asset Pricing', role: 'Decomposing alpha into size, value, profit & investment', unlock: 'Factor Attribution & Smart Beta Analytics' }
+      ]
+    },
+    {
+      id: 'ai_neural_alpha',
+      title: 'AI, Neural SDEs & Machine Learning Execution',
+      subtitle: 'HMM, Deep Hedging, RL Swarms & L3 Telemetry',
+      badge: 'AI & Neural Systems',
+      personas: ['ai_hft', 'institutional'],
+      color: '#a855f7',
+      icon: 'fa-brain',
+      description: 'Cutting-edge AI in quantitative finance: Hamilton HMM regime switches, deep neural SDE hedging, DQN reinforcement learning, and sub-millisecond OFI swarms.',
+      steps: [
+        { moduleId: 'hmm_regime_switching', title: 'Hamilton HMM Regime-Switching Filter', role: 'Filtering hidden Bull, Bear & Chop market states', unlock: 'AI Market Regime Detection (Bull/Bear/Chop) on Observatory' },
+        { moduleId: 'deep_hedging_neural_sde', title: 'Deep Hedging & Neural SDE Networks', role: 'Non-linear convex risk hedging with market friction', unlock: 'Neural Network Non-Linear Hedging under Friction' },
+        { moduleId: 'dqn_optimal_execution', title: 'DQN Reinforcement Learning Execution', role: 'Deep Q-Networks for dynamic order book liquidation', unlock: 'Reinforcement Learning Optimal VWAP/TWAP Execution Agent' },
+        { moduleId: 'reinforcement_learning_mm', title: 'Autonomous RL Market Making Agent', role: 'Q-learning quoting under inventory risk & toxic flow', unlock: 'Autonomous AI Market Making Swarm' },
+        { moduleId: 'quantum_monte_carlo', title: 'Quantum Amplitude Estimation Monte Carlo', role: 'Quadratic speedup in derivative pricing & VaR', unlock: 'Quantum Computing Derivatives Pricing Sandbox' },
+        { moduleId: 'openbb_odp', title: 'OpenBB Open Data Platform (ODP) Gateway', role: 'Harmonized quantitative data pipelines & providers', unlock: 'Unified Institutional Data Platform Gateway' },
+        { moduleId: 'perspective_streaming_grid', title: 'Perspective Streaming Telemetry Grid', role: 'Ultra-low latency streaming analytics architecture', unlock: 'Institutional L3 Stream Visualizer' },
+        { moduleId: 'egyptian_pantheon_hft', title: 'Egyptian Pantheon 20-Bot Ultra HFT Swarm', role: 'Sub-millisecond multi-agent market making swarm', unlock: 'Egyptian Pantheon 20-Bot Ultra HFT Swarm' }
+      ]
+    },
+    {
+      id: 'stochastic_interview',
+      title: 'Stochastic Calculus, Control & Quant Interview',
+      subtitle: 'Itô, Feynman-Kac, HJB, Kelly & Deflated Sharpe',
+      badge: 'Stochastic Math & Quant Interview',
+      personas: ['ai_hft', 'trading'],
+      color: '#ec4899',
+      icon: 'fa-square-root-variable',
+      description: 'Rigorous stochastic mathematics and top-tier quant interview problems: Itô lemma, Feynman-Kac PDE, HJB control, Avellaneda-Stoikov, and deflated Sharpe.',
+      steps: [
+        { moduleId: 'ito_calculus', title: 'Itô’s Lemma & Stochastic Differentials', role: 'Quadratic variation & stochastic calculus fundamentals', unlock: 'Stochastic Differential Equation (SDE) Laboratory' },
+        { moduleId: 'feynman_kac', title: 'Feynman-Kac PDE & Stochastic Connection', role: 'Solving parabolic PDEs via conditional expectations', unlock: 'PDE Boundary Value Solver & Heat Equation Engine' },
+        { moduleId: 'hjb_stochastic_control', title: 'Hamilton-Jacobi-Bellman (HJB) Control', role: 'Dynamic programming for continuous-time optimal wealth', unlock: 'Continuous-Time Stochastic Control Optimizer' },
+        { moduleId: 'avellaneda_stoikov', title: 'Avellaneda-Stoikov Market Making Math', role: 'Optimal reservation price & inventory penalty', unlock: 'High-Frequency Quoting & Inventory Skew Engine' },
+        { moduleId: 'risk_constrained_kelly', title: 'Risk-Constrained Kelly Sizing', role: 'Fractional capital allocation avoiding ruin', unlock: 'Optimal Bet Sizing & Capital Allocation with Ruin Constraints' },
+        { moduleId: 'deflated_sharpe', title: 'Deflated Sharpe Ratio (Bailey-Lopez de Prado)', role: 'Correcting for selection bias and backtest overfitting', unlock: 'Institutional Overfitting & P-Hacking Audit' },
+        { moduleId: 'yen_carry_unwind', title: 'Global FX Carry Trade Unwind Mechanics', role: 'Interest rate differential unwinds & liquidity runs', unlock: 'Cross-Currency Margin & Liquidity Radar' },
+        { moduleId: 'backtrader_cerebro', title: 'Backtrader Cerebro Event-Driven Architecture', role: 'Event-driven execution loops vs vectorized backtests', unlock: 'Event-Driven Strategy Execution Engine' }
       ]
     }
   ];
+
+  // ── HUD Toast Notifications ───────────────────────────────────────────────
+  const showToast = (title, message, type = 'info') => {
+    let container = document.getElementById('riskosToastContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'riskosToastContainer';
+      container.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none;';
+      document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    const borderColor = type === 'success' ? '#10b981' : (type === 'warn' ? '#f59e0b' : '#38bdf8');
+    const iconClass = type === 'success' ? 'fa-circle-check text-emerald' : 'fa-circle-info text-cyan';
+
+    toast.style.cssText = `
+      background: #0f172a; border: 1px solid ${borderColor}55; border-left: 4px solid ${borderColor};
+      padding: 12px 18px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      color: #fff; font-family: var(--font-mono, monospace); font-size: 0.8rem;
+      display: flex; align-items: center; gap: 12px; pointer-events: auto;
+      transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    `;
+    toast.innerHTML = `
+      <i class="fa-solid ${iconClass}" style="font-size: 1.1rem;"></i>
+      <div>
+        <div style="font-weight: 700; color: #fff; margin-bottom: 2px;">${title}</div>
+        <div style="color: #94a3b8; font-size: 0.73rem;">${message}</div>
+      </div>
+    `;
+
+    container.appendChild(toast);
+    requestAnimationFrame(() => { toast.style.transform = 'translateX(0)'; });
+    setTimeout(() => {
+      toast.style.transform = 'translateX(120%)';
+      setTimeout(() => toast.remove(), 350);
+    }, 3200);
+  };
+
+  // ── Course Progress & Accreditation Mastery Engine ────────────────────────
+  const updateCourseProgressHUD = () => {
+    if (typeof LearnMathEngine === 'undefined') return;
+    const totalLabs = (LearnMathEngine.MODULES_DIRECTORY && LearnMathEngine.MODULES_DIRECTORY.length) || 80;
+    const completedCount = labState.completedLabs.size;
+    const percent = Math.min(100, Math.round((completedCount / totalLabs) * 100));
+
+    // Update Percentage Ring & Center Label
+    const percentEl = document.getElementById('coursePercentVal');
+    if (percentEl) percentEl.textContent = `${percent}%`;
+
+    const ringEl = document.getElementById('courseProgressRing');
+    if (ringEl) {
+      const circumference = 2 * Math.PI * 38; // 238.76
+      const offset = circumference - (percent / 100) * circumference;
+      ringEl.style.strokeDashoffset = offset;
+    }
+
+    // Update Progress Bar Fill
+    const barFillEl = document.getElementById('hudProgressBarFill');
+    if (barFillEl) barFillEl.style.width = `${percent}%`;
+
+    // Update Labs Counter
+    const countEl = document.getElementById('completedLabsCount');
+    if (countEl) countEl.textContent = completedCount;
+    const totalEl = document.getElementById('totalLabsCount');
+    if (totalEl) totalEl.textContent = totalLabs;
+
+    const pillComp = document.getElementById('hudCompletedPillCount');
+    if (pillComp) pillComp.textContent = completedCount;
+    const pillRem = document.getElementById('hudRemainingPillCount');
+    if (pillRem) pillRem.textContent = Math.max(0, totalLabs - completedCount);
+
+    // Determine Accreditation Rank & Active Tier
+    let rankTitle = 'QUANTITATIVE APPRENTICE';
+    let activeTier = 'tierApprentice';
+    if (percent >= 100) {
+      rankTitle = 'MANAGING DIRECTOR / HEAD OF RISK';
+      activeTier = 'tierMD';
+    } else if (percent >= 75) {
+      rankTitle = 'SENIOR QUANTITATIVE RESEARCHER';
+      activeTier = 'tierSenior';
+    } else if (percent >= 50) {
+      rankTitle = 'ASSOCIATE PORTFOLIO MANAGER';
+      activeTier = 'tierAssociate';
+    } else if (percent >= 25) {
+      rankTitle = 'JUNIOR QUANT ANALYST';
+      activeTier = 'tierAnalyst';
+    }
+
+    const rankBadge = document.getElementById('hudRankBadge');
+    if (rankBadge) {
+      rankBadge.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> ${rankTitle}`;
+      if (percent === 100) {
+        rankBadge.classList.add('mastered-glow');
+      } else {
+        rankBadge.classList.remove('mastered-glow');
+      }
+    }
+
+    // Update Tier Milestone Indicators
+    ['tierApprentice', 'tierAnalyst', 'tierAssociate', 'tierSenior', 'tierMD'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', id === activeTier);
+    });
+
+    updateLabCompleteButton();
+  };
+
+  const updateLabCompleteButton = () => {
+    const btn = document.getElementById('btnToggleLabComplete');
+    const icon = document.getElementById('btnToggleLabCompleteIcon');
+    const text = document.getElementById('btnToggleLabCompleteText');
+    if (!btn) return;
+
+    const isDone = isLabCompleted(labState.activeModuleId);
+    btn.classList.toggle('is-completed', isDone);
+
+    if (isDone) {
+      if (icon) icon.className = 'fa-solid fa-circle-check text-emerald';
+      if (text) text.textContent = 'Mastered ✓';
+      btn.title = 'Laboratory Mastered! Click to mark incomplete.';
+    } else {
+      if (icon) icon.className = 'fa-regular fa-circle-check';
+      if (text) text.textContent = 'Mark Mastered';
+      btn.title = 'Mark this laboratory as completed/mastered (+1.25% progress)';
+    }
+  };
+
+  const toggleActiveLabComplete = () => {
+    const activeId = labState.activeModuleId;
+    const isNowDone = !labState.completedLabs.has(activeId);
+
+    if (isNowDone) {
+      labState.completedLabs.add(activeId);
+      showToast('Mastery Confirmed', `${activeId.toUpperCase()} recorded as Mastered (+1.25% Course Completion)!`, 'success');
+    } else {
+      labState.completedLabs.delete(activeId);
+      showToast('Status Updated', `${activeId.toUpperCase()} marked as incomplete.`, 'info');
+    }
+
+    saveCompletedLabs();
+    updateCourseProgressHUD();
+    renderCurriculumTracks();
+    renderTopModulesBar();
+    renderAllModulesGrid();
+  };
+
+  const advanceNextCurriculumLab = () => {
+    if (typeof LearnMathEngine === 'undefined') return;
+    const all = LearnMathEngine.MODULES_DIRECTORY;
+    const currentIdx = all.findIndex(m => m.id === labState.activeModuleId);
+    
+    // Check if next lab in current track exists
+    let nextModId = null;
+    for (const track of STRUCTURED_TRACKS) {
+      const stepIdx = track.steps.findIndex(s => s.moduleId === labState.activeModuleId);
+      if (stepIdx !== -1 && stepIdx < track.steps.length - 1) {
+        nextModId = track.steps[stepIdx + 1].moduleId;
+        break;
+      }
+    }
+
+    // Fallback to next module in directory if at end of track or not in track
+    if (!nextModId && currentIdx !== -1 && currentIdx < all.length - 1) {
+      nextModId = all[currentIdx + 1].id;
+    } else if (!nextModId && all.length > 0) {
+      nextModId = all[0].id; // Loop back to start
+    }
+
+    if (nextModId) {
+      switchModule(nextModId);
+      const ws = document.getElementById('activeLabWorkspace');
+      if (ws) ws.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showToast('Next Lab Loaded', `Advanced to ${nextModId.toUpperCase()}`, 'info');
+    }
+  };
 
   const setExplanationMode = (mode) => {
     if (!['beginner', 'investor', 'quant'].includes(mode)) return;
@@ -1628,9 +1883,11 @@
 
     container.innerHTML = visibleTracks.map(track => {
       const isCurrentInTrack = track.steps.some(s => s.moduleId === labState.activeModuleId);
+      const completedStepsCount = track.steps.filter(s => isLabCompleted(s.moduleId)).length;
+      const isTrackMastered = completedStepsCount === track.steps.length;
 
       return `
-        <div class="curriculum-card ${isCurrentInTrack ? 'active-track' : ''}" style="border-top: 3px solid ${track.color};">
+        <div class="curriculum-card ${isCurrentInTrack ? 'active-track' : ''} ${isTrackMastered ? 'track-mastered' : ''}" style="border-top: 3px solid ${track.color};">
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 4px;">
             <div style="display:flex; align-items:center; gap:8px;">
               <div style="width:30px; height:30px; border-radius:8px; background:${track.color}20; display:flex; align-items:center; justify-content:center; color:${track.color};">
@@ -1641,7 +1898,12 @@
                 <span style="font-size:0.7rem; color:var(--text-muted);">${track.subtitle}</span>
               </div>
             </div>
-            <span style="font-size:0.65rem; font-weight:700; color:${track.color}; background:${track.color}15; border:1px solid ${track.color}35; padding:2px 7px; border-radius:4px; text-transform:uppercase;">${track.badge}</span>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+              <span style="font-size:0.65rem; font-weight:700; color:${track.color}; background:${track.color}15; border:1px solid ${track.color}35; padding:2px 7px; border-radius:4px; text-transform:uppercase;">${track.badge}</span>
+              <span style="font-size:0.62rem; font-weight:600; color:${isTrackMastered ? '#10b981' : 'var(--text-muted)'}; font-family:var(--font-mono, monospace);">
+                ${isTrackMastered ? 'TRACK MASTERED ✓' : `${completedStepsCount}/${track.steps.length} Completed`}
+              </span>
+            </div>
           </div>
 
           <p style="font-size:0.73rem; color:var(--text-secondary); line-height:1.4; margin:0 0 6px 0;">${track.description}</p>
@@ -1649,18 +1911,22 @@
           <div style="display:flex; flex-direction:column; gap:6px;">
             ${track.steps.map((step, idx) => {
               const isActive = step.moduleId === labState.activeModuleId;
+              const isDone = isLabCompleted(step.moduleId);
               return `
-                <div class="curriculum-step-item ${isActive ? 'active' : ''}" data-module-id="${step.moduleId}" data-personas="${(track.personas || []).join(',')}" title="Load ${step.title}">
-                  <span class="step-num-badge" style="${isActive ? `color:${track.color}; background:${track.color}25;` : ''}">0${idx + 1}</span>
+                <div class="curriculum-step-item ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}" data-module-id="${step.moduleId}" data-personas="${(track.personas || []).join(',')}" title="Load ${step.title}">
+                  <span class="step-num-badge" style="${isActive ? `color:${track.color}; background:${track.color}25;` : ''}">
+                    ${isDone ? '<i class="fa-solid fa-check text-emerald" style="font-size:0.65rem;"></i>' : `0${idx + 1}`}
+                  </span>
                   <div style="flex:1; min-width:0;">
-                    <div style="font-size:0.75rem; font-weight:${isActive ? '800' : '600'}; color:${isActive ? '#fff' : 'var(--text-primary)'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                      ${step.title}
+                    <div style="font-size:0.75rem; font-weight:${isActive ? '800' : '600'}; color:${isActive ? '#fff' : (isDone ? '#e2e8f0' : 'var(--text-primary)')}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; display:flex; align-items:center; gap:5px;">
+                      <span>${step.title}</span>
+                      ${isDone ? '<i class="fa-solid fa-circle-check text-emerald" style="font-size:0.68rem;" title="Mastered"></i>' : ''}
                     </div>
                     <div style="font-size:0.66rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                       ${step.role}
                     </div>
                   </div>
-                  ${isActive ? `<i class="fa-solid fa-circle-play" style="color:${track.color}; font-size:0.8rem; margin-top:3px;"></i>` : `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.65rem; margin-top:5px; opacity:0.4;"></i>`}
+                  ${isActive ? `<i class="fa-solid fa-circle-play" style="color:${track.color}; font-size:0.8rem; margin-top:3px;"></i>` : (isDone ? `<i class="fa-solid fa-circle-check" style="color:#10b981; font-size:0.75rem; margin-top:4px; opacity:0.85;"></i>` : `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.65rem; margin-top:5px; opacity:0.4;"></i>`)}
                 </div>
               `;
             }).join('')}
@@ -1811,6 +2077,56 @@
       btn.addEventListener('click', () => setCurriculumFilter(btn.dataset.curriculum));
     });
 
+    // Wire Mastery HUD Filter Buttons & Reset Action
+    const btnFilterComp = document.getElementById('btnFilterCompletedLabs');
+    const btnFilterRem = document.getElementById('btnFilterRemainingLabs');
+    const btnResetProg = document.getElementById('btnResetCourseProgress');
+
+    if (btnFilterComp) {
+      btnFilterComp.addEventListener('click', () => {
+        labState.activeFilterMode = (labState.activeFilterMode === 'completed') ? 'all' : 'completed';
+        btnFilterComp.classList.toggle('active', labState.activeFilterMode === 'completed');
+        if (btnFilterRem) btnFilterRem.classList.remove('active');
+        renderTopModulesBar();
+        renderAllModulesGrid();
+      });
+    }
+
+    if (btnFilterRem) {
+      btnFilterRem.addEventListener('click', () => {
+        labState.activeFilterMode = (labState.activeFilterMode === 'remaining') ? 'all' : 'remaining';
+        btnFilterRem.classList.toggle('active', labState.activeFilterMode === 'remaining');
+        if (btnFilterComp) btnFilterComp.classList.remove('active');
+        renderTopModulesBar();
+        renderAllModulesGrid();
+      });
+    }
+
+    if (btnResetProg) {
+      btnResetProg.addEventListener('click', () => {
+        if (window.confirm('Reset all course progress? This will reset your 80-laboratory completion records.')) {
+          labState.completedLabs.clear();
+          saveCompletedLabs();
+          updateCourseProgressHUD();
+          renderCurriculumTracks();
+          renderTopModulesBar();
+          renderAllModulesGrid();
+          showToast('Progress Reset', 'Course progress has been reset to 0%.', 'info');
+        }
+      });
+    }
+
+    // Wire Lab Active Workspace Action Bar Buttons
+    const btnToggleComplete = document.getElementById('btnToggleLabComplete');
+    if (btnToggleComplete) {
+      btnToggleComplete.addEventListener('click', toggleActiveLabComplete);
+    }
+
+    const btnNextCurriculum = document.getElementById('btnNextCurriculumLab');
+    if (btnNextCurriculum) {
+      btnNextCurriculum.addEventListener('click', advanceNextCurriculumLab);
+    }
+
     // Setup Trading Strategy Blueprint Launch Buttons
     document.querySelectorAll('.strat-launch-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1826,6 +2142,7 @@
 
     renderCurriculumTracks();
     updateTrackProgressBanner();
+    updateCourseProgressHUD();
   };
 
   // ── Init Controller & Deep-Link Synchronization ───────────────────────────

@@ -68,10 +68,13 @@
                   <i class="fa-solid fa-arrow-right-to-bracket"></i>
                   <span>Sign In to Terminal Cloud</span>
                 </button>
-                <div style="text-align:center; margin-top:12px;">
+                <div style="text-align:center; margin-top:12px; display:flex; flex-direction:column; gap:6px;">
                   <button type="button" id="btnSendMagicLink" style="background:none; border:none; color:var(--auth-accent-cyan); font-size:0.75rem; cursor:pointer; text-decoration:underline;">
                     Email me a passwordless Magic Link
                   </button>
+                  <a href="signup.html" style="color:var(--auth-text-muted); font-size:0.72rem; text-decoration:none; margin-top:4px;">
+                    Open Full-Screen Onboarding Page &rarr;
+                  </a>
                 </div>
                 <div class="auth-status-msg" id="signInStatusMsg"></div>
               </form>
@@ -100,6 +103,11 @@
                   <i class="fa-solid fa-user-plus"></i>
                   <span>Create Cloud Account</span>
                 </button>
+                <div style="text-align:center; margin-top:10px;">
+                  <a href="signup.html" style="color:var(--auth-accent-cyan); font-size:0.72rem; text-decoration:none;">
+                    Experience Full Dedicated Onboarding &rarr;
+                  </a>
+                </div>
                 <div class="auth-status-msg" id="signUpStatusMsg"></div>
               </form>
             </div>

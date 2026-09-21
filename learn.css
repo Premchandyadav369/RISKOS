@@ -1470,4 +1470,279 @@ header.header {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   COURSE COMPLETION & QUANTITATIVE MASTERY TRACKER HUD
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mastery-progress-hud {
+  margin: 0 auto 20px auto;
+  max-width: 1380px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.hud-inner {
+  background: rgba(10, 15, 26, 0.85);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  border-radius: 12px;
+  padding: 16px 20px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+/* Progress Ring */
+.hud-ring-wrap {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-ring-svg {
+  transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 6;
+}
+
+.progress-ring-fill {
+  fill: none;
+  stroke: #22d3ee;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 238.76;
+  stroke-dashoffset: 238.76;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.5));
+}
+
+.hud-ring-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hud-percent-val {
+  font-family: var(--font-mono, monospace);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #fff;
+  line-height: 1;
+}
+
+.hud-percent-label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  color: var(--accent-cyan, #22d3ee);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* Rank Center */
+.hud-rank-center {
+  flex: 1;
+  min-width: 0;
+}
+
+.hud-rank-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.hud-rank-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hud-rank-prefix {
+  font-size: 0.68rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.hud-rank-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #22d3ee;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.hud-labs-counter {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  color: var(--text-muted, #94a3b8);
+}
+
+.hud-labs-counter strong {
+  color: #fff;
+}
+
+/* Segmented Progress Bar */
+.hud-progress-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.hud-progress-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22d3ee, #10b981);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.hud-milestone-tiers {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.64rem;
+  color: var(--text-muted, #64748b);
+  font-family: var(--font-mono, monospace);
+}
+
+.hud-milestone-tiers .tier-dot.active {
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Actions Right */
+.hud-actions-right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hud-action-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.hud-action-pill:hover, .hud-action-pill.active {
+  background: rgba(34, 211, 238, 0.12);
+  border-color: rgba(34, 211, 238, 0.35);
+  color: #22d3ee;
+}
+
+.hud-action-pill.subtle {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted, #64748b);
+  font-size: 0.68rem;
+  justify-content: center;
+}
+
+.hud-action-pill.subtle:hover {
+  color: #fff;
+}
+
+/* Completed Badges in Grid and Steps */
+.curriculum-step-item.completed {
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.curriculum-step-item.completed .step-num-badge {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #10b981 !important;
+}
+
+.step-completed-icon {
+  color: #10b981;
+  font-size: 0.8rem;
+  margin-top: 3px;
+}
+
+.top-module-pill.completed {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.top-module-pill.completed .top-pill-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+}
+
+.module-card-item.completed {
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Lab Complete Toggle in Action Bar */
+.lab-act-btn.complete-toggle {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #10b981;
+}
+
+.lab-act-btn.complete-toggle.is-completed {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10b981;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.lab-act-btn.next-lab-btn {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(14, 165, 233, 0.3));
+  border-color: rgba(34, 211, 238, 0.5);
+  color: #fff;
+}
+
+.lab-act-btn.next-lab-btn:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(14, 165, 233, 0.45));
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.4);
+}
+
+@media (max-width: 900px) {
+  .hud-inner {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .hud-ring-wrap {
+    align-self: center;
+  }
+  .hud-actions-right {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
 

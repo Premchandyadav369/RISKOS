@@ -169,7 +169,65 @@
       </div>
     </div>
 
-    <!-- ═══════════════════════ 2.5 STRUCTURED MASTERY CURRICULUM (LAYMAN & PROFESSIONAL) ═══════════════════════ -->
+    <!-- ═══════════════════════ COURSE PROGRESS & MASTERY HUD ═══════════════════════ -->
+    <section class="mastery-progress-hud" id="masteryProgressHud">
+      <div class="hud-inner">
+        
+        <!-- Left: Circular Progress Ring & Core Percentage -->
+        <div class="hud-ring-wrap">
+          <svg class="progress-ring-svg" width="80" height="80" viewBox="0 0 90 90">
+            <circle class="progress-ring-bg" cx="45" cy="45" r="38" />
+            <circle class="progress-ring-fill" id="courseProgressRing" cx="45" cy="45" r="38" />
+          </svg>
+          <div class="hud-ring-text">
+            <span class="hud-percent-val" id="coursePercentVal">0%</span>
+            <span class="hud-percent-label">MASTERED</span>
+          </div>
+        </div>
+
+        <!-- Center: Quantitative Rank & Milestones -->
+        <div class="hud-rank-center">
+          <div class="hud-rank-row">
+            <div class="hud-rank-title-wrap">
+              <span class="hud-rank-prefix">ACCREDITATION RANK:</span>
+              <h3 class="hud-rank-badge" id="hudRankBadge"><i class="fa-solid fa-graduation-cap"></i> QUANTITATIVE APPRENTICE</h3>
+            </div>
+            <span class="hud-labs-counter"><strong id="completedLabsCount">0</strong> of <strong id="totalLabsCount">80</strong> Laboratories Completed</span>
+          </div>
+          
+          <!-- Segmented Progress Bar -->
+          <div class="hud-progress-bar-track">
+            <div class="hud-progress-bar-fill" id="hudProgressBarFill" style="width: 0%;"></div>
+          </div>
+
+          <div class="hud-milestone-tiers">
+            <span class="tier-dot active" id="tierApprentice" title="0-24%: Apprentice">Apprentice (0%)</span>
+            <span class="tier-dot" id="tierAnalyst" title="25-49%: Analyst">Analyst (25%)</span>
+            <span class="tier-dot" id="tierAssociate" title="50-74%: Associate">Associate (50%)</span>
+            <span class="tier-dot" id="tierSenior" title="75-99%: Senior Quant">Senior Quant (75%)</span>
+            <span class="tier-dot" id="tierMD" title="100%: Head of Risk">Managing Director (100%)</span>
+          </div>
+        </div>
+
+        <!-- Right: Progress Quick Actions -->
+        <div class="hud-actions-right">
+          <button class="hud-action-pill" id="btnFilterCompletedLabs" title="Filter to completed laboratories">
+            <i class="fa-solid fa-circle-check text-emerald"></i>
+            <span>Completed (<span id="hudCompletedPillCount">0</span>)</span>
+          </button>
+          <button class="hud-action-pill" id="btnFilterRemainingLabs" title="Filter to uncompleted laboratories">
+            <i class="fa-solid fa-circle-play text-cyan"></i>
+            <span>Remaining (<span id="hudRemainingPillCount">80</span>)</span>
+          </button>
+          <button class="hud-action-pill subtle" id="btnResetCourseProgress" title="Reset progress state">
+            <i class="fa-solid fa-rotate-left"></i> <span>Reset</span>
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ 2.5 STRUCTURED MASTERY CURRICULUM (80 LABORATORIES) ═══════════════════════ -->
     <section class="structured-curriculum-section" id="structuredCurriculumSection" style="margin: 0 auto 20px auto; max-width: 1380px; padding: 0 16px;">
       <div class="curriculum-container">
         
@@ -178,25 +236,26 @@
           <div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <span class="chip-dot chip-dot--cyan"></span>
-              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.06em; text-transform: uppercase;">Structured Financial Knowledge Pathways</span>
+              <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.06em; text-transform: uppercase;">Comprehensive Financial Knowledge Pathways</span>
             </div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">PLATFORM MASTERY CURRICULUM &bull; 8 STRUCTURED PATHS (56 SIMULATIONS)</h3>
-            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Step-by-step interactive simulations designed to master all financial concepts powering RISKOS for both layman and professional.</p>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">QUANTITATIVE MASTERY CURRICULUM &bull; 10 STRUCTURED TRACKS (80 INTERACTIVE LABS)</h3>
+            <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Complete step-by-step curriculum covering all 80 mathematical laboratories across risk, alpha, execution, and portfolio architecture.</p>
           </div>
 
           <!-- Persona Filter Tabs -->
           <div class="curriculum-persona-filter" style="display: flex; flex-wrap: wrap; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px; gap: 4px;">
-            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">All 8 Tracks (56 Labs)</button>
-            <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Layman &amp; Retail</button>
-            <button class="curriculum-filter-btn" id="filterCurriculumTrading" data-curriculum="trading" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-chart-line text-pink" style="margin-right: 5px;"></i> Trading Strategies</button>
+            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">All 10 Tracks (80 Labs)</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Retail &amp; Foundations</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumTrading" data-curriculum="trading" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-chart-line text-pink" style="margin-right: 5px;"></i> Trading &amp; Alpha</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumDerivatives" data-curriculum="derivatives" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-cube text-amber" style="margin-right: 5px;"></i> Derivatives &amp; Vol</button>
             <button class="curriculum-filter-btn" id="filterCurriculumInst" data-curriculum="institutional" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-building-columns text-cyan" style="margin-right: 5px;"></i> Institutional Risk</button>
             <button class="curriculum-filter-btn" id="filterCurriculumAiHft" data-curriculum="ai_hft" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-brain text-purple" style="margin-right: 5px;"></i> HFT &amp; AI Alpha</button>
           </div>
         </div>
 
-        <!-- 8 Structured Tracks Grid -->
+        <!-- 10 Structured Tracks Grid -->
         <div class="curriculum-tracks-grid" id="curriculumTracksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px;">
-          <!-- Track Cards populated dynamically by initStructuredLearningTracks in learn.js -->
+          <!-- Track Cards populated dynamically by learn.js covering all 80 labs -->
         </div>
 
       </div>
@@ -546,13 +605,18 @@
           <p class="concept-lead-text" id="activeLeadText">Steady annualized growth rate smoothing out volatility.</p>
         </div>
 
-        <!-- Action Bar: Reset, Save, Compare, Export, Explain -->
+        <!-- Action Bar: Complete Toggle, Next Lab, Reset, Save, Compare, Export, Explain -->
         <div class="lab-action-bar">
+          <button class="lab-act-btn complete-toggle" id="btnToggleLabComplete" title="Mark this quantitative laboratory as completed/mastered">
+            <i class="fa-regular fa-circle-check" id="btnToggleLabCompleteIcon"></i> <span id="btnToggleLabCompleteText">Mark Mastered</span>
+          </button>
+          <button class="lab-act-btn next-lab-btn" id="btnNextCurriculumLab" title="Advance to next laboratory in curriculum">
+            <span>Next Lab</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
           <button class="lab-act-btn" id="btnResetInputs" title="Reset to default parameters"><i class="fa-solid fa-rotate-left"></i> Reset</button>
-          <button class="lab-act-btn" id="btnSaveScenario" title="Save current simulation scenario"><i class="fa-regular fa-bookmark"></i> Save Scenario</button>
+          <button class="lab-act-btn" id="btnSaveScenario" title="Save current simulation scenario"><i class="fa-regular fa-bookmark"></i> Save</button>
           <button class="lab-act-btn" id="btnCompareScenario" title="Compare against saved scenarios"><i class="fa-solid fa-code-compare"></i> Compare</button>
-          <button class="lab-act-btn" id="btnExportResults" title="Export simulation report"><i class="fa-solid fa-download"></i> Export</button>
-          <button class="lab-act-btn primary" id="btnExplainAi" title="Ask AI for deep natural-language explanation"><i class="fa-solid fa-brain"></i> Explain This</button>
+          <button class="lab-act-btn primary" id="btnExplainAi" title="Ask AI for deep natural-language explanation"><i class="fa-solid fa-brain"></i> Explain</button>
         </div>
       </header>
 
