@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RISKOS — News Corner & Event-Driven Intelligence</title>
+  
+  <!-- CDNs -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  
+  <!-- RISKOS Stylesheets -->
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="universalExplainer.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="news.css">
+</head>
+<body class="news-terminal-body">
+
+  <!-- ═══════════════════════ 1. UNIVERSAL TERMINAL HEADER ═══════════════════════ -->
+  <header class="app-header">
+    <div class="header-container">
+      
+      <!-- Brand & Market Clock -->
+      <div class="brand-cluster">
+        <a href="index.html" class="brand-link" title="RISKOS Terminal Home">
+          <img src="assets/logo.webp" alt="RISKOS" class="brand-logo" onerror="this.src='assets/logo.png'">
+          <span class="brand-text">RISKOS</span>
+          <span class="brand-tag">NEWS CORNER</span>
+        </a>
+        
+        <div class="market-clock-badge" id="marketClockBadge" title="Live Market State & Session Clock">
+          <span class="market-status-dot dot--open" id="marketStatusDot"></span>
+          <span class="market-name" id="marketName">NSE</span>
+          <span class="market-state" id="marketState">OPEN</span>
+          <span class="market-time" id="marketTime">09:15:00 IST</span>
+        </div>
+      </div>
+
+      <!-- Center Navigation Pill Ribbon (Preserves 8 Desks assertion) -->
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="app.html" class="nav-link">8 Desks</a>
+        <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan" style="margin-right:2px;"></i> 24/7 Fleet</a>
+        <a href="observatory.html" class="nav-link">Observatory</a>
+        <a href="learn.html" class="nav-link">75 Labs</a>
+        <a href="ticker.html" class="nav-link">Screener</a>
+        <a href="news.html" class="nav-link active"><i class="fa-solid fa-newspaper text-cyan" style="margin-right:2px;"></i> News Corner</a>
+        <a href="portfolio_optimizer.html" class="nav-link"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
+        <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:2px;"></i> System Docs</a>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <button class="btn-subtle-pill" id="globalOpenCommandPalette" title="Press ~ or Ctrl+K to open Bloomberg Command Bar">
+          <i class="fa-solid fa-terminal text-cyan"></i> <span style="font-family:var(--news-font-mono);">CMD &lt;GO&gt;</span>
+        </button>
+        <button class="live-sync-trigger-btn" id="newsRefreshTriggerBtn" title="Sync live news from Alpha Vantage">
+          <span class="live-sync-dot"></span>
+          <i class="fa-solid fa-rotate text-cyan"></i>
+          <span class="live-sync-text">Refresh Feed</span>
+        </button>
+        <!-- Mode Switcher -->
+        <div class="mode-selector-pill" id="newsModeSelectorPill" title="Switch explanation perspective">
+          <button class="mode-btn active" data-mode="simple">Simple</button>
+          <button class="mode-btn" data-mode="quant">Quant</button>
+          <button class="mode-btn" data-mode="research">Research</button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ 2. MAIN NEWS CORNER CONTAINER ═══════════════════════ -->
+  <main class="news-main-container">
+
+    <!-- Top Telemetry Strip -->
+    <section class="news-telemetry-strip">
+      <div class="telemetry-left">
+        <div class="telemetry-pill status-live" id="providerHealthPill">
+          <span class="telemetry-dot"></span>
+          <span id="providerStatusText">ALPHA VANTAGE: HEALTHY</span>
+        </div>
+        <div class="telemetry-pill" id="dataTruthPill">
+          <i class="fa-solid fa-shield-halved text-cyan"></i>
+          <span id="dataTruthText">DATA STATUS: LIVE</span>
+        </div>
+      </div>
+
+      <div class="telemetry-stat-group">
+        <div class="telemetry-stat-item">
+          <span class="stat-label">Last News Update:</span>
+          <span class="stat-val" id="lastNewsUpdateTime">11:18:04 IST</span>
+        </div>
+        <div class="telemetry-stat-item">
+          <span class="stat-label">Total Feed Articles:</span>
+          <span class="stat-val" id="totalArticlesCount">50</span>
+        </div>
+        <div class="telemetry-stat-item">
+          <span class="stat-label">High-Impact Events:</span>
+          <span class="stat-val text-rose" id="highImpactCount">12</span>
+        </div>
+        <div class="telemetry-stat-item">
+          <span class="stat-label">Provider Latency:</span>
+          <span class="stat-val text-cyan" id="providerLatencyVal">284 ms</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3-Column Terminal Layout -->
+    <div class="news-terminal-grid">
+
+      <!-- ─── COLUMN 1: LIVE NEWS FEED ─── -->
+      <section class="news-left-col">
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-bolt"></i> Live News Feed
+            </div>
+            <span class="panel-badge" id="feedItemCountBadge">50 STORIES</span>
+          </div>
+
+          <!-- Feed Search & Multi-Filter Controls -->
+          <div class="feed-controls-box">
+            <div class="feed-search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="newsFeedSearchInput" class="feed-search-input" placeholder="Search company, ticker, topic, or event keywords...">
+            </div>
+
+            <!-- Ticker Filter Pills -->
+            <div class="filter-pills-row" id="tickerFilterRow">
+              <button class="filter-pill-btn active" data-filter-ticker="ALL">ALL</button>
+              <button class="filter-pill-btn" data-filter-ticker="RELIANCE">RELIANCE</button>
+              <button class="filter-pill-btn" data-filter-ticker="TCS">TCS</button>
+              <button class="filter-pill-btn" data-filter-ticker="HDFCBANK">HDFCBANK</button>
+              <button class="filter-pill-btn" data-filter-ticker="INFY">INFY</button>
+              <button class="filter-pill-btn" data-filter-ticker="AAPL">AAPL</button>
+              <button class="filter-pill-btn" data-filter-ticker="NVDA">NVDA</button>
+              <button class="filter-pill-btn" data-filter-ticker="JPM">JPM</button>
+            </div>
+
+            <!-- Topic / Event Filter Pills -->
+            <div class="filter-pills-row" id="topicFilterRow">
+              <button class="filter-pill-btn active" data-filter-topic="ALL">All Topics</button>
+              <button class="filter-pill-btn" data-filter-topic="EARNINGS">Earnings</button>
+              <button class="filter-pill-btn" data-filter-topic="MONETARY_POLICY">Central Bank</button>
+              <button class="filter-pill-btn" data-filter-topic="REGULATORY">Regulatory</button>
+              <button class="filter-pill-btn" data-filter-topic="MERGER_ACQUISITION">M&amp;A</button>
+              <button class="filter-pill-btn" data-filter-topic="PRODUCT">Product</button>
+            </div>
+          </div>
+
+          <!-- Scrollable Card Feed -->
+          <div class="news-feed-list" id="newsFeedListContainer">
+            <!-- Dynamic article cards populated by news.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── COLUMN 2: MARKET IMPACT & TRANSMISSION ─── -->
+      <section class="news-center-col">
+        
+        <!-- Signature Card: HOW IT COULD AFFECT THE MARKET -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-chart-line"></i> How It Could Affect The Market
+            </div>
+            <span class="panel-badge" id="activeArticleStatusBadge">ANALYSIS ACTIVE</span>
+          </div>
+
+          <div class="market-effect-hero-card" id="marketEffectHeroCard">
+            <!-- Dynamic Hero Market Effect Card populated by news.js -->
+          </div>
+        </div>
+
+        <!-- Visual Market Impact Relational Flow Map -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-diagram-project"></i> Market Impact Relational Flow Map
+            </div>
+            <span class="panel-badge">TRANSMISSION</span>
+          </div>
+
+          <div class="market-impact-map-container" id="marketImpactMapContainer">
+            <div class="impact-flow-nodes" id="impactFlowNodes">
+              <div class="impact-node">
+                <div class="impact-node-type">1. Event Trigger</div>
+                <div class="impact-node-title" id="mapNodeEvent">EARNINGS SURPRISE</div>
+                <div class="impact-node-meta" id="mapNodeEventMeta">Materiality 91</div>
+              </div>
+              <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+              <div class="impact-node">
+                <div class="impact-node-type">2. Primary Asset</div>
+                <div class="impact-node-title" id="mapNodeAsset">RELIANCE</div>
+                <div class="impact-node-meta" id="mapNodeAssetMeta">Price +2.1%</div>
+              </div>
+              <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+              <div class="impact-node">
+                <div class="impact-node-type">3. Sector Basket</div>
+                <div class="impact-node-title" id="mapNodeSector">ENERGY</div>
+                <div class="impact-node-meta" id="mapNodeSectorMeta">Sector +0.65%</div>
+              </div>
+              <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+              <div class="impact-node">
+                <div class="impact-node-type">4. Benchmark Index</div>
+                <div class="impact-node-title" id="mapNodeIndex">NIFTY 50</div>
+                <div class="impact-node-meta" id="mapNodeIndexMeta">Index +0.22%</div>
+              </div>
+              <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+              <div class="impact-node">
+                <div class="impact-node-type">5. Portfolio Impact</div>
+                <div class="impact-node-title" id="mapNodePortfolio">PORTFOLIO</div>
+                <div class="impact-node-meta" id="mapNodePortMeta">Exposure 25%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sector News Heatmap -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-table-cells"></i> Sector News Heatmap
+            </div>
+            <span class="panel-badge">NORMALIZED AGGREGATE</span>
+          </div>
+
+          <div class="sector-heatmap-grid" id="sectorHeatmapGrid">
+            <!-- Dynamic Sector Cells populated by news.js -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ─── COLUMN 3: NEWS ALPHA & PORTFOLIO RISK ─── -->
+      <section class="news-right-col">
+
+        <!-- Market Movers Panel -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-fire text-amber"></i> Market Movers
+            </div>
+            <span class="panel-badge">HIGH IMPACT</span>
+          </div>
+
+          <div class="market-movers-list" id="marketMoversList">
+            <!-- Dynamic Market Movers populated by news.js -->
+          </div>
+        </div>
+
+        <!-- Personalized Portfolio News & Event Risk Panel -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-briefcase"></i> Your Portfolio Event Risk
+            </div>
+            <span class="panel-badge" id="portEventRiskBadge">EVALUATED</span>
+          </div>
+
+          <div class="portfolio-risk-summary" id="portfolioRiskSummary">
+            <div class="port-stat-cards">
+              <div class="port-stat-box">
+                <div class="port-stat-title">Positive Exposure</div>
+                <div class="port-stat-value text-emerald" id="portPosExposureVal">+34</div>
+              </div>
+              <div class="port-stat-box">
+                <div class="port-stat-title">Negative Exposure</div>
+                <div class="port-stat-value text-rose" id="portNegExposureVal">-18</div>
+              </div>
+              <div class="port-stat-box">
+                <div class="port-stat-title">Net News Score</div>
+                <div class="port-stat-value text-cyan" id="portNetNewsScoreVal">+16</div>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:0.75rem; text-transform:uppercase; color:var(--news-text-muted); margin-bottom:6px;">Highest Event Risk Holdings:</div>
+              <div class="port-holdings-risk-list" id="portHoldingsRiskList">
+                <!-- Constituent risk badges populated by news.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Factor Signal Decomposition Panel -->
+        <div class="terminal-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-layer-group"></i> Multi-Signal RISKOS Decomposition
+            </div>
+            <button class="btn-subtle-pill" id="openSignalAuditModalBtn" style="font-size:0.7rem; padding:2px 8px;">
+              <i class="fa-solid fa-eye text-cyan"></i> Explain Signal
+            </button>
+          </div>
+
+          <div class="signal-decomp-box" id="signalDecompBox">
+            <div class="final-signal-hero">
+              <span style="font-size:0.8rem; text-transform:uppercase; color:var(--news-text-muted);">Synthesis Stance:</span>
+              <span id="decompSignalBadge" style="font-family:var(--news-font-mono); font-weight:800; font-size:1.1rem; color:var(--news-accent-emerald);">BULLISH (+53)</span>
+            </div>
+
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">News Alpha Contribution:</span>
+              <span class="decomp-factor-val text-emerald" id="decompNewsAlphaVal">+24</span>
+            </div>
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">Price Momentum Filter:</span>
+              <span class="decomp-factor-val text-emerald" id="decompMomentumVal">+18</span>
+            </div>
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">Volume Confirmation (RVOL):</span>
+              <span class="decomp-factor-val text-emerald" id="decompVolumeVal">+9</span>
+            </div>
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">Market Regime (HMM):</span>
+              <span class="decomp-factor-val text-cyan" id="decompRegimeVal">+6</span>
+            </div>
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">TimesFM / Prophet Forecast:</span>
+              <span class="decomp-factor-val text-cyan" id="decompForecastVal">+7</span>
+            </div>
+            <div class="decomp-bar-row">
+              <span class="decomp-factor-label">Risk &amp; VaR Barrier Deduction:</span>
+              <span class="decomp-factor-val text-rose" id="decompRiskVal">-11</span>
+            </div>
+            <div class="decomp-divider"></div>
+            <div class="decomp-bar-row" style="font-size:0.9rem;">
+              <span style="font-weight:700;">Net Signal Strength:</span>
+              <span style="font-weight:800;" class="text-emerald" id="decompNetVal">+53</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ═══════════════════════ 3. EXPLAIN SIGNAL AUDIT MODAL ═══════════════════════ -->
+  <div class="news-modal-backdrop" id="signalAuditModal" style="display:none;">
+    <div class="news-modal-content">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-size:1.05rem; font-weight:700; text-transform:uppercase; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-magnifying-glass-chart text-cyan"></i> Institutional Signal Audit Ledger
+        </div>
+        <button id="closeSignalAuditModalBtn" style="background:none; border:none; color:var(--news-text-muted); font-size:1.2rem; cursor:pointer;">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">Why?</div>
+        <div class="audit-field-body" id="auditFieldWhy">Evaluating event catalyst and sentiment profile.</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">What Data?</div>
+        <div class="audit-field-body" id="auditFieldWhatData">Alpha Vantage news intelligence corroborated by tick data.</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">When? (Timestamps)</div>
+        <div class="audit-field-body" id="auditFieldWhen" style="font-family:var(--news-font-mono); font-size:0.8rem;">Published: N/A | Ingested: N/A | Processed: N/A</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">Source &amp; Wire Provenance</div>
+        <div class="audit-field-body" id="auditFieldSource">Alpha Vantage primary provider feed.</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">What Changed?</div>
+        <div class="audit-field-body" id="auditFieldWhatChanged">News Alpha delta and volume confirmation.</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">How Confident?</div>
+        <div class="audit-field-body" id="auditFieldHowConfident">Empirical statistical confidence score.</div>
+      </div>
+
+      <div class="audit-field-block">
+        <div class="audit-field-title">What Could Invalidate It?</div>
+        <div class="audit-field-body" id="auditFieldInvalidate">Market reversal and volume dissipation conditions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ 4. SCRIPTS & PIPELINE LINKAGES ═══════════════════════ -->
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="securityMaster.js"></script>
+  <script src="universalAlerts.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="terminalBus.js"></script>
+
+  <!-- News Intelligence Pipeline Scripts -->
+  <script src="newsNormalizationEngine.js"></script>
+  <script src="newsEntityResolver.js"></script>
+  <script src="newsEventClassifier.js"></script>
+  <script src="newsMaterialityEngine.js"></script>
+  <script src="newsNoveltyEngine.js"></script>
+  <script src="historicalEventImpactEngine.js"></script>
+  <script src="newsMarketReactionEngine.js"></script>
+  <script src="newsPriceAttribution.js"></script>
+  <script src="newsSignalEngine.js"></script>
+  <script src="newsPortfolioRisk.js"></script>
+  <script src="newsEngine.js"></script>
+  <script src="news.js"></script>
+</body>
+</html>

@@ -67,6 +67,7 @@ from engine.model_validation import (
     christoffersen_conditional_coverage_test, basel_traffic_light,
     var_duration_test, comprehensive_risk_validation, stationary_block_bootstrap
 )
+from engine.providers.alpha_vantage_news import alpha_vantage_provider
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
@@ -1411,4 +1412,49 @@ def api_research_data_quality(
         return DataQualityEngine.audit_dataframe(closes_df, df_volumes=vols_df)
     except Exception as e:
         return {"error": str(e)}
+
+@app.get("/api/market/news")
+@app.get("/api/news/feed")
+def api_market_news_feed(
+    tickers: Optional[str] = None,
+    topics: Optional[str] = None,
+    time_from: Optional[str] = None,
+    time_to: Optional[str] = None,
+    sort: str = "LATEST",
+    limit: int = 50
+):
+    """
+    Centralized Alpha Vantage NEWS_SENTIMENT gateway with rate-limiting, in-memory caching,
+    and graceful degradation.
+    """
+    try:
+        res = alpha_vantage_provider.fetch_news(
+            tickers=tickers,
+            topics=topics,
+            time_from=time_from,
+            time_to=time_to,
+            sort=sort,
+            limit=limit
+        )
+        return {
+            "success": True,
+            "dataStatus": res.get("dataStatus", "LIVE"),
+            "fromCache": res.get("fromCache", False),
+            "health": res.get("health", {}),
+            "items": str(len(res.get("data", {}).get("feed", []))),
+            "feed": res.get("data", {}).get("feed", [])
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "dataStatus": "UNAVAILABLE",
+            "health": alpha_vantage_provider.get_health(),
+            "feed": []
+        }
+
+@app.get("/api/news/health")
+def api_news_health():
+    """Returns real-time provider telemetry and health status for Alpha Vantage."""
+    return alpha_vantage_provider.get_health()
 

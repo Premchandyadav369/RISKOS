@@ -1,0 +1,943 @@
+/**
+ * RISKOS — News Corner & News Intelligence Terminal Styles (news.css)
+ * Bloomberg / Aladdin Institutional Terminal UX
+ */
+
+:root {
+  --news-bg-base: #060709;
+  --news-card-bg: rgba(14, 17, 23, 0.85);
+  --news-card-border: rgba(255, 255, 255, 0.07);
+  --news-card-hover: rgba(20, 25, 34, 0.95);
+  --news-accent-cyan: #22d3ee;
+  --news-accent-emerald: #10b981;
+  --news-accent-rose: #f43f5e;
+  --news-accent-amber: #f59e0b;
+  --news-accent-blue: #3b82f6;
+  --news-accent-purple: #a855f7;
+  --news-text-primary: #f8fafc;
+  --news-text-secondary: #94a3b8;
+  --news-text-muted: #64748b;
+  --news-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --news-font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* ── Global Terminal Frame ── */
+body.news-terminal-body {
+  background-color: var(--news-bg-base);
+  color: var(--news-text-primary);
+  font-family: var(--news-font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+.news-main-container {
+  max-width: 1780px;
+  margin: 0 auto;
+  padding: 20px 24px 60px 24px;
+}
+
+/* ── Top Telemetry Subheader ── */
+.news-telemetry-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--news-card-bg);
+  border: 1px solid var(--news-card-border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(12px);
+}
+
+.telemetry-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.telemetry-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.8rem;
+  font-family: var(--news-font-mono);
+}
+
+.telemetry-pill.status-live {
+  border-color: rgba(16, 185, 129, 0.4);
+  color: var(--news-accent-emerald);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.telemetry-pill.status-cached {
+  border-color: rgba(245, 158, 11, 0.4);
+  color: var(--news-accent-amber);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.telemetry-pill.status-degraded {
+  border-color: rgba(244, 63, 94, 0.4);
+  color: var(--news-accent-rose);
+  background: rgba(244, 63, 94, 0.08);
+}
+
+.telemetry-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+  animation: telemetryPulse 2s infinite ease-in-out;
+}
+
+@keyframes telemetryPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.telemetry-stat-group {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 0.85rem;
+}
+
+.telemetry-stat-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stat-label {
+  color: var(--news-text-muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-val {
+  font-family: var(--news-font-mono);
+  font-weight: 600;
+  color: var(--news-text-primary);
+}
+
+/* ── 3-Column Terminal Layout ── */
+.news-terminal-grid {
+  display: grid;
+  grid-template-columns: 460px minmax(520px, 1fr) 420px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1440px) {
+  .news-terminal-grid {
+    grid-template-columns: 420px 1fr;
+  }
+  .news-right-col {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1024px) {
+  .news-terminal-grid {
+    grid-template-columns: 1fr;
+  }
+  .news-right-col {
+    grid-column: span 1;
+  }
+}
+
+/* ── Panel Box Containers ── */
+.terminal-panel {
+  background: var(--news-card-bg);
+  border: 1px solid var(--news-card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+}
+
+.panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--news-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.panel-title i {
+  color: var(--news-accent-cyan);
+}
+
+.panel-badge {
+  font-size: 0.72rem;
+  font-family: var(--news-font-mono);
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(34, 211, 238, 0.1);
+  color: var(--news-accent-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+}
+
+/* ── Feed Search & Filters ── */
+.feed-controls-box {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--news-card-border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed-search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.feed-search-input-wrapper i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--news-text-muted);
+  font-size: 0.85rem;
+}
+
+.feed-search-input {
+  width: 100%;
+  padding: 9px 14px 9px 38px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--news-card-border);
+  border-radius: 8px;
+  color: var(--news-text-primary);
+  font-size: 0.85rem;
+  font-family: var(--news-font-sans);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.feed-search-input:focus {
+  border-color: var(--news-accent-cyan);
+}
+
+.filter-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.filter-pills-row::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-pill-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--news-text-secondary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.filter-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--news-text-primary);
+}
+
+.filter-pill-btn.active {
+  background: rgba(34, 211, 238, 0.15);
+  border-color: var(--news-accent-cyan);
+  color: var(--news-accent-cyan);
+  font-weight: 600;
+}
+
+/* ── Live News Feed Items ── */
+.news-feed-list {
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-article-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--news-card-border);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.news-article-card:hover {
+  background: var(--news-card-hover);
+  border-color: rgba(34, 211, 238, 0.3);
+  transform: translateY(-1px);
+}
+
+.news-article-card.active-article {
+  border-color: var(--news-accent-cyan);
+  background: rgba(34, 211, 238, 0.04);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.12);
+}
+
+.card-top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.event-category-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #cbd5e1;
+}
+
+.event-category-badge.cat-earnings {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.event-category-badge.cat-regulatory {
+  background: rgba(244, 63, 94, 0.15);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.event-category-badge.cat-macro {
+  background: rgba(168, 85, 247, 0.15);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.event-category-badge.cat-guidance {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.card-time-provenance {
+  font-family: var(--news-font-mono);
+  font-size: 0.72rem;
+  color: var(--news-text-muted);
+}
+
+.article-headline {
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 8px 0;
+  color: var(--news-text-primary);
+}
+
+.article-summary-snippet {
+  font-size: 0.8rem;
+  color: var(--news-text-secondary);
+  line-height: 1.4;
+  margin: 0 0 10px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.article-entity-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.ticker-pill {
+  font-family: var(--news-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--news-accent-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+}
+
+.source-pill {
+  font-size: 0.72rem;
+  color: var(--news-text-muted);
+}
+
+.article-metrics-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  font-family: var(--news-font-mono);
+}
+
+.metric-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-cell-title {
+  font-size: 0.65rem;
+  color: var(--news-text-muted);
+  text-transform: uppercase;
+}
+
+.metric-cell-val {
+  font-weight: 600;
+}
+
+.metric-cell-val.pos { color: var(--news-accent-emerald); }
+.metric-cell-val.neg { color: var(--news-accent-rose); }
+.metric-cell-val.neutral { color: var(--news-text-secondary); }
+
+/* ── Center: "How Will This Affect The Market" Signature Panel ── */
+.market-effect-hero-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.effect-header-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.effect-asset-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.effect-symbol-badge {
+  font-size: 1.3rem;
+  font-weight: 800;
+  font-family: var(--news-font-mono);
+  color: var(--news-accent-cyan);
+  background: rgba(34, 211, 238, 0.1);
+  padding: 4px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+.effect-company-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--news-text-primary);
+}
+
+.effect-sector-text {
+  font-size: 0.8rem;
+  color: var(--news-text-muted);
+}
+
+/* ── Live Market Reaction Block ── */
+.reaction-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 800px) {
+  .reaction-stat-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.reaction-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--news-card-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.reaction-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--news-text-muted);
+  margin-bottom: 4px;
+}
+
+.reaction-val {
+  font-size: 1.15rem;
+  font-family: var(--news-font-mono);
+  font-weight: 700;
+}
+
+.confirmation-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.confirm-status-pill {
+  font-family: var(--news-font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.confirm-status-pill.confirm-strong {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--news-accent-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.confirm-status-pill.confirm-moderate {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--news-accent-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+}
+
+.confirm-status-pill.confirm-divergent {
+  background: rgba(244, 63, 94, 0.15);
+  color: var(--news-accent-rose);
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.confirm-status-pill.confirm-unconfirmed {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--news-accent-amber);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+/* ── Historical Analogue Forward Table ── */
+.forward-reaction-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--news-card-border);
+}
+
+.forward-reaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  font-family: var(--news-font-mono);
+  text-align: right;
+}
+
+.forward-reaction-table th {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  color: var(--news-text-muted);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.forward-reaction-table td {
+  padding: 8px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.forward-reaction-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ── Model Interpretation Box ── */
+.model-interpretation-box {
+  background: rgba(34, 211, 238, 0.03);
+  border-left: 3px solid var(--news-accent-cyan);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.interp-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--news-accent-cyan);
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+}
+
+.interp-points {
+  margin: 6px 0;
+  padding-left: 18px;
+  color: #cbd5e1;
+}
+
+.interp-disclaimer {
+  font-size: 0.72rem;
+  color: var(--news-text-muted);
+  margin-top: 8px;
+  font-style: italic;
+}
+
+/* ── Market Impact Relational Flow Map ── */
+.market-impact-map-container {
+  padding: 16px 20px;
+}
+
+.impact-flow-nodes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+
+.impact-node {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--news-card-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+  flex: 1;
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.impact-node:hover {
+  border-color: var(--news-accent-cyan);
+  background: rgba(34, 211, 238, 0.08);
+}
+
+.impact-node-type {
+  font-size: 0.65rem;
+  color: var(--news-text-muted);
+  text-transform: uppercase;
+}
+
+.impact-node-title {
+  font-family: var(--news-font-mono);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--news-text-primary);
+  margin: 2px 0;
+}
+
+.impact-node-meta {
+  font-size: 0.72rem;
+  color: var(--news-accent-cyan);
+}
+
+.impact-flow-arrow {
+  color: var(--news-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ── Sector News Heatmap Grid ── */
+.sector-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  padding: 14px 18px;
+}
+
+.sector-heatmap-cell {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--news-card-border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.15s;
+}
+
+.sector-heatmap-cell:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sector-cell-name {
+  font-size: 0.75rem;
+  color: var(--news-text-secondary);
+  margin-bottom: 6px;
+}
+
+.sector-cell-score {
+  font-family: var(--news-font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.sector-cell-score.bullish { color: var(--news-accent-emerald); }
+.sector-cell-score.bearish { color: var(--news-accent-rose); }
+.sector-cell-score.neutral { color: var(--news-text-muted); }
+
+/* ── Right Column: Market Movers & Portfolio News ── */
+.market-movers-list {
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.market-mover-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--news-card-border);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.market-mover-row:hover {
+  background: var(--news-card-hover);
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.mover-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mover-rank {
+  font-family: var(--news-font-mono);
+  font-size: 0.8rem;
+  color: var(--news-text-muted);
+  width: 16px;
+}
+
+.mover-sym {
+  font-family: var(--news-font-mono);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--news-text-primary);
+}
+
+.mover-event {
+  font-size: 0.72rem;
+  color: var(--news-text-muted);
+}
+
+.mover-right {
+  text-align: right;
+  font-family: var(--news-font-mono);
+}
+
+.mover-price {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mover-alpha {
+  font-size: 0.72rem;
+  color: var(--news-accent-cyan);
+}
+
+/* ── Personalized Portfolio Risk Strip ── */
+.portfolio-risk-summary {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.port-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.port-stat-box {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--news-card-border);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.port-stat-title {
+  font-size: 0.68rem;
+  color: var(--news-text-muted);
+  text-transform: uppercase;
+}
+
+.port-stat-value {
+  font-family: var(--news-font-mono);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.port-holdings-risk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.port-holding-risk-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--news-card-border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.port-risk-badge {
+  font-size: 0.65rem;
+  font-family: var(--news-font-mono);
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.port-risk-badge.critical {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
+  border: 1px solid rgba(244, 63, 94, 0.4);
+}
+
+.port-risk-badge.elevated {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.port-risk-badge.low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+/* ── Multi-Signal Decomposition Waterfall ── */
+.signal-decomp-box {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.final-signal-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--news-card-border);
+}
+
+.decomp-bar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--news-font-mono);
+  font-size: 0.8rem;
+  padding: 4px 0;
+}
+
+.decomp-factor-label {
+  color: var(--news-text-secondary);
+}
+
+.decomp-factor-val {
+  font-weight: 600;
+}
+
+.decomp-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 0;
+}
+
+/* ── "Explain Signal" Auditor Modal ── */
+.news-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+}
+
+.news-modal-content {
+  background: #0d1117;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.2);
+  border-radius: 14px;
+  max-width: 720px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.audit-field-block {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--news-card-border);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.audit-field-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--news-accent-cyan);
+  margin-bottom: 4px;
+}
+
+.audit-field-body {
+  font-size: 0.85rem;
+  color: var(--news-text-primary);
+  line-height: 1.45;
+}
