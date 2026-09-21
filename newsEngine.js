@@ -375,6 +375,13 @@
         enrichedArticles.push(item);
       }
 
+      if (enrichedArticles.length > 0) {
+        this.cachedFeed = enrichedArticles;
+        this.cachedEnrichedFeed = enrichedArticles;
+      } else if (rawArticles && rawArticles.length > 0) {
+        this.cachedFeed = rawArticles;
+      }
+
       return {
         articles: enrichedArticles,
         clusters: normalized.clusters,

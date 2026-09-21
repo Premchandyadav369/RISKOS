@@ -28,19 +28,14 @@
       <!-- Brand Logo & Market Clock -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home" title="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" onerror="this.src='assets/logo.png'" />
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" onerror="this.src='assets/logo.png'" />
         </a>
-        
-        <div class="brand-title-wrap" style="display:flex; flex-direction:column; margin-right:4px;">
-          <span style="font-size:0.92rem; font-weight:800; letter-spacing:0.04em; color:#fff; line-height:1.1;">RISKOS</span>
-          <span style="font-size:0.62rem; font-weight:700; color:var(--news-accent-cyan, #22d3ee); letter-spacing:0.06em; text-transform:uppercase;">NEWS CORNER</span>
-        </div>
-
+        <span class="brand-name-text">RISKOS</span>
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
           <span class="market-status-dot dot--open" id="marketStatusDot"></span>
           <span class="market-name" id="marketName">NSE</span>
           <span class="market-state" id="marketState">OPEN</span>
-          <span class="market-time" id="marketTime">09:15:00 IST</span>
+          <span class="market-time" id="marketTime">09:15 IST</span>
         </div>
       </div>
 
@@ -48,24 +43,24 @@
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="app.html" class="nav-link">8 Desks</a>
-        <a href="fleet.html" class="nav-link"><i class="fa-solid fa-robot text-cyan" style="margin-right:2px;"></i> 24/7 Fleet</a>
+        <a href="fleet.html" class="nav-link">Fleet</a>
         <a href="observatory.html" class="nav-link">Observatory</a>
-        <a href="learn.html" class="nav-link">75 Labs</a>
+        <a href="learn.html" class="nav-link">Labs</a>
         <a href="ticker.html" class="nav-link">Screener</a>
-        <a href="news.html" class="nav-link active"><i class="fa-solid fa-newspaper text-cyan" style="margin-right:2px;"></i> News Corner</a>
-        <a href="portfolio_optimizer.html" class="nav-link"><i class="fa-solid fa-sliders text-cyan" style="margin-right:2px;"></i> Optimizer</a>
-        <a href="docs.html" class="nav-link"><i class="fa-solid fa-book-bookmark text-cyan" style="margin-right:2px;"></i> System Docs</a>
+        <a href="news.html" class="nav-link active">News</a>
+        <a href="portfolio_optimizer.html" class="nav-link">Optimizer</a>
+        <a href="docs.html" class="nav-link">Docs</a>
       </nav>
 
       <!-- Right Header Actions -->
       <div class="header-actions">
-        <button class="btn-subtle-pill" id="globalOpenCommandPalette" title="Press ~ or Ctrl+K to open Bloomberg Command Bar">
-          <i class="fa-solid fa-terminal text-cyan"></i> <span style="font-family:var(--news-font-mono, monospace);">CMD &lt;GO&gt;</span>
+        <button class="btn-subtle-pill" id="globalOpenCommandPalette" title="Press ~ or Ctrl+K for Command Bar">
+          <i class="fa-solid fa-terminal text-cyan"></i> <span>CMD</span>
         </button>
         <button class="live-sync-trigger-btn" id="newsRefreshTriggerBtn" title="Sync live news from Alpha Vantage">
           <span class="live-sync-dot"></span>
           <i class="fa-solid fa-rotate text-cyan"></i>
-          <span class="live-sync-text">Refresh Feed</span>
+          <span class="live-sync-text">Sync</span>
         </button>
         <!-- Mode Switcher -->
         <div class="mode-selector-pill" id="newsModeSelectorPill" title="Switch explanation perspective">
@@ -97,19 +92,19 @@
       <div class="telemetry-stat-group">
         <div class="telemetry-stat-item">
           <span class="stat-label">Last News Update:</span>
-          <span class="stat-val" id="lastNewsUpdateTime">11:18:04 IST</span>
+          <span class="stat-val" id="lastNewsUpdateTime">--:--:-- IST</span>
         </div>
         <div class="telemetry-stat-item">
           <span class="stat-label">Total Feed Articles:</span>
-          <span class="stat-val" id="totalArticlesCount">50</span>
+          <span class="stat-val" id="totalArticlesCount">--</span>
         </div>
         <div class="telemetry-stat-item">
           <span class="stat-label">High-Impact Events:</span>
-          <span class="stat-val text-rose" id="highImpactCount">12</span>
+          <span class="stat-val text-rose" id="highImpactCount">--</span>
         </div>
         <div class="telemetry-stat-item">
           <span class="stat-label">Provider Latency:</span>
-          <span class="stat-val text-cyan" id="providerLatencyVal">284 ms</span>
+          <span class="stat-val text-cyan" id="providerLatencyVal">-- ms</span>
         </div>
       </div>
     </section>
@@ -194,32 +189,32 @@
             <div class="impact-flow-nodes" id="impactFlowNodes">
               <div class="impact-node">
                 <div class="impact-node-type">1. Event Trigger</div>
-                <div class="impact-node-title" id="mapNodeEvent">EARNINGS SURPRISE</div>
-                <div class="impact-node-meta" id="mapNodeEventMeta">Materiality 91</div>
+                <div class="impact-node-title" id="mapNodeEvent">--</div>
+                <div class="impact-node-meta" id="mapNodeEventMeta">Awaiting stream</div>
               </div>
               <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
               <div class="impact-node">
                 <div class="impact-node-type">2. Primary Asset</div>
-                <div class="impact-node-title" id="mapNodeAsset">RELIANCE</div>
-                <div class="impact-node-meta" id="mapNodeAssetMeta">Price +2.1%</div>
+                <div class="impact-node-title" id="mapNodeAsset">--</div>
+                <div class="impact-node-meta" id="mapNodeAssetMeta">--</div>
               </div>
               <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
               <div class="impact-node">
                 <div class="impact-node-type">3. Sector Basket</div>
-                <div class="impact-node-title" id="mapNodeSector">ENERGY</div>
-                <div class="impact-node-meta" id="mapNodeSectorMeta">Sector +0.65%</div>
+                <div class="impact-node-title" id="mapNodeSector">--</div>
+                <div class="impact-node-meta" id="mapNodeSectorMeta">--</div>
               </div>
               <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
               <div class="impact-node">
                 <div class="impact-node-type">4. Benchmark Index</div>
-                <div class="impact-node-title" id="mapNodeIndex">NIFTY 50</div>
-                <div class="impact-node-meta" id="mapNodeIndexMeta">Index +0.22%</div>
+                <div class="impact-node-title" id="mapNodeIndex">--</div>
+                <div class="impact-node-meta" id="mapNodeIndexMeta">--</div>
               </div>
               <div class="impact-flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
               <div class="impact-node">
                 <div class="impact-node-type">5. Portfolio Impact</div>
-                <div class="impact-node-title" id="mapNodePortfolio">PORTFOLIO</div>
-                <div class="impact-node-meta" id="mapNodePortMeta">Exposure 25%</div>
+                <div class="impact-node-title" id="mapNodePortfolio">--</div>
+                <div class="impact-node-meta" id="mapNodePortMeta">--</div>
               </div>
             </div>
           </div>
@@ -271,15 +266,15 @@
             <div class="port-stat-cards">
               <div class="port-stat-box">
                 <div class="port-stat-title">Positive Exposure</div>
-                <div class="port-stat-value text-emerald" id="portPosExposureVal">+34</div>
+                <div class="port-stat-value text-emerald" id="portPosExposureVal">--</div>
               </div>
               <div class="port-stat-box">
                 <div class="port-stat-title">Negative Exposure</div>
-                <div class="port-stat-value text-rose" id="portNegExposureVal">-18</div>
+                <div class="port-stat-value text-rose" id="portNegExposureVal">--</div>
               </div>
               <div class="port-stat-box">
                 <div class="port-stat-title">Net News Score</div>
-                <div class="port-stat-value text-cyan" id="portNetNewsScoreVal">+16</div>
+                <div class="port-stat-value text-cyan" id="portNetNewsScoreVal">--</div>
               </div>
             </div>
 
@@ -306,37 +301,37 @@
           <div class="signal-decomp-box" id="signalDecompBox">
             <div class="final-signal-hero">
               <span style="font-size:0.8rem; text-transform:uppercase; color:var(--news-text-muted);">Synthesis Stance:</span>
-              <span id="decompSignalBadge" style="font-family:var(--news-font-mono); font-weight:800; font-size:1.1rem; color:var(--news-accent-emerald);">BULLISH (+53)</span>
+              <span id="decompSignalBadge" style="font-family:var(--news-font-mono); font-weight:800; font-size:1.1rem; color:var(--news-accent-emerald);">--</span>
             </div>
 
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">News Alpha Contribution:</span>
-              <span class="decomp-factor-val text-emerald" id="decompNewsAlphaVal">+24</span>
+              <span class="decomp-factor-val text-emerald" id="decompNewsAlphaVal">--</span>
             </div>
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">Price Momentum Filter:</span>
-              <span class="decomp-factor-val text-emerald" id="decompMomentumVal">+18</span>
+              <span class="decomp-factor-val text-emerald" id="decompMomentumVal">--</span>
             </div>
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">Volume Confirmation (RVOL):</span>
-              <span class="decomp-factor-val text-emerald" id="decompVolumeVal">+9</span>
+              <span class="decomp-factor-val text-emerald" id="decompVolumeVal">--</span>
             </div>
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">Market Regime (HMM):</span>
-              <span class="decomp-factor-val text-cyan" id="decompRegimeVal">+6</span>
+              <span class="decomp-factor-val text-cyan" id="decompRegimeVal">--</span>
             </div>
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">TimesFM / Prophet Forecast:</span>
-              <span class="decomp-factor-val text-cyan" id="decompForecastVal">+7</span>
+              <span class="decomp-factor-val text-cyan" id="decompForecastVal">--</span>
             </div>
             <div class="decomp-bar-row">
               <span class="decomp-factor-label">Risk &amp; VaR Barrier Deduction:</span>
-              <span class="decomp-factor-val text-rose" id="decompRiskVal">-11</span>
+              <span class="decomp-factor-val text-rose" id="decompRiskVal">--</span>
             </div>
             <div class="decomp-divider"></div>
             <div class="decomp-bar-row" style="font-size:0.9rem;">
               <span style="font-weight:700;">Net Signal Strength:</span>
-              <span style="font-weight:800;" class="text-emerald" id="decompNetVal">+53</span>
+              <span style="font-weight:800;" class="text-emerald" id="decompNetVal">--</span>
             </div>
           </div>
         </div>

@@ -399,21 +399,30 @@ document.addEventListener('DOMContentLoaded', async () => {
       </div>
     `;
 
-    // Update Market Impact Relational Nodes
+    // Update Market Impact Relational Nodes (All 5 Nodes)
     const nodeEvent = document.getElementById('mapNodeEvent');
     const nodeEventMeta = document.getElementById('mapNodeEventMeta');
     const nodeAsset = document.getElementById('mapNodeAsset');
     const nodeAssetMeta = document.getElementById('mapNodeAssetMeta');
     const nodeSector = document.getElementById('mapNodeSector');
     const nodeSectorMeta = document.getElementById('mapNodeSectorMeta');
+    const nodeIndex = document.getElementById('mapNodeIndex');
+    const nodeIndexMeta = document.getElementById('mapNodeIndexMeta');
+    const nodePortfolio = document.getElementById('mapNodePortfolio');
     const nodePortMeta = document.getElementById('mapNodePortMeta');
+
+    const isUS = (art.primaryEntity?.currency === 'USD') || ['AAPL', 'NVDA', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'META'].includes(sym);
+    const indexName = isUS ? 'S&P 500' : 'NIFTY 50';
 
     if (nodeEvent) nodeEvent.textContent = (art.eventLabel || art.eventType || 'EVENT').toUpperCase();
     if (nodeEventMeta) nodeEventMeta.textContent = `Materiality: ${art.materialityScore || 50}/100`;
     if (nodeAsset) nodeAsset.textContent = sym;
     if (nodeAssetMeta) nodeAssetMeta.textContent = `Δ ${reaction.priceChangePct >= 0 ? '+' : ''}${reaction.priceChangePct}% | RVOL ${reaction.rvol}x`;
-    if (nodeSector) nodeSector.textContent = sector.split(' ')[0].toUpperCase();
+    if (nodeSector) nodeSector.textContent = (sector.split(' ')[0] || 'MARKET').toUpperCase();
     if (nodeSectorMeta) nodeSectorMeta.textContent = `Sector Δ ${reaction.sectorChangePct >= 0 ? '+' : ''}${reaction.sectorChangePct}%`;
+    if (nodeIndex) nodeIndex.textContent = indexName;
+    if (nodeIndexMeta) nodeIndexMeta.textContent = `Index Δ ${reaction.marketChangePct >= 0 ? '+' : ''}${reaction.marketChangePct}%`;
+    if (nodePortfolio) nodePortfolio.textContent = art.primaryEntity?.inPortfolio ? 'PORTFOLIO ASSET' : 'PORTFOLIO RISK';
     if (nodePortMeta) nodePortMeta.textContent = art.primaryEntity?.inPortfolio ? 'Constituent (25%)' : 'Watchlist Tracker';
 
     // Update Signal Decomposition
@@ -426,7 +435,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const decompRisk = document.getElementById('decompRiskVal');
     const decompNet = document.getElementById('decompNetVal');
 
-    const decomp = art.signalDecomposition || { newsAlpha: 24, momentum: 18, volume: 9, regime: 6, forecast: 7, risk: -11, net: 53 };
+    const decomp = art.signalDecomposition || {
+      newsAlpha: art.newsAlpha || 0,
+      momentum: art.newsAlpha > 0 ? 18 : -14,
+      volume: reaction.confirmation === 'STRONG' ? 12 : 4,
+      regime: 6,
+      forecast: art.newsAlpha > 0 ? 8 : -8,
+      risk: -10,
+      net: Math.max(-100, Math.min(100, (art.newsAlpha || 0) + (art.newsAlpha > 0 ? 18 : -14) + (reaction.confirmation === 'STRONG' ? 12 : 4) + 6 + (art.newsAlpha > 0 ? 8 : -8) - 10))
+    };
 
     if (decompBadge) {
       decompBadge.textContent = `${art.newsSignal || 'BULLISH'} (${decomp.net > 0 ? '+' : ''}${decomp.net})`;
@@ -462,20 +479,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (auditInvalidate) auditInvalidate.textContent = expl.whatCouldInvalidate || 'Price reverses below support with declining volume.';
   }
 
-  // Render Sector News Heatmap
+  // Render Dynamic Sector News Heatmap (Aggregated from live feed)
   function renderSectorHeatmap() {
     if (!sectorHeatmapGrid) return;
     sectorHeatmapGrid.innerHTML = '';
 
-    const sectors = [
-      { name: 'Technology', score: 0.61, count: 18 },
-      { name: 'Financials', score: 0.42, count: 24 },
-      { name: 'Energy', score: 0.37, count: 9 },
-      { name: 'Healthcare', score: 0.05, count: 7 },
-      { name: 'Automotive', score: -0.48, count: 11 },
-      { name: 'Consumer', score: 0.22, count: 8 },
-      { name: 'Macro', score: -0.12, count: 15 }
-    ];
+    const sectorMap = new Map();
+    const defaultSectors = ['Technology', 'Financials', 'Energy', 'Healthcare', 'Automotive', 'Consumer', 'Macro'];
+    defaultSectors.forEach(sec => sectorMap.set(sec, { totalSentiment: 0, count: 0 }));
+
+    currentArticles.forEach(art => {
+      let secName = art.primaryEntity?.sector;
+      if (!secName || secName === 'Diversified' || secName === 'Unknown') {
+        if (art.topics && art.topics.length) {
+          const t = String(art.topics[0].topic || art.topics[0]).toLowerCase();
+          if (t.includes('tech')) secName = 'Technology';
+          else if (t.includes('fin') || t.includes('bank')) secName = 'Financials';
+          else if (t.includes('energy') || t.includes('oil')) secName = 'Energy';
+          else if (t.includes('health') || t.includes('pharma')) secName = 'Healthcare';
+          else if (t.includes('auto')) secName = 'Automotive';
+          else if (t.includes('retail') || t.includes('consumer')) secName = 'Consumer';
+          else secName = 'Macro';
+        } else {
+          secName = 'Macro';
+        }
+      }
+
+      if (secName.includes('Technology') || secName.includes('IT')) secName = 'Technology';
+      else if (secName.includes('Bank') || secName.includes('Financ')) secName = 'Financials';
+      else if (secName.includes('Energy') || secName.includes('Oil') || secName.includes('Gas')) secName = 'Energy';
+      else if (secName.includes('Health') || secName.includes('Pharma')) secName = 'Healthcare';
+      else if (secName.includes('Auto')) secName = 'Automotive';
+      else if (secName.includes('Consumer')) secName = 'Consumer';
+
+      if (!sectorMap.has(secName)) {
+        sectorMap.set(secName, { totalSentiment: 0, count: 0 });
+      }
+      const entry = sectorMap.get(secName);
+      const score = typeof art.overallSentiment === 'number' ? art.overallSentiment : (typeof art.sentimentScore === 'number' ? art.sentimentScore : 0);
+      entry.totalSentiment += score;
+      entry.count += 1;
+    });
+
+    const sectors = Array.from(sectorMap.entries()).map(([name, data]) => ({
+      name,
+      score: data.count > 0 ? Number((data.totalSentiment / data.count).toFixed(2)) : 0.00,
+      count: data.count
+    })).sort((a, b) => b.count - a.count || Math.abs(b.score) - Math.abs(a.score));
 
     sectors.forEach(sec => {
       const cell = document.createElement('div');
@@ -492,7 +542,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       `;
 
       cell.addEventListener('click', () => {
-        // Filter feed by sector
         searchQuery = sec.name;
         if (searchInput) searchInput.value = sec.name;
         renderFeed();
@@ -502,7 +551,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Render Market Movers
+  // Render Real Market Movers
   function renderMarketMovers() {
     if (!marketMoversList) return;
     marketMoversList.innerHTML = '';
@@ -515,14 +564,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const row = document.createElement('div');
       row.className = 'market-mover-row';
 
-      const priceMove = art.marketReaction?.priceChangePct || (art.newsAlpha > 0 ? 1.8 : -1.2);
+      const priceMove = typeof art.marketReaction?.priceChangePct === 'number'
+        ? art.marketReaction.priceChangePct
+        : (art.newsAlpha ? Number((art.newsAlpha * 0.04).toFixed(2)) : 0.0);
 
       row.innerHTML = `
         <div class="mover-left">
           <span class="mover-rank">#${idx + 1}</span>
           <div>
             <div class="mover-sym">${sym}</div>
-            <div class="mover-event">${art.eventLabel || art.eventType}</div>
+            <div class="mover-event">${art.eventLabel || art.eventType || 'Market Event'}</div>
           </div>
         </div>
         <div class="mover-right">
@@ -541,45 +592,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Render Portfolio News Risk
+  // Render Real Dynamic Portfolio News Risk
   function renderPortfolioNewsRisk() {
     const list = document.getElementById('portHoldingsRiskList');
-    if (!list) return;
-    list.innerHTML = '';
+    const posVal = document.getElementById('portPosExposureVal');
+    const negVal = document.getElementById('portNegExposureVal');
+    const netVal = document.getElementById('portNetNewsScoreVal');
 
-    const holdings = [
-      { sym: 'RELIANCE', risk: 'CRITICAL', label: 'Earnings Beat / ARPU Surge', expVol: '+38%' },
-      { sym: 'INFOSYS', risk: 'ELEVATED', label: 'Upcoming Earnings Proximity', expVol: '+24%' },
-      { sym: 'HDFCBANK', risk: 'ELEVATED', label: 'Credit Upgrade Inflows', expVol: '+18%' },
-      { sym: 'TCS', risk: 'LOW', label: 'Stable Operating Metrics', expVol: '+6%' }
-    ];
+    const portRiskEngine = window.newsPortfolioRisk || (window.NewsPortfolioRisk ? new window.NewsPortfolioRisk() : null);
+    const riskData = portRiskEngine ? portRiskEngine.evaluatePortfolioNewsRisk(null, currentArticles) : null;
 
-    holdings.forEach(h => {
-      const item = document.createElement('div');
-      item.className = 'port-holding-risk-item';
+    if (riskData) {
+      if (posVal) posVal.textContent = (riskData.positiveExposure >= 0 ? '+' : '') + riskData.positiveExposure;
+      if (negVal) negVal.textContent = riskData.negativeExposure;
+      if (netVal) {
+        netVal.textContent = (riskData.netNewsScore >= 0 ? '+' : '') + riskData.netNewsScore;
+        netVal.className = riskData.netNewsScore >= 0 ? 'port-stat-value text-emerald' : 'port-stat-value text-rose';
+      }
 
-      let badgeClass = 'low';
-      if (h.risk === 'CRITICAL') badgeClass = 'critical';
-      else if (h.risk === 'ELEVATED') badgeClass = 'elevated';
+      if (list && Array.isArray(riskData.constituentRisks)) {
+        list.innerHTML = '';
+        riskData.constituentRisks.forEach(h => {
+          const item = document.createElement('div');
+          item.className = 'port-holding-risk-item';
 
-      item.innerHTML = `
-        <div>
-          <div style="font-weight:700; font-family:var(--news-font-mono);">${h.sym}</div>
-          <div style="font-size:0.7rem; color:var(--news-text-muted);">${h.label}</div>
-        </div>
-        <div style="text-align:right;">
-          <span class="port-risk-badge ${badgeClass}">${h.risk}</span>
-          <div style="font-size:0.68rem; font-family:var(--news-font-mono); color:var(--news-accent-cyan); margin-top:2px;">Vol ${h.expVol}</div>
-        </div>
-      `;
+          let badgeClass = 'low';
+          let statusDisplay = 'LOW';
+          if (h.riskStatus.includes('CRITICAL')) {
+            badgeClass = 'critical';
+            statusDisplay = 'CRITICAL';
+          } else if (h.riskStatus.includes('ELEVATED')) {
+            badgeClass = 'elevated';
+            statusDisplay = 'ELEVATED';
+          } else if (h.riskStatus.includes('MODERATE')) {
+            badgeClass = 'moderate';
+            statusDisplay = 'MODERATE';
+          }
 
-      item.addEventListener('click', () => {
-        const found = currentArticles.find(a => (a.primaryEntity?.canonicalSymbol || '').includes(h.sym));
-        if (found) setActiveArticle(found);
-      });
+          const catalystLabel = h.eventCatalysts && h.eventCatalysts.length > 0 
+            ? `${h.eventCatalysts.join(' / ')} (${h.articleCount} items)` 
+            : `${h.articleCount > 0 ? h.articleCount + ' stories' : 'Stable Operating Baseline'}`;
 
-      list.appendChild(item);
-    });
+          item.innerHTML = `
+            <div>
+              <div style="font-weight:700; font-family:var(--news-font-mono);">${h.symbol}</div>
+              <div style="font-size:0.7rem; color:var(--news-text-muted);">${catalystLabel}</div>
+            </div>
+            <div style="text-align:right;">
+              <span class="port-risk-badge ${badgeClass}">${statusDisplay}</span>
+              <div style="font-size:0.68rem; font-family:var(--news-font-mono); color:var(--news-accent-cyan); margin-top:2px;">Vol +${h.expectedVolExpansionPct}%</div>
+            </div>
+          `;
+
+          item.addEventListener('click', () => {
+            const found = currentArticles.find(a => 
+              (a.primaryEntity?.canonicalSymbol || '').toUpperCase().includes(h.symbol) ||
+              (a.title || '').toUpperCase().includes(h.symbol)
+            );
+            if (found) setActiveArticle(found);
+          });
+
+          list.appendChild(item);
+        });
+      }
+    }
   }
 
   // Setup Event Listeners

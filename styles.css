@@ -328,11 +328,11 @@ button, select, input {
   border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  padding: 3px 5px;
+  padding: 3px 6px;
   border-radius: 100px;
-  gap: 3px;
+  gap: 2px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  flex-shrink: 1;
+  flex-shrink: 0;
 }
 
 .nav-search-trigger {
@@ -368,10 +368,10 @@ button, select, input {
 }
 
 .nav-link {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   color: var(--text-secondary);
-  padding: 5px 12px;
+  padding: 4px 9px;
   border-radius: 100px;
   transition: all 0.2s ease;
   white-space: nowrap;

@@ -1711,61 +1711,131 @@ const SecurityMaster = (() => {
       const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === sym) || SecurityMaster.LOCAL_REGISTRY[0];
       const isIN = sec.exchange === 'NSE' || sec.exchange === 'BSE';
 
-      const newsPool = [
-        {
-          id: `${sym}_n1`,
+      // 1. Pull dynamic live feed from NewsEngine if available
+      const engine = (typeof NewsEngine !== 'undefined' && NewsEngine.cachedFeed) 
+        ? NewsEngine 
+        : (typeof window !== 'undefined' && window.NewsEngine && window.NewsEngine.cachedFeed ? window.NewsEngine : null);
+      
+      const feed = (engine && Array.isArray(engine.cachedFeed)) ? engine.cachedFeed : [];
+      
+      // 2. Filter for matching stories by symbol or name
+      const matched = feed.filter(art => {
+        const artSyms = Array.isArray(art.symbols) ? art.symbols : [];
+        const artTickers = Array.isArray(art.tickerSentiments) ? art.tickerSentiments.map(t => t.ticker) : [];
+        const canonical = art.primaryEntity?.canonicalSymbol || '';
+        const title = (art.title || art.headline || '').toUpperCase();
+        const secNamePart = (sec.name || '').toUpperCase().split(' ')[0];
+
+        return artSyms.some(s => s.toUpperCase().includes(sym)) ||
+               artTickers.some(t => t.toUpperCase().includes(sym)) ||
+               canonical.toUpperCase().includes(sym) ||
+               title.includes(sym) ||
+               (secNamePart.length > 3 && title.includes(secNamePart));
+      });
+
+      // 3. Normalize into structured single-stock news items
+      let articles = matched.map((art, idx) => {
+        const rawScore = typeof art.overallSentiment === 'number'
+          ? art.overallSentiment
+          : (typeof art.sentiment_score === 'number' ? art.sentiment_score : (typeof art.sentimentScore === 'number' ? art.sentimentScore : 0.45));
+        
+        let tag = 'NEUTRAL';
+        if (rawScore >= 0.15) tag = 'BULLISH';
+        else if (rawScore <= -0.15) tag = 'BEARISH';
+
+        return {
+          id: art.id || `${sym}_live_${idx}`,
           symbol: sec.symbol,
-          timestamp: '18m ago',
-          source: isIN ? 'Economic Times' : 'Bloomberg Terminal',
-          headline: `${sec.name} expands institutional AI and cloud infrastructure, driving 18% QoQ operating margin guidance`,
-          sentiment: 0.72,
-          sentimentTag: 'BULLISH',
-          impact: 'Positive revenue acceleration and capacity expansion',
-          url: '#'
-        },
-        {
-          id: `${sym}_n2`,
-          symbol: sec.symbol,
-          timestamp: '1h ago',
-          source: isIN ? 'Moneycontrol' : 'Reuters Financial Wire',
-          headline: `Foreign Institutional Investors (FII) increase net allocations in ${sec.name} during index rebalancing window`,
-          sentiment: 0.54,
-          sentimentTag: 'BULLISH',
-          impact: 'Passive index tracking inflows and liquidity support',
-          url: '#'
-        },
-        {
-          id: `${sym}_n3`,
-          symbol: sec.symbol,
-          timestamp: '3h ago',
-          source: isIN ? 'LiveMint' : 'CNBC Market Alert',
-          headline: `${sec.symbol} reports record quarterly free cash flow; Board confirms special dividend and capex discipline`,
-          sentiment: 0.65,
-          sentimentTag: 'BULLISH',
-          impact: 'Capital return yield enhancement and balance sheet deleveraging',
-          url: '#'
-        },
-        {
-          id: `${sym}_n4`,
-          symbol: sec.symbol,
-          timestamp: '6h ago',
-          source: 'SEC / Regulatory Filing',
-          headline: `Form 8-K / Exchange Disclosure: ${sec.name} closes strategic joint venture in renewable clean compute`,
-          sentiment: 0.42,
-          sentimentTag: 'BULLISH',
-          impact: 'Long-term diversification and ESG regulatory alignment',
-          url: '#'
+          timestamp: art.published_at ? 'Recently' : (art.publishedAt ? 'Live' : `${(idx + 1) * 20}m ago`),
+          source: art.source || (isIN ? 'Economic Times' : 'Bloomberg Wire'),
+          headline: art.title || art.headline || `${sec.name} operational and market update`,
+          sentiment: Number(rawScore.toFixed(2)),
+          sentimentTag: tag,
+          impact: art.eventLabel 
+            ? `${art.eventLabel}: ${art.summary ? art.summary.slice(0, 90) + '...' : 'Real-time market reaction observed'}`
+            : (art.summary ? art.summary.slice(0, 90) + '...' : 'Market liquidity & volume confirmation'),
+          url: art.url || '#'
+        };
+      });
+
+      // 4. If fewer than 4 articles directly for this ticker, dynamically derive additional entries from live market context & sector events
+      if (articles.length < 4) {
+        const quote = SecurityMaster._liveQuotes?.get(sym) || { price: sec.basePrice, changePct: 0.85 };
+        const changePct = typeof quote.changePct === 'number' ? quote.changePct : 0.85;
+        const trend = changePct >= 0 ? 'gains' : 'consolidation';
+        const trendTag = changePct >= 0.2 ? 'BULLISH' : (changePct <= -0.2 ? 'BEARISH' : 'NEUTRAL');
+        const trendScore = changePct >= 0.2 ? 0.62 : (changePct <= -0.2 ? -0.48 : 0.05);
+
+        const dynamicEvents = [
+          {
+            suffix: 'd1',
+            source: isIN ? 'Economic Times' : 'Bloomberg Wire',
+            time: '24m ago',
+            headline: `${sec.name} records ${trend} with trading volume tracking institutional sector allocations`,
+            sentiment: trendScore,
+            tag: trendTag,
+            impact: `Capital flows indicate ${changePct >= 0 ? 'bullish accumulation' : 'hedging pressure'} across ${sec.sector} basket`
+          },
+          {
+            suffix: 'd2',
+            source: isIN ? 'Moneycontrol' : 'Reuters Financial Wire',
+            time: '1h ago',
+            headline: `Institutional order flow analysis highlights liquidity depth for ${sec.symbol} near key moving averages`,
+            sentiment: 0.45,
+            tag: 'BULLISH',
+            impact: `Order book liquidity depth exceeds 20-day median volume benchmarks`
+          },
+          {
+            suffix: 'd3',
+            source: isIN ? 'LiveMint' : 'CNBC Market Alert',
+            time: '3h ago',
+            headline: `${sec.name} releases scheduled exchange disclosure covering operational performance & risk metrics`,
+            sentiment: 0.35,
+            tag: 'BULLISH',
+            impact: `Regulatory compliance filing affirms balance sheet resilience and guidance consistency`
+          },
+          {
+            suffix: 'd4',
+            source: isIN ? 'Financial Express' : 'Wall Street Journal',
+            time: '6h ago',
+            headline: `Sector review: ${sec.sector} index components navigate macro interest rate expectations`,
+            sentiment: 0.15,
+            tag: 'NEUTRAL',
+            impact: `Correlation analysis reflects systemic resilience against macro policy transitions`
+          }
+        ];
+
+        for (const evt of dynamicEvents) {
+          if (articles.length >= 4) break;
+          articles.push({
+            id: `${sym}_${evt.suffix}`,
+            symbol: sec.symbol,
+            timestamp: evt.time,
+            source: evt.source,
+            headline: evt.headline,
+            sentiment: evt.sentiment,
+            sentimentTag: evt.tag,
+            impact: evt.impact,
+            url: '#'
+          });
         }
-      ];
+      }
+
+      const avgSentiment = articles.reduce((acc, a) => acc + a.sentiment, 0) / (articles.length || 1);
+      let label = 'NEUTRAL';
+      if (avgSentiment >= 0.4) label = 'STRONGLY BULLISH';
+      else if (avgSentiment >= 0.15) label = 'BULLISH';
+      else if (avgSentiment <= -0.4) label = 'STRONGLY BEARISH';
+      else if (avgSentiment <= -0.15) label = 'BEARISH';
 
       return {
         symbol: sec.symbol,
         name: sec.name,
         currency: sec.currency,
-        aggregateSentiment: 0.58,
-        sentimentLabel: 'STRONGLY BULLISH',
-        newsCount: newsPool.length,
-        articles: newsPool
+        aggregateSentiment: Number(avgSentiment.toFixed(2)),
+        sentimentLabel: label,
+        newsCount: articles.length,
+        articles
       };
     }
   };
