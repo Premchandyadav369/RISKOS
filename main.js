@@ -1950,6 +1950,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (idx >= 0) appState.watchlist.splice(idx, 1);
       else appState.watchlist.push(sym);
       localStorage.setItem('riskos_watchlist', JSON.stringify(appState.watchlist));
+      if (window.RISKOS_Supabase && typeof window.RISKOS_Supabase.saveWatchlist === 'function' && window.RISKOS_Supabase.isAuthenticated()) {
+        window.RISKOS_Supabase.saveWatchlist(appState.watchlist).catch(() => {});
+      }
       renderCompanyModal(appState.activeSecurity);
       renderWatchlist();
     });
@@ -3667,6 +3670,9 @@ document.addEventListener('DOMContentLoaded', () => {
     clearWatchlistBtn.addEventListener('click', () => {
       appState.watchlist = ["RELIANCE", "TCS", "HDFCBANK", "INFY", "GOLDBEES", "NIFTYBEES", "AAPL", "NVDA"];
       localStorage.setItem('riskos_watchlist', JSON.stringify(appState.watchlist));
+      if (window.RISKOS_Supabase && typeof window.RISKOS_Supabase.saveWatchlist === 'function' && window.RISKOS_Supabase.isAuthenticated()) {
+        window.RISKOS_Supabase.saveWatchlist(appState.watchlist).catch(() => {});
+      }
       renderWatchlist();
     });
   }

@@ -82,6 +82,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       const highImpacts = currentArticles.filter(a => (a.materialityScore || 0) >= 70);
       if (highImpactCountEl) highImpactCountEl.textContent = String(highImpacts.length);
 
+      // Dispatch real-time notifications for severe catalysts (>= 80)
+      if (window.RISKOS_Supabase && typeof window.RISKOS_Supabase.dispatchNotification === 'function') {
+        const severeCatalysts = currentArticles.filter(a => (a.materialityScore || 0) >= 80);
+        severeCatalysts.slice(0, 3).forEach(sc => {
+          const dedupeKey = `riskos_seen_notif_${sc.id || sc.title.slice(0, 30)}`;
+          if (typeof sessionStorage !== 'undefined' && !sessionStorage.getItem(dedupeKey)) {
+            sessionStorage.setItem(dedupeKey, '1');
+            window.RISKOS_Supabase.dispatchNotification({
+              type: 'HIGH_MATERIALITY_NEWS',
+              title: `HIGH MATERIALITY CATALYST: ${sc.primaryEntity?.canonicalSymbol || 'MARKET'} (${sc.materialityScore}/100)`,
+              body: sc.title,
+              severity: 'HIGH',
+              metadata: {
+                articleId: sc.id,
+                materiality: sc.materialityScore,
+                source: sc.source,
+                symbol: sc.primaryEntity?.canonicalSymbol || sc.primaryEntity?.rawToken || 'MARKET'
+              }
+            });
+          }
+        });
+      }
+
       // Render all panels
       renderFeed();
       renderSectorHeatmap();
@@ -212,6 +235,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <div class="card-top-meta">
           <span class="event-category-badge ${catClass}">[${art.eventLabel || art.eventType || 'EVENT'}]</span>
           <span class="card-time-provenance">Published ${pubTime}</span>
+          <button class="news-bookmark-btn" title="Save / Bookmark catalyst to Supabase Cloud" style="margin-left:auto; background:none; border:none; color:var(--news-text-muted); cursor:pointer; font-size:0.85rem; padding:2px 6px;">
+            <i class="fa-regular fa-bookmark"></i>
+          </button>
         </div>
         <h4 class="article-headline">${art.title}</h4>
         <p class="article-summary-snippet">${art.summary || 'Summary unavailable from primary wire feed.'}</p>
@@ -238,6 +264,22 @@ document.addEventListener('DOMContentLoaded', async () => {
           </div>
         </div>
       `;
+
+      const bmBtn = card.querySelector('.news-bookmark-btn');
+      if (bmBtn) {
+        bmBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const icon = bmBtn.querySelector('i');
+          if (window.RISKOS_Supabase && typeof window.RISKOS_Supabase.toggleNewsBookmark === 'function') {
+            const res = await window.RISKOS_Supabase.toggleNewsBookmark(art);
+            if (res && res.bookmarked) {
+              if (icon) icon.className = 'fa-solid fa-bookmark text-cyan';
+            } else {
+              if (icon) icon.className = 'fa-regular fa-bookmark';
+            }
+          }
+        });
+      }
 
       card.addEventListener('click', () => {
         document.querySelectorAll('.news-article-card').forEach(c => c.classList.remove('active-article'));

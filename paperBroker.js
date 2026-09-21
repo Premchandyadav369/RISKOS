@@ -151,6 +151,32 @@
         root.showToast(`[Paper Sandbox] Executed ${side} ${qty} ${symbol} @ ₹${effectivePrice.toFixed(2)} (Slippage: ${slippageBps.toFixed(1)} bps)`);
       }
 
+      if (root.RISKOS_Supabase) {
+        try {
+          if (typeof root.RISKOS_Supabase.dispatchNotification === 'function') {
+            root.RISKOS_Supabase.dispatchNotification({
+              type: 'ORDER_FILL',
+              title: `ORDER FILLED: ${side} ${qty} ${symbol} @ ₹${effectivePrice.toFixed(2)}`,
+              body: `Execution confirmed with ${slippageBps.toFixed(1)} bps slippage. Notional value: ₹${notional.toFixed(2)}`,
+              severity: 'INFO',
+              metadata: tradeRecord
+            });
+          }
+          if (typeof root.RISKOS_Supabase.addPortfolioTransaction === 'function' && root.RISKOS_Supabase.isAuthenticated()) {
+            root.RISKOS_Supabase.addPortfolioTransaction({
+              symbol,
+              side,
+              quantity: qty,
+              price: Number(effectivePrice.toFixed(2)),
+              fee: Number((notional * 0.0002).toFixed(2)),
+              notes: botCopySource ? `Bot Mirror: ${botCopySource}` : 'Sandbox Virtual Execution'
+            }).catch(() => {});
+          }
+        } catch (err) {
+          console.warn('[PaperBroker] Supabase transaction hook notice:', err);
+        }
+      }
+
       return { success: true, trade: tradeRecord, ...tradeRecord };
     },
 
