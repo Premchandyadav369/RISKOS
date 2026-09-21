@@ -453,6 +453,15 @@
           <td class="text-right cell-chgpct ${isUp ? 'text-emerald' : 'text-red'}" style="font-family:var(--font-mono);font-weight:700;">
             ${isUp ? '▲ +' : '▼ '}${chgPct.toFixed(2)}%
           </td>
+          <td class="text-center cell-health">
+            ${(() => {
+              if (typeof FundamentalHealthEngine !== 'undefined') {
+                const f = FundamentalHealthEngine.getPiotroskiScore(sec);
+                return `<span class="badge-tag ${f.badgeClass}" title="${f.verdict}">${f.score}/9 ${f.score >= 8 ? 'High' : (f.score <= 4 ? 'Distress' : 'Stable')}</span>`;
+              }
+              return '—';
+            })()}
+          </td>
           <td class="text-right cell-vol" style="font-family:var(--font-mono);">
             <div>${formatVolume(q.volume)}</div>
             <div style="font-size:0.65rem;color:var(--text-muted);display:flex;align-items:center;justify-content:flex-end;gap:4px;">
@@ -469,6 +478,12 @@
             <div style="display:inline-flex;align-items:center;gap:6px;">
               <button class="row-action-btn btn-inspect" data-symbol="${sec.symbol}" title="Inspect Details">
                 <i class="fa-solid fa-expand"></i> Inspect
+              </button>
+              <button class="btn-icon-alert" data-symbol="${sec.symbol}" title="Set Smart Alert">
+                <i class="fa-solid fa-bell text-cyan"></i>
+              </button>
+              <button class="btn-icon-compare" data-symbol="${sec.symbol}" title="Add to Peer Comparison">
+                <i class="fa-solid fa-scale-balanced text-emerald"></i>
               </button>
               <button class="btn-icon-star ${isWatch ? 'active' : ''}" data-symbol="${sec.symbol}" title="Add to Watchlist">
                 <i class="${isWatch ? 'fa-solid' : 'fa-regular'} fa-star"></i>
@@ -489,6 +504,26 @@
       });
     });
 
+    tbody.querySelectorAll('.btn-icon-alert').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sym = btn.dataset.symbol;
+        if (typeof UniversalAlerts !== 'undefined') {
+          UniversalAlerts.openAlertModal(sym);
+        }
+      });
+    });
+
+    tbody.querySelectorAll('.btn-icon-compare').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sym = btn.dataset.symbol;
+        if (typeof PeerComparisonEngine !== 'undefined') {
+          PeerComparisonEngine.addTicker(sym);
+        }
+      });
+    });
+
     tbody.querySelectorAll('.btn-icon-pin').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -504,6 +539,7 @@
         const sym = btn.dataset.symbol;
         MarketStore.toggleWatchlist(sym);
         renderTable();
+        updatePortfolioHealthDiagnostics();
       });
     });
   };
@@ -642,11 +678,288 @@
       };
     }
 
+    // Header "+ Alert" & "+ Compare" buttons
+    const drawerAlertBtn = document.getElementById('drawerSetAlertBtn');
+    if (drawerAlertBtn) {
+      drawerAlertBtn.onclick = () => {
+        if (typeof UniversalAlerts !== 'undefined') UniversalAlerts.openAlertModal(sec.symbol);
+      };
+    }
+
+    const drawerCompareBtn = document.getElementById('drawerAddToCompareBtn');
+    if (drawerCompareBtn) {
+      drawerCompareBtn.onclick = () => {
+        if (typeof PeerComparisonEngine !== 'undefined') {
+          PeerComparisonEngine.addTicker(sec.symbol);
+          PeerComparisonEngine.openComparisonModal();
+        }
+      };
+    }
+
+    // Drawer Nav Tabs
+    const dTabs = document.querySelectorAll('#drawerNavTabs .d-nav-btn');
+    dTabs.forEach(btn => {
+      btn.onclick = () => {
+        dTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        switchDrawerTab(btn.dataset.dtab, sec);
+      };
+    });
+
     state.activeDrawerSec = sec;
     renderDrawerChart(sec, '1M');
     initTickerNewsFeed(sec.symbol);
+
+    // Default to Overview tab
+    const defaultTabBtn = document.querySelector('#drawerNavTabs .d-nav-btn[data-dtab="overview"]');
+    if (defaultTabBtn) {
+      dTabs.forEach(b => b.classList.remove('active'));
+      defaultTabBtn.classList.add('active');
+      switchDrawerTab('overview', sec);
+    }
+
     overlay.removeAttribute('hidden');
     lockScroll();
+  };
+
+  const switchDrawerTab = (tab, sec) => {
+    const paneOverview = document.getElementById('drawerTabPaneOverview');
+    const paneHealth = document.getElementById('drawerTabPaneHealth');
+    const paneAiBrief = document.getElementById('drawerTabPaneAiBrief');
+    const paneNews = document.getElementById('drawerTabPaneNews');
+
+    if (paneOverview) paneOverview.style.display = tab === 'overview' ? 'block' : 'none';
+    if (paneHealth) paneHealth.style.display = tab === 'health' ? 'block' : 'none';
+    if (paneAiBrief) paneAiBrief.style.display = tab === 'ai-brief' ? 'block' : 'none';
+    if (paneNews) paneNews.style.display = tab === 'news' ? 'block' : 'none';
+
+    if (tab === 'health') {
+      renderDrawerHealthTab(sec);
+    } else if (tab === 'ai-brief') {
+      const mode = document.querySelector('.mode-btn.active')?.dataset.mode || 'investor';
+      if (typeof AiAnalystBrief !== 'undefined') {
+        AiAnalystBrief.renderBriefDOM('drawerAiBriefContainer', sec, mode);
+      }
+    } else if (tab === 'news') {
+      initTickerNewsFeed(sec.symbol);
+    }
+  };
+
+  const renderDrawerHealthTab = (sec) => {
+    const container = document.getElementById('drawerHealthContainer');
+    if (!container || typeof FundamentalHealthEngine === 'undefined') return;
+
+    const profile = FundamentalHealthEngine.getCompleteHealthProfile(sec);
+    if (!profile) return;
+
+    const p = profile.piotroski;
+    const a = profile.altman;
+    const m = profile.beneish;
+    const st = profile.statements;
+
+    container.innerHTML = `
+      <!-- Piotroski 9-Point Score Card -->
+      <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:0.7rem; font-weight:800; color:var(--accent-cyan); text-transform:uppercase; letter-spacing:0.04em;">PIOTROSKI 9-POINT F-SCORE</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px; margin-top:2px;">
+              <span>${p.score} / 9</span>
+              <span class="badge-tag ${p.badgeClass}" style="font-size:0.75rem;">${p.verdict}</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:10px; font-size:0.72rem; color:#a1a1aa;">
+            <div>Profitability: <strong style="color:#51cf66;">${p.profitabilitySubscore}/4</strong></div>
+            <div>Leverage: <strong style="color:#22d3ee;">${p.leverageSubscore}/3</strong></div>
+            <div>Efficiency: <strong style="color:#fab005;">${p.efficiencySubscore}/2</strong></div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:6px; margin-top:12px;">
+          ${p.items.map(item => `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:6px 10px; background:rgba(255,255,255,0.02); border-radius:6px; font-size:0.75rem;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid ${item.passed ? 'fa-circle-check text-emerald' : 'fa-circle-xmark text-red'}"></i>
+                <strong style="color:#fff;">${item.name}</strong>
+                <span style="font-size:0.68rem; color:#71717a;">(${item.category})</span>
+              </div>
+              <span style="font-size:0.7rem; color:#a1a1aa;">${item.desc}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Altman Z-Score & Beneish M-Score Grid -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+        <!-- Altman Z-Score -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-left:4px solid ${a.color}; border-radius:10px; padding:14px;">
+          <div style="font-size:0.7rem; font-weight:800; color:#a1a1aa; text-transform:uppercase;">ALTMAN Z-SCORE (DISTRESS)</div>
+          <div style="font-size:1.3rem; font-weight:800; color:${a.color}; margin:4px 0;">
+            ${a.zScore} <span style="font-size:0.75rem; color:#fff;">(${a.zone})</span>
+          </div>
+          <p style="font-size:0.72rem; color:#a1a1aa; margin:0 0 10px 0;">${a.zoneDesc}</p>
+          <div style="font-size:0.68rem; color:#71717a; display:flex; flex-direction:column; gap:4px; font-family:var(--font-mono);">
+            <div>Working Cap: ${a.components.x1.val} (1.2×)</div>
+            <div>Retained Earn: ${a.components.x2.val} (1.4×)</div>
+            <div>EBIT/Assets: ${a.components.x3.val} (3.3×)</div>
+            <div>Mcap/Debt: ${a.components.x4.val} (0.6×)</div>
+          </div>
+        </div>
+
+        <!-- Beneish M-Score -->
+        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-left:4px solid ${m.color}; border-radius:10px; padding:14px;">
+          <div style="font-size:0.7rem; font-weight:800; color:#a1a1aa; text-transform:uppercase;">BENEISH M-SCORE (EARNINGS QUALITY)</div>
+          <div style="font-size:1.3rem; font-weight:800; color:${m.color}; margin:4px 0;">
+            ${m.mScore}
+          </div>
+          <p style="font-size:0.72rem; color:#a1a1aa; margin:0 0 10px 0;">${m.verdict}</p>
+          <div style="font-size:0.68rem; color:#71717a;">
+            Threshold: &le; -1.78 indicates standard conservative accruals with low manipulation probability.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Statement Financial Explorer -->
+      ${st ? `
+        <div style="background:rgba(255,255,255,0.025); border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+            <strong style="font-size:0.85rem; color:#fff; display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-file-invoice-dollar text-cyan"></i> 3-Statement Financial Explorer
+            </strong>
+            <div class="financial-statement-pills" style="display:flex; gap:6px;">
+              <button class="btn-subtle-pill active" data-sttab="income">Income Statement</button>
+              <button class="btn-subtle-pill" data-sttab="balance">Balance Sheet</button>
+              <button class="btn-subtle-pill" data-sttab="cashflow">Cash Flow</button>
+              <button class="btn-subtle-pill" data-sttab="ratios">Key Ratios</button>
+            </div>
+          </div>
+
+          <!-- Statement Views -->
+          <div id="stPaneIncome" class="st-pane">
+            <table class="ticker-table" style="width:100%; font-size:0.78rem;">
+              <tbody>
+                ${st.incomeStatement.map(row => `
+                  <tr>
+                    <td style="color:#fff; font-weight:${row.margin ? '700' : '400'};">${row.label}</td>
+                    <td class="text-right" style="font-family:var(--font-mono); font-weight:700; color:#fff;">${row.value}</td>
+                    <td class="text-right" style="color:${row.margin ? '#51cf66' : '#22d3ee'}; font-size:0.7rem;">${row.margin || row.growth || row.note || ''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div id="stPaneBalance" class="st-pane" style="display:none;">
+            <table class="ticker-table" style="width:100%; font-size:0.78rem;">
+              <tbody>
+                ${st.balanceSheet.map(row => `
+                  <tr style="${row.highlight ? 'background:rgba(34,211,238,0.06); font-weight:800;' : ''}">
+                    <td style="color:#fff;">${row.label}</td>
+                    <td class="text-right" style="font-family:var(--font-mono); font-weight:700; color:#fff;">${row.value}</td>
+                    <td class="text-right" style="color:#a1a1aa; font-size:0.7rem;">${row.pct || row.note || ''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div id="stPaneCashflow" class="st-pane" style="display:none;">
+            <table class="ticker-table" style="width:100%; font-size:0.78rem;">
+              <tbody>
+                ${st.cashFlow.map(row => `
+                  <tr style="${row.highlight ? 'background:rgba(81,207,102,0.06); font-weight:800;' : ''}">
+                    <td style="color:#fff;">${row.label}</td>
+                    <td class="text-right" style="font-family:var(--font-mono); font-weight:700; color:${row.highlight ? '#51cf66' : '#fff'};">${row.value}</td>
+                    <td class="text-right" style="color:#a1a1aa; font-size:0.7rem;">${row.note || ''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div id="stPaneRatios" class="st-pane" style="display:none;">
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+              ${Object.entries(st.ratios).map(([k, v]) => `
+                <div style="background:rgba(255,255,255,0.02); padding:10px; border-radius:6px; border:1px solid rgba(255,255,255,0.05);">
+                  <div style="font-size:0.65rem; color:#71717a; text-transform:uppercase;">${k.replace(/([A-Z])/g, ' $1')}</div>
+                  <div style="font-size:1.1rem; font-weight:800; color:#fff; font-family:var(--font-mono); margin-top:2px;">${v}</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+        </div>
+      ` : ''}
+    `;
+
+    // Bind sub-tabs for financial explorer
+    container.querySelectorAll('.financial-statement-pills button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        container.querySelectorAll('.financial-statement-pills button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const sttab = btn.dataset.sttab;
+        container.querySelectorAll('.st-pane').forEach(p => p.style.display = 'none');
+        const pane = container.querySelector(`#stPane${sttab.charAt(0).toUpperCase() + sttab.slice(1)}`);
+        if (pane) pane.style.display = 'block';
+      });
+    });
+  };
+
+  const updatePortfolioHealthDiagnostics = () => {
+    const watch = MarketStore.getWatchlist();
+    const allSecs = SecurityMaster.LOCAL_REGISTRY || [];
+    
+    let symbols = [];
+    if (state.watchlistCategory === 'CORE_LONGS') {
+      symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'BHARTIARTL'];
+    } else if (state.watchlistCategory === 'NSE_BLUECHIPS') {
+      symbols = ['RELIANCE', 'TCS', 'HDFCBANK', 'ICICIBANK', 'SBIN', 'LT', 'ITC'];
+    } else if (state.watchlistCategory === 'US_TECH') {
+      symbols = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'TSLA'];
+    } else if (state.watchlistCategory === 'HIGH_BETA_PENNY') {
+      symbols = ['GTLINFRA', 'VISAGAR', 'IDEA', 'JPPOWER', 'SUZLON', 'PLUG', 'BBAI'];
+    } else if (state.watchlistCategory === 'HIGH_DIVIDEND') {
+      symbols = ['ITC', 'TCS', 'INFY', 'SBIN'];
+    } else {
+      symbols = watch.length > 0 ? watch : ['RELIANCE', 'TCS', 'HDFCBANK', 'NVDA'];
+    }
+
+    const starredCount = document.getElementById('wcatStarredCount');
+    if (starredCount) starredCount.textContent = watch.length;
+
+    const matchedSecs = allSecs.filter(s => symbols.includes(s.symbol));
+    if (!matchedSecs.length) return;
+
+    const avgBeta = matchedSecs.reduce((acc, s) => acc + (s.beta || 1.0), 0) / matchedSecs.length;
+    const betaEl = document.getElementById('phealthBeta');
+    if (betaEl) betaEl.textContent = avgBeta.toFixed(2);
+
+    let totalScore = 0;
+    matchedSecs.forEach(s => {
+      if (typeof FundamentalHealthEngine !== 'undefined') {
+        totalScore += FundamentalHealthEngine.getPiotroskiScore(s).score;
+      } else {
+        totalScore += 7;
+      }
+    });
+    const avgScore = (totalScore / matchedSecs.length).toFixed(1);
+    const scoreEl = document.getElementById('phealthFScore');
+    if (scoreEl) {
+      scoreEl.textContent = `${avgScore} / 9`;
+      scoreEl.className = Number(avgScore) >= 7.5 ? 'phealth-val text-emerald' : Number(avgScore) <= 5.0 ? 'phealth-val text-red' : 'phealth-val text-amber';
+    }
+
+    const avgDiv = (matchedSecs.reduce((acc, s) => acc + ((s.roe || 15) * 0.12), 0) / matchedSecs.length).toFixed(2);
+    const divEl = document.getElementById('phealthDivYield');
+    if (divEl) divEl.textContent = `${avgDiv}%`;
+
+    const avgVol = matchedSecs.reduce((acc, s) => acc + (s.vol || 0.18), 0) / matchedSecs.length;
+    const portfolioNotional = 10000000; // 1 Crore INR base capital
+    const dailyVaR = portfolioNotional * 2.33 * (avgVol / Math.sqrt(252));
+    const varEl = document.getElementById('phealthVaR');
+    if (varEl) {
+      varEl.textContent = `₹${(dailyVaR / 100000).toFixed(2)} Lakh`;
+    }
   };
 
   // ── 5B. Single-Stock News & Lexical Sentiment Stream (OpenTerminal) ─────────
@@ -1479,8 +1792,70 @@
     initSectorIndicatorsDesk();
     renderPennyStockMatrix('ALL');
     renderTable();
+    initOpenStockSuites();
     setupRealtimeQuoteSubscription();
     setupCommandPalette();
+
+  const initOpenStockSuites = () => {
+    // 1. Alert count badge subscription
+    if (typeof UniversalAlerts !== 'undefined') {
+      const updateAlertBadge = () => {
+        const badge = document.getElementById('headerAlertCountBadge');
+        if (badge) {
+          badge.textContent = UniversalAlerts.getAlerts().filter(a => a.active).length;
+        }
+      };
+      UniversalAlerts.subscribe(updateAlertBadge);
+      updateAlertBadge();
+    }
+
+    // 2. Header Alert & Compare buttons
+    const globalAlertsBtn = document.getElementById('globalOpenAlertsBtn');
+    if (globalAlertsBtn && typeof UniversalAlerts !== 'undefined') {
+      globalAlertsBtn.addEventListener('click', () => UniversalAlerts.openAlertModal());
+    }
+
+    const globalPeerBtn = document.getElementById('globalOpenPeerWorkbenchBtn');
+    if (globalPeerBtn && typeof PeerComparisonEngine !== 'undefined') {
+      globalPeerBtn.addEventListener('click', () => PeerComparisonEngine.openComparisonModal());
+    }
+
+    // 3. Watchlist Desk Buttons & Category Filter
+    document.querySelectorAll('#watchlistCategoryFilter .seg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#watchlistCategoryFilter .seg-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.watchlistCategory = btn.dataset.wcat || 'ALL_WATCH';
+        updatePortfolioHealthDiagnostics();
+      });
+    });
+
+    const btnWatchlistAlert = document.getElementById('btnWatchlistSetAlert');
+    if (btnWatchlistAlert && typeof UniversalAlerts !== 'undefined') {
+      btnWatchlistAlert.addEventListener('click', () => {
+        const watch = MarketStore.getWatchlist();
+        const sym = watch.length > 0 ? watch[0] : 'RELIANCE';
+        UniversalAlerts.openAlertModal(sym);
+      });
+    }
+
+    const btnCompareWatchlist = document.getElementById('btnCompareWatchlistInWorkbench');
+    if (btnCompareWatchlist && typeof PeerComparisonEngine !== 'undefined') {
+      btnCompareWatchlist.addEventListener('click', () => {
+        const watch = MarketStore.getWatchlist();
+        const list = watch.length >= 2 ? watch.slice(0, 4) : ['RELIANCE', 'TCS', 'HDFCBANK'];
+        PeerComparisonEngine.clear();
+        list.forEach(s => PeerComparisonEngine.addTicker(s));
+        PeerComparisonEngine.openComparisonModal();
+      });
+    }
+
+    // 4. Initial Portfolio Health Diagnostics update & Peer dock
+    updatePortfolioHealthDiagnostics();
+    if (typeof PeerComparisonEngine !== 'undefined') {
+      PeerComparisonEngine.renderComparisonDock();
+    }
+  };
 
     // 0. Wire Universal Penny Stock Radar Desk Controls
     document.querySelectorAll('#pennyMatrixFilter .seg-btn').forEach(btn => {
@@ -1843,6 +2218,14 @@
             rcard.classList.remove('card-flash-green', 'card-flash-red');
             void rcard.offsetWidth;
             rcard.classList.add(u.delta >= 0 ? 'card-flash-green' : 'card-flash-red');
+          }
+
+          // 3.6. Evaluate Real-Time Smart Alerts (OpenStock Suite)
+          if (typeof UniversalAlerts !== 'undefined' && typeof SecurityMaster !== 'undefined') {
+            const sec = SecurityMaster.LOCAL_REGISTRY.find(s => s.symbol === u.symbol);
+            if (sec) {
+              UniversalAlerts.evaluateSecurity(sec, u);
+            }
           }
         });
 

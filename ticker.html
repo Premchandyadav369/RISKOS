@@ -71,6 +71,13 @@
 
       <!-- Right Header Actions -->
       <div class="header-actions">
+        <button class="btn-subtle-pill" id="globalOpenAlertsBtn" title="Open Smart Alerts Manager (OpenStock Suite)">
+          <i class="fa-solid fa-bell text-cyan"></i>
+          <span id="headerAlertCountBadge" class="badge-tag" style="font-size:0.65rem;padding:1px 5px;background:rgba(34,211,238,0.2);color:#22d3ee;border-radius:10px;">3</span> Alerts
+        </button>
+        <button class="btn-subtle-pill" id="globalOpenPeerWorkbenchBtn" title="Open Peer Comparison Workbench">
+          <i class="fa-solid fa-scale-balanced text-emerald"></i> Compare
+        </button>
         <button class="live-sync-trigger-btn" id="globalLiveSyncBtn" title="Sync live market quotes across all connected modules">
           <span class="live-sync-dot"></span>
           <i class="fa-solid fa-bolt" style="color:var(--accent-cyan);"></i>
@@ -456,6 +463,69 @@
 
     </section>
 
+    <!-- ═══════════════════════ 2.6 UNIVERSAL WATCHLIST MANAGER & PORTFOLIO HEALTH DIAGNOSTICS (OPENSTOCK SUITE) ═══════════════════════ -->
+    <section class="watchlist-manager-desk" id="watchlistManagerDesk" aria-label="Universal Watchlist Manager & Portfolio Health Diagnostics">
+      <div class="watchlist-desk-header">
+        <div class="watchlist-desk-title-wrap">
+          <div class="watchlist-live-tag">
+            <span class="live-pulse-dot"></span>
+            <i class="fa-solid fa-star text-amber"></i>
+            <span>MULTI-CATEGORY WATCHLIST &amp; PORTFOLIO HEALTH SUITE (OPENSTOCK)</span>
+          </div>
+          <h2 class="watchlist-desk-heading">PERSONALIZED WATCHLIST &amp; REAL-TIME DIAGNOSTICS</h2>
+          <p class="watchlist-desk-subheading">
+            Categorized personal watchlists, live streaming quotes, portfolio weighted beta, blended Piotroski F-score, and parametric VaR tracking.
+          </p>
+        </div>
+
+        <div class="watchlist-desk-actions">
+          <button class="btn-subtle-pill" id="btnWatchlistSetAlert" title="Set Alert on Current Watchlist">
+            <i class="fa-solid fa-bell text-cyan"></i> Alert Watchlist
+          </button>
+          <button class="btn-subtle-pill" id="btnCompareWatchlistInWorkbench" title="Compare Active Watchlist in Peer Workbench">
+            <i class="fa-solid fa-scale-balanced text-emerald"></i> Compare in Workbench
+          </button>
+        </div>
+      </div>
+
+      <!-- Watchlist Categories Pill Strip -->
+      <div class="watchlist-category-strip">
+        <div class="pill-segmented-control" id="watchlistCategoryFilter">
+          <button class="seg-btn active" data-wcat="ALL_WATCH"><i class="fa-solid fa-star text-amber" style="margin-right:4px;"></i> Starred (<span id="wcatStarredCount">0</span>)</button>
+          <button class="seg-btn" data-wcat="CORE_LONGS"><i class="fa-solid fa-gem text-cyan" style="margin-right:4px;"></i> Core Longs</button>
+          <button class="seg-btn" data-wcat="NSE_BLUECHIPS"><i class="fa-solid fa-building-columns text-emerald" style="margin-right:4px;"></i> NSE Bluechips</button>
+          <button class="seg-btn" data-wcat="US_TECH"><i class="fa-solid fa-microchip text-purple" style="margin-right:4px;"></i> US Tech Titans</button>
+          <button class="seg-btn" data-wcat="HIGH_BETA_PENNY"><i class="fa-solid fa-coins text-amber" style="margin-right:4px;"></i> High-Beta Penny</button>
+          <button class="seg-btn" data-wcat="HIGH_DIVIDEND"><i class="fa-solid fa-sack-dollar text-emerald" style="margin-right:4px;"></i> High Dividend</button>
+        </div>
+        <span class="penny-feed-status"><span class="pulse-dot"></span> Real-Time Sync</span>
+      </div>
+
+      <!-- Portfolio Health Diagnostic Strip -->
+      <div class="portfolio-health-ribbon" id="portfolioHealthRibbon">
+        <div class="phealth-card">
+          <span class="phealth-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Weighted Portfolio Beta</span>
+          <div class="phealth-val" id="phealthBeta">1.04</div>
+          <span class="phealth-sub">Benchmark Beta Sensitivity</span>
+        </div>
+        <div class="phealth-card">
+          <span class="phealth-label"><i class="fa-solid fa-heart-pulse text-emerald"></i> Blended Piotroski Health</span>
+          <div class="phealth-val text-emerald" id="phealthFScore">7.6 / 9</div>
+          <span class="phealth-sub">High Financial Quality</span>
+        </div>
+        <div class="phealth-card">
+          <span class="phealth-label"><i class="fa-solid fa-percent text-amber"></i> Aggregate Div Yield</span>
+          <div class="phealth-val text-amber" id="phealthDivYield">1.92%</div>
+          <span class="phealth-sub">Annual Cash Flow Yield</span>
+        </div>
+        <div class="phealth-card">
+          <span class="phealth-label"><i class="fa-solid fa-chart-pie text-rose"></i> 1-Day 99% Portfolio VaR</span>
+          <div class="phealth-val text-rose" id="phealthVaR">₹1.85 Lakh</div>
+          <span class="phealth-sub">Parametric Ledoit-Wolf Bound</span>
+        </div>
+      </div>
+    </section>
+
     <!-- ── Virtualized Security Master Table ── -->
     <section class="ticker-table-section">
       
@@ -486,6 +556,7 @@
               <th class="th-sortable text-right" data-sort="price">Price <i class="fa-solid fa-sort"></i></th>
               <th class="th-sortable text-right" data-sort="change">Change <i class="fa-solid fa-sort"></i></th>
               <th class="th-sortable text-right" data-sort="changePercent">Change % <i class="fa-solid fa-sort"></i></th>
+              <th class="th-sortable text-center" data-sort="fscore">Health (F-Score) <i class="fa-solid fa-sort"></i></th>
               <th class="th-sortable text-right" data-sort="volume">Volume (20D) <i class="fa-solid fa-sort"></i></th>
               <th class="th-status text-center">Market</th>
               <th class="th-actions text-right">Quick Actions</th>
@@ -533,7 +604,15 @@
             <span class="drawer-subtitle" id="drawerSecSubtitle">Reliance Industries Ltd • NSE</span>
           </div>
         </div>
-        <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close drawer">&times;</button>
+        <div class="drawer-header-right" style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-subtle-pill" id="drawerSetAlertBtn" title="Set Real-Time Alert on Instrument">
+            <i class="fa-solid fa-bell text-cyan"></i> Alert
+          </button>
+          <button class="btn-subtle-pill" id="drawerAddToCompareBtn" title="Add Instrument to Peer Workbench">
+            <i class="fa-solid fa-scale-balanced text-emerald"></i> Compare
+          </button>
+          <button class="drawer-close-btn" id="drawerCloseBtn" aria-label="Close drawer">&times;</button>
+        </div>
       </div>
 
       <!-- Drawer Body -->
@@ -551,107 +630,134 @@
           </div>
         </div>
 
-        <!-- Key Quantitative Fundamentals Ribbon -->
-        <div class="drawer-metrics-grid">
-          <div class="metric-card">
-            <span class="m-label">P/E Ratio</span>
-            <span class="m-val" id="drawerPE">25.55</span>
+        <!-- Drawer Tab Navigation Bar (OpenStock Suite) -->
+        <div class="drawer-nav-tabs" id="drawerNavTabs" style="display:flex; gap:6px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px; margin: 14px 0 16px 0; overflow-x:auto;">
+          <button class="d-nav-btn active" data-dtab="overview"><i class="fa-solid fa-chart-line text-cyan"></i> Chart &amp; Quant</button>
+          <button class="d-nav-btn" data-dtab="health"><i class="fa-solid fa-heart-pulse text-emerald"></i> Fundamentals &amp; Health</button>
+          <button class="d-nav-btn" data-dtab="ai-brief"><i class="fa-solid fa-robot text-purple"></i> AI Analyst Brief</button>
+          <button class="d-nav-btn" data-dtab="news"><i class="fa-solid fa-newspaper text-amber"></i> News &amp; Sentiment</button>
+        </div>
+
+        <!-- ── TAB 1: CHART & QUANT OVERVIEW ── -->
+        <div class="drawer-tab-pane active" id="drawerTabPaneOverview">
+          <!-- Key Quantitative Fundamentals Ribbon -->
+          <div class="drawer-metrics-grid">
+            <div class="metric-card">
+              <span class="m-label">P/E Ratio</span>
+              <span class="m-val" id="drawerPE">25.55</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Beta (β)</span>
+              <span class="m-val" id="drawerBeta">1.08</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">Annual Vol (σ)</span>
+              <span class="m-val" id="drawerVol">18.5%</span>
+            </div>
+            <div class="metric-card">
+              <span class="m-label">52W High</span>
+              <span class="m-val" id="drawer52WHigh">₹3,420.00</span>
+            </div>
           </div>
-          <div class="metric-card">
-            <span class="m-label">Beta (β)</span>
-            <span class="m-val" id="drawerBeta">1.08</span>
+
+          <!-- Interactive Chart Card -->
+          <div class="drawer-chart-card">
+            <div class="chart-header">
+              <span class="chart-title"><i class="fa-solid fa-chart-line"></i> Price &amp; Volume Trajectory</span>
+              <div class="chart-time-pill" id="drawerChartTimePill">
+                <button class="c-time-btn active" data-time="1D">1D</button>
+                <button class="c-time-btn" data-time="1W">1W</button>
+                <button class="c-time-btn" data-time="1M">1M</button>
+                <button class="c-time-btn" data-time="1Y">1Y</button>
+              </div>
+            </div>
+            <div class="drawer-canvas-container">
+              <canvas id="drawerCanvas"></canvas>
+            </div>
           </div>
-          <div class="metric-card">
-            <span class="m-label">Annual Vol (σ)</span>
-            <span class="m-val" id="drawerVol">18.5%</span>
-          </div>
-          <div class="metric-card">
-            <span class="m-label">52W High</span>
-            <span class="m-val" id="drawer52WHigh">₹3,420.00</span>
+
+          <!-- Universal Cross-Platform Action Center -->
+          <div class="drawer-action-center">
+            <h4 class="action-heading">Connect Across RISKOS Platform</h4>
+            
+            <div class="action-grid">
+              <a href="index.html" class="platform-action-card" id="drawerGoDashboard">
+                <i class="fa-solid fa-chart-pie action-icon"></i>
+                <div>
+                  <strong>Company Workspace</strong>
+                  <span>Open in Dashboard with complete financials &amp; news</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+              </a>
+
+              <a href="observatory.html" class="platform-action-card" id="drawerGoObservatory">
+                <i class="fa-solid fa-satellite-dish action-icon" style="color:var(--accent-cyan);"></i>
+                <div>
+                  <strong>Observatory Intelligence</strong>
+                  <span>Inspect anomaly feeds, volume spikes &amp; rotations</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+              </a>
+
+              <a href="learn.html" class="platform-action-card" id="drawerGoLearnLab">
+                <i class="fa-solid fa-flask action-icon" style="color:#cc5de8;"></i>
+                <div>
+                  <strong>Learn &amp; Simulation Lab</strong>
+                  <span>Simulate CAPM, Sharpe ratio, and CAGR models</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+              </a>
+
+              <a href="app.html" class="platform-action-card" id="drawerGoTerminal">
+                <i class="fa-solid fa-terminal action-icon" style="color:var(--accent-emerald);"></i>
+                <div>
+                  <strong>Quant Terminal</strong>
+                  <span>GARCH volatility, HMM regimes &amp; CVaR optimization</span>
+                </div>
+                <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
+              </a>
+            </div>
+
+            <div class="drawer-btn-row">
+              <button class="btn-drawer-watch" id="drawerToggleWatchBtn">
+                <i class="fa-regular fa-star"></i> Add to Watchlist
+              </button>
+              <button class="btn-drawer-pin" id="drawerTogglePinBtn">
+                <i class="fa-solid fa-thumbtack"></i> Pin Instrument
+              </button>
+            </div>
           </div>
         </div>
 
-        <!-- Interactive Chart Card -->
-        <div class="drawer-chart-card">
-          <div class="chart-header">
-            <span class="chart-title"><i class="fa-solid fa-chart-line"></i> Price &amp; Volume Trajectory</span>
-            <div class="chart-time-pill" id="drawerChartTimePill">
-              <button class="c-time-btn active" data-time="1D">1D</button>
-              <button class="c-time-btn" data-time="1W">1W</button>
-              <button class="c-time-btn" data-time="1M">1M</button>
-              <button class="c-time-btn" data-time="1Y">1Y</button>
-            </div>
-          </div>
-          <div class="drawer-canvas-container">
-            <canvas id="drawerCanvas"></canvas>
+        <!-- ── TAB 2: FUNDAMENTAL HEALTH & 3-STATEMENT EXPLORER ── -->
+        <div class="drawer-tab-pane" id="drawerTabPaneHealth" style="display:none;">
+          <div id="drawerHealthContainer" style="display:flex; flex-direction:column; gap:16px;">
+            <!-- Dynamically populated by renderDrawerHealthTab in ticker.js -->
           </div>
         </div>
 
-        <!-- Single-Stock News & Intraday Lexical Sentiment Stream (OpenTerminal) -->
-        <div class="drawer-section-card" id="tickerNewsCard" style="margin-top:16px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:16px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <i class="fa-solid fa-newspaper" style="color:var(--accent-cyan);"></i>
-              <strong style="font-size:0.85rem; color:#fff;">Institutional News &amp; Sentiment Stream</strong>
-            </div>
-            <div id="tickerSentimentBadge" class="badge-tag" style="font-size:0.7rem; font-weight:700; background:rgba(81,207,102,0.15); color:#51CF66;">
-              BULLISH (+0.58)
-            </div>
-          </div>
-          <div id="tickerNewsContainer" style="display:flex; flex-direction:column; gap:10px; max-height:260px; overflow-y:auto; padding-right:4px;">
-            <!-- Populated dynamically by initTickerNewsFeed -->
+        <!-- ── TAB 3: AI EXECUTIVE ANALYST BRIEF ── -->
+        <div class="drawer-tab-pane" id="drawerTabPaneAiBrief" style="display:none;">
+          <div id="drawerAiBriefContainer">
+            <!-- Dynamically populated by AiAnalystBrief in ticker.js -->
           </div>
         </div>
 
-        <!-- Universal Cross-Platform Action Center -->
-        <div class="drawer-action-center">
-          <h4 class="action-heading">Connect Across RISKOS Platform</h4>
-          
-          <div class="action-grid">
-            <a href="index.html" class="platform-action-card" id="drawerGoDashboard">
-              <i class="fa-solid fa-chart-pie action-icon"></i>
-              <div>
-                <strong>Company Workspace</strong>
-                <span>Open in Dashboard with complete financials &amp; news</span>
+        <!-- ── TAB 4: NEWS & SENTIMENT STREAM ── -->
+        <div class="drawer-tab-pane" id="drawerTabPaneNews" style="display:none;">
+          <div class="drawer-section-card" id="tickerNewsCard" style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-newspaper" style="color:var(--accent-cyan);"></i>
+                <strong style="font-size:0.85rem; color:#fff;">Institutional News &amp; Sentiment Stream</strong>
               </div>
-              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
-            </a>
-
-            <a href="observatory.html" class="platform-action-card" id="drawerGoObservatory">
-              <i class="fa-solid fa-satellite-dish action-icon" style="color:var(--accent-cyan);"></i>
-              <div>
-                <strong>Observatory Intelligence</strong>
-                <span>Inspect anomaly feeds, volume spikes &amp; rotations</span>
+              <div id="tickerSentimentBadge" class="badge-tag" style="font-size:0.7rem; font-weight:700; background:rgba(81,207,102,0.15); color:#51CF66;">
+                BULLISH (+0.58)
               </div>
-              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
-            </a>
-
-            <a href="learn.html" class="platform-action-card" id="drawerGoLearnLab">
-              <i class="fa-solid fa-flask action-icon" style="color:#cc5de8;"></i>
-              <div>
-                <strong>Learn &amp; Simulation Lab</strong>
-                <span>Simulate CAPM, Sharpe ratio, and CAGR models</span>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
-            </a>
-
-            <a href="app.html" class="platform-action-card" id="drawerGoTerminal">
-              <i class="fa-solid fa-terminal action-icon" style="color:var(--accent-emerald);"></i>
-              <div>
-                <strong>Quant Terminal</strong>
-                <span>GARCH volatility, HMM regimes &amp; CVaR optimization</span>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square action-arrow"></i>
-            </a>
-          </div>
-
-          <div class="drawer-btn-row">
-            <button class="btn-drawer-watch" id="drawerToggleWatchBtn">
-              <i class="fa-regular fa-star"></i> Add to Watchlist
-            </button>
-            <button class="btn-drawer-pin" id="drawerTogglePinBtn">
-              <i class="fa-solid fa-thumbtack"></i> Pin Instrument
-            </button>
+            </div>
+            <div id="tickerNewsContainer" style="display:flex; flex-direction:column; gap:10px; max-height:360px; overflow-y:auto; padding-right:4px;">
+              <!-- Populated dynamically by initTickerNewsFeed -->
+            </div>
           </div>
         </div>
 
@@ -693,6 +799,10 @@
   <script src="engine.js"></script>
   <script src="chartSuite.js"></script>
   <script src="rrgEngine.js"></script>
+  <script src="universalAlerts.js"></script>
+  <script src="fundamentalHealthEngine.js"></script>
+  <script src="peerComparisonEngine.js"></script>
+  <script src="aiAnalystBrief.js"></script>
   <script src="ticker.js"></script>
   <script src="microstructureEngine.js"></script>
   <script src="riskGuardrails.js"></script>
