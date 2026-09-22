@@ -2705,6 +2705,256 @@
 
     initDeskChart();
     updateUI();
+    initMasterclassAndCertificates();
+  };
+
+  const initMasterclassAndCertificates = () => {
+    // 1. Masterclass Subtabs Switcher
+    const subtabs = document.querySelectorAll('.masterclass-nav-tab');
+    subtabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        subtabs.forEach(t => {
+          t.style.background = 'rgba(255,255,255,0.04)';
+          t.style.borderColor = 'rgba(255,255,255,0.08)';
+          t.style.color = 'var(--text-muted)';
+          t.classList.remove('active');
+        });
+        tab.style.background = 'rgba(245, 158, 11, 0.2)';
+        tab.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+        tab.style.color = '#fbbf24';
+        tab.classList.add('active');
+
+        const target = tab.dataset.subtab;
+        document.querySelectorAll('.masterclass-panel').forEach(p => p.style.display = 'none');
+        if (target === 'mm_game') {
+          const el = document.getElementById('panelMmGame');
+          if (el) el.style.display = 'block';
+        } else if (target === 'mental_math') {
+          const el = document.getElementById('panelMentalMath');
+          if (el) el.style.display = 'block';
+        } else if (target === 'green_book') {
+          const el = document.getElementById('panelGreenBook');
+          if (el) el.style.display = 'block';
+          renderGreenBookProblem();
+        } else if (target === 'ding_ran') {
+          const el = document.getElementById('panelDingRan');
+          if (el) el.style.display = 'block';
+        }
+      });
+    });
+
+    // 2. Jane Street / Optiver MM Game
+    let mmGame = (typeof QuantPrepEngine !== 'undefined' && QuantPrepEngine.MarketMakingGame)
+      ? new QuantPrepEngine.MarketMakingGame() : null;
+
+    const btnSubmitMm = document.getElementById('btnSubmitMmRound');
+    if (btnSubmitMm && mmGame) {
+      btnSubmitMm.addEventListener('click', () => {
+        const bid = parseFloat(document.getElementById('mmInputBid').value) || 98.5;
+        const ask = parseFloat(document.getElementById('mmInputAsk').value) || 101.5;
+        if (bid >= ask) {
+          alert('Invalid Quote: Bid must be strictly lower than Ask!');
+          return;
+        }
+        const state = mmGame.submitQuotes(bid, ask);
+        document.getElementById('mmStatRound').textContent = `${state.round} / 10`;
+        document.getElementById('mmStatInventory').textContent = `${state.inventory}`;
+        const pnlEl = document.getElementById('mmStatPnl');
+        pnlEl.textContent = `₹${state.totalPnL.toFixed(2)}`;
+        pnlEl.style.color = state.totalPnL >= 0 ? '#10b981' : '#ef4444';
+
+        const last = state.lastEvent;
+        const feedbackEl = document.getElementById('mmRoundFeedback');
+        if (last && feedbackEl) {
+          const tradeSummary = last.trades && last.trades.length > 0 
+            ? last.trades.map(t => `${t.type} @ ₹${t.price} (${t.toxicity === 'HIGH' ? '⚠️ Informed Whale' : 'Noise Flow'})`).join('<br>')
+            : 'No fills this round (Spread was too wide for incoming market orders).';
+          feedbackEl.innerHTML = `
+            <strong>Round ${last.round} Executed:</strong> True Fair Value was <strong>₹${last.fairValue.toFixed(2)}</strong>.<br>
+            ${tradeSummary}<br>
+            Round PnL: <span style="color:${last.roundPnL >= 0 ? '#10b981':'#ef4444'}">${last.roundPnL >= 0 ? '+' : ''}₹${last.roundPnL.toFixed(2)}</span> | Realized Sharpe: <strong>${state.sharpe}</strong>
+          `;
+        }
+      });
+    }
+
+    // 3. Fast Mental Math Real-time Calculators
+    const inputVol = document.getElementById('mathInputVol');
+    const outDailyVol = document.getElementById('mathOutDailyVol');
+    if (inputVol && outDailyVol) {
+      inputVol.addEventListener('input', () => {
+        const v = parseFloat(inputVol.value) || 0;
+        const d = (v / 16).toFixed(2);
+        outDailyVol.textContent = `Daily Move: ±${d}% (±1σ)`;
+      });
+    }
+
+    const inputRate = document.getElementById('mathInputRate');
+    const outDoubling = document.getElementById('mathOutDoublingYears');
+    if (inputRate && outDoubling) {
+      inputRate.addEventListener('input', () => {
+        const r = parseFloat(inputRate.value) || 0;
+        const y = r > 0 ? (72 / r).toFixed(1) : '∞';
+        outDoubling.textContent = `Doubles In: ~${y} Years`;
+      });
+    }
+
+    const inputSpot = document.getElementById('mathInputSpot');
+    const outStraddle = document.getElementById('mathOutStraddleCost');
+    if (inputSpot && outStraddle) {
+      const updateStraddle = () => {
+        const s = parseFloat(inputSpot.value) || 24500;
+        const v = parseFloat(inputVol ? inputVol.value : 16) || 16;
+        const cost1D = (0.8 * s * (v / 100) * Math.sqrt(1 / 252)).toFixed(2);
+        outStraddle.textContent = `1-Day ATM Straddle: ₹${cost1D}`;
+      };
+      inputSpot.addEventListener('input', updateStraddle);
+      if (inputVol) inputVol.addEventListener('input', updateStraddle);
+    }
+
+    // 4. Green Book Problems Viewer
+    const gbSelect = document.getElementById('gbProblemSelect');
+    const gbDisplay = document.getElementById('gbProblemDisplay');
+    const renderGreenBookProblem = () => {
+      if (!gbDisplay || typeof QuantPrepEngine === 'undefined' || !QuantPrepEngine.GREEN_BOOK_PROBLEMS) return;
+      const key = gbSelect ? gbSelect.value : 'monty_hall';
+      const prob = QuantPrepEngine.GREEN_BOOK_PROBLEMS.find(p => p.id.includes(key)) || QuantPrepEngine.GREEN_BOOK_PROBLEMS[0];
+      if (!prob) return;
+
+      gbDisplay.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <span style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">${prob.title}</span>
+          <span style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 4px;">${prob.firm} &bull; ${prob.difficulty}</span>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); border-radius: 6px; padding: 12px; margin-bottom: 12px; font-size: 0.78rem; color: #e2e8f0; line-height: 1.5;">
+          ${prob.statement}
+        </div>
+        <div style="margin-bottom: 10px;">
+          <strong style="color: #10b981; font-size: 0.75rem; text-transform: uppercase;">🌱 Layman Intuition:</strong>
+          <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 10px 0; line-height: 1.5;">${prob.laymanIntuition || prob.laymanAnalogy}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <strong style="color: #38bdf8; font-size: 0.75rem; text-transform: uppercase;">🏛️ Quantitative &amp; Mathematical Proof:</strong>
+          <div style="font-size: 0.75rem; color: #e2e8f0; margin-top: 4px; line-height: 1.6; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px;">
+            ${prob.quantProof}
+          </div>
+        </div>
+        <button id="btnRunGbMonteCarlo" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; padding: 6px 12px; border-radius: 6px; font-size: 0.72rem; cursor: pointer; font-weight: 700;">
+          <i class="fa-solid fa-play" style="margin-right: 4px;"></i> Run 10,000-Path Monte Carlo Verification
+        </button>
+        <span id="gbMonteCarloResult" style="margin-left: 12px; font-size: 0.75rem; font-weight: 700; color: #10b981;"></span>
+      `;
+
+      if (typeof renderMathInElement === 'function') {
+        renderMathInElement(gbDisplay, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false },
+            { left: '\\[', right: '\\]', display: true },
+            { left: '\\(', right: '\\)', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+
+      const btnSim = document.getElementById('btnRunGbMonteCarlo');
+      if (btnSim && typeof prob.simulate === 'function') {
+        btnSim.addEventListener('click', () => {
+          const res = prob.simulate(10000);
+          const outSpan = document.getElementById('gbMonteCarloResult');
+          if (outSpan) {
+            if (res.switchWinRate !== undefined) {
+              outSpan.textContent = `✓ Empirical Results: Switch Win Rate = ${res.switchWinRate}% (Theoretical 66.67%) | Stay Win Rate = ${res.stayWinRate}%`;
+            } else if (res.empiricalQV !== undefined) {
+              outSpan.textContent = `✓ Empirical Quadratic Variation [W,W]_1 = ${res.empiricalQV} (Theoretical 1.000)`;
+            } else {
+              outSpan.textContent = `✓ Empirical verification completed over 10,000 paths.`;
+            }
+          }
+        });
+      }
+    };
+
+    if (gbSelect) {
+      gbSelect.addEventListener('change', renderGreenBookProblem);
+    }
+    renderGreenBookProblem();
+
+    // 5. Quant Copilot Trigger
+    const btnCopilotTrigger = document.getElementById('btnTriggerCopilotMasterclass');
+    if (btnCopilotTrigger) {
+      btnCopilotTrigger.addEventListener('click', () => {
+        if (window.QuantCopilot && typeof window.QuantCopilot.toggle === 'function') {
+          window.QuantCopilot.toggle();
+        }
+      });
+    }
+
+    // 6. Accreditation Certificate Modal
+    const btnCert = document.getElementById('btnClaimCertificate');
+    if (btnCert && typeof AccreditationCert !== 'undefined') {
+      btnCert.addEventListener('click', () => {
+        const completedCount = labState.completedLabs.size;
+        const certData = AccreditationCert.CertificateGenerator.generateCertificateData({
+          studentName: 'QUANT MASTER',
+          completedModulesCount: completedCount,
+          distinction: completedCount >= 80 ? 'Summa Cum Laude (100% Mastery)' : 'Honors Candidate'
+        });
+        const svgCode = AccreditationCert.CertificateGenerator.generateSVG(certData);
+
+        const modal = document.createElement('div');
+        modal.className = 'cert-modal-overlay';
+        modal.id = 'certModal';
+        modal.innerHTML = `
+          <div class="cert-modal-content">
+            <div class="cert-modal-header">
+              <span class="cert-modal-title"><i class="fa-solid fa-certificate"></i> Official RISKOS Accreditation Certificate</span>
+              <button id="closeCertModalBtn" style="background:transparent; border:none; color:#94a3b8; font-size:18px; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="cert-modal-body">
+              <div class="cert-svg-wrapper">
+                ${svgCode}
+              </div>
+              <div class="cert-actions-row">
+                <button class="cert-btn cert-btn-primary" id="downloadCertSvgBtn"><i class="fa-solid fa-download"></i> Download SVG Certificate</button>
+                <button class="cert-btn cert-btn-secondary" id="closeCertModalBtn2">Dismiss</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        const closeModal = () => modal.remove();
+        document.getElementById('closeCertModalBtn').addEventListener('click', closeModal);
+        document.getElementById('closeCertModalBtn2').addEventListener('click', closeModal);
+
+        document.getElementById('downloadCertSvgBtn').addEventListener('click', () => {
+          const blob = new Blob([svgCode], { type: 'image/svg+xml' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `RISKOS-Accreditation-${certData.studentName}.svg`;
+          a.click();
+          URL.revokeObjectURL(url);
+        });
+      });
+    }
+
+    // 7. Institutional Hedge Fund Tear Sheet
+    const btnTearSheet = document.getElementById('btnExportTearSheet');
+    if (btnTearSheet && typeof HedgeFundTearSheet !== 'undefined') {
+      btnTearSheet.addEventListener('click', () => {
+        const compiler = new HedgeFundTearSheet();
+        const html = compiler.generatePrintableHTML();
+        const win = window.open('', '_blank');
+        if (win) {
+          win.document.write(html);
+          win.document.close();
+          win.focus();
+        }
+      });
+    }
   };
 
   const initLearnMarketRibbon = () => {

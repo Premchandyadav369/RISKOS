@@ -65,6 +65,7 @@
       <nav class="nav-pill" aria-label="Main Navigation">
         <a href="index.html" class="nav-link">Dashboard</a>
         <a href="app.html" class="nav-link">8 Desks</a>
+        <a href="gs_quant.html" class="nav-link" style="color:#fbbf24;"><i class="fa-solid fa-gem" style="margin-right:4px;"></i> GS Quant</a>
         <a href="fleet.html" class="nav-link">Fleet</a>
         <a href="observatory.html" class="nav-link">Observatory</a>
         <a href="learn.html" class="nav-link">Labs</a>
@@ -97,6 +98,13 @@
         <a href="#trust-center" class="docs-nav-item active"><i class="fa-solid fa-shield-check" style="color:#51cf66;"></i> Trust Center &amp; Data Truth</a>
         <a href="#ux-architecture" class="docs-nav-item"><i class="fa-solid fa-layer-group" style="color:#22d3ee;"></i> Progressive UX Architecture</a>
         <a href="#mobile-suite" class="docs-nav-item"><i class="fa-solid fa-mobile-screen" style="color:#f59e0b;"></i> Mobile Responsiveness</a>
+      </div>
+
+      <div class="docs-nav-group">
+        <div class="docs-nav-title" style="color:#fbbf24;"><i class="fa-solid fa-gem" style="margin-right:4px;"></i> Goldman Sachs &amp; Quant Prep</div>
+        <a href="#gs-quant" class="docs-nav-item"><i class="fa-solid fa-code-branch text-amber"></i> GS Quant Cross-Asset Desk</a>
+        <a href="#quant-prep" class="docs-nav-item"><i class="fa-solid fa-graduation-cap text-gold"></i> Elite Quant Interview Prep</a>
+        <a href="#institutional-systems" class="docs-nav-item"><i class="fa-solid fa-building-columns text-cyan"></i> 7 Flagship Systems</a>
       </div>
 
       <div class="docs-nav-group">
@@ -933,6 +941,162 @@ u)$.
         </div>
       </section>
 
+      <!-- ═══════════════════════ SECTION: GOLDMAN SACHS GS QUANT CROSS-ASSET DESK ═══════════════════════ -->
+      <section id="gs-quant" class="doc-section">
+        <div class="doc-header-row">
+          <div>
+            <h2 class="doc-title"><i class="fa-solid fa-gem text-amber"></i> Goldman Sachs GS Quant Cross-Asset Risk Transfer Platform</h2>
+            <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
+              Enterprise multi-asset derivatives pricing and risk transfer architecture modeled directly on Goldman Sachs Marquee and gs_quant SDK.
+            </div>
+          </div>
+          <a href="gs_quant.html" class="badge" style="background:rgba(245,158,11,0.2); color:#fbbf24; text-decoration:none; font-weight:800; padding:6px 12px; border-radius:6px;">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live GS Quant Desk
+          </a>
+        </div>
+
+        <div class="dual-box-grid" style="margin-bottom:18px;">
+          <div class="layman-box">
+            <span class="box-badge layman"><i class="fa-solid fa-user"></i> Layman Intuition — Multi-Currency Risk Insurance</span>
+            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
+              When multinational corporations like Apple or Reliance build factories abroad, they face massive risks: interest rates changing on their $10 Billion debt, currencies swinging between USD and INR, or suppliers going bankrupt. GS Quant is the financial toolkit Goldman Sachs traders use to design tailored insurance contracts (swaps, credit default hedges, and FX forward curves) that eliminate these risks completely.
+            </p>
+          </div>
+          <div class="quant-box">
+            <span class="box-badge quant"><i class="fa-solid fa-microchip"></i> Institutional Quant — Stochastic Risk Transfer Invariants</span>
+            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
+              Implements $\mathbb{Q}$-measure risk-neutral pricing for Fixed-for-Floating Interest Rate Swaps (IRS), Single-Name Credit Default Swaps (CDS) with hazard rate bootstrapping $\lambda(t)$, Covered Interest Parity (CIP) cross-currency forwards, and second-order cross-Greeks: Vanna ($\frac{\partial^2 V}{\partial S \partial \sigma}$) and Volga ($\frac{\partial^2 V}{\partial \sigma^2}$).
+            </p>
+          </div>
+        </div>
+
+        <div class="quad-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:16px;">
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#fbbf24; margin:0 0 6px 0;">1. Rates: Par Swap Rate &amp; DV01</h5>
+            <div style="font-size:0.75rem; color:#818cf8; margin-bottom:6px;">$$S_N = \frac{1 - P(0, T_N)}{\sum_{i=1}^N \tau_i P(0, T_i)}, \quad \text{DV01} = \frac{\partial \text{NPV}}{\partial y} \times 0.0001$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Prices standard fixed-for-floating interest rate swaps and OIS. Computes key-rate DV01 sensitivities across 2Y, 5Y, 10Y, and 30Y tenors.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#f43f5e; margin:0 0 6px 0;">2. Credit: CDS &amp; Hazard Rate</h5>
+            <div style="font-size:0.75rem; color:#f43f5e; margin-bottom:6px;">$$s_{\text{CDS}} \approx (1 - R) \lambda, \quad \text{JTD} = (1 - R) \cdot \text{Notional}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Bootstraps deterministic default hazard rates $\lambda$ from market spread quotes, evaluating CS01 (+1 bps spread bump) and Jump-To-Default risk.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#38bdf8; margin:0 0 6px 0;">3. FX: Covered Interest Parity (CIP)</h5>
+            <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:6px;">$$F = S \times \frac{1 + r_d T}{1 + r_f T}, \quad \text{Basis Points} = (F - S) \times 10000$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Synthesizes forward FX curves under no-arbitrage CIP. Reconstructs full 25-Delta and 10-Delta volatility smiles via Risk Reversal and Butterfly quotes.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#a855f7; margin:0 0 6px 0;">4. Higher-Order Greeks</h5>
+            <div style="font-size:0.75rem; color:#a855f7; margin-bottom:6px;">$$\text{Vanna} = \frac{\partial \Delta}{\partial \sigma}, \quad \text{Volga} = \frac{\partial \nu}{\partial \sigma}, \quad \text{Charm} = -\frac{\partial \Delta}{\partial t}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Full higher-order Greek decomposition tracking dynamic delta decay, vol-of-vol sensitivity, and skew dynamics under friction.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ SECTION: ELITE QUANT PREP MASTERCLASS ═══════════════════════ -->
+      <section id="quant-prep" class="doc-section">
+        <div class="doc-header-row">
+          <div>
+            <h2 class="doc-title"><i class="fa-solid fa-graduation-cap text-gold"></i> Elite Quant Interview Prep &amp; Market Making Masterclass</h2>
+            <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
+              Synthesizes Jane Street / Optiver market making games, mental math rules of thumb, and curated Green Book problems.
+            </div>
+          </div>
+          <a href="learn.html" class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; text-decoration:none; font-weight:800; padding:6px 12px; border-radius:6px;">
+            <i class="fa-solid fa-flask"></i> Interactive Labs
+          </a>
+        </div>
+
+        <div class="dual-box-grid" style="margin-bottom:18px;">
+          <div class="layman-box">
+            <span class="box-badge layman"><i class="fa-solid fa-user"></i> The Jane Street Market Making Intuition</span>
+            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
+              In a market making interview, you must quote both a price to buy (Bid) and a price to sell (Ask). If your spread is too wide, nobody trades with you and you make zero. If your spread is too tight, smart traders who know more than you will trade against you and pick your pockets (adverse selection). Winning requires balancing inventory, managing adverse selection, and thinking in probabilities.
+            </p>
+          </div>
+          <div class="quant-box">
+            <span class="box-badge quant"><i class="fa-solid fa-microchip"></i> Glosten-Milgrom Adverse Selection Formulation</span>
+            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
+              Under the Glosten-Milgrom (1985) sequential trade model with informed fraction $\alpha$ and noise traders $(1 - \alpha)$, the dealer sets quotes:
+              $$\text{Ask} = \mathbb{E}[V \mid \text{Buy}], \quad \text{Bid} = \mathbb{E}[V \mid \text{Sell}], \quad \text{Spread} = \frac{\alpha (1 - \alpha)(V_{\text{high}} - V_{\text{low}})}{(1 - \alpha) + \alpha \dots}$$
+            </p>
+          </div>
+        </div>
+
+        <div class="quad-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px; margin-top:16px;">
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#10b981; margin:0 0 6px 0;">Mental Math: Rule of 16</h5>
+            <div style="font-size:0.75rem; color:#10b981; margin-bottom:6px;">$$\sigma_{\text{daily}} = \frac{\sigma_{\text{annual}}}{\sqrt{252}} \approx \frac{\sigma_{\text{annual}}}{16}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Instant mental math used on trading floors to convert annual volatility into expected 1-standard-deviation daily price swings.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#fbbf24; margin:0 0 6px 0;">Mental Math: Rule of 72</h5>
+            <div style="font-size:0.75rem; color:#fbbf24; margin-bottom:6px;">$$T_{\text{double}} \approx \frac{72}{r\%}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Fast mental rule for exponential compounding doubling time across CAGR, dividends, and portfolio reinvestment.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#ec4899; margin:0 0 6px 0;">ATM Straddle 80% Rule</h5>
+            <div style="font-size:0.75rem; color:#ec4899; margin-bottom:6px;">$$\text{Straddle} \approx 0.8 \cdot S \cdot \sigma \sqrt{T}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Brenner-Subrahmanyam approximation providing instantaneous pricing of at-the-money straddles and expected earnings breakeven moves.</p>
+          </div>
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h5 style="color:#38bdf8; margin:0 0 6px 0;">Dupire Local Volatility</h5>
+            <div style="font-size:0.75rem; color:#38bdf8; margin-bottom:6px;">$$\sigma_{\text{loc}}^2(K, T) = \frac{\frac{\partial C}{\partial T} + rK \frac{\partial C}{\partial K}}{\frac{1}{2} K^2 \frac{\partial^2 C}{\partial K^2}}$$</div>
+            <p style="font-size:0.72rem; color:#94a3b8; margin:0;">Extracts state-dependent deterministic local volatility diffusion from market call option prices without arbitrage.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ SECTION: 7 INSTITUTIONAL FLAGSHIP SYSTEMS ═══════════════════════ -->
+      <section id="institutional-systems" class="doc-section">
+        <div class="doc-header-row">
+          <div>
+            <h2 class="doc-title"><i class="fa-solid fa-building-columns text-cyan"></i> The 7 RISKOS Institutional Flagship Systems</h2>
+            <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
+              Enterprise-grade execution, copilot intelligence, attribution, and accreditation infrastructure.
+            </div>
+          </div>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee; font-family:'JetBrains Mono'; font-weight:800;">7 SYSTEMS ONLINE</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#38bdf8; margin:0 0 4px 0;"><i class="fa-solid fa-brain"></i> System 1: Autonomous Institutional Quant Copilot</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Terminal-integrated AI hedge fund analyst accessible anywhere via &lt;Alt + A&gt; or /ask. Features pgvector semantic market memory to recall 1987 Black Monday, 2008 Lehman collapse, 2020 COVID freeze, and 2023 SVB run.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#10b981; margin:0 0 4px 0;"><i class="fa-solid fa-layer-group"></i> System 2: L2/L3 Order Book DOM Ladder &amp; Advanced Order Types</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Interactive visual depth ladder with micro-price calculation ($P_{\text{micro}} = \frac{Q_b P_a + Q_a P_b}{Q_b + Q_a}$), cumulative volume profile, synthetic institutional Iceberg order slicing, TWAP/VWAP schedules, and Bracket/OCO orders with Web Audio feedback.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#fbbf24; margin:0 0 4px 0;"><i class="fa-solid fa-chart-pie"></i> System 3: Brinson Factor Performance Attribution &amp; Barra 6-Factor Radar</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Mathematical decomposition of active portfolio return into Allocation, Selection, and Interaction components ($\Delta R = A_i + S_i + I_i$), accompanied by a multi-factor spider radar comparing Value, Momentum, Size, Quality, Volatility, and Growth exposures.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#a855f7; margin:0 0 4px 0;"><i class="fa-solid fa-file-invoice"></i> System 4: 1-Click Institutional Hedge Fund Tear Sheet</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Print-ready, high-DPI monthly factsheet compiler computing CAGR, Sharpe, Sortino, Calmar, Max Drawdown, Monthly VaR 95%, and benchmark Alpha/Beta, sealed with an immutable SHA-256 cryptographic proof of audit record.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#f59e0b; margin:0 0 4px 0;"><i class="fa-solid fa-certificate"></i> System 5: Cryptographic Accreditation Certificates &amp; RPG Skill Tree</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Dynamic SVG vector certificates featuring gold foil borders, official wax seals, candidate distinction honors, and deterministic SHA-256 validation, paired with a 4-tier RPG Quant Skill Tree DAG.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#ec4899; margin:0 0 4px 0;"><i class="fa-solid fa-cubes"></i> System 6: Multi-Leg Options Strategy Visualizer &amp; Greeks Heatmap</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Interactive builder for Iron Condors, Butterflies, Straddles, and Spreads with simultaneous T+0 and Expiration curves, breakeven thresholds, aggregate net Greeks, and 2D Volatility vs. Spot shock matrices.</p>
+          </div>
+
+          <div style="background:#04060a; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px;">
+            <h4 style="color:#22d3ee; margin:0 0 4px 0;"><i class="fa-solid fa-trophy"></i> System 7: Quant Arena Leaderboard &amp; Multi-User Copy-Trading</h4>
+            <p style="font-size:0.78rem; color:#cbd5e1; margin:0 0 4px 0;">Global quantitative strategy leaderboard ranked by risk-adjusted Sortino/Sharpe ratios with 1-click strategy mirroring directly into the RISKOS PaperBroker virtual sandbox.</p>
+          </div>
+        </div>
+      </section>
 
       <!-- ═══════════════════════ SECTION: 41-BOT AUTONOMOUS PANTHEON SWARM ═══════════════════════ -->
       <section id="fleet" class="doc-section">

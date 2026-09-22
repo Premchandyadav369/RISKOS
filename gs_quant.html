@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GS Quant — Cross-Asset Risk Transfer & Derivatives Analytics &bull; RISKOS</title>
+  <meta name="description" content="Goldman Sachs GS Quant cross-asset risk transfer, multi-measure pricing, higher-order Greeks (Vanna, Volga, Charm, Color), DV01/CS01, and Python toolkit generator.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- KaTeX Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Core Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="observatory.css">
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="gs_quant.css">
+</head>
+<body class="gs-quant-page">
+
+  <!-- ═══════════════════════ APPLICATION TOP COMMAND BAR ═══════════════════════ -->
+  <header class="header header--streamlined" id="siteHeader">
+    <div class="header-inner">
+      <div class="header-left">
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img">
+        </a>
+        <span style="font-family:var(--font-mono, monospace); font-size:0.8rem; font-weight:800; color:var(--accent-cyan, #22d3ee); letter-spacing:0.04em;">
+          GS QUANT DESK
+        </span>
+      </div>
+
+      <!-- Navigation Links (Includes 8 Desks assertion) -->
+      <nav class="nav-pill nav-pill--clean" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="app.html" class="nav-link">8 Desks</a>
+        <a href="fleet.html" class="nav-link">Fleet</a>
+        <a href="observatory.html" class="nav-link">Observatory</a>
+        <a href="learn.html" class="nav-link">80 Labs</a>
+        <a href="ticker.html" class="nav-link">Screener</a>
+        <a href="news.html" class="nav-link">News</a>
+        <a href="gs_quant.html" class="nav-link active">GS Quant</a>
+        <a href="docs.html" class="nav-link">Docs</a>
+      </nav>
+
+      <div class="header-right header-right--clean">
+        <button id="authModalTriggerBtn" class="bbg-action-btn" title="Supabase Cloud Sync & Account" style="background:rgba(34,211,238,0.12); border:1px solid rgba(34,211,238,0.3); color:#22d3ee; padding:6px 12px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-cloud"></i> Cloud Sync
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════ MAIN CONTENT ═══════════════════════ -->
+  <main class="gs-quant-container">
+
+    <!-- Hero Strip -->
+    <div class="gs-hero-strip">
+      <div class="gs-hero-title-wrap">
+        <div class="gs-brand-icon">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div>
+          <h1 class="gs-hero-headline">
+            Goldman Sachs GS Quant &bull; Cross-Asset Risk Transfer Platform
+          </h1>
+          <p class="gs-hero-sub">
+            Institutional multi-measure pricing &bull; Rates (IR01/DV01) &bull; Credit (CS01) &bull; FX Smiles &bull; 2nd-Order Greeks (Vanna, Volga, Charm, Color)
+          </p>
+        </div>
+      </div>
+
+      <div class="gs-actions-right">
+        <button class="gs-btn primary" id="btnCopyPythonSnippet">
+          <i class="fa-brands fa-python"></i> Copy GS Quant Python
+        </button>
+        <button class="gs-btn" id="btnRecalculateAll">
+          <i class="fa-solid fa-arrows-rotate"></i> Re-Price Portfolio
+        </button>
+      </div>
+    </div>
+
+    <!-- Desk Navigation Tabs -->
+    <nav class="gs-desk-nav" id="gsDeskNav">
+      <button class="gs-desk-tab active" data-desk="rates">
+        <i class="fa-solid fa-landmark"></i> Rates Swaps (DV01)
+      </button>
+      <button class="gs-desk-tab" data-desk="credit">
+        <i class="fa-solid fa-shield-halved"></i> Credit Default Swaps (CS01)
+      </button>
+      <button class="gs-desk-tab" data-desk="fx">
+        <i class="fa-solid fa-coins"></i> FX Forwards &amp; Vol Smiles
+      </button>
+      <button class="gs-desk-tab" data-desk="equities">
+        <i class="fa-solid fa-chart-line"></i> Higher-Order Greeks (Vanna/Volga)
+      </button>
+      <button class="gs-desk-tab" data-desk="commodities">
+        <i class="fa-solid fa-barrel-oil"></i> Commodity Curves
+      </button>
+      <button class="gs-desk-tab" data-desk="stress">
+        <i class="fa-solid fa-bolt-lightning"></i> Cross-Asset Stress Matrix
+      </button>
+    </nav>
+
+    <!-- Analytical Workspace Grid -->
+    <div class="gs-workspace-grid">
+
+      <!-- Left Configuration Panel -->
+      <aside class="gs-panel" id="gsConfigPanel">
+        <div class="gs-panel-header">
+          <h3 class="gs-panel-title">
+            <i class="fa-solid fa-sliders text-cyan"></i> Trade Parameters
+          </h3>
+          <span style="font-size:0.65rem; color:var(--accent-cyan); font-family:var(--font-mono);">GS MARQUEE PROXY</span>
+        </div>
+
+        <div id="gsFormContainer">
+          <!-- Dynamic Controls rendered by JS based on active desk -->
+        </div>
+
+        <button class="gs-btn primary" style="width:100%; justify-content:center; margin-top:14px;" id="btnUpdateTrade">
+          <i class="fa-solid fa-calculator"></i> Price &amp; Recompute Sensitivities
+        </button>
+      </aside>
+
+      <!-- Right Analytical & Greeks Display -->
+      <section class="gs-panel" id="gsResultsPanel">
+        <div class="gs-panel-header">
+          <h3 class="gs-panel-title">
+            <i class="fa-solid fa-microchip text-emerald"></i> Risk Transfer &amp; Sensitivity Measures
+          </h3>
+          <span style="font-size:0.68rem; color:#10b981; font-family:var(--font-mono);" id="gsInstrumentStatus">
+            ACTIVE &bull; 100% DETERMINISTIC
+          </span>
+        </div>
+
+        <!-- Greeks & Risk Metrics Grid -->
+        <div class="gs-greeks-grid" id="gsGreeksGrid">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Analytical Breakdown / Details Table -->
+        <div style="margin-bottom: 20px;">
+          <h4 style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:10px; font-family:var(--font-mono);">
+            Detailed Risk Breakdown &bull; Tenors &amp; Cashflows
+          </h4>
+          <div id="gsTableContainer" style="overflow-x:auto;">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <!-- Live GS Quant Python Script Preview -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h4 style="font-size:0.75rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin:0; font-family:var(--font-mono);">
+              <i class="fa-brands fa-python text-cyan"></i> Goldman Sachs gs_quant Python Implementation
+            </h4>
+            <span style="font-size:0.65rem; color:var(--text-muted); font-family:var(--font-mono);">SDK v1.0.86 COMPLIANT</span>
+          </div>
+          <pre class="gs-code-box" id="gsPythonCodeBox"># Generating GS Quant Python Script...</pre>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- Core Scripts -->
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="gsQuantEngine.js"></script>
+
+  <!-- GS Quant Page Controller -->
+  <script>
+    (() => {
+      'use strict';
+
+      let currentDesk = 'rates';
+
+      // State stores
+      const state = {
+        rates: { notional: 10000000, fixedRate: 0.045, tenorYears: 5, frequency: 2, isPayer: true },
+        credit: { notional: 10000000, cdsSpreadBps: 150, tenorYears: 5, recoveryRate: 0.40, isProtectionBuyer: true },
+        fx: { spotRate: 83.50, domesticRate: 0.065, foreignRate: 0.0525, tenorYears: 1.0, atmVol: 0.095, rr25Delta: -0.015, bf25Delta: 0.004 },
+        equities: { spot: 100, strike: 100, rate: 0.05, divYield: 0.01, vol: 0.20, timeYears: 0.5, isCall: true },
+        commodities: { spotPrice: 82.50, riskFreeRate: 0.045, storageCostRate: 0.020, convenienceYield: 0.035 }
+      };
+
+      const renderForm = () => {
+        const c = document.getElementById('gsFormContainer');
+        if (!c) return;
+
+        if (currentDesk === 'rates') {
+          c.innerHTML = `
+            <div class="gs-form-group">
+              <label class="gs-label">Notional Amount ($)</label>
+              <input type="number" class="gs-input" id="inpNotional" value="${state.rates.notional}" step="1000000">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Fixed Rate Coupon (%)</label>
+              <input type="number" class="gs-input" id="inpFixedRate" value="${(state.rates.fixedRate * 100).toFixed(2)}" step="0.1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Tenor (Years)</label>
+              <select class="gs-select" id="selTenor">
+                <option value="2" ${state.rates.tenorYears === 2 ? 'selected' : ''}>2 Years</option>
+                <option value="5" ${state.rates.tenorYears === 5 ? 'selected' : ''}>5 Years</option>
+                <option value="10" ${state.rates.tenorYears === 10 ? 'selected' : ''}>10 Years</option>
+                <option value="30" ${state.rates.tenorYears === 30 ? 'selected' : ''}>30 Years</option>
+              </select>
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Swap Direction</label>
+              <select class="gs-select" id="selPayer">
+                <option value="true" ${state.rates.isPayer ? 'selected' : ''}>Pay Fixed &bull; Receive Float</option>
+                <option value="false" ${!state.rates.isPayer ? 'selected' : ''}>Receive Fixed &bull; Pay Float</option>
+              </select>
+            </div>
+          `;
+        } else if (currentDesk === 'credit') {
+          c.innerHTML = `
+            <div class="gs-form-group">
+              <label class="gs-label">Notional Amount ($)</label>
+              <input type="number" class="gs-input" id="inpCdsNotional" value="${state.credit.notional}" step="1000000">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">CDS Spread (Basis Points)</label>
+              <input type="number" class="gs-input" id="inpCdsSpread" value="${state.credit.cdsSpreadBps}" step="10">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Recovery Rate (%)</label>
+              <input type="number" class="gs-input" id="inpRecovery" value="${(state.credit.recoveryRate * 100).toFixed(0)}" step="5">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Protection Side</label>
+              <select class="gs-select" id="selProtectionSide">
+                <option value="true" ${state.credit.isProtectionBuyer ? 'selected' : ''}>Buy Protection (Long Credit Risk)</option>
+                <option value="false" ${!state.credit.isProtectionBuyer ? 'selected' : ''}>Sell Protection (Short Credit Risk)</option>
+              </select>
+            </div>
+          `;
+        } else if (currentDesk === 'fx') {
+          c.innerHTML = `
+            <div class="gs-form-group">
+              <label class="gs-label">USD/INR Spot Rate</label>
+              <input type="number" class="gs-input" id="inpSpotRate" value="${state.fx.spotRate}" step="0.1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">INR Domestic Rate (%)</label>
+              <input type="number" class="gs-input" id="inpDomRate" value="${(state.fx.domesticRate * 100).toFixed(2)}" step="0.25">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">USD Foreign Rate (%)</label>
+              <input type="number" class="gs-input" id="inpForRate" value="${(state.fx.foreignRate * 100).toFixed(2)}" step="0.25">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">ATM Implied Volatility (%)</label>
+              <input type="number" class="gs-input" id="inpAtmVol" value="${(state.fx.atmVol * 100).toFixed(1)}" step="0.5">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">25D Risk Reversal (% Skew)</label>
+              <input type="number" class="gs-input" id="inpRr25" value="${(state.fx.rr25Delta * 100).toFixed(1)}" step="0.2">
+            </div>
+          `;
+        } else if (currentDesk === 'equities') {
+          c.innerHTML = `
+            <div class="gs-form-group">
+              <label class="gs-label">Spot Price ($)</label>
+              <input type="number" class="gs-input" id="inpEqSpot" value="${state.equities.spot}" step="1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Strike Price ($)</label>
+              <input type="number" class="gs-input" id="inpEqStrike" value="${state.equities.strike}" step="1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Implied Volatility (%)</label>
+              <input type="number" class="gs-input" id="inpEqVol" value="${(state.equities.vol * 100).toFixed(0)}" step="1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Time to Expiration (Years)</label>
+              <input type="number" class="gs-input" id="inpEqTime" value="${state.equities.timeYears}" step="0.25">
+            </div>
+          `;
+        } else if (currentDesk === 'commodities') {
+          c.innerHTML = `
+            <div class="gs-form-group">
+              <label class="gs-label">Brent Crude Spot ($/bbl)</label>
+              <input type="number" class="gs-input" id="inpCommSpot" value="${state.commodities.spotPrice}" step="1">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Convenience Yield (%)</label>
+              <input type="number" class="gs-input" id="inpConvenience" value="${(state.commodities.convenienceYield * 100).toFixed(1)}" step="0.5">
+            </div>
+            <div class="gs-form-group">
+              <label class="gs-label">Physical Storage Cost (%)</label>
+              <input type="number" class="gs-input" id="inpStorage" value="${(state.commodities.storageCostRate * 100).toFixed(1)}" step="0.5">
+            </div>
+          `;
+        } else if (currentDesk === 'stress') {
+          c.innerHTML = `
+            <p style="font-size:0.75rem; color:var(--text-secondary); line-height:1.4;">
+              Evaluates joint bump-and-reprice cross-asset shocks across Rates, Credit, Equities, and FX using multi-measure sensitivities.
+            </p>
+          `;
+        }
+      };
+
+      const computeAndRender = () => {
+        if (typeof GSQuantEngine === 'undefined') return;
+
+        const greeksContainer = document.getElementById('gsGreeksGrid');
+        const tableContainer = document.getElementById('gsTableContainer');
+        const codeBox = document.getElementById('gsPythonCodeBox');
+
+        if (currentDesk === 'rates') {
+          const res = GSQuantEngine.priceInterestRateSwap(state.rates);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Mark-to-Market (PV)</span>
+              <span class="gs-greek-val" style="color:${res.mtm >= 0 ? '#10b981' : '#f43f5e'};">$${res.mtm.toLocaleString()}</span>
+              <span class="gs-greek-sub">${res.isPayer ? 'Payer Swap' : 'Receiver Swap'}</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Par Swap Rate</span>
+              <span class="gs-greek-val" style="color:#38bdf8;">${res.parRate}%</span>
+              <span class="gs-greek-sub">Fixed: ${res.fixedRate}%</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">IR01 / DV01 (1 bp)</span>
+              <span class="gs-greek-val" style="color:#f59e0b;">$${res.dv01.toLocaleString()}</span>
+              <span class="gs-greek-sub">Dollar Risk / bp</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">2Y Key Rate DV01</span>
+              <span class="gs-greek-val">$${res.keyRateDV01['2Y']}</span>
+              <span class="gs-greek-sub">Front-End Shift</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">5Y Key Rate DV01</span>
+              <span class="gs-greek-val">$${res.keyRateDV01['5Y']}</span>
+              <span class="gs-greek-sub">Belly Shift</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Time (Yr)</th>
+                  <th>Discount Factor</th>
+                  <th>Fixed Leg CF</th>
+                  <th>Present Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${res.cashflows.map(cf => `
+                  <tr>
+                    <td>#0${cf.period}</td>
+                    <td>${cf.time}y</td>
+                    <td>${cf.discountFactor}</td>
+                    <td>$${cf.fixedCashflow.toLocaleString()}</td>
+                    <td>$${cf.pv.toLocaleString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = GSQuantEngine.generateGSQuantPythonScript('rates_swap', state.rates);
+
+        } else if (currentDesk === 'credit') {
+          const res = GSQuantEngine.priceCreditDefaultSwap(state.credit);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">CDS Clean PV</span>
+              <span class="gs-greek-val" style="color:${res.mtm >= 0 ? '#10b981' : '#f43f5e'};">$${res.mtm.toLocaleString()}</span>
+              <span class="gs-greek-sub">${res.parSpreadBps} bps Par</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">CS01 (1 bp Spread)</span>
+              <span class="gs-greek-val" style="color:#f59e0b;">$${res.cs01.toLocaleString()}</span>
+              <span class="gs-greek-sub">Credit Spread 01</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Implied Hazard Rate</span>
+              <span class="gs-greek-val" style="color:#a855f7;">${res.hazardRate}%</span>
+              <span class="gs-greek-sub">&lambda; Annual Default Intensity</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Jump to Default (JTD)</span>
+              <span class="gs-greek-val" style="color:#f43f5e;">$${res.jtd.toLocaleString()}</span>
+              <span class="gs-greek-sub">Instant Loss at Default</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th>Present Value</th>
+                  <th>Risk Parameter</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Premium Leg PV (Fee Stream)</td><td>$${res.premiumLegPV.toLocaleString()}</td><td>Spread: ${res.cdsSpreadBps} bps</td></tr>
+                <tr><td>Default Leg PV (Protection)</td><td>$${res.defaultLegPV.toLocaleString()}</td><td>LGD: ${(100 - res.recoveryRate * 100)}%</td></tr>
+                <tr><td>Risky Annuity (RPV01)</td><td>${res.riskyAnnuity}</td><td>Tenor: ${res.tenorYears}y</td></tr>
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = GSQuantEngine.generateGSQuantPythonScript('credit_cds', state.credit);
+
+        } else if (currentDesk === 'fx') {
+          const res = GSQuantEngine.priceFXForwardAndSmile(state.fx);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">CIP Forward Rate</span>
+              <span class="gs-greek-val" style="color:#38bdf8;">${res.forwardRate}</span>
+              <span class="gs-greek-sub">Spot: ${res.spotRate}</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Forward Points</span>
+              <span class="gs-greek-val" style="color:#10b981;">+${res.forwardPoints} pips</span>
+              <span class="gs-greek-sub">Carry Yield: +${res.annualizedCarryYield}%</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">ATM Volatility</span>
+              <span class="gs-greek-val">${res.atmVol}%</span>
+              <span class="gs-greek-sub">Base 1Y Vol</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">25D Risk Reversal</span>
+              <span class="gs-greek-val" style="color:#f59e0b;">${res.rr25Delta}%</span>
+              <span class="gs-greek-sub">Call - Put Skew</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">25D Butterfly</span>
+              <span class="gs-greek-val" style="color:#a855f7;">${res.bf25Delta}%</span>
+              <span class="gs-greek-sub">Wing Curvature</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead>
+                <tr>
+                  <th>Moneyness Slice</th>
+                  <th>Delta</th>
+                  <th>Implied Strike</th>
+                  <th>Implied Volatility</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${res.smileGrid.map(row => `
+                  <tr>
+                    <td><strong>${row.name}</strong></td>
+                    <td>${row.delta > 0 ? '+' : ''}${row.delta}</td>
+                    <td>${row.strike}</td>
+                    <td><span style="color:#22d3ee; font-weight:700;">${row.vol}%</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = GSQuantEngine.generateGSQuantPythonScript('fx_option_smile', state.fx);
+
+        } else if (currentDesk === 'equities') {
+          const res = GSQuantEngine.calculateComprehensiveGreeks(state.equities);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Option Value</span>
+              <span class="gs-greek-val" style="color:#38bdf8;">$${res.price}</span>
+              <span class="gs-greek-sub">Call Strike: ${state.equities.strike}</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Delta (&Delta;)</span>
+              <span class="gs-greek-val" style="color:#10b981;">${res.delta}</span>
+              <span class="gs-greek-sub">$Delta: $${res.dollarDelta.toLocaleString()}</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Gamma (&Gamma;)</span>
+              <span class="gs-greek-val">${res.gamma}</span>
+              <span class="gs-greek-sub">$Gamma: $${res.dollarGamma.toLocaleString()}</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Vega (&nu;)</span>
+              <span class="gs-greek-val" style="color:#f59e0b;">$${res.vega}</span>
+              <span class="gs-greek-sub">Per 1% Vol</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Vanna (&part;Vega/&part;S)</span>
+              <span class="gs-greek-val" style="color:#a855f7;">${res.vanna}</span>
+              <span class="gs-greek-sub">Cross Vol-Spot</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Volga (&part;Vega/&part;&sigma;)</span>
+              <span class="gs-greek-val" style="color:#ec4899;">${res.volga}</span>
+              <span class="gs-greek-sub">Vol Convexity</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Charm (d&Delta;/dt)</span>
+              <span class="gs-greek-val">${res.charmDaily}</span>
+              <span class="gs-greek-sub">Daily Delta Bleed</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Color (d&Gamma;/dt)</span>
+              <span class="gs-greek-val">${res.colorDaily}</span>
+              <span class="gs-greek-sub">Daily Gamma Bleed</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead><tr><th>Greek Measure</th><th>Order</th><th>Analytical Definition</th><th>Sensitivity Value</th></tr></thead>
+              <tbody>
+                <tr><td>Delta</td><td>1st</td><td>&part;V / &part;S</td><td>${res.delta}</td></tr>
+                <tr><td>Vega</td><td>1st</td><td>&part;V / &part;&sigma;</td><td>${res.vega}</td></tr>
+                <tr><td>Theta</td><td>1st</td><td>&part;V / &part;t</td><td>${res.thetaDaily} / day</td></tr>
+                <tr><td>Vanna</td><td>2nd</td><td>&part;&sup2;V / &part;S&part;&sigma;</td><td>${res.vanna}</td></tr>
+                <tr><td>Volga (Vomma)</td><td>2nd</td><td>&part;&sup2;V / &part;&sigma;&sup2;</td><td>${res.volga}</td></tr>
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = `# Black-Scholes Higher Order Greeks in Python\n# Delta: ${res.delta}, Gamma: ${res.gamma}, Vanna: ${res.vanna}, Volga: ${res.volga}\n# Computed via GSQuantEngine.calculateComprehensiveGreeks()`;
+
+        } else if (currentDesk === 'commodities') {
+          const res = GSQuantEngine.priceCommodityCurve(state.commodities);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Spot Price</span>
+              <span class="gs-greek-val" style="color:#38bdf8;">$${res.spotPrice}</span>
+              <span class="gs-greek-sub">Brent / bbl</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Net Cost of Carry</span>
+              <span class="gs-greek-val" style="color:${res.isContango ? '#f43f5e' : '#10b981'};">${res.netCarryRate}%</span>
+              <span class="gs-greek-sub">c = r + u - y</span>
+            </div>
+            <div class="gs-greek-card" style="grid-column: span 2;">
+              <span class="gs-greek-label">Market Term Structure</span>
+              <span class="gs-greek-val" style="font-size:0.9rem; color:#f59e0b;">${res.marketStructure}</span>
+              <span class="gs-greek-sub">Convenience Yield vs Storage</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead><tr><th>Tenor</th><th>Forward Price</th><th>Annualized Roll Yield</th><th>Discount Factor</th></tr></thead>
+              <tbody>
+                ${res.curve.map(row => `
+                  <tr>
+                    <td>${row.tenorYears * 12} Months</td>
+                    <td><strong>$${row.forwardPrice}</strong></td>
+                    <td style="color:${row.annualizedRollYield >= 0 ? '#10b981' : '#f43f5e'};">${row.annualizedRollYield > 0 ? '+' : ''}${row.annualizedRollYield}%</td>
+                    <td>${row.discountFactor}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = `# Commodity Term Curve in Python\n# Market state: ${res.marketStructure}\n# Net carry: ${res.netCarryRate}%`;
+
+        } else if (currentDesk === 'stress') {
+          const res = GSQuantEngine.runCrossAssetBumpAndReprice(state);
+          greeksContainer.innerHTML = `
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Institutional NAV</span>
+              <span class="gs-greek-val" style="color:#38bdf8;">$${(res.basePortfolioNAV / 1000000).toFixed(1)}M</span>
+              <span class="gs-greek-sub">Base Portfolio</span>
+            </div>
+            <div class="gs-greek-card">
+              <span class="gs-greek-label">Stress Scenarios</span>
+              <span class="gs-greek-val">4 Tests</span>
+              <span class="gs-greek-sub">Joint Multi-Asset</span>
+            </div>
+          `;
+
+          tableContainer.innerHTML = `
+            <table class="gs-table">
+              <thead>
+                <tr>
+                  <th>Macro Shock Scenario</th>
+                  <th>Rates P&amp;L</th>
+                  <th>Credit P&amp;L</th>
+                  <th>Equity P&amp;L</th>
+                  <th>FX P&amp;L</th>
+                  <th>Net Portfolio P&amp;L</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${res.scenarios.map(sc => `
+                  <tr>
+                    <td>
+                      <strong>${sc.name}</strong><br>
+                      <span style="font-size:0.65rem; color:var(--text-muted);">${sc.narrative}</span>
+                    </td>
+                    <td style="color:${sc.ratesPnL >= 0 ? '#10b981' : '#f43f5e'};">$${sc.ratesPnL.toLocaleString()}</td>
+                    <td style="color:${sc.creditPnL >= 0 ? '#10b981' : '#f43f5e'};">$${sc.creditPnL.toLocaleString()}</td>
+                    <td style="color:${sc.equityPnL >= 0 ? '#10b981' : '#f43f5e'};">$${sc.equityPnL.toLocaleString()}</td>
+                    <td style="color:${sc.fxPnL >= 0 ? '#10b981' : '#f43f5e'};">$${sc.fxPnL.toLocaleString()}</td>
+                    <td style="font-weight:800; color:${sc.totalPnL >= 0 ? '#10b981' : '#f43f5e'};">
+                      $${sc.totalPnL.toLocaleString()} (${sc.pnlPct}%)
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+
+          codeBox.textContent = `# GS Quant Multi-Asset Bump-and-Reprice Scenario Suite\n# Scenarios evaluated: ${res.scenarios.map(s => s.scenarioId).join(', ')}`;
+        }
+      };
+
+      // Tab switching
+      document.querySelectorAll('.gs-desk-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.gs-desk-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentDesk = tab.dataset.desk;
+          renderForm();
+          computeAndRender();
+        });
+      });
+
+      // Update button listener
+      const btnUpdate = document.getElementById('btnUpdateTrade');
+      if (btnUpdate) {
+        btnUpdate.addEventListener('click', () => {
+          if (currentDesk === 'rates') {
+            state.rates.notional = Number(document.getElementById('inpNotional').value);
+            state.rates.fixedRate = Number(document.getElementById('inpFixedRate').value) / 100.0;
+            state.rates.tenorYears = Number(document.getElementById('selTenor').value);
+            state.rates.isPayer = document.getElementById('selPayer').value === 'true';
+          } else if (currentDesk === 'credit') {
+            state.credit.notional = Number(document.getElementById('inpCdsNotional').value);
+            state.credit.cdsSpreadBps = Number(document.getElementById('inpCdsSpread').value);
+            state.credit.recoveryRate = Number(document.getElementById('inpRecovery').value) / 100.0;
+            state.credit.isProtectionBuyer = document.getElementById('selProtectionSide').value === 'true';
+          } else if (currentDesk === 'fx') {
+            state.fx.spotRate = Number(document.getElementById('inpSpotRate').value);
+            state.fx.domesticRate = Number(document.getElementById('inpDomRate').value) / 100.0;
+            state.fx.foreignRate = Number(document.getElementById('inpForRate').value) / 100.0;
+            state.fx.atmVol = Number(document.getElementById('inpAtmVol').value) / 100.0;
+            state.fx.rr25Delta = Number(document.getElementById('inpRr25').value) / 100.0;
+          } else if (currentDesk === 'equities') {
+            state.equities.spot = Number(document.getElementById('inpEqSpot').value);
+            state.equities.strike = Number(document.getElementById('inpEqStrike').value);
+            state.equities.vol = Number(document.getElementById('inpEqVol').value) / 100.0;
+            state.equities.timeYears = Number(document.getElementById('inpEqTime').value);
+          } else if (currentDesk === 'commodities') {
+            state.commodities.spotPrice = Number(document.getElementById('inpCommSpot').value);
+            state.commodities.convenienceYield = Number(document.getElementById('inpConvenience').value) / 100.0;
+            state.commodities.storageCostRate = Number(document.getElementById('inpStorage').value) / 100.0;
+          }
+          computeAndRender();
+        });
+      }
+
+      // Copy Python snippet button
+      const btnCopy = document.getElementById('btnCopyPythonSnippet');
+      if (btnCopy) {
+        btnCopy.addEventListener('click', () => {
+          const code = document.getElementById('gsPythonCodeBox').textContent;
+          navigator.clipboard.writeText(code).then(() => {
+            const original = btnCopy.innerHTML;
+            btnCopy.innerHTML = '<i class="fa-solid fa-check text-emerald"></i> Copied to Clipboard!';
+            setTimeout(() => { btnCopy.innerHTML = original; }, 2000);
+          });
+        });
+      }
+
+      // Initial render
+      renderForm();
+      computeAndRender();
+    })();
+  </script>
+</body>
+</html>

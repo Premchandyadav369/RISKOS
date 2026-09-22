@@ -1,0 +1,172 @@
+/* RISKOS Cryptographic Accreditation & Skill Tree DAG (accreditationCert.css) */
+
+.cert-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(4, 6, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  padding: 20px;
+}
+
+.cert-modal-content {
+  background: #090d16;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  max-width: 900px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(245, 158, 11, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f172a;
+}
+
+.cert-modal-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.5px;
+}
+
+.cert-modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.cert-svg-wrapper {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.cert-actions-row {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.cert-btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.cert-btn-primary {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000;
+}
+
+.cert-btn-primary:hover {
+  background: linear-gradient(135deg, #fbbf24, #b45309);
+  transform: translateY(-1px);
+}
+
+.cert-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cert-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Skill Tree DAG */
+.skill-tree-container {
+  width: 100%;
+  padding: 16px 0;
+}
+
+.skill-tree-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.skill-tiers-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.skill-tier-card {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  position: relative;
+}
+
+.skill-tier-card.unlocked {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(15, 23, 42, 0.8);
+}
+
+.skill-tier-card.locked {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+}
+
+.tier-number {
+  font-size: 10px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 4px;
+}
+
+.tier-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+}
+
+.tier-skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 11px;
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tier-skills-list li::before {
+  content: "• ";
+  color: #10b981;
+}
