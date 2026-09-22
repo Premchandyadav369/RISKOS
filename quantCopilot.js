@@ -286,6 +286,20 @@
           return;
         }
 
+        // 5. Query: Creator / Author / Portfolio / Made by Humans
+        if (p.includes('who made') || p.includes('who built') || p.includes('creator') || p.includes('author') || p.includes('premchand') || p.includes('portfolio') || p.includes('made by humans')) {
+          const resp = `
+            <div style="font-weight:700; color:#38bdf8; margin-bottom:4px;"><i class="fa-solid fa-earth-americas"></i> Made by Humans on Earth</div>
+            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
+              RISKOS was made by humans on Earth and assembled by <strong>Premchand Yadav</strong>.<br><br>
+              Explore the engineering portfolio, quantitative research, and systems at:<br>
+              <a href="https://premchandyadav1.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:#22d3ee; text-decoration:underline; font-weight:600;">https://premchandyadav1.vercel.app/</a>
+            </div>
+          `;
+          this.appendMessage(resp);
+          return;
+        }
+
         // Default response
         const fallback = `
           <div>

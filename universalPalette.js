@@ -8,6 +8,7 @@
 
   const CATALOG = [
     // ── 1. Core Pages ──
+    { id: 'author_portfolio', title: 'Made by Humans on Earth · Premchand Yadav', desc: 'System Architect & Quantitative Developer — Portfolio: https://premchandyadav1.vercel.app/', category: 'System', badge: 'CREATOR', icon: 'fa-earth-americas', action: () => window.open('https://premchandyadav1.vercel.app/', '_blank') },
     { id: 'page_home', title: 'Executive Overview Dashboard', desc: 'Single-source-of-truth macro market intelligence', category: 'Pages', badge: 'PAGE', icon: 'fa-house', url: 'index.html' },
     { id: 'page_terminal', title: '7 Institutional Quant Trading Desks', desc: 'Market intelligence, risk engine, yield curve, DOM & vol lab', category: 'Pages', badge: 'PAGE', icon: 'fa-terminal', url: 'app.html' },
     { id: 'page_fleet', title: '24/7 Autonomous Bot Fleet', desc: '41 Greek, Norse & Egyptian algorithmic strategies', category: 'Pages', badge: 'PAGE', icon: 'fa-robot', url: 'fleet.html' },
@@ -92,7 +93,7 @@
             <span><kbd>↵</kbd> Select</span> &bull; 
             <span><kbd>ESC</kbd> Close</span>
           </div>
-          <div>RISKOS Universal Command Center &bull; Press <kbd>⌘K</kbd> anywhere</div>
+          <div>Made by Humans on Earth &bull; Assembled by <a href="https://premchandyadav1.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:#22d3ee; text-decoration:none; font-weight:600;">Premchand Yadav</a></div>
         </div>
       </div>
     `;

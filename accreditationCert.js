@@ -208,10 +208,11 @@
           </g>
 
           <!-- Signature Sign-off -->
-          <g transform="translate(${width - 240}, 430)">
-            <line x1="0" y1="20" x2="160" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-            <text x="80" y="15" fill="#f59e0b" font-size="13" font-style="italic" text-anchor="middle">DeepMind / RISKOS</text>
-            <text x="80" y="35" fill="#94a3b8" font-size="9" text-anchor="middle">Chair, Quantitative Committee</text>
+          <g transform="translate(${width - 260}, 425)">
+            <line x1="0" y1="20" x2="200" y2="20" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <text x="100" y="15" fill="#f59e0b" font-size="13" font-style="italic" text-anchor="middle">Premchand Yadav</text>
+            <text x="100" y="34" fill="#94a3b8" font-size="9" text-anchor="middle">System Architect &bull; RISKOS</text>
+            <text x="100" y="47" fill="#38bdf8" font-size="8" text-anchor="middle">premchandyadav1.vercel.app</text>
           </g>
         </svg>
       `;
