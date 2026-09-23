@@ -36,38 +36,48 @@
     <div class="hft-center-vignette"></div>
   </div>
 
-  <!-- ── Top Institutional Navigation Bar ──────────────────────────────────── -->
-  <nav class="top-nav" aria-label="Main Navigation">
-    <div class="nav-left">
-      <a href="index.html" class="nav-brand">
-        <img src="assets/logo.webp" alt="RISKOS Logo" class="brand-logo" width="28" height="28" />
-        <span class="brand-name">RISKOS <span style="color:var(--hft-cyan); font-size:0.75rem; font-family:var(--hft-font-mono);">HFT//DESK</span></span>
-      </a>
-    </div>
+  <!-- ── Top Institutional Navigation Bar (Canonical RISKOS Sticky Architecture) ── -->
+  <header class="header" id="siteHeader">
+    <div class="header-inner">
+      <!-- Left: Logo & Market Clock Badge -->
+      <div class="header-left">
+        <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" />
+        </a>
+        <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle Indian (NSE) / US (NYSE) market hours">
+          <span class="market-status-dot dot--open" id="marketStatusDot"></span>
+          <span class="market-name" id="marketName">NSE</span>
+          <span class="market-state" id="marketState">OPEN</span>
+          <span class="market-time" id="marketTime">09:15 IST</span>
+        </div>
+      </div>
 
-    <!-- Center Navigation Links (Preserves 8 Desks assertion) -->
-    <div class="nav-center">
-      <a href="app.html" class="nav-link">8 Desks</a>
-      <a href="hft.html" class="nav-link active" style="color:var(--hft-cyan); font-weight:700;"><i class="fa-solid fa-bolt-lightning"></i> HFT Desk</a>
-      <a href="fleet.html" class="nav-link">41 Bots</a>
-      <a href="portfolio_optimizer.html" class="nav-link">Optimizer</a>
-      <a href="observatory.html" class="nav-link">Observatory</a>
-      <a href="learn.html" class="nav-link">Courses</a>
-      <a href="docs.html" class="nav-link">Docs</a>
-    </div>
+      <!-- Center: Navigation Pill (Preserves 8 Desks assertion & all primary routes) -->
+      <nav class="nav-pill" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Dashboard</a>
+        <a href="app.html" class="nav-link">8 Desks</a>
+        <a href="hft.html" class="nav-link active" style="color:#000 !important; background:#fff !important; font-weight:700;"><i class="fa-solid fa-bolt-lightning" style="margin-right:4px; color:var(--hft-cyan);"></i> HFT Desk</a>
+        <a href="fleet.html" class="nav-link">41 Bots</a>
+        <a href="portfolio_optimizer.html" class="nav-link">Optimizer</a>
+        <a href="observatory.html" class="nav-link">Observatory</a>
+        <a href="learn.html" class="nav-link">Courses</a>
+        <a href="docs.html" class="nav-link">Docs</a>
+      </nav>
 
-    <div class="nav-right">
-      <button class="nav-btn" id="btnToggleSound" title="Toggle Synthesized Web Audio Sound Effects">
-        <i class="fa-solid fa-volume-high"></i> Audio: ON
-      </button>
-      <button class="nav-btn" id="navSearchTrigger" title="Quick Search (Ctrl+K / Cmd+K)">
-        <i class="fa-solid fa-magnifying-glass"></i> <kbd style="font-size:0.65rem; background:rgba(255,255,255,0.15); padding:1px 5px; border-radius:3px;">⌘K</kbd>
-      </button>
-      <a href="signup.html" class="nav-btn primary" style="text-decoration:none;">
-        <i class="fa-solid fa-user-plus"></i> Join Terminal
-      </a>
+      <!-- Right: Sound, Palette trigger, Join Terminal -->
+      <div class="header-actions">
+        <button class="nav-search-trigger" id="navSearchTrigger" title="Quick Search (Ctrl+K / Cmd+K)">
+          <i class="fa-solid fa-magnifying-glass"></i> <span class="kbd-pill">⌘K</span>
+        </button>
+        <button class="nav-btn" id="btnToggleSound" title="Toggle Synthesized Web Audio Sound Effects" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:var(--hft-text-bright); border-radius:100px; padding:5px 12px; font-size:0.75rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-volume-high" style="color:var(--hft-cyan);"></i> <span id="soundLabel">Audio: ON</span>
+        </button>
+        <a href="signup.html" class="nav-btn primary" style="background:var(--hft-cyan); color:#000; font-weight:700; border-radius:100px; padding:5px 14px; font-size:0.75rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fa-solid fa-user-plus"></i> Join Terminal
+        </a>
+      </div>
     </div>
-  </nav>
+  </header>
 
   <!-- ── Main HFT Workstation Layout ───────────────────────────────────────── -->
   <main class="hft-main-container">
@@ -196,7 +206,32 @@
           <span><span style="display:inline-block; width:8px; height:8px; background:var(--hft-emerald); margin-right:4px;"></span> Best Bid (Inside)</span>
           <span><span style="display:inline-block; width:8px; height:8px; background:var(--hft-crimson); margin-right:4px;"></span> Best Ask (Inside)</span>
           <span><span style="display:inline-block; width:8px; height:2px; background:var(--hft-amber); margin-right:4px;"></span> Mid-Price</span>
-          <span>💡 Click any DOM price row to queue limit order</span>
+          <span>💡 Click any DOM row to place limit order</span>
+        </div>
+
+        <!-- 1-Click DOM Order Bar (Connected to PaperBroker) -->
+        <div class="hft-dom-quick-order-bar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:0.72rem; color:var(--hft-cyan); font-weight:700; text-transform:uppercase; font-family:var(--hft-font-mono);">
+              <i class="fa-solid fa-bolt"></i> 1-Click Execution:
+            </span>
+            <label for="hftDomOrderQty" style="font-size:0.7rem; color:var(--hft-text-muted);">Qty:</label>
+            <select id="hftDomOrderQty" class="hft-select-compact">
+              <option value="25">25 Shs</option>
+              <option value="50">50 Shs</option>
+              <option value="100" selected>100 Shs</option>
+              <option value="500">500 Shs</option>
+              <option value="1000">1,000 Shs</option>
+            </select>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <button id="btnDomBuyMkt" class="hft-btn-dom hft-btn-dom-buy" title="Instant Market Buy Order">
+              <i class="fa-solid fa-arrow-up"></i> BUY MKT
+            </button>
+            <button id="btnDomSellMkt" class="hft-btn-dom hft-btn-dom-sell" title="Instant Market Sell Order">
+              <i class="fa-solid fa-arrow-down"></i> SELL MKT
+            </button>
+          </div>
         </div>
       </section>
 
@@ -459,6 +494,272 @@
         </div>
       </section>
 
+      <!-- ====================================================================
+           MODULE 5: REAL-TIME TIME & SALES TAPE & CVD ABSORPTION FOOTPRINT
+           ==================================================================== -->
+      <section class="hft-card" id="wsTapeCvd" aria-label="Time & Sales Tape & CVD Absorption Footprint">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-wave-square" style="color:var(--hft-emerald);"></i>
+            Time &amp; Sales Tape &amp; CVD Absorption Footprint
+          </div>
+          <span class="hft-card-tag" style="border-color:rgba(16,185,129,0.3); color:#10b981;">Microsecond Tick Resolution</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Cumulative Volume Delta &amp; Absorption</span>
+            <span>Tick Direction Attribution</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\text{CVD}_T = \sum_{t=1}^T \left( V_{t, \text{aggr\_buy}} - V_{t, \text{aggr\_sell}} \right), \quad \text{Absorption Ratio} = \frac{|\Delta \text{CVD}|}{\Delta P \times \text{ADV}}$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Every transaction requires one aggressive party (crossing the spread) and one passive party (resting on the DOM). If huge market sell orders hit the tape but the price does not move down, an institutional buyer is "absorbing" the dumping via hidden iceberg orders. Rising CVD with stagnant price flags passive seller absorption (distribution).
+          </div>
+        </div>
+
+        <!-- CVD Momentum & Absorption Status Strip -->
+        <div class="hft-cvd-strip">
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Cumulative Volume Delta</span>
+            <span id="cvdMetricVal" class="hft-cvd-val" style="color:#10b981;">+4,850 Shs</span>
+          </div>
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Aggressive Buy %</span>
+            <span id="cvdAggrBuyPct" class="hft-cvd-val" style="color:#22d3ee;">58.4%</span>
+          </div>
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Absorption State</span>
+            <span id="cvdAbsorptionState" class="hft-cvd-val" style="color:#10b981; font-size:0.75rem;">PASSIVE BUY ABSORPTION</span>
+          </div>
+        </div>
+
+        <!-- Tape Filter Bar -->
+        <div class="hft-tape-filter-bar">
+          <span style="font-size:0.7rem; color:var(--hft-text-muted); font-weight:700;">FILTER:</span>
+          <button class="hft-filter-btn active" data-filter="all">All Prints</button>
+          <button class="hft-filter-btn" data-filter="large">&gt; 250 Shs</button>
+          <button class="hft-filter-btn" data-filter="block">&gt; 1,000 Shs (Block Deals)</button>
+        </div>
+
+        <!-- Scrolling Microsecond Tape Container -->
+        <div class="hft-tape-table-wrap">
+          <table class="hft-tape-table" aria-label="Live Time and Sales Tape">
+            <thead>
+              <tr>
+                <th>TIMESTAMP (µs)</th>
+                <th>TICKER</th>
+                <th>SIDE</th>
+                <th>PRICE</th>
+                <th>QTY</th>
+                <th>VENUE</th>
+                <th>TYPE</th>
+              </tr>
+            </thead>
+            <tbody id="hftTapeTableBody">
+              <!-- Live trades dynamically prepended here -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 6: MICROSECOND LATENCY ARBITRAGE & CO-LOCATION SIMULATOR
+           ==================================================================== -->
+      <section class="hft-card" id="wsLatencyArb" aria-label="Microsecond Latency Arbitrage & Co-Location Simulator">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-microchip" style="color:var(--hft-purple);"></i>
+            Microsecond Latency Arbitrage &amp; Co-Location Simulator
+          </div>
+          <span class="hft-card-tag" style="border-color:rgba(168,85,247,0.3); color:#a855f7;">Speed-of-Light in Silicon</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Propagation Delay &amp; Race-to-Book</span>
+            <span>Refractive Index Physics</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\tau_{\text{prop}} = \frac{2 \cdot d}{c / n_{\text{medium}}} + \tau_{\text{FPGA\_tick-to-trade}}, \quad P(\text{Arb Win}) = \Phi\left(\frac{\Delta \tau_{\text{advantage}}}{\sigma_{\text{jitter}}}\right)$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Light travels through air (microwave) 31% faster than through glass fiber cables. When a price shock hits the primary exchange (e.g. CME in Chicago), microwave towers beam the signal to NJ in 7.8 ms while fiber takes 11.5 ms. The microwave firm arrives first, snatches the stale quotes on the book, and pockets arbitrage profit before retail can even see the price change.
+          </div>
+        </div>
+
+        <!-- Route & Distance Selector -->
+        <div class="hft-route-strip">
+          <div class="hft-form-group">
+            <label for="selectLatencyRoute" class="hft-label">Exchange Transmission Route:</label>
+            <select id="selectLatencyRoute" class="hft-select">
+              <option value="mumbai">Mumbai BKC (Direct Co-Lo) ↔ Mumbai Colaba Data Center (1.2 km)</option>
+              <option value="chicago_ny" selected>Chicago CME (Aurora) ↔ New Jersey Carteret (1,180 km)</option>
+              <option value="london_frankfurt">London Slough (LD4) ↔ Frankfurt Equinix (FR2) (640 km)</option>
+              <option value="custom">Custom Physical Distance</option>
+            </select>
+          </div>
+
+          <div class="hft-form-group" style="flex:1;">
+            <label for="sliderDistanceKm" class="hft-label">One-Way Distance: <span id="valDistanceKm" style="color:var(--hft-cyan); font-weight:700;">1,180</span> km</label>
+            <input type="range" id="sliderDistanceKm" class="hft-range" min="1" max="1500" value="1180" step="1" />
+          </div>
+        </div>
+
+        <!-- Three-Way Propagation Comparison Cards -->
+        <div class="hft-latency-cards-grid">
+          <!-- Card A: Microwave Line of Sight -->
+          <div class="hft-latency-card" style="border-top:3px solid #10b981;">
+            <div class="hft-latency-card-header">
+              <span style="color:#10b981; font-weight:700;"><i class="fa-solid fa-tower-broadcast"></i> Microwave / Laser</span>
+              <span class="hft-latency-badge" style="background:rgba(16,185,129,0.2); color:#10b981;">TIER-1 HFT</span>
+            </div>
+            <div class="hft-latency-stat" id="statMicrowaveRtt">7.87 ms</div>
+            <div class="hft-latency-desc">Light in air (v = 299,700 km/s) + 450ns FPGA tick-to-trade</div>
+            <div class="hft-latency-meter">
+              <div id="meterMicrowave" class="hft-latency-fill" style="width:100%; background:#10b981;"></div>
+            </div>
+          </div>
+
+          <!-- Card B: Direct Fiber Optic Cable -->
+          <div class="hft-latency-card" style="border-top:3px solid #22d3ee;">
+            <div class="hft-latency-card-header">
+              <span style="color:#22d3ee; font-weight:700;"><i class="fa-solid fa-network-wired"></i> Direct Hollow Fiber</span>
+              <span class="hft-latency-badge" style="background:rgba(34,211,238,0.2); color:#22d3ee;">INSTITUTIONAL</span>
+            </div>
+            <div class="hft-latency-stat" id="statFiberRtt">11.56 ms</div>
+            <div class="hft-latency-desc">Light in silica core (v = 204,000 km/s) + 1.2µs switch hop</div>
+            <div class="hft-latency-meter">
+              <div id="meterFiber" class="hft-latency-fill" style="width:68%; background:#22d3ee;"></div>
+            </div>
+          </div>
+
+          <!-- Card C: Public Internet / Retail Web -->
+          <div class="hft-latency-card" style="border-top:3px solid #ef4444;">
+            <div class="hft-latency-card-header">
+              <span style="color:#ef4444; font-weight:700;"><i class="fa-solid fa-globe"></i> Public Retail Internet</span>
+              <span class="hft-latency-badge" style="background:rgba(239,68,68,0.2); color:#ef4444;">RETAIL WEB</span>
+            </div>
+            <div class="hft-latency-stat" id="statRetailRtt">48.20 ms</div>
+            <div class="hft-latency-desc">ISP routing, TCP handshake, OS network stack &amp; bufferbloat</div>
+            <div class="hft-latency-meter">
+              <div id="meterRetail" class="hft-latency-fill" style="width:16%; background:#ef4444;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Simulation Run Button & Interactive Outcome Display -->
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <button id="btnRunLatencyRace" class="hft-btn primary" style="background:linear-gradient(135deg, #a855f7 0%, #6366f1 100%);">
+              <i class="fa-solid fa-flag-checkered"></i> Run Speed-of-Light Race-to-Book Simulation
+            </button>
+            <span id="latencyArbitrageSpreadDisplay" style="font-size:0.75rem; color:var(--hft-cyan); font-family:var(--hft-font-mono);">
+              Stale Quote Discrepancy: ₹2.50 / $0.15 per Share
+            </span>
+          </div>
+          <div id="latencyRaceDetailedLog" class="hft-latency-race-log" style="display:none;"></div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 7: ALGORITHMIC EXECUTION SLICER (TWAP / VWAP / POV)
+           ==================================================================== -->
+      <section class="hft-card" id="wsAlgoSlicer" aria-label="Algorithmic Execution Slicer & Implementation Shortfall">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-chart-pie" style="color:var(--hft-amber);"></i>
+            Algorithmic Execution Slicer &amp; Implementation Shortfall
+          </div>
+          <span class="hft-card-tag" style="border-color:rgba(245,158,11,0.3); color:#f59e0b;">Almgren-Chriss Slicing Engine</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Implementation Shortfall &amp; Impact SDE</span>
+            <span>Arrival Price Benchmark</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\text{IS} = \sum_{k=1}^N \left( \bar{P}_k - P_0 \right) q_k + \text{Fees}, \quad \text{Impact}(v) = \gamma \frac{Q}{\text{ADV}} + \eta \left(\frac{v}{\text{ADV}}\right)^\alpha$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Dumping 50,000 shares in one go sweeps the book, driving price against you. Algorithmic slicers break the monster order into tiny bites. <strong>TWAP</strong> slices evenly across time; <strong>VWAP</strong> executes heavily at market open/close when volume is deepest; <strong>POV</strong> matches a steady percentage (e.g. 15%) of every tape print.
+          </div>
+        </div>
+
+        <!-- Slicer Configuration Form -->
+        <div class="hft-slicer-form-grid">
+          <div class="hft-form-group">
+            <label for="slicerParentQty" class="hft-label">Parent Block Size (Shares):</label>
+            <input type="number" id="slicerParentQty" class="hft-input" value="10000" min="100" max="1000000" step="500" />
+          </div>
+
+          <div class="hft-form-group">
+            <label for="slicerAlgoType" class="hft-label">Slicing Strategy Algorithm:</label>
+            <select id="slicerAlgoType" class="hft-select">
+              <option value="TWAP" selected>TWAP — Time-Weighted Average Price (Uniform Slices)</option>
+              <option value="VWAP">VWAP — Volume-Weighted Average Price (U-Curve Profile)</option>
+              <option value="POV">POV — Percentage of Volume (15% Tape Participation)</option>
+            </select>
+          </div>
+
+          <div class="hft-form-group">
+            <label for="slicerDurationSec" class="hft-label">Execution Horizon:</label>
+            <select id="slicerDurationSec" class="hft-select">
+              <option value="15">15 Seconds (Rapid Slicing)</option>
+              <option value="30" selected>30 Seconds (Standard Algo)</option>
+              <option value="60">60 Seconds (Passive Execution)</option>
+            </select>
+          </div>
+
+          <div class="hft-form-group" style="align-self:flex-end;">
+            <button id="btnStartSlicer" class="hft-btn primary" style="width:100%; background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+              <i class="fa-solid fa-play"></i> ▶ Start Real-Time Execution Slicer
+            </button>
+          </div>
+        </div>
+
+        <!-- Slicer Execution Telemetry & Progress Strip -->
+        <div class="hft-slicer-progress-wrap">
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; font-size:0.75rem; font-family:var(--hft-font-mono);">
+            <span>Execution Progress: <span id="slicerFilledQty" style="color:var(--hft-cyan); font-weight:700;">0</span> / <span id="slicerTotalQty">10,000</span> Shs</span>
+            <span>Arrival Price $P_0$: <span id="slicerArrivalPrice" style="color:#fff;">--</span></span>
+            <span>Average Fill: <span id="slicerAvgFill" style="color:#10b981; font-weight:700;">--</span></span>
+            <span>Shortfall: <span id="slicerShortfallBps" style="color:#f59e0b; font-weight:700;">0.0 bps</span></span>
+          </div>
+          <div class="hft-progress-bar-track">
+            <div id="slicerProgressBar" class="hft-progress-bar-fill" style="width:0%;"></div>
+          </div>
+        </div>
+
+        <!-- Slice Fill Log Table -->
+        <div class="hft-slice-table-wrap">
+          <table class="hft-tape-table" aria-label="Algorithmic Slices Executed">
+            <thead>
+              <tr>
+                <th>SLICE #</th>
+                <th>TIMESTAMP</th>
+                <th>ALGO</th>
+                <th>QTY</th>
+                <th>FILL PRICE</th>
+                <th>SLIPPAGE (bps)</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="slicerTableBody">
+              <tr>
+                <td colspan="7" style="text-align:center; color:var(--hft-text-muted); padding:16px;">
+                  Configure parameters above and click "▶ Start Real-Time Execution Slicer" to begin algorithmic child-order execution.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </div>
   </main>
 

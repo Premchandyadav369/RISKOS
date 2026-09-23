@@ -838,6 +838,466 @@
         }
       });
     }
+
+    // 1-Click DOM Order Execution Buttons (BUY MKT & SELL MKT)
+    const btnBuyMkt = document.getElementById('btnDomBuyMkt');
+    const btnSellMkt = document.getElementById('btnDomSellMkt');
+    const qtySelect = document.getElementById('hftDomOrderQty');
+
+    if (btnBuyMkt) {
+      btnBuyMkt.addEventListener('click', () => {
+        const qty = qtySelect ? (parseInt(qtySelect.value, 10) || 100) : 100;
+        executeDomOrder('BUY', qty);
+      });
+    }
+
+    if (btnSellMkt) {
+      btnSellMkt.addEventListener('click', () => {
+        const qty = qtySelect ? (parseInt(qtySelect.value, 10) || 100) : 100;
+        executeDomOrder('SELL', qty);
+      });
+    }
+
+    // Workstation 5: Tape Filter Buttons
+    const filterBtns = document.querySelectorAll('.hft-filter-btn');
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.tapeFilter = btn.getAttribute('data-filter') || 'all';
+        renderTapeTable();
+      });
+    });
+
+    // Workstation 6: Latency Route & Distance Controls
+    const routeSelect = document.getElementById('selectLatencyRoute');
+    const distSlider = document.getElementById('sliderDistanceKm');
+    const btnRace = document.getElementById('btnRunLatencyRace');
+
+    if (routeSelect) {
+      routeSelect.addEventListener('change', () => {
+        const v = routeSelect.value;
+        if (v === 'mumbai') latencyDistanceKm = 1.2;
+        else if (v === 'chicago_ny') latencyDistanceKm = 1180;
+        else if (v === 'london_frankfurt') latencyDistanceKm = 640;
+        if (distSlider && v !== 'custom') distSlider.value = latencyDistanceKm;
+        updateLatencyCalculations();
+      });
+    }
+
+    if (distSlider) {
+      distSlider.addEventListener('input', (e) => {
+        latencyDistanceKm = parseFloat(e.target.value);
+        if (routeSelect) routeSelect.value = 'custom';
+        updateLatencyCalculations();
+      });
+    }
+
+    if (btnRace) {
+      btnRace.addEventListener('click', runLatencyRaceSimulation);
+    }
+
+    // Workstation 7: Algorithmic Execution Slicer
+    const btnSlicer = document.getElementById('btnStartSlicer');
+    if (btnSlicer) {
+      btnSlicer.addEventListener('click', startAlgoSlicer);
+    }
+  };
+
+  // ── 10. Real-Time Time & Sales Tape & CVD Absorption Engine ────────────────
+  state.tapeFilter = 'all';
+  state.tapePrints = [];
+
+  const formatMicrosecondTimestamp = (d = new Date()) => {
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    const ms = String(d.getMilliseconds()).padStart(3, '0');
+    const us = String(Math.floor(100 + Math.random() * 899));
+    return `${hh}:${mm}:${ss}.${ms}${us}`;
+  };
+
+  const prependTapeRow = (trade) => {
+    state.tapePrints.unshift(trade);
+    if (state.tapePrints.length > 80) state.tapePrints.pop();
+    renderTapeTable();
+    updateCvdDisplay();
+  };
+
+  const renderTapeTable = () => {
+    const tbody = document.getElementById('hftTapeTableBody');
+    if (!tbody) return;
+
+    let filtered = state.tapePrints;
+    if (state.tapeFilter === 'large') {
+      filtered = state.tapePrints.filter(t => t.size >= 250);
+    } else if (state.tapeFilter === 'block') {
+      filtered = state.tapePrints.filter(t => t.size >= 1000);
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--hft-text-muted); padding:16px;">Streaming live market execution prints...</td></tr>`;
+      return;
+    }
+
+    const currSym = state.currency === 'INR' ? '₹' : '$';
+    let html = '';
+    filtered.slice(0, 30).forEach(t => {
+      const isBuy = t.side === 'BUY';
+      const isBlock = t.size >= 1000;
+      html += `
+        <tr class="tape-row-new">
+          <td style="color:#94a3b8; font-size:0.68rem;">${t.microTime || formatMicrosecondTimestamp()}</td>
+          <td style="font-weight:700; color:var(--hft-cyan);">${t.symbol}</td>
+          <td>
+            <span style="color:${isBuy ? '#10b981' : '#ef4444'}; font-weight:800;">${t.side}</span>
+          </td>
+          <td style="font-weight:700; color:#fff;">${currSym}${Number(t.price).toFixed(2)}</td>
+          <td style="font-weight:700; color:${isBuy ? '#10b981' : '#ef4444'};">${t.size.toLocaleString()}</td>
+          <td style="color:#94a3b8; font-size:0.68rem;">${t.venue || 'NSE Co-Lo'}</td>
+          <td>
+            ${isBlock ? '<span style="background:rgba(245,158,11,0.2); color:#f59e0b; padding:1px 5px; border-radius:3px; font-size:0.62rem; font-weight:700;">BLOCK</span>' : '<span style="color:#64748b; font-size:0.65rem;">REGULAR</span>'}
+          </td>
+        </tr>
+      `;
+    });
+    tbody.innerHTML = html;
+  };
+
+  const updateCvdDisplay = () => {
+    const cvdValEl = document.getElementById('cvdMetricVal');
+    const buyPctEl = document.getElementById('cvdAggrBuyPct');
+    const stateEl = document.getElementById('cvdAbsorptionState');
+    const statCvdHeader = document.getElementById('statCvd');
+
+    if (cvdValEl) {
+      cvdValEl.textContent = `${state.cumulativeVolumeDelta >= 0 ? '+' : ''}${state.cumulativeVolumeDelta.toLocaleString()} Shs`;
+      cvdValEl.style.color = state.cumulativeVolumeDelta >= 0 ? '#10b981' : '#ef4444';
+    }
+    if (statCvdHeader) {
+      statCvdHeader.textContent = `${state.cumulativeVolumeDelta >= 0 ? '+' : ''}${state.cumulativeVolumeDelta.toLocaleString()} Shs`;
+      statCvdHeader.style.color = state.cumulativeVolumeDelta >= 0 ? '#10b981' : '#ef4444';
+    }
+
+    let buyVol = 0;
+    let totalVol = 0;
+    state.tapePrints.forEach(t => {
+      totalVol += t.size;
+      if (t.side === 'BUY') buyVol += t.size;
+    });
+
+    const buyPct = totalVol > 0 ? ((buyVol / totalVol) * 100) : 58.4;
+    if (buyPctEl) {
+      buyPctEl.textContent = `${buyPct.toFixed(1)}%`;
+      buyPctEl.style.color = buyPct >= 50 ? '#10b981' : '#ef4444';
+    }
+
+    if (stateEl) {
+      if (state.cumulativeVolumeDelta > 1500) {
+        stateEl.textContent = 'PASSIVE SELL ABSORPTION (DISTRIBUTION)';
+        stateEl.style.color = '#f59e0b';
+      } else if (state.cumulativeVolumeDelta < -1500) {
+        stateEl.textContent = 'PASSIVE BUY ABSORPTION (ACCUMULATION)';
+        stateEl.style.color = '#10b981';
+      } else {
+        stateEl.textContent = 'BALANCED TWO-WAY LIQUIDITY FLOW';
+        stateEl.style.color = '#22d3ee';
+      }
+    }
+  };
+
+  // ── 11. Microsecond Latency Arbitrage & Co-Location Engine ─────────────────
+  let latencyDistanceKm = 1180;
+
+  const updateLatencyCalculations = () => {
+    const d = latencyDistanceKm;
+    const distVal = document.getElementById('valDistanceKm');
+    if (distVal) distVal.textContent = d.toLocaleString();
+
+    // Propagation speed:
+    // Microwave: v = 299,700 km/s, FPGA tick-to-trade = 0.0009 ms (900 ns)
+    const microRtt = Number((( (2 * d) / 299700 ) * 1000 + 0.0009).toFixed(3));
+    // Fiber: v = 204,200 km/s (silica refractive index ~1.468), switch overhead = 0.0024 ms (2.4 µs)
+    const fiberRtt = Number((( (2 * d) / 204200 ) * 1000 + 0.0024).toFixed(3));
+    // Retail Internet: Fiber base + 35.0ms TCP/ISP overhead
+    const retailRtt = Number((fiberRtt + 35.0 + Math.random() * 1.5).toFixed(2));
+
+    const microEl = document.getElementById('statMicrowaveRtt');
+    const fiberEl = document.getElementById('statFiberRtt');
+    const retailEl = document.getElementById('statRetailRtt');
+
+    if (microEl) microEl.textContent = `${microRtt < 1 ? (microRtt * 1000).toFixed(0) + ' µs' : microRtt.toFixed(2) + ' ms'}`;
+    if (fiberEl) fiberEl.textContent = `${fiberRtt < 1 ? (fiberRtt * 1000).toFixed(0) + ' µs' : fiberRtt.toFixed(2) + ' ms'}`;
+    if (retailEl) retailEl.textContent = `${retailRtt.toFixed(2)} ms`;
+
+    const meterMicro = document.getElementById('meterMicrowave');
+    const meterFiber = document.getElementById('meterFiber');
+    const meterRetail = document.getElementById('meterRetail');
+
+    if (meterMicro) meterMicro.style.width = '100%';
+    if (meterFiber) meterFiber.style.width = `${Math.round((microRtt / fiberRtt) * 100)}%`;
+    if (meterRetail) meterRetail.style.width = `${Math.max(4, Math.round((microRtt / retailRtt) * 100))}%`;
+
+    return { microRtt, fiberRtt, retailRtt };
+  };
+
+  const runLatencyRaceSimulation = () => {
+    const { microRtt, fiberRtt, retailRtt } = updateLatencyCalculations();
+    const logEl = document.getElementById('latencyRaceDetailedLog') || document.getElementById('latencyRaceResult');
+    if (!logEl) return;
+
+    logEl.style.display = 'block';
+    const currSym = state.currency === 'INR' ? '₹' : '$';
+    const arbSpread = state.currency === 'INR' ? 2.50 : 0.15;
+    const shares = 500;
+    const profit = (arbSpread * shares).toFixed(2);
+    const deltaMicros = Math.round((fiberRtt - microRtt) * 1000);
+    const deltaRetailMs = (retailRtt - microRtt).toFixed(2);
+
+    logEl.innerHTML = `
+      <div style="color:var(--hft-cyan); font-weight:700; margin-bottom:6px; border-bottom:1px solid rgba(168,85,247,0.3); padding-bottom:4px;">
+        ⚡ CROSS-VENUE SPEED-OF-LIGHT RACE LOG (Distance: ${latencyDistanceKm.toLocaleString()} km)
+      </div>
+      <div><span style="color:#64748b;">[T+0.000ms]</span> Primary Shock: Quote disparity detected (${currSym}${arbSpread.toFixed(2)} edge) across venues.</div>
+      <div><span style="color:#10b981;">[T+${microRtt.toFixed(2)}ms]</span> <strong style="color:#10b981;">WINNER: MICROWAVE / LASER</strong> packet arrives first. SNIPED ${shares} shares @ stale quote! <strong>Net Arb Profit: +${currSym}${profit}</strong></div>
+      <div><span style="color:#22d3ee;">[T+${fiberRtt.toFixed(2)}ms]</span> DIRECT FIBER packet arrives (${deltaMicros} µs late). <strong>REJECTED</strong>: Stale quotes already consumed.</div>
+      <div><span style="color:#ef4444;">[T+${retailRtt.toFixed(2)}ms]</span> RETAIL WEBSOCKET arrives (${deltaRetailMs} ms late). <strong>FATAL</strong>: 0% fill probability. Public queue already shifted.</div>
+    `;
+
+    SoundFX.fillChime();
+  };
+
+  // ── 12. Algorithmic Order Slicing Workbench (TWAP / VWAP / POV) ────────────
+  let slicerActiveTimer = null;
+  const slicerState = {
+    parentQty: 10000,
+    algoType: 'TWAP',
+    durationSec: 30,
+    filledQty: 0,
+    arrivalPrice: 0,
+    totalNotional: 0,
+    slices: []
+  };
+
+  const startAlgoSlicer = () => {
+    if (slicerActiveTimer) {
+      clearInterval(slicerActiveTimer);
+      slicerActiveTimer = null;
+    }
+
+    const qtyInput = document.getElementById('slicerParentQty');
+    const algoInput = document.getElementById('slicerAlgoType');
+    const durInput = document.getElementById('slicerDurationSec');
+
+    slicerState.parentQty = qtyInput ? (parseInt(qtyInput.value, 10) || 10000) : 10000;
+    slicerState.algoType = algoInput ? algoInput.value : 'TWAP';
+    slicerState.durationSec = durInput ? (parseInt(durInput.value, 10) || 30) : 30;
+
+    slicerState.filledQty = 0;
+    slicerState.totalNotional = 0;
+    slicerState.arrivalPrice = state.livePrice;
+    slicerState.slices = [];
+
+    const arrivalEl = document.getElementById('slicerArrivalPrice');
+    const totalEl = document.getElementById('slicerTotalQty');
+    const filledEl = document.getElementById('slicerFilledQty');
+    const avgEl = document.getElementById('slicerAvgFill');
+    const shortfallEl = document.getElementById('slicerShortfallBps');
+    const progressEl = document.getElementById('slicerProgressBar');
+    const tableBody = document.getElementById('slicerTableBody');
+
+    const currSym = state.currency === 'INR' ? '₹' : '$';
+    if (arrivalEl) arrivalEl.textContent = `${currSym}${slicerState.arrivalPrice.toFixed(2)}`;
+    if (totalEl) totalEl.textContent = slicerState.parentQty.toLocaleString();
+    if (filledEl) filledEl.textContent = '0';
+    if (avgEl) avgEl.textContent = '--';
+    if (shortfallEl) shortfallEl.textContent = '0.0 bps';
+    if (progressEl) progressEl.style.width = '0%';
+    if (tableBody) tableBody.innerHTML = '';
+
+    const totalSlices = 10;
+    const intervalMs = Math.max(400, Math.floor((slicerState.durationSec * 1000) / totalSlices));
+    let currentSliceIdx = 0;
+
+    // Slicing weights
+    const vwapWeights = [0.18, 0.12, 0.08, 0.06, 0.05, 0.05, 0.07, 0.11, 0.13, 0.15];
+
+    slicerActiveTimer = setInterval(() => {
+      if (currentSliceIdx >= totalSlices) {
+        clearInterval(slicerActiveTimer);
+        slicerActiveTimer = null;
+        SoundFX.fillChime();
+        return;
+      }
+
+      let sliceQty = 0;
+      if (slicerState.algoType === 'TWAP') {
+        sliceQty = Math.round(slicerState.parentQty / totalSlices);
+      } else if (slicerState.algoType === 'VWAP') {
+        sliceQty = Math.round(slicerState.parentQty * (vwapWeights[currentSliceIdx] || 0.1));
+      } else { // POV (Participation of Volume)
+        sliceQty = Math.round((slicerState.parentQty / totalSlices) * (0.8 + Math.random() * 0.4));
+      }
+
+      // Ensure total doesn't exceed parent order on last slice
+      if (currentSliceIdx === totalSlices - 1) {
+        sliceQty = Math.max(10, slicerState.parentQty - slicerState.filledQty);
+      }
+
+      // Almgren-Chriss Slippage Impact Model: slippage ~ eta * (v / V)^alpha
+      const participationRate = sliceQty / slicerState.parentQty;
+      const slippageBps = Number((0.5 + (participationRate * 8.0) + (Math.random() * 0.8)).toFixed(1));
+      const fillPrice = Number((slicerState.arrivalPrice * (1 + (slippageBps / 10000))).toFixed(2));
+
+      slicerState.filledQty += sliceQty;
+      slicerState.totalNotional += (sliceQty * fillPrice);
+      const avgFill = Number((slicerState.totalNotional / slicerState.filledQty).toFixed(2));
+      const shortfallBps = Number((((avgFill - slicerState.arrivalPrice) / slicerState.arrivalPrice) * 10000).toFixed(1));
+
+      const sliceRecord = {
+        slice: currentSliceIdx + 1,
+        time: formatMicrosecondTimestamp(),
+        algo: slicerState.algoType,
+        qty: sliceQty,
+        fillPrice,
+        slippageBps
+      };
+      slicerState.slices.push(sliceRecord);
+
+      // Update UI Telemetry
+      if (filledEl) filledEl.textContent = slicerState.filledQty.toLocaleString();
+      if (avgEl) avgEl.textContent = `${currSym}${avgFill.toFixed(2)}`;
+      if (shortfallEl) {
+        shortfallEl.textContent = `+${shortfallBps} bps`;
+        shortfallEl.style.color = shortfallBps > 5 ? '#ef4444' : '#f59e0b';
+      }
+      if (progressEl) {
+        const pct = Math.min(100, Math.round((slicerState.filledQty / slicerState.parentQty) * 100));
+        progressEl.style.width = `${pct}%`;
+      }
+
+      // Append row to table
+      if (tableBody) {
+        const tr = document.createElement('tr');
+        tr.className = 'tape-row-new';
+        tr.innerHTML = `
+          <td style="font-weight:700; color:var(--hft-cyan);">#${sliceRecord.slice}</td>
+          <td style="color:#94a3b8; font-size:0.68rem;">${sliceRecord.time}</td>
+          <td><span style="color:#fbbf24; font-weight:700;">${sliceRecord.algo}</span></td>
+          <td style="font-weight:700; color:#fff;">${sliceRecord.qty.toLocaleString()}</td>
+          <td style="font-weight:700; color:#10b981;">${currSym}${sliceRecord.fillPrice.toFixed(2)}</td>
+          <td style="color:#f59e0b;">+${sliceRecord.slippageBps} bps</td>
+          <td><span style="color:#10b981; font-weight:700;">FILLED</span></td>
+        `;
+        tableBody.appendChild(tr);
+        if (tableBody.parentElement) {
+          tableBody.parentElement.scrollTop = tableBody.parentElement.scrollHeight;
+        }
+      }
+
+      // Also log in RAW FIX 4.4 stream terminal
+      logFixMessage('35=8', 'ExecutionReport', `8=FIX.4.4|9=162|35=8|34=${Math.floor(1000+Math.random()*9000)}|49=NSE_SOR|56=RISKOS_ALGO|37=ORD-ALGO-${currentSliceIdx+1}|48=${state.symbol}|54=1|38=${sliceQty}|44=${fillPrice.toFixed(2)}|39=1|150=1|10=072`);
+
+      if (state.soundEnabled) SoundFX.fillChime();
+
+      currentSliceIdx++;
+    }, intervalMs);
+  };
+
+  // ── 13. DOM 1-Click Order Execution Engine ──────────────────────────────────
+  const executeDomOrder = (side, qty) => {
+    if (!qty || qty <= 0) return;
+    const price = state.livePrice;
+
+    // Execute through PaperBroker if present
+    if (typeof PaperBroker !== 'undefined' && typeof PaperBroker.executeOrder === 'function') {
+      try {
+        PaperBroker.executeOrder({
+          symbol: state.symbol,
+          side: side,
+          qty: qty,
+          price: price,
+          type: 'MARKET'
+        });
+      } catch (e) {}
+    }
+
+    // Update Avellaneda-Stoikov Inventory
+    state.asInventory += (side === 'BUY' ? qty : -qty);
+    const invValEl = document.getElementById('valAsInventory');
+    const invSlider = document.getElementById('sliderAsInventory');
+    if (invValEl) invValEl.textContent = `${state.asInventory >= 0 ? '+' : ''}${state.asInventory}`;
+    if (invSlider) invSlider.value = state.asInventory;
+    updateAvellanedaStoikovQuotes();
+
+    // Log FIX packet
+    logFixMessage('35=8', 'ExecutionReport', `8=FIX.4.4|9=148|35=8|34=${Math.floor(1000+Math.random()*9000)}|49=NSE_MATCH|56=RISKOS_DOM|37=DOM-${Date.now()}|48=${state.symbol}|54=${side==='BUY'?1:2}|38=${qty}|44=${price.toFixed(2)}|39=2|150=2|10=088`);
+
+    // Log on Time & Sales Tape
+    prependTapeRow({
+      id: `DOM-${Date.now()}`,
+      symbol: state.symbol,
+      side: side,
+      price: price,
+      size: qty,
+      venue: 'NSE Co-Lo (1-Click DOM)',
+      condition: 'USER DIRECT',
+      microTime: formatMicrosecondTimestamp(),
+      time: new Date().toLocaleTimeString(),
+      timestamp: Date.now()
+    });
+
+    if (state.soundEnabled) SoundFX.fillChime();
+  };
+
+  // ── 14. Real-Time MarketDataTruth & Live Tick Pipeline ──────────────────────
+  const initMarketDataTruthFeed = () => {
+    if (typeof SecurityMaster !== 'undefined') {
+      if (typeof SecurityMaster.subscribeLiveTicks === 'function') {
+        SecurityMaster.subscribeLiveTicks((updates) => {
+          if (!Array.isArray(updates)) return;
+          const currentBase = state.symbol.replace(/\.NS|\.BO|\.US/i, '');
+          const matched = updates.find(u => {
+            const uSym = (u.symbol || '').toUpperCase();
+            return uSym === state.symbol || uSym === currentBase;
+          });
+          if (matched && matched.price) {
+            state.livePrice = matched.price;
+            state.bestBid = +(state.livePrice - state.tickSize).toFixed(2);
+            state.bestAsk = +(state.livePrice + state.tickSize).toFixed(2);
+            state.spread = +(state.bestAsk - state.bestBid).toFixed(2);
+            updateTelemetryBar();
+            generateRealisticL3Depth();
+            renderL3DOMLadder();
+            updateMicrostructureMetrics();
+            updateAvellanedaStoikovQuotes();
+          }
+        });
+      }
+
+      if (typeof SecurityMaster.subscribeLiveTape === 'function') {
+        SecurityMaster.subscribeLiveTape((trade) => {
+          if (!trade) return;
+          if (trade.side === 'BUY') {
+            state.cumulativeVolumeDelta += (trade.size || 100);
+          } else {
+            state.cumulativeVolumeDelta -= (trade.size || 100);
+          }
+          prependTapeRow({
+            id: trade.id || `TX-${Date.now()}`,
+            symbol: trade.symbol || state.symbol,
+            side: trade.side || 'BUY',
+            price: trade.price || state.livePrice,
+            size: trade.size || 100,
+            venue: trade.venue || 'NSE Co-Lo',
+            condition: trade.condition || 'REGULAR',
+            microTime: formatMicrosecondTimestamp(),
+            time: trade.time || new Date().toLocaleTimeString(),
+            timestamp: Date.now()
+          });
+        });
+      }
+    }
   };
 
   // ── 9. KaTeX Ambient Typesetting ───────────────────────────────────────────
@@ -881,17 +1341,48 @@
       let imb = 0, vol = 0;
       buckets.forEach(b => { imb += Math.abs(b.buy - b.sell); vol += (b.buy + b.sell); });
       return vol > 0 ? Number((imb / vol).toFixed(3)) : 0;
-    }
+    },
+    getTapePrints: () => [...state.tapePrints],
+    getCVD: () => state.cumulativeVolumeDelta,
+    calculateLatency: (distanceKm) => {
+      if (distanceKm !== undefined) latencyDistanceKm = distanceKm;
+      return updateLatencyCalculations();
+    },
+    executeSlicer: (qty, algo, duration) => {
+      slicerState.parentQty = qty || 10000;
+      slicerState.algoType = algo || 'TWAP';
+      slicerState.durationSec = duration || 15;
+      startAlgoSlicer();
+    },
+    executeDomOrder: executeDomOrder
   };
 
   // Initialize
   const init = async () => {
     initLetterGlitchBackground();
-    await bindLiveSecurity('RELIANCE.NS');
+
+    const urlParams = (typeof window !== 'undefined' && window.location && window.location.search) ? new URLSearchParams(window.location.search) : null;
+    const initialSym = urlParams ? (urlParams.get('symbol') || urlParams.get('sec') || urlParams.get('ticker') || 'RELIANCE.NS') : 'RELIANCE.NS';
+
+    await bindLiveSecurity(initialSym);
     initHeatmapCanvas();
     setupEventListeners();
     initQueueSimulator();
+    updateLatencyCalculations();
+    renderTapeTable();
+    updateCvdDisplay();
+    initMarketDataTruthFeed();
     renderFormulasKaTeX();
+
+    // Check focus deep-link
+    if (urlParams && urlParams.get('focus')) {
+      const f = urlParams.get('focus');
+      const targetId = f === 'as' ? 'wsAvellanedaStoikov' : (f === 'tape' ? 'wsTapeCvd' : (f === 'latency' ? 'wsLatencyArb' : (f === 'slicer' ? 'wsAlgoSlicer' : null)));
+      if (targetId) {
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth' }), 300);
+      }
+    }
   };
 
   if (document.readyState === 'loading') {

@@ -543,9 +543,14 @@
               <span class="param-tag"><i class="fa-solid fa-bolt"></i> Latency: &lt; 500&mu;s</span>
               <span class="param-tag"><i class="fa-solid fa-shield"></i> Max Inventory: &plusmn;500</span>
             </div>
-            <button class="strat-launch-btn" data-module-id="avellaneda_stoikov" style="border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
-              <i class="fa-solid fa-flask"></i> Launch Avellaneda-Stoikov Lab
-            </button>
+            <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+              <button class="strat-launch-btn" data-module-id="avellaneda_stoikov" style="flex: 1; border-color: rgba(6, 182, 212, 0.4); color: #06b6d4;">
+                <i class="fa-solid fa-flask"></i> Launch Lab
+              </button>
+              <a href="hft.html?symbol=RELIANCE.NS&focus=as" class="strat-launch-btn" style="flex: 1; border-color: rgba(34, 211, 238, 0.5); background: rgba(34, 211, 238, 0.12); color: #22d3ee; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+                <i class="fa-solid fa-bolt-lightning"></i> Live HFT Desk &rarr;
+              </a>
+            </div>
           </div>
 
           <!-- Card 4: 0DTE GEX Pinning -->
@@ -656,6 +661,9 @@
             <button class="strat-pill-btn" data-strat="gex_pinning" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">0DTE GEX Pinning</button>
             <button class="strat-pill-btn" data-strat="basis_carry" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Futures Basis Carry</button>
             <button class="strat-pill-btn" data-strat="hawkes" style="background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.08); padding: 5px 10px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">Hawkes Cascades</button>
+            <a href="hft.html" style="background: rgba(34,211,238,0.15); color: #22d3ee; border: 1px solid rgba(34,211,238,0.4); padding: 5px 12px; border-radius: 6px; font-size: 0.72rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;" title="Open Dedicated Institutional High-Frequency Trading Desk">
+              <i class="fa-solid fa-bolt-lightning"></i> Dedicated HFT Desk &rarr;
+            </a>
           </div>
         </div>
 

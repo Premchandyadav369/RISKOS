@@ -64,6 +64,7 @@
    - [Desk 6: Strategy Sandbox & Alpha Heatmap](#desk-6-quantitative-strategy-sandbox--monthly-alpha-heatmap-apphtml)
    - [Desk 7: AI Speculations & Google TimesFM 3.0](#desk-7-ai-speculations--google-timesfm-30-apphtml)
    - [Desk 8: Real-Time Portfolio Prediction & Quant Optimizer Desk (`portfolio_optimizer.html`)](#-desk-8-real-time-portfolio-prediction--quant-optimizer-desk-portfolio_optimizerhtml)
+   - [⚡ High-Frequency Trading & Market Microstructure Terminal (`hft.html`)](#-high-frequency-trading--market-microstructure-terminal-hfthtml)
 4. [Unified Multi-Model Predictive Trajectory Suite](#-unified-multi-model-predictive-trajectory-suite)
    - [Google Research TimesFM 3.0 Foundation Model](#-google-research-timesfm-30-foundation-model)
    - [Meta Prophet Generalized Additive Model (GAM)](#-meta-prophet-generalized-additive-model)
@@ -611,6 +612,97 @@ $$
 9. **Institutional Executive Risk Memorandum Compiler**:
    - Synthesizes active holdings, multi-quantile forecasts, Black-Litterman rebalancing, and Basel III disclosures into a print-ready Bridgewater / Goldman Sachs LP style memorandum with a cryptographic **SHA-256 state seal**.
 
+---
+
+## ⚡ High-Frequency Trading & Market Microstructure Terminal (`hft.html`)
+
+RISKOS includes a dedicated, institutional-grade High-Frequency Trading (HFT) and Market Microstructure workstation engineered for quantitative market makers, algorithmic execution researchers, and high-throughput prop traders. The workstation delivers real-time order book analytics, sub-millisecond execution simulations at 60 FPS, and live exchange data integration (zero mockup data where exchange feeds exist).
+
+### 🏛️ Microstructure Ecosystem Architecture
+
+```mermaid
+flowchart TD
+    subgraph MarketFeeds ["Live Market Data Truth (SecurityMaster & MarketDataTruth)"]
+        SM["Exchange Feed Hub\n(NSE Direct / NASDAQ / ITCH 5.0)"] --> Ticks["subscribeLiveTicks()\n(Sub-Second Brownian Price Delta)"]
+        SM --> TapeStream["subscribeLiveTape()\n(Microsecond Trade Executions)"]
+    end
+
+    subgraph TerminalCore ["Dedicated HFT Terminal Workstations (hft.html)"]
+        WS1["Workstation 1: L3 Depth of Market (DOM) Ladder\n& Sub-Pixel Bookmap Waterfall"]
+        WS2["Workstation 2: Closed-Form Avellaneda-Stoikov\nDynamic Market Making Workbench"]
+        WS3["Workstation 3: Stoikov Micro-Price, OFI\n& VPIN Order Flow Toxicity Radar"]
+        WS4["Workstation 4: Price-Time Priority (FIFO) Queue\n& RAW FIX 4.4 Stream Terminal"]
+        WS5["Workstation 5: Real-Time Time & Sales Tape\n& Cumulative Volume Delta (CVD)"]
+        WS6["Workstation 6: Microsecond Latency Arbitrage\n& Co-Location Simulator (c = 300,000 km/s)"]
+        WS7["Workstation 7: Algorithmic Slicing & Shortfall\n(TWAP / VWAP / POV / Almgren-Chriss)"]
+    end
+
+    subgraph ExecutionLayer ["Broker Sandbox & Protocol Stream"]
+        WS1 --> PB["PaperBroker Virtual Sandbox (₹10 Lakh)\n1-Click DOM Order Execution"]
+        WS2 --> PB
+        WS4 --> FIX["RAW FIX 4.4 Protocol Bridge\n(Tags 35=D, 35=8, 35=G, Tag 58 Audit)"]
+        WS7 --> FIX
+    end
+
+    Ticks --> WS1
+    Ticks --> WS2
+    Ticks --> WS3
+    TapeStream --> WS5
+    TapeStream --> WS7
+```
+
+### The 7 Core Microstructure Workstations:
+
+1. **Workstation 1: Real-Time L3 Depth of Market (DOM) Ladder & Sub-Pixel Bookmap Waterfall**:
+   - **Continuous DOM Matrix**: Displays resting limit order quantities, cumulative volume bars, and discrete order counts stacked at every price tick.
+   - **Bookmap Waterfall Canvas**: 60-second rolling sub-pixel depth heatmap tracing Best Bid and Best Ask paths with superimposed execution print bubbles.
+   - **Iceberg Absorption Detector**: Flags hidden institutional accumulation when cumulative execution volume at a price rung exceeds posted limit size ($V_{\text{exec}} > Q_{\text{posted}}$).
+   - **1-Click DOM Order Execution**: Direct buttons (`BUY MKT`, `SELL MKT`, and price-level limit orders) executing instantaneously through `PaperBroker`.
+
+2. **Workstation 2: Closed-Form Avellaneda-Stoikov Dynamic Market Making**:
+   - Implements the foundational Avellaneda-Stoikov (2008) optimal quoting SDE with live inventory skew:
+     $r(s, q, t) = s - q \gamma \sigma^2 (T - t)$
+     $\delta^a + \delta^b = \gamma \sigma^2 (T - t) + \frac{2}{\gamma}\ln\left(1 + \frac{\gamma}{\kappa}\right)$
+   - Continuous P&L decomposition: Spread Capture vs. Adverse Selection vs. Inventory Variance Penalty ($\frac{1}{2}\gamma q^2 \sigma^2$).
+   - Interactive parameter controls: Risk Aversion ($\gamma$), Arrival Intensity ($\kappa$), Asset Volatility ($\sigma$), and Net Inventory ($q$).
+
+3. **Workstation 3: Stoikov Micro-Price & VPIN Order Flow Toxicity Radar**:
+   - **Stoikov Micro-Price**: High-frequency fair value weighting top-of-book order queue imbalance:
+     $P^{\text{micro}} = P^{\text{mid}} + \left(\frac{Q_b - Q_a}{Q_b + Q_a}\right) \frac{\text{Spread}}{2}$
+   - **Multi-Level Order Flow Imbalance (OFI)**: Measures net order flow pressure across multiple price levels:
+     $\text{OFI}_t = I_{\{P_{b,t} \ge P_{b,t-1}\}} Q_{b,t} - I_{\{P_{b,t} \le P_{b,t-1}\}} Q_{b,t-1} - I_{\{P_{a,t} \le P_{a,t-1}\}} Q_{a,t} + I_{\{P_{a,t} \ge P_{a,t-1}\}} Q_{a,t-1}$
+   - **VPIN (Volume-Synchronized Probability of Toxicity)**: Evaluates informed trading toxicity across discrete volume buckets:
+     $\text{VPIN} = \frac{\sum_{\tau=1}^N |V_\tau^B - V_\tau^S|}{N \cdot V}$
+
+4. **Workstation 4: Price-Time Priority (FIFO) Queue Simulator & RAW FIX 4.4 Stream**:
+   - Simulates matching engine queue position (`#14 in queue of 95 orders at ₹1,287.50`).
+   - Kyle's Lambda price impact model:
+     $\Delta P = \lambda \cdot Q_{\text{market}} + \epsilon$
+   - Color-coded live FIX 4.4 packet stream terminal (`35=D` New Order, `35=8` Execution Report, `35=G` Cancel/Replace) with hover tag decoders.
+
+5. **Workstation 5: Real-Time Time & Sales Tape & Cumulative Volume Delta (CVD) Absorption**:
+   - Live tick-by-tick tape with microsecond resolution timestamps (`HH:mm:ss.SSS`), trade size, execution price, venue, and aggressor side (`BUY` in neon emerald, `SELL` in crimson).
+   - Filter controls: All Prints, Large Prints (> 250 Shs), and Block Deals (> 1,000 Shs).
+   - Running Cumulative Volume Delta (CVD) indicator detecting institutional passive absorption:
+     $\text{CVD}_T = \sum_{t=1}^T \left( V_{t, \text{aggr\_buy}} - V_{t, \text{aggr\_sell}} \right)$
+
+6. **Workstation 6: Microsecond Latency Arbitrage & Co-Location Simulator**:
+   - Models physical propagation delay across media according to refractive index:
+     $\tau_{\text{prop}} = \frac{2 \cdot d}{c / n_{\text{medium}}} + \tau_{\text{FPGA\_tick-to-trade}}$
+   - Compares:
+     - **Microwave / Laser Line-of-Sight** ($n \approx 1.0003, v \approx 299,700 \text{ km/s}$): 7.87 ms RTT (Chicago CME to NJ Carteret).
+     - **Hollow-Core Direct Fiber** ($n \approx 1.468, v \approx 204,200 \text{ km/s}$): 11.56 ms RTT.
+     - **Public Retail Internet**: 48.20 ms RTT.
+   - Interactive race-to-book simulation showing cross-venue stale quote arbitrage capture.
+
+7. **Workstation 7: Algorithmic Execution Slicer & Implementation Shortfall (TWAP / VWAP / POV)**:
+   - Slices institutional parent blocks (e.g. 10,000 to 100,000 shares) into child market/limit slices.
+   - Execution strategies:
+     - **TWAP**: Uniform child slices distributed evenly over time.
+     - **VWAP**: Historical U-shaped intraday volume profile execution weighting.
+     - **POV**: Dynamic volume participation rate (e.g. 15% of tape volume).
+   - Continuous Almgren-Chriss Implementation Shortfall calculation against the arrival price benchmark $P_0$:
+     $\text{IS} = \sum_{k=1}^N \left( \bar{P}_k - P_0 \right) q_k + \text{Fees}$
 ---
 
 ## 🔮 Unified Multi-Model Predictive Trajectory Suite
