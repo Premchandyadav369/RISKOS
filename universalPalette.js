@@ -70,7 +70,6 @@
     { id: 'act_prov', title: 'Inspect Market Data Truth & Provenance', desc: 'Verify exchange hours, live vs closed status, and provider feeds', category: 'Actions', badge: 'AUDIT', icon: 'fa-fingerprint', action: () => root.MarketDataTruth ? root.MarketDataTruth.openProvenanceModal('RELIANCE') : alert('MarketDataTruth active') },
     { id: 'act_sync', title: 'Sync Live Global Market Quotes', desc: 'Force refresh prices across global exchanges', category: 'Actions', badge: 'SYNC', icon: 'fa-bolt', action: () => document.getElementById('globalLiveSyncBtn')?.click() || (window.location.href='app.html') },
     { id: 'act_curr', title: 'Toggle Currency (INR ₹ / USD $)', desc: 'Switch baseline currency between Indian Rupee and US Dollar', category: 'Actions', badge: 'FX', icon: 'fa-coins', action: () => document.getElementById('currencyToggleBtn')?.click() || document.getElementById('currencyTogglePill')?.click() },
-    { id: 'act_hyperspeed', title: 'Hyperspeed WebGL Warp Drive Simulator (/hyperspeed)', desc: 'Interactive React Bits Three.js highway warp simulation with click-to-accelerate speedup', category: 'Actions', badge: 'REACT BITS', icon: 'fa-bolt', action: () => window.HyperspeedEngine ? window.HyperspeedEngine.openModal() : window.location.href='signup.html' },
     { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 80 labs, 41 autonomous bots, and live cross-asset desks.") }
   ];
 
@@ -260,9 +259,6 @@
         }
         if (slashQuery.includes('tear') || slashQuery.includes('sheet')) {
           matched.push(CATALOG.find(c => c.id === 'act_tear'));
-        }
-        if (slashQuery.includes('hyper') || slashQuery.includes('speed') || slashQuery.includes('warp')) {
-          matched.push(CATALOG.find(c => c.id === 'act_hyperspeed'));
         }
         if (slashQuery.includes('vip') || slashQuery.includes('secret') || slashQuery.includes('crush')) {
           matched.push(CATALOG.find(c => c.id === 'act_vip'));
