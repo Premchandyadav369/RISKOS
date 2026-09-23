@@ -175,6 +175,9 @@
     resetBboHistory();
     updateMicrostructureMetrics();
     updateAvellanedaStoikovQuotes();
+    if (typeof window !== 'undefined' && typeof window._updateBasisRadar === 'function') {
+      window._updateBasisRadar();
+    }
   };
 
   const updateTelemetryBar = () => {
@@ -1271,6 +1274,9 @@
             renderL3DOMLadder();
             updateMicrostructureMetrics();
             updateAvellanedaStoikovQuotes();
+            if (typeof window !== 'undefined' && typeof window._updateBasisRadar === 'function') {
+              window._updateBasisRadar();
+            }
           }
         });
       }
@@ -1300,7 +1306,319 @@
     }
   };
 
-  // ── 9. KaTeX Ambient Typesetting ───────────────────────────────────────────
+  // ── 15. WebAssembly (WASM) & C++ L3 Matching Engine Controller ────────────
+  const initWasmMatchingModule = async () => {
+    const wasmCore = (typeof window !== 'undefined') ? window.MatchingEngineWasm : null;
+    if (!wasmCore) return;
+
+    try {
+      await wasmCore.ready();
+    } catch (e) {
+      console.warn('[HFT] WASM core ready warning:', e.message);
+    }
+
+    const liveStatusEl = document.getElementById('wasmLiveStatus');
+    const throughputEl = document.getElementById('wasmThroughputVal');
+    const avgLatencyEl = document.getElementById('wasmAvgLatencyVal');
+    const p99LatencyEl = document.getElementById('wasmP99LatencyVal');
+
+    if (liveStatusEl) {
+      liveStatusEl.innerHTML = wasmCore.isWasmActive
+        ? '<i class="fa-solid fa-bolt"></i> WASM ACTIVE (204 bytes)'
+        : '<i class="fa-solid fa-code"></i> JS CORE ACTIVE';
+    }
+
+    const renderWasmBook = () => {
+      const depth = wasmCore.getDepth(8);
+      const bidsTbody = document.getElementById('wasmBidsTableBody');
+      const asksTbody = document.getElementById('wasmAsksTableBody');
+      const bestBidEl = document.getElementById('wasmBestBidDisplay');
+      const bestAskEl = document.getElementById('wasmBestAskDisplay');
+
+      if (bestBidEl) bestBidEl.textContent = `Best Bid: ${depth.bestBid ? depth.bestBid.toFixed(2) : '--'}`;
+      if (bestAskEl) bestAskEl.textContent = `Best Ask: ${depth.bestAsk ? depth.bestAsk.toFixed(2) : '--'}`;
+
+      if (bidsTbody) {
+        if (depth.bids.length === 0) {
+          bidsTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--hft-text-muted);">No resting bids</td></tr>';
+        } else {
+          bidsTbody.innerHTML = depth.bids.map(b => `
+            <tr>
+              <td style="color:#10b981; font-weight:700;">${b.price.toFixed(2)}</td>
+              <td>${b.qty.toLocaleString()}</td>
+              <td style="color:var(--hft-text-muted);">${b.orderCount}</td>
+            </tr>
+          `).join('');
+        }
+      }
+
+      if (asksTbody) {
+        if (depth.asks.length === 0) {
+          asksTbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--hft-text-muted);">No resting asks</td></tr>';
+        } else {
+          asksTbody.innerHTML = depth.asks.map(a => `
+            <tr>
+              <td style="color:#ef4444; font-weight:700;">${a.price.toFixed(2)}</td>
+              <td>${a.qty.toLocaleString()}</td>
+              <td style="color:var(--hft-text-muted);">${a.orderCount}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    };
+
+    const appendWasmTrade = (trade) => {
+      const feed = document.getElementById('wasmTradesFeed');
+      if (!feed) return;
+      const isBuy = trade.takerSide === 'BUY';
+      const row = document.createElement('div');
+      row.style.display = 'flex';
+      row.style.justifyContent = 'space-between';
+      row.style.borderBottom = '1px solid rgba(255,255,255,0.04)';
+      row.style.padding = '2px 0';
+      row.innerHTML = `
+        <span style="color:${isBuy ? '#10b981' : '#ef4444'}; font-weight:700;">
+          ${trade.takerSide} #${trade.tradeId}
+        </span>
+        <span>${trade.qty.toLocaleString()} Shs @ ${trade.price.toFixed(2)}</span>
+        <span style="color:var(--hft-text-muted); font-size:0.65rem;">
+          Maker: #${trade.makerOrderId} &rarr; Taker: #${trade.takerOrderId}
+        </span>
+      `;
+      feed.prepend(row);
+      while (feed.children.length > 25) {
+        feed.removeChild(feed.lastChild);
+      }
+    };
+
+    // Benchmark Launcher
+    const btnBenchmark = document.getElementById('btnRunWasmBenchmark');
+    if (btnBenchmark) {
+      btnBenchmark.addEventListener('click', () => {
+        const count = parseInt(document.getElementById('wasmBenchCount')?.value || '10000', 10);
+        btnBenchmark.disabled = true;
+        btnBenchmark.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Benchmarking...';
+
+        setTimeout(() => {
+          const res = wasmCore.runBenchmark(count);
+          if (throughputEl) throughputEl.textContent = `${res.ordersPerSec.toLocaleString()}/s`;
+          if (avgLatencyEl) avgLatencyEl.textContent = `${(res.avgLatencyNs / 1000).toFixed(2)} µs`;
+          if (p99LatencyEl) p99LatencyEl.textContent = `${res.p99LatencyUs.toFixed(2)} µs`;
+          renderWasmBook();
+          btnBenchmark.disabled = false;
+          btnBenchmark.innerHTML = '<i class="fa-solid fa-play"></i> Run C++/WASM Benchmark';
+          SoundFX.executionChime();
+        }, 50);
+      });
+    }
+
+    // Burst 50 Orders
+    const btnBurst = document.getElementById('btnInjectBurst');
+    if (btnBurst) {
+      btnBurst.addEventListener('click', () => {
+        const base = state.livePrice || 2800;
+        for (let i = 0; i < 50; i++) {
+          const side = Math.random() > 0.5 ? 'BUY' : 'SELL';
+          const offset = Math.floor(Math.random() * 8) * 0.25;
+          const price = side === 'BUY' ? +(base - 0.25 - offset).toFixed(2) : +(base + 0.25 + offset).toFixed(2);
+          const qty = Math.floor(20 + Math.random() * 80);
+          wasmCore.insertLimit(side, price, qty);
+        }
+        renderWasmBook();
+        SoundFX.tickPop();
+      });
+    }
+
+    // Reset Engine
+    const btnReset = document.getElementById('btnResetWasmEngine');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        wasmCore.reset();
+        renderWasmBook();
+        const feed = document.getElementById('wasmTradesFeed');
+        if (feed) feed.innerHTML = '<span style="color:var(--hft-text-muted);">Engine memory cleared.</span>';
+      });
+    }
+
+    // Interactive Order Form
+    const btnSubmit = document.getElementById('btnSubmitWasmOrder');
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', () => {
+        const side = document.getElementById('wasmOrderSide')?.value || 'BUY';
+        const type = document.getElementById('wasmOrderType')?.value || 'LIMIT';
+        const price = parseFloat(document.getElementById('wasmOrderPrice')?.value || (state.livePrice || 2800));
+        const qty = parseInt(document.getElementById('wasmOrderQty')?.value || '100', 10);
+
+        if (type === 'LIMIT') {
+          const res = wasmCore.insertLimit(side, price, qty);
+          if (res && res.fills) {
+            res.fills.forEach(f => appendWasmTrade(f));
+          }
+        } else {
+          const res = wasmCore.executeMarket(side, qty);
+          if (res && res.fills) {
+            res.fills.forEach(f => appendWasmTrade(f));
+          }
+        }
+
+        renderWasmBook();
+        SoundFX.executionChime();
+      });
+    }
+
+    // Initial Seed: 20 resting orders around current price
+    const baseP = state.livePrice || 2800;
+    for (let i = 1; i <= 10; i++) {
+      wasmCore.insertLimit('BUY', +(baseP - i * 0.25).toFixed(2), 50 + i * 10);
+      wasmCore.insertLimit('SELL', +(baseP + i * 0.25).toFixed(2), 50 + i * 10);
+    }
+    renderWasmBook();
+  };
+
+  // ── 16. Cross-Exchange Basis & Perpetual Funding Arbitrage Controller ──────
+  const initBasisArbitrageModule = () => {
+    const basisEngine = (typeof window !== 'undefined') ? window.BasisArbitrageEngine : null;
+    if (!basisEngine) return;
+
+    const updateBasisDisplay = () => {
+      const spot = state.livePrice || 2800;
+      const sym = state.symbol || state.currentSecurity || 'RELIANCE.NS';
+
+      // 1. Scan Multi-Venue Arbitrage Matrix
+      const multi = basisEngine.scanMultiVenueArbitrage(sym, spot);
+      const tbody = document.getElementById('basisVenuesTableBody');
+      if (tbody && multi.venues) {
+        tbody.innerHTML = multi.venues.map(v => {
+          const spreadDiff = v.price - spot;
+          const spreadBps = ((spreadDiff / spot) * 10000).toFixed(1);
+          const isHighest = v.name === multi.highestVenue.name;
+          const isLowest = v.name === multi.lowestVenue.name;
+          const roleBadge = isHighest
+            ? '<span style="color:#ef4444; font-weight:700;">SELL LEG (High)</span>'
+            : (isLowest ? '<span style="color:#10b981; font-weight:700;">BUY LEG (Low)</span>' : '<span style="color:var(--hft-text-muted);">Reference</span>');
+
+          return `
+            <tr>
+              <td style="font-weight:700; color:#fff;">${v.name}</td>
+              <td style="color:var(--hft-text-muted);">${v.type}</td>
+              <td style="font-family:var(--hft-font-mono); color:${spreadDiff >= 0 ? '#10b981' : '#ef4444'}; font-weight:700;">
+                ${state.currency === 'INR' ? '₹' : '$'}${v.price.toFixed(2)}
+              </td>
+              <td>${v.feeTakerBps.toFixed(1)}</td>
+              <td style="font-family:var(--hft-font-mono); color:${spreadDiff >= 0 ? '#10b981' : '#ef4444'};">
+                ${spreadDiff >= 0 ? '+' : ''}${spreadBps} bps
+              </td>
+              <td>${roleBadge}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 2. Basis & Funding Metrics
+      const isCrypto = sym.includes('BTC') || sym.includes('ETH') || sym.includes('SOL');
+      const futuresPrice = isCrypto ? (spot * 1.0125) : (spot * 1.0045);
+      const basisYield = basisEngine.calculateBasisYield(spot, futuresPrice, 30);
+      const fundingYield = basisEngine.calculateFundingYield(isCrypto ? 0.00015 : 0.00008);
+
+      const basisAprEl = document.getElementById('basisAnnualizedApr');
+      const basisRegimeEl = document.getElementById('basisRegimeBadge');
+      const basis8hEl = document.getElementById('basis8hFundingRate');
+      const basisCompApyEl = document.getElementById('basisCompoundedApy');
+      const netSpreadEl = document.getElementById('basisNetSpreadBps');
+      const arbStatusPillEl = document.getElementById('basisArbStatusPill');
+
+      if (basisAprEl) basisAprEl.textContent = `+${basisYield.annualizedApr.toFixed(2)}%`;
+      if (basisRegimeEl) basisRegimeEl.textContent = `${basisYield.regime} (${basisYield.strategy})`;
+      if (basis8hEl) basis8hEl.textContent = `+${fundingYield.rate8hPct.toFixed(4)}%`;
+      if (basisCompApyEl) basisCompApyEl.textContent = `Compounded APY: +${fundingYield.compoundedApy.toFixed(2)}%`;
+      if (netSpreadEl) netSpreadEl.textContent = `+${multi.netSpreadBps.toFixed(1)} bps`;
+      if (arbStatusPillEl) {
+        arbStatusPillEl.textContent = multi.status;
+        arbStatusPillEl.style.color = multi.isProfitable ? '#10b981' : '#f59e0b';
+      }
+
+      // 3. Update Position Simulator Values
+      updateSimulatorPayoff();
+    };
+
+    const updateSimulatorPayoff = () => {
+      const capital = parseFloat(document.getElementById('simCapitalInput')?.value || '100000');
+      const leverage = parseFloat(document.getElementById('simLeverageInput')?.value || '2');
+      const dte = parseFloat(document.getElementById('simDteInput')?.value || '30');
+
+      const spot = state.livePrice || 2800;
+      const isCrypto = (state.symbol || '').includes('BTC') || (state.symbol || '').includes('ETH');
+      const futuresPrice = isCrypto ? (spot * 1.0125) : (spot * 1.0045);
+      const rate8h = isCrypto ? 0.00015 : 0.00008;
+
+      const sim = basisEngine.simulateDeltaNeutralPosition(capital, spot, futuresPrice, dte, rate8h, leverage);
+      const curr = state.currency === 'INR' ? '₹' : '$';
+
+      const capLabel = document.getElementById('simCapitalLabel');
+      const levLabel = document.getElementById('simLeverageLabel');
+      const dteLabel = document.getElementById('simDteLabel');
+
+      if (capLabel) capLabel.textContent = `${curr}${capital.toLocaleString()}`;
+      if (levLabel) levLabel.textContent = `${leverage}x Leverage`;
+      if (dteLabel) dteLabel.textContent = `${dte} Days`;
+
+      const spotLegEl = document.getElementById('simSpotLegVal');
+      const futMarginEl = document.getElementById('simFuturesMarginVal');
+      const liqPriceEl = document.getElementById('simLiqPriceVal');
+      const liqDistEl = document.getElementById('simLiqDistVal');
+      const pnlEl = document.getElementById('simProjectedPnlVal');
+      const netAprEl = document.getElementById('simNetAprVal');
+
+      if (spotLegEl) spotLegEl.textContent = `${curr}${sim.spotCapital.toLocaleString()}`;
+      if (futMarginEl) futMarginEl.textContent = `${curr}${sim.futuresMargin.toLocaleString()}`;
+      if (liqPriceEl) liqPriceEl.textContent = `${curr}${sim.liquidationPrice.toLocaleString()}`;
+      if (liqDistEl) {
+        liqDistEl.textContent = `+${sim.distanceToLiquidationPct.toFixed(1)}% Safety Buffer`;
+        liqDistEl.style.color = sim.isSafe ? '#10b981' : '#ef4444';
+      }
+      if (pnlEl) pnlEl.textContent = `+${curr}${sim.totalProjectedPnl.toLocaleString()}`;
+      if (netAprEl) netAprEl.textContent = `${sim.annualizedReturnApr.toFixed(2)}% APR`;
+    };
+
+    // Sliders
+    ['simCapitalInput', 'simLeverageInput', 'simDteInput'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', updateSimulatorPayoff);
+    });
+
+    // Execute Button
+    const btnExecute = document.getElementById('btnExecuteBasisSim');
+    if (btnExecute) {
+      btnExecute.addEventListener('click', () => {
+        const capital = parseFloat(document.getElementById('simCapitalInput')?.value || '100000');
+        const leverage = parseFloat(document.getElementById('simLeverageInput')?.value || '2');
+        const spot = state.livePrice || 2800;
+        const curr = state.currency === 'INR' ? '₹' : '$';
+
+        const alertEl = document.getElementById('simExecutionAlert');
+        if (alertEl) {
+          alertEl.innerHTML = `
+            <strong>EXECUTED DELTA-NEUTRAL ARBITRAGE:</strong> Long Spot (${curr}${capital.toLocaleString()}) &bull; Short Futures (${leverage}x Hedge). FIX Tags: 35=D (NewOrderSingle) &rarr; 35=8 (ExecutionReport FILLED).
+          `;
+          alertEl.style.color = '#38bdf8';
+          alertEl.style.borderColor = 'rgba(56,189,248,0.4)';
+        }
+
+        // Emit FIX Log
+        appendFixMessage('D', 'D_NEW_ORDER', `11=BASIS-${Date.now().toString().slice(-4)}|54=1(BUY_SPOT)|38=${Math.round(capital/spot)}|44=${spot.toFixed(2)}`);
+        appendFixMessage('8', '8_EXEC_REPORT', `37=EX-${Date.now().toString().slice(-4)}|39=2(FILLED)|150=2|31=${spot.toFixed(2)}|14=${Math.round(capital/spot)}`);
+        SoundFX.executionChime();
+      });
+    }
+
+    // Expose for updates on tick
+    if (typeof window !== 'undefined') {
+      window._updateBasisRadar = updateBasisDisplay;
+    }
+    updateBasisDisplay();
+  };
+
+  // ── 17. KaTeX Ambient Typesetting ───────────────────────────────────────────
   const renderFormulasKaTeX = () => {
     if (typeof renderMathInElement === 'function') {
       try {
@@ -1321,7 +1639,8 @@
   window.setQueuePrice = (p) => {
     const priceInput = document.getElementById('queueOrderPrice');
     if (priceInput) priceInput.value = p.toFixed(2);
-    document.getElementById('queueOrderSide').value = p <= state.livePrice ? 'BUY' : 'SELL';
+    const sideInput = document.getElementById('queueOrderSide');
+    if (sideInput) sideInput.value = p <= state.livePrice ? 'BUY' : 'SELL';
   };
 
   // Global Exports for Verification & External APIs
@@ -1354,7 +1673,13 @@
       slicerState.durationSec = duration || 15;
       startAlgoSlicer();
     },
-    executeDomOrder: executeDomOrder
+    executeDomOrder: executeDomOrder,
+    getWasmEngine: () => (typeof window !== 'undefined' ? window.MatchingEngineWasm : null),
+    runWasmBenchmark: (count) => (typeof window !== 'undefined' && window.MatchingEngineWasm ? window.MatchingEngineWasm.runBenchmark(count) : null),
+    getBasisEngine: () => (typeof window !== 'undefined' ? window.BasisArbitrageEngine : null),
+    calculateBasis: (spot, fut, dte) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.calculateBasisYield(spot, fut, dte) : null),
+    calculateFunding: (r8h) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.calculateFundingYield(r8h) : null),
+    simulateDeltaNeutral: (cap, s, f, d, r, lev) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.simulateDeltaNeutralPosition(cap, s, f, d, r, lev) : null)
   };
 
   // Initialize
@@ -1372,12 +1697,14 @@
     renderTapeTable();
     updateCvdDisplay();
     initMarketDataTruthFeed();
+    await initWasmMatchingModule();
+    initBasisArbitrageModule();
     renderFormulasKaTeX();
 
     // Check focus deep-link
     if (urlParams && urlParams.get('focus')) {
       const f = urlParams.get('focus');
-      const targetId = f === 'as' ? 'wsAvellanedaStoikov' : (f === 'tape' ? 'wsTapeCvd' : (f === 'latency' ? 'wsLatencyArb' : (f === 'slicer' ? 'wsAlgoSlicer' : null)));
+      const targetId = f === 'as' ? 'ws-stoikov' : (f === 'tape' ? 'ws-tape' : (f === 'latency' ? 'ws-latency' : (f === 'slicer' ? 'ws-slicer' : (f === 'wasm' ? 'ws-wasm' : (f === 'basis' ? 'ws-basis' : null)))));
       if (targetId) {
         const targetEl = document.getElementById(targetId);
         if (targetEl) setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth' }), 300);

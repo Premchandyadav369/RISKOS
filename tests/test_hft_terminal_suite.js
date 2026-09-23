@@ -302,6 +302,110 @@ it('README.md comprehensively documents HFT Terminal with architecture and 7 wor
   assert(readmeMd.includes('Workstation 7: Algorithmic Execution Slicer'), 'README.md must document Workstation 7');
 });
 
+// ── 13. Workstation 8: C++ & WebAssembly (WASM) Matching Engine Core ──
+console.log('\n── Section 13: Workstation 8 — C++ & WebAssembly (WASM) L3 Matching Engine ──');
+
+it('C++ matching engine core file exists with cache-aligned limit order book and zero-allocation matching', () => {
+  const cppPath = path.join(__dirname, '..', 'cpp', 'matching_engine.cpp');
+  assert(fs.existsSync(cppPath), 'cpp/matching_engine.cpp must exist');
+  const cppCode = fs.readFileSync(cppPath, 'utf8');
+  assert(cppCode.includes('alignas(64)'), 'C++ matching engine must use cache-aligned memory');
+  assert(cppCode.includes('insert_limit'), 'C++ matching engine must implement insert_limit');
+  assert(cppCode.includes('execute_market'), 'C++ matching engine must implement execute_market');
+  assert(cppCode.includes('cancel_order'), 'C++ matching engine must implement cancel_order');
+  assert(cppCode.includes('benchmark_burst'), 'C++ matching engine must implement benchmark_burst');
+});
+
+it('matchingEngine.wasm is a valid compiled WebAssembly binary', () => {
+  const wasmPath = path.join(__dirname, '..', 'matchingEngine.wasm');
+  assert(fs.existsSync(wasmPath), 'matchingEngine.wasm must exist');
+  const buffer = fs.readFileSync(wasmPath);
+  assert(buffer.length > 50, 'WASM binary must be non-empty');
+  assert.strictEqual(buffer.readUInt32BE(0), 0x0061736d, 'Magic bytes must be \x00asm');
+  assert.strictEqual(buffer.readUInt32LE(4), 1, 'WebAssembly version must be 1');
+});
+
+it('matchingEngineWasm.js executes limit orders, aggressive market sweeps, and sub-microsecond benchmarks', async () => {
+  const wasmJsPath = path.join(__dirname, '..', 'matchingEngineWasm.js');
+  assert(fs.existsSync(wasmJsPath), 'matchingEngineWasm.js must exist');
+  const { MatchingEngineWasm } = require(wasmJsPath);
+  await MatchingEngineWasm.ready();
+  assert(MatchingEngineWasm.initialized, 'Engine must be initialized');
+
+  MatchingEngineWasm.reset();
+  // Insert passive limit orders
+  MatchingEngineWasm.insertLimit('BUY', 100.0, 50, 101);
+  MatchingEngineWasm.insertLimit('BUY', 99.5, 100, 102);
+  MatchingEngineWasm.insertLimit('SELL', 100.5, 40, 201);
+  MatchingEngineWasm.insertLimit('SELL', 101.0, 60, 202);
+
+  assert.strictEqual(MatchingEngineWasm.getBestBid(), 100.0, 'Best bid should be 100.0');
+  assert.strictEqual(MatchingEngineWasm.getBestAsk(), 100.5, 'Best ask should be 100.5');
+
+  // Aggressive market order crossing best ask
+  const mktFill = MatchingEngineWasm.executeMarket('BUY', 30);
+  assert.strictEqual(mktFill.executedQty, 30, 'Market buy must execute 30 units');
+  assert.strictEqual(mktFill.avgFillPrice, 100.5, 'Must fill at best ask of 100.5');
+
+  // Cancel order
+  const cancelled = MatchingEngineWasm.cancelOrder(102);
+  assert(cancelled, 'Order 102 must be cancelled');
+
+  // High-performance benchmark
+  const bench = MatchingEngineWasm.runBenchmark(2000);
+  assert(bench.ordersPerSec > 50000, 'Benchmark throughput must exceed 50k orders/sec');
+  assert(bench.avgLatencyNs > 0, 'Latency must be measurable');
+});
+
+// ── 14. Workstation 9: Cross-Exchange Basis & Perpetual Funding Arbitrage Radar ──
+console.log('\n── Section 14: Workstation 9 — Cross-Exchange Basis & Perpetual Funding Radar ──');
+
+it('basisArbitrageEngine.js accurately computes Cost-of-Carry, Basis APR, and Compounded APY', () => {
+  const basisPath = path.join(__dirname, '..', 'basisArbitrageEngine.js');
+  assert(fs.existsSync(basisPath), 'basisArbitrageEngine.js must exist');
+  const { BasisArbitrageEngine } = require(basisPath);
+
+  // 1. Cost of Carry: Spot=64,000, DTE=30, r=5.25%, q=1.2%, c=0.15%
+  const coc = BasisArbitrageEngine.calculateCostOfCarry(64000, 30, 0.0525, 0.012, 0.0015);
+  assert(coc.fairFuturesPrice > 64000, 'Futures price under positive net carry must exceed spot');
+  assert(coc.fairBasis > 0, 'Fair basis must be positive in contango');
+
+  // 2. Basis Yield: Spot=64,000, Futures=64,800, DTE=30 -> ~15.21% APR
+  const basis = BasisArbitrageEngine.calculateBasisYield(64000, 64800, 30);
+  assert.strictEqual(basis.regime, 'CONTANGO', 'Futures > Spot must be Contango');
+  assert(basis.annualizedApr > 14.0 && basis.annualizedApr < 16.0, 'Annualized APR must be ~15.21%');
+
+  // 3. 8-hour Funding Rate: 0.0150% -> ~16.43% Simple APR, ~17.85% Compounded APY
+  const funding = BasisArbitrageEngine.calculateFundingYield(0.00015);
+  assert(funding.annualizedSimpleApr > 15.0 && funding.annualizedSimpleApr < 18.0, 'Funding simple APR');
+  assert(funding.compoundedApy > 16.0 && funding.compoundedApy < 20.0, 'Funding compounded APY');
+
+  // 4. Multi-Venue Scanner
+  const multi = BasisArbitrageEngine.scanMultiVenueArbitrage('BTC-USD', 64000);
+  assert(multi.venues.length >= 5, 'Must scan at least 5 liquidity venues');
+  assert(multi.grossSpreadBps > 0, 'Gross spread must be positive');
+
+  // 5. Delta-Neutral Position Simulation
+  const pos = BasisArbitrageEngine.simulateDeltaNeutralPosition(100000, 64000, 64800, 30, 0.00015, 2);
+  assert.strictEqual(pos.capital, 100000);
+  assert(pos.liquidationPrice > 64800, 'Short liquidation price must be above entry');
+  assert(pos.distanceToLiquidationPct > 30, '2x leverage must provide >30% safety cushion');
+  assert(pos.isSafe, 'Position must be classified as safe');
+});
+
+// ── 15. UI, Jump Navigator & Universal Palette Integration ──
+console.log('\n── Section 15: Fast Jump Navigator & Universal Palette Integration ──');
+
+it('hft.html contains Workstations 8 & 9 and Fast Jump Navigation bar', () => {
+  assert(hftHtml.includes('class="hft-jump-bar"'), 'Missing .hft-jump-bar in hft.html');
+  assert(hftHtml.includes('id="ws-wasm"'), 'Missing #ws-wasm in hft.html');
+  assert(hftHtml.includes('id="ws-basis"'), 'Missing #ws-basis in hft.html');
+  assert(hftHtml.includes('matchingEngineWasm.js'), 'hft.html must load matchingEngineWasm.js');
+  assert(hftHtml.includes('basisArbitrageEngine.js'), 'hft.html must load basisArbitrageEngine.js');
+  assert(paletteJs.includes("id: 'act_wasm'"), 'universalPalette.js must register /wasm');
+  assert(paletteJs.includes("id: 'act_basis'"), 'universalPalette.js must register /basis');
+});
+
 console.log('\n══════════════════════════════════════════════════════════════════════════');
 console.log(`🎯  TESTS PASSED: ${passedTests} / ${totalTests} (100%)`);
 console.log('══════════════════════════════════════════════════════════════════════════\n');

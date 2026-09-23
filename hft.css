@@ -884,6 +884,173 @@ header.header {
   overflow-y: auto;
 }
 
+/* ── Workstation Jump Navigator Bar ──────────────────────────────────────── */
+.hft-jump-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(3, 7, 18, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  backdrop-filter: blur(12px);
+  margin-bottom: 20px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.hft-jump-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: var(--hft-text-muted);
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 4px;
+}
+
+.hft-jump-link {
+  font-family: var(--hft-font-mono);
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hft-jump-link:hover {
+  color: var(--hft-cyan);
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.hft-jump-link.highlight {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.35);
+  background: rgba(56, 189, 248, 0.08);
+  font-weight: 700;
+}
+
+/* Scroll margin so sticky header does not obscure section titles */
+.hft-card {
+  scroll-margin-top: 85px;
+}
+
+/* ── Workstation 8: WebAssembly / C++ Matching Engine Core ───────────────── */
+.hft-wasm-telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hft-wasm-stat-card {
+  background: rgba(3, 7, 18, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hft-badge-wasm {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--hft-cyan);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-family: var(--hft-font-mono);
+  font-weight: 700;
+  display: inline-block;
+}
+
+.hft-wasm-bench-controls {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hft-wasm-order-form {
+  background: rgba(3, 7, 18, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hft-wasm-depth-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.hft-wasm-book-col {
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+/* ── Workstation 9: Cross-Exchange Basis & Funding Rate Radar ─────────────── */
+.hft-basis-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.hft-basis-venue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--hft-font-mono);
+  font-size: 0.75rem;
+}
+
+.hft-basis-venue-table th {
+  padding: 8px 10px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--hft-text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hft-basis-venue-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hft-sim-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .hft-telemetry-banner {
@@ -894,6 +1061,12 @@ header.header {
     grid-template-columns: 1fr;
   }
   .hft-pnl-breakdown {
+    grid-template-columns: 1fr;
+  }
+  .hft-wasm-depth-layout {
+    grid-template-columns: 1fr;
+  }
+  .hft-sim-grid {
     grid-template-columns: 1fr;
   }
 }

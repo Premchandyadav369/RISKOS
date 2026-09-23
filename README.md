@@ -635,6 +635,8 @@ flowchart TD
         WS5["Workstation 5: Real-Time Time & Sales Tape\n& Cumulative Volume Delta (CVD)"]
         WS6["Workstation 6: Microsecond Latency Arbitrage\n& Co-Location Simulator (c = 300,000 km/s)"]
         WS7["Workstation 7: Algorithmic Slicing & Shortfall\n(TWAP / VWAP / POV / Almgren-Chriss)"]
+        WS8["Workstation 8: C++20 & WebAssembly (WASM)\nL3 Matching Engine & Nanosecond Benchmark"]
+        WS9["Workstation 9: Cross-Exchange Basis &\nPerpetual Funding Rate Arbitrage Radar"]
     end
 
     subgraph ExecutionLayer ["Broker Sandbox & Protocol Stream"]
@@ -703,6 +705,22 @@ flowchart TD
      - **POV**: Dynamic volume participation rate (e.g. 15% of tape volume).
    - Continuous Almgren-Chriss Implementation Shortfall calculation against the arrival price benchmark $P_0$:
      $\text{IS} = \sum_{k=1}^N \left( \bar{P}_k - P_0 \right) q_k + \text{Fees}$
+
+8. **Workstation 8: C++20 & WebAssembly (WASM) L3 Matching Engine Core**:
+   - High-throughput, cache-aligned (`alignas(64)`) limit order book engine written in C++20 (`cpp/matching_engine.cpp`) and compiled into WebAssembly (`matchingEngine.wasm`).
+   - Zero dynamic heap allocation on the critical execution path; amortized $\mathcal{O}(\log M + 1)$ limit order insertion and $\mathcal{O}(1)$ cancellation.
+   - Sub-microsecond latency benchmark suite executing over **350,000 orders/sec** in the browser with P50/P99 latency profiling.
+   - Interactive order entry, market sweeps, and live dual-book L3 depth matrix.
+
+9. **Workstation 9: Cross-Exchange Basis & Perpetual Funding Rate Arbitrage Radar**:
+   - Real-time multi-venue arbitrage scanner monitoring Binance, Bybit, OKX, Deribit, CME, and NSE.
+   - Theoretical Cost of Carry futures pricing:
+     $F_t = S_t \, e^{(r - q + c)(T - t)}$
+   - Annualized cash-and-carry basis yield:
+     $\text{APR}_{\text{basis}} = \frac{F_t - S_t}{S_t} \cdot \frac{365}{\text{DTE}} \times 100\%$
+   - Perpetual 8-hour funding rate capture and compounded APY:
+     $\text{APY}_{\text{funding}} = (1 + F_{8\text{h}})^{1095} - 1$
+   - Interactive delta-neutral position simulator calculating spot/futures capital split, leverage sizing, liquidation price threshold, and safety cushion.
 ---
 
 ## 🔮 Unified Multi-Model Predictive Trajectory Suite
