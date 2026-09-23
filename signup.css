@@ -56,7 +56,7 @@ body.signup-page {
   height: 100vh;
   pointer-events: none;
   z-index: 1;
-  background: radial-gradient(circle at 50% 50%, rgba(4, 5, 7, 0.45) 0%, rgba(4, 5, 7, 0.92) 85%);
+  background: radial-gradient(circle at 50% 50%, rgba(4, 5, 7, 0.2) 0%, rgba(4, 5, 7, 0.65) 90%);
 }
 
 /* ── 2. Page Shell ── */

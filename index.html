@@ -48,6 +48,7 @@
   <link rel="stylesheet" href="universalExplainer.css" />
   <link rel="stylesheet" href="themeEngine.css" />
   <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="Hyperspeed.css" />
 </head>
 <body data-user-mode="beginner">
 
@@ -165,7 +166,9 @@
 
     <!-- ═══════════════════════ 2. HERO SECTION ═══════════════════════ -->
     <main class="hero" id="home">
-      <div class="hero-inner">
+      <!-- Hyperspeed WebGL Warp Highway (React Bits Engine) -->
+      <div id="heroHyperspeedWrap" class="hero-hyperspeed-wrap" title="Click and hold to accelerate into Warp Speed"></div>
+      <div class="hero-inner" style="position: relative; z-index: 2;">
 
         <!-- 0. Zero-Friction Beginner Quick-Start Banner -->
         <div class="quickstart-onboarding-banner" id="userFriendlyQuickStart" style="width: 100%; max-width: 900px; margin: 0 auto 16px; padding: 12px 18px; background: linear-gradient(90deg, rgba(34, 211, 238, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
@@ -181,6 +184,9 @@
             </div>
           </div>
           <div style="display: flex; gap: 8px; align-items: center;">
+            <button onclick="window.HyperspeedEngine && window.HyperspeedEngine.openModal()" style="padding: 6px 12px; font-size: 0.74rem; font-weight: 700; border-radius: 6px; background: linear-gradient(135deg, rgba(217, 70, 239, 0.25), rgba(34, 211, 238, 0.25)); border: 1px solid rgba(217, 70, 239, 0.5); color: #f472b6; cursor: pointer;" title="Launch React Bits Hyperspeed Warp Drive Simulator">
+              <i class="fa-solid fa-bolt" style="margin-right: 4px;"></i> Hyperspeed (Warp)
+            </button>
             <button onclick="window.openPalette && window.openPalette('AAPL')" style="padding: 6px 12px; font-size: 0.74rem; font-weight: 600; border-radius: 6px; background: rgba(34, 211, 238, 0.2); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; cursor: pointer;">
               <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px;"></i> Search (⌘K)
             </button>
@@ -255,6 +261,11 @@
           <button class="cta-secondary-btn" id="heroCanvasBtn">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Financial Canvas (⌘K)</span>
+          </button>
+
+          <button class="cta-secondary-btn" onclick="window.HyperspeedEngine && window.HyperspeedEngine.openModal()" style="border-color: rgba(217, 70, 239, 0.4); color: #f472b6;">
+            <i class="fa-solid fa-bolt" style="color: #ec4899;"></i>
+            <span>Hyperspeed Warp</span>
           </button>
         </div>
 
@@ -2186,6 +2197,20 @@
   <script src="supabaseConfig.js"></script>
   <script src="supabaseClient.js"></script>
   <script src="authModal.js"></script>
+  <!-- React Bits Hyperspeed WebGL Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="hyperspeed.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.HyperspeedEngine && document.getElementById('heroHyperspeedWrap')) {
+        window.HyperspeedEngine.init('heroHyperspeedWrap', {
+          speedUp: 3.2,
+          fovSpeedUp: 140,
+          lanesPerRoad: 4
+        });
+      }
+    });
+  </script>
 
   <script>
     // Persona Switcher Filter Script
