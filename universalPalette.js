@@ -17,6 +17,7 @@
     { id: 'page_fleet', title: '24/7 Autonomous Bot Fleet', desc: '41 Greek, Norse & Egyptian algorithmic strategies', category: 'Pages', badge: 'PAGE', icon: 'fa-robot', url: 'fleet.html' },
     { id: 'page_obs', title: 'Global Macro Market Observatory', desc: 'Macro causality network, central bank policy & yield matrix', category: 'Pages', badge: 'PAGE', icon: 'fa-satellite-dish', url: 'observatory.html' },
     { id: 'page_learn', title: '80 Quantitative Simulation Laboratories', desc: 'Interactive simulators, mathematical proofs, and derivations', category: 'Pages', badge: 'PAGE', icon: 'fa-graduation-cap', url: 'learn.html' },
+    { id: 'page_hft', title: 'HFT & Market Microstructure Terminal', desc: 'L3 Bookmap heatmap, Avellaneda-Stoikov market making, Micro-Price & FIX streams', category: 'Pages', badge: 'HFT', icon: 'fa-bolt-lightning', url: 'hft.html' },
     { id: 'page_screener', title: 'Cross-Asset Security Screener & Penny Radar', desc: 'Multi-factor filters, ISIN lookup, and volume surge scanner', category: 'Pages', badge: 'PAGE', icon: 'fa-layer-group', url: 'ticker.html' },
     { id: 'page_news', title: 'News Corner & Event-Driven Market Impact Engine', desc: 'Alpha Vantage news intelligence, event classification & News Alpha', category: 'Pages', badge: 'NEWS', icon: 'fa-newspaper', url: 'news.html' },
     { id: 'page_optimizer', title: 'Multi-Asset Portfolio Optimizer', desc: 'Markowitz frontier, Black-Litterman & HRP allocations', category: 'Pages', badge: 'PAGE', icon: 'fa-sliders', url: 'portfolio_optimizer.html' },
@@ -61,6 +62,7 @@
     // ── 5. Quick Actions & Slash Commands ──
     { id: 'act_copilot', title: 'Open Autonomous AI Quant Copilot (/copilot)', desc: 'Slide-out BloombergGPT analyst with pgvector crisis memory (Alt+A)', category: 'Actions', badge: 'AI', icon: 'fa-brain', action: () => root.QuantCopilotEngine ? root.QuantCopilotEngine.getInstance()?.open() : window.location.href='learn.html' },
     { id: 'act_dom', title: 'Launch L2/L3 Order Book DOM Ladder (/dom)', desc: 'Interactive depth of market ladder with micro-price & iceberg slicing', category: 'Actions', badge: 'MICRO', icon: 'fa-bars-staggered', action: () => root.OrderBookDom ? root.OrderBookDom.open() : window.location.href='learn.html' },
+    { id: 'act_hft', title: 'Launch Dedicated HFT Terminal (/hft)', desc: 'L3 Bookmap heatmap, Avellaneda-Stoikov quoting & VPIN toxicity radar', category: 'Actions', badge: 'HFT', icon: 'fa-bolt-lightning', action: () => window.location.href='hft.html' },
     { id: 'act_game', title: 'Play Jane Street Market Making Game (/game)', desc: '10-Round interactive market making trading game with inventory penalty', category: 'Actions', badge: 'GAME', icon: 'fa-gamepad', action: () => window.location.href='learn.html#quant-interview-masterclass' },
     { id: 'act_cert', title: 'View Cryptographic Accreditation Certificate (/cert)', desc: 'Institutional graduation credential with SHA-256 integrity seal', category: 'Actions', badge: 'CREDENTIAL', icon: 'fa-award', action: () => root.openCertificateModal ? root.openCertificateModal() : window.location.href='learn.html' },
     { id: 'act_tear', title: 'Export Institutional Quant Tear Sheet (/tearsheet)', desc: 'Printable hedge fund factsheet with CAGR, Sharpe, Sortino & VaR', category: 'Actions', badge: 'EXPORT', icon: 'fa-file-invoice', action: () => root.openTearSheetModal ? root.openTearSheetModal() : (document.getElementById('btnExportTearSheet')?.click() || (window.location.href='app.html')) },
@@ -247,6 +249,9 @@
         }
         if (slashQuery.includes('copilot') || slashQuery.includes('ai')) {
           matched.push(CATALOG.find(c => c.id === 'act_copilot'));
+        }
+        if (slashQuery.includes('hft') || slashQuery.includes('bookmap') || slashQuery.includes('micro')) {
+          matched.push(CATALOG.find(c => c.id === 'act_hft'));
         }
         if (slashQuery.includes('dom') || slashQuery.includes('book')) {
           matched.push(CATALOG.find(c => c.id === 'act_dom'));

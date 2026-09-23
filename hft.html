@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RISKOS ⚡ — HFT & Market Microstructure Terminal</title>
+  <meta name="description" content="Institutional High-Frequency Trading (HFT) and Market Microstructure Terminal featuring L3 Bookmap order book heatmap, Avellaneda-Stoikov market making, Stoikov Micro-Price, VPIN toxicity radar, and RAW FIX 4.4 protocol streams." />
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6.5.2 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <!-- KaTeX CSS & JS for Real-Time Mathematical Typesetting -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <!-- RISKOS Terminal Core & Suite Styles -->
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="hft.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="authModal.css" />
+</head>
+<body class="hft-page" data-theme="dark">
+
+  <!-- Ambient Cinematic Video/Canvas Background -->
+  <div class="bg" aria-hidden="true">
+    <video class="bg-video" autoplay muted loop playsinline poster="assets/logo.webp">
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
+    </video>
+    <div class="bg-overlay"></div>
+  </div>
+
+  <!-- ── Top Institutional Navigation Bar ──────────────────────────────────── -->
+  <nav class="top-nav" aria-label="Main Navigation">
+    <div class="nav-left">
+      <a href="index.html" class="nav-brand">
+        <img src="assets/logo.webp" alt="RISKOS Logo" class="brand-logo" width="28" height="28" />
+        <span class="brand-name">RISKOS <span style="color:var(--hft-cyan); font-size:0.75rem; font-family:var(--hft-font-mono);">HFT//DESK</span></span>
+      </a>
+    </div>
+
+    <!-- Center Navigation Links (Preserves 8 Desks assertion) -->
+    <div class="nav-center">
+      <a href="app.html" class="nav-link">8 Desks</a>
+      <a href="hft.html" class="nav-link active" style="color:var(--hft-cyan); font-weight:700;"><i class="fa-solid fa-bolt-lightning"></i> HFT Desk</a>
+      <a href="fleet.html" class="nav-link">41 Bots</a>
+      <a href="portfolio_optimizer.html" class="nav-link">Optimizer</a>
+      <a href="observatory.html" class="nav-link">Observatory</a>
+      <a href="learn.html" class="nav-link">Courses</a>
+      <a href="docs.html" class="nav-link">Docs</a>
+    </div>
+
+    <div class="nav-right">
+      <button class="nav-btn" id="btnToggleSound" title="Toggle Synthesized Web Audio Sound Effects">
+        <i class="fa-solid fa-volume-high"></i> Audio: ON
+      </button>
+      <button class="nav-btn" id="navSearchTrigger" title="Quick Search (Ctrl+K / Cmd+K)">
+        <i class="fa-solid fa-magnifying-glass"></i> <kbd style="font-size:0.65rem; background:rgba(255,255,255,0.15); padding:1px 5px; border-radius:3px;">⌘K</kbd>
+      </button>
+      <a href="signup.html" class="nav-btn primary" style="text-decoration:none;">
+        <i class="fa-solid fa-user-plus"></i> Join Terminal
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Main HFT Workstation Layout ───────────────────────────────────────── -->
+  <main class="hft-main-container">
+
+    <!-- Real-Time Telemetry & Control Strip -->
+    <section class="hft-telemetry-banner" aria-label="Market Data Telemetry">
+      <div class="hft-banner-left">
+        <!-- Live Ticker Selector -->
+        <div>
+          <label for="hftSymbolSelect" style="font-size:0.68rem; color:var(--hft-text-muted); text-transform:uppercase; font-weight:700; display:block; margin-bottom:3px;">
+            Target Asset (Direct Tick Feed)
+          </label>
+          <select id="hftSymbolSelect" class="hft-ticker-selector">
+            <option value="RELIANCE.NS">RELIANCE (NSE India)</option>
+            <option value="TCS.NS">TCS (NSE India)</option>
+            <option value="HDFCBANK.NS">HDFCBANK (NSE India)</option>
+            <option value="^NSEI">NIFTY 50 Index</option>
+            <option value="NVDA">NVDA (NASDAQ USA)</option>
+            <option value="AAPL">AAPL (NASDAQ USA)</option>
+            <option value="BTC-USD">BTC-USD (Crypto 24/7)</option>
+          </select>
+        </div>
+
+        <!-- Live Quote Pill -->
+        <div class="hft-quote-pill" id="hftQuotePill">
+          <span class="hft-pulse-dot"></span>
+          <span style="color:var(--hft-cyan); font-weight:800;">RELIANCE.NS</span>
+          <span style="color:#fff; font-weight:700;">₹1,287.50</span>
+          <span style="color:#10b981; font-size:0.75rem;">+0.62%</span>
+          <span style="color:#64748b; font-size:0.7rem; border-left:1px solid #334155; padding-left:8px;">Spread: ₹0.50</span>
+        </div>
+
+        <div style="font-size:0.72rem; color:#94a3b8; font-family:var(--hft-font-mono);">
+          <i class="fa-solid fa-server" style="color:var(--hft-cyan); margin-right:4px;"></i> Colocation: <span style="color:#fff; font-weight:700;">BKC / Mahwah Fiber (14μs)</span>
+        </div>
+      </div>
+
+      <!-- High-Frequency Speedometer Badges -->
+      <div class="hft-speedometer-group">
+        <div class="hft-stat-badge">
+          <span class="hft-stat-label">Tick Rate</span>
+          <span class="hft-stat-val" id="statTicksPerSec" style="color:#38bdf8;">142/s</span>
+        </div>
+        <div class="hft-stat-badge">
+          <span class="hft-stat-label">Volume Speed</span>
+          <span class="hft-stat-val" id="statVolPerSec" style="color:#fbbf24;">12,450</span>
+        </div>
+        <div class="hft-stat-badge">
+          <span class="hft-stat-label">Cumul. Delta (CVD)</span>
+          <span class="hft-stat-val" id="statCvd" style="color:#10b981;">+4,850 Shs</span>
+        </div>
+        <a href="app.html" class="hft-btn" style="text-decoration:none;">
+          <i class="fa-solid fa-layer-group"></i> 8 Desks
+        </a>
+      </div>
+    </section>
+
+    <!-- ── 4-Module Institutional Workstation Grid ────────────────────────── -->
+    <div class="hft-grid">
+
+      <!-- ====================================================================
+           MODULE 1: L3 ORDER BOOK HEATMAP ("BOOKMAP" WATERFALL CANVAS)
+           ==================================================================== -->
+      <section class="hft-card" aria-label="L3 Order Book Heatmap">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-water" style="color:var(--hft-cyan);"></i>
+            L3 Order Book Heatmap & Depth Waterfall
+          </div>
+          <span class="hft-card-tag">60s Rolling L3 Buffer</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Microstructure Math Formulation</span>
+            <span>Continuous Depth & Iceberg SDE</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\text{Depth}(p, t) = \sum_{i \in \mathcal{O}(p, t)} Q_i, \quad \text{Iceberg Detector: } V_{\text{exec}}(p, \Delta t) > Q_{\text{posted}}(p)$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Think of the order book as a battlefield. Cyan bands show resting buyers (bids) and red bands show resting sellers (asks). Bright glowing stripes are <strong>"Liquidity Walls"</strong> where thousands of shares are parked, acting like concrete support or resistance. When a huge order executes without depleting the price level, the algorithm flags an <strong>Iceberg Order</strong>—revealing a hidden institutional buyer disguised under the water.
+          </div>
+        </div>
+
+        <!-- Bookmap Heatmap Canvas Wrap -->
+        <div class="hft-canvas-wrap">
+          <canvas id="bookmapCanvas"></canvas>
+          <div class="hft-canvas-hud">
+            <div id="icebergAlertBadge" class="hft-iceberg-alert">
+              🚨 ICEBERG ABSORPTION DETECTED
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--hft-text-muted); font-family:var(--hft-font-mono);">
+          <span><span style="display:inline-block; width:8px; height:8px; background:var(--hft-cyan); margin-right:4px;"></span> Bid Liquidity Walls</span>
+          <span><span style="display:inline-block; width:8px; height:8px; background:var(--hft-crimson); margin-right:4px;"></span> Ask Liquidity Walls</span>
+          <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; margin-right:4px;"></span> Market Buy Sweep</span>
+          <span><span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#ef4444; margin-right:4px;"></span> Market Sell Sweep</span>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 2: AVELLANEDA-STOIKOV DYNAMIC MARKET MAKING SIMULATOR
+           ==================================================================== -->
+      <section class="hft-card" aria-label="Avellaneda-Stoikov Dynamic Market Making">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-scale-balanced" style="color:var(--hft-amber);"></i>
+            Avellaneda-Stoikov Dynamic Market Making
+          </div>
+          <span class="hft-card-tag">Columbia / Optiver Quoting Engine</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Optimal Quoting SDE</span>
+            <span>Closed-Form Solution (2008)</span>
+          </div>
+          <div class="hft-formula-render">
+            $$r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma}\ln\left(1 + \frac{\gamma}{\kappa}\right)$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Market makers earn money by pocketing the bid-ask spread. But if they buy too much stock ($q > 0$), they risk getting crushed if prices plummet. Avellaneda-Stoikov calculates a <strong>Reservation Price $r$</strong>: when holding long inventory, the bot automatically lowers its prices to attract buyers and dump inventory, while widening its bids to stop buying. This prevents toxic accumulation.
+          </div>
+        </div>
+
+        <!-- Interactive Parameter Sliders -->
+        <div class="hft-slider-group">
+          <div class="hft-slider-row">
+            <div class="hft-slider-header">
+              <span>Inventory Risk Aversion ($\gamma$)</span>
+              <span class="hft-slider-val" id="valAsGamma">0.10</span>
+            </div>
+            <input type="range" id="sliderAsGamma" class="hft-range" min="0.01" max="1.0" step="0.01" value="0.10" />
+          </div>
+
+          <div class="hft-slider-row">
+            <div class="hft-slider-header">
+              <span>Order Arrival Intensity ($\kappa$)</span>
+              <span class="hft-slider-val" id="valAsKappa">1.5</span>
+            </div>
+            <input type="range" id="sliderAsKappa" class="hft-range" min="0.5" max="5.0" step="0.1" value="1.5" />
+          </div>
+
+          <div class="hft-slider-row">
+            <div class="hft-slider-header">
+              <span>Simulated Net Inventory ($q$ Contracts)</span>
+              <span class="hft-slider-val" id="valAsInventory">0</span>
+            </div>
+            <input type="range" id="sliderAsInventory" class="hft-range" min="-50" max="50" step="1" value="0" />
+          </div>
+        </div>
+
+        <!-- Dynamic Quoting Output -->
+        <div style="background:rgba(3,7,18,0.75); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; display:grid; grid-template-columns:repeat(2, 1fr); gap:10px;">
+          <div>
+            <div style="font-size:0.68rem; color:var(--hft-text-muted); text-transform:uppercase;">Reservation Price $r$</div>
+            <div id="asReservationPrice" style="font-family:var(--hft-font-mono); font-size:1.15rem; font-weight:800; color:var(--hft-cyan);">₹1,287.50</div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; color:var(--hft-text-muted); text-transform:uppercase;">Optimal Half-Spread</div>
+            <div id="asOptimalSpread" style="font-family:var(--hft-font-mono); font-size:1.15rem; font-weight:800; color:#fff;">₹0.50 (3.9 bps)</div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; color:var(--hft-text-muted); text-transform:uppercase;">Optimal Bid Quote</div>
+            <div id="asOptimalBid" style="font-family:var(--hft-font-mono); font-size:1.05rem; font-weight:700; color:#10b981;">₹1,287.25</div>
+          </div>
+          <div>
+            <div style="font-size:0.68rem; color:var(--hft-text-muted); text-transform:uppercase;">Optimal Ask Quote</div>
+            <div id="asOptimalAsk" style="font-family:var(--hft-font-mono); font-size:1.05rem; font-weight:700; color:#ef4444;">₹1,287.75</div>
+          </div>
+        </div>
+
+        <!-- Inventory Skew Meter -->
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--hft-text-muted); margin-bottom:4px;">
+            <span>Short (-50)</span>
+            <span id="asCurrentInventory" style="font-weight:700; color:#fff;">0 Contracts</span>
+            <span>Long (+50)</span>
+          </div>
+          <div class="hft-vpin-bar">
+            <div id="asInventoryMeter" class="hft-vpin-fill" style="width:50%; background:#64748b;"></div>
+          </div>
+        </div>
+
+        <!-- PnL Decomposition Grid -->
+        <div class="hft-pnl-breakdown">
+          <div>
+            <div style="font-size:0.65rem; color:var(--hft-text-muted);">Spread Capture</div>
+            <div id="asSpreadPnL" style="font-family:var(--hft-font-mono); font-size:0.85rem; font-weight:700; color:#10b981;">+₹1,420.50</div>
+          </div>
+          <div>
+            <div style="font-size:0.65rem; color:var(--hft-text-muted);">Adverse Selection</div>
+            <div id="asAdversePnL" style="font-family:var(--hft-font-mono); font-size:0.85rem; font-weight:700; color:#ef4444;">-₹380.00</div>
+          </div>
+          <div>
+            <div style="font-size:0.65rem; color:var(--hft-text-muted);">Net Realized PnL</div>
+            <div id="asNetPnL" style="font-family:var(--hft-font-mono); font-size:0.85rem; font-weight:800; color:#10b981;">+₹995.30</div>
+          </div>
+        </div>
+
+        <button id="btnDeployAsBot" class="hft-btn btn-emerald" style="width:100%; justify-content:center; padding:10px;">
+          <i class="fa-solid fa-play"></i> 1-Click Deploy AS Quoting Bot to ₹10 Lakh Sandbox
+        </button>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 3: STOIKOV MICRO-PRICE & VPIN TOXICITY RADAR
+           ==================================================================== -->
+      <section class="hft-card" aria-label="Micro-Price & VPIN Toxicity Radar">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-radar" style="color:var(--hft-purple);"></i>
+            Stoikov Micro-Price & VPIN Toxicity Radar
+          </div>
+          <span class="hft-card-tag">Lead-Lag Alpha Signal</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Micro-Price & Toxicity Equations</span>
+            <span>Stoikov (2018) & Easley-O'Hara (2012)</span>
+          </div>
+          <div class="hft-formula-render">
+            $$P^{\text{micro}} = P^{\text{mid}} + \left(\frac{Q^b - Q^a}{Q^b + Q^a}\right) \frac{S}{2}, \quad \text{VPIN} = \frac{\sum_{\tau=1}^N |V_\tau^B - V_\tau^S|}{N \times V}$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> The regular "Mid Price" assumes buyers and sellers are equal. But if there are 10,000 shares waiting to buy and only 500 shares waiting to sell, the price is obviously about to tick UP! The <strong>Stoikov Micro-Price</strong> adjusts the price based on this imbalance, letting HFT algorithms predict the next tick before slow traders react. <strong>VPIN</strong> measures "toxic flow"—when predatory institutional sweeps arrive, VPIN spikes red, warning you to pull bids before getting steamrolled.
+          </div>
+        </div>
+
+        <!-- Radar Meters Grid -->
+        <div class="hft-radar-grid">
+          <!-- Meter 1: Micro-Price Lead/Lag -->
+          <div class="hft-meter-box">
+            <div style="font-size:0.72rem; color:var(--hft-text-muted); text-transform:uppercase;">Stoikov Micro-Price</div>
+            <div class="hft-meter-val" id="radarMicroPrice" style="color:var(--hft-cyan);">₹1,287.58</div>
+            <div id="radarMicroDelta" style="font-family:var(--hft-font-mono); font-size:0.76rem; font-weight:700; color:#10b981;">▲ +₹0.08 vs Mid</div>
+            <div style="font-size:0.68rem; color:#94a3b8;">High buy-side queue pressure leading spot higher</div>
+          </div>
+
+          <!-- Meter 2: Next-Tick Probability -->
+          <div class="hft-meter-box">
+            <div style="font-size:0.72rem; color:var(--hft-text-muted); text-transform:uppercase;">Next-Tick Direction</div>
+            <div class="hft-meter-val" id="radarNextTickProb" style="color:#10b981;">62.4% UP</div>
+            <div id="radarOfiVal" style="font-family:var(--hft-font-mono); font-size:0.76rem; font-weight:700; color:#10b981;">OFI Vector: +0.240</div>
+            <div style="font-size:0.68rem; color:#94a3b8;">Multi-level order flow imbalance indicates upward drift</div>
+          </div>
+        </div>
+
+        <!-- VPIN Toxicity Meter Bar -->
+        <div style="background:rgba(3,7,18,0.75); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:14px; display:flex; flex-direction:column; gap:8px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.74rem; font-weight:700; color:var(--hft-text-bright); text-transform:uppercase;">
+              <i class="fa-solid fa-triangle-exclamation" style="color:var(--hft-amber); margin-right:4px;"></i> VPIN Toxic Flow Hazard
+            </span>
+            <span id="radarVpinVal" style="font-family:var(--hft-font-mono); font-size:1.1rem; font-weight:800; color:#10b981;">22.0%</span>
+          </div>
+          <div class="hft-vpin-bar">
+            <div id="radarVpinFill" class="hft-vpin-fill" style="width:22%;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+            <span style="font-size:0.68rem; color:#64748b;">Normal (0% - 40%)</span>
+            <span id="radarVpinBadge" style="font-family:var(--hft-font-mono); font-size:0.68rem; font-weight:700; padding:2px 8px; border-radius:4px; border:1px solid rgba(16,185,129,0.3); background:rgba(16,185,129,0.15); color:#10b981;">
+              NORMAL ORDER FLOW
+            </span>
+            <span style="font-size:0.68rem; color:#ef4444;">Flash Crash Risk (> 65%)</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 4: FIFO QUEUE POSITION SIMULATOR & RAW FIX 4.4 STREAM
+           ==================================================================== -->
+      <section class="hft-card" aria-label="Queue Position Simulator & FIX Terminal">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-terminal" style="color:var(--hft-emerald);"></i>
+            FIFO Queue Position & RAW FIX 4.4 Terminal
+          </div>
+          <span class="hft-card-tag">Price-Time Priority Engine</span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Price-Time Priority & Kyle's Lambda</span>
+            <span>Market Microstructure</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\Delta P = \lambda \cdot Q_{\text{market}} + \epsilon, \quad (p_1, t_1) \succ (p_2, t_2) \iff p_1 > p_2 \lor (p_1 = p_2 \land t_1 < t_2)$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> In electronic markets, orders are filled on a <strong>First-In, First-Out (FIFO)</strong> basis. If you join the bid 5 microseconds too late, 50 orders are in line ahead of you. The <strong>FIX Protocol</strong> is the universal computer language used by Wall Street and Dalal Street to transmit trades. Below you can watch real, color-coded FIX packets fly across the wire and trace your exact place in the queue!
+          </div>
+        </div>
+
+        <!-- Interactive Queue Placement Controls -->
+        <div class="hft-queue-card">
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:10px;">
+            <div>
+              <label for="queueOrderSide" style="font-size:0.68rem; color:var(--hft-text-muted);">Side</label>
+              <select id="queueOrderSide" class="hft-ticker-selector" style="width:100%; padding:6px 10px;">
+                <option value="BUY">BUY (Bid)</option>
+                <option value="SELL">SELL (Ask)</option>
+              </select>
+            </div>
+            <div>
+              <label for="queueOrderQty" style="font-size:0.68rem; color:var(--hft-text-muted);">Quantity</label>
+              <input type="number" id="queueOrderQty" class="hft-ticker-selector" value="100" style="width:100%; padding:6px 10px;" />
+            </div>
+            <div>
+              <label for="queueOrderPrice" style="font-size:0.68rem; color:var(--hft-text-muted);">Limit Price</label>
+              <input type="number" id="queueOrderPrice" class="hft-ticker-selector" value="1287.25" step="0.25" style="width:100%; padding:6px 10px;" />
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:4px;">
+            <button id="btnSubmitQueueOrder" class="hft-btn" style="flex:1; justify-content:center;">
+              <i class="fa-solid fa-paper-plane"></i> Place Limit Order into L3 Queue
+            </button>
+            <button id="btnRaceColocBot" class="hft-btn" style="border-color:#f59e0b; color:#f59e0b; background:rgba(245,158,11,0.1);">
+              <i class="fa-solid fa-gauge-high"></i> Race Colocation Bot
+            </button>
+          </div>
+
+          <!-- Queue Status Display -->
+          <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(2,6,23,0.85); border-radius:6px; padding:10px; margin-top:4px; font-family:var(--hft-font-mono);">
+            <div>
+              <div style="font-size:0.65rem; color:var(--hft-text-muted);">Status</div>
+              <div id="queueOrderStatus" style="font-weight:700; color:#f59e0b; font-size:0.85rem;">IDLE</div>
+            </div>
+            <div>
+              <div style="font-size:0.65rem; color:var(--hft-text-muted);">Queue Priority</div>
+              <div id="queueOrderPosition" style="font-weight:700; color:#fff; font-size:0.85rem;">No active order</div>
+            </div>
+            <div>
+              <div style="font-size:0.65rem; color:var(--hft-text-muted);">Time to Match</div>
+              <div id="queueEstFill" style="font-weight:700; color:#38bdf8; font-size:0.85rem;">--</div>
+            </div>
+          </div>
+
+          <div id="latencyRaceResult" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:10px; font-family:var(--hft-font-mono); font-size:0.75rem;"></div>
+        </div>
+
+        <!-- RAW FIX 4.4 Stream Terminal -->
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:0.7rem; color:var(--hft-text-muted); font-family:var(--hft-font-mono);">
+            <span><i class="fa-solid fa-network-wired" style="color:var(--hft-cyan); margin-right:4px;"></i> RAW FIX 4.4 Packet Capture (ITCH 5.0 Bridge)</span>
+            <span style="color:#10b981;">FEED LIVE (100ms)</span>
+          </div>
+          <div id="fixMessageTerminal" class="hft-fix-terminal">
+            <div class="fix-line"><span style="color:#64748b;">[10:00:00]</span> <span class="fix-tag-35-d">[Logon]</span> 8=FIX.4.4<span class="fix-tag-delim">|</span>9=72<span class="fix-tag-delim">|</span>35=A<span class="fix-tag-delim">|</span>34=1<span class="fix-tag-delim">|</span>49=RISKOS_PRO<span class="fix-tag-delim">|</span>56=NSE_COLOC<span class="fix-tag-delim">|</span>108=30<span class="fix-tag-delim">|</span>10=084</div>
+            <div class="fix-line"><span style="color:#64748b;">[10:00:01]</span> <span class="fix-tag-35-8">[LogonConfirm]</span> 8=FIX.4.4<span class="fix-tag-delim">|</span>9=72<span class="fix-tag-delim">|</span>35=A<span class="fix-tag-delim">|</span>34=1<span class="fix-tag-delim">|</span>49=NSE_COLOC<span class="fix-tag-delim">|</span>56=RISKOS_PRO<span class="fix-tag-delim">|</span>108=30<span class="fix-tag-delim">|</span>10=084</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ── Footer ───────────────────────────────────────────────────────────── -->
+  <footer class="footer" style="padding: 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); background: #020617; font-size: 0.78rem; color: #94a3b8; font-family: var(--hft-font-mono);">
+    Made by Humans on Earth &bull; Assembled by <a href="https://premchandyadav1.vercel.app/" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; text-decoration: none; font-weight: 600;">Premchand Yadav</a> &bull; <a href="app.html" style="color: #e2e8f0; text-decoration: none;">8 Desks</a>
+  </footer>
+
+  <!-- Universal Command Palette Modal (Ctrl+K) -->
+  <div class="palette-overlay" id="paletteOverlay" hidden>
+    <div class="palette-backdrop" id="paletteBackdrop"></div>
+    <div class="palette-modal">
+      <div class="palette-search-wrap">
+        <i class="fa-solid fa-magnifying-glass palette-icon"></i>
+        <input type="text" class="palette-input" id="paletteInput" placeholder="Type a symbol, command, lab, or bot..." autocomplete="off" />
+        <kbd class="palette-esc-badge" id="paletteEscBadge">ESC</kbd>
+      </div>
+      <div class="palette-results" id="paletteResults"></div>
+    </div>
+  </div>
+
+  <!-- Script Dependencies -->
+  <script src="securityMaster.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="paperBroker.js"></script>
+  <script src="microstructureEngine.js"></script>
+  <script src="orderBookDom.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="universalPalette.js"></script>
+  <!-- Supabase Enterprise Cloud & Auth -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <!-- Dedicated HFT Controller -->
+  <script src="hft.js"></script>
+</body>
+</html>

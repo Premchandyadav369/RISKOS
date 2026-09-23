@@ -1,0 +1,486 @@
+/* ==========================================================================
+   RISKOS — HIGH-FREQUENCY TRADING & MARKET MICROSTRUCTURE TERMINAL (hft.css)
+   Institutional Bloomberg/Optiver dark glassmorphism, phosphor neon accents,
+   microsecond telemetry typography, and high-performance canvas styling.
+   ========================================================================== */
+
+:root {
+  --hft-bg: #030712;
+  --hft-surface: #0b1329;
+  --hft-surface-card: rgba(15, 23, 42, 0.75);
+  --hft-border: rgba(56, 189, 248, 0.16);
+  --hft-border-glow: rgba(56, 189, 248, 0.4);
+  --hft-cyan: #22d3ee;
+  --hft-emerald: #10b981;
+  --hft-amber: #f59e0b;
+  --hft-crimson: #ef4444;
+  --hft-purple: #a855f7;
+  --hft-text-bright: #f8fafc;
+  --hft-text-muted: #94a3b8;
+  --hft-font-mono: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+  --hft-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Page Layout */
+body.hft-page {
+  background-color: var(--hft-bg);
+  color: var(--hft-text-bright);
+  font-family: var(--hft-font-sans);
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Ambient Background Canvas */
+.hft-ambient-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+}
+
+/* Main Container */
+.hft-main-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1720px;
+  margin: 0 auto;
+  padding: 84px 20px 48px;
+}
+
+/* ── Top Telemetry & Control Strip ────────────────────────────────────────── */
+.hft-telemetry-banner {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(11, 19, 41, 0.95) 100%);
+  border: 1px solid var(--hft-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 211, 238, 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.hft-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.hft-ticker-selector {
+  background: rgba(3, 7, 18, 0.85);
+  border: 1px solid var(--hft-border-glow);
+  color: #fff;
+  font-family: var(--hft-font-mono);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.hft-ticker-selector:focus {
+  border-color: var(--hft-cyan);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+}
+
+.hft-quote-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(3, 7, 18, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-family: var(--hft-font-mono);
+  font-size: 0.82rem;
+}
+
+.hft-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--hft-emerald);
+  box-shadow: 0 0 8px var(--hft-emerald);
+  animation: hftPulse 1.8s infinite;
+}
+
+@keyframes hftPulse {
+  0% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 4px var(--hft-emerald); }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px var(--hft-emerald); }
+  100% { transform: scale(0.9); opacity: 0.8; box-shadow: 0 0 4px var(--hft-emerald); }
+}
+
+.hft-speedometer-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.hft-stat-badge {
+  display: flex;
+  flex-direction: column;
+  background: rgba(3, 7, 18, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 12px;
+  border-radius: 6px;
+  min-width: 90px;
+}
+
+.hft-stat-label {
+  font-size: 0.65rem;
+  color: var(--hft-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hft-stat-val {
+  font-family: var(--hft-font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.hft-btn {
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid var(--hft-cyan);
+  color: var(--hft-cyan);
+  font-family: var(--hft-font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.hft-btn:hover {
+  background: rgba(34, 211, 238, 0.22);
+  box-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+  transform: translateY(-1px);
+}
+
+.hft-btn.btn-emerald {
+  border-color: var(--hft-emerald);
+  color: var(--hft-emerald);
+  background: rgba(16, 185, 129, 0.1);
+}
+.hft-btn.btn-emerald:hover {
+  background: rgba(16, 185, 129, 0.22);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+
+/* ── 4-Module Workstation Grid ────────────────────────────────────────────── */
+.hft-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 1200px) {
+  .hft-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Card Container */
+.hft-card {
+  background: var(--hft-surface-card);
+  border: 1px solid var(--hft-border);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  backdrop-filter: blur(12px);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hft-card:hover {
+  border-color: var(--hft-border-glow);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(34, 211, 238, 0.08);
+}
+
+/* Card Header */
+.hft-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 12px;
+}
+
+.hft-card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.hft-card-tag {
+  font-family: var(--hft-font-mono);
+  font-size: 0.65rem;
+  padding: 3px 8px;
+  border-radius: 4px;
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--hft-cyan);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  text-transform: uppercase;
+}
+
+/* ── KaTeX Mathematical Formula Box & Layman Callout ──────────────────────── */
+.hft-math-box {
+  background: rgba(3, 7, 18, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-left: 3px solid var(--hft-cyan);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+}
+
+.hft-math-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--hft-cyan);
+  letter-spacing: 0.05em;
+}
+
+.hft-formula-render {
+  overflow-x: auto;
+  padding: 6px 0;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.hft-layman-box {
+  background: rgba(15, 23, 42, 0.65);
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  padding-top: 8px;
+  margin-top: 8px;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #cbd5e1;
+}
+
+.hft-layman-box strong {
+  color: #fbbf24;
+}
+
+/* ── Module 1: Bookmap Heatmap Canvas ─────────────────────────────────────── */
+.hft-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 320px;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#bookmapCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.hft-canvas-hud {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.hft-iceberg-alert {
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  font-family: var(--hft-font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+  animation: hftFlash 1s infinite alternate;
+  display: none;
+}
+
+@keyframes hftFlash {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+/* ── Module 2: Avellaneda-Stoikov Sliders & PnL ────────────────────────────── */
+.hft-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hft-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hft-slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  color: var(--hft-text-muted);
+}
+
+.hft-slider-val {
+  font-family: var(--hft-font-mono);
+  font-weight: 700;
+  color: #fff;
+}
+
+.hft-range {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: #1e293b;
+  outline: none;
+}
+
+.hft-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--hft-cyan);
+  cursor: pointer;
+  box-shadow: 0 0 8px var(--hft-cyan);
+}
+
+.hft-pnl-breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background: rgba(3, 7, 18, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* ── Module 3: OFI & VPIN Toxicity Radar ──────────────────────────────────── */
+.hft-radar-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.hft-meter-box {
+  background: rgba(3, 7, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+}
+
+.hft-meter-val {
+  font-family: var(--hft-font-mono);
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.hft-vpin-bar {
+  width: 100%;
+  height: 10px;
+  background: #1e293b;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hft-vpin-fill {
+  height: 100%;
+  width: 25%;
+  background: linear-gradient(90deg, #10b981 0%, #f59e0b 60%, #ef4444 100%);
+  transition: width 0.3s ease;
+}
+
+/* ── Module 4: Queue Position & RAW FIX 4.4 Stream ────────────────────────── */
+.hft-queue-card {
+  background: rgba(3, 7, 18, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hft-fix-terminal {
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  height: 180px;
+  overflow-y: auto;
+  padding: 10px;
+  font-family: var(--hft-font-mono);
+  font-size: 0.72rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fix-line {
+  white-space: pre-wrap;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.fix-tag-35-d { color: #38bdf8; } /* New Order */
+.fix-tag-35-8 { color: #10b981; } /* Execution Report */
+.fix-tag-35-g { color: #f59e0b; } /* Cancel/Replace */
+.fix-tag-delim { color: #64748b; }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hft-telemetry-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .hft-radar-grid {
+    grid-template-columns: 1fr;
+  }
+  .hft-pnl-breakdown {
+    grid-template-columns: 1fr;
+  }
+}
