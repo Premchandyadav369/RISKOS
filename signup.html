@@ -22,13 +22,16 @@
   <link rel="stylesheet" href="universalPalette.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="Hyperspeed.css">
   <link rel="stylesheet" href="signup.css">
 </head>
 <body class="signup-page">
 
-  <!-- Animated Stochastic Euler-Maruyama Canvas -->
-  <canvas class="signup-bg-canvas" id="signupBgCanvas"></canvas>
-  <div class="signup-bg-overlay"></div>
+  <!-- Hyperspeed WebGL Warp Highway (React Bits Engine) -->
+  <div id="hyperspeedContainer" style="position:fixed; inset:0; z-index:0; pointer-events:auto; overflow:hidden;"></div>
+  <!-- Animated Stochastic Euler-Maruyama Canvas Fallback -->
+  <canvas class="signup-bg-canvas" id="signupBgCanvas" style="display:none;"></canvas>
+  <div class="signup-bg-overlay" style="pointer-events:none;"></div>
 
   <!-- Page Shell -->
   <div class="signup-shell">
@@ -344,6 +347,19 @@
   <script src="supabaseConfig.js"></script>
   <script src="supabaseClient.js"></script>
   <script src="authModal.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="hyperspeed.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.HyperspeedEngine) {
+        window.HyperspeedEngine.init('hyperspeedContainer', {
+          speedUp: 3.0,
+          fovSpeedUp: 140,
+          lanesPerRoad: 4
+        });
+      }
+    });
+  </script>
   <script src="signup.js"></script>
 </body>
 </html>

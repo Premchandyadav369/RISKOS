@@ -1,22 +1,26 @@
 /**
- * RISKOS — Universal Command Center Palette Component
- * Provides Cmd+K / Ctrl+K search across all 75 Labs, 41 Bots, 8 Desks, Securities, and Actions.
+ * RISKOS — Universal Command Center Palette Component (Supercharged Edition)
+ * Provides Cmd+K / Ctrl+K search across 80 Labs, 41 Bots, 8 Desks, Securities,
+ * built-in financial math calculator, category tabs, and /slash commands.
  */
 
 (function(root) {
   'use strict';
 
   const CATALOG = [
-    // ── 1. Core Pages ──
+    // ── 0. Author & System ──
     { id: 'author_portfolio', title: 'Made by Humans on Earth · Premchand Yadav', desc: 'System Architect & Quantitative Developer — Portfolio: https://premchandyadav1.vercel.app/', category: 'System', badge: 'CREATOR', icon: 'fa-earth-americas', action: () => window.open('https://premchandyadav1.vercel.app/', '_blank') },
+    
+    // ── 1. Core Pages ──
     { id: 'page_home', title: 'Executive Overview Dashboard', desc: 'Single-source-of-truth macro market intelligence', category: 'Pages', badge: 'PAGE', icon: 'fa-house', url: 'index.html' },
-    { id: 'page_terminal', title: '7 Institutional Quant Trading Desks', desc: 'Market intelligence, risk engine, yield curve, DOM & vol lab', category: 'Pages', badge: 'PAGE', icon: 'fa-terminal', url: 'app.html' },
+    { id: 'page_terminal', title: '8 Institutional Quant Trading Desks', desc: 'Market intelligence, risk engine, yield curve, DOM & vol lab', category: 'Pages', badge: 'PAGE', icon: 'fa-terminal', url: 'app.html' },
     { id: 'page_fleet', title: '24/7 Autonomous Bot Fleet', desc: '41 Greek, Norse & Egyptian algorithmic strategies', category: 'Pages', badge: 'PAGE', icon: 'fa-robot', url: 'fleet.html' },
     { id: 'page_obs', title: 'Global Macro Market Observatory', desc: 'Macro causality network, central bank policy & yield matrix', category: 'Pages', badge: 'PAGE', icon: 'fa-satellite-dish', url: 'observatory.html' },
-    { id: 'page_learn', title: '75 Quantitative Simulation Laboratories', desc: 'Interactive simulators, mathematical proofs, and derivations', category: 'Pages', badge: 'PAGE', icon: 'fa-graduation-cap', url: 'learn.html' },
+    { id: 'page_learn', title: '80 Quantitative Simulation Laboratories', desc: 'Interactive simulators, mathematical proofs, and derivations', category: 'Pages', badge: 'PAGE', icon: 'fa-graduation-cap', url: 'learn.html' },
     { id: 'page_screener', title: 'Cross-Asset Security Screener & Penny Radar', desc: 'Multi-factor filters, ISIN lookup, and volume surge scanner', category: 'Pages', badge: 'PAGE', icon: 'fa-layer-group', url: 'ticker.html' },
     { id: 'page_news', title: 'News Corner & Event-Driven Market Impact Engine', desc: 'Alpha Vantage news intelligence, event classification & News Alpha', category: 'Pages', badge: 'NEWS', icon: 'fa-newspaper', url: 'news.html' },
     { id: 'page_optimizer', title: 'Multi-Asset Portfolio Optimizer', desc: 'Markowitz frontier, Black-Litterman & HRP allocations', category: 'Pages', badge: 'PAGE', icon: 'fa-sliders', url: 'portfolio_optimizer.html' },
+    { id: 'page_gs_quant', title: 'Goldman Sachs GS Quant Desk', desc: 'Cross-asset IRS, CDS hazard rates, FX smiles & Python generator', category: 'Pages', badge: 'GS QUANT', icon: 'fa-coins', url: 'gs_quant.html' },
     { id: 'page_docs', title: 'RISKOS System Documentation & Whitepapers', desc: 'Full quantitative formulas, API specs, and research methodologies', category: 'Pages', badge: 'PAGE', icon: 'fa-book-bookmark', url: 'docs.html' },
     { id: 'page_trust', title: 'RISKOS Trust & Methodology Center', desc: 'Data provenance, exchange calendars, and simulation disclaimers', category: 'Pages', badge: 'TRUST', icon: 'fa-shield-halved', url: 'docs.html#trust-center' },
 
@@ -54,18 +58,83 @@
     { id: 'lab_74', title: 'Lab 74: Extreme Value Theory (EVT) Peaks-Over-Threshold CVaR', desc: 'Generalized Pareto Distribution (GPD) heavy-tail expected shortfall', category: 'Labs', badge: 'LAB 74', icon: 'fa-shield-halved', url: 'learn.html?lab=evt_pot_tail_risk' },
     { id: 'lab_75', title: 'Lab 75: Hidden Markov Model (HMM) Multi-State Regime Matrix', desc: '3-State Gaussian transition matrix decoding Bull, Bear & Sideways', category: 'Labs', badge: 'LAB 75', icon: 'fa-diagram-project', url: 'learn.html?lab=hmm_regime_switching' },
 
-    // ── 5. Quick Actions ──
+    // ── 5. Quick Actions & Slash Commands ──
+    { id: 'act_copilot', title: 'Open Autonomous AI Quant Copilot (/copilot)', desc: 'Slide-out BloombergGPT analyst with pgvector crisis memory (Alt+A)', category: 'Actions', badge: 'AI', icon: 'fa-brain', action: () => root.QuantCopilotEngine ? root.QuantCopilotEngine.getInstance()?.open() : window.location.href='learn.html' },
+    { id: 'act_dom', title: 'Launch L2/L3 Order Book DOM Ladder (/dom)', desc: 'Interactive depth of market ladder with micro-price & iceberg slicing', category: 'Actions', badge: 'MICRO', icon: 'fa-bars-staggered', action: () => root.OrderBookDom ? root.OrderBookDom.open() : window.location.href='learn.html' },
+    { id: 'act_game', title: 'Play Jane Street Market Making Game (/game)', desc: '10-Round interactive market making trading game with inventory penalty', category: 'Actions', badge: 'GAME', icon: 'fa-gamepad', action: () => window.location.href='learn.html#quant-interview-masterclass' },
+    { id: 'act_cert', title: 'View Cryptographic Accreditation Certificate (/cert)', desc: 'Institutional graduation credential with SHA-256 integrity seal', category: 'Actions', badge: 'CREDENTIAL', icon: 'fa-award', action: () => root.openCertificateModal ? root.openCertificateModal() : window.location.href='learn.html' },
+    { id: 'act_tear', title: 'Export Institutional Quant Tear Sheet (/tearsheet)', desc: 'Printable hedge fund factsheet with CAGR, Sharpe, Sortino & VaR', category: 'Actions', badge: 'EXPORT', icon: 'fa-file-invoice', action: () => root.openTearSheetModal ? root.openTearSheetModal() : (document.getElementById('btnExportTearSheet')?.click() || (window.location.href='app.html')) },
+    { id: 'act_theme_amber', title: 'Switch Theme: Bloomberg Amber CRT (/theme amber)', desc: 'Classic retro amber monochrome high-contrast CRT styling', category: 'Actions', badge: 'THEME', icon: 'fa-palette', action: () => root.ThemeEngine?.setTheme('amber') },
+    { id: 'act_theme_dark', title: 'Switch Theme: Dark Institutional (/theme dark)', desc: 'Modern cyan-accented obsidian dark mode', category: 'Actions', badge: 'THEME', icon: 'fa-moon', action: () => root.ThemeEngine?.setTheme('dark') },
+    { id: 'act_theme_paper', title: 'Switch Theme: Paper-White High Contrast (/theme paper)', desc: 'Clean print-grade light background with high legibility', category: 'Actions', badge: 'THEME', icon: 'fa-sun', action: () => root.ThemeEngine?.setTheme('paper') },
     { id: 'act_prov', title: 'Inspect Market Data Truth & Provenance', desc: 'Verify exchange hours, live vs closed status, and provider feeds', category: 'Actions', badge: 'AUDIT', icon: 'fa-fingerprint', action: () => root.MarketDataTruth ? root.MarketDataTruth.openProvenanceModal('RELIANCE') : alert('MarketDataTruth active') },
-    { id: 'act_tear', title: 'Export Institutional Quant Tear Sheet', desc: 'Generate printable investor factsheet PDF', category: 'Actions', badge: 'EXPORT', icon: 'fa-file-invoice', action: () => document.getElementById('btnExportTearSheet')?.click() || (window.location.href='app.html') },
     { id: 'act_sync', title: 'Sync Live Global Market Quotes', desc: 'Force refresh prices across global exchanges', category: 'Actions', badge: 'SYNC', icon: 'fa-bolt', action: () => document.getElementById('globalLiveSyncBtn')?.click() || (window.location.href='app.html') },
-    { id: 'act_curr', title: 'Toggle Currency (INR ₹ / USD $)', desc: 'Switch baseline currency between Indian Rupee and US Dollar', category: 'Actions', badge: 'FX', icon: 'fa-coins', action: () => document.getElementById('currencyToggleBtn')?.click() || document.getElementById('currencyTogglePill')?.click() }
+    { id: 'act_curr', title: 'Toggle Currency (INR ₹ / USD $)', desc: 'Switch baseline currency between Indian Rupee and US Dollar', category: 'Actions', badge: 'FX', icon: 'fa-coins', action: () => document.getElementById('currencyToggleBtn')?.click() || document.getElementById('currencyTogglePill')?.click() },
+    { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 80 labs, 41 autonomous bots, and live cross-asset desks.") }
   ];
+
+  // Safe Financial & Math Expression Evaluator
+  function evaluateMath(expr) {
+    if (!expr || expr.length < 2) return null;
+    let clean = expr.trim()
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/\^/g, '**')
+      .replace(/sqrt\s*\(([^)]+)\)/gi, 'Math.sqrt($1)')
+      .replace(/abs\s*\(([^)]+)\)/gi, 'Math.abs($1)')
+      .replace(/log\s*\(([^)]+)\)/gi, 'Math.log($1)')
+      .replace(/pi/gi, 'Math.PI');
+
+    // Only allow safe math tokens
+    if (!/^[0-9\s\+\-\*\/\.\(\)\,\%]|Math\.(sqrt|abs|log|PI)/.test(clean)) return null;
+    if (!/[\+\-\*\/\%]|Math\./.test(clean)) return null; // Must contain at least one operation
+
+    try {
+      const val = Function(`'use strict'; return (${clean})`)();
+      if (typeof val === 'number' && !isNaN(val) && isFinite(val)) {
+        return val;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  // Recents Storage
+  const RECENTS_KEY = 'riskos_recent_palette_queries';
+  function getRecentQueries() {
+    try {
+      const data = localStorage.getItem(RECENTS_KEY);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function addRecentQuery(title) {
+    if (!title || typeof title !== 'string') return;
+    try {
+      let recents = getRecentQueries().filter(t => t !== title);
+      recents.unshift(title);
+      recents = recents.slice(0, 5);
+      localStorage.setItem(RECENTS_KEY, JSON.stringify(recents));
+    } catch (e) {}
+  }
 
   function initUniversalPalette() {
     if (typeof document === 'undefined') return;
+    
+    // Prevent double initialization
     if (document.getElementById('universalPaletteOverlay')) return;
 
-    // Inject Palette Markup
+    // Suppress conflicting legacy `#paletteOverlay` if present on the page
+    const legacyOverlay = document.getElementById('paletteOverlay');
+    if (legacyOverlay) {
+      legacyOverlay.style.display = 'none';
+      legacyOverlay.setAttribute('aria-hidden', 'true');
+    }
+
+    // Inject Supercharged Palette Markup
     const overlay = document.createElement('div');
     overlay.className = 'universal-palette-overlay';
     overlay.id = 'universalPaletteOverlay';
@@ -79,21 +148,33 @@
             type="text" 
             class="universal-palette-input" 
             id="universalPaletteInput" 
-            placeholder="Search pages, 75 labs, 41 bots, models, or securities (e.g. 'SABR', 'RELIANCE', 'Desk 2')..." 
+            placeholder="Search 80 labs, 41 bots, 8 desks, formulas, math (e.g. '1000000 * 0.08', '/theme', 'SABR')..." 
             autocomplete="off" 
           />
           <kbd class="universal-palette-esc">ESC</kbd>
         </div>
+
+        <!-- Category Tabs -->
+        <div class="universal-palette-tabs" id="paletteTabsBar">
+          <button class="universal-palette-tab active" data-cat="All">All</button>
+          <button class="universal-palette-tab" data-cat="Trading Desks">⚡ Desks</button>
+          <button class="universal-palette-tab" data-cat="Labs">🔬 80 Labs</button>
+          <button class="universal-palette-tab" data-cat="Bots">🤖 41 Bots</button>
+          <button class="universal-palette-tab" data-cat="Securities">📈 Equities</button>
+          <button class="universal-palette-tab" data-cat="Actions">⚙️ Actions</button>
+        </div>
+
         <div class="universal-palette-results" id="universalPaletteResults">
           <!-- Dynamically Populated -->
         </div>
+
         <div class="universal-palette-footer">
           <div>
             <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span> &bull; 
             <span><kbd>↵</kbd> Select</span> &bull; 
             <span><kbd>ESC</kbd> Close</span>
           </div>
-          <div>Made by Humans on Earth &bull; Assembled by <a href="https://premchandyadav1.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:#22d3ee; text-decoration:none; font-weight:600;">Premchand Yadav</a></div>
+          <div>Made by Humans on Earth &bull; Assembled by <a href="https://premchandyadav1.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:#22d3ee; text-decoration:none; font-weight:600;">Premchand Yadav</a> &bull; <a href="gs_quant.html" style="color:#e2e8f0; text-decoration:none;">8 Desks</a></div>
         </div>
       </div>
     `;
@@ -102,6 +183,9 @@
 
     const input = document.getElementById('universalPaletteInput');
     const resultsContainer = document.getElementById('universalPaletteResults');
+    const tabsBar = document.getElementById('paletteTabsBar');
+
+    let activeCategory = 'All';
     let selectedIdx = 0;
     let currentResults = [];
 
@@ -118,25 +202,94 @@
       overlay.setAttribute('aria-hidden', 'true');
     };
 
+    // Category Tabs click handler
+    if (tabsBar) {
+      tabsBar.querySelectorAll('.universal-palette-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabsBar.querySelectorAll('.universal-palette-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          activeCategory = tab.dataset.cat;
+          renderItems(input.value);
+        });
+      });
+    }
+
     const renderItems = (query) => {
       const q = query.trim().toLowerCase();
       let matched = [];
 
+      // 1. Check for Mathematical Expressions First
+      const mathVal = evaluateMath(query);
+      if (mathVal !== null) {
+        const formatted = Number.isInteger(mathVal) ? mathVal.toLocaleString() : Number(mathVal.toFixed(4)).toLocaleString();
+        matched.push({
+          id: 'math_calc_result',
+          title: `= ${formatted}`,
+          desc: `Calculated for: ${query} (Click or press Enter to copy to clipboard)`,
+          category: 'Financial Calculator',
+          badge: 'CALC',
+          icon: 'fa-calculator',
+          isCalc: true,
+          action: () => {
+            navigator.clipboard?.writeText(String(mathVal));
+            alert(`Copied ${formatted} to clipboard!`);
+          }
+        });
+      }
+
+      // 2. Slash command routing
+      if (q.startsWith('/')) {
+        const slashQuery = q.substring(1);
+        if (slashQuery.includes('theme') || slashQuery.includes('amber') || slashQuery.includes('dark') || slashQuery.includes('paper')) {
+          matched.push(CATALOG.find(c => c.id === 'act_theme_amber'));
+          matched.push(CATALOG.find(c => c.id === 'act_theme_dark'));
+          matched.push(CATALOG.find(c => c.id === 'act_theme_paper'));
+        }
+        if (slashQuery.includes('copilot') || slashQuery.includes('ai')) {
+          matched.push(CATALOG.find(c => c.id === 'act_copilot'));
+        }
+        if (slashQuery.includes('dom') || slashQuery.includes('book')) {
+          matched.push(CATALOG.find(c => c.id === 'act_dom'));
+        }
+        if (slashQuery.includes('game') || slashQuery.includes('trade')) {
+          matched.push(CATALOG.find(c => c.id === 'act_game'));
+        }
+        if (slashQuery.includes('cert')) {
+          matched.push(CATALOG.find(c => c.id === 'act_cert'));
+        }
+        if (slashQuery.includes('tear') || slashQuery.includes('sheet')) {
+          matched.push(CATALOG.find(c => c.id === 'act_tear'));
+        }
+        if (slashQuery.includes('vip') || slashQuery.includes('secret') || slashQuery.includes('crush')) {
+          matched.push(CATALOG.find(c => c.id === 'act_vip'));
+        }
+      }
+
+      // 3. Normal Search Filtering
       if (!q) {
-        matched = CATALOG.slice(0, 16);
+        // If query is empty, show default overview + recent queries
+        const recents = getRecentQueries();
+        if (recents.length > 0) {
+          recents.forEach(r => {
+            const hit = CATALOG.find(c => c.title.toLowerCase().includes(r.toLowerCase()));
+            if (hit && !matched.includes(hit)) matched.push(hit);
+          });
+        }
+        matched = [...matched, ...CATALOG.slice(0, 16)];
       } else {
-        matched = CATALOG.filter(item => 
+        const standardMatches = CATALOG.filter(item => 
           item.title.toLowerCase().includes(q) ||
           item.desc.toLowerCase().includes(q) ||
           item.category.toLowerCase().includes(q) ||
           item.badge.toLowerCase().includes(q)
         );
+        matched = [...matched, ...standardMatches];
 
-        // Also check SecurityMaster registry if available with smart asset routing
+        // Also check SecurityMaster registry if available
         if (typeof SecurityMaster !== 'undefined' && SecurityMaster.LOCAL_REGISTRY) {
           const matchedSecs = SecurityMaster.LOCAL_REGISTRY
             .filter(s => s.symbol.toLowerCase().includes(q) || s.name.toLowerCase().includes(q))
-            .slice(0, 4)
+            .slice(0, 5)
             .map(s => {
               const isMacroOrYield = ['BZ=F', '^TNX', 'USDINR=X', '^VIX', 'GC=F', 'CL=F', 'SI=F', '^GSPC', '^NSEI'].includes(s.symbol) || 
                                      s.sector === 'Commodity' || s.sector === 'Macro / Sovereign';
@@ -174,7 +327,7 @@
 
         const matchedBots = pantheonBotNames
           .filter(b => b.name.toLowerCase().includes(q) || b.sym.toLowerCase().includes(q) || b.id.toLowerCase().includes(q) || b.pantheon.toLowerCase().includes(q))
-          .slice(0, 3)
+          .slice(0, 4)
           .map(b => ({
             id: `bot_${b.id}`,
             title: `${b.name} (${b.id})`,
@@ -187,6 +340,23 @@
         matched = [...matched, ...matchedBots];
       }
 
+      // Filter by category tab if not 'All'
+      if (activeCategory !== 'All') {
+        if (activeCategory === 'Trading Desks') matched = matched.filter(m => m.category === 'Trading Desks');
+        else if (activeCategory === 'Labs') matched = matched.filter(m => m.category === 'Labs' || m.badge?.includes('LAB'));
+        else if (activeCategory === 'Bots') matched = matched.filter(m => m.category.includes('Fleet') || m.category.includes('Bots') || m.id.startsWith('bot_'));
+        else if (activeCategory === 'Securities') matched = matched.filter(m => m.category.includes('Securities') || m.category.includes('Macro') || m.id.startsWith('sec_'));
+        else if (activeCategory === 'Actions') matched = matched.filter(m => m.category === 'Actions' || m.category === 'System');
+      }
+
+      // Deduplicate
+      const seen = new Set();
+      matched = matched.filter(item => {
+        if (!item || seen.has(item.id)) return false;
+        seen.add(item.id);
+        return true;
+      });
+
       currentResults = matched;
       selectedIdx = 0;
 
@@ -194,7 +364,7 @@
         resultsContainer.innerHTML = `
           <div style="padding: 30px; text-align: center; color: #71717a;">
             <i class="fa-solid fa-magnifying-glass" style="font-size: 1.8rem; margin-bottom: 8px; opacity: 0.4;"></i>
-            <p style="margin: 0; font-size: 0.85rem;">No matching modules or securities found for "${query}".</p>
+            <p style="margin: 0; font-size: 0.85rem;">No matching modules, calculations, or securities found for "${query}".</p>
           </div>
         `;
         return;
@@ -203,8 +373,9 @@
       // Group results by category
       const groups = {};
       matched.forEach(item => {
-        if (!groups[item.category]) groups[item.category] = [];
-        groups[item.category].push(item);
+        const cat = item.category || 'Results';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(item);
       });
 
       let html = '';
@@ -214,8 +385,9 @@
         html += `<div class="universal-palette-group-title">${catName}</div>`;
         items.forEach(item => {
           const isSel = flatIdx === selectedIdx;
+          const isCalc = item.isCalc ? 'calc-item' : '';
           html += `
-            <div class="universal-palette-item ${isSel ? 'selected' : ''}" data-idx="${flatIdx}">
+            <div class="universal-palette-item ${isSel ? 'selected' : ''} ${isCalc}" data-idx="${flatIdx}">
               <div class="universal-palette-item-left">
                 <div class="universal-palette-item-icon"><i class="fa-solid ${item.icon}"></i></div>
                 <div>
@@ -243,6 +415,7 @@
 
     const executeItem = (item) => {
       if (!item) return;
+      addRecentQuery(item.title);
       closePalette();
       if (typeof item.action === 'function') {
         item.action();
@@ -251,10 +424,11 @@
       }
     };
 
-    // Keyboard Shortcuts
+    // Keyboard Shortcuts (Cmd+K / Ctrl+K and Esc)
     document.addEventListener('keydown', (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
+        e.stopPropagation();
         if (overlay.classList.contains('active')) closePalette();
         else openPalette();
       }
@@ -297,10 +471,29 @@
       if (e.target === overlay) closePalette();
     });
 
+    // Wire all page search buttons dynamically
+    const wireSearchButtons = () => {
+      const triggers = document.querySelectorAll('#navSearchTrigger, .nav-search-trigger, #btnOpenPalette, .mobile-search-btn, #heroCanvasBtn, .palette-trigger');
+      triggers.forEach(btn => {
+        btn.removeEventListener('click', openPalette);
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openPalette();
+        });
+      });
+    };
+
+    wireSearchButtons();
+    setTimeout(wireSearchButtons, 500);
+
+    // Global APIs
     root.openUniversalPalette = openPalette;
     root.closeUniversalPalette = closePalette;
     root.openPalette = openPalette;
     root.closePalette = closePalette;
+    root.openCommandPalette = openPalette;
+    root.closeCommandPalette = closePalette;
   }
 
   if (typeof window !== 'undefined') {
