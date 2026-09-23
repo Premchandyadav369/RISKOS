@@ -1,15 +1,15 @@
 /* ==========================================================================
    RISKOS — HIGH-FREQUENCY TRADING & MARKET MICROSTRUCTURE TERMINAL (hft.css)
-   Institutional Bloomberg/Optiver dark glassmorphism, phosphor neon accents,
+   Institutional Bloomberg/Optiver dark glassmorphism, LetterGlitch background,
    microsecond telemetry typography, and high-performance canvas styling.
    ========================================================================== */
 
 :root {
   --hft-bg: #030712;
   --hft-surface: #0b1329;
-  --hft-surface-card: rgba(15, 23, 42, 0.75);
-  --hft-border: rgba(56, 189, 248, 0.16);
-  --hft-border-glow: rgba(56, 189, 248, 0.4);
+  --hft-surface-card: rgba(15, 23, 42, 0.82);
+  --hft-border: rgba(56, 189, 248, 0.18);
+  --hft-border-glow: rgba(56, 189, 248, 0.45);
   --hft-cyan: #22d3ee;
   --hft-emerald: #10b981;
   --hft-amber: #f59e0b;
@@ -30,18 +30,47 @@ body.hft-page {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Ambient Background Canvas */
-.hft-ambient-canvas {
+/* ── React Bits LetterGlitch Matrix Background ────────────────────────────── */
+.hft-letter-glitch-wrap {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none;
   z-index: 0;
-  opacity: 0.18;
+  pointer-events: none;
+  opacity: 0.28;
+  overflow: hidden;
+  background: var(--hft-bg);
+}
+
+#letterGlitchCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.hft-outer-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(3, 7, 18, 0) 45%, rgba(3, 7, 18, 0.95) 100%);
+}
+
+.hft-center-vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(3, 7, 18, 0.82) 0%, rgba(3, 7, 18, 0) 65%);
 }
 
 /* Main Container */
@@ -53,9 +82,9 @@ body.hft-page {
   padding: 84px 20px 48px;
 }
 
-/* ── Top Telemetry & Control Strip ────────────────────────────────────────── */
+/* ── Top Telemetry & Universal Ticker Search Strip ───────────────────────── */
 .hft-telemetry-banner {
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(11, 19, 41, 0.95) 100%);
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(11, 19, 41, 0.96) 100%);
   border: 1px solid var(--hft-border);
   border-radius: 12px;
   padding: 16px 20px;
@@ -65,41 +94,50 @@ body.hft-page {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 211, 238, 0.05);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(34, 211, 238, 0.06);
+  backdrop-filter: blur(14px);
 }
 
 .hft-banner-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.hft-ticker-selector {
+/* Universal Ticker Input Group */
+.hft-ticker-search-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: rgba(3, 7, 18, 0.85);
   border: 1px solid var(--hft-border-glow);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.hft-ticker-input {
+  background: transparent;
+  border: none;
   color: #fff;
   font-family: var(--hft-font-mono);
   font-weight: 700;
   font-size: 0.88rem;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+  width: 140px;
   outline: none;
-  transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
-.hft-ticker-selector:focus {
-  border-color: var(--hft-cyan);
-  box-shadow: 0 0 12px rgba(34, 211, 238, 0.3);
+.hft-ticker-input::placeholder {
+  color: #64748b;
+  font-size: 0.78rem;
 }
 
 .hft-quote-pill {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: rgba(3, 7, 18, 0.7);
+  background: rgba(3, 7, 18, 0.75);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 7px 14px;
   border-radius: 20px;
@@ -160,7 +198,7 @@ body.hft-page {
   font-family: var(--hft-font-mono);
   font-size: 0.76rem;
   font-weight: 700;
-  padding: 8px 14px;
+  padding: 7px 12px;
   border-radius: 6px;
   cursor: pointer;
   display: inline-flex;
@@ -207,11 +245,11 @@ body.hft-page {
   border: 1px solid var(--hft-border);
   border-radius: 12px;
   padding: 22px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
   position: relative;
   overflow: hidden;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
@@ -219,7 +257,7 @@ body.hft-page {
 
 .hft-card:hover {
   border-color: var(--hft-border-glow);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 25px rgba(34, 211, 238, 0.08);
+  box-shadow: 0 14px 45px rgba(0, 0, 0, 0.65), 0 0 25px rgba(34, 211, 238, 0.1);
 }
 
 /* Card Header */
@@ -254,12 +292,12 @@ body.hft-page {
 
 /* ── KaTeX Mathematical Formula Box & Layman Callout ──────────────────────── */
 .hft-math-box {
-  background: rgba(3, 7, 18, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: rgba(3, 7, 18, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.22);
   border-left: 3px solid var(--hft-cyan);
   border-radius: 8px;
   padding: 12px 16px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .hft-math-header {
@@ -295,14 +333,90 @@ body.hft-page {
   color: #fbbf24;
 }
 
-/* ── Module 1: Bookmap Heatmap Canvas ─────────────────────────────────────── */
+/* ── Realistic Institutional L3 Order Book DOM Ladder ────────────────────── */
+.hft-l3-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  background: #020617;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 12px;
+  position: relative;
+}
+
+@media (max-width: 900px) {
+  .hft-l3-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* DOM Ladder Table */
+.hft-dom-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--hft-font-mono);
+  font-size: 0.73rem;
+  max-height: 330px;
+  overflow-y: auto;
+}
+
+.hft-dom-row {
+  display: grid;
+  grid-template-columns: 65px 70px 1fr 70px 65px;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.hft-dom-row:hover {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+.hft-dom-row.is-bbo {
+  background: rgba(34, 211, 238, 0.1);
+  border: 1px solid rgba(34, 211, 238, 0.3);
+}
+
+.hft-dom-depth-bar-bid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(16, 185, 129, 0.18);
+  pointer-events: none;
+  z-index: 0;
+  transition: width 0.15s ease;
+}
+
+.hft-dom-depth-bar-ask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  background: rgba(239, 68, 68, 0.18);
+  pointer-events: none;
+  z-index: 0;
+  transition: width 0.15s ease;
+}
+
+.hft-dom-cell {
+  position: relative;
+  z-index: 1;
+}
+
+/* Realistic Bookmap Microstructure Waterfall Canvas */
 .hft-canvas-wrap {
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 330px;
   background: #020617;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -314,23 +428,24 @@ body.hft-page {
 
 .hft-canvas-hud {
   position: absolute;
-  top: 10px;
-  right: 12px;
+  top: 8px;
+  right: 10px;
   display: flex;
   gap: 8px;
   pointer-events: none;
+  z-index: 5;
 }
 
 .hft-iceberg-alert {
-  background: rgba(239, 68, 68, 0.9);
+  background: rgba(239, 68, 68, 0.92);
   color: #fff;
   font-family: var(--hft-font-mono);
   font-size: 0.72rem;
   font-weight: 700;
   padding: 4px 10px;
   border-radius: 4px;
-  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-  animation: hftFlash 1s infinite alternate;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+  animation: hftFlash 0.8s infinite alternate;
   display: none;
 }
 

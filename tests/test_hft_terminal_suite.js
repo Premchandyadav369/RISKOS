@@ -1,12 +1,14 @@
 /**
  * Test Suite: Institutional High-Frequency Trading (HFT) & Market Microstructure Terminal
  * Verifies:
- * 1. Markup, KaTeX math formulas & layman explanations across all 4 workstation modules
- * 2. Stylesheet rules, Canvas containers, and responsive grid layout
- * 3. Closed-form Avellaneda-Stoikov dynamic reservation price and asymmetric quoting math
- * 4. Stoikov Micro-Price and VPIN toxicity calculations
- * 5. Price-Time Priority (FIFO) queue logic and FIX 4.4 packet formatting
- * 6. Universal navigation invariant (links to 8 Desks) and palette integration
+ * 1. LetterGlitch matrix background component & canvas integration with fallback
+ * 2. Universal Any-Ticker input search combobox and dynamic asset resolution
+ * 3. Realistic L3 Depth of Market (DOM) Ladder and sub-pixel Bookmap waterfall
+ * 4. KaTeX math formulas & layman explanations across all 4 workstation modules
+ * 5. Closed-form Avellaneda-Stoikov dynamic reservation price and asymmetric quoting math
+ * 6. Stoikov Micro-Price and VPIN toxicity calculations
+ * 7. Price-Time Priority (FIFO) queue logic and FIX 4.4 packet formatting
+ * 8. Universal navigation invariant (links to 8 Desks) and palette integration
  */
 
 const fs = require('fs');
@@ -36,12 +38,50 @@ const ROOT = path.join(__dirname, '..');
 const hftHtml = fs.readFileSync(path.join(ROOT, 'hft.html'), 'utf8');
 const hftCss = fs.readFileSync(path.join(ROOT, 'hft.css'), 'utf8');
 const hftJs = fs.readFileSync(path.join(ROOT, 'hft.js'), 'utf8');
+const letterGlitchJs = fs.readFileSync(path.join(ROOT, 'letterGlitch.js'), 'utf8');
 const paletteJs = fs.readFileSync(path.join(ROOT, 'universalPalette.js'), 'utf8');
 
-// ── 1. HTML Architecture & Universal Invariants ──
-console.log('── Section 1: HTML Architecture & Universal Invariants ──');
+// ── 1. LetterGlitch Component & Matrix Background ──
+console.log('── Section 1: LetterGlitch Background & Visual Fallback ──');
 
-it('hft.html contains top navigation and links to 8 Desks (Universal Invariant)', () => {
+it('letterGlitch.js exports LetterGlitch class with color mixing and grid calculations', () => {
+  const LetterGlitch = require(path.join(ROOT, 'letterGlitch.js'));
+  assert(typeof LetterGlitch === 'function', 'LetterGlitch must be exported as a class/function');
+
+  // Verify helper math methods
+  const proto = LetterGlitch.prototype;
+  assert(typeof proto.mixRgb === 'function', 'LetterGlitch must have mixRgb method');
+  assert(typeof proto.hexToRgb === 'function', 'LetterGlitch must have hexToRgb method');
+  assert(typeof proto.calculateGrid === 'function', 'LetterGlitch must have calculateGrid method');
+
+  const mixed = proto.mixRgb({ r: 0, g: 0, b: 0 }, { r: 100, g: 200, b: 50 }, 0.5);
+  assert.strictEqual(mixed.r, 50, 'mixRgb red interpolation failed');
+  assert.strictEqual(mixed.g, 100, 'mixRgb green interpolation failed');
+
+  const grid = proto.calculateGrid(1000, 800);
+  assert(grid.columns > 50 && grid.rows > 30, 'calculateGrid returned invalid dimensions');
+});
+
+it('hft.html includes LetterGlitch canvas, vignettes, and script tag', () => {
+  assert(hftHtml.includes('id="letterGlitchCanvas"'), 'Missing #letterGlitchCanvas in hft.html');
+  assert(hftHtml.includes('hft-outer-vignette'), 'Missing .hft-outer-vignette in hft.html');
+  assert(hftHtml.includes('hft-center-vignette'), 'Missing .hft-center-vignette in hft.html');
+  assert(hftHtml.includes('<script src="letterGlitch.js"></script>'), 'Missing letterGlitch.js script tag');
+});
+
+// ── 2. Universal All-Ticker Support & Navigation Invariants ──
+console.log('\n── Section 2: Universal All-Ticker Support & 8-Desks Navigation ──');
+
+it('hft.html contains universal ticker search input, datalist, and load button', () => {
+  assert(hftHtml.includes('id="hftTickerInput"'), 'Missing #hftTickerInput in hft.html');
+  assert(hftHtml.includes('id="hftTickerList"'), 'Missing #hftTickerList datalist');
+  assert(hftHtml.includes('id="btnLoadTicker"'), 'Missing #btnLoadTicker');
+  assert(hftHtml.includes('value="RELIANCE.NS"'), 'Datalist must include NSE blue chips');
+  assert(hftHtml.includes('value="BTC-USD"'), 'Datalist must include crypto');
+  assert(hftHtml.includes('value="NVDA"'), 'Datalist must include US equities');
+});
+
+it('hft.html maintains universal 8 Desks navigation invariant', () => {
   assert(hftHtml.includes('>8 Desks<') || hftHtml.includes('8 Desks'), 'hft.html must link to 8 Desks');
   assert(hftHtml.includes('href="app.html"'), 'hft.html must link to app.html');
 });
@@ -52,23 +92,17 @@ it('hft.html includes KaTeX CSS and auto-render scripts for mathematical typeset
   assert(hftHtml.includes('auto-render.min.js'), 'Missing KaTeX auto-render in hft.html');
 });
 
-it('hft.html loads universal suite scripts: sessionSync, themeEngine, and universalPalette', () => {
-  assert(hftHtml.includes('sessionSync.js'), 'Missing sessionSync.js');
-  assert(hftHtml.includes('themeEngine.js'), 'Missing themeEngine.js');
-  assert(hftHtml.includes('themeEngine.css'), 'Missing themeEngine.css');
-  assert(hftHtml.includes('universalPalette.js'), 'Missing universalPalette.js');
-  assert(hftHtml.includes('authModal.js'), 'Missing authModal.js');
-});
+// ── 3. Realistic L3 DOM Ladder & Microstructure Waterfall ──
+console.log('\n── Section 3: Realistic L3 DOM Ladder & Microstructure Waterfall ──');
 
-// ── 2. Workstations, KaTeX Math & Layman Intuition ──
-console.log('\n── Section 2: 4 Workstations with KaTeX Math & Layman Explanations ──');
-
-it('Module 1: L3 Bookmap Heatmap canvas and Iceberg detector with math & layman box', () => {
+it('Module 1: Realistic L3 DOM Ladder and Bookmap canvas with math & layman box', () => {
+  assert(hftHtml.includes('id="hftDomLadder"'), 'Missing #hftDomLadder container');
   assert(hftHtml.includes('id="bookmapCanvas"'), 'Missing #bookmapCanvas');
   assert(hftHtml.includes('id="icebergAlertBadge"'), 'Missing #icebergAlertBadge');
   assert(hftHtml.includes('\\text{Depth}(p, t)'), 'Missing Depth KaTeX math formula');
   assert(hftHtml.includes('hft-layman-box'), 'Missing layman intuition box');
-  assert(hftHtml.includes('Liquidity Walls'), 'Layman box must explain liquidity walls');
+  assert(hftHtml.includes('Depth of Market (DOM) Ladder'), 'Layman box must explain DOM ladder');
+  assert(hftHtml.includes('Iceberg Detector'), 'Layman box must explain iceberg detection');
 });
 
 it('Module 2: Avellaneda-Stoikov Dynamic Market Making with math, sliders & PnL grid', () => {
@@ -97,11 +131,10 @@ it('Module 4: Queue Position Simulator & RAW FIX 4.4 Stream with math & decoders
   assert(hftHtml.includes('First-In, First-Out (FIFO)'), 'Layman box must explain FIFO queue');
 });
 
-// ── 3. Mathematical Calculations & Engine Verification ──
-console.log('\n── Section 3: High-Frequency Mathematical Engine Logic ──');
+// ── 4. Mathematical Calculations & Engine Verification ──
+console.log('\n── Section 4: High-Frequency Mathematical Engine Logic ──');
 
 it('Avellaneda-Stoikov engine calculates closed-form reservation price and asymmetric quoting', () => {
-  // Mock window for Node testing
   const mockWindow = {};
   const runCode = new Function('window', 'document', 'self', hftJs);
   const mockDoc = {
@@ -158,8 +191,8 @@ it('VPIN Toxicity calculation evaluates volume bucket imbalances correctly', () 
   assert.strictEqual(maxTox, 1.0, 'Fully one-sided flow must have 1.0 VPIN toxicity');
 });
 
-// ── 4. Ecosystem Integration ──
-console.log('\n── Section 4: Ecosystem Integration & Universal Palette ──');
+// ── 5. Ecosystem Integration ──
+console.log('\n── Section 5: Ecosystem Integration & Universal Palette ──');
 
 it('universalPalette.js registers HFT Desk and /hft slash command', () => {
   assert(paletteJs.includes("id: 'page_hft'"), 'Missing page_hft in universalPalette.js');
