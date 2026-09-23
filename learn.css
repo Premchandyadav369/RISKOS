@@ -1745,4 +1745,287 @@ header.header {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   INTERACTIVE COURSES, DIRECT ACTION & LIVE SYNC SUITE
+   ═══════════════════════════════════════════════════════════════════ */
+
+.curriculum-card {
+  background: rgba(13, 19, 33, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.curriculum-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.curriculum-card.active-track {
+  border-color: var(--accent-cyan, #22d3ee) !important;
+  box-shadow: 0 0 25px rgba(34, 211, 238, 0.15) !important;
+}
+
+.curriculum-card.track-mastered {
+  border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* Course Live Telemetry Bar */
+.course-live-telemetry-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.course-live-ticker-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.course-live-pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: pulseCourseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseCourseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.course-live-price-pill {
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Course Interactive Mini-Workbench */
+.course-mini-workbench {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-workbench-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.course-workbench-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.course-workbench-slider {
+  flex: 1;
+  height: 5px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent-cyan, #22d3ee);
+}
+
+.course-workbench-result {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.4;
+}
+
+/* Course Direct Action Strip */
+.course-direct-action-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.course-direct-act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.course-direct-act-btn.btn-trade {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3));
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.course-direct-act-btn.btn-trade:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+  color: #fff;
+}
+
+.course-direct-act-btn.btn-desk {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+}
+
+.course-direct-act-btn.btn-desk:hover {
+  background: rgba(59, 130, 246, 0.25);
+  color: #fff;
+}
+
+.course-direct-act-btn.btn-quiz {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+.course-direct-act-btn.btn-quiz:hover {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fff;
+}
+
+.course-direct-act-btn.btn-start {
+  background: rgba(236, 72, 153, 0.15);
+  border-color: rgba(236, 72, 153, 0.35);
+  color: #f472b6;
+}
+
+.course-direct-act-btn.btn-start:hover {
+  background: rgba(236, 72, 153, 0.25);
+  color: #fff;
+}
+
+/* Step-Level Actions */
+.step-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-quick-action-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-muted, #94a3b8);
+  border-radius: 4px;
+  padding: 3px 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  transition: all 0.15s ease;
+}
+
+.step-quick-action-btn:hover {
+  background: rgba(34, 211, 238, 0.2);
+  border-color: rgba(34, 211, 238, 0.5);
+  color: #22d3ee;
+}
+
+.step-quick-action-btn.btn-trade-step:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.5);
+  color: #10b981;
+}
+
+/* Interactive Quiz Banner inside Course Card */
+.course-quiz-banner {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 12px;
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.course-quiz-banner.active {
+  display: flex;
+  animation: fadeInCourseQuiz 0.2s ease;
+}
+
+@keyframes fadeInCourseQuiz {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.course-quiz-option {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.course-quiz-option:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.course-quiz-option.correct {
+  background: rgba(16, 185, 129, 0.25) !important;
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+  font-weight: 700;
+}
+
+.course-quiz-option.wrong {
+  background: rgba(239, 68, 68, 0.25) !important;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+
 

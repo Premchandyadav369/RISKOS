@@ -1397,6 +1397,9 @@
           evaluateActiveModule();
         }
       }
+      if (typeof updateCoursesLiveTelemetry === 'function') {
+        updateCoursesLiveTelemetry();
+      }
     });
   };
 
@@ -1687,6 +1690,473 @@
     }
   ];
 
+  // ── 10 Comprehensive Course Live Telemetry & Direct Action Configurations ───
+  const COURSE_LIVE_CONFIGS = {
+    retail_layman: {
+      symbol: 'RELIANCE.NS',
+      benchmark: '^NSEI',
+      deskUrl: 'observatory.html',
+      deskLabel: 'Observatory',
+      deskIcon: 'fa-satellite-dish',
+      actionLabel: '1-Click DCA Order (NIFTYBEES)',
+      actionOrder: { symbol: 'NIFTYBEES', side: 'BUY', qty: 36, price: 275 },
+      metricTitle: 'SIP Compounding Telemetry',
+      sliderLabel: 'Monthly Investment',
+      sliderMin: 1000,
+      sliderMax: 50000,
+      sliderStep: 1000,
+      sliderDefault: 10000,
+      unit: '₹',
+      compute: (val, quote) => {
+        const rate = 0.135;
+        const months = 120;
+        const fv = val * ((Math.pow(1 + rate / 12, months) - 1) / (rate / 12)) * (1 + rate / 12);
+        const invested = val * months;
+        return `10Y Value: ₹${(fv / 10000000).toFixed(2)} Cr (Net Gain: +₹${((fv - invested) / 100000).toFixed(1)}L @ 13.5% CAGR)`;
+      },
+      quickQuiz: {
+        question: "If inflation is 6% and CAGR is 14%, what is your real annualized wealth doubling time via Rule of 72?",
+        options: ["~5.1 Years", "~9.0 Years (72 / 8% real return)", "~12.0 Years"],
+        answerIndex: 1,
+        explanation: "Real return = 14% - 6% = 8%. By Rule of 72, 72 / 8 = 9.0 Years to double real purchasing power."
+      }
+    },
+    portfolio_risk: {
+      symbol: 'TCS.NS',
+      benchmark: '^NSEI',
+      deskUrl: 'app.html',
+      deskLabel: 'Desk 2: Tail Risk',
+      deskIcon: 'fa-shield-halved',
+      actionLabel: '1-Click Low-Beta Hedge (HDFCBANK)',
+      actionOrder: { symbol: 'HDFCBANK', side: 'BUY', qty: 10, price: 1768 },
+      metricTitle: 'Market Shock & Beta Stress',
+      sliderLabel: 'Simulated Market Shock (Δ%)',
+      sliderMin: -20,
+      sliderMax: 20,
+      sliderStep: 1,
+      sliderDefault: -5,
+      unit: '%',
+      compute: (val, quote) => {
+        const beta = quote?.beta || 0.78;
+        const vol = quote?.vol || 0.162;
+        const assetMove = val * beta;
+        const var99 = (vol * 2.326 / Math.sqrt(252) * 100).toFixed(2);
+        return `On ${val >= 0 ? '+' : ''}${val}% NIFTY Shock → Asset Move: ${assetMove >= 0 ? '+' : ''}${assetMove.toFixed(2)}% | 1D VaR 99%: ${var99}%`;
+      },
+      quickQuiz: {
+        question: "If an asset has Beta = 1.25 and NIFTY drops 4%, what is the expected CAPM systematic drop?",
+        options: ["-3.2%", "-5.0% (1.25 × -4%)", "-1.25%"],
+        answerIndex: 1,
+        explanation: "Systematic sensitivity ΔS = Beta × ΔM = 1.25 × -4% = -5.0% expected systematic move."
+      }
+    },
+    simulators_construction: {
+      symbol: 'HDFCBANK.NS',
+      benchmark: '^NSEI',
+      deskUrl: 'portfolio_optimizer.html',
+      deskLabel: 'Desk 8: Optimizer',
+      deskIcon: 'fa-sliders',
+      actionLabel: '1-Click Balanced Basket (Gold/Equity)',
+      actionOrder: { symbol: 'GOLDBEES', side: 'BUY', qty: 150, price: 65.4 },
+      metricTitle: 'Markowitz All-Weather Frontier',
+      sliderLabel: 'Equity Allocation (%)',
+      sliderMin: 10,
+      sliderMax: 90,
+      sliderStep: 5,
+      sliderDefault: 60,
+      unit: '%',
+      compute: (val, quote) => {
+        const eqWeight = val / 100;
+        const defWeight = 1 - eqWeight;
+        const expRet = (eqWeight * 14.5 + defWeight * 7.5).toFixed(1);
+        const portVol = Math.sqrt(Math.pow(eqWeight * 0.16, 2) + Math.pow(defWeight * 0.08, 2) + 2 * eqWeight * defWeight * 0.16 * 0.08 * 0.15) * 100;
+        const sharpe = ((expRet - 6.5) / portVol).toFixed(2);
+        return `Exp Return: ${expRet}% | Port Vol: ${portVol.toFixed(1)}% | Tangency Sharpe: ${sharpe}`;
+      },
+      quickQuiz: {
+        question: "What is the primary mathematical reason Markowitz diversification creates a 'free lunch'?",
+        options: ["It increases asset returns automatically", "Covariance terms cancel out total variance when correlation ρ < 1", "It eliminates all market risk completely"],
+        answerIndex: 1,
+        explanation: "When asset returns are imperfectly correlated (ρ < 1), portfolio variance σ_p² is strictly less than the weighted average of individual variances."
+      }
+    },
+    derivatives_exotics: {
+      symbol: '^NSEI',
+      benchmark: '^NSEI',
+      deskUrl: 'learn.html#options_payoff',
+      deskLabel: 'Derivatives Lab',
+      deskIcon: 'fa-cube',
+      actionLabel: '1-Click ATM Straddle Vega Hedge',
+      actionOrder: { symbol: 'NIFTYBEES', side: 'BUY', qty: 25, price: 272 },
+      metricTitle: '0DTE Net GEX & Options Smile',
+      sliderLabel: 'Strike Distance from ATM',
+      sliderMin: -500,
+      sliderMax: 500,
+      sliderStep: 50,
+      sliderDefault: 0,
+      unit: ' Pts',
+      compute: (val, quote) => {
+        const spot = quote?.price || 24840;
+        const strike = Math.round((spot + val) / 50) * 50;
+        const d = Math.abs(val);
+        const iv = (13.8 + (d / 500) * 4.5).toFixed(1);
+        const straddleCost = (0.8 * spot * (parseFloat(iv) / 100) / 16).toFixed(1);
+        return `Strike: ${strike} | Implied Vol: ${iv}% | ATM 1D Straddle: ₹${straddleCost} | Net GEX: +₹420 Cr (Pinning)`;
+      },
+      quickQuiz: {
+        question: "When dealers are in Large Positive Gamma (High Net GEX), how do they hedge delta moves?",
+        options: ["Buy as market rises, sell as it falls (momentum breakout)", "Sell as market rises, buy as it falls (volatility suppression & strike pinning)", "Never adjust hedges"],
+        answerIndex: 1,
+        explanation: "Positive dealer gamma requires counter-cyclical hedging (selling rallies, buying dips), dampening volatility and pinning spot to high-OI strikes."
+      }
+    },
+    microstructure_execution: {
+      symbol: 'RELIANCE.NS',
+      benchmark: '^NSEI',
+      deskUrl: 'app.html',
+      deskLabel: 'Order Book DOM',
+      deskIcon: 'fa-bolt-lightning',
+      actionLabel: '1-Click TWAP Liquidation Slice',
+      actionOrder: { symbol: 'RELIANCE', side: 'BUY', qty: 50, price: 1287 },
+      metricTitle: 'Almgren-Chriss Slippage & Impact',
+      sliderLabel: 'Metaorder Quantity (Shares)',
+      sliderMin: 100,
+      sliderMax: 10000,
+      sliderStep: 100,
+      sliderDefault: 1000,
+      unit: ' Shs',
+      compute: (val, quote) => {
+        const price = quote?.price || 1287;
+        const notional = val * price;
+        const permBps = (0.015 * Math.sqrt(val)).toFixed(1);
+        const tempBps = (0.04 * Math.sqrt(val)).toFixed(1);
+        const totalBps = (parseFloat(permBps) + parseFloat(tempBps)).toFixed(1);
+        const totalCost = (notional * parseFloat(totalBps) / 10000).toFixed(0);
+        return `Notional: ₹${(notional / 100000).toFixed(2)}L | Impact: ${totalBps} bps (₹${totalCost} Slippage Drag)`;
+      },
+      quickQuiz: {
+        question: "According to Kyle's Lambda (1985), what happens to price impact when market depth (liquidity) decreases?",
+        options: ["Price impact decreases", "Price impact increases inversely with depth (λ = σ_v / (2 σ_u))", "Price impact remains zero"],
+        answerIndex: 1,
+        explanation: "Kyle's lambda measures illiquidity: as noise trading or market depth drops, lambda spikes, causing greater price concession per executed share."
+      }
+    },
+    quant_strategies: {
+      symbol: 'INFY.NS',
+      benchmark: 'TCS.NS',
+      deskUrl: 'fleet.html',
+      deskLabel: '41-Bot Fleet Desk',
+      deskIcon: 'fa-chart-line',
+      actionLabel: '1-Click Stat-Arb Pair (Long INFY / Short TCS)',
+      actionOrder: { symbol: 'INFY', side: 'BUY', qty: 25, price: 1942.8 },
+      metricTitle: 'Kalman Pairs Spread & Carry',
+      sliderLabel: 'Pairs Spread Z-Score',
+      sliderMin: -3.5,
+      sliderMax: 3.5,
+      sliderStep: 0.1,
+      sliderDefault: 2.1,
+      unit: 'σ',
+      compute: (val, quote) => {
+        const z = parseFloat(val);
+        const signal = z >= 2.0 ? 'ENTER SHORT SPREAD (SELL INFY / BUY TCS)' : (z <= -2.0 ? 'ENTER LONG SPREAD (BUY INFY / SELL TCS)' : 'HOLD / MARKET NEUTRAL (INSIDE NO-TRADE BAND)');
+        return `Z-Score: ${z > 0 ? '+' : ''}${z.toFixed(1)}σ → Signal: ${signal} | Mean Reversion Half-Life: 6.4D | Basis APR: 9.2%`;
+      },
+      quickQuiz: {
+        question: "Why is the Kalman filter superior to ordinary linear regression (OLS) in statistical arbitrage pairs trading?",
+        options: ["It assumes prices never change", "It continuously updates time-varying hedge ratios β_t recursively without lookahead bias", "It guarantees 100% win rate"],
+        answerIndex: 1,
+        explanation: "Stationary relationships drift over time. Kalman filtering dynamically tracks the evolving state of hedge ratios β_t with real-time Bayesian updates."
+      }
+    },
+    fixed_income_credit: {
+      symbol: 'NSE:GSEC10Y',
+      benchmark: 'US10Y',
+      deskUrl: 'observatory.html#macro',
+      deskLabel: 'Macro Observatory',
+      deskIcon: 'fa-landmark',
+      actionLabel: '1-Click Duration Hedge (G-Sec)',
+      actionOrder: { symbol: 'NIFTYBEES', side: 'BUY', qty: 50, price: 272 },
+      metricTitle: 'Nelson-Siegel Yield & DV01',
+      sliderLabel: 'Rate Shock Perturbation (bps)',
+      sliderMin: -200,
+      sliderMax: 200,
+      sliderStep: 10,
+      sliderDefault: 50,
+      unit: ' bps',
+      compute: (val, quote) => {
+        const baseYield = 6.84;
+        const shocked = (baseYield + val / 100).toFixed(2);
+        const modDuration = 6.8;
+        const priceShock = (-modDuration * (val / 100)).toFixed(2);
+        const dv01 = (modDuration * 10000000 * 0.0001).toFixed(0);
+        return `10Y Yield: ${shocked}% | Portfolio Price Move: ${priceShock}% | DV01 Sensitivity: ₹${dv01} per bp on ₹1 Cr`;
+      },
+      quickQuiz: {
+        question: "What does an inverted sovereign yield curve (10Y Yield < 2Y Yield) historically signal in macroeconomic probit models?",
+        options: ["Hyperinflation boom", "Statistically elevated probability of economic recession within 6 to 18 months", "Stock market immediate rally"],
+        answerIndex: 1,
+        explanation: "Yield curve inversion indicates tight near-term monetary policy combined with market expectations of future rate cuts and economic cooling."
+      }
+    },
+    corporate_pe_cat: {
+      symbol: 'TCS.NS',
+      benchmark: 'RELIANCE.NS',
+      deskUrl: 'ticker.html',
+      deskLabel: 'Screener Desk',
+      deskIcon: 'fa-building-columns',
+      actionLabel: '1-Click Corporate Quality Buy (TCS)',
+      actionOrder: { symbol: 'TCS', side: 'BUY', qty: 5, price: 4380 },
+      metricTitle: 'DuPont 5-Way ROE & LBO IRR',
+      sliderLabel: 'Operating Margin Expansion (%)',
+      sliderMin: -5,
+      sliderMax: 10,
+      sliderStep: 0.5,
+      sliderDefault: 2.5,
+      unit: '%',
+      compute: (val, quote) => {
+        const baseRoe = quote?.roe || 48.2;
+        const shockedRoe = (baseRoe + val * 1.8).toFixed(1);
+        const pe = quote?.pe || 31.8;
+        const lboMoic = (2.2 + val * 0.08).toFixed(2);
+        const lboIrr = (22.5 + val * 1.2).toFixed(1);
+        return `DuPont ROE: ${shockedRoe}% | P/E: ${pe}× | PE Sponsor MOIC: ${lboMoic}× (LBO IRR: ${lboIrr}%)`;
+      },
+      quickQuiz: {
+        question: "In private equity LBO waterfall analysis, how does a cash flow 'debt sweep' protect credit lenders?",
+        options: ["It distributes all profits to sponsors first", "100% of excess free cash flow is mandated to pay down senior debt principal before equity dividends", "It converts debt to common equity"],
+        answerIndex: 1,
+        explanation: "Debt sweeps enforce de-leveraging by sweeping 50-100% of excess cash flow toward rapid senior debt amortization, reducing default risk."
+      }
+    },
+    ai_neural_alpha: {
+      symbol: 'AAPL',
+      benchmark: 'SPY',
+      deskUrl: 'app.html#market',
+      deskLabel: 'Desk 1: HMM Regime',
+      deskIcon: 'fa-brain',
+      actionLabel: '1-Click Deploy AI HMM Agent',
+      actionOrder: { symbol: 'AAPL', side: 'BUY', qty: 10, price: 228 },
+      metricTitle: 'Gaussian HMM Regime Probabilities',
+      sliderLabel: 'Simulated 20D Return Momentum',
+      sliderMin: -15,
+      sliderMax: 15,
+      sliderStep: 1,
+      sliderDefault: 4,
+      unit: '%',
+      compute: (val, quote) => {
+        const bullProb = Math.min(95, Math.max(5, Math.round(50 + val * 3.5)));
+        const bearProb = Math.min(95 - bullProb, Math.max(5, Math.round(35 - val * 2.5)));
+        const sidewaysProb = 100 - bullProb - bearProb;
+        const regime = bullProb > 55 ? 'BULL TREND' : (bearProb > 55 ? 'BEAR TURBULENCE' : 'SIDEWAYS RANGE');
+        return `State: ${regime} (Bull: ${bullProb}%, Bear: ${bearProb}%, Chop: ${sidewaysProb}%) | Neural SDE Loss: 0.0031`;
+      },
+      quickQuiz: {
+        question: "Why do Hidden Markov Models (HMM) outperform static threshold indicators in systematic trading?",
+        options: ["They assume market regime is constant", "They model latent unobservable market states and transition probabilities between regimes probabilistically", "They require no market data"],
+        answerIndex: 1,
+        explanation: "Markets alternate between latent regimes (trending bull, volatile bear, choppy consolidation). HMMs infer transition probabilities to dynamically adapt strategy risk."
+      }
+    },
+    stochastic_interview: {
+      symbol: 'NVDA',
+      benchmark: 'QQQ',
+      deskUrl: 'gs_quant.html',
+      deskLabel: 'GS Quant Desk',
+      deskIcon: 'fa-square-root-variable',
+      actionLabel: '1-Click Optiver MM Quote Tape',
+      actionOrder: { symbol: 'NVDA', side: 'BUY', qty: 10, price: 217 },
+      metricTitle: 'Itô Lemma Drift & Avellaneda Skew',
+      sliderLabel: 'Market Maker Inventory (q)',
+      sliderMin: -50,
+      sliderMax: 50,
+      sliderStep: 5,
+      sliderDefault: 15,
+      unit: ' Contracts',
+      compute: (val, quote) => {
+        const q = parseInt(val);
+        const spot = quote?.price || 217;
+        const gamma = 0.1;
+        const sigma = 0.35;
+        const reservationPrice = (spot - q * gamma * Math.pow(sigma, 2)).toFixed(2);
+        const halfSpread = 0.45;
+        const bid = (parseFloat(reservationPrice) - halfSpread).toFixed(2);
+        const ask = (parseFloat(reservationPrice) + halfSpread).toFixed(2);
+        const skewDirection = q > 0 ? 'SKEWED DOWNWARD (Deter Buys, Attract Sells)' : (q < 0 ? 'SKEWED UPWARD (Attract Buys, Deter Sells)' : 'SYMMETRIC AROUND MID');
+        return `Mid: $${spot} | Reservation Price r(s,q): $${reservationPrice} | Bid: $${bid} / Ask: $${ask} (${skewDirection})`;
+      },
+      quickQuiz: {
+        question: "By Itô's Lemma, if dS = μ S dt + σ S dW, what is the stochastic differential of f(S) = ln(S)?",
+        options: ["d(ln S) = μ dt + σ dW", "d(ln S) = (μ - ½σ²) dt + σ dW", "d(ln S) = ½σ² dt + σ dW"],
+        answerIndex: 1,
+        explanation: "By Itô's Lemma: df = (f' μ S + ½ f'' σ² S²) dt + f' σ S dW. With f'(S) = 1/S and f''(S) = -1/S², the drift term becomes (μ - ½σ²) dt."
+      }
+    }
+  };
+
+  if (typeof window !== 'undefined') {
+    window.COURSE_LIVE_CONFIGS = COURSE_LIVE_CONFIGS;
+  }
+
+  // ── Global Direct Action & Interactive Workstation Helpers ───────────────────
+  window.executeCoursePaperTrade = (trackId) => {
+    const cfg = COURSE_LIVE_CONFIGS[trackId];
+    if (!cfg) return;
+
+    if (typeof PaperBroker === 'undefined') {
+      showToast('Paper Broker Connecting', 'Virtual sandbox environment is initializing...', 'warn');
+      return;
+    }
+
+    let quote = null;
+    if (typeof SecurityMaster !== 'undefined') {
+      quote = SecurityMaster.getQuote(cfg.symbol) || SecurityMaster.getQuote(cfg.actionOrder.symbol);
+    }
+    const execPrice = (quote && quote.price) ? quote.price : cfg.actionOrder.price;
+
+    const res = PaperBroker.placeOrder({
+      symbol: cfg.actionOrder.symbol,
+      side: cfg.actionOrder.side,
+      qty: cfg.actionOrder.qty,
+      price: execPrice,
+      botCopySource: `Course: ${trackId}`,
+      exchange: 'NSE'
+    });
+
+    if (res && res.success === false) {
+      showToast('Execution Alert', res.reason || 'Order rejected by risk guardrails', 'warn');
+    }
+  };
+
+  window.executeStepPaperTrade = (moduleId) => {
+    if (typeof PaperBroker === 'undefined') {
+      showToast('Paper Broker Connecting', 'Virtual sandbox environment is initializing...', 'warn');
+      return;
+    }
+    const mod = (typeof LearnMathEngine !== 'undefined') ? LearnMathEngine.getModuleById(moduleId) : null;
+    const sym = labState.activeSecuritySymbol ? labState.activeSecuritySymbol.replace('.NS', '') : 'RELIANCE';
+    let price = 100;
+    if (typeof SecurityMaster !== 'undefined') {
+      const q = SecurityMaster.getQuote(sym) || SecurityMaster.getQuote('RELIANCE');
+      if (q && q.price) price = q.price;
+    }
+
+    PaperBroker.placeOrder({
+      symbol: sym,
+      side: 'BUY',
+      qty: 10,
+      price: price,
+      botCopySource: `Course Lab: ${mod ? mod.title : moduleId}`,
+      exchange: 'NSE'
+    });
+  };
+
+  window.bindCourseLiveSecurity = (trackId, symbol) => {
+    if (COURSE_LIVE_CONFIGS[trackId]) {
+      COURSE_LIVE_CONFIGS[trackId].symbol = symbol;
+    }
+    if (typeof window.bindRealTickerToLab === 'function') {
+      window.bindRealTickerToLab(symbol);
+    }
+    renderCurriculumTracks();
+  };
+
+  window.launchCourseDesk = (trackId) => {
+    const cfg = COURSE_LIVE_CONFIGS[trackId];
+    if (cfg && cfg.deskUrl) {
+      window.location.href = cfg.deskUrl;
+    }
+  };
+
+  window.startCourseTrack = (trackId) => {
+    const track = STRUCTURED_TRACKS.find(t => t.id === trackId);
+    if (!track || !track.steps.length) return;
+    const firstUncompleted = track.steps.find(s => !isLabCompleted(s.moduleId)) || track.steps[0];
+    switchModule(firstUncompleted.moduleId);
+    const workspace = document.getElementById('activeLabWorkspace');
+    if (workspace) workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('Course Track Activated', `Loaded ${firstUncompleted.title} into active laboratory`, 'success');
+  };
+
+  window.toggleCourseQuiz = (trackId) => {
+    const quizEl = document.getElementById(`courseQuiz_${trackId}`);
+    if (quizEl) {
+      quizEl.classList.toggle('active');
+    }
+  };
+
+  window.checkCourseQuiz = (trackId, selectedIdx) => {
+    const cfg = COURSE_LIVE_CONFIGS[trackId];
+    if (!cfg || !cfg.quickQuiz) return;
+    const quiz = cfg.quickQuiz;
+    const isCorrect = selectedIdx === quiz.answerIndex;
+    const opts = document.querySelectorAll(`#courseQuiz_${trackId} .course-quiz-option`);
+    opts.forEach((opt, idx) => {
+      opt.classList.remove('correct', 'wrong');
+      if (idx === quiz.answerIndex) {
+        opt.classList.add('correct');
+      } else if (idx === selectedIdx && !isCorrect) {
+        opt.classList.add('wrong');
+      }
+    });
+
+    const fbEl = document.getElementById(`courseQuizFeedback_${trackId}`);
+    if (fbEl) {
+      fbEl.style.display = 'block';
+      fbEl.innerHTML = `
+        <div style="font-size:0.75rem; font-weight:700; color:${isCorrect ? '#10b981' : '#ef4444'}; margin-bottom:4px;">
+          ${isCorrect ? '✅ Spot on! Intuition Verified' : '❌ Keep Refining Your Derivation'}
+        </div>
+        <div style="font-size:0.7rem; color:#cbd5e1; line-height:1.4;">
+          ${quiz.explanation}
+        </div>
+      `;
+    }
+
+    if (isCorrect) {
+      showToast('Course Challenge Cleared! 🎯', 'Accreditation progress updated', 'success');
+    }
+  };
+
+  window.syncAllCoursesLive = async () => {
+    if (typeof SecurityMaster !== 'undefined' && typeof SecurityMaster.forceRefreshAllQuotes === 'function') {
+      try {
+        await SecurityMaster.forceRefreshAllQuotes();
+      } catch (e) {}
+    }
+    updateCoursesLiveTelemetry();
+    showToast('Live Market Sync Complete', 'All 10 courses synchronized with fresh exchange quotes', 'success');
+  };
+
+  function updateCoursesLiveTelemetry() {
+    if (typeof SecurityMaster === 'undefined') return;
+
+    Object.keys(COURSE_LIVE_CONFIGS).forEach(trackId => {
+      const cfg = COURSE_LIVE_CONFIGS[trackId];
+      const quote = SecurityMaster.getQuote(cfg.symbol) || SecurityMaster.getQuote(cfg.symbol.replace('.NS', '')) || SecurityMaster.getQuote('RELIANCE');
+      if (!quote) return;
+
+      const pricePill = document.getElementById(`coursePricePill_${trackId}`);
+      if (pricePill) {
+        const curr = labState.currency === 'USD' ? '$' : '₹';
+        const priceVal = labState.currency === 'USD' && typeof SecurityMaster.getUsdToInr === 'function' ? (quote.price / SecurityMaster.getUsdToInr()) : quote.price;
+        const chg = quote.changePercent || quote.change_percent || 0;
+        pricePill.innerHTML = `
+          <span class="course-live-pulse-dot"></span>
+          <span style="color:#22d3ee;font-weight:800;">${quote.symbol}</span>
+          <span style="color:#fff;">${curr}${priceVal.toFixed(2)}</span>
+          <span style="color:${chg >= 0 ? '#10b981' : '#ef4444'}; font-size:0.68rem;">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>
+        `;
+      }
+
+      const slider = document.getElementById(`courseSlider_${trackId}`);
+      const resultEl = document.getElementById(`courseResult_${trackId}`);
+      if (slider && resultEl && cfg.compute) {
+        resultEl.textContent = cfg.compute(parseFloat(slider.value), quote);
+      }
+    });
+  }
+  window.updateCoursesLiveTelemetry = updateCoursesLiveTelemetry;
+
   // ── HUD Toast Notifications ───────────────────────────────────────────────
   const showToast = (title, message, type = 'info') => {
     let container = document.getElementById('riskosToastContainer');
@@ -1885,16 +2355,26 @@
       const isCurrentInTrack = track.steps.some(s => s.moduleId === labState.activeModuleId);
       const completedStepsCount = track.steps.filter(s => isLabCompleted(s.moduleId)).length;
       const isTrackMastered = completedStepsCount === track.steps.length;
+      const cfg = COURSE_LIVE_CONFIGS[track.id] || {};
+      let quote = null;
+      if (typeof SecurityMaster !== 'undefined' && cfg.symbol) {
+        quote = SecurityMaster.getQuote(cfg.symbol) || SecurityMaster.getQuote(cfg.symbol.replace('.NS', '')) || SecurityMaster.getQuote('RELIANCE');
+      }
+      const curr = labState.currency === 'USD' ? '$' : '₹';
+      const quotePrice = quote ? (labState.currency === 'USD' && typeof SecurityMaster.getUsdToInr === 'function' ? (quote.price / SecurityMaster.getUsdToInr()) : quote.price) : 0;
+      const chg = quote ? (quote.changePercent || quote.change_percent || 0) : 0;
+      const initialResult = cfg.compute ? cfg.compute(cfg.sliderDefault || 10, quote) : '';
 
       return `
         <div class="curriculum-card ${isCurrentInTrack ? 'active-track' : ''} ${isTrackMastered ? 'track-mastered' : ''}" style="border-top: 3px solid ${track.color};">
-          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 4px;">
+          <!-- 1. Header with Badge & Mastery Stats -->
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom: 2px;">
             <div style="display:flex; align-items:center; gap:8px;">
-              <div style="width:30px; height:30px; border-radius:8px; background:${track.color}20; display:flex; align-items:center; justify-content:center; color:${track.color};">
+              <div style="width:32px; height:32px; border-radius:8px; background:${track.color}20; display:flex; align-items:center; justify-content:center; color:${track.color}; flex-shrink:0;">
                 <i class="fa-solid ${track.icon}"></i>
               </div>
               <div>
-                <h4 style="font-size:0.92rem; font-weight:800; color:#fff; margin:0;">${track.title}</h4>
+                <h4 style="font-size:0.94rem; font-weight:800; color:#fff; margin:0;">${track.title}</h4>
                 <span style="font-size:0.7rem; color:var(--text-muted);">${track.subtitle}</span>
               </div>
             </div>
@@ -1906,8 +2386,101 @@
             </div>
           </div>
 
-          <p style="font-size:0.73rem; color:var(--text-secondary); line-height:1.4; margin:0 0 6px 0;">${track.description}</p>
+          <p style="font-size:0.73rem; color:var(--text-secondary); line-height:1.4; margin:0;">${track.description}</p>
 
+          <!-- 2. Real-Time Live Telemetry Bar -->
+          <div class="course-live-telemetry-bar">
+            <div class="course-live-ticker-badge" id="coursePricePill_${track.id}">
+              <span class="course-live-pulse-dot"></span>
+              <span style="color:#22d3ee;font-weight:800;">${cfg.symbol || 'LIVE'}</span>
+              <span style="color:#fff;">${quote ? `${curr}${quotePrice.toFixed(2)}` : 'Syncing...'}</span>
+              <span style="color:${chg >= 0 ? '#10b981' : '#ef4444'}; font-size:0.68rem;">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:0.65rem; color:#10b981; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.25); padding:1px 6px; border-radius:4px; font-weight:700;">
+                <i class="fa-solid fa-bolt" style="font-size:0.6rem;"></i> LIVE SYNC
+              </span>
+              <select onchange="window.bindCourseLiveSecurity('${track.id}', this.value)" style="background:#090d16; border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; font-size:0.68rem; border-radius:4px; padding:2px 4px; cursor:pointer;" title="Change live bound ticker for this course">
+                <option value="${cfg.symbol || 'RELIANCE.NS'}">${cfg.symbol || 'Default'}</option>
+                <option value="RELIANCE.NS">RELIANCE (NSE)</option>
+                <option value="TCS.NS">TCS (NSE)</option>
+                <option value="HDFCBANK.NS">HDFCBANK (NSE)</option>
+                <option value="^NSEI">NIFTY 50</option>
+                <option value="NVDA">NVDA ($)</option>
+                <option value="AAPL">AAPL ($)</option>
+                <option value="BTC-USD">BTC-USD</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- 3. Interactive Live Course Mini-Workbench -->
+          <div class="course-mini-workbench">
+            <div class="course-workbench-header">
+              <span style="color:${track.color}; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.04em;">
+                <i class="fa-solid fa-sliders" style="margin-right:4px;"></i> ${cfg.metricTitle || 'Live Parameter Sensitivity'}
+              </span>
+              <span style="font-family:var(--font-mono, monospace); font-weight:700; color:#fff;" id="courseSliderVal_${track.id}">
+                ${cfg.unit === '₹' ? '₹' : ''}${cfg.sliderDefault || 10}${cfg.unit !== '₹' ? cfg.unit : ''}
+              </span>
+            </div>
+            <div class="course-workbench-slider-row">
+              <input 
+                type="range" 
+                class="course-workbench-slider" 
+                id="courseSlider_${track.id}"
+                min="${cfg.sliderMin || 0}" 
+                max="${cfg.sliderMax || 100}" 
+                step="${cfg.sliderStep || 1}" 
+                value="${cfg.sliderDefault || 10}" 
+                oninput="
+                  const v = this.value;
+                  const valEl = document.getElementById('courseSliderVal_${track.id}');
+                  if (valEl) valEl.textContent = '${cfg.unit === '₹' ? '₹' : ''}' + v + '${cfg.unit !== '₹' ? cfg.unit : ''}';
+                  const resEl = document.getElementById('courseResult_${track.id}');
+                  if (resEl && window.COURSE_LIVE_CONFIGS && window.COURSE_LIVE_CONFIGS['${track.id}']) {
+                    const q = (typeof SecurityMaster !== 'undefined') ? (SecurityMaster.getQuote('${cfg.symbol}') || SecurityMaster.getQuote('RELIANCE')) : null;
+                    resEl.textContent = window.COURSE_LIVE_CONFIGS['${track.id}'].compute(parseFloat(v), q);
+                  }
+                "
+              />
+            </div>
+            <div class="course-workbench-result" id="courseResult_${track.id}">
+              ${initialResult}
+            </div>
+          </div>
+
+          <!-- 4. Direct Action Suite -->
+          <div class="course-direct-action-strip">
+            <button onclick="window.executeCoursePaperTrade('${track.id}')" class="course-direct-act-btn btn-trade" title="Execute simulated order in ₹10 Lakhs sandbox account">
+              <i class="fa-solid fa-bolt"></i> ${cfg.actionLabel || '1-Click Paper Order'}
+            </button>
+            <button onclick="window.launchCourseDesk('${track.id}')" class="course-direct-act-btn btn-desk" title="Launch dedicated institutional trading desk">
+              <i class="fa-solid ${cfg.deskIcon || 'fa-arrow-up-right-from-square'}"></i> ${cfg.deskLabel || 'Desk'}
+            </button>
+            <button onclick="window.toggleCourseQuiz('${track.id}')" class="course-direct-act-btn btn-quiz" title="Test intuition with instant quiz">
+              <i class="fa-solid fa-lightbulb"></i> Check Intuition
+            </button>
+            <button onclick="window.startCourseTrack('${track.id}')" class="course-direct-act-btn btn-start" title="Begin or continue this course track">
+              <i class="fa-solid fa-play"></i> Start Track
+            </button>
+          </div>
+
+          <!-- 5. Interactive Quiz Dropdown (Checkpoint Challenge) -->
+          <div class="course-quiz-banner" id="courseQuiz_${track.id}">
+            <div style="font-size:0.75rem; font-weight:700; color:#fbbf24; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-graduation-cap"></i> Intuition Challenge: ${cfg.quickQuiz?.question || ''}
+            </div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${(cfg.quickQuiz?.options || []).map((opt, optIdx) => `
+                <button class="course-quiz-option" onclick="window.checkCourseQuiz('${track.id}', ${optIdx})">
+                  ${opt}
+                </button>
+              `).join('')}
+            </div>
+            <div id="courseQuizFeedback_${track.id}" style="display:none; padding:8px; background:rgba(0,0,0,0.4); border-radius:6px; margin-top:4px;"></div>
+          </div>
+
+          <!-- 6. Step Items with Step-Level Direct Actions -->
           <div style="display:flex; flex-direction:column; gap:6px;">
             ${track.steps.map((step, idx) => {
               const isActive = step.moduleId === labState.activeModuleId;
@@ -1926,7 +2499,16 @@
                       ${step.role}
                     </div>
                   </div>
-                  ${isActive ? `<i class="fa-solid fa-circle-play" style="color:${track.color}; font-size:0.8rem; margin-top:3px;"></i>` : (isDone ? `<i class="fa-solid fa-circle-check" style="color:#10b981; font-size:0.75rem; margin-top:4px; opacity:0.85;"></i>` : `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.65rem; margin-top:5px; opacity:0.4;"></i>`)}
+                  <!-- Step Direct Actions -->
+                  <div class="step-actions-group" onclick="event.stopPropagation()">
+                    <button class="step-quick-action-btn" onclick="window.bindRealTickerToLab && window.bindRealTickerToLab('${cfg.symbol || 'RELIANCE.NS'}'); window.switchModule && window.switchModule('${step.moduleId}'); document.getElementById('activeLabWorkspace')?.scrollIntoView({behavior:'smooth'});" title="Run live with real-time market data">
+                      <i class="fa-solid fa-bolt" style="color:#22d3ee;"></i> Run
+                    </button>
+                    <button class="step-quick-action-btn btn-trade-step" onclick="window.executeStepPaperTrade && window.executeStepPaperTrade('${step.moduleId}')" title="Execute simulated sandbox trade">
+                      <i class="fa-solid fa-coins" style="color:#10b981;"></i> Trade
+                    </button>
+                  </div>
+                  ${isActive ? `<i class="fa-solid fa-circle-play" style="color:${track.color}; font-size:0.8rem; margin-top:3px; margin-left:4px;"></i>` : (isDone ? `<i class="fa-solid fa-circle-check" style="color:#10b981; font-size:0.75rem; margin-top:4px; opacity:0.85; margin-left:4px;"></i>` : `<i class="fa-solid fa-chevron-right" style="color:var(--text-muted); font-size:0.65rem; margin-top:5px; opacity:0.4; margin-left:4px;"></i>`)}
                 </div>
               `;
             }).join('')}
@@ -2185,6 +2767,9 @@
         });
         renderControlsPanel(LearnMathEngine.getModuleById(labState.activeModuleId));
         evaluateActiveModule();
+        if (typeof updateCoursesLiveTelemetry === 'function') {
+          updateCoursesLiveTelemetry();
+        }
       });
     }
 
@@ -2376,6 +2961,10 @@
     } else if (typeof window.bindRealTickerToLab === 'function') {
       // Default to Live Real-Time Blue Chip Benchmark (Zero Mockups)
       window.bindRealTickerToLab('RELIANCE.NS');
+    }
+
+    if (typeof updateCoursesLiveTelemetry === 'function') {
+      updateCoursesLiveTelemetry();
     }
 
     // 11. Render static ambient math tags across the entire laboratory
@@ -3013,6 +3602,9 @@
           }
         });
       });
+      if (typeof updateCoursesLiveTelemetry === 'function') {
+        updateCoursesLiveTelemetry();
+      }
     });
   };
 

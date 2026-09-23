@@ -265,6 +265,20 @@
           </div>
         </div>
 
+        <!-- Real-Time Interactive Courses Telemetry & Direct Action Banner -->
+        <div class="curriculum-live-banner" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding: 10px 16px; background: linear-gradient(90deg, rgba(16, 185, 129, 0.12) 0%, rgba(34, 211, 238, 0.12) 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 10px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <span class="course-live-pulse-dot"></span>
+            <span style="font-size: 0.76rem; font-weight: 800; color: #10b981; text-transform: uppercase; letter-spacing: 0.05em;">ALL 10 COURSES SYNCED WITH LIVE MARKET DATA</span>
+            <span style="font-size: 0.72rem; color: #cbd5e1;">&bull; 1-Click Sandbox Execution (₹10 Lakhs Virtual Broker) &bull; Interactive Course Workbenches &bull; Real-Time Ticker Telemetry</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="window.syncAllCoursesLive && window.syncAllCoursesLive()" class="course-direct-act-btn btn-trade" style="padding: 5px 12px; font-size: 0.72rem; cursor: pointer;">
+              <i class="fa-solid fa-bolt"></i> Sync All Courses Live
+            </button>
+          </div>
+        </div>
+
         <!-- 10 Structured Tracks Grid -->
         <div class="curriculum-tracks-grid" id="curriculumTracksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 16px;">
           <!-- Track Cards populated dynamically by learn.js covering all 80 labs -->
@@ -1102,6 +1116,7 @@
   <script src="engine.js"></script>
   <script src="chartSuite.js"></script>
   <script src="learnLaymanKnowledge.js"></script>
+  <script src="paperBroker.js"></script>
   <script src="learnMathEngine.js"></script>
   <script src="learn.js"></script>
   <script src="microstructureEngine.js"></script>
