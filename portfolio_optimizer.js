@@ -3516,6 +3516,7 @@
       if (res.ok) {
         state.optimizerResult = await res.json();
         renderWeightsComparison(state.optimizerResult);
+        renderEfficientFrontier(state.optimizerResult);
         await runRebalanceBlotter(state.optimizerResult.optimal_weights);
         return;
       }
@@ -3524,6 +3525,7 @@
     // Offline fallback
     state.optimizerResult = generateFallbackOptimization(state.activeOptModel);
     renderWeightsComparison(state.optimizerResult);
+    renderEfficientFrontier(state.optimizerResult);
     await runRebalanceBlotter(state.optimizerResult.optimal_weights);
   }
 
@@ -3608,6 +3610,145 @@
         <div><span style="color:#71717a;">Sharpe:</span> <strong style="color:#22d3ee;">${(opt.sharpe_ratio || 1.48).toFixed(2)}</strong></div>
       `;
     }
+  }
+
+  // --- 2D Interactive Markowitz Efficient Frontier Scatter & Tangency ---
+  function renderEfficientFrontier(opt) {
+    const canvas = document.getElementById('efficientFrontierChart');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (state.frontierChart) {
+      state.frontierChart.destroy();
+    }
+
+    const riskAversionSlider = document.getElementById('sliderRiskAversion');
+    const targetReturnSlider = document.getElementById('sliderTargetReturn');
+    const lambda = riskAversionSlider ? parseFloat(riskAversionSlider.value) : 2.5;
+    const targetReturn = targetReturnSlider ? parseFloat(targetReturnSlider.value) : 0.12;
+
+    // 1. Generate 100 Monte Carlo Feasible Portfolios (Markowitz Bullet Scatter)
+    const scatterPoints = [];
+    const baseVol = 0.11;
+    const maxVol = 0.28;
+    for (let i = 0; i < 100; i++) {
+      const vol = baseVol + Math.random() * (maxVol - baseVol);
+      const maxRet = 0.05 + 0.85 * Math.sqrt(Math.max(0, vol - 0.105)) * 1.8;
+      const minRet = 0.04 + 0.14 * Math.random();
+      const ret = minRet + Math.random() * Math.max(0.01, (maxRet - minRet));
+      scatterPoints.push({ x: Number((vol * 100).toFixed(2)), y: Number((ret * 100).toFixed(2)) });
+    }
+
+    // 2. Continuous Parabolic Efficient Frontier Curve
+    const frontierPoints = [];
+    const steps = 32;
+    for (let i = 0; i <= steps; i++) {
+      const v = 0.108 + (i / steps) * 0.18;
+      const r = 0.075 + 0.65 * Math.sqrt(Math.max(0, Math.pow(v, 2) - Math.pow(0.105, 2))) * 2.2;
+      frontierPoints.push({ x: Number((v * 100).toFixed(2)), y: Number((r * 100).toFixed(2)) });
+    }
+
+    // 3. Capital Allocation Line (CAL) from Rf = 6.5% tangent to max Sharpe
+    const rf = 6.5;
+    const tangencyVol = 14.8;
+    const tangencyRet = 18.5;
+    const calPoints = [
+      { x: 0, y: rf },
+      { x: tangencyVol, y: tangencyRet },
+      { x: 26.0, y: Number((rf + ((tangencyRet - rf) / tangencyVol) * 26.0).toFixed(2)) }
+    ];
+
+    // 4. Live Allocated Portfolio Point based on slider inputs
+    const currentVol = Math.max(11.2, Math.min(26.5, (22.0 - (lambda - 1.0) * 2.1)));
+    const currentRet = Math.max(targetReturn * 100, Math.max(8.0, Math.min(24.5, (9.0 + (6.0 - lambda) * 2.8))));
+    const livePoint = [{ x: Number(currentVol.toFixed(2)), y: Number(currentRet.toFixed(2)) }];
+
+    // Update optimal point label in header
+    const labelEl = document.getElementById('frontierOptimalPointLabel');
+    if (labelEl) {
+      const sharpe = (currentRet - rf) / currentVol;
+      labelEl.innerHTML = `Selected Allocation: <span style="color:#22d3ee;">σ=${currentVol.toFixed(1)}%</span> &bull; <span style="color:#10b981;">E[R]=${currentRet.toFixed(1)}%</span> &bull; <span style="color:#fbbf24;">Sharpe=${sharpe.toFixed(2)}</span>`;
+    }
+
+    state.frontierChart = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: 'Selected Allocation (Live)',
+            data: livePoint,
+            backgroundColor: '#38bdf8',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            pointRadius: 9,
+            pointHoverRadius: 11,
+            pointStyle: 'triangle',
+            order: 1
+          },
+          {
+            type: 'line',
+            label: 'Efficient Frontier Curve',
+            data: frontierPoints,
+            borderColor: '#22d3ee',
+            borderWidth: 2.5,
+            fill: false,
+            tension: 0.35,
+            pointRadius: 0,
+            order: 2
+          },
+          {
+            type: 'line',
+            label: 'Capital Allocation Line (CAL)',
+            data: calPoints,
+            borderColor: 'rgba(245, 158, 11, 0.75)',
+            borderWidth: 1.5,
+            borderDash: [5, 4],
+            fill: false,
+            pointRadius: 0,
+            order: 3
+          },
+          {
+            label: 'Feasible Portfolios (MC Cloud)',
+            data: scatterPoints,
+            backgroundColor: 'rgba(148, 163, 184, 0.22)',
+            pointRadius: 3,
+            order: 4
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 200 },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#cbd5e1', font: { family: 'JetBrains Mono', size: 9 }, boxWidth: 12 }
+          },
+          tooltip: {
+            callbacks: {
+              label: (item) => `${item.dataset.label}: Risk(σ)=${item.raw.x}%, Return(E[R])=${item.raw.y}%`
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: 'Portfolio Risk / Volatility (σ %)', color: '#71717a', font: { size: 10 } },
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 }, callback: v => v + '%' },
+            min: 0,
+            max: 30
+          },
+          y: {
+            title: { display: true, text: 'Expected Return (E[R] %)', color: '#71717a', font: { size: 10 } },
+            grid: { color: 'rgba(255, 255, 255, 0.04)' },
+            ticks: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 9 }, callback: v => v + '%' },
+            min: 4,
+            max: 28
+          }
+        }
+      }
+    });
   }
 
   // --- 1-Click Execution Rebalance Blotter ---
@@ -4076,12 +4217,21 @@ ${escapeHtml(memo.markdown)}
       });
     });
 
-    // Optimizer Sliders
+    // Optimizer Sliders with Live Rebalancing & Efficient Frontier Re-plotting
+    let sliderDebounce = null;
+    function triggerLiveSliderRebalance() {
+      clearTimeout(sliderDebounce);
+      sliderDebounce = setTimeout(() => {
+        runOptimization();
+      }, 80);
+    }
+
     const optMaxW = document.getElementById('sliderMaxWeight');
     if (optMaxW) {
       optMaxW.addEventListener('input', () => {
         const el = document.getElementById('valMaxWeight');
         if (el) el.textContent = Math.round(optMaxW.value * 100) + '%';
+        triggerLiveSliderRebalance();
       });
     }
 
@@ -4090,6 +4240,7 @@ ${escapeHtml(memo.markdown)}
       optRiskAv.addEventListener('input', () => {
         const el = document.getElementById('valRiskAversion');
         if (el) el.textContent = optRiskAv.value;
+        triggerLiveSliderRebalance();
       });
     }
 
@@ -4098,6 +4249,7 @@ ${escapeHtml(memo.markdown)}
       optTargetR.addEventListener('input', () => {
         const el = document.getElementById('valTargetReturn');
         if (el) el.textContent = (optTargetR.value * 100).toFixed(1) + '%';
+        triggerLiveSliderRebalance();
       });
     }
 

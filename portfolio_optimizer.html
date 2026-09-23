@@ -536,6 +536,26 @@
             <canvas id="weightsBarChart"></canvas>
           </div>
 
+          <!-- Interactive Markowitz 2D Efficient Frontier Scatter Plot -->
+          <div class="frontier-chart-card" style="margin-top: 18px; background: rgba(8, 12, 20, 0.75); border: 1px solid rgba(34, 211, 238, 0.25); border-radius: 12px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
+              <span style="font-size: 0.75rem; font-weight: 700; color: #22d3ee; letter-spacing: 0.05em; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-chart-line"></i> MARKOWITZ EFFICIENT FRONTIER &bull; RISK-RETURN TRADEOFF
+              </span>
+              <span id="frontierOptimalPointLabel" style="font-size: 0.72rem; color: #10b981; font-family: 'JetBrains Mono', monospace; font-weight: 700;">
+                Selected Portfolio: σ=14.2%, E[R]=18.6%
+              </span>
+            </div>
+            <div style="height: 240px; position: relative;">
+              <canvas id="efficientFrontierChart"></canvas>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.65rem; color: #94a3b8; margin-top: 8px; flex-wrap: wrap; gap: 6px;">
+              <span><strong>X-Axis:</strong> Annualized Volatility \(\sigma_p\) (Risk)</span>
+              <span><strong>Y-Axis:</strong> Expected Return \(\mathbb{E}[R_p]\)</span>
+              <span style="color: #38bdf8;">▲ Blue Triangle: Live Selected Portfolio</span>
+            </div>
+          </div>
+
           <!-- Optimization Metrics Bar -->
           <div class="opt-metrics-strip" id="optMetricsStrip">
             <!-- Populated dynamically -->

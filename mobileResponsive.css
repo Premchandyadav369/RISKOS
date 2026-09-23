@@ -316,4 +316,39 @@ html, body {
   .mob-nav-item i {
     font-size: 0.95rem;
   }
+
+  /* "Why This Number?" & Universal Explainer Mobile Optimization */
+  .why-modal-card,
+  .ue-modal {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    margin: 8px auto !important;
+  }
+
+  .why-formula-card,
+  .ue-formula-card,
+  .why-math-expanded,
+  .why-formula-card mjx-container,
+  .why-formula-card .katex-display,
+  .ue-formula-card mjx-container,
+  .ue-formula-card .katex-display,
+  mjx-container,
+  .katex-display {
+    overflow-x: auto !important;
+    max-width: 100% !important;
+    -webkit-overflow-scrolling: touch !important;
+    font-size: 0.95rem !important;
+    padding: 8px 4px !important;
+  }
+
+  .why-title {
+    font-size: 0.95rem !important;
+  }
+
+  .ws-text {
+    font-size: 0.76rem !important;
+  }
 }
+

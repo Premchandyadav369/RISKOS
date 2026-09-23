@@ -148,8 +148,8 @@
 
   // ── Standardized Data Provenance Vocabulary ────────────────────────────────
   const DATA_STATES = {
-    LIVE: { code: 'LIVE', label: 'LIVE MARKET DATA', badgeClass: 'truth-live', color: '#10b981', isLive: true },
-    DELAYED: { code: 'DELAYED', label: 'DELAYED (15M)', badgeClass: 'truth-delayed', color: '#f59e0b', isLive: false },
+    LIVE: { code: 'LIVE', label: '[🟢 LIVE STREAM - SIMULATED 100ms]', badgeClass: 'truth-live', color: '#10b981', isLive: true },
+    DELAYED: { code: 'DELAYED', label: '[🟡 DELAYED 15M (NSE)]', badgeClass: 'truth-delayed', color: '#f59e0b', isLive: false },
     CACHED: { code: 'CACHED', label: 'CACHED SNAPSHOT', badgeClass: 'truth-cached', color: '#60a5fa', isLive: false },
     FALLBACK: { code: 'FALLBACK', label: 'FALLBACK PROVIDER', badgeClass: 'truth-fallback', color: '#a855f7', isLive: false },
     HISTORICAL: { code: 'HISTORICAL', label: 'HISTORICAL OBSERVATION', badgeClass: 'truth-historical', color: '#94a3b8', isLive: false },

@@ -1197,6 +1197,9 @@ button, select, input {
   text-align: center;
   font-size: 1.1rem;
   color: #ffffff;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .why-math-toggle-btn {
