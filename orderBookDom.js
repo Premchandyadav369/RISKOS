@@ -286,18 +286,31 @@
       const maxBidVol = Math.max(...this.bids.map(b => b.size), 1);
       const maxAskVol = Math.max(...this.asks.map(a => a.size), 1);
       const maxVol = Math.max(maxBidVol, maxAskVol);
+      const canvasId = `domDepthCanvas_${this.symbol.replace(/[^A-Za-z0-9]/g, '_')}`;
 
       let html = `
         <div class="dom-widget-container">
           <div class="dom-header">
             <div class="dom-title-row">
               <span class="dom-symbol">${this.symbol} &bull; L2 DOM</span>
+              ${OrderBookDOMEngine.getProvenanceBadge(this.symbol)}
               <span class="dom-micro-price">Micro: ₹${micro.toFixed(2)}</span>
               <span class="dom-spread">Spread: ₹${spread.toFixed(2)}</span>
             </div>
             <div class="dom-imbalance-bar-wrap" title="Order Flow Imbalance: ${(imbalance * 100).toFixed(1)}%">
               <div class="dom-imbalance-bid" style="width: ${Math.max(5, (imbalance + 1) * 50)}%"></div>
               <div class="dom-imbalance-ask" style="width: ${Math.max(5, (1 - imbalance) * 50)}%"></div>
+            </div>
+          </div>
+
+          <!-- Level 2 Visual Cumulative Depth Chart (Wall Pressure) -->
+          <div class="dom-depth-canvas-wrap" style="height:100px; position:relative; background:#06080f; border:1px solid rgba(255,255,255,0.06); border-radius:6px; margin:8px 0; overflow:hidden;">
+            <canvas id="${canvasId}" style="width:100%; height:100%; display:block;"></canvas>
+            <div style="position:absolute; top:4px; left:8px; font-size:0.62rem; color:#10b981; font-weight:700; font-family:monospace; pointer-events:none;">
+              BUY WALL: ${this.bids.reduce((s,b)=>s+b.size,0).toLocaleString()}
+            </div>
+            <div style="position:absolute; top:4px; right:8px; font-size:0.62rem; color:#ef4444; font-weight:700; font-family:monospace; pointer-events:none;">
+              SELL WALL: ${this.asks.reduce((s,a)=>s+a.size,0).toLocaleString()}
             </div>
           </div>
 
@@ -380,7 +393,95 @@
       `;
 
       container.innerHTML = html;
+      setTimeout(() => this.renderDepthChartCanvas(canvasId), 50);
       return html;
+    }
+
+    static getProvenanceBadge(symbol, feedType = 'AUTO') {
+      const sym = (symbol || '').toUpperCase();
+      if (feedType === 'WS_LIVE' || sym.includes('BTC') || sym.includes('ETH') || sym.includes('SOL') || sym.includes('-USD')) {
+        return '<span class="provenance-pill prov-live" style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(16,185,129,0.18); border:1px solid rgba(16,185,129,0.35); color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.45rem; vertical-align:middle; margin-right:3px;"></i>WEBSOCKET LIVE</span>';
+      }
+      if (feedType === 'DELAYED_15M' || sym.includes('.NS') || sym.includes('.BO') || sym.includes('NIFTY') || sym.includes('BANKNIFTY')) {
+        return '<span class="provenance-pill prov-delayed" style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(245,158,11,0.18); border:1px solid rgba(245,158,11,0.35); color:#fbbf24;"><i class="fa-solid fa-clock" style="font-size:0.5rem; vertical-align:middle; margin-right:3px;"></i>15-MIN DELAYED</span>';
+      }
+      return '<span class="provenance-pill prov-synth" style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; background:rgba(37,99,235,0.18); border:1px solid rgba(59,130,246,0.35); color:#60a5fa;"><i class="fa-solid fa-bolt" style="font-size:0.5rem; vertical-align:middle; margin-right:3px;"></i>SYNTHETIC STREAM (100ms)</span>';
+    }
+
+    renderDepthChartCanvas(canvasIdOrEl) {
+      if (typeof document === 'undefined') return;
+      const canvas = typeof canvasIdOrEl === 'string' ? document.getElementById(canvasIdOrEl) : canvasIdOrEl;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const w = canvas.width = (rect.width || 320) * (typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1);
+      const h = canvas.height = (rect.height || 100) * (typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1);
+      ctx.clearRect(0, 0, w, h);
+
+      const totalBidVol = this.bids.reduce((s, b) => s + b.size, 0) || 1;
+      const totalAskVol = this.asks.reduce((s, a) => s + a.size, 0) || 1;
+      const maxCumul = Math.max(totalBidVol, totalAskVol);
+
+      const midX = w / 2;
+
+      // Draw Cumulative Bid Depth (Green)
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      const sortedBids = [...this.bids].sort((a, b) => a.price - b.price);
+      let runningBid = 0;
+      sortedBids.forEach((b, idx) => {
+        runningBid += b.size;
+        const x = (idx / (sortedBids.length - 1 || 1)) * midX;
+        const y = h - (runningBid / maxCumul) * (h * 0.85);
+        ctx.lineTo(x, y);
+      });
+      ctx.lineTo(midX, h - (runningBid / maxCumul) * (h * 0.85));
+      ctx.lineTo(midX, h);
+      ctx.closePath();
+
+      const bidGrad = ctx.createLinearGradient(0, 0, 0, h);
+      bidGrad.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+      bidGrad.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+      ctx.fillStyle = bidGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw Cumulative Ask Depth (Red)
+      ctx.beginPath();
+      ctx.moveTo(midX, h);
+      const sortedAsks = [...this.asks].sort((a, b) => a.price - b.price);
+      let runningAsk = 0;
+      sortedAsks.forEach((a, idx) => {
+        runningAsk += a.size;
+        const x = midX + (idx / (sortedAsks.length - 1 || 1)) * (w - midX);
+        const y = h - (runningAsk / maxCumul) * (h * 0.85);
+        ctx.lineTo(x, y);
+      });
+      ctx.lineTo(w, h);
+      ctx.closePath();
+
+      const askGrad = ctx.createLinearGradient(0, 0, 0, h);
+      askGrad.addColorStop(0, 'rgba(239, 68, 68, 0.45)');
+      askGrad.addColorStop(1, 'rgba(239, 68, 68, 0.05)');
+      ctx.fillStyle = askGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#ef4444';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Center Mid-Price Dotted Marker
+      ctx.beginPath();
+      ctx.setLineDash([4, 4]);
+      ctx.moveTo(midX, 0);
+      ctx.lineTo(midX, h);
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      ctx.setLineDash([]);
     }
   }
 

@@ -93,6 +93,42 @@ def calculate_var(
     boot_tail = boot_port_returns[boot_port_returns <= boot_var]
     boot_cvar = float(boot_tail.mean()) if len(boot_tail) > 0 else boot_var
 
+    # 4. Cornish-Fisher Expansion VaR (Higher Moments: Skewness & Kurtosis)
+    from scipy.stats import skew, kurtosis
+    sample_skew = float(skew(port_returns)) if n_obs > 2 else 0.0
+    sample_kurt = float(kurtosis(port_returns)) if n_obs > 3 else 0.0
+    z_cf = z + (z**2 - 1) * sample_skew / 6.0 + (z**3 - 3 * z) * sample_kurt / 24.0 - (2 * z**3 - 5 * z) * (sample_skew**2) / 36.0
+    cf_var = float(mu + z_cf * sigma)
+    cf_tail = port_returns[port_returns <= cf_var]
+    cf_cvar = float(cf_tail.mean()) if len(cf_tail) > 0 else cf_var
+
+    # 5. Extreme Value Theory (EVT) Peaks-Over-Threshold (POT) GPD Modeling
+    import math
+    losses = -port_returns
+    u = float(np.percentile(losses, 90))
+    exceedances = losses[losses > u] - u
+    n_u = len(exceedances)
+    if n_u > 5:
+        mean_exc = float(np.mean(exceedances))
+        var_exc = float(np.var(exceedances))
+        xi = 0.5 * (1.0 - (mean_exc**2) / (var_exc + 1e-8)) if var_exc > 0 else 0.1
+        xi = float(np.clip(xi, -0.5, 0.49))  # ensure finite first moment
+        beta = float(0.5 * mean_exc * ((mean_exc**2) / (var_exc + 1e-8) + 1.0)) if var_exc > 0 else mean_exc
+        beta = max(1e-4, beta)
+        
+        prob_ratio = (n_obs / max(1, n_u)) * (1.0 - confidence)
+        if prob_ratio > 0 and abs(xi) > 1e-5:
+            evt_loss_var = u + (beta / xi) * (math.pow(prob_ratio, -xi) - 1.0)
+            evt_loss_cvar = (evt_loss_var / (1.0 - xi)) + ((beta - xi * u) / (1.0 - xi))
+        else:
+            evt_loss_var = u + beta * math.log(max(1.0, 1.0 / max(1e-6, prob_ratio)))
+            evt_loss_cvar = evt_loss_var + beta
+        evt_var = float(-evt_loss_var)
+        evt_cvar = float(-evt_loss_cvar)
+    else:
+        evt_var = hist_var
+        evt_cvar = hist_cvar
+
     return {
         # Original keys (preserved 100%)
         'portfolio_return_mean': float(mu),
@@ -110,6 +146,12 @@ def calculate_var(
         'student_t_mc_cvar': round(mc_student_t_cvar, 6),
         'bootstrap_mc_var': round(boot_var, 6),
         'bootstrap_mc_cvar': round(boot_cvar, 6),
+        'cornish_fisher_var': round(cf_var, 6),
+        'cornish_fisher_cvar': round(cf_cvar, 6),
+        'evt_pot_var': round(evt_var, 6),
+        'evt_pot_cvar': round(evt_cvar, 6),
+        'skewness': round(sample_skew, 4),
+        'excess_kurtosis': round(sample_kurt, 4),
         'model_parameters': {
             'student_t_df': nu,
             'confidence_level': confidence,

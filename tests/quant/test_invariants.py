@@ -123,3 +123,66 @@ def test_cvar_le_var_invariant(mock_returns):
     assert res["historical_cvar"] <= res["historical_var"] + 1e-6
     assert res["parametric_cvar"] <= res["parametric_var"] + 1e-6
     assert res["monte_carlo_cvar"] <= res["monte_carlo_var"] + 1e-6
+    assert res["student_t_mc_cvar"] <= res["student_t_mc_var"] + 1e-6
+    assert res["cornish_fisher_cvar"] <= res["cornish_fisher_var"] + 1e-6
+    assert res["evt_pot_cvar"] <= res["evt_pot_var"] + 1e-6
+
+
+def test_fat_tailed_vs_gaussian_var_boundaries():
+    """Validates that under heavy-tailed, negatively-skewed market regime,
+       fat-tailed risk models (Student-t, Cornish-Fisher, EVT) capture greater
+       tail loss than naive Gaussian assumptions without numerical collapse.
+    """
+    np.random.seed(777)
+    n_days = 500
+    # Generate Student-t returns with df=3 (heavy fat tails) and negative jump shock
+    t_dist = np.random.standard_t(df=3, size=n_days) * 0.015 - 0.001
+    # Add 5% crash jumps
+    jump_mask = np.random.uniform(0, 1, n_days) < 0.05
+    t_dist[jump_mask] -= np.random.exponential(scale=0.04, size=np.sum(jump_mask))
+    
+    df_heavy = pd.DataFrame({
+        "ASSET_1": t_dist,
+        "ASSET_2": t_dist * 0.8 + np.random.normal(0, 0.01, n_days)
+    })
+    
+    weights = [0.5, 0.5]
+    res = calculate_var(df_heavy, weights, confidence=0.99, n_sims=10000, df_student_t=3)
+    
+    # In return space: more negative return means bigger loss.
+    # Therefore, fat-tailed Student-t VaR and Cornish-Fisher VaR must be <= Gaussian Parametric VaR
+    assert res["student_t_mc_var"] <= res["parametric_var"] + 1e-4, (
+        f"Student-t VaR ({res['student_t_mc_var']}) should detect heavier tail than Gaussian ({res['parametric_var']})"
+    )
+    assert res["cornish_fisher_var"] <= res["parametric_var"] + 1e-4, (
+        f"Cornish-Fisher VaR ({res['cornish_fisher_var']}) should penalize negative skewness compared to Gaussian ({res['parametric_var']})"
+    )
+    
+    # Check coherence: CVaR <= VaR across all fat-tail methodologies
+    assert res["student_t_mc_cvar"] <= res["student_t_mc_var"] + 1e-6
+    assert res["cornish_fisher_cvar"] <= res["cornish_fisher_var"] + 1e-6
+    assert res["evt_pot_cvar"] <= res["evt_pot_var"] + 1e-6
+
+
+def test_mathematical_simplex_and_risk_invariants():
+    """Tests sum(w_i) == 1.0, w_i >= 0, and sigma_p >= 0 across diverse dimensions."""
+    np.random.seed(101)
+    for n in [3, 8, 20]:
+        data = np.random.normal(0.0005, 0.012, size=(252, n))
+        cols = [f"STK_{i}" for i in range(n)]
+        df = pd.DataFrame(data, columns=cols)
+        
+        # Test Min Variance
+        mv = min_variance_optimize(df, max_weight=1.0)
+        w_mv = list(mv["optimal_weights"].values())
+        assert sum(w_mv) == pytest.approx(1.0, abs=1e-4)
+        assert all(w >= -1e-6 for w in w_mv)
+        assert mv["volatility"] >= 0.0
+        
+        # Test Max Sharpe
+        ms = max_sharpe_optimize(df, risk_free_rate=0.065, max_weight=1.0)
+        w_ms = list(ms["optimal_weights"].values())
+        assert sum(w_ms) == pytest.approx(1.0, abs=1e-4)
+        assert all(w >= -1e-6 for w in w_ms)
+        assert ms["volatility"] >= 0.0
+

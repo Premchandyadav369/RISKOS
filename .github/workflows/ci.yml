@@ -41,9 +41,14 @@ jobs:
           node -c securityMaster.js
           node -c observatory.js
           node -c ticker.js
+          node -c orderBookDom.js
+          node -c paperBroker.js
 
       - name: Run JavaScript Institutional Quantitative Engine Tests (22 Tests)
         run: node tests/test_institutional_engines.js
+
+      - name: Run JavaScript Mathematical Simplex & Risk Invariants (5 Tests)
+        run: node tests/test_mathematical_invariants.js
 
       - name: Run Deterministic Math Simulation Engine Tests (50 Tests)
         run: node test_learn_engine.js
@@ -63,8 +68,13 @@ jobs:
       - name: Run Python Quantitative Invariants & Validation Test Suite
         run: python -m pytest tests/quant/ -v
 
+      - name: Run SLSQP Latency Verification Benchmark Suite (Pytest)
+        run: python -m pytest benchmarks/test_slsqp_latency.py -v
+
+      - name: Run SLSQP Latency Benchmark Matrix (10, 50, 200 Assets)
+        run: python benchmarks/benchmark_slsqp.py
+
       - name: Verify Research Forecasting & Portfolio Benchmarks
         run: |
           python research/benchmark_forecasting.py
           python research/benchmark_portfolios.py
-

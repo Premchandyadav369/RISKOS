@@ -4,6 +4,18 @@ from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 from typing import Dict, List, Any, Optional
 
+def _format_weights(weights: np.ndarray, columns: list) -> dict:
+    w = np.clip(weights, 0.0, None)
+    s = np.sum(w)
+    if s > 0:
+        w = w / s
+    w_rounded = [round(float(x), 4) for x in w]
+    diff = round(1.0 - sum(w_rounded), 4)
+    if abs(diff) > 0 and len(w_rounded) > 0:
+        max_idx = int(np.argmax(w_rounded))
+        w_rounded[max_idx] = round(w_rounded[max_idx] + diff, 4)
+    return {columns[i]: w_rounded[i] for i in range(len(columns))}
+
 def _portfolio_volatility(weights: np.ndarray, cov_matrix: np.ndarray) -> float:
     return np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
 
@@ -42,7 +54,7 @@ def max_sharpe_optimize(returns: pd.DataFrame, risk_free_rate: float = 0.065, ma
     opt_sharpe = float((opt_r - risk_free_rate) / opt_vol) if opt_vol > 0 else 0.0
     
     return {
-        'optimal_weights': {returns.columns[i]: round(float(opt_weights[i]), 4) for i in range(n_assets)},
+        'optimal_weights': _format_weights(opt_weights, list(returns.columns)),
         'expected_return': round(opt_r, 4),
         'volatility': round(opt_vol, 4),
         'sharpe_ratio': round(opt_sharpe, 4)
@@ -58,21 +70,24 @@ def min_variance_optimize(returns: pd.DataFrame, max_weight: float = 0.50) -> di
     lw = LedoitWolf()
     cov_matrix = lw.fit(returns.values).covariance_ * 252
     
-    def port_vol(w):
-        return _portfolio_volatility(w, cov_matrix)
+    def obj_variance(w):
+        return 0.5 * float(np.dot(w.T, np.dot(cov_matrix, w)))
+
+    def jac_variance(w):
+        return np.dot(cov_matrix, w)
 
     bounds = tuple((0.0, max_weight) for _ in range(n_assets))
-    constraints = [{'type': 'eq', 'fun': lambda w: np.sum(w) - 1.0}]
+    constraints = [{'type': 'eq', 'fun': lambda w: np.sum(w) - 1.0, 'jac': lambda w: np.ones_like(w)}]
     w0 = np.array([1.0 / n_assets] * n_assets)
 
-    res = minimize(port_vol, w0, method='SLSQP', bounds=bounds, constraints=constraints)
+    res = minimize(obj_variance, w0, method='SLSQP', jac=jac_variance, bounds=bounds, constraints=constraints)
     opt_weights = res.x if res.success else w0
     
     opt_r = float(np.sum(opt_weights * mu))
     opt_vol = float(_portfolio_volatility(opt_weights, cov_matrix))
     
     return {
-        'optimal_weights': {returns.columns[i]: round(float(opt_weights[i]), 4) for i in range(n_assets)},
+        'optimal_weights': _format_weights(opt_weights, list(returns.columns)),
         'expected_return': round(opt_r, 4),
         'volatility': round(opt_vol, 4)
     }
@@ -132,7 +147,7 @@ def cvar_optimize(returns: pd.DataFrame, target_return: float = 0.12, max_weight
         vol = float(_portfolio_volatility(opt_weights, cov_matrix))
         
         return {
-            'optimal_weights': {returns.columns[i]: round(float(opt_weights[i]), 4) for i in range(n_assets)},
+            'optimal_weights': _format_weights(opt_weights, list(returns.columns)),
             'expected_return': round(exp_ret, 4),
             'volatility': round(vol, 4),
             'portfolio_cvar': round(cvar, 4),

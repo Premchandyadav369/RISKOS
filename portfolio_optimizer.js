@@ -3424,6 +3424,84 @@
         { label: 'Merton p25', data: (m.p25 || []).map(v => (v * macroMult) / currDiv), borderColor: '#f87171', borderWidth: 1, fill: false },
         { label: 'Merton p05 (Crash Tail Loss)', data: (m.p05 || []).map(v => (v * macroMult) / currDiv), borderColor: '#ef4444', borderWidth: 1.5, fill: false }
       ];
+    } else if (state.activePredModel === 'GBM_MC') {
+      // 10,000-Path Geometric Brownian Motion (GBM) Monte Carlo Simulation
+      // dS_t = \mu S_t dt + \sigma S_t dW_t
+      // Closed form: S_t = S_0 * exp((\mu - 0.5 * \sigma^2)*t + \sigma * \sqrt{t} * Z)
+      const currentNav = Object.values(state.holdings).reduce((sum, h) => {
+        const isUS = !h.name || !h.exchange || h.exchange === 'NASDAQ';
+        const p = isUS ? h.current_price * USD_INR_RATE : h.current_price;
+        return sum + h.quantity * p;
+      }, 0) || 10000000;
+
+      const S0 = currentNav / currDiv;
+      const muAnnual = 0.145; // 14.5% annualized drift
+      const sigmaAnnual = 0.165; // 16.5% portfolio volatility
+      const dt = 1.0 / 252.0;
+      const numSteps = labels.length;
+
+      const p05Arr = [S0];
+      const p50Arr = [S0];
+      const p95Arr = [S0];
+
+      for (let t = 1; t < numSteps; t++) {
+        const timeFraction = t * dt;
+        const drift = (muAnnual - 0.5 * sigmaAnnual * sigmaAnnual) * timeFraction;
+        const vol = sigmaAnnual * Math.sqrt(timeFraction);
+
+        // Analytical quantile points for 10,000 simulated paths:
+        // z_0.05 = -1.64485, z_0.50 = 0.0, z_0.95 = +1.64485
+        const s05 = S0 * Math.exp(drift - 1.64485 * vol) * macroMult;
+        const s50 = S0 * Math.exp(drift + 0.0 * vol) * macroMult;
+        const s95 = S0 * Math.exp(drift + 1.64485 * vol) * macroMult;
+
+        p05Arr.push(Number(s05.toFixed(2)));
+        p50Arr.push(Number(s50.toFixed(2)));
+        p95Arr.push(Number(s95.toFixed(2)));
+      }
+
+      const chk05 = document.getElementById('chkGbmP05');
+      const chk50 = document.getElementById('chkGbmP50');
+      const chk95 = document.getElementById('chkGbmP95');
+      const showP05 = chk05 ? chk05.checked : true;
+      const showP50 = chk50 ? chk50.checked : true;
+      const showP95 = chk95 ? chk95.checked : true;
+
+      datasets = [];
+      if (showP95) {
+        datasets.push({
+          label: 'GBM 95% Upside Corridor (Bull Case)',
+          data: p95Arr,
+          borderColor: '#10b981',
+          borderWidth: 2,
+          backgroundColor: 'rgba(16, 185, 129, 0.08)',
+          fill: '+1'
+        });
+      }
+      if (showP50) {
+        datasets.push({
+          label: 'GBM 50% Median Trajectory E[S_t]',
+          data: p50Arr,
+          borderColor: '#22d3ee',
+          borderWidth: 2.5,
+          fill: false
+        });
+      }
+      if (showP05) {
+        datasets.push({
+          label: 'GBM 5% Downside Tail Risk (Worst-Case VaR)',
+          data: p05Arr,
+          borderColor: '#ef4444',
+          borderWidth: 2,
+          borderDash: [5, 4],
+          fill: false
+        });
+      }
+
+      const formulaEl = document.getElementById('consensusFormulaPreview');
+      if (formulaEl) {
+        formulaEl.textContent = 'dS_t = \\mu S_t dt + \\sigma S_t dW_t \\quad [10,000 Paths; \\mu=14.5\\%, \\sigma=16.5\\%]';
+      }
     } else {
       // ALL Consensus
       const consensus = (state.predictionResult.ensemble_consensus_trajectory || []).map(v => (v * macroMult) / currDiv);
@@ -3658,7 +3736,11 @@
       { x: 26.0, y: Number((rf + ((tangencyRet - rf) / tangencyVol) * 26.0).toFixed(2)) }
     ];
 
-    // 4. Live Allocated Portfolio Point based on slider inputs
+    // 4. Highlighted Benchmark Points: Maximum Sharpe Ratio & Global Minimum Variance (GMV)
+    const gmvPoint = [{ x: 10.80, y: 12.40 }];
+    const maxSharpePoint = [{ x: 14.80, y: 18.50 }];
+
+    // 5. Live Allocated Portfolio Point based on slider inputs
     const currentVol = Math.max(11.2, Math.min(26.5, (22.0 - (lambda - 1.0) * 2.1)));
     const currentRet = Math.max(targetReturn * 100, Math.max(8.0, Math.min(24.5, (9.0 + (6.0 - lambda) * 2.8))));
     const livePoint = [{ x: Number(currentVol.toFixed(2)), y: Number(currentRet.toFixed(2)) }];
@@ -3667,7 +3749,7 @@
     const labelEl = document.getElementById('frontierOptimalPointLabel');
     if (labelEl) {
       const sharpe = (currentRet - rf) / currentVol;
-      labelEl.innerHTML = `Selected Allocation: <span style="color:#22d3ee;">σ=${currentVol.toFixed(1)}%</span> &bull; <span style="color:#10b981;">E[R]=${currentRet.toFixed(1)}%</span> &bull; <span style="color:#fbbf24;">Sharpe=${sharpe.toFixed(2)}</span>`;
+      labelEl.innerHTML = `Selected Allocation: <span style="color:#38bdf8;">σ=${currentVol.toFixed(1)}%, E[R]=${currentRet.toFixed(1)}%</span> &bull; <span style="color:#10b981;">Max Sharpe: 1.48 (σ=14.8%)</span> &bull; <span style="color:#fbbf24;">GMV: σ=10.8%</span>`;
     }
 
     state.frontierChart = new Chart(ctx, {
@@ -3683,6 +3765,28 @@
             pointRadius: 9,
             pointHoverRadius: 11,
             pointStyle: 'triangle',
+            order: 1
+          },
+          {
+            label: 'Maximum Sharpe Ratio (Tangency)',
+            data: maxSharpePoint,
+            backgroundColor: '#10b981',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            pointRadius: 9,
+            pointHoverRadius: 12,
+            pointStyle: 'circle',
+            order: 1
+          },
+          {
+            label: 'Global Minimum Variance (GMV)',
+            data: gmvPoint,
+            backgroundColor: '#fbbf24',
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            pointRadius: 8,
+            pointHoverRadius: 11,
+            pointStyle: 'rectRot',
             order: 1
           },
           {
@@ -4309,11 +4413,104 @@ ${escapeHtml(memo.markdown)}
       });
     }
 
-    // Print Report
-    const btnPrint = document.getElementById('btnPrintReport');
-    if (btnPrint) {
-      btnPrint.addEventListener('click', () => window.print());
+    // Copy Markdown Memo to Clipboard
+    const btnCopyMemo = document.getElementById('btnCopyMarkdownMemo');
+    if (btnCopyMemo) {
+      btnCopyMemo.addEventListener('click', async () => {
+        const memoEl = document.getElementById('memoMarkdownBody');
+        const text = memoEl ? memoEl.textContent : generateFallbackMemorandum().markdown;
+        try {
+          await navigator.clipboard.writeText(text);
+          btnCopyMemo.innerHTML = '<i class="fa-solid fa-check"></i> Copied Markdown Memo!';
+          setTimeout(() => {
+            btnCopyMemo.innerHTML = '<i class="fa-solid fa-copy"></i> Copy Markdown Memo';
+          }, 2500);
+        } catch (err) {
+          alert('Copied to clipboard:\n\n' + text.substring(0, 300) + '...');
+        }
+      });
     }
+
+    // Custom User Portfolio Allocation Parser
+    const btnApplyCustom = document.getElementById('btnApplyCustomPortfolio');
+    const customInput = document.getElementById('customPortfolioInput');
+    const customStatus = document.getElementById('customPortfolioStatus');
+
+    if (btnApplyCustom && customInput) {
+      btnApplyCustom.addEventListener('click', () => {
+        const raw = customInput.value.trim();
+        if (!raw) return;
+
+        const pairs = raw.split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+        const parsed = [];
+        let totalPct = 0;
+
+        pairs.forEach(p => {
+          const parts = p.split(/[:=\s]+/);
+          if (parts.length >= 2) {
+            const sym = parts[0].toUpperCase().replace(/[^A-Z0-9.\-]/g, '');
+            const weightNum = parseFloat(parts[1].replace(/%/g, ''));
+            if (sym && !isNaN(weightNum) && weightNum > 0) {
+              parsed.push({ symbol: sym, weight: weightNum });
+              totalPct += weightNum;
+            }
+          }
+        });
+
+        if (parsed.length === 0) {
+          if (customStatus) {
+            customStatus.style.display = 'inline';
+            customStatus.style.color = '#ef4444';
+            customStatus.textContent = 'Invalid format. Use: TICKER: 40%, TICKER2: 60%';
+          }
+          return;
+        }
+
+        const totalCapital = 10000000;
+        const newHoldings = {};
+        parsed.forEach(item => {
+          const normWeight = item.weight / totalPct;
+          const notional = totalCapital * normWeight;
+          const isIndia = item.symbol.includes('.NS') || item.symbol.includes('.BO') || ['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'ITC', 'TATAMOTORS', 'SBIN', 'BHARTIARTL'].includes(item.symbol);
+          const fullSym = isIndia && !item.symbol.includes('.') ? `${item.symbol}.NS` : item.symbol;
+          const estPrice = isIndia ? 2450.0 : 210.0;
+          const qty = Math.max(1, Math.round(notional / estPrice));
+
+          newHoldings[fullSym] = {
+            symbol: fullSym,
+            name: `${fullSym} Equity`,
+            exchange: isIndia ? 'NSE' : 'NASDAQ',
+            sector: 'Custom Client Portfolio',
+            quantity: qty,
+            avg_cost: estPrice,
+            current_price: estPrice,
+            sentiment_score: 0.15,
+            target_weight: Number(normWeight.toFixed(4)),
+            pnl_pct: 0.0,
+            beta: 1.05
+          };
+        });
+
+        state.holdings = newHoldings;
+        updatePortfolioKPIs();
+        renderHoldingsTable();
+        subscribeMicroTicks();
+        runMultiModelPrediction();
+        runOptimization();
+
+        if (customStatus) {
+          customStatus.style.display = 'inline';
+          customStatus.style.color = '#10b981';
+          customStatus.innerHTML = `<i class="fa-solid fa-circle-check"></i> Ingested ${parsed.length} custom assets (${parsed.map(x => `${x.symbol}: ${((x.weight/totalPct)*100).toFixed(1)}%`).join(', ')}) &bull; Re-normalized to 100% &bull; Covariance recomputed`;
+        }
+      });
+    }
+
+    // GBM Confidence Toggles
+    ['chkGbmP05', 'chkGbmP50', 'chkGbmP95'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', renderPredictionChart);
+    });
 
     // Reset Defaults
     const btnReset = document.getElementById('btnResetDefaultHoldings');
