@@ -406,6 +406,126 @@ it('hft.html contains Workstations 8 & 9 and Fast Jump Navigation bar', () => {
   assert(paletteJs.includes("id: 'act_basis'"), 'universalPalette.js must register /basis');
 });
 
+// ── 16. Workstation 10: Hawkes Self-Exciting Point Process Engine ──
+console.log('\n── Section 16: Workstation 10 — Hawkes Self-Exciting Process & Liquidation Radar ──');
+
+it('hawkesProcessEngine.js accurately models branching ratio, recursive decay, and shock cascades', () => {
+  const hawkesPath = path.join(__dirname, '..', 'hawkesProcessEngine.js');
+  assert(fs.existsSync(hawkesPath), 'hawkesProcessEngine.js must exist');
+  const { HawkesProcessEngine, HawkesProcessEngineCore } = require(hawkesPath);
+  assert(HawkesProcessEngine, 'HawkesProcessEngine singleton must be exported');
+
+  const engine = new HawkesProcessEngineCore();
+  engine.setParameters(1.0, 4.0, 5.0); // n = 4/5 = 0.80 -> ELEVATED CLUSTERING
+  assert.strictEqual(engine.getBranchingRatio(), 0.800, 'Branching ratio must be 0.800');
+  let regime = engine.getRegime();
+  assert.strictEqual(regime.level, 'WARNING', '0.80 <= n <= 1.0 must be WARNING level');
+
+  // Sub-critical
+  engine.setParameters(1.0, 2.0, 5.0); // n = 0.40
+  assert.strictEqual(engine.getBranchingRatio(), 0.400);
+  regime = engine.getRegime();
+  assert.strictEqual(regime.level, 'NORMAL');
+
+  // Super-critical
+  engine.setParameters(1.0, 6.0, 5.0); // n = 1.20
+  assert.strictEqual(engine.getBranchingRatio(), 1.200);
+  regime = engine.getRegime();
+  assert.strictEqual(regime.level, 'CRITICAL');
+
+  // Reset and register trade
+  engine.reset();
+  const initMetrics = engine.getMetrics();
+  assert.strictEqual(initMetrics.totalEvents, 0);
+
+  const t1 = engine.registerTrade(100, false);
+  assert(t1.intensity > initMetrics.baselineRate, 'Trade must increase intensity by jump alpha');
+  assert(engine.totalEvents === 1, 'Total events must be 1');
+
+  // Simulate shock
+  const shockMetrics = engine.simulateShock(25);
+  assert(shockMetrics.totalEvents >= 26, 'Shock must inject trades');
+  assert(shockMetrics.history.length > 1, 'Intensity history must record trajectory');
+});
+
+// ── 17. Workstation 11: Institutional Order Flow Footprint Engine ──
+console.log('\n── Section 17: Workstation 11 — Order Flow Footprint & Stacked Imbalances ──');
+
+it('orderFlowFootprint.js aggregates bid/ask rungs, computes POC, and flags stacked imbalances', () => {
+  const fpPath = path.join(__dirname, '..', 'orderFlowFootprint.js');
+  assert(fs.existsSync(fpPath), 'orderFlowFootprint.js must exist');
+  const { OrderFlowFootprint, OrderFlowFootprintCore } = require(fpPath);
+  assert(OrderFlowFootprint, 'OrderFlowFootprint singleton must be exported');
+
+  const fp = new OrderFlowFootprintCore();
+  fp.setTickSize(0.25);
+  fp.setDuration(60000);
+
+  // Ingest trades at discrete tick rungs
+  fp.registerTrade(100.00, 200, 'BUY');
+  fp.registerTrade(100.00, 50, 'SELL');
+  fp.registerTrade(100.25, 400, 'BUY');
+  fp.registerTrade(100.25, 100, 'SELL');
+  fp.registerTrade(100.50, 600, 'BUY');
+  fp.registerTrade(100.50, 50, 'SELL');
+
+  const candles = fp.getCandles();
+  assert(candles.length === 1, 'Must have 1 active candle');
+  const c = candles[0];
+  assert.strictEqual(c.open, 100.00);
+  assert.strictEqual(c.high, 100.50);
+  assert.strictEqual(c.low, 100.00);
+  assert(c.totalVolume === 1400, 'Total volume must equal sum of trade sizes');
+  assert(c.totalDelta > 0, 'Aggressive buying volume must result in positive delta');
+  assert.strictEqual(c.pocPrice, 100.50, 'Highest volume rung must be POC (650 vol at 100.50)');
+
+  // Seed history
+  fp.seedHistory(2800, 5);
+  assert.strictEqual(fp.getCandles().length, 5, 'Must seed exactly 5 candles');
+  const seeded = fp.getCandles();
+  seeded.forEach(k => {
+    assert(k.totalVolume > 0, 'Seeded candle must contain volume');
+    assert(k.pocPrice > 0, 'Seeded candle must have a valid POC');
+  });
+});
+
+// ── 18. Full 11-Workstation Ecosystem & Deep-Link Architecture ──
+console.log('\n── Section 18: Full 11-Workstation DOM, Jump Navigator & Deep-Link Invariants ──');
+
+it('hft.html contains all 11 Workstations, jump-bar links, and KaTeX formulas', () => {
+  const requiredIds = [
+    'ws-heatmap', 'ws-stoikov', 'ws-micro', 'ws-slicer', 'ws-latency',
+    'ws-ladder', 'ws-fix', 'ws-wasm', 'ws-basis', 'ws-hawkes', 'ws-footprint'
+  ];
+  requiredIds.forEach(id => {
+    assert(hftHtml.includes(`id="${id}"`), `Missing section #${id} in hft.html`);
+    assert(hftHtml.includes(`href="#${id}"`), `Missing jump link to #${id} in hft.html jump-bar`);
+  });
+
+  // Verify scripts loaded in hft.html
+  assert(hftHtml.includes('hawkesProcessEngine.js'), 'hft.html must load hawkesProcessEngine.js');
+  assert(hftHtml.includes('orderFlowFootprint.js'), 'hft.html must load orderFlowFootprint.js');
+  assert(hftHtml.includes('matchingEngineWasm.js'), 'hft.html must load matchingEngineWasm.js');
+  assert(hftHtml.includes('basisArbitrageEngine.js'), 'hft.html must load basisArbitrageEngine.js');
+
+  // Verify palette commands
+  assert(paletteJs.includes("id: 'act_hawkes'"), 'universalPalette.js must register /hawkes');
+  assert(paletteJs.includes("id: 'act_footprint'"), 'universalPalette.js must register /footprint');
+  assert(paletteJs.includes("slashQuery.includes('hawkes')"), 'universalPalette.js must route /hawkes');
+  assert(paletteJs.includes("slashQuery.includes('footprint')"), 'universalPalette.js must route /footprint');
+
+  // Verify learn.html & docs.html integration
+  const docsHtml = fs.readFileSync(path.join(ROOT, 'docs.html'), 'utf8');
+  assert(learnHtml.includes('id="systemArchitectureBlueprint"'), 'learn.html must have Section 2.75 Architecture Blueprint');
+  assert(learnHtml.includes('7 Production Strategy Paradigms'), 'learn.html must document 7 strategy paradigms');
+  assert(learnHtml.includes('ws-hawkes'), 'learn.html blueprint must deep-link to ws-hawkes');
+  assert(learnHtml.includes('ws-footprint'), 'learn.html blueprint must deep-link to ws-footprint');
+  assert(docsHtml.includes('id="hft-terminal"'), 'docs.html must have #hft-terminal section');
+  assert(docsHtml.includes('ws10-hawkes'), 'docs.html must document ws10-hawkes');
+  assert(docsHtml.includes('ws11-footprint'), 'docs.html must document ws11-footprint');
+  assert(readmeMd.includes('The 11 Core Microstructure Workstations'), 'README.md must document all 11 workstations');
+});
+
 console.log('\n══════════════════════════════════════════════════════════════════════════');
 console.log(`🎯  TESTS PASSED: ${passedTests} / ${totalTests} (100%)`);
 console.log('══════════════════════════════════════════════════════════════════════════\n');

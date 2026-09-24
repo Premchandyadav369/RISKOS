@@ -3029,7 +3029,8 @@
       avellaneda: { name: 'Avellaneda-Stoikov HFT Market Making', labId: 'avellaneda_stoikov', basePrice: 100, symbol: 'OFI-L2-TICK' },
       gex_pinning: { name: '0DTE Gamma Exposure Pinning', labId: 'gex_0dte_pinning', basePrice: 24200, symbol: 'NIFTY-0DTE' },
       basis_carry: { name: 'Cash & Carry Futures Basis Roll', labId: 'futures_basis_carry', basePrice: 24350, symbol: 'NIFTY-FUT-BASIS' },
-      hawkes: { name: 'Hawkes Liquidity Cascades', labId: 'hawkes_liquidity_cascades', basePrice: 215, symbol: 'OFI-CASCADES' }
+      hawkes: { name: 'Hawkes Liquidity Cascades', labId: 'hawkes_liquidity_cascades', basePrice: 215, symbol: 'OFI-CASCADES' },
+      footprint: { name: 'Order Flow Footprint & Stacked Imbalances', labId: 'egyptian_pantheon_hft', basePrice: 2800, symbol: 'RELIANCE-FOOTPRINT' }
     };
 
     const initDeskChart = () => {
@@ -3127,6 +3128,8 @@
       if (currentStrat === 'kalman_pairs' && reg === 'range_bound') stratEdge = 0.0012;
       if (currentStrat === 'dual_momentum' && reg === 'bull_trend') stratEdge = 0.0015;
       if (currentStrat === 'basis_carry') { drift = 0.0003; vol = 0.0004; stratEdge = 0.0004; }
+      if (currentStrat === 'hawkes') { drift = 0.0004; vol = 0.006; stratEdge = 0.0008; }
+      if (currentStrat === 'footprint') { drift = 0.0006; vol = 0.0035; stratEdge = 0.0011; }
 
       const z = (Math.random() - 0.5) * 2;
       const returnPct = drift + stratEdge + z * vol;
@@ -3164,6 +3167,16 @@
         pnl: fillPnL
       });
       if (fills.length > 25) fills.pop();
+
+      // Feed live global Hawkes & Footprint engines if present
+      if (typeof window !== 'undefined') {
+        if (window.HawkesProcessEngine && typeof window.HawkesProcessEngine.registerTrade === 'function') {
+          window.HawkesProcessEngine.registerTrade(qty, reg === 'flash_crash');
+        }
+        if (window.OrderFlowFootprint && typeof window.OrderFlowFootprint.registerTrade === 'function') {
+          window.OrderFlowFootprint.registerTrade(execPrice, qty, side);
+        }
+      }
 
       updateUI();
       if (chartInstance) {

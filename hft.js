@@ -1250,6 +1250,17 @@
       timestamp: Date.now()
     });
 
+    // Feed Hawkes Process & Footprint
+    if (typeof window !== 'undefined') {
+      if (window.HawkesProcessEngine && typeof window.HawkesProcessEngine.registerTrade === 'function') {
+        window.HawkesProcessEngine.registerTrade(qty, true);
+      }
+      if (window.OrderFlowFootprint && typeof window.OrderFlowFootprint.registerTrade === 'function') {
+        window.OrderFlowFootprint.registerTrade(price, qty, side);
+        if (typeof window._redrawFootprint === 'function') window._redrawFootprint();
+      }
+    }
+
     if (state.soundEnabled) SoundFX.fillChime();
   };
 
@@ -1301,6 +1312,17 @@
             time: trade.time || new Date().toLocaleTimeString(),
             timestamp: Date.now()
           });
+
+          // Feed Hawkes Point Process & Order Flow Footprint
+          if (typeof window !== 'undefined') {
+            if (window.HawkesProcessEngine && typeof window.HawkesProcessEngine.registerTrade === 'function') {
+              window.HawkesProcessEngine.registerTrade(trade.size || 100, false);
+            }
+            if (window.OrderFlowFootprint && typeof window.OrderFlowFootprint.registerTrade === 'function') {
+              window.OrderFlowFootprint.registerTrade(trade.price || state.livePrice, trade.size || 100, trade.side || 'BUY');
+              if (typeof window._redrawFootprint === 'function') window._redrawFootprint();
+            }
+          }
         });
       }
     }
@@ -1618,7 +1640,237 @@
     updateBasisDisplay();
   };
 
-  // ── 17. KaTeX Ambient Typesetting ───────────────────────────────────────────
+  // ── 18. Hawkes Self-Exciting Point Process Controller ──────────────────────
+  const initHawkesModule = () => {
+    const hawkesEngine = (typeof window !== 'undefined') ? window.HawkesProcessEngine : null;
+    if (!hawkesEngine) return;
+
+    const branchingValEl = document.getElementById('hawkesBranchingVal');
+    const regimeBadgeEl = document.getElementById('hawkesRegimeBadge');
+    const intensityValEl = document.getElementById('hawkesIntensityVal');
+    const endoRatioValEl = document.getElementById('hawkesEndoRatioVal');
+    const baselineValEl = document.getElementById('hawkesBaselineVal');
+    const statusTextEl = document.getElementById('hawkesStatusText');
+    const canvas = document.getElementById('hawkesCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
+    const alphaSlider = document.getElementById('hawkesAlphaSlider');
+    const betaSlider = document.getElementById('hawkesBetaSlider');
+    const muSlider = document.getElementById('hawkesMuSlider');
+    const alphaLabel = document.getElementById('hawkesAlphaLabel');
+    const betaLabel = document.getElementById('hawkesBetaLabel');
+    const muLabel = document.getElementById('hawkesMuLabel');
+
+    const updateControlsFromSliders = () => {
+      const alpha = parseFloat(alphaSlider?.value || '4.8');
+      const beta = parseFloat(betaSlider?.value || '6.0');
+      const mu = parseFloat(muSlider?.value || '1.2');
+      if (alphaLabel) alphaLabel.textContent = alpha.toFixed(2);
+      if (betaLabel) betaLabel.textContent = beta.toFixed(2);
+      if (muLabel) muLabel.textContent = mu.toFixed(2);
+      hawkesEngine.setParameters(mu, alpha, beta);
+    };
+
+    [alphaSlider, betaSlider, muSlider].forEach(s => {
+      if (s) s.addEventListener('input', updateControlsFromSliders);
+    });
+
+    // Cascade Shock Button
+    const btnShock = document.getElementById('btnTriggerHawkesShock');
+    if (btnShock) {
+      btnShock.addEventListener('click', () => {
+        btnShock.disabled = true;
+        btnShock.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Triggering Cascade...';
+        hawkesEngine.simulateShock(60);
+        if (state.soundEnabled) SoundFX.executionChime();
+        setTimeout(() => {
+          btnShock.disabled = false;
+          btnShock.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Trigger Cascade Shock (100 Orders)';
+        }, 1500);
+      });
+    }
+
+    // Reset Button
+    const btnReset = document.getElementById('btnResetHawkes');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        hawkesEngine.reset();
+        if (alphaSlider) alphaSlider.value = '4.8';
+        if (betaSlider) betaSlider.value = '6.0';
+        if (muSlider) muSlider.value = '1.2';
+        updateControlsFromSliders();
+      });
+    }
+
+    // Render Canvas & Telemetry Loop
+    const renderHawkes = () => {
+      const metrics = hawkesEngine.getMetrics();
+      if (branchingValEl) branchingValEl.textContent = metrics.branchingRatio.toFixed(3);
+      if (intensityValEl) intensityValEl.textContent = `${metrics.currentIntensity.toFixed(2)}/s`;
+      if (endoRatioValEl) endoRatioValEl.textContent = `${metrics.endogenousRatioPct}%`;
+      if (baselineValEl) baselineValEl.textContent = `${metrics.baselineRate.toFixed(2)}/s`;
+
+      if (regimeBadgeEl) {
+        regimeBadgeEl.textContent = metrics.regime;
+        regimeBadgeEl.style.color = metrics.regimeColor;
+        regimeBadgeEl.style.borderColor = metrics.regimeColor;
+        regimeBadgeEl.style.background = metrics.regimeLevel === 'CRITICAL' ? 'rgba(239,68,68,0.2)' : (metrics.regimeLevel === 'WARNING' ? 'rgba(245,158,11,0.2)' : 'rgba(16,185,129,0.15)');
+      }
+
+      if (statusTextEl) {
+        statusTextEl.innerHTML = `<span style="color:${metrics.regimeColor}; font-weight:700;">${metrics.regimeLevel}:</span> ${metrics.regimeDescription}`;
+      }
+
+      // Draw canvas
+      if (ctx && canvas) {
+        const w = canvas.width;
+        const h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        // Dark background
+        ctx.fillStyle = '#030712';
+        ctx.fillRect(0, 0, w, h);
+
+        // Grid lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 4; i++) {
+          const y = h * (i / 4);
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(w, y);
+          ctx.stroke();
+        }
+
+        const hist = metrics.history;
+        if (hist && hist.length > 1) {
+          let maxInt = Math.max(30, ...hist.map(p => p.intensity));
+          const stepX = w / Math.max(1, hist.length - 1);
+
+          // Draw gradient area
+          ctx.beginPath();
+          ctx.moveTo(0, h);
+          hist.forEach((p, idx) => {
+            const x = idx * stepX;
+            const y = h - (p.intensity / maxInt) * (h - 20);
+            if (idx === 0) ctx.lineTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.lineTo(w, h);
+          ctx.closePath();
+
+          const grad = ctx.createLinearGradient(0, 0, 0, h);
+          grad.addColorStop(0, metrics.regimeLevel === 'CRITICAL' ? 'rgba(239, 68, 68, 0.4)' : (metrics.regimeLevel === 'WARNING' ? 'rgba(245, 158, 11, 0.35)' : 'rgba(56, 189, 248, 0.3)'));
+          grad.addColorStop(1, 'rgba(3, 7, 18, 0.05)');
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          // Draw intensity line
+          ctx.beginPath();
+          hist.forEach((p, idx) => {
+            const x = idx * stepX;
+            const y = h - (p.intensity / maxInt) * (h - 20);
+            if (idx === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          });
+          ctx.strokeStyle = metrics.regimeColor;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // Threshold warning line (n = 1.0 boundary)
+          const threshY = h - (hawkesEngine.beta / maxInt) * (h - 20);
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.4)';
+          ctx.setLineDash([4, 4]);
+          ctx.beginPath();
+          ctx.moveTo(0, threshY);
+          ctx.lineTo(w, threshY);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          ctx.fillStyle = 'rgba(239, 68, 68, 0.7)';
+          ctx.font = '9px JetBrains Mono, monospace';
+          ctx.textAlign = 'right';
+          ctx.fillText('CRITICAL CASCADE THRESHOLD (n=1.0)', w - 10, threshY - 4);
+        } else {
+          ctx.fillStyle = '#64748b';
+          ctx.font = '11px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText('Awaiting order flow prints for intensity accumulation...', w / 2, h / 2);
+        }
+      }
+
+      requestAnimationFrame(renderHawkes);
+    };
+
+    renderHawkes();
+  };
+
+  // ── 19. Institutional Order Flow Footprint Controller ───────────────────────
+  const initFootprintModule = () => {
+    const fpEngine = (typeof window !== 'undefined') ? window.OrderFlowFootprint : null;
+    if (!fpEngine) return;
+
+    const canvas = document.getElementById('footprintCanvas');
+    const pocValEl = document.getElementById('fpPocVal');
+    const vaValEl = document.getElementById('fpVaVal');
+    const deltaValEl = document.getElementById('fpDeltaVal');
+
+    const updateFootprintDisplay = () => {
+      if (!canvas) return;
+      fpEngine.renderCanvas(canvas);
+
+      const candles = fpEngine.getCandles();
+      if (candles && candles.length > 0) {
+        const latest = candles[candles.length - 1];
+        if (pocValEl) pocValEl.textContent = `${state.currency === 'INR' ? '₹' : '$'}${latest.pocPrice.toFixed(2)}`;
+        if (vaValEl) vaValEl.textContent = `${latest.valueAreaLow.toFixed(2)} - ${latest.valueAreaHigh.toFixed(2)}`;
+        if (deltaValEl) {
+          deltaValEl.textContent = `${latest.totalDelta >= 0 ? '+' : ''}${latest.totalDelta.toLocaleString()}`;
+          deltaValEl.style.color = latest.totalDelta >= 0 ? '#10b981' : '#ef4444';
+        }
+      }
+    };
+
+    // Duration buttons (1m, 3m, 5m)
+    document.querySelectorAll('.hft-fp-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.hft-fp-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const dur = parseInt(btn.dataset.duration || '60000', 10);
+        fpEngine.setDuration(dur);
+        updateFootprintDisplay();
+      });
+    });
+
+    // Seed 5 historical candles
+    const btnSeed = document.getElementById('btnSeedFootprint');
+    if (btnSeed) {
+      btnSeed.addEventListener('click', () => {
+        const base = state.livePrice || 2800;
+        fpEngine.seedHistory(base, 5);
+        updateFootprintDisplay();
+        if (state.soundEnabled) SoundFX.tickPop();
+      });
+    }
+
+    // Seed initial history
+    const baseP = state.livePrice || 2800;
+    fpEngine.seedHistory(baseP, 5);
+    updateFootprintDisplay();
+
+    // Re-render when window resizes
+    window.addEventListener('resize', () => {
+      if (canvas && canvas.parentElement) {
+        canvas.width = canvas.parentElement.clientWidth || 900;
+        updateFootprintDisplay();
+      }
+    });
+
+    // Expose redraw function
+    window._redrawFootprint = updateFootprintDisplay;
+  };
+
+  // ── 20. KaTeX Ambient Typesetting ───────────────────────────────────────────
   const renderFormulasKaTeX = () => {
     if (typeof renderMathInElement === 'function') {
       try {
@@ -1679,7 +1931,11 @@
     getBasisEngine: () => (typeof window !== 'undefined' ? window.BasisArbitrageEngine : null),
     calculateBasis: (spot, fut, dte) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.calculateBasisYield(spot, fut, dte) : null),
     calculateFunding: (r8h) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.calculateFundingYield(r8h) : null),
-    simulateDeltaNeutral: (cap, s, f, d, r, lev) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.simulateDeltaNeutralPosition(cap, s, f, d, r, lev) : null)
+    simulateDeltaNeutral: (cap, s, f, d, r, lev) => (typeof window !== 'undefined' && window.BasisArbitrageEngine ? window.BasisArbitrageEngine.simulateDeltaNeutralPosition(cap, s, f, d, r, lev) : null),
+    getHawkesEngine: () => (typeof window !== 'undefined' ? window.HawkesProcessEngine : null),
+    getFootprintEngine: () => (typeof window !== 'undefined' ? window.OrderFlowFootprint : null),
+    triggerHawkesShock: (orderCount) => (typeof window !== 'undefined' && window.HawkesProcessEngine ? window.HawkesProcessEngine.simulateShock(orderCount) : null),
+    renderFootprint: (canvasId) => (typeof window !== 'undefined' && window.OrderFlowFootprint ? window.OrderFlowFootprint.renderToCanvas(canvasId) : null)
   };
 
   // Initialize
@@ -1699,12 +1955,14 @@
     initMarketDataTruthFeed();
     await initWasmMatchingModule();
     initBasisArbitrageModule();
+    initHawkesModule();
+    initFootprintModule();
     renderFormulasKaTeX();
 
     // Check focus deep-link
     if (urlParams && urlParams.get('focus')) {
       const f = urlParams.get('focus');
-      const targetId = f === 'as' ? 'ws-stoikov' : (f === 'tape' ? 'ws-tape' : (f === 'latency' ? 'ws-latency' : (f === 'slicer' ? 'ws-slicer' : (f === 'wasm' ? 'ws-wasm' : (f === 'basis' ? 'ws-basis' : null)))));
+      const targetId = f === 'as' ? 'ws-stoikov' : (f === 'tape' ? 'ws-tape' : (f === 'latency' ? 'ws-latency' : (f === 'slicer' ? 'ws-slicer' : (f === 'wasm' ? 'ws-wasm' : (f === 'basis' ? 'ws-basis' : (f === 'hawkes' ? 'ws-hawkes' : (f === 'footprint' ? 'ws-footprint' : null)))))));
       if (targetId) {
         const targetEl = document.getElementById(targetId);
         if (targetEl) setTimeout(() => targetEl.scrollIntoView({ behavior: 'smooth' }), 300);

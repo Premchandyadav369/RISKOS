@@ -65,6 +65,8 @@
     { id: 'act_hft', title: 'Launch Dedicated HFT Terminal (/hft)', desc: 'L3 Bookmap heatmap, Avellaneda-Stoikov quoting & VPIN toxicity radar', category: 'Actions', badge: 'HFT', icon: 'fa-bolt-lightning', action: () => window.location.href='hft.html' },
     { id: 'act_wasm', title: 'C++/WebAssembly (WASM) Matching Engine (/wasm)', desc: 'Compiled L3 FIFO matching kernel with sub-microsecond latency benchmarks', category: 'Actions', badge: 'WASM', icon: 'fa-microchip', action: () => window.location.href='hft.html?focus=wasm#ws-wasm' },
     { id: 'act_basis', title: 'Cross-Exchange Basis & Funding Rate Radar (/basis)', desc: 'Cash-and-carry basis APR, 8h funding yield & delta-neutral execution', category: 'Actions', badge: 'ARBITRAGE', icon: 'fa-arrow-right-arrow-left', action: () => window.location.href='hft.html?focus=basis#ws-basis' },
+    { id: 'act_hawkes', title: 'Hawkes Self-Exciting Process & Liquidation Radar (/hawkes)', desc: 'Branching ratio n=alpha/beta, flash crash cascade warning & endogenous flow', category: 'Actions', badge: 'HAWKES', icon: 'fa-fire', action: () => window.location.href='hft.html?focus=hawkes#ws-hawkes' },
+    { id: 'act_footprint', title: 'Institutional Order Flow Footprint Chart (/footprint)', desc: 'Bid x Ask micro-volume, stacked diagonal imbalances >300% & POC value area', category: 'Actions', badge: 'FOOTPRINT', icon: 'fa-chart-column', action: () => window.location.href='hft.html?focus=footprint#ws-footprint' },
     { id: 'act_game', title: 'Play Jane Street Market Making Game (/game)', desc: '10-Round interactive market making trading game with inventory penalty', category: 'Actions', badge: 'GAME', icon: 'fa-gamepad', action: () => window.location.href='learn.html#quant-interview-masterclass' },
     { id: 'act_cert', title: 'View Cryptographic Accreditation Certificate (/cert)', desc: 'Institutional graduation credential with SHA-256 integrity seal', category: 'Actions', badge: 'CREDENTIAL', icon: 'fa-award', action: () => root.openCertificateModal ? root.openCertificateModal() : window.location.href='learn.html' },
     { id: 'act_tear', title: 'Export Institutional Quant Tear Sheet (/tearsheet)', desc: 'Printable hedge fund factsheet with CAGR, Sharpe, Sortino & VaR', category: 'Actions', badge: 'EXPORT', icon: 'fa-file-invoice', action: () => root.openTearSheetModal ? root.openTearSheetModal() : (document.getElementById('btnExportTearSheet')?.click() || (window.location.href='app.html')) },
@@ -254,6 +256,18 @@
         }
         if (slashQuery.includes('hft') || slashQuery.includes('bookmap') || slashQuery.includes('micro')) {
           matched.push(CATALOG.find(c => c.id === 'act_hft'));
+        }
+        if (slashQuery.includes('wasm')) {
+          matched.push(CATALOG.find(c => c.id === 'act_wasm'));
+        }
+        if (slashQuery.includes('basis') || slashQuery.includes('funding') || slashQuery.includes('arb')) {
+          matched.push(CATALOG.find(c => c.id === 'act_basis'));
+        }
+        if (slashQuery.includes('hawkes') || slashQuery.includes('cascade')) {
+          matched.push(CATALOG.find(c => c.id === 'act_hawkes'));
+        }
+        if (slashQuery.includes('footprint') || slashQuery.includes('orderflow') || slashQuery.includes('fp')) {
+          matched.push(CATALOG.find(c => c.id === 'act_footprint'));
         }
         if (slashQuery.includes('dom') || slashQuery.includes('book')) {
           matched.push(CATALOG.find(c => c.id === 'act_dom'));

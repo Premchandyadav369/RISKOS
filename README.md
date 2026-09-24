@@ -637,6 +637,8 @@ flowchart TD
         WS7["Workstation 7: Algorithmic Slicing & Shortfall\n(TWAP / VWAP / POV / Almgren-Chriss)"]
         WS8["Workstation 8: C++20 & WebAssembly (WASM)\nL3 Matching Engine & Nanosecond Benchmark"]
         WS9["Workstation 9: Cross-Exchange Basis &\nPerpetual Funding Rate Arbitrage Radar"]
+        WS10["Workstation 10: Hawkes Point Process &\nLiquidation Cascade Flash-Crash Radar"]
+        WS11["Workstation 11: Institutional Order Flow Footprint\n& Diagonal Stacked Imbalances (>300%)"]
     end
 
     subgraph ExecutionLayer ["Broker Sandbox & Protocol Stream"]
@@ -644,6 +646,9 @@ flowchart TD
         WS2 --> PB
         WS4 --> FIX["RAW FIX 4.4 Protocol Bridge\n(Tags 35=D, 35=8, 35=G, Tag 58 Audit)"]
         WS7 --> FIX
+        WS8 --> PB
+        WS10 --> PB
+        WS11 --> PB
     end
 
     Ticks --> WS1
@@ -651,9 +656,11 @@ flowchart TD
     Ticks --> WS3
     TapeStream --> WS5
     TapeStream --> WS7
+    TapeStream --> WS10
+    TapeStream --> WS11
 ```
 
-### The 7 Core Microstructure Workstations:
+### The 11 Core Microstructure Workstations:
 
 1. **Workstation 1: Real-Time L3 Depth of Market (DOM) Ladder & Sub-Pixel Bookmap Waterfall**:
    - **Continuous DOM Matrix**: Displays resting limit order quantities, cumulative volume bars, and discrete order counts stacked at every price tick.
@@ -721,6 +728,26 @@ flowchart TD
    - Perpetual 8-hour funding rate capture and compounded APY:
      $\text{APY}_{\text{funding}} = (1 + F_{8\text{h}})^{1095} - 1$
    - Interactive delta-neutral position simulator calculating spot/futures capital split, leverage sizing, liquidation price threshold, and safety cushion.
+
+10. **Workstation 10: Hawkes Self-Exciting Point Process & Flash-Crash Cascade Radar**:
+    - Models endogenous market trade clustering and liquidity withdrawal:
+      $\lambda(t) = \mu + \sum_{t_i < t} \alpha \, e^{-\beta (t - t_i)}$
+    - $\mathcal{O}(1)$ recursive intensity decay update:
+      $\lambda(t_{k+1}) = \mu + e^{-\beta(t_{k+1} - t_k)}(\lambda(t_k) - \mu) + \alpha$
+    - Regime classification based on Branching Ratio $n = \frac{\alpha}{\beta}$:
+      - **Sub-Critical ($n < 0.80$)**: Stationary Poisson arrivals with healthy resting limit liquidity.
+      - **Near-Critical ($0.80 \le n \le 1.0$)**: Elevated endogenous trade clustering; stop-loss cascades brewing.
+      - **Super-Critical ($n > 1.0$)**: Self-feeding liquidation cascade; flash crash liquidity hole warning.
+    - Interactive calibration sliders for $\alpha$, $\beta$, and $\mu$, plus 1-click Cascade Shock simulator.
+
+11. **Workstation 11: Institutional Order Flow Footprint Chart & Stacked Imbalances**:
+    - Granular candle deconstruction displaying aggressive bid volume $\times$ ask volume per price rung ($V_{\text{bid}} \times V_{\text{ask}}$).
+    - Real-time Diagonal Buying & Selling Imbalances with $\ge 300\%$ (3:1) dominance threshold:
+      $\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0$
+    - Consecutive stacked imbalance detection ($\ge 3$ consecutive levels) flagging institutional sweeps.
+    - Automated Point of Control (POC) price rung identification: $\text{POC} = \arg\max_p (V_{\text{bid}} + V_{\text{ask}})$.
+    - 70% Volume Value Area High (VAH) and Value Area Low (VAL) calculation.
+    - Multi-timeframe selection (1 Min, 3 Min, 5 Min) and 60 FPS HTML5 Canvas visualizer.
 ---
 
 ## 🔮 Unified Multi-Model Predictive Trajectory Suite

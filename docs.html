@@ -131,6 +131,22 @@
       </div>
 
       <div class="docs-nav-group">
+        <div class="docs-nav-title" style="color:#22d3ee;"><i class="fa-solid fa-bolt-lightning" style="margin-right:4px;"></i> HFT Terminal (11 Workstations)</div>
+        <a href="#hft-terminal" class="docs-nav-item"><i class="fa-solid fa-bolt-lightning text-cyan"></i> 11 Workstations Architecture</a>
+        <a href="#ws1-heatmap" class="docs-nav-item"><i class="fa-solid fa-chart-area text-cyan"></i> WS1: L3 Bookmap Heatmap</a>
+        <a href="#ws2-stoikov" class="docs-nav-item"><i class="fa-solid fa-sliders text-amber"></i> WS2: Avellaneda-Stoikov MM</a>
+        <a href="#ws3-microprice" class="docs-nav-item"><i class="fa-solid fa-gauge text-purple"></i> WS3: Micro-Price &amp; OFI</a>
+        <a href="#ws4-slicer" class="docs-nav-item"><i class="fa-solid fa-scissors text-pink"></i> WS4: Algo Slicers (TWAP/VWAP)</a>
+        <a href="#ws5-latency" class="docs-nav-item"><i class="fa-solid fa-network-wired text-cyan"></i> WS5: Co-Location &amp; Latency</a>
+        <a href="#ws6-dom" class="docs-nav-item"><i class="fa-solid fa-bars-staggered text-emerald"></i> WS6: 1-Click L3 DOM Ladder</a>
+        <a href="#ws7-fix" class="docs-nav-item"><i class="fa-solid fa-terminal"></i> WS7: FIX 4.4 Protocol Stream</a>
+        <a href="#ws8-wasm" class="docs-nav-item"><i class="fa-solid fa-microchip text-cyan"></i> WS8: C++/WASM Matching Kernel</a>
+        <a href="#ws9-basis" class="docs-nav-item"><i class="fa-solid fa-arrow-right-arrow-left text-emerald"></i> WS9: Basis &amp; Funding Arbitrage</a>
+        <a href="#ws10-hawkes" class="docs-nav-item"><i class="fa-solid fa-fire text-rose"></i> WS10: Hawkes Process &amp; Cascades</a>
+        <a href="#ws11-footprint" class="docs-nav-item"><i class="fa-solid fa-chart-column text-cyan"></i> WS11: Institutional Footprint Chart</a>
+      </div>
+
+      <div class="docs-nav-group">
         <div class="docs-nav-title">Execution &amp; Risk Features</div>
         <a href="#trade-journal" class="docs-nav-item"><i class="fa-solid fa-calendar-days text-cyan"></i> Trade Journal &amp; Calendar</a>
         <a href="#oco-orders" class="docs-nav-item"><i class="fa-solid fa-arrows-split-up-and-left text-green"></i> OCO Bracket Orders</a>
@@ -676,6 +692,185 @@ u)$.
             </p>
             <div style="font-size:0.8rem; color:#22d3ee;">$$\hat{Y}_t = 0.40 \cdot \text{TFM}_{q50} + 0.30 \cdot \text{Prophet} + 0.30 \cdot \text{Merton}_{p50}$$</div>
           </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════ HFT & MARKET MICROSTRUCTURE TERMINAL (11 WORKSTATIONS) ═══════════════════════ -->
+      <section id="hft-terminal" class="doc-section">
+        <div class="doc-header-row">
+          <h2 class="doc-title"><i class="fa-solid fa-bolt-lightning text-cyan"></i> High-Frequency Trading (HFT) Terminal &amp; 11 Workstations (<code>hft.html</code>)</h2>
+          <span class="badge" style="background:rgba(34,211,238,0.15); color:#22d3ee;">Sub-Microsecond SDE Architecture &bull; 11 Workstations</span>
+        </div>
+
+        <p style="font-size:0.88rem; color:#ddd; line-height:1.6; margin:0 0 16px 0;">
+          The <strong>RISKOS HFT Terminal</strong> is an institutional-grade algorithmic execution and market microstructure research environment. It runs a compiled C++/WebAssembly L3 matching kernel, sub-microsecond queue simulators, self-exciting Hawkes jump processes, and real-time order flow footprint profiles backed by live exchange feeds.
+        </p>
+
+        <div class="dual-box-grid" style="margin-bottom:20px;">
+          <div class="layman-box">
+            <span class="box-badge layman"><i class="fa-solid fa-user"></i> Layman Translation — The Millisecond Battlefield</span>
+            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
+              Every stock quote on your phone is an illusion of calm. Underneath, millions of institutional orders battle inside an electronic order book at fractions of a millisecond. The HFT Terminal gives you the visual and mathematical tools used by firms like Citadel and Jane Street to detect hidden liquidity, predict directional price sweeps, and execute without getting front-run by aggressive bots.
+            </p>
+          </div>
+
+          <div class="quant-box">
+            <span class="box-badge quant"><i class="fa-solid fa-atom"></i> Quant Formulation — Continuous Double Auction Dynamics</span>
+            <div style="font-size:0.82rem; color:#22d3ee; margin:4px 0;">
+              $$dS_t = \lambda_{\text{OFI}} \cdot \text{OFI}_t \, dt + \sigma \, dW_t + J_t \, dN_t, \quad \lambda_{\text{Hawkes}}(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}$$
+            </div>
+            <p style="font-size:0.75rem; color:#aaa; margin:0;">
+              Combines Level-3 order book queue state spaces, point process intensity models, inventory risk HJB equations, and price-time FIFO matching.
+            </p>
+          </div>
+        </div>
+
+        <!-- 11 Workstations Detailed Matrix -->
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          
+          <!-- WS 1: L3 Bookmap Heatmap -->
+          <div id="ws1-heatmap" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(56,189,248,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#38bdf8; margin:0;"><i class="fa-solid fa-chart-area"></i> Workstation 1: Interactive L3 Order Book Heatmap (Bookmap Canvas)</h4>
+              <a href="hft.html?focus=heatmap#ws-heatmap" style="color:#38bdf8; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> A thermal camera for resting orders. Bright yellow/cyan bands reveal massive limit orders resting at key price rungs. When price approaches these walls, they act as magnetic support or resistance until an aggressive whale sweeps them away.<br>
+              <strong>Quant:</strong> Real-time rolling Canvas buffer rendering depth intensity $I(p, t) = \sum_{k=1}^K w_k \cdot \text{Depth}(p_k, t)$ alongside executed trade volume circles scaled by square-root notional volume ($r = \sqrt{V / \pi}$).
+            </p>
+            <div style="font-size:0.8rem; color:#38bdf8;">$$I(p, t) = \frac{\text{QueueVol}(p, t)}{\max_p \text{QueueVol}(p, t)} \in [0, 1], \quad \text{Radius} \propto \sqrt{\text{TradeSize}}$$</div>
+          </div>
+
+          <!-- WS 2: Avellaneda-Stoikov MM -->
+          <div id="ws2-stoikov" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(245,158,11,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#fbbf24; margin:0;"><i class="fa-solid fa-sliders"></i> Workstation 2: Avellaneda-Stoikov High-Frequency Market Making Engine</h4>
+              <a href="hft.html?focus=as#ws-stoikov" style="color:#fbbf24; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> How market makers avoid ruin. When a market maker accumulates 500 shares, holding them is dangerous because price might plunge. The model automatically lowers both buy and sell quotes, making their sell offer cheaper to dump inventory while discouraging new purchases.<br>
+              <strong>Quant:</strong> Solves the Hamilton-Jacobi-Bellman (HJB) stochastic optimal control equation with inventory penalty parameter $\gamma$, terminal time $T$, and market order arrival intensity $\lambda(\delta) = A e^{-k \delta}$.
+            </p>
+            <div style="font-size:0.8rem; color:#fbbf24;">$$r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right), \quad \delta^a - \delta^b = (2q - 1) \gamma \sigma^2 (T - t)$$</div>
+          </div>
+
+          <!-- WS 3: Micro-Price & OFI -->
+          <div id="ws3-microprice" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(168,85,247,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#c084fc; margin:0;"><i class="fa-solid fa-gauge"></i> Workstation 3: Micro-Price &amp; Order Flow Imbalance (OFI) Toxicity Radar</h4>
+              <a href="hft.html?focus=micro#ws-micro" style="color:#c084fc; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> The mid-price between bid and ask is misleading. If 10,000 shares want to buy at ₹99.95 and only 100 shares want to sell at ₹100.05, the next trade is almost guaranteed to push price up. Micro-price weights the quotes to reveal where fair price really sits.<br>
+              <strong>Quant:</strong> Order Flow Imbalance (OFI) tracks discrete queue deltas ($\Delta Q_b - \Delta Q_a$) across tick updates. VPIN (Volume-Synchronized Probability of Toxicity) measures the percentage of volume driven by informed toxic flow over $N$ volume buckets.
+            </p>
+            <div style="font-size:0.8rem; color:#c084fc;">$$P_{\text{micro}} = \frac{Q_b \cdot P_a + Q_a \cdot P_b}{Q_b + Q_a} = M + \left(\frac{Q_b - Q_a}{Q_b + Q_a}\right)\frac{S}{2}, \quad \text{VPIN} = \frac{\sum_{\tau=1}^N |V_\tau^B - V_\tau^S|}{N \cdot V}$$</div>
+          </div>
+
+          <!-- WS 4: Institutional Algo Slicer -->
+          <div id="ws4-slicer" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(236,72,153,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#f472b6; margin:0;"><i class="fa-solid fa-scissors"></i> Workstation 4: Institutional Execution Algorithm Slicer (TWAP, VWAP, POV)</h4>
+              <a href="hft.html?focus=slicer#ws-slicer" style="color:#f472b6; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> If you buy ₹10 Crores of stock in one click, you pay a fortune in slippage. Slicers quietly break that order into hundreds of small slices matched to natural trading volume throughout the day, saving hundreds of thousands in execution costs.<br>
+              <strong>Quant:</strong> Implements Almgren-Chriss optimal liquidation trajectories balancing temporary impact $\eta v_k$ against market timing risk $\lambda \sigma^2 \sum x_k^2 \tau$, alongside empirical U-shaped VWAP volume scheduling.
+            </p>
+            <div style="font-size:0.8rem; color:#f472b6;">$$\min_{\{n_k\}} \mathbb{E}[x] + \lambda \mathbb{V}[x], \quad x_j = X \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)}, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}$$</div>
+          </div>
+
+          <!-- WS 5: Co-Location & Latency -->
+          <div id="ws5-latency" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(6,182,212,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#22d3ee; margin:0;"><i class="fa-solid fa-network-wired"></i> Workstation 5: Global Exchange Co-Location &amp; Speed-of-Light Latency Topology</h4>
+              <a href="hft.html?focus=latency#ws-latency" style="color:#22d3ee; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> Light travels fast, but through 1,000 km of glass fiber, it still takes 4.9 milliseconds. That is an eternity in HFT. Moving trading servers directly inside the exchange building (co-location) reduces ping to 15 microseconds, beating all outside competitors to every quote update.<br>
+              <strong>Quant:</strong> Fiber refraction index physics ($n_{\text{glass}} \approx 1.4682$), geodesic curvature distance formulas, optical switch hop latency ($\sim 1.2 \mu\text{s}$), and Solarflare kernel-bypass NIC DMA timings.
+            </p>
+            <div style="font-size:0.8rem; color:#22d3ee;">$$\tau_{\text{prop}} = \frac{d}{c / n_{\text{fiber}}} = \frac{d}{204{,}190 \text{ km/s}}, \quad \tau_{\text{round-trip}} = 2 \cdot (\tau_{\text{prop}} + N_{\text{switches}} \cdot \tau_{\text{hop}} + \tau_{\text{NIC}})$$</div>
+          </div>
+
+          <!-- WS 6: L3 Depth Ladder -->
+          <div id="ws6-dom" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(16,185,129,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#34d399; margin:0;"><i class="fa-solid fa-bars-staggered"></i> Workstation 6: Real-Time Level-3 Depth of Market (DOM) Ladder (1-Click Execution)</h4>
+              <a href="hft.html?focus=dom#ws-ladder" style="color:#34d399; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> A vertical trading cockpit. Instead of clumsy popup order windows, you click directly on any price step to place resting buy/sell limits instantly. Color bars show where order queues are thick or paper thin.<br>
+              <strong>Quant:</strong> Price-time priority queuing simulation tracking user queue position $Q_{\text{pos}}(P_k)$ and probability of fill conditional on Poisson trade arrivals hitting the best bid/ask.
+            </p>
+            <div style="font-size:0.8rem; color:#34d399;">$$\mathbb{P}(\text{Fill} \mid Q_{\text{pos}}, \Delta t) = 1 - \exp\left(-\int_0^{\Delta t} \frac{\mu_{\text{trade}}(u)}{Q_{\text{ahead}}(u)} du\right)$$</div>
+          </div>
+
+          <!-- WS 7: FIX 4.4 Protocol Stream -->
+          <div id="ws7-fix" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(148,163,184,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#94a3b8; margin:0;"><i class="fa-solid fa-terminal"></i> Workstation 7: Real-Time Institutional FIX 4.4 Protocol Packet Stream</h4>
+              <a href="hft.html?focus=fix#ws-fix" style="color:#94a3b8; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> The secret machine code of finance. When Goldman Sachs sends an order to the exchange, it looks like: <code>35=D|48=RELIANCE|54=1|38=500|44=2800</code>. Workstation 7 displays every live order packet generated across RISKOS.<br>
+              <strong>Quant:</strong> Full tag-value parser implementing FIX 4.4 specifications with Tag 35 message types (<code>35=D</code> NewOrderSingle, <code>35=8</code> ExecutionReport, <code>35=G</code> OrderCancelReplaceRequest, <code>35=9</code> OrderCancelReject).
+            </p>
+            <div style="font-size:0.8rem; color:#94a3b8;">$$\text{Checksum} = \left(\sum_{i=1}^{L} \text{byte}_i\right) \pmod{256} \equiv \text{Tag 10}$$</div>
+          </div>
+
+          <!-- WS 8: C++/WASM Matching Kernel -->
+          <div id="ws8-wasm" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(56,189,248,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#38bdf8; margin:0;"><i class="fa-solid fa-microchip"></i> Workstation 8: Microsecond L3 FIFO Matching Engine (C++ / WebAssembly)</h4>
+              <a href="hft.html?focus=wasm#ws-wasm" style="color:#38bdf8; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> A complete miniature stock exchange running directly inside your browser. It uses low-level compiled C++ code (WebAssembly) to match trades in 1.8 microseconds, matching up to 200,000 orders every second with zero browser lag.<br>
+              <strong>Quant:</strong> Zero-allocation intrusive doubly-linked list order book kernel with `std::map<double, Level>` price ladder, sub-microsecond limit order insertion, aggressive market order cross-sweeps, and benchmark telemetry.
+            </p>
+            <div style="font-size:0.8rem; color:#38bdf8;">$$\text{Complexity: } \mathcal{O}(1) \text{ Order Cancel}, \quad \mathcal{O}(\log P) \text{ Level Insert}, \quad \tau_{\text{match}} \le 1.8 \mu\text{s}$$</div>
+          </div>
+
+          <!-- WS 9: Basis & Funding Arbitrage -->
+          <div id="ws9-basis" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(16,185,129,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#34d399; margin:0;"><i class="fa-solid fa-arrow-right-arrow-left"></i> Workstation 9: Cross-Exchange Basis &amp; Perpetual Funding Arbitrage Radar</h4>
+              <a href="hft.html?focus=basis#ws-basis" style="color:#34d399; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> Pure cash flow without market risk. If futures trade higher than spot, you buy spot and short futures. At contract expiry, the prices must merge, guaranteeing you an annualized 10%–18% yield whether the market crashes or skyrockets!<br>
+              <strong>Quant:</strong> Computes cost-of-carry forward curves $F_t = S_t e^{(r - q + c)(T - t)}$, annualized basis APR, and continuous 8-hour perpetual funding rate yield compounding $\text{APY} = (1 + F_{8\text{h}})^{1095} - 1$.
+            </p>
+            <div style="font-size:0.8rem; color:#34d399;">$$\text{APR}_{\text{basis}} = \frac{F_t - S_t}{S_t} \cdot \frac{365}{\text{DTE}} \times 100\%, \quad \text{APY}_{\text{funding}} = (1 + F_{8\text{h}})^{1095} - 1$$</div>
+          </div>
+
+          <!-- WS 10: Hawkes Process & Flash Crashes -->
+          <div id="ws10-hawkes" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(239,68,68,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#ef4444; margin:0;"><i class="fa-solid fa-fire"></i> Workstation 10: Hawkes Self-Exciting Point Process &amp; Liquidation Cascade Radar</h4>
+              <a href="hft.html?focus=hawkes#ws-hawkes" style="color:#ef4444; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> The avalanche warning system. Calm trading is like occasional snow flakes. A flash crash happens when one falling rock triggers a landslide of margin liquidations, stop-losses, and bot selling. The branching ratio $n = \alpha/\beta$ detects when trades start triggering more trades, warning before prices plunge.<br>
+              <strong>Quant:</strong> Self-exciting stochastic point process with conditional intensity $\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}$. Employs an $\mathcal{O}(1)$ recursive decay update $\lambda(t_{k+1}) = \mu + e^{-\beta(t_{k+1} - t_k)}(\lambda(t_k) - \mu) + \alpha$ enabling microsecond ingestion. When $n = \alpha/\beta \ge 1.0$, the process enters a supercritical explosive regime.
+            </p>
+            <div style="font-size:0.8rem; color:#ef4444;">$$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad n = \frac{\alpha}{\beta} \quad \left( n < 0.8 \text{ Stable}, \quad 0.8 \le n \le 1.0 \text{ Warning}, \quad n > 1.0 \text{ Supercritical Flash Crash} \right)$$</div>
+          </div>
+
+          <!-- WS 11: Order Flow Footprint -->
+          <div id="ws11-footprint" class="doc-section" style="padding:16px; background:#04060a; border:1px solid rgba(34,211,238,0.2); border-radius:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <h4 style="color:#22d3ee; margin:0;"><i class="fa-solid fa-chart-column"></i> Workstation 11: Institutional Order Flow Footprint Chart &amp; Stacked Imbalances</h4>
+              <a href="hft.html?focus=footprint#ws-footprint" style="color:#22d3ee; font-size:0.72rem; text-decoration:none; font-weight:700;"><i class="fa-solid fa-bolt"></i> Live Module &rarr;</a>
+            </div>
+            <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
+              <strong>Layman:</strong> Peeking inside every candle. Standard charts only show open, high, low, close. Footprint charts show the exact war: how many shares were bought at the ask vs sold at the bid at every single price tick ($V_{\text{bid}} \times V_{\text{ask}}$). When aggressive buyers overwhelm sellers by over 300% across 3 price levels in a row, a green stacked imbalance lights up before the stock surges!<br>
+              <strong>Quant:</strong> Diagonal imbalance quotient $\mathcal{I}_{\text{buy}}(p) = V_{\text{ask}}(p) / V_{\text{bid}}(p - \text{tick}) \ge 3.0$ with consecutive level clustering $\ge 3$. Computes the Point of Control (POC) as $\arg\max_p (V_{\text{bid}} + V_{\text{ask}})$ and 70% volume distribution Value Area High (VAH) and Value Area Low (VAL).
+            </p>
+            <div style="font-size:0.8rem; color:#22d3ee;">$$\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0, \quad \text{POC} = \arg\max_{p} \left( V_{\text{bid}}(p) + V_{\text{ask}}(p) \right), \quad \Delta_{\text{candle}} = \sum V_{\text{ask}} - \sum V_{\text{bid}}$$</div>
+          </div>
+
         </div>
       </section>
 

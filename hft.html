@@ -160,15 +160,17 @@
     <!-- Institutional Workstation Jump Navigator Bar -->
     <nav class="hft-jump-bar" aria-label="Workstation Fast Navigator">
       <span class="hft-jump-label"><i class="fa-solid fa-compass" style="color:var(--hft-cyan);"></i> WORKSTATIONS:</span>
-      <a href="#ws-dom" class="hft-jump-link">1. L3 DOM & Bookmap</a>
+      <a href="#ws-heatmap" class="hft-jump-link">1. Bookmap Heatmap</a>
       <a href="#ws-stoikov" class="hft-jump-link">2. Avellaneda-Stoikov</a>
-      <a href="#ws-microprice" class="hft-jump-link">3. Micro-Price & VPIN</a>
-      <a href="#ws-queue" class="hft-jump-link">4. Queue & FIX 4.4</a>
-      <a href="#ws-tape" class="hft-jump-link">5. Time & Sales / CVD</a>
-      <a href="#ws-latency" class="hft-jump-link">6. Latency Arbitrage</a>
-      <a href="#ws-slicer" class="hft-jump-link">7. Execution Slicer</a>
-      <a href="#ws-wasm" class="hft-jump-link highlight"><i class="fa-solid fa-microchip"></i> 8. C++/WASM Matching Core</a>
+      <a href="#ws-micro" class="hft-jump-link">3. Micro-Price & VPIN</a>
+      <a href="#ws-slicer" class="hft-jump-link">4. Execution Slicer</a>
+      <a href="#ws-latency" class="hft-jump-link">5. Latency Arbitrage</a>
+      <a href="#ws-ladder" class="hft-jump-link">6. L3 DOM Ladder</a>
+      <a href="#ws-fix" class="hft-jump-link">7. Queue & FIX 4.4</a>
+      <a href="#ws-wasm" class="hft-jump-link highlight"><i class="fa-solid fa-microchip"></i> 8. C++/WASM Core</a>
       <a href="#ws-basis" class="hft-jump-link highlight"><i class="fa-solid fa-arrow-right-arrow-left"></i> 9. Basis & Funding Radar</a>
+      <a href="#ws-hawkes" class="hft-jump-link highlight"><i class="fa-solid fa-fire"></i> 10. Hawkes Cascade Radar</a>
+      <a href="#ws-footprint" class="hft-jump-link highlight"><i class="fa-solid fa-chart-column"></i> 11. Order Flow Footprint</a>
     </nav>
 
     <!-- ── 4-Module Institutional Workstation Grid ────────────────────────── -->
@@ -177,6 +179,8 @@
       <!-- ====================================================================
            MODULE 1: REALISTIC L3 ORDER BOOK DOM & MICROSTRUCTURE WATERFALL
            ==================================================================== -->
+      <div id="ws-heatmap"></div>
+      <div id="ws-ladder"></div>
       <section class="hft-card" id="ws-dom" aria-label="L3 Order Book DOM & Waterfall">
         <div class="hft-card-header">
           <div class="hft-card-title">
@@ -358,6 +362,7 @@
       <!-- ====================================================================
            MODULE 3: STOIKOV MICRO-PRICE & VPIN TOXICITY RADAR
            ==================================================================== -->
+      <div id="ws-micro"></div>
       <section class="hft-card" id="ws-microprice" aria-label="Micro-Price & VPIN Toxicity Radar">
         <div class="hft-card-header">
           <div class="hft-card-title">
@@ -424,6 +429,7 @@
       <!-- ====================================================================
            MODULE 4: FIFO QUEUE POSITION SIMULATOR & RAW FIX 4.4 STREAM
            ==================================================================== -->
+      <div id="ws-fix"></div>
       <section class="hft-card" id="ws-queue" aria-label="Queue Position Simulator & FIX Terminal">
         <div class="hft-card-header">
           <div class="hft-card-title">
@@ -582,6 +588,7 @@
       <!-- ====================================================================
            MODULE 6: MICROSECOND LATENCY ARBITRAGE & CO-LOCATION SIMULATOR
            ==================================================================== -->
+      <div id="ws-latency"></div>
       <section class="hft-card" id="wsLatencyArb" aria-label="Microsecond Latency Arbitrage & Co-Location Simulator">
         <div class="hft-card-header">
           <div class="hft-card-title">
@@ -682,6 +689,7 @@
       <!-- ====================================================================
            MODULE 7: ALGORITHMIC EXECUTION SLICER (TWAP / VWAP / POV)
            ==================================================================== -->
+      <div id="ws-slicer"></div>
       <section class="hft-card" id="wsAlgoSlicer" aria-label="Algorithmic Execution Slicer & Implementation Shortfall">
         <div class="hft-card-header">
           <div class="hft-card-title">
@@ -1080,6 +1088,165 @@
           </div>
         </div>
       </section>
+
+      <!-- ====================================================================
+           MODULE 10: HAWKES PROCESS SELF-EXCITING POINT PROCESS & LIQUIDATION CASCADE RADAR
+           ==================================================================== -->
+      <section class="hft-card" id="ws-hawkes" style="margin-top:20px;" aria-label="Hawkes Process & Flash Crash Cascade Radar">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-fire" style="color:#ef4444;"></i>
+            Hawkes Self-Exciting Point Process & Flash-Crash Cascade Radar
+          </div>
+          <span class="hft-card-tag" style="background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.35); color:#ef4444;">
+            Endogenous Liquidation Cascades
+          </span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Self-Exciting Point Process SDE</span>
+            <span>Branching Ratio & Endogenous Cluster Math</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\lambda(t) = \mu + \sum_{t_i < t} \alpha \, e^{-\beta (t - t_i)}, \quad n = \frac{\alpha}{\beta} \quad \left( n < 1 \iff \text{Stationary}, \quad n \ge 1 \iff \text{Flash Crash Cascade} \right)$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> In calm markets, trades arrive randomly from external news ($\mu$). But during an institutional panic or flash crash, one large sell sweep triggers stop-losses, margin liquidations, and bot selling—creating a self-feeding explosion of volume. The <strong>Hawkes Process</strong> measures this endogenous feedback loop via the <strong>Branching Ratio $n = \frac{\alpha}{\beta}$</strong>. When $n < 0.8$, order flow is calm. When $n \to 1.0$ or higher, every single trade generates more trades, causing bids to evaporate and prices to collapse in milliseconds.
+          </div>
+        </div>
+
+        <!-- Hawkes Process Telemetry Strip -->
+        <div class="hft-hawkes-telemetry-grid">
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Branching Ratio ($n = \alpha / \beta$)</span>
+            <span class="hft-cvd-val" id="hawkesBranchingVal" style="color:#f59e0b;">0.800</span>
+            <span id="hawkesRegimeBadge" class="hft-badge-wasm" style="background:rgba(245,158,11,0.15); color:#f59e0b; border-color:#f59e0b;">
+              ELEVATED CLUSTERING (NEAR CRITICAL)
+            </span>
+          </div>
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Instantaneous Intensity $\lambda(t)$</span>
+            <span class="hft-cvd-val" id="hawkesIntensityVal" style="color:var(--hft-cyan);">18.40/s</span>
+            <span style="font-size:0.65rem; color:var(--hft-text-muted);">Trade arrival rate</span>
+          </div>
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Endogenous Trade Volume</span>
+            <span class="hft-cvd-val" id="hawkesEndoRatioVal" style="color:#ef4444;">68.5%</span>
+            <span style="font-size:0.65rem; color:#10b981;">Self-excited feedback flow</span>
+          </div>
+          <div class="hft-cvd-stat-box">
+            <span class="hft-cvd-label">Baseline Arrival $\mu$</span>
+            <span class="hft-cvd-val" id="hawkesBaselineVal" style="color:#fff;">1.20/s</span>
+            <span style="font-size:0.65rem; color:var(--hft-text-muted);">Exogenous news baseline</span>
+          </div>
+        </div>
+
+        <!-- Interactive Hawkes Calibration Controls -->
+        <div class="hft-hawkes-controls">
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:center;">
+            <div>
+              <label for="hawkesAlphaSlider" style="font-size:0.68rem; color:var(--hft-text-muted); display:flex; justify-content:space-between;">
+                <span>Excitation Magnitude $\alpha$:</span>
+                <span id="hawkesAlphaLabel" style="color:#fff; font-weight:700;">4.80</span>
+              </label>
+              <input type="range" id="hawkesAlphaSlider" min="0.5" max="10.0" step="0.1" value="4.8" style="width:160px; accent-color:#f59e0b;" />
+            </div>
+            <div>
+              <label for="hawkesBetaSlider" style="font-size:0.68rem; color:var(--hft-text-muted); display:flex; justify-content:space-between;">
+                <span>Memory Decay Rate $\beta$:</span>
+                <span id="hawkesBetaLabel" style="color:#fff; font-weight:700;">6.00</span>
+              </label>
+              <input type="range" id="hawkesBetaSlider" min="1.0" max="15.0" step="0.2" value="6.0" style="width:160px; accent-color:var(--hft-cyan);" />
+            </div>
+            <div>
+              <label for="hawkesMuSlider" style="font-size:0.68rem; color:var(--hft-text-muted); display:flex; justify-content:space-between;">
+                <span>Baseline Exogenous Rate $\mu$:</span>
+                <span id="hawkesMuLabel" style="color:#fff; font-weight:700;">1.20</span>
+              </label>
+              <input type="range" id="hawkesMuSlider" min="0.1" max="5.0" step="0.1" value="1.2" style="width:160px; accent-color:#10b981;" />
+            </div>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="btnTriggerHawkesShock" class="hft-btn" style="background:rgba(239,68,68,0.2); border-color:#ef4444; color:#ef4444; font-weight:700;">
+              <i class="fa-solid fa-triangle-exclamation"></i> Trigger Cascade Shock (100 Orders)
+            </button>
+            <button id="btnResetHawkes" class="hft-btn" style="font-size:0.75rem;">
+              <i class="fa-solid fa-rotate-left"></i> Reset Baseline
+            </button>
+          </div>
+        </div>
+
+        <!-- Hawkes Intensity Canvas Visualizer -->
+        <div style="background:#020617; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; margin-top:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--hft-text-muted); font-family:var(--hft-font-mono); margin-bottom:6px;">
+            <span><i class="fa-solid fa-chart-line" style="color:#ef4444;"></i> REAL-TIME HAWKES POINT PROCESS INTENSITY $\lambda(t)$ TIMELINE</span>
+            <span id="hawkesStatusText" style="color:#10b981;">Normal liquidity flow &bull; Sub-critical</span>
+          </div>
+          <canvas id="hawkesCanvas" width="900" height="150" style="width:100%; height:150px; background:#030712; border-radius:6px; display:block;"></canvas>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           MODULE 11: INSTITUTIONAL ORDER FLOW FOOTPRINT CHART
+           ==================================================================== -->
+      <section class="hft-card" id="ws-footprint" style="margin-top:20px;" aria-label="Institutional Order Flow Footprint Chart">
+        <div class="hft-card-header">
+          <div class="hft-card-title">
+            <i class="fa-solid fa-chart-column" style="color:var(--hft-cyan);"></i>
+            Institutional Order Flow Footprint Chart & Stacked Imbalances
+          </div>
+          <span class="hft-card-tag" style="background:rgba(56,189,248,0.15); border-color:rgba(56,189,248,0.35); color:var(--hft-cyan);">
+            Bid x Ask Micro-Volume &bull; Diagonal Imbalance &gt; 300%
+          </span>
+        </div>
+
+        <!-- KaTeX Math Formulation & Layman Explanation -->
+        <div class="hft-math-box">
+          <div class="hft-math-header">
+            <span><i class="fa-solid fa-square-root-variable"></i> Footprint Diagonal Imbalance & POC Mathematics</span>
+            <span>Microstructure Order Flow Profiling</span>
+          </div>
+          <div class="hft-formula-render">
+            $$\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0, \quad \text{POC} = \arg\max_{p} \left( V_{\text{bid}}(p) + V_{\text{ask}}(p) \right), \quad \Delta_{\text{candle}} = \sum V_{\text{ask}} - \sum V_{\text{bid}}$$
+          </div>
+          <div class="hft-layman-box">
+            <strong>Layman Intuition:</strong> Standard candlestick charts only show high, low, open, and close. An institutional <strong>Footprint Chart</strong> peers directly inside every candle to show the exact war between aggressive market buyers and passive limit sellers at every price tick: <strong>Bid Volume $\times$ Ask Volume</strong>. When aggressive buyers overwhelm sellers on the diagonal by over 300%, a <strong>Diagonal Buy Imbalance</strong> lights up green. If 3 or more levels stack consecutively, a <strong>Stacked Imbalance</strong> flags an institutional sweep taking control before the price moves!
+          </div>
+        </div>
+
+        <!-- Footprint Toolbar & Live Telemetry -->
+        <div class="hft-footprint-toolbar">
+          <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div style="font-size:0.75rem; font-family:var(--hft-font-mono); color:#fff; font-weight:700;">
+              <i class="fa-solid fa-clock" style="color:var(--hft-cyan);"></i> Candle Timeframe:
+            </div>
+            <div class="hft-footprint-btn-group">
+              <button class="hft-fp-btn active" data-duration="60000">1 Min</button>
+              <button class="hft-fp-btn" data-duration="180000">3 Min</button>
+              <button class="hft-fp-btn" data-duration="300000">5 Min</button>
+            </div>
+            <button id="btnSeedFootprint" class="hft-btn" style="font-size:0.72rem; padding:4px 10px;">
+              <i class="fa-solid fa-arrows-rotate"></i> Seed 5 Candles
+            </button>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; font-family:var(--hft-font-mono); font-size:0.75rem;">
+            <span>Current POC: <span id="fpPocVal" style="color:#f59e0b; font-weight:700;">--</span></span>
+            <span>Value Area: <span id="fpVaVal" style="color:#fff;">--</span></span>
+            <span>Candle Delta: <span id="fpDeltaVal" style="color:#10b981; font-weight:700;">--</span></span>
+          </div>
+        </div>
+
+        <!-- Footprint HTML5 Canvas Container -->
+        <div style="background:#020617; border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px; margin-top:14px; overflow-x:auto;">
+          <canvas id="footprintCanvas" width="900" height="340" style="width:100%; height:340px; background:#020617; border-radius:6px; display:block;"></canvas>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; font-size:0.68rem; color:var(--hft-text-muted); font-family:var(--hft-font-mono);">
+            <span>Legend: <span style="color:#ef4444;">Bid Vol</span> &times; <span style="color:#10b981;">Ask Vol</span> &bull; <span style="color:#f59e0b; font-weight:700;">Amber Box: Point of Control (POC)</span> &bull; <span style="color:#10b981; font-weight:700;">Green Highlight: &gt;300% Diagonal Buy Imbalance</span> &bull; <span style="color:#ef4444; font-weight:700;">Red Highlight: &gt;300% Sell Imbalance</span></span>
+            <span>Live Aggregated Footprint Flow &bull; 60 FPS Canvas</span>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -1111,6 +1278,8 @@
   <script src="orderBookDom.js"></script>
   <script src="matchingEngineWasm.js"></script>
   <script src="basisArbitrageEngine.js"></script>
+  <script src="hawkesProcessEngine.js"></script>
+  <script src="orderFlowFootprint.js"></script>
   <script src="sessionSync.js"></script>
   <script src="themeEngine.js"></script>
   <script src="universalPalette.js"></script>
