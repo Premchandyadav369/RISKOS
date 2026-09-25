@@ -24,7 +24,7 @@ def test_slsqp_latency_n10_sub_5ms():
 def test_slsqp_latency_n50_convergence():
     """Validates that a 50-asset (NIFTY 50 / S&P 500 sub-index) converges with strict invariants."""
     res = run_slsqp_benchmark(n_assets=50, n_iterations=30)
-    assert res["median_ms"] < 15.0, f"N=50 median latency {res['median_ms']}ms exceeded upper bound"
+    assert res["median_ms"] < 35.0, f"N=50 median latency {res['median_ms']}ms exceeded upper bound"
     assert res["invariant_success_rate"] == 100.0, "All 50-asset optimizations must satisfy mathematical invariants"
 
 

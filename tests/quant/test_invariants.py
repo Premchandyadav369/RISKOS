@@ -186,3 +186,65 @@ def test_mathematical_simplex_and_risk_invariants():
         assert all(w >= -1e-6 for w in w_ms)
         assert ms["volatility"] >= 0.0
 
+
+def test_black_scholes_finite_difference_greeks():
+    """Verify analytical Black-Scholes Greeks against numerical central finite differences."""
+    S = 100.0
+    K = 100.0
+    r = 0.05
+    T = 1.0
+    vol = 0.20
+
+    def bs_call(s, k, r_rate, t_exp, sigma):
+        d1 = (np.log(s / k) + (r_rate + 0.5 * sigma**2) * t_exp) / (sigma * np.sqrt(t_exp))
+        d2 = d1 - sigma * np.sqrt(t_exp)
+        return s * norm.cdf(d1) - k * np.exp(-r_rate * t_exp) * norm.cdf(d2)
+
+    d1 = (np.log(S / K) + (r + 0.5 * vol**2) * T) / (vol * np.sqrt(T))
+    analytical_delta = float(norm.cdf(d1))
+    analytical_gamma = float(norm.pdf(d1) / (S * vol * np.sqrt(T)))
+    analytical_vega = float(S * norm.pdf(d1) * np.sqrt(T))
+
+    eps = 1e-4
+    num_delta = (bs_call(S + eps, K, r, T, vol) - bs_call(S - eps, K, r, T, vol)) / (2 * eps)
+    num_gamma = (bs_call(S + eps, K, r, T, vol) - 2 * bs_call(S, K, r, T, vol) + bs_call(S - eps, K, r, T, vol)) / (eps**2)
+    num_vega = (bs_call(S, K, r, T, vol + eps) - bs_call(S, K, r, T, vol - eps)) / (2 * eps)
+
+    assert abs(analytical_delta - num_delta) < 1e-4
+    assert abs(analytical_gamma - num_gamma) < 1e-3
+    assert abs(analytical_vega - num_vega) < 1e-4
+
+
+def test_bond_price_yield_monotonicity():
+    """Bond price is strictly decreasing in yield: dP/dy < 0."""
+    face = 1000.0
+    coupon_rate = 0.06
+    maturity = 10
+    coupons = np.full(maturity, face * coupon_rate)
+
+    def bond_price(y):
+        times = np.arange(1, maturity + 1)
+        discount = (1 + y) ** (-times)
+        return float(np.sum(coupons * discount) + face * discount[-1])
+
+    yields = np.linspace(0.01, 0.20, 20)
+    prices = [bond_price(y) for y in yields]
+    for i in range(len(prices) - 1):
+        assert prices[i] > prices[i + 1]
+
+
+def test_purged_cv_no_leakage():
+    """Verify that training set contains no evaluation window overlap or embargo leakage."""
+    from backend.engine.purged_cv import get_train_times
+    dates = pd.date_range("2023-01-01", periods=100, freq="D")
+    events = pd.Series(dates + pd.Timedelta(days=5), index=dates)
+    test_slice = events.iloc[40:50]
+
+    train_slice = get_train_times(events, test_slice, embargo_pct=0.05)
+
+    assert set(test_slice.index).isdisjoint(set(train_slice.index))
+    for t_start, t_end in test_slice.items():
+        for tr_start, tr_end in train_slice.items():
+            assert not (tr_start <= t_start and tr_end >= t_start)
+
+

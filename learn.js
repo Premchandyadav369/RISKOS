@@ -311,13 +311,17 @@
       clean = clean.slice(2, -2).trim();
     } else if (clean.startsWith('\\(') && clean.endsWith('\\)') && clean.length >= 4) {
       clean = clean.slice(2, -2).trim();
+    } else if (clean.startsWith('$') && clean.endsWith('$') && clean.length >= 2) {
+      clean = clean.slice(1, -1).trim();
     }
     // Escape unescaped % so it never comments out the formula in KaTeX
     clean = clean.replace(/(^|[^\\])%/g, '$1\\%');
     // Wrap raw ₹ in \text{₹}
     clean = clean.replace(/₹/g, '\\text{₹}');
-    // Escape single unescaped $
-    clean = clean.replace(/(^|[^\\])\$(?!\$)/g, '$1\\$');
+    // Escape unescaped & unless part of align/matrix/cases environments
+    if (!/\\begin\{(aligned|matrix|bmatrix|pmatrix|vmatrix|cases|array)\}/.test(clean)) {
+      clean = clean.replace(/(^|[^\\])&/g, '$1\\&');
+    }
     return clean;
   };
 
@@ -332,7 +336,8 @@
         containerEl.innerHTML = '';
         katex.render(clean, containerEl, {
           displayMode: isDisplayMode,
-          throwOnError: false
+          throwOnError: false,
+          strict: false
         });
         return;
       } catch (e) {
@@ -2973,11 +2978,12 @@
         renderMathInElement(document.body, {
           delimiters: [
             { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false },
             { left: '\\[', right: '\\]', display: true },
             { left: '\\(', right: '\\)', display: false }
           ],
-          throwOnError: false
+          ignoredClasses: ["price", "money", "ticker", "badge", "currency", "stat-val", "metric-val"],
+          throwOnError: false,
+          strict: false
         });
       } catch (e) {
         console.warn('Initial ambient KaTeX render notice:', e);

@@ -2821,6 +2821,10 @@ const LearnMathEngine = (() => {
     const labels = [nameA, nameB, 'Risk-Free Hurdle (T-Bills)'];
     const retValues = [retA, retB, retRf];
 
+    const escapeTex = (s) => String(s).replace(/&/g, '\\&').replace(/%/g, '\\%').replace(/\$/g, '\\$');
+    const safeWinner = escapeTex(winnerName);
+    const safeAlloc = escapeTex(allocatedAsset);
+
     return {
       focalSymbol: 'Alloc_Dual',
       focalLabel: 'Dual Momentum Allocation',
@@ -2842,7 +2846,7 @@ const LearnMathEngine = (() => {
         ]
       },
       equationLatex: `\\[ \\text{Alloc}_t = \\begin{cases} \\arg\\max_{i \\in \\{A, B\\}} (R_{i, 12\\text{M}}) & \\text{if } \\max(R_A, R_B) > R_f \\\\ \\text{Short-Term Treasuries / BIL} & \\text{if } \\max(R_A, R_B) \\le R_f \\end{cases} \\]`,
-      substitutedLatex: `\\[ R_A = ${retA.toFixed(1)}\\%, \\; R_B = ${retB.toFixed(1)}\\% \\implies \\text{Winner: } \\mathbf{${winnerName}} \\quad | \\quad \\text{Hurdle: } ${retRf.toFixed(1)}\\% \\; (${passedAbsolute ? '\\ge' : '<'} R_f) \\implies \\text{Target: } \\mathbf{${allocatedAsset}} \\]`,
+      substitutedLatex: `\\[ R_A = ${retA.toFixed(1)}\\%, \\; R_B = ${retB.toFixed(1)}\\% \\implies \\text{Winner: } \\text{\\textbf{${safeWinner}}} \\quad \\vert \\quad \\text{Hurdle: } ${retRf.toFixed(1)}\\% \\; (${passedAbsolute ? '\\ge' : '<'} R_f) \\implies \\text{Target: } \\text{\\textbf{${safeAlloc}}} \\]`,
       beginnerText: `Dual momentum first picks the winning horse among equities (Relative Momentum), but if even the winning horse is performing worse than safe cash, it moves 100% to cash to avoid crashes (Absolute Momentum).`,
       investorText: `Gary Antonacci's dual filter cut the 2008 Great Financial Crisis drawdown from -51% down to -18% by systematically rotating to risk-free sovereign debt during bear markets.`,
       quantText: `Combines cross-sectional relative strength momentum (Jegadeesh & Titman 1993) with time-series trend following against the risk-free hurdle rate \\( R_f \\) to maximize Sortino and Calmar ratios.`,
