@@ -74,6 +74,9 @@ jobs:
       - name: Run SLSQP Latency Benchmark Matrix (10, 50, 200 Assets)
         run: python benchmarks/benchmark_slsqp.py
 
+      - name: Run Native Comparative Acceleration Benchmark (PGD vs SLSQP)
+        run: python benchmarks/benchmark_native_cpp.py
+
       - name: Verify Research Forecasting & Portfolio Benchmarks
         run: |
           python research/benchmark_forecasting.py

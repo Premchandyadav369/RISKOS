@@ -22,7 +22,11 @@
 
 [Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [75 Quant Labs](https://riskos-psi.vercel.app/learn.html) • [Interactive Docs Portal](https://riskos-psi.vercel.app/docs.html) • [Architecture](docs/ARCHITECTURE.md) • [Bot Fleet Catalog](docs/BOT_FLEET.md) • [Quant Labs Compendium](docs/QUANT_LABS.md) • [System Spec](docs/SYSTEM_SPEC.md) • [API Manual](docs/API.md) • [Model Cards](docs/models/) • [Audit (9.81/10)](docs/RISKOS_AUDIT.md)
 
+</div>
 
+<div align="center">
+  <img src="assets/riskos_l3_bookmap_demo.gif" alt="RISKOS Level 3 DOM Ladder & Real-Time Bookmap Order Book Waterfall Demo" width="100%" style="border-radius: 12px; border: 1px solid #1e293b; box-shadow: 0 20px 40px -15px rgba(0,0,0,0.8); margin: 16px 0;" />
+  <p><sub><em>Figure: Interactive Level 3 Market Depth DOM Ladder (Left) paired with Real-Time Bookmap Liquidity Heatmap Waterfall & Trade Aggressor Bubbles (Right).</em></sub></p>
 </div>
 
 > [!NOTE]
@@ -579,7 +583,7 @@ graph LR
 - **Dynamic Cross-Asset Correlation Heatmap**: Flags statistical breaks when 60-day rolling correlation deviates $> 2.0\sigma$ from 252-day mean.
 
 ### Desk 2: Portfolio Tail Risk & Black-Litterman Allocator (`app.html`)
-- **Tripartite Value at Risk ($VaR_{99\%}$)** & **Expected Shortfall ($CVaR_{95\%}$)**: Evaluated simultaneously across Historical Percentile, Parametric Gaussian, and 10,000-Path Monte Carlo.
+- **Tripartite Value at Risk ($\text{VaR}_{99\%}$)** & **Expected Shortfall ($\text{CVaR}_{95\%}$)**: Evaluated simultaneously across Historical Percentile, Parametric Gaussian, and 10,000-Path Monte Carlo.
 - **Ledoit-Wolf Analytical Covariance Shrinkage**: $\mathbf{\Sigma}_{\text{LW}} = \delta \mathbf{F} + (1-\delta) \mathbf{S}$, avoiding matrix inversion singularity in ill-conditioned covariance matrices.
 - **Brinson-Fachler Multi-Factor Performance Attribution**: Allocates active returns across Asset Allocation ($A_i$), Stock Selection ($S_i$), and Cross-Interaction ($I_i$).
 - **Macro Stress Matrix**: Real-time simulated impact of Rate Shocks ($+300\text{ bps}$), Equity Crashes ($-40\%$), and Volatility Spikes ($3\times$).
@@ -653,11 +657,11 @@ A dedicated institutional portfolio intelligence and execution desk that connect
 
 2. **Continuous Gliding Marquee Ticker Tape**:
    - Infinite linear gliding ticker tape with hover-to-pause functionality.
-   - Accurately formats benchmark assets: NIFTY 50 (`₹24,820.40`), S&P 500 (`$5,648.20`), USD/INR (`₹86.72`), India 10Y Yield (`6.88%`), Brent Crude (`$78.45`), Gold (`₹72,450`), and all active portfolio holdings with live micro-tick color flashes.
+   - Accurately formats benchmark assets: NIFTY 50 (`₹24,820.40`), S&P 500 (`5,648.20 USD`), USD/INR (`86.72 INR`), India 10Y Yield (`6.88%`), Brent Crude (`78.45 USD`), Gold (`72,450 INR`), and all active portfolio holdings with live micro-tick color flashes.
 
 3. **Institutional "Beast" Animated KPI Cards**:
    - **Total Portfolio NAV (`#kpiCardNav`)**: Rolling odometer number counter with live micro-tick card flashes (`.kpi-tick-up` emerald glow / `.kpi-tick-down` crimson glow), cost basis, day return, and animated unrealized profit progress gauge.
-   - **Quant Risk Architecture (`#kpiCardRisk`)**: Displays portfolio Beta ($\beta = 1.17$), VaR 99% (1.42%), Basel III CVaR 95% (2.15% NAV), and Ledoit-Wolf shrunk volatility (16.4%).
+   - **Quant Risk Architecture (`#kpiCardRisk`)**: Displays portfolio Beta ($\beta = 1.17$), $\text{VaR}_{99\%}$ (1.42%), Basel III $\text{CVaR}_{95\%}$ (2.15% NAV), and Ledoit-Wolf shrunk volatility (16.4%).
    - **Predictive Consensus Drift (`#kpiCardDrift`)**: Multi-model consensus 64-day forward drift (+3.96%), Win Probability (78.4%), Sharpe ratio (1.48), and dynamic Ensemble p50 target.
    - **Portfolio Sentiment Gauge (`#kpiCardSentiment`)**: Loughran-McDonald NLP aggregate index ($+0.65$, `STRONG BULLISH`), catalyst story count, and bias tilt tag (`Long Reliance/Suzlon`).
 
