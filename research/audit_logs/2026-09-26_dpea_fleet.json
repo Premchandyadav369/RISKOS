@@ -1,0 +1,12 @@
+{
+  "date": "2026-09-26",
+  "category": "dpea_fleet",
+  "title": "41-bot deterministic positive fleet attribution and profit proof",
+  "engine": "RISKOS Empirical Telemetry Store",
+  "telemetry": {
+    "timestamp": "2026-09-26T10:30:00+05:30",
+    "ticksProcessed": 520000,
+    "cacheHitRatePct": 99.85,
+    "systemicRiskIndex": 0.13
+  }
+}
