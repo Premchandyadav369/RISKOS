@@ -1,0 +1,16 @@
+{
+  "date": "2026-09-27",
+  "category": "cvar_portfolio",
+  "title": "Wang & Carreira-Perpinan exact simplex projection validation",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 130000,
+    "avgLatencyNs": 382,
+    "status": "VERIFIED"
+  }
+}
