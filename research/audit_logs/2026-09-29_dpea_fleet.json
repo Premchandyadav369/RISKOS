@@ -1,0 +1,16 @@
+{
+  "date": "2026-09-29",
+  "category": "dpea_fleet",
+  "title": "41-bot deterministic positive fleet attribution and profit proof",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 160000,
+    "avgLatencyNs": 384,
+    "status": "VERIFIED"
+  }
+}
