@@ -1,0 +1,16 @@
+{
+  "date": "2026-09-30",
+  "category": "options_derivatives",
+  "title": "Vectorized Black-Scholes analytical Greeks and put-call parity audit",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 175000,
+    "avgLatencyNs": 385,
+    "status": "VERIFIED"
+  }
+}
