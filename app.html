@@ -14,11 +14,11 @@
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 
-    <!-- MathJax 3 Configuration (Renders all inline & display LaTeX into crisp SVG math) -->
+    <!-- MathJax 3 Configuration (Renders all inline & display LaTeX into crisp SVG math safely) -->
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          inlineMath: [['\\(', '\\)']],
           displayMath: [['\\[', '\\]'], ['$$', '$$']],
           processEscapes: true,
           processEnvironments: true
@@ -45,47 +45,89 @@
 <body>
     <!-- Topbar -->
     <header class="topbar">
-        <div class="logo-container">
-            <a href="index.html">
-                <img src="assets/logo.webp" alt="RISKOS Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' fill=\'%23fff\' rx=\'16\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' font-family=\'Arial\' font-size=\'14\' font-weight=\'bold\' fill=\'%23000\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
-                <span>RISKOS <span class="badge-quant">PROP DESK</span></span>
-            </a>
-        </div>
-        <div class="controls">
-            <div class="input-wrap">
-                <i class="fa-solid fa-layer-group input-icon"></i>
-                <input type="text" id="ticker-input" value="AAPL,MSFT,GOOGL,AMZN,JPM" placeholder="Enter comma-separated tickers">
+        <!-- Zone 1: Brand & Status -->
+        <div class="topbar-zone-left">
+            <div class="logo-container">
+                <a href="index.html">
+                    <img src="assets/logo.webp" alt="RISKOS Logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' fill=\'%23fff\' rx=\'16\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' font-family=\'Arial\' font-size=\'14\' font-weight=\'bold\' fill=\'%23000\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
+                    <span>RISKOS <span class="badge-quant">PROP DESK</span></span>
+                </a>
             </div>
-            <button class="live-sync-trigger-btn" id="globalLiveSyncBtn" title="Sync live market quotes across all connected modules">
+            <div class="topbar-latency-pill" title="Ultra-low latency connection">
+                <span class="live-pulse-dot" style="width:5px; height:5px; background:#10b981; border-radius:50%; display:inline-block;"></span>
+                <span>&lt;1ms</span>
+            </div>
+        </div>
+
+        <!-- Zone 2: Command & Execution Controls -->
+        <div class="topbar-zone-center">
+            <div class="topbar-search-wrap">
+                <i class="fa-solid fa-layer-group search-icon"></i>
+                <input type="text" id="ticker-input" value="AAPL,MSFT,GOOGL,AMZN,JPM" placeholder="Enter comma-separated tickers...">
+                <button type="button" id="btnOpenPalette" class="search-kbd-btn" title="Command Palette (Cmd+K)"><kbd>⌘K</kbd></button>
+            </div>
+            <button id="analyze-btn" class="btn-topbar-run"><i class="fa-solid fa-play"></i> Run Models</button>
+            <button class="btn-topbar-sync" id="globalLiveSyncBtn" title="Sync live market quotes across all connected modules">
                 <span class="live-sync-dot"></span>
-                <i class="fa-solid fa-bolt" style="color:var(--accent-cyan);"></i>
-                <span class="live-sync-text">Sync Live</span>
+                <i class="fa-solid fa-bolt"></i>
+                <span>Sync Live</span>
             </button>
-            <button id="btnOpenPalette" title="Search Securities & Commands (Cmd+K)" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-magnifying-glass"></i> <kbd style="font-size:0.65rem;background:rgba(255,255,255,0.12);padding:2px 5px;border-radius:4px;">⌘K</kbd></button>
-            <button id="btnToggleAudio" title="Toggle Institutional Sound Effects" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:#22d3ee;display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-volume-high" id="audioIcon"></i></button>
-            <button id="analyze-btn"><i class="fa-solid fa-play" style="margin-right:6px"></i> Run Models</button>
-            <div style="display:flex;align-items:center;gap:6px;background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.25);border-radius:6px;padding:2px 8px;" title="OpenBB Open Data Platform (ODP) Provider">
-                <i class="fa-solid fa-cubes" style="color:#22d3ee;font-size:0.75rem;"></i>
-                <span style="font-size:0.7rem;color:#71717a;font-weight:700;">ODP:</span>
-                <select id="openbbProviderSelect" style="background:transparent;border:none;color:#22d3ee;font-size:0.7rem;font-weight:700;cursor:pointer;outline:none;">
-                    <option value="yfinance" style="background:#0c0d12;color:#fff;">Yahoo Finance</option>
-                    <option value="fmp" style="background:#0c0d12;color:#fff;">FMP Data</option>
-                    <option value="polygon" style="background:#0c0d12;color:#fff;">Polygon.io</option>
-                    <option value="cboe" style="background:#0c0d12;color:#fff;">CBOE Volatility</option>
-                    <option value="fred" style="background:#0c0d12;color:#fff;">FRED Macro</option>
-                    <option value="nse" style="background:#0c0d12;color:#fff;">NSE India</option>
+        </div>
+
+        <!-- Zone 3: Provider, Utilities, Workspaces & Account -->
+        <div class="topbar-zone-right">
+            <div class="topbar-pill-provider" title="OpenBB Open Data Platform (ODP) Provider">
+                <i class="fa-solid fa-cubes" style="color:#22d3ee; font-size:0.75rem;"></i>
+                <select id="openbbProviderSelect">
+                    <option value="yfinance">Yahoo Finance</option>
+                    <option value="fmp">FMP Data</option>
+                    <option value="polygon">Polygon.io</option>
+                    <option value="cboe">CBOE Vol</option>
+                    <option value="fred">FRED Macro</option>
+                    <option value="nse">NSE India</option>
                 </select>
             </div>
-            <button id="btnExportTearSheet" style="background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#10b981;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;cursor:pointer;"><i class="fa-solid fa-file-invoice"></i> Tear Sheet</button>
-            <a href="index.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-            <a href="ticker.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-layer-group"></i> Tickers</a>
-            <a href="news.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-newspaper text-cyan"></i> News</a>
-            <a href="learn.html" style="text-decoration:none;background:rgba(34,211,238,0.12);border:1px solid rgba(34,211,238,0.3);color:#22d3ee;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-flask"></i> Learn &amp; Lab</a>
-            <a href="observatory.html" style="text-decoration:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#fff;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:600;"><i class="fa-solid fa-satellite-dish"></i> Observatory</a>
-            <a href="hft.html" style="text-decoration:none;background:rgba(34,211,238,0.18);border:1px solid rgba(34,211,238,0.4);color:#22d3ee;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-bolt-lightning"></i> HFT Desk</a>
-            <a href="gs_quant.html" style="text-decoration:none;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.35);color:#fbbf24;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:0.75rem;font-weight:700;"><i class="fa-solid fa-gem"></i> GS Quant</a>
+
+            <button id="btnToggleAudio" class="btn-topbar-icon" title="Toggle Sound Effects">
+                <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+            </button>
+
+            <button id="btnExportTearSheet" class="btn-topbar-action" title="Export Quant Tear Sheet PDF">
+                <i class="fa-solid fa-file-invoice"></i> Tear Sheet
+            </button>
+
+            <!-- Workspaces Institutional Dropdown -->
+            <div class="topbar-workspaces-dropdown" id="topbarWorkspacesDropdown">
+                <button type="button" class="btn-workspaces-trigger" id="btnWorkspacesTrigger">
+                    <i class="fa-solid fa-grid-2"></i>
+                    <span>Workspaces</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:0.6rem; opacity:0.7;"></i>
+                </button>
+                <div class="workspaces-menu-popup" id="workspacesMenuPopup">
+                    <div class="workspaces-group-title">QUANT DESKS &amp; FLEET</div>
+                    <a href="index.html" class="workspace-item"><i class="fa-solid fa-chart-pie" style="color:#22d3ee;"></i> <span>Dashboard</span></a>
+                    <a href="fleet.html" class="workspace-item"><i class="fa-solid fa-robot" style="color:#10b981;"></i> <span>41 Bot Fleet</span> <span class="ws-badge">LIVE</span></a>
+                    <a href="hft.html" class="workspace-item"><i class="fa-solid fa-bolt-lightning" style="color:#22d3ee;"></i> <span>HFT Desk</span></a>
+                    <a href="gs_quant.html" class="workspace-item"><i class="fa-solid fa-gem" style="color:#fbbf24;"></i> <span>GS Quant</span></a>
+                    <a href="learn.html" class="workspace-item"><i class="fa-solid fa-flask" style="color:#a855f7;"></i> <span>80 Labs &amp; Learn</span></a>
+                    <a href="observatory.html" class="workspace-item"><i class="fa-solid fa-satellite-dish" style="color:#f43f5e;"></i> <span>Observatory</span></a>
+                    <div class="workspaces-group-title">MARKET INTEL &amp; TOOLS</div>
+                    <a href="ticker.html" class="workspace-item"><i class="fa-solid fa-layer-group"></i> <span>Tickers &amp; Screener</span></a>
+                    <a href="news.html" class="workspace-item"><i class="fa-solid fa-newspaper" style="color:#22d3ee;"></i> <span>News Wire</span></a>
+                    <a href="docs.html" class="workspace-item"><i class="fa-solid fa-book"></i> <span>Documentation</span></a>
+                </div>
+            </div>
+
+            <!-- Profile & Login Link -->
+            <a href="login.html" class="topbar-profile-link" id="topbarProfileLink" title="Institutional Sign In / Profile">
+                <div class="profile-avatar-circle" id="topbarProfileAvatar">TR</div>
+                <span id="topbarProfileName">Sign In</span>
+            </a>
         </div>
     </header>
+
+    <!-- ═══════════ REAL-TIME 41 AUTONOMOUS BOT FLEET TELEMETRY STRIP ═══════════ -->
+    <div id="fleetRealtimeStrip" class="fleet-realtime-strip"></div>
 
     <!-- ═══════════ REAL-TIME BREAKING INSTITUTIONAL NEWS WIRE ═══════════ -->
     <div style="background:rgba(0,0,0,0.75); border-bottom:1px solid rgba(255,255,255,0.08); padding:4px 20px; font-size:0.72rem; display:flex; align-items:center; gap:8px; overflow:hidden; flex-wrap:nowrap;">
@@ -97,17 +139,7 @@
         </div>
     </div>
 
-    <!-- ═══════════ USER-FRIENDLY TERMINAL QUICK-START BANNER ═══════════ -->
-    <div class="quickstart-onboarding-banner" id="terminalQuickStart" style="margin: 10px 24px; padding: 10px 16px; background: linear-gradient(90deg, rgba(34,211,238,0.08) 0%, rgba(16,185,129,0.08) 100%); border: 1px solid rgba(34,211,238,0.25); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-lightbulb" style="color: #22d3ee; font-size: 1rem;"></i>
-            <span style="font-size: 0.8rem; color: #f1f5f9;"><strong>Terminal Guide:</strong> Use function keys <kbd style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;">F1-F12</kbd> or click tabs below to navigate the 8 Desks. Press <kbd style="background:rgba(255,255,255,0.1);padding:1px 5px;border-radius:3px;">Alt+A</kbd> for your AI Analyst.</span>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <button onclick="window.openPalette && window.openPalette()" style="padding: 4px 10px; font-size: 0.72rem; font-weight: 600; border-radius: 4px; background: rgba(34,211,238,0.2); border: 1px solid rgba(34,211,238,0.4); color: #22d3ee; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i> Command Palette (⌘K)</button>
-            <button onclick="document.getElementById('terminalQuickStart').style.display='none'" style="background: none; border: none; color: #71717a; font-size: 1rem; cursor: pointer;" title="Dismiss">&times;</button>
-        </div>
-    </div>
+
 
     <!-- ═══════════ BLOOMBERG TERMINAL FUNCTION KEY STRIP (F1 - F12) ═══════════ -->
     <div class="bloomberg-function-strip" id="bbgFunctionStrip">
@@ -1769,6 +1801,42 @@
   <script src="supabaseConfig.js"></script>
   <script src="supabaseClient.js"></script>
   <script src="authModal.js"></script>
+  <script src="katexHelper.js"></script>
+  <script src="fleetRuntime.js"></script>
+  <script>
+    // Topbar Workspaces Dropdown & Profile Hydration
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('btnWorkspacesTrigger');
+      const dropdown = document.getElementById('topbarWorkspacesDropdown');
+      if (trigger && dropdown) {
+        trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle('open');
+        });
+        document.addEventListener('click', (e) => {
+          if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+          }
+        });
+      }
+
+      // Profile Hydration from authenticated session
+      try {
+        const rawUser = localStorage.getItem('riskos_user_profile') || localStorage.getItem('riskos_auth_user');
+        if (rawUser) {
+          const user = JSON.parse(rawUser);
+          const nameEl = document.getElementById('topbarProfileName');
+          const avatarEl = document.getElementById('topbarProfileAvatar');
+          if (nameEl && (user.fullName || user.name)) {
+            nameEl.textContent = (user.fullName || user.name).split(' ')[0];
+          }
+          if (avatarEl && (user.initials || user.fullName || user.name)) {
+            avatarEl.textContent = user.initials || (user.fullName || user.name).substring(0, 2).toUpperCase();
+          }
+        }
+      } catch (e) {}
+    });
+  </script>
 </body>
 </html>
 

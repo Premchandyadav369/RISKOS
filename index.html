@@ -154,6 +154,11 @@
             <span class="curr-opt" data-curr="USD">$ USD</span>
           </span>
 
+          <a href="login.html" class="topbar-profile-link" id="navLoginBtn" title="Institutional Sign In / Profile" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:9999px; padding:3px 10px 3px 4px; color:#fff; font-size:0.75rem; font-weight:600;">
+            <div style="width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#22d3ee,#3b82f6); color:#000; font-weight:800; font-size:0.6rem; display:flex; align-items:center; justify-content:center;" id="navUserAvatar">TR</div>
+            <span id="navUserName">Sign In</span>
+          </a>
+
           <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobileMenu">
             <span class="bar"></span>
             <span class="bar"></span>
@@ -168,29 +173,7 @@
     <main class="hero" id="home">
       <div class="hero-inner">
 
-        <!-- 0. Zero-Friction Beginner Quick-Start Banner -->
-        <div class="quickstart-onboarding-banner" id="userFriendlyQuickStart" style="width: 100%; max-width: 900px; margin: 0 auto 16px; padding: 12px 18px; background: linear-gradient(90deg, rgba(34, 211, 238, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%); border: 1px solid rgba(34, 211, 238, 0.3); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(34, 211, 238, 0.2); color: #22d3ee; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;">
-              <i class="fa-solid fa-compass"></i>
-            </div>
-            <div>
-              <div style="font-size: 0.84rem; font-weight: 700; color: #f1f5f9;">First Time Testing RISKOS? ✨ 30-Second Quick Start</div>
-              <div style="font-size: 0.74rem; color: #a1a1aa;">
-                1. Search any stock &bull; 2. View Downside Risk (VaR) &bull; 3. Execute virtual paper trades with your ₹10,00,000 sandbox.
-              </div>
-            </div>
-          </div>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            <button onclick="window.openPalette && window.openPalette('AAPL')" style="padding: 6px 12px; font-size: 0.74rem; font-weight: 600; border-radius: 6px; background: rgba(34, 211, 238, 0.2); border: 1px solid rgba(34, 211, 238, 0.4); color: #22d3ee; cursor: pointer;">
-              <i class="fa-solid fa-magnifying-glass" style="margin-right: 4px;"></i> Search (⌘K)
-            </button>
-            <a href="learn.html#quant-interview-masterclass" style="text-decoration: none; padding: 6px 12px; font-size: 0.74rem; font-weight: 600; border-radius: 6px; background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.4); color: #10b981; cursor: pointer;">
-              <i class="fa-solid fa-gamepad" style="margin-right: 4px;"></i> 60s Trading Game
-            </a>
-            <button onclick="document.getElementById('userFriendlyQuickStart').style.display='none'" style="background: none; border: none; color: #71717a; font-size: 1.1rem; cursor: pointer; padding: 0 4px;" title="Dismiss Guide">&times;</button>
-          </div>
-        </div>
+
 
         <!-- 1. Live Market Status Pill -->
         <div class="live-status-pill" id="heroLiveTickerPill" aria-label="Live dual market stream">
@@ -2215,7 +2198,27 @@
       });
     });
   </script>
-
+  <script src="katexHelper.js"></script>
+  <script src="fleetRuntime.js"></script>
+  <script>
+    // Hydrate user profile in index.html navbar
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const rawUser = localStorage.getItem('riskos_user_profile') || localStorage.getItem('riskos_auth_user');
+        if (rawUser) {
+          const user = JSON.parse(rawUser);
+          const nameEl = document.getElementById('navUserName');
+          const avatarEl = document.getElementById('navUserAvatar');
+          if (nameEl && (user.fullName || user.name)) {
+            nameEl.textContent = (user.fullName || user.name).split(' ')[0];
+          }
+          if (avatarEl && (user.initials || user.fullName || user.name)) {
+            avatarEl.textContent = user.initials || (user.fullName || user.name).substring(0, 2).toUpperCase();
+          }
+        }
+      } catch (e) {}
+    });
+  </script>
 </body>
 </html>
 

@@ -2503,6 +2503,20 @@
   const saveState = () => {
     safeSetStorage(STATE_KEY, JSON.stringify(botRegistry));
     safeSetStorage(AUDIT_KEY, JSON.stringify(globalAuditBlotter.slice(0, 150)));
+    try {
+      if (typeof BroadcastChannel !== 'undefined') {
+        if (!window.__riskosFleetChannel) {
+          window.__riskosFleetChannel = new BroadcastChannel('riskos_fleet_sync');
+        }
+        window.__riskosFleetChannel.postMessage({
+          type: 'FLEET_STATE_UPDATE',
+          source: 'fleet_page',
+          timestamp: Date.now(),
+          bots: botRegistry,
+          recentAudit: globalAuditBlotter.slice(0, 10)
+        });
+      }
+    } catch (e) {}
   };
 
   // ── High-Precision Live Fleet Mission Runtime Clock (Ticking Every 1s) ────

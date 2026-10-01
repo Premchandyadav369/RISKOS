@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Institutional Authentication &bull; RISKOS</title>
+  <meta name="description" content="Secure institutional login to RISKOS Terminal, 8 quantitative trading desks, 41 autonomous bots, and high-performance risk engine.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+
+  <!-- Typography & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+  <!-- KaTeX Math CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-page">
+
+  <!-- Dynamic Stochastic Canvas Background -->
+  <canvas class="login-bg-canvas" id="loginBgCanvas"></canvas>
+  <div class="login-bg-grid"></div>
+
+  <!-- Main Shell -->
+  <div class="login-shell">
+
+    <!-- Header -->
+    <header class="login-header">
+      <a href="index.html" class="login-logo-link" aria-label="RISKOS Home">
+        <img src="assets/logo.webp" alt="RISKOS Logo" width="32" height="32" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'32\' height=\'32\' viewBox=\'0 0 32 32\'%3E%3Crect width=\'32\' height=\'32\' fill=\'%23fff\' rx=\'16\'/%3E%3Ctext x=\'50%25\' y=\'55%25\' font-family=\'Arial\' font-size=\'14\' font-weight=\'bold\' fill=\'%23000\' dominant-baseline=\'middle\' text-anchor=\'middle\'%3ER%3C/text%3E%3C/svg%3E'">
+        <span class="login-logo-text">RISKOS <span class="badge-tag">ENTERPRISE GATEWAY</span></span>
+      </a>
+      <div class="login-header-status">
+        <span class="live-pulse-dot"></span>
+        <span>LATENCY &lt; 1ms &bull; SSL/TLS 256-BIT</span>
+      </div>
+    </header>
+
+    <!-- Authentication Card -->
+    <main class="login-card-wrap">
+      <div class="login-card">
+
+        <!-- Top Indicator & Formula -->
+        <div class="login-card-header">
+          <div class="login-security-badge">
+            <i class="fa-solid fa-shield-halved text-cyan"></i>
+            <span>SEC RULE 15c3-5 &bull; SEBI COMPLIANT</span>
+          </div>
+          <h1 class="login-title">Sign In to Quant Terminal</h1>
+          <p class="login-subtitle">Access 8 trading desks, 41 autonomous bots, and real-time portfolio optimization.</p>
+          <div class="login-formula-chip" id="loginFormulaChip">
+            <span class="math-expr">$$\min_{\mathbf{w}} \; \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} \quad \text{s.t.} \quad \sum w_i = 1, \; w_i \ge 0$$</span>
+          </div>
+        </div>
+
+        <!-- Mode Toggle Tabs -->
+        <div class="login-tabs">
+          <button class="login-tab-btn active" data-tab="credentials" id="tabCreds">
+            <i class="fa-solid fa-key"></i> Credentials
+          </button>
+          <button class="login-tab-btn" data-tab="quickdemo" id="tabDemo">
+            <i class="fa-solid fa-bolt text-amber"></i> 1-Click Institutional Demo
+          </button>
+          <button class="login-tab-btn" data-tab="magiclink" id="tabMagic">
+            <i class="fa-solid fa-paper-plane text-cyan"></i> Magic Link
+          </button>
+        </div>
+
+        <!-- Tab 1: Standard Credentials Form -->
+        <div class="login-pane active" id="paneCredentials">
+          <form id="formSignIn" autocomplete="on">
+            <div class="form-group">
+              <label for="loginEmail" class="form-label">
+                <span>Institutional Email</span>
+                <span class="label-hint">Corporate or Personal</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" id="loginEmail" class="form-input" placeholder="trader@hedgefund.com" required autocomplete="email" value="trader@riskos.internal">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="loginPassword" class="form-label">
+                <span>Password</span>
+                <button type="button" class="btn-text-link" id="btnTogglePassword"><i class="fa-solid fa-eye" id="pwEyeIcon"></i> Show</button>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" value="InstitutionalDemo2026!">
+              </div>
+            </div>
+
+            <div class="form-row-between">
+              <label class="checkbox-wrap">
+                <input type="checkbox" id="rememberMe" checked>
+                <span>Remember session for 30 days</span>
+              </label>
+              <button type="button" class="btn-text-link" id="btnForgotPw">Forgot password?</button>
+            </div>
+
+            <button type="submit" class="btn-login-submit" id="btnSubmitLogin">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+              <span>Authenticate &amp; Launch Terminal</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Tab 2: 1-Click Pre-Configured Institutional Personas -->
+        <div class="login-pane" id="paneQuickDemo">
+          <div class="demo-personas-grid">
+            <button class="demo-persona-card" data-role="pm" data-name="Alexander Vance" data-email="pm@riskos.internal">
+              <div class="persona-icon-wrap" style="background: rgba(34,211,238,0.15); color:#22d3ee;">
+                <i class="fa-solid fa-chart-pie"></i>
+              </div>
+              <div class="persona-info">
+                <div class="persona-title">Senior Portfolio Manager</div>
+                <div class="persona-desc">Full allocation control, Black-Litterman, 41 bot fleet &amp; FIX 4.4 routing</div>
+              </div>
+              <i class="fa-solid fa-arrow-right persona-arrow"></i>
+            </button>
+
+            <button class="demo-persona-card" data-role="quant" data-name="Elena Rostova, PhD" data-email="quant@riskos.internal">
+              <div class="persona-icon-wrap" style="background: rgba(168,85,247,0.15); color:#a855f7;">
+                <i class="fa-solid fa-flask"></i>
+              </div>
+              <div class="persona-info">
+                <div class="persona-title">Quantitative Researcher</div>
+                <div class="persona-desc">80 deterministic labs, SDE Monte Carlo, HMM regimes &amp; Barra factor radar</div>
+              </div>
+              <i class="fa-solid fa-arrow-right persona-arrow"></i>
+            </button>
+
+            <button class="demo-persona-card" data-role="cro" data-name="Marcus Sterling" data-email="cro@riskos.internal">
+              <div class="persona-icon-wrap" style="background: rgba(239,68,68,0.15); color:#ef4444;">
+                <i class="fa-solid fa-shield-virus"></i>
+              </div>
+              <div class="persona-info">
+                <div class="persona-title">Chief Risk Officer (CRO)</div>
+                <div class="persona-desc">FRTB Basel III Expected Shortfall, EVT 99.5% Solvency II &amp; CCAR stress studio</div>
+              </div>
+              <i class="fa-solid fa-arrow-right persona-arrow"></i>
+            </button>
+
+            <button class="demo-persona-card" data-role="hft" data-name="Kenji Takahashi" data-email="hft@riskos.internal">
+              <div class="persona-icon-wrap" style="background: rgba(16,185,129,0.15); color:#10b981;">
+                <i class="fa-solid fa-bolt-lightning"></i>
+              </div>
+              <div class="persona-info">
+                <div class="persona-title">HFT Microstructure Trader</div>
+                <div class="persona-desc">Level 3 DOM ladder, Bookmap waterfall, OFI flow &amp; 0DTE GEX radar</div>
+              </div>
+              <i class="fa-solid fa-arrow-right persona-arrow"></i>
+            </button>
+          </div>
+
+          <div style="margin-top:14px; text-align:center;">
+            <button class="btn-guest-instant" id="btnGuestInstant">
+              <i class="fa-solid fa-user-secret"></i> Instant Anonymous Guest Sandbox (₹10,00,000 Capital)
+            </button>
+          </div>
+        </div>
+
+        <!-- Tab 3: Passwordless Magic Link -->
+        <div class="login-pane" id="paneMagicLink">
+          <form id="formMagicLink">
+            <div class="form-group">
+              <label for="magicEmail" class="form-label">
+                <span>Enter Institutional Email</span>
+              </label>
+              <div class="input-wrap">
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" id="magicEmail" class="form-input" placeholder="colleague@fund.com" required autocomplete="email">
+              </div>
+            </div>
+            <p style="font-size:0.75rem; color:#94a3b8; margin: 8px 0 16px; line-height:1.4;">
+              We will send a cryptographically verified single-use authentication link to your inbox. No password required.
+            </p>
+            <button type="submit" class="btn-login-submit" id="btnSendMagic">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Send Passwordless Magic Link</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Dynamic Status Notification Box -->
+        <div class="login-status-box" id="loginStatusBox" style="display:none;"></div>
+
+        <!-- Card Footer -->
+        <div class="login-card-footer">
+          <div>Don't have an institutional seat? <a href="signup.html" class="link-cyan">Create Account / Sign Up &rarr;</a></div>
+          <div style="margin-top:6px; font-size:0.72rem; color:#64748b;">
+            Offline Mode Supported &bull; Fully Functional Without External API Keys
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Platform Provenance Footer -->
+    <footer class="login-footer">
+      <div>&copy; 2026 RISKOS &bull; Open-Source Quantitative Architecture &bull; MIT License</div>
+      <div class="login-footer-links">
+        <a href="app.html">Terminal</a>
+        <a href="portfolio_optimizer.html">Optimizer</a>
+        <a href="hft.html">HFT Desk</a>
+        <a href="fleet.html">41 Bots</a>
+        <a href="learn.html">80 Labs</a>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="katexHelper.js"></script>
+  <script src="login.js"></script>
+</body>
+</html>

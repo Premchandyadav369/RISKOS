@@ -4,6 +4,14 @@ from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 from typing import Dict, List, Any, Optional
 
+try:
+    from backend.engine.fast_engine_bridge import fast_convex_quadratic_solve
+except ImportError:
+    try:
+        from fast_engine_bridge import fast_convex_quadratic_solve
+    except ImportError:
+        fast_convex_quadratic_solve = None
+
 def _format_weights(weights: np.ndarray, columns: list) -> dict:
     w = np.clip(weights, 0.0, None)
     s = np.sum(w)
@@ -45,6 +53,13 @@ def max_sharpe_optimize(returns: pd.DataFrame, risk_free_rate: float = 0.065, ma
     bounds = tuple((0.0, max_weight) for _ in range(n_assets))
     constraints = [{'type': 'eq', 'fun': lambda w: np.sum(w) - 1.0}]
     w0 = np.array([1.0 / n_assets] * n_assets)
+    if fast_convex_quadratic_solve is not None:
+        try:
+            w_fast, _, _ = fast_convex_quadratic_solve(cov_matrix, mu=mu, max_weight=max_weight, risk_aversion=1.0)
+            if np.all(w_fast >= 0) and np.isclose(np.sum(w_fast), 1.0, atol=1e-3):
+                w0 = w_fast
+        except Exception:
+            pass
 
     res = minimize(neg_sharpe, w0, method='SLSQP', bounds=bounds, constraints=constraints)
     opt_weights = res.x if res.success else w0
@@ -69,6 +84,20 @@ def min_variance_optimize(returns: pd.DataFrame, max_weight: float = 0.50) -> di
     
     lw = LedoitWolf()
     cov_matrix = lw.fit(returns.values).covariance_ * 252
+
+    # Accelerated Euclidean Simplex QP Solve (< 0.2ms)
+    if fast_convex_quadratic_solve is not None:
+        try:
+            opt_weights, _, _ = fast_convex_quadratic_solve(cov_matrix, max_weight=max_weight)
+            opt_r = float(np.sum(opt_weights * mu))
+            opt_vol = float(_portfolio_volatility(opt_weights, cov_matrix))
+            return {
+                'optimal_weights': _format_weights(opt_weights, list(returns.columns)),
+                'expected_return': round(opt_r, 4),
+                'volatility': round(opt_vol, 4)
+            }
+        except Exception:
+            pass
     
     def obj_variance(w):
         return 0.5 * float(np.dot(w.T, np.dot(cov_matrix, w)))
@@ -112,6 +141,14 @@ def cvar_optimize(returns: pd.DataFrame, target_return: float = 0.12, max_weight
     ]
     bounds = tuple((0.0, effective_max_weight) for _ in range(n_assets))
     w0 = np.array([1.0 / n_assets] * n_assets)
+    if fast_convex_quadratic_solve is not None:
+        try:
+            cov_approx = np.cov(returns_matrix, rowvar=False) * 252.0 if returns_matrix.shape[0] > 1 else np.eye(n_assets)
+            w_fast, _, _ = fast_convex_quadratic_solve(cov_approx, mu=mu, max_weight=effective_max_weight, risk_aversion=0.5)
+            if np.all(w_fast >= 0) and np.isclose(np.sum(w_fast), 1.0, atol=1e-3):
+                w0 = w_fast
+        except Exception:
+            pass
     
     try:
         result = minimize(
