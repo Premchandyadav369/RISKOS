@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-04",
+  "category": "broker_gateway",
+  "title": "Multi-broker OMS/EMS synthetic fill and slippage model data",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 220000,
+    "avgLatencyNs": 388,
+    "status": "VERIFIED"
+  }
+}
