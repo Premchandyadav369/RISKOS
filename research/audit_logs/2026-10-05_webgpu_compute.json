@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-05",
+  "category": "webgpu_compute",
+  "title": "Parallel WGSL Monte Carlo derivative pricing path verification",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 235000,
+    "avgLatencyNs": 389,
+    "status": "VERIFIED"
+  }
+}
