@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-06",
+  "category": "hawkes_process",
+  "title": "Branching ratio criticality and systemic cascade telemetry",
+  "engine": "RISKOS Empirical Telemetry Store",
+  "telemetry": {
+    "timestamp": "2026-10-06T10:30:00+05:30",
+    "ticksProcessed": 700000,
+    "cacheHitRatePct": 99.85,
+    "systemicRiskIndex": 0.12
+  }
+}
