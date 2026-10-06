@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-06",
+  "category": "hft_microstructure",
+  "title": "VPIN toxicity and order book micro-price drift benchmark",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 250000,
+    "avgLatencyNs": 390,
+    "status": "VERIFIED"
+  }
+}
