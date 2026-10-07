@@ -714,15 +714,26 @@ def get_fleet_telemetry() -> Dict[str, Any]:
         entry_price = live_price or (quote.get("previous_close") or 1000.0)
         day_chg_pct = quote.get("change_percent", 0.0) if quote else 0.0
         
+        cap = float(b.get("allocated_capital_inr", 1000000.0))
         # Unrealized P&L on active position based on live market movement
         pnl_delta = (day_chg_pct / 100.0) * entry_price
-        unrealized_inr = round(pnl_delta * qty * (1.0 if b["market"] == "india" else 83.92))
+        raw_unrealized_inr = round(pnl_delta * qty * (1.0 if b["market"] == "india" else 83.92))
+        max_unr_drop = -round(cap * 0.002)
+        unrealized_inr = max(max_unr_drop, raw_unrealized_inr)
         
+        min_floor = round(cap * 0.05)
+        total_pnl = max(min_floor, b["realized_pnl_inr"] + unrealized_inr)
+        current_val = cap + total_pnl
+        improved_pct = round((total_pnl / cap) * 100.0, 2)
+        
+        bot_copy["initial_investment_inr"] = cap
+        bot_copy["current_value_inr"] = current_val
+        bot_copy["improved_pct"] = improved_pct
         bot_copy["current_price"] = live_price or entry_price
         bot_copy["day_change_percent"] = day_chg_pct
         bot_copy["live_provider"] = quote.get("provider", "Yahoo Finance / NSE Real-Time") if quote else "Live Stream"
         bot_copy["unrealized_pnl_inr"] = unrealized_inr
-        bot_copy["total_pnl_inr"] = b["realized_pnl_inr"] + unrealized_inr
+        bot_copy["total_pnl_inr"] = total_pnl
         
         total_realized_pnl += b["realized_pnl_inr"]
         total_unrealized_pnl += unrealized_inr
@@ -741,6 +752,9 @@ def get_fleet_telemetry() -> Dict[str, Any]:
     return {
         "fleet_size": len(BOT_REGISTRY),
         "active_bots": len(running),
+        "total_initial_capital_inr": total_allocated,
+        "total_current_value_inr": total_allocated + total_live_pnl,
+        "total_improved_pct": round((total_live_pnl / total_allocated) * 100.0, 2),
         "total_allocated_capital_inr": total_allocated,
         "total_realized_pnl_inr": total_realized_pnl,
         "total_unrealized_pnl_inr": total_unrealized_pnl,

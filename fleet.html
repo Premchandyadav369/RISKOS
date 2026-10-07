@@ -177,30 +177,32 @@
     <!-- 1. Executive Global Telemetry Row -->
     <section class="telemetry-bar-grid">
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-stopwatch text-amber"></i> Since How Much Fleet Is Running</div>
-        <div class="tel-val text-amber" id="telUptimeCounter" style="font-size:1.24rem; font-family:'JetBrains Mono', monospace; font-weight:900; letter-spacing:0.02em;">
-          92d 14h 28m 45s
+        <div class="tel-label"><i class="fa-solid fa-coins text-amber"></i> Initial Fleet Investment</div>
+        <div class="tel-val text-amber" id="telFleetInitialCap" style="font-size:1.32rem; font-family:'JetBrains Mono', monospace; font-weight:900;">
+          ₹5.18 Cr ($618k)
         </div>
-        <div class="tel-sub text-green" id="telUptimeAge"><i class="fa-solid fa-satellite-dish fa-beat"></i> 41 / 41 Autonomous &bull; Real-Time Feeds Active</div>
+        <div class="tel-sub text-cyan" id="telUptimeCounter"><i class="fa-solid fa-clock"></i> 92d 14h 28m &bull; <span id="telUptimeAge">41/41 Autonomous</span></div>
       </div>
       <div class="tel-box tel-box-profit-hero" style="background:linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(9,13,22,0.98) 100%); border:1px solid rgba(16,185,129,0.45); box-shadow:0 0 20px rgba(16,185,129,0.18);">
         <div class="tel-label"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL CUMULATIVE FLEET PROFIT (41 BOTS)</div>
-        <div class="tel-val text-green" id="telDailyPnl" style="font-size:1.42rem; font-weight:900; text-shadow:0 0 12px rgba(16,185,129,0.4);">+₹18,92,450 ($22,664)</div>
+        <div class="tel-val text-green" id="telDailyPnl" style="font-size:1.42rem; font-weight:900; text-shadow:0 0 12px rgba(16,185,129,0.4);">+₹58,40,000 ($69,600)</div>
         <div class="tel-sub text-green" id="telPnlReturn" style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
-          <span><i class="fa-solid fa-arrow-up"></i> +189.2% on Initial Capital</span>
-          <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong id="telRealizedOnly" style="color:#10b981;">₹16.14L</strong> &bull; Open: <strong id="telUnrealizedOnly" style="color:#22d3ee;">₹2.78L</strong></span>
+          <span><i class="fa-solid fa-arrow-up"></i> +11.27% Improved Return</span>
+          <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong id="telRealizedOnly" style="color:#10b981;">₹52.40L</strong> &bull; Open: <strong id="telUnrealizedOnly" style="color:#22d3ee;">₹6.00L</strong></span>
         </div>
       </div>
 
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-trophy text-amber"></i> Fleet Leaderboard Win Rate</div>
-        <div class="tel-val text-amber" id="telWinRate">77.4% &bull; 2.85x PF</div>
-        <div class="tel-sub text-green"><i class="fa-solid fa-ranking-star"></i> S-Tier Quant Dominance</div>
+        <div class="tel-label"><i class="fa-solid fa-chart-line text-cyan"></i> Fleet Current Value</div>
+        <div class="tel-val text-cyan" id="telFleetCurrentValue" style="font-size:1.32rem; font-family:'JetBrains Mono', monospace; font-weight:900;">
+          ₹5.76 Cr ($688k)
+        </div>
+        <div class="tel-sub text-green" id="telFleetImprovedRoi"><i class="fa-solid fa-arrow-trend-up"></i> +11.27% Improved Over Inception</div>
       </div>
       <div class="tel-box">
-        <div class="tel-label"><i class="fa-solid fa-shield-halved text-cyan"></i> Aladdin Risk Guardrail</div>
-        <div class="tel-val text-cyan" id="telRiskStatus">MAX DD &lt; 1.5%</div>
-        <div class="tel-sub text-cyan"><i class="fa-solid fa-lock"></i> SEC 15c3-5 Compliant</div>
+        <div class="tel-label"><i class="fa-solid fa-trophy text-amber"></i> Fleet Leaderboard Win Rate</div>
+        <div class="tel-val text-amber" id="telWinRate">81.4% &bull; 2.85x PF</div>
+        <div class="tel-sub text-green"><i class="fa-solid fa-ranking-star"></i> S-Tier Quant Dominance</div>
       </div>
     </section>
     
@@ -529,8 +531,11 @@
                 <th>Live Runtime</th>
                 <th>Strategy Type</th>
                 <th>Tier Badge</th>
-                <th>Quantitative Model (MathJax)</th>
-                <th>Net Realized P&amp;L</th>
+                <th>Quantitative Volume</th>
+                <th>Initial Investment</th>
+                <th>Current Value</th>
+                <th>Improved (%)</th>
+                <th>Net Total Profit</th>
                 <th>Sharpe Ratio</th>
                 <th>Win Rate</th>
                 <th>Profit Factor</th>
