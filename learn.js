@@ -374,8 +374,47 @@
     }, 100);
   };
 
+  const renderAllBlueprintFormulas = () => {
+    // 1. Explicit direct KaTeX compilation for all 7 Systematic Strategy Blueprint cards
+    const blueprintEls = document.querySelectorAll('.formula-math');
+    blueprintEls.forEach((el) => {
+      const raw = el.getAttribute('data-formula') || el.textContent;
+      if (raw && raw.trim()) {
+        renderLatexFormula(el, raw, true);
+      }
+    });
+
+    // 2. Render inline math within blueprint descriptions
+    const descEls = document.querySelectorAll('.strategy-blueprint-card .strat-desc');
+    descEls.forEach((desc) => {
+      if (desc.innerHTML.includes('\\(') || desc.innerHTML.includes('$')) {
+        let text = desc.innerHTML;
+        if (typeof katex !== 'undefined' && typeof katex.renderToString === 'function') {
+          // Render \( ... \)
+          text = text.replace(/\\\(([\s\S]*?)\\\)/g, (match, p1) => {
+            try {
+              return katex.renderToString(sanitizeLatex(p1), { displayMode: false, throwOnError: false });
+            } catch (e) {
+              return match;
+            }
+          });
+          // Render unescaped $...$
+          text = text.replace(/(?<!\\)\$([^\$]+)\$/g, (match, p1) => {
+            try {
+              return katex.renderToString(sanitizeLatex(p1), { displayMode: false, throwOnError: false });
+            } catch (e) {
+              return match;
+            }
+          });
+          desc.innerHTML = text;
+        }
+      }
+    });
+  };
+
   if (typeof window !== 'undefined') {
     window.renderLatexFormula = renderLatexFormula;
+    window.renderAllBlueprintFormulas = renderAllBlueprintFormulas;
   }
 
   // ── Main Deterministic Evaluator ──────────────────────────────────────────
@@ -2989,6 +3028,9 @@
         console.warn('Initial ambient KaTeX render notice:', e);
       }
     }
+
+    // 12. Direct KaTeX synchronization for all 7 Strategy Blueprint cards
+    renderAllBlueprintFormulas();
   };
 
   // ── Interactive Systematic Strategy Simulation Sandbox ───────────────────
@@ -3632,10 +3674,12 @@
     document.addEventListener('DOMContentLoaded', () => {
       init();
       initLearnMarketRibbon();
+      renderAllBlueprintFormulas();
     });
   } else {
     init();
     initLearnMarketRibbon();
+    renderAllBlueprintFormulas();
   }
 })();
 

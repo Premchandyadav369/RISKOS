@@ -1375,8 +1375,21 @@ header.header {
 
 .formula-math {
   overflow-x: auto;
-  font-size: 0.82rem;
+  overflow-y: hidden;
+  font-size: 0.84rem;
   color: #f1f5f9;
+  text-align: center;
+  padding: 4px 0;
+  scrollbar-width: thin;
+}
+
+.formula-math .katex-display {
+  margin: 0.25em 0;
+  text-align: center;
+}
+
+.formula-math .katex {
+  font-size: 1.04em;
 }
 
 .strat-desc {

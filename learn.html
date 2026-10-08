@@ -763,7 +763,7 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Execution Invariant:</span>
-              <div class="formula-math">$$w_i(t) = \min\left(w_{\max}, \frac{\sigma_{\text{tgt}}}{\sigma_i(t)}\right) \cdot \mathbf{1}_{\{ R_i(12\text{M}) > R_f \}} \cdot \mathbf{1}_{\{ \text{Rank}(R_i) \le K \}}$$</div>
+              <div class="formula-math" data-formula="w_i(t) = \min\left(w_{\max}, \frac{\sigma_{\text{tgt}}}{\sigma_i(t)}\right) \cdot \mathbf{1}_{\{ R_i(12\text{M}) \gt R_f \}} \cdot \mathbf{1}_{\{ \text{Rank}(R_i) \le K \}}">$$w_i(t) = \min\left(w_{\max}, \frac{\sigma_{\text{tgt}}}{\sigma_i(t)}\right) \cdot \mathbf{1}_{\{ R_i(12\text{M}) \gt R_f \}} \cdot \mathbf{1}_{\{ \text{Rank}(R_i) \le K \}}$$</div>
             </div>
             <p class="strat-desc">Combines Antonacci absolute momentum (flight to cash/T-Bills if 12M return is negative) with cross-sectional relative strength. Volatility targeting dynamically rescales position size inverse to 20-day realized volatility.</p>
             <div class="strat-tags">
@@ -790,9 +790,9 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">State-Space Model:</span>
-              <div class="formula-math">$$y_t = \beta_t x_t + \epsilon_t, \quad \beta_t = \beta_{t-1} + \omega_t, \quad z_t = \frac{\epsilon_t - \mu_\epsilon}{\sigma_\epsilon}$$</div>
+              <div class="formula-math" data-formula="y_t = \beta_t x_t + \epsilon_t, \quad \beta_t = \beta_{t-1} + \omega_t, \quad z_t = \frac{\epsilon_t - \mu_\epsilon}{\sigma_\epsilon}">$$y_t = \beta_t x_t + \epsilon_t, \quad \beta_t = \beta_{t-1} + \omega_t, \quad z_t = \frac{\epsilon_t - \mu_\epsilon}{\sigma_\epsilon}$$</div>
             </div>
-            <p class="strat-desc">Replaces static linear regression with recursive Kalman filtering to estimate time-varying hedge ratios $\beta_t$. Triggers mean-reversion long/short entry when spread z-score exceeds $\pm 2.0\sigma$, exiting at $z=0$.</p>
+            <p class="strat-desc">Replaces static linear regression with recursive Kalman filtering to estimate time-varying hedge ratios \( \beta_t \). Triggers mean-reversion long/short entry when spread z-score exceeds &plusmn; 2.0&sigma;, exiting at \( z=0 \).</p>
             <div class="strat-tags">
               <span class="param-tag"><i class="fa-solid fa-sliders"></i> Entry: |z| &ge; 2.0&sigma;</span>
               <span class="param-tag"><i class="fa-solid fa-stopwatch"></i> Half-Life: ~8.4D</span>
@@ -817,9 +817,9 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Reservation Price:</span>
-              <div class="formula-math">$$r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$</div>
+              <div class="formula-math" data-formula="r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)">$$r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$</div>
             </div>
-            <p class="strat-desc">High-frequency market making model where the quoting engine continuously shades bid and ask distances based on active inventory $q$. Long inventory skews quotes downward to attract aggressive sells and deter buys.</p>
+            <p class="strat-desc">High-frequency market making model where the quoting engine continuously shades bid and ask distances based on active inventory \( q \). Long inventory skews quotes downward to attract aggressive sells and deter buys.</p>
             <div class="strat-tags">
               <span class="param-tag"><i class="fa-solid fa-sliders"></i> Risk Aversion: &gamma; = 0.1</span>
               <span class="param-tag"><i class="fa-solid fa-bolt"></i> Latency: &lt; 500&mu;s</span>
@@ -849,7 +849,7 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Net Market GEX:</span>
-              <div class="formula-math">$$\text{Net GEX} = \sum_i \Gamma_i \cdot \text{OI}_{i, \text{call}} \cdot S - \sum_j \Gamma_j \cdot \text{OI}_{j, \text{put}} \cdot S$$</div>
+              <div class="formula-math" data-formula="\text{Net GEX} = \sum_i \Gamma_i \cdot \text{OI}_{i, \text{call}} \cdot S - \sum_j \Gamma_j \cdot \text{OI}_{j, \text{put}} \cdot S">$$\text{Net GEX} = \sum_i \Gamma_i \cdot \text{OI}_{i, \text{call}} \cdot S - \sum_j \Gamma_j \cdot \text{OI}_{j, \text{put}} \cdot S$$</div>
             </div>
             <p class="strat-desc">Tracks dealer hedging constraints across weekly expiry options chains. High positive Net GEX acts as a volatility sponge pinning price to maximum open interest strikes; negative GEX triggers violent trending breakouts.</p>
             <div class="strat-tags">
@@ -876,7 +876,7 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Annualized Basis APR:</span>
-              <div class="formula-math">$$\text{APR} = \left( \frac{F_t - S_t}{S_t} \right) \times \frac{365}{T - t} - (r_{\text{borrow}} + \text{Carry Cost})$$</div>
+              <div class="formula-math" data-formula="\text{APR} = \left( \frac{F_t - S_t}{S_t} \right) \times \frac{365}{T - t} - (r_{\text{borrow}} + \text{Carry Cost})">$$\text{APR} = \left( \frac{F_t - S_t}{S_t} \right) \times \frac{365}{T - t} - (r_{\text{borrow}} + \text{Carry Cost})$$</div>
             </div>
             <p class="strat-desc">Capitalizes on futures basis contango/backwardation spreads. Buys spot and shorts near-month futures when basis yield exceeds money market financing costs, capturing mechanical price convergence at contract expiry.</p>
             <div class="strat-tags">
@@ -903,9 +903,9 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Conditional Intensity:</span>
-              <div class="formula-math">$$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta} \quad (\eta \ge 1 \implies \text{Runaway Crash})$$</div>
+              <div class="formula-math" data-formula="\lambda(t) = \mu + \sum_{t_i \lt t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta} \quad (\eta \ge 1 \implies \text{Runaway Crash})">$$\lambda(t) = \mu + \sum_{t_i \lt t} \alpha e^{-\beta(t - t_i)}, \quad \eta = \frac{\alpha}{\beta} \quad (\eta \ge 1 \implies \text{Runaway Crash})$$</div>
             </div>
-            <p class="strat-desc">Models mutual excitation of aggressive market orders across limit order book queues. When the branching ratio $\eta = \alpha/\beta$ nears 1.0, order arrival clusters create severe liquidity holes, triggering autonomous defensive de-risking.</p>
+            <p class="strat-desc">Models mutual excitation of aggressive market orders across limit order book queues. When the branching ratio \( \eta = \alpha/\beta \) nears 1.0, order arrival clusters create severe liquidity holes, triggering autonomous defensive de-risking.</p>
             <div class="strat-tags">
               <span class="param-tag"><i class="fa-solid fa-sliders"></i> Branching Ratio: &eta; &lt; 0.85</span>
               <span class="param-tag"><i class="fa-solid fa-triangle-exclamation"></i> Criticality: &eta; &ge; 1.0</span>
@@ -935,7 +935,7 @@
             </div>
             <div class="strat-formula-box">
               <span class="formula-label">Diagonal Imbalance Invariant:</span>
-              <div class="formula-math">$$\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0, \quad \text{POC} = \arg\max_{p} \left( V_{\text{bid}}(p) + V_{\text{ask}}(p) \right), \quad \Delta = \sum V_{\text{ask}} - \sum V_{\text{bid}}$$</div>
+              <div class="formula-math" data-formula="\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0, \quad \text{POC} = \arg\max_{p} \left( V_{\text{bid}}(p) + V_{\text{ask}}(p) \right), \quad \Delta = \sum V_{\text{ask}} - \sum V_{\text{bid}}">$$\mathcal{I}_{\text{buy}}(p) = \frac{V_{\text{ask}}(p)}{V_{\text{bid}}(p - \text{tick})} \ge 3.0, \quad \text{POC} = \arg\max_{p} \left( V_{\text{bid}}(p) + V_{\text{ask}}(p) \right), \quad \Delta = \sum V_{\text{ask}} - \sum V_{\text{bid}}$$</div>
             </div>
             <p class="strat-desc">Deconstructs standard candles into granular price-tick volume cells. Diagnoses aggressive market orders overwhelming resting limits on the diagonal by over 300%. Consecutive 3-tier stacked imbalances identify institutional accumulation before directional breakouts occur.</p>
             <div class="strat-tags">
