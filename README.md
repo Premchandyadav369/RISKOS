@@ -1,5 +1,5 @@
 # 🏛️ RISKOS
-## Open-Source Quantitative Research, Portfolio Analytics & Risk Platform
+## Open-Source Quantitative Research, Portfolio Analytics & Risk Platform->HFT 
 
 <div align="center">
 
