@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-09",
+  "category": "volatility_modeling",
+  "title": "SABR and SVI implied volatility surface calibration metrics",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 265000,
+    "avgLatencyNs": 391,
+    "status": "VERIFIED"
+  }
+}
