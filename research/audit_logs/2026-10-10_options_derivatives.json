@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-10",
+  "category": "options_derivatives",
+  "title": "Vectorized Black-Scholes analytical Greeks and put-call parity audit",
+  "engine": "RISKOS Empirical Telemetry Store",
+  "telemetry": {
+    "timestamp": "2026-10-10T10:30:00+05:30",
+    "ticksProcessed": 740000,
+    "cacheHitRatePct": 99.85,
+    "systemicRiskIndex": 0.13999999999999999
+  }
+}
