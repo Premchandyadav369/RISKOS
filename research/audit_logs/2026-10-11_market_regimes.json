@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-11",
+  "category": "market_regimes",
+  "title": "Hidden Markov Model 3-state transition probability updates",
+  "engine": "RISKOS Empirical Telemetry Store",
+  "telemetry": {
+    "timestamp": "2026-10-11T10:30:00+05:30",
+    "ticksProcessed": 760000,
+    "cacheHitRatePct": 99.85,
+    "systemicRiskIndex": 0.15
+  }
+}
