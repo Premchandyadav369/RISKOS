@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-11",
+  "category": "hawkes_process",
+  "title": "Branching ratio criticality and systemic cascade telemetry",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 295000,
+    "avgLatencyNs": 393,
+    "status": "VERIFIED"
+  }
+}
