@@ -3669,16 +3669,194 @@
     });
   };
 
+  // ── Universal Stock Quantitative Lab Desk (21 Institutional Models) ──────
+  let currentStockLabResults = null;
+  let activeStockLabCategory = 'all';
+
+  const runStockQuantLab = async (symbol) => {
+    if (typeof StockLabEngine === 'undefined') return;
+    const cleanSym = (symbol || 'RELIANCE.NS').trim().toUpperCase();
+    
+    // Resolve security from SecurityMaster or fallback descriptor
+    let sec = null;
+    if (typeof SecurityMaster !== 'undefined' && typeof SecurityMaster.resolveSecurity === 'function') {
+      sec = await SecurityMaster.resolveSecurity(cleanSym);
+    }
+    if (!sec) {
+      const isIndian = cleanSym.includes('.NS') || cleanSym.includes('.BO') || !cleanSym.includes('-');
+      sec = {
+        symbol: cleanSym,
+        name: cleanSym,
+        exchange: isIndian ? 'NSE' : 'NASDAQ',
+        currency: isIndian ? 'INR' : 'USD',
+        basePrice: isIndian ? 1850.0 : 185.0,
+        beta: 1.15,
+        vol: 0.24,
+        pe: 24.5,
+        eps: 75.0,
+        roe: 16.5,
+        marketCap: 250000000000
+      };
+    }
+
+    // Run full 21-model institutional battery
+    currentStockLabResults = StockLabEngine.runSuite(sec);
+    if (!currentStockLabResults) return;
+
+    // Render Executive Scorecard
+    const execCard = document.getElementById('stockLabExecutiveCard');
+    if (execCard) {
+      const score = currentStockLabResults.compositeScore;
+      const scoreColor = score >= 75 ? '#10b981' : score >= 55 ? '#38bdf8' : score >= 40 ? '#f59e0b' : '#ef4444';
+      const currSym = currentStockLabResults.security.currency === 'INR' ? '₹' : '$';
+      const liveQ = (typeof SecurityMaster !== 'undefined' && SecurityMaster._liveQuotes) ? SecurityMaster._liveQuotes.get(sec.symbol) : null;
+      const currentPrice = liveQ ? liveQ.price : currentStockLabResults.security.price;
+
+      execCard.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:12px;">
+          <div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="live-pulse-dot" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+              <span style="font-size:0.7rem; font-weight:800; color:#38bdf8; text-transform:uppercase; font-family:monospace;">EXECUTIVE QUANTITATIVE EVALUATION &bull; ${sec.exchange}</span>
+            </div>
+            <h4 style="font-size:1.3rem; font-weight:800; color:#fff; margin:4px 0 2px 0;">
+              ${sec.symbol} <span style="font-size:0.85rem; color:#94a3b8; font-weight:500;">(${sec.name || sec.symbol})</span>
+            </h4>
+            <div style="font-size:0.8rem; color:#cbd5e1; font-family:monospace;">
+              Price: <strong style="color:#fff;" id="stockLabExecPrice">${currSym}${Number(currentPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+              &bull; Beta: <strong style="color:#38bdf8;">${Number(sec.beta || 1.0).toFixed(2)}</strong>
+              &bull; Volatility (σ): <strong style="color:#f59e0b;">${(Number(sec.vol || 0.2) * 100).toFixed(1)}%</strong>
+            </div>
+          </div>
+
+          <!-- Composite Score Gauge & Agency Verdict -->
+          <div style="display:flex; align-items:center; gap:14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 16px;">
+            <div style="text-align:center;">
+              <span style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; font-family:monospace; display:block;">COMPOSITE SCORE</span>
+              <span style="font-size:1.6rem; font-weight:900; color:${scoreColor}; font-family:monospace;">${score}<span style="font-size:0.9rem; color:#64748b;">/100</span></span>
+            </div>
+            <div style="border-left:1px solid rgba(255,255,255,0.1); padding-left:14px;">
+              <span style="font-size:0.65rem; color:#94a3b8; text-transform:uppercase; font-family:monospace; display:block;">TOP AGENCY VERDICT</span>
+              <span style="font-size:0.88rem; font-weight:800; color:${scoreColor};">${currentStockLabResults.rating}</span>
+              <span style="font-size:0.72rem; color:#38bdf8; display:block; font-family:monospace;">${currentStockLabResults.agencyBadge}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy Recommendation & Telemetry Ribbon -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin-bottom:12px;">
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px 10px;">
+            <span style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; display:block;">OPTIMAL SYSTEMATIC ALPHA</span>
+            <strong style="font-size:0.78rem; color:#22d3ee;">${currentStockLabResults.recommendation.strategy}</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px 10px;">
+            <span style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; display:block;">REALIZED RISK (VaR 99%)</span>
+            <strong style="font-size:0.78rem; color:#ef4444;">${currSym}${Number(currentStockLabResults.tests.find(t=>t.id==='test_var')?.metrics?.var99 || 0).toLocaleString()}</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px 10px;">
+            <span style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; display:block;">HURST EXPONENT (H)</span>
+            <strong style="font-size:0.78rem; color:#38bdf8;">H = ${currentStockLabResults.tests.find(t=>t.id==='test_hurst')?.metrics?.h || '0.42'}</strong>
+          </div>
+          <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:6px; padding:8px 10px;">
+            <span style="font-size:0.62rem; color:#94a3b8; text-transform:uppercase; display:block;">HAWKES BRANCHING (η)</span>
+            <strong style="font-size:0.78rem; color:#a855f7;">η = ${currentStockLabResults.tests.find(t=>t.id==='test_hawkes')?.metrics?.branchingRatio || '0.64'}</strong>
+          </div>
+        </div>
+
+        <p style="font-size:0.75rem; color:#cbd5e1; line-height:1.45; margin:0;">
+          <strong style="color:#fff;">Quantitative Rationale:</strong> ${currentStockLabResults.recommendation.rationale}
+        </p>
+      `;
+    }
+
+    // Render 21 Test Cards Grid
+    const gridEl = document.getElementById('stockLabResultsGrid');
+    if (gridEl) {
+      StockLabEngine.renderResults(currentStockLabResults, gridEl, activeStockLabCategory);
+    }
+  };
+
+  const initStockQuantLab = () => {
+    const searchInput = document.getElementById('stockLabSearchInput');
+    const runBtn = document.getElementById('btnRunStockLab');
+    const tickerChips = document.querySelectorAll('.stock-lab-ticker-chip');
+    const catTabs = document.querySelectorAll('.stock-lab-cat-tab');
+
+    if (runBtn && searchInput) {
+      runBtn.addEventListener('click', () => {
+        runStockQuantLab(searchInput.value);
+      });
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          runStockQuantLab(searchInput.value);
+        }
+      });
+    }
+
+    tickerChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        tickerChips.forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const sym = chip.dataset.symbol;
+        if (searchInput) searchInput.value = sym;
+        runStockQuantLab(sym);
+      });
+    });
+
+    catTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        catTabs.forEach(t => {
+          t.classList.remove('active');
+          t.style.background = 'rgba(255,255,255,0.04)';
+          t.style.color = 'var(--text-muted)';
+          t.style.borderColor = 'rgba(255,255,255,0.08)';
+        });
+        tab.classList.add('active');
+        tab.style.background = 'rgba(56, 189, 248, 0.2)';
+        tab.style.color = '#38bdf8';
+        tab.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+
+        activeStockLabCategory = tab.dataset.cat || 'all';
+        if (currentStockLabResults) {
+          const gridEl = document.getElementById('stockLabResultsGrid');
+          if (gridEl) {
+            StockLabEngine.renderResults(currentStockLabResults, gridEl, activeStockLabCategory);
+          }
+        }
+      });
+    });
+
+    // Handle URL parameters (e.g. ?sec=NVDA or ?tab=stocklab)
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialSym = urlParams.get('sec') || labState.activeSecuritySymbol || 'RELIANCE.NS';
+    if (searchInput) searchInput.value = initialSym;
+    runStockQuantLab(initialSym);
+
+    if (urlParams.get('tab') === 'stocklab') {
+      setTimeout(() => {
+        const desk = document.getElementById('stockQuantLabDesk');
+        if (desk) desk.scrollIntoView({ behavior: 'smooth' });
+      }, 350);
+    }
+  };
+
+  window.runStockQuantLab = runStockQuantLab;
+
   // Run on DOM Ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       init();
       initLearnMarketRibbon();
+      initStockQuantLab();
       renderAllBlueprintFormulas();
     });
   } else {
     init();
     initLearnMarketRibbon();
+    initStockQuantLab();
     renderAllBlueprintFormulas();
   }
 })();

@@ -3391,6 +3391,33 @@
     });
   };
 
+  const getBotAgencyPedigree = (bot) => {
+    const strat = (bot.strategyType || bot.strategy || '').toLowerCase();
+    const id = bot.id || '';
+    if (strat.includes('vol') || strat.includes('dispersion') || strat.includes('theta') || id.includes('IN-01') || id.includes('US-01')) {
+      return 'Citadel Wellington Volatility Desk';
+    }
+    if (strat.includes('kalman') || strat.includes('pair') || strat.includes('stat') || strat.includes('cointegrat') || id.includes('IN-02') || id.includes('US-11')) {
+      return 'RenTech Medallion Stat-Arb';
+    }
+    if (strat.includes('momentum') || strat.includes('breakout') || strat.includes('trend') || id.includes('IN-03') || id.includes('US-02')) {
+      return 'Two Sigma Systematic Trend';
+    }
+    if (strat.includes('basis') || strat.includes('carry') || strat.includes('spread') || id.includes('IN-04') || id.includes('US-03')) {
+      return 'Millennium Multi-Strat Carry';
+    }
+    if (strat.includes('micro') || strat.includes('l2') || strat.includes('ofi') || strat.includes('hft') || strat.includes('scalp') || id.includes('IN-05') || id.includes('EG-US-04')) {
+      return 'Jane Street / Optiver Flow';
+    }
+    if (strat.includes('reversion') || strat.includes('mean') || id.includes('IN-06')) {
+      return 'Point72 Cubist Stat-Arb';
+    }
+    if (strat.includes('macro') || id.includes('EG-US-05')) {
+      return 'Bridgewater Macro Systematic';
+    }
+    return 'Citadel Global Quantitative Alpha';
+  };
+
   const renderSingleBotCard = (bot, idx, cardPantheonClass = '') => {
     const isRunning = bot.status === 'RUNNING';
     const fin = calculateBotFinancials(bot);
@@ -3404,6 +3431,7 @@
     const chgColor = chg >= 0 ? '#10b981' : '#f43f5e';
     const curr = bot.market === 'india' ? '₹' : '$';
     const flag = bot.market === 'india' ? '🇮🇳' : '🇺🇸';
+    const agencyPedigree = getBotAgencyPedigree(bot);
 
     let rankBadgeCls = 'rank-other';
     if (idx === 0) rankBadgeCls = 'rank-1';
@@ -3447,6 +3475,9 @@
                 <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
                 <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
                   ${divisionTag}
+                </span>
+                <span style="font-size:0.6rem; font-weight:700; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">
+                  <i class="fa-solid fa-building-columns" style="margin-right:3px;"></i>${agencyPedigree}
                 </span>
                 <span id="order-state-${bot.id}">
                   <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">
@@ -3588,6 +3619,9 @@
               <span class="bot-id-badge">${bot.id} &bull; ${flag}</span>
               <span style="font-size:0.62rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; ${isGreek ? 'background:rgba(255,176,0,0.15); color:#ffb000; border:1px solid rgba(255,176,0,0.3);' : (isEgyptian ? 'background:rgba(234,179,8,0.15); color:#fbbf24; border:1px solid rgba(234,179,8,0.3);' : 'background:rgba(96,165,250,0.15); color:#60a5fa; border:1px solid rgba(96,165,250,0.3);')}">
                 ${divisionTag}
+              </span>
+              <span style="font-size:0.6rem; font-weight:700; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">
+                <i class="fa-solid fa-building-columns" style="margin-right:3px;"></i>${agencyPedigree}
               </span>
               <span id="order-state-${bot.id}">
                 <span class="order-state-badge ${bot.activePosition ? 'badge-holding' : 'badge-scanning'}">

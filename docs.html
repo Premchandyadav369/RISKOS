@@ -424,222 +424,16 @@
           <div class="quant-box">
             <span class="box-badge quant"><i class="fa-solid fa-atom"></i> Quant Formulation — Conditional Heteroskedasticity</span>
             <div style="font-size:0.82rem; color:#22d3ee; margin:4px 0;">
-              $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2, \quad \alpha + \beta < 1$$
-            </div>
-            <p style="font-size:0.75rem; color:#aaa; margin:0;">
-              Requires covariance stationarity: if $\alpha + \beta \ge 1$, unconditional variance explodes to infinity.
-            </p>
-          </div>
-        </div>
-
-        <!-- GARCH Interactive Sandbox -->
-        <div class="interactive-sandbox">
-          <div class="sandbox-header">
-            <h3 class="sandbox-title"><i class="fa-solid fa-wave-square text-amber"></i> GARCH(1,1) Dynamic Trajectory Simulator</h3>
-            <div id="garchStationarityBadge" style="font-size:0.75rem; font-family:'JetBrains Mono', monospace;">
-              <!-- Populated dynamically -->
-            </div>
-          </div>
-
-          <div class="sandbox-grid">
-            <div class="sandbox-controls">
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Baseline Variance ($\omega$)</span><span class="control-val" id="garchOmegaVal">10.0e-6</span></div>
-                <input type="range" id="garchOmega" min="1" max="50" value="10" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>ARCH Reaction ($\alpha$)</span><span class="control-val" id="garchAlphaVal">0.09</span></div>
-                <input type="range" id="garchAlpha" min="0.01" max="0.40" step="0.01" value="0.09" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>GARCH Persistence ($\beta$)</span><span class="control-val" id="garchBetaVal">0.88</span></div>
-                <input type="range" id="garchBeta" min="0.50" max="0.98" step="0.01" value="0.88" class="sandbox-slider" />
-              </div>
-
-              <div style="font-size:0.75rem; color:#aaa; margin-top:8px;">
-                <strong style="color:#fff;">Long-Run Unconditional Vol:</strong>
-                <div style="color:#fab005; font-size:0.85rem; margin-top:4px;">
-                  $$V_L = \sqrt{\frac{\omega \times 252}{1 - (\alpha + \beta)}}$$
-                </div>
-              </div>
-            </div>
-
-            <div class="sandbox-canvas-wrap">
-              <canvas id="docsGarchCanvas" height="200"></canvas>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 5: INTERACTIVE MODEL SANDBOX 3 — ALMGREN-CHRISS OPTIMAL SLICER -->
-      <section id="almgren" class="doc-section">
-        <div class="doc-header-row">
-          <h2 class="doc-title"><i class="fa-solid fa-scissors text-purple"></i> Model Sandbox 3: Almgren-Chriss Optimal Order Slicer</h2>
-          <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7;">Optimal Execution Trajectory &bull; Market Impact</span>
-        </div>
-
-        <div class="dual-box-grid">
-          <div class="layman-box">
-            <span class="box-badge layman"><i class="fa-solid fa-lightbulb"></i> Layman Analogy — Moving an Elephant Through a Turnstile</span>
-            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
-              If you buy 100,000 shares all at once, you push the price up against yourself and lose thousands of dollars. Almgren-Chriss tells you the exact speed to feed shares into the market to avoid moving the price.
-            </p>
-          </div>
-
-          <div class="quant-box">
-            <span class="box-badge quant"><i class="fa-solid fa-atom"></i> Quant Formulation — Calculus of Variations</span>
-            <div style="font-size:0.82rem; color:#22d3ee; margin:4px 0;">
-              $$x_j = \frac{\sinh(\kappa(T - t_j))}{\sinh(\kappa T)} X, \quad \kappa = \sqrt{\frac{\lambda \sigma^2}{\eta}}$$
-            </div>
-            <p style="font-size:0.75rem; color:#aaa; margin:0;">
-              Minimizes Expected Implementation Shortfall $\mathbb{E}[x] + \lambda \mathbb{V}[x]$.
-            </p>
-          </div>
-        </div>
-
-        <!-- Almgren-Chriss Sandbox -->
-        <div class="interactive-sandbox">
-          <div class="sandbox-header">
-            <h3 class="sandbox-title"><i class="fa-solid fa-chart-line text-purple"></i> Optimal Hyperbolic Trajectory vs Linear TWAP</h3>
-            <div style="font-size:0.75rem; color:#a1a1aa; font-family:'JetBrains Mono', monospace;">
-              Urgency Parameter $\kappa$: <strong style="color:#a855f7;" id="telAcKappa">4.12</strong>
-            </div>
-          </div>
-
-          <div class="sandbox-grid">
-            <div class="sandbox-controls">
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Parent Order Size ($X$)</span><span class="control-val" id="acSharesVal">100,000 Shares</span></div>
-                <input type="range" id="acShares" min="10000" max="500000" step="10000" value="100000" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Risk Aversion ($\lambda$)</span><span class="control-val" id="acLambdaVal">0.015</span></div>
-                <input type="range" id="acLambda" min="0.001" max="0.05" step="0.002" value="0.015" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Stock Volatility ($\sigma$)</span><span class="control-val" id="acVolVal">30% Ann Vol</span></div>
-                <input type="range" id="acVol" min="10" max="80" value="30" class="sandbox-slider" />
-              </div>
-            </div>
-
-            <div class="sandbox-canvas-wrap">
-              <canvas id="docsAlmgrenCanvas" height="200"></canvas>
-
-              <div class="sandbox-telemetry">
-                <div class="sandbox-tel-box">
-                  <div class="sandbox-tel-label">Optimal Implementation Shortfall</div>
-                  <div class="sandbox-tel-val text-purple" id="telAcShortfall">11 bps</div>
-                </div>
-                <div class="sandbox-tel-box">
-                  <div class="sandbox-tel-label">Estimated Slippage Savings</div>
-                  <div class="sandbox-tel-val text-green" id="telAcSavings">₹2,45,000 Saved</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 6: INTERACTIVE MODEL SANDBOX 4 — TAIL RISK & CVAR 99% -->
-      <section id="cvar" class="doc-section">
-        <div class="doc-header-row">
-          <h2 class="doc-title"><i class="fa-solid fa-shield-halved text-rose"></i> Model Sandbox 4: Portfolio CVaR 99% &amp; Extreme Value Distribution</h2>
-          <span class="badge" style="background:rgba(244,63,94,0.15); color:#f43f5e;">Rockafellar-Uryasev &bull; Tail Risk</span>
-        </div>
-
-        <div class="dual-box-grid">
-          <div class="layman-box">
-            <span class="box-badge layman"><i class="fa-solid fa-lightbulb"></i> Layman Analogy — Surviving the Worst-Case Day</span>
-            <p style="font-size:0.82rem; color:#e4e4e7; line-height:1.6; margin:0;">
-              VaR tells you: "On 99 out of 100 days, your losses won't exceed X." But what happens on that 1 remaining catastrophic day? CVaR (Conditional VaR) calculates the exact average devastation of that disaster day so your portfolio never goes bust.
-            </p>
-          </div>
-
-          <div class="quant-box">
-            <span class="box-badge quant"><i class="fa-solid fa-atom"></i> Quant Formulation — Subadditive Coherent Risk</span>
-            <div style="font-size:0.82rem; color:#22d3ee; margin:4px 0;">
-              $$\text{CVaR}_\alpha = \frac{1}{1 - \alpha} \int_\alpha^1 \text{VaR}_u du = \mu + \frac{\phi(z_\alpha)}{1 - \alpha} \sigma$$
-            </div>
-            <p style="font-size:0.75rem; color:#aaa; margin:0;">
-              Unlike VaR, CVaR is convex and coherent, making it optimal for convex programming optimization.
-            </p>
-          </div>
-        </div>
-
-        <!-- CVaR Sandbox -->
-        <div class="interactive-sandbox">
-          <div class="sandbox-header">
-            <h3 class="sandbox-title"><i class="fa-solid fa-triangle-exclamation text-rose"></i> Live Loss Distribution &amp; Tail Cut-Off</h3>
-          </div>
-
-          <div class="sandbox-grid">
-            <div class="sandbox-controls">
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Portfolio Capital ($W$)</span><span class="control-val" id="cvarCapVal">₹1.00 Cr</span></div>
-                <input type="range" id="cvarCap" min="1000000" max="50000000" step="1000000" value="10000000" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Annual Volatility ($\sigma$)</span><span class="control-val" id="cvarVolVal">18% Ann</span></div>
-                <input type="range" id="cvarVol" min="5" max="50" value="18" class="sandbox-slider" />
-              </div>
-
-              <div class="sandbox-control-item">
-                <div class="control-label"><span>Confidence Level ($\alpha$)</span></div>
-                <select id="cvarAlpha" class="api-select" style="padding:6px;">
-                  <option value="0.95">95.0% Confidence (1.645σ)</option>
-                  <option value="0.99" selected>99.0% Confidence (2.326σ)</option>
-                  <option value="0.999">99.9% Black Swan (3.090σ)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="sandbox-canvas-wrap">
-              <canvas id="docsCvarCanvas" height="200"></canvas>
-
-              <div class="sandbox-telemetry">
-                <div class="sandbox-tel-box">
-                  <div class="sandbox-tel-label">Parametric 1-Day VaR</div>
-                  <div class="sandbox-tel-val text-amber" id="telCvarVar">₹2,63,000</div>
-                </div>
-                <div class="sandbox-tel-box">
-                  <div class="sandbox-tel-label">Conditional VaR (Expected Shortfall)</div>
-                  <div class="sandbox-tel-val text-rose" id="telCvarCvar">₹3,01,000</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- SECTION 7: THE 7 SPECIALIZED BLOOMBERG DESKS -->
-      <section id="desks" class="doc-section">
-        <div class="doc-header-row">
-          <h2 class="doc-title"><i class="fa-solid fa-cubes text-amber"></i> The 7 Bloomberg Trading Desks (`app.html`)</h2>
-          <span class="badge" style="background:rgba(250,176,5,0.15); color:#fab005;">Comprehensive Trading Floor Suite</span>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:16px;">
-          <div id="desk1" class="doc-section" style="padding:16px; background:#04060a;">
-            <h4 style="color:#22d3ee; margin:0 0 6px 0;">Desk 1: Market Intelligence &amp; 3-State HMM Detection</h4>
-            <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
-              <strong>Layman:</strong> Identifies whether the market is currently Bull, Bear, or Sideways.<br>
-              <strong>Quant:</strong> 3-state Gaussian Hidden Markov Model ($\lambda = (A, B, \pi)$) with GARCH(1,1) filtering.
-            </p>
-            <div style="font-size:0.8rem; color:#22d3ee;">$$\sigma_t^2 = \omega + lpha \epsilon_{t-1}^2 + eta \sigma_{t-1}^2$$</div>
+              $$\sigma_t^2 = \omega + \alpha \epsilon_{t-1}^2 + \beta \sigma_{t-1}^2$$</div>
           </div>
 
           <div id="desk2" class="doc-section" style="padding:16px; background:#04060a;">
             <h4 style="color:#10b981; margin:0 0 6px 0;">Desk 2: Portfolio Tail Risk, VaR &amp; CVaR Optimizer</h4>
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
               <strong>Layman:</strong> Calculates maximum 1-day potential loss and optimizes weights for safety.<br>
-              <strong>Quant:</strong> Ledoit-Wolf Covariance Shrinkage ($\Sigma_{	ext{LW}} = \hat{\delta} F + (1-\hat{\delta}) S$) and Monte Carlo VaR with 10,000 paths.
+              <strong>Quant:</strong> Ledoit-Wolf Covariance Shrinkage ($\Sigma_{\text{LW}} = \hat{\delta} F + (1-\hat{\delta}) S$) and Monte Carlo VaR with 10,000 paths.
             </p>
-            <div style="font-size:0.8rem; color:#10b981;">$$\min_w 	ext{CVaR}_lpha(w) \quad 	ext{s.t.} \quad \sum w_i = 1, \quad w^T \mu \ge R_{	ext{target}}$$</div>
+            <div style="font-size:0.8rem; color:#10b981;">$\min_w \text{CVaR}_\alpha(w) \quad \text{s.t.} \quad \sum w_i = 1, \quad w^T \mu \ge R_{\text{target}}</div>
           </div>
 
           <div id="desk3" class="doc-section" style="padding:16px; background:#04060a;">
@@ -680,7 +474,7 @@ u)$.
             <h4 style="color:#f43f5e; margin:0 0 6px 0;">Desk 7: AI Foundation Speculations &amp; Polymarket LMSR</h4>
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 6px 0;">
               <strong>Layman:</strong> Google TimesFM foundation forecasting and prediction market probabilities.<br>
-              <strong>Quant:</strong> 10-quantile transformer attention heads combined with Hanson Logarithmic Market Scoring Rule: $p_i = rac{e^{q_i / b}}{\sum e^{q_j / b}}$.
+              <strong>Quant:</strong> 10-quantile transformer attention heads combined with Hanson Logarithmic Market Scoring Rule: $p_i = \frac{e^{q_i / b}}{\sum e^{q_j / b}}}$.
             </p>
           </div>
 
@@ -853,9 +647,9 @@ u)$.
             </div>
             <p style="font-size:0.8rem; color:#ccc; margin:0 0 8px 0; line-height:1.5;">
               <strong>Layman:</strong> The avalanche warning system. Calm trading is like occasional snow flakes. A flash crash happens when one falling rock triggers a landslide of margin liquidations, stop-losses, and bot selling. The branching ratio $n = \alpha/\beta$ detects when trades start triggering more trades, warning before prices plunge.<br>
-              <strong>Quant:</strong> Self-exciting stochastic point process with conditional intensity $\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}$. Employs an $\mathcal{O}(1)$ recursive decay update $\lambda(t_{k+1}) = \mu + e^{-\beta(t_{k+1} - t_k)}(\lambda(t_k) - \mu) + \alpha$ enabling microsecond ingestion. When $n = \alpha/\beta \ge 1.0$, the process enters a supercritical explosive regime.
+              <strong>Quant:</strong> Self-exciting stochastic point process with conditional intensity $\lambda(t) = \mu + \sum_{t_i \lt t} \alpha e^{-\beta(t - t_i)}$. Employs an $\mathcal{O}(1)$ recursive decay update $\lambda(t_{k+1}) = \mu + e^{-\beta(t_{k+1} - t_k)}(\lambda(t_k) - \mu) + \alpha$ enabling microsecond ingestion. When $n = \alpha/\beta \ge 1.0$, the process enters a supercritical explosive regime.
             </p>
-            <div style="font-size:0.8rem; color:#ef4444;">$$\lambda(t) = \mu + \sum_{t_i < t} \alpha e^{-\beta(t - t_i)}, \quad n = \frac{\alpha}{\beta} \quad \left( n < 0.8 \text{ Stable}, \quad 0.8 \le n \le 1.0 \text{ Warning}, \quad n > 1.0 \text{ Supercritical Flash Crash} \right)$$</div>
+            <div style="font-size:0.8rem; color:#ef4444;">$$\lambda(t) = \mu + \sum_{t_i \lt t} \alpha e^{-\beta(t - t_i)}, \quad n = \frac{\alpha}{\beta} \quad \left( n \lt 0.8 \text{ Stable}, \quad 0.8 \le n \le 1.0 \text{ Warning}, \quad n \gt 1.0 \text{ Supercritical Flash Crash} \right)$$</div>
           </div>
 
           <!-- WS 11: Order Flow Footprint -->

@@ -648,11 +648,13 @@
     // Cross-Platform Links
     const linkDash = document.getElementById('drawerGoDashboard');
     const linkObs = document.getElementById('drawerGoObservatory');
+    const linkStockLab = document.getElementById('drawerGoStockLab');
     const linkLab = document.getElementById('drawerGoLearnLab');
     const linkTerm = document.getElementById('drawerGoTerminal');
 
     if (linkDash) linkDash.href = `index.html?symbol=${sec.symbol}`;
     if (linkObs) linkObs.href = `observatory.html?symbol=${sec.symbol}`;
+    if (linkStockLab) linkStockLab.href = `learn.html?sec=${sec.symbol}&tab=stocklab`;
     if (linkLab) linkLab.href = `learn.html?sec=${sec.symbol}`;
     if (linkTerm) linkTerm.href = `app.html?tickers=${sec.symbol}`;
 
