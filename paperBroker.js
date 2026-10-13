@@ -93,9 +93,13 @@
       const notional = effectivePrice * qty;
 
       if (side === 'BUY' && state.cash < notional) {
+        if (root.SoundFX && typeof root.SoundFX.playAlert === 'function') {
+          root.SoundFX.playAlert();
+        }
         return { success: false, reason: 'Insufficient funds in sandbox account' };
       }
 
+      let tradePnl = 0;
       if (side === 'BUY') {
         state.cash -= notional;
         if (state.positions[symbol]) {
@@ -122,13 +126,22 @@
         if (state.positions[symbol]) {
           const p = state.positions[symbol];
           const closedQty = Math.min(p.qty, qty);
-          const tradePnl = (effectivePrice - p.avgPrice) * closedQty;
+          tradePnl = (effectivePrice - p.avgPrice) * closedQty;
           state.realizedPnl += tradePnl;
           state.cash += effectivePrice * closedQty;
           p.qty -= closedQty;
           if (p.qty <= 0) {
             delete state.positions[symbol];
           }
+        }
+      }
+
+      // Audio feedback: profit chime on profitable trade close, tactile fill click otherwise
+      if (root.SoundFX) {
+        if (tradePnl > 0 && typeof root.SoundFX.playProfit === 'function') {
+          root.SoundFX.playProfit();
+        } else if (typeof root.SoundFX.playFill === 'function') {
+          root.SoundFX.playFill();
         }
       }
 

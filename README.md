@@ -320,11 +320,19 @@ RISKOS provides 8 dedicated institutional desks accessible directly via [app.htm
 
 ## ⚡ High-Frequency Trading & Market Microstructure Terminal (`hft.html`)
 
-The dedicated High-Frequency Trading terminal at [hft.html](https://riskos-psi.vercel.app/hft.html) provides tier-1 quantitative market microstructure tooling:
-* **Interactive Level 3 Market Depth DOM Ladder**: Real-time bid/ask order book depth with depth-of-market ladder, price volume profiles, and trade aggressor flags.
-* **Real-Time Bookmap Waterfall**: Visual liquidity heatmap rendering order additions, modifications, and cancellations over rolling time slices.
-* **Order Flow Imbalance (OFI) & Stoikov Micro-Price**: High-frequency predictive signals capturing queue depletion and short-term price drift.
-* **0DTE Gamma Exposure (GEX) Radar**: Real-time dealer gamma positioning, pinpointing zero-gamma volatility flip boundaries and strike pinning levels.
+The dedicated High-Frequency Trading terminal at [hft.html](https://riskos-psi.vercel.app/hft.html) provides tier-1 quantitative market microstructure tooling across **The 11 Core Microstructure Workstations**:
+
+* **Workstation 1: Real-Time L3 Depth of Market (DOM) Ladder**: Real-time bid/ask order book depth with depth-of-market ladder, price volume profiles, trade aggressor flags, and Bookmap liquidity waterfall.
+* **Workstation 2: Closed-Form Avellaneda-Stoikov**: Dynamic market making quoting engine calculating reservation price $r(s,q,t) = s - q\gamma\sigma^2(T-t)$ and asymmetric bid/ask spread shading.
+* **Workstation 3: Stoikov Micro-Price & VPIN**: Real-time Volume-Synchronized Probability of Toxicity and order book queue imbalance micro-price.
+* **Workstation 4: L3 Queue Position Simulator & RAW FIX 4.4 Stream**: Realistic FIFO queue priority simulation and low-latency FIX protocol telemetry.
+* **Workstation 5: Real-Time Time & Sales Tape**: Sub-millisecond trade tape feed with Cumulative Volume Delta (CVD) footprint.
+* **Workstation 6: Microsecond Latency Arbitrage**: Speed-of-light fiber propagation delay calculator and multi-exchange latency race simulation.
+* **Workstation 7: Algorithmic Execution Slicer**: Almgren-Chriss implementation shortfall optimizer with TWAP, VWAP, and POV execution algorithms.
+* **Workstation 8: C++ & WebAssembly (WASM) Matching Engine Core**: Cache-aligned order book matching in compiled WASM executing >100,000 orders/sec.
+* **Workstation 9: Cross-Exchange Basis & Perpetual Funding Arbitrage Radar**: Spot-perpetual basis scanner, cost-of-carry calculator, and delta-neutral funding yield monitor.
+* **Workstation 10: Hawkes Self-Exciting Process & Liquidation Radar**: Self-exciting point process model detecting branching ratio $\eta = \alpha/\beta \ge 1.0$ flash-crash cascades.
+* **Workstation 11: Institutional Order Flow Footprint & Stacked Imbalances**: Tick-by-tick footprint chart identifying Point of Control (POC) and >300% aggressive stacked buy/sell imbalances.
 
 ---
 

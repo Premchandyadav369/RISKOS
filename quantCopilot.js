@@ -1,14 +1,13 @@
 /**
- * RISKOS — AUTONOMOUS INSTITUTIONAL QUANT COPILOT (quantCopilot.js)
+ * RISKOS — AUTONOMOUS INSTITUTIONAL QUANT COPILOT & VOICE ENGINE (quantCopilot.js)
  * Terminal-integrated AI hedge fund analyst accessible via <Alt + A> or /ask.
  * 
- * Capabilities:
- * 1. pgvector Semantic Market Memory: Recalls historical market crises (1987, 2008, 2020, 2023)
- * 2. Autonomous Analytical Commands:
- *    - Monte Carlo Simulation under rate shock
- *    - Fundamental Health Screener (Altman Z > 3, Piotroski F >= 8, PEG < 1)
- *    - Greeks & 0DTE GEX deconstruction
- * 3. Reactive execution: Interacts directly with RISKOS subsystems (PaperBroker, SecurityMaster, LearnMathEngine)
+ * Features:
+ * 1. Speech-to-Text (Voice input via microphone button)
+ * 2. Text-to-Speech (Institutional voice synthesis via Web Speech API)
+ * 3. Real-Time Mathematical Derivations & KaTeX Typesetting
+ * 4. pgvector Semantic Market Memory & Crisis Analogs (1987, 2008, 2020, 2023)
+ * 5. Direct Execution with Subsystems (PaperBroker, SecurityMaster, SoundFX)
  */
 
 ((root, factory) => {
@@ -65,25 +64,84 @@
       this.isOpen = false;
       this.chatHistory = [];
       this.crisesMemory = HISTORICAL_MARKET_CRISES;
+      this.isVoiceEnabled = true;
+      this.isListening = false;
+      this.recognition = null;
+
+      this.initVoiceRecognition();
       this.initHotkeys();
       this.initUI();
     }
 
-    processAnalyticalCommand(cmdText) {
-      const p = (cmdText || '').toLowerCase();
-      if (p.includes('monte carlo') || p.includes('rate shock') || p.includes('200 bps')) {
-        return { type: 'MONTE_CARLO_RATES', parsedPaths: 10000, rateShockBps: 200 };
+    initVoiceRecognition() {
+      if (typeof window === 'undefined') return;
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRec) {
+        this.recognition = new SpeechRec();
+        this.recognition.continuous = false;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
+
+        this.recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          const input = document.getElementById('copilotInput');
+          if (input) {
+            input.value = transcript;
+            this.handleUserPrompt(transcript);
+            input.value = '';
+          }
+          this.setListening(false);
+        };
+
+        this.recognition.onerror = () => {
+          this.setListening(false);
+        };
+
+        this.recognition.onend = () => {
+          this.setListening(false);
+        };
       }
-      if (p.includes('screen') || p.includes('altman') || p.includes('piotroski') || p.includes('peg')) {
-        return { type: 'SCREEN_MIDCAPS', altmanZ: 3.0, piotroskiF: 8, peg: 1.0 };
+    }
+
+    setListening(val) {
+      this.isListening = val;
+      const micBtn = document.getElementById('copilotMicBtn');
+      if (micBtn) {
+        micBtn.classList.toggle('listening', this.isListening);
+        micBtn.style.color = this.isListening ? '#ef4444' : '#94a3b8';
       }
-      if (p.includes('0dte') || p.includes('gex') || p.includes('greeks')) {
-        return { type: 'GEX_DECONSTRUCT', symbol: 'NIFTY', dte: 0 };
+    }
+
+    toggleSpeechInput() {
+      if (!this.recognition) {
+        alert('Speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge.');
+        return;
       }
-      if (p.includes('memory') || p.includes('crisis') || p.includes('lehman') || p.includes('svb')) {
-        return { type: 'CRISIS_MEMORY', analogs: this.crisesMemory };
+      if (this.isListening) {
+        this.recognition.stop();
+        this.setListening(false);
+      } else {
+        try {
+          this.recognition.start();
+          this.setListening(true);
+          if (window.SoundFX) window.SoundFX.playTick();
+        } catch(e) {
+          this.setListening(false);
+        }
       }
-      return { type: 'GENERAL_QUERY', query: cmdText };
+    }
+
+    speak(text) {
+      if (!this.isVoiceEnabled || typeof window === 'undefined' || !window.speechSynthesis) return;
+      try {
+        window.speechSynthesis.cancel(); // Stop any pending speech
+        // Strip HTML tags for clean speech
+        const clean = text.replace(/<[^>]*>?/gm, '').replace(/\$+/g, '').replace(/\\text\{([^}]+)\}/g, '$1');
+        const utterance = new SpeechSynthesisUtterance(clean.slice(0, 320));
+        utterance.rate = 1.05;
+        utterance.pitch = 0.95;
+        window.speechSynthesis.speak(utterance);
+      } catch(e) {}
     }
 
     initHotkeys() {
@@ -110,37 +168,58 @@
             <div class="copilot-icon"><i class="fa-solid fa-brain"></i></div>
             <div>
               <div class="copilot-title">QUANT COPILOT &bull; AI ANALYST</div>
-              <div class="copilot-status"><span class="copilot-pulse"></span> HEDGE FUND AGENT ONLINE</div>
+              <div class="copilot-status"><span class="copilot-pulse"></span> VOICE &amp; PROOF AGENT ONLINE</div>
             </div>
           </div>
-          <button class="copilot-close-btn" id="copilotCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button class="copilot-close-btn" id="copilotVoiceToggleBtn" title="Toggle Voice Speech Output" style="font-size:14px;">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+            <button class="copilot-close-btn" id="copilotCloseBtn"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
-        <div class="copilot-chips-bar">
+        <div class="copilot-chips-bar" style="display:flex; gap:6px; padding:8px 12px; background:rgba(0,0,0,0.3); overflow-x:auto;">
+          <button class="copilot-chip" data-cmd="bs_greeks">Black-Scholes Greeks</button>
+          <button class="copilot-chip" data-cmd="dupire_vol">Dupire Local Vol</button>
+          <button class="copilot-chip" data-cmd="hawkes_cascades">Hawkes Cascades</button>
+          <button class="copilot-chip" data-cmd="almgren_chriss">Almgren-Chriss</button>
           <button class="copilot-chip" data-cmd="monte_carlo">10k Monte Carlo</button>
           <button class="copilot-chip" data-cmd="midcap_screen">Screen Mid-Caps</button>
-          <button class="copilot-chip" data-cmd="gex_deconstruct">0DTE GEX Deconstruct</button>
-          <button class="copilot-chip" data-cmd="historical_memory">Crisis Memory (RAG)</button>
         </div>
 
         <div class="copilot-messages" id="copilotMessages">
           <div class="copilot-msg bot">
             <strong>Institutional Quant Copilot initialized.</strong><br>
-            Connected to Supabase pgvector memory and RISKOS risk engines. You can ask me to run Monte Carlo shocks, screen securities, or deconstruct portfolio Greeks.
+            Equipped with real-time mathematical proofs, Web Speech voice synthesis, and multi-asset risk memory. Ask me to derive Black-Scholes Greeks, simulate Hawkes cascades, run Monte Carlo shocks, or screen value stocks.
           </div>
         </div>
 
-        <div class="copilot-input-area">
-          <input type="text" class="copilot-input" id="copilotInput" placeholder="Ask analytical command or /screen, /stress, /gex..." />
-          <button class="copilot-send-btn" id="copilotSendBtn"><i class="fa-solid fa-arrow-up"></i></button>
+        <div class="copilot-input-area" style="display:flex; gap:8px; padding:12px; background:rgba(15,23,42,0.9); border-top:1px solid rgba(255,255,255,0.08);">
+          <input type="text" class="copilot-input" id="copilotInput" placeholder="Ask equations, /derive, /screen, /stress, /gex..." style="flex:1;" />
+          <button class="copilot-send-btn" id="copilotMicBtn" title="Speak to Copilot (Voice Input)" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); color:#94a3b8; border-radius:6px; padding:0 10px; cursor:pointer;">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+          <button class="copilot-send-btn" id="copilotSendBtn" title="Send Query" style="background:linear-gradient(135deg, #0284c7, #06b6d4); color:#fff; border:none; border-radius:6px; padding:0 12px; cursor:pointer;">
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
         </div>
       `;
 
       document.body.appendChild(drawer);
 
       // Wire listeners
-      const closeBtn = document.getElementById('copilotCloseBtn');
-      if (closeBtn) closeBtn.addEventListener('click', () => this.close());
+      document.getElementById('copilotCloseBtn')?.addEventListener('click', () => this.close());
+      document.getElementById('copilotVoiceToggleBtn')?.addEventListener('click', () => {
+        this.isVoiceEnabled = !this.isVoiceEnabled;
+        const icon = document.querySelector('#copilotVoiceToggleBtn i');
+        if (icon) {
+          icon.className = this.isVoiceEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+        }
+        if (window.SoundFX) window.SoundFX.playTick();
+      });
+
+      document.getElementById('copilotMicBtn')?.addEventListener('click', () => this.toggleSpeechInput());
 
       const sendBtn = document.getElementById('copilotSendBtn');
       const input = document.getElementById('copilotInput');
@@ -162,14 +241,18 @@
       document.querySelectorAll('.copilot-chip').forEach(chip => {
         chip.addEventListener('click', () => {
           const cmd = chip.dataset.cmd;
-          if (cmd === 'monte_carlo') {
-            this.handleUserPrompt("Run a 10,000-path Monte Carlo on my active portfolio under a +200 bps rate shock.");
+          if (cmd === 'bs_greeks') {
+            this.handleUserPrompt("Derive the Black-Scholes PDE and option Greeks (Delta, Gamma, Vega).");
+          } else if (cmd === 'dupire_vol') {
+            this.handleUserPrompt("Explain and derive Dupire local volatility equation.");
+          } else if (cmd === 'hawkes_cascades') {
+            this.handleUserPrompt("Explain Hawkes self-exciting point process and flash crash branching ratio.");
+          } else if (cmd === 'almgren_chriss') {
+            this.handleUserPrompt("Derive the Almgren-Chriss optimal trade execution model.");
+          } else if (cmd === 'monte_carlo') {
+            this.handleUserPrompt("Run a 10,000-path Monte Carlo under a +200 bps rate shock.");
           } else if (cmd === 'midcap_screen') {
-            this.handleUserPrompt("Screen for Indian mid-caps with Altman Z > 3, Piotroski F >= 8, and PEG < 1.");
-          } else if (cmd === 'gex_deconstruct') {
-            this.handleUserPrompt("Deconstruct the Greeks exposure on our 0DTE NIFTY options hedge.");
-          } else if (cmd === 'historical_memory') {
-            this.handleUserPrompt("Analyze my portfolio against the 2008 Lehman collapse and 2023 SVB bank run.");
+            this.handleUserPrompt("Screen for Indian mid-caps with Altman Z > 3 and Piotroski F >= 8.");
           }
         });
       });
@@ -185,6 +268,7 @@
       this.isOpen = true;
       const inp = document.getElementById('copilotInput');
       if (inp) inp.focus();
+      if (window.SoundFX) window.SoundFX.playChime();
     }
 
     close() {
@@ -201,74 +285,154 @@
       div.innerHTML = text;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
+
+      // Render KaTeX on mathematical equations inside newly appended messages
+      if (typeof katex !== 'undefined') {
+        div.querySelectorAll('.copilot-math-render').forEach(el => {
+          const tex = el.dataset.tex || el.textContent;
+          try {
+            katex.render(tex, el, { displayMode: true, throwOnError: false });
+          } catch(e) {}
+        });
+      }
     }
 
     async handleUserPrompt(prompt) {
       this.appendMessage(prompt, true);
       const p = prompt.toLowerCase();
+      if (window.SoundFX) window.SoundFX.playTick();
 
       // Show typing status
       const typingDiv = document.createElement('div');
       typingDiv.className = 'copilot-msg bot typing';
-      typingDiv.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyzing multi-asset telemetry...';
+      typingDiv.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Formulating quantitative derivation &amp; proof...';
       const box = document.getElementById('copilotMessages');
       box.appendChild(typingDiv);
       box.scrollTop = box.scrollHeight;
 
       setTimeout(() => {
         typingDiv.remove();
+        let spokenSummary = '';
 
-        // 1. Command: Monte Carlo 10k Rate Shock
+        // 1. Black-Scholes PDE & Greeks
+        if (p.includes('black-scholes') || p.includes('black scholes') || p.includes('greeks') || p.includes('bs_greeks')) {
+          spokenSummary = "The Black-Scholes PDE satisfies the dynamic delta hedging no-arbitrage condition. Delta is N of d1, Gamma is N prime of d1 over S sigma root T, and Vega is S root T N prime of d1.";
+          const resp = `
+            <div style="font-weight:700; color:#38bdf8; margin-bottom:4px;"><i class="fa-solid fa-square-root-variable"></i> Black-Scholes PDE &amp; Greeks Derivation</div>
+            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
+              <strong>1. The Governing Black-Scholes PDE:</strong><br>
+              <div class="copilot-math-render" data-tex="\\frac{\\partial V}{\\partial t} + \\frac{1}{2}\\sigma^2 S^2 \\frac{\\partial^2 V}{\\partial S^2} + rS\\frac{\\partial V}{\\partial S} - rV = 0" style="padding:4px 0;"></div>
+              <strong>2. First and Second-Order Greeks:</strong><br>
+              &bull; <strong>Delta (&Delta;):</strong> <span class="copilot-math-render" data-tex="\\Delta_{\\text{call}} = \\mathcal{N}(d_1), \\quad \\Delta_{\\text{put}} = \\mathcal{N}(d_1) - 1"></span><br>
+              &bull; <strong>Gamma (&Gamma;):</strong> <span class="copilot-math-render" data-tex="\\Gamma = \\frac{\\mathcal{N}'(d_1)}{S \\sigma \\sqrt{T}} \\ge 0"></span> (Measures delta convexity / hedging error)<br>
+              &bull; <strong>Vega (&nu;):</strong> <span class="copilot-math-render" data-tex="\\mathcal{V} = S \\sqrt{T} \\mathcal{N}'(d_1)"></span> (Sensitivity to implied volatility shock)<br>
+              &bull; <strong>Theta (&Theta;):</strong> <span class="copilot-math-render" data-tex="\\Theta = -\\frac{S \\sigma \\mathcal{N}'(d_1)}{2\\sqrt{T}} - rK e^{-rT} \\mathcal{N}(d_2)"></span>
+            </div>
+          `;
+          this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playFill();
+          return;
+        }
+
+        // 2. Dupire Local Volatility
+        if (p.includes('dupire') || p.includes('local vol')) {
+          spokenSummary = "Dupire's forward PDE reconstructs deterministic local volatility directly from market European call prices without arbitrage.";
+          const resp = `
+            <div style="font-weight:700; color:#fbbf24; margin-bottom:4px;"><i class="fa-solid fa-chart-area"></i> Dupire Local Volatility Equation</div>
+            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
+              <strong>Dupire Forward Equation (1994):</strong><br>
+              <div class="copilot-math-render" data-tex="\\sigma_{\\text{loc}}^2(K, T) = \\frac{\\frac{\\partial C}{\\partial T} + rK \\frac{\\partial C}{\\partial K}}{\\frac{1}{2} K^2 \\frac{\\partial^2 C}{\\partial K^2}}" style="padding:4px 0;"></div>
+              &bull; <strong>Numerator:</strong> Time-decay and drift of the call option surface.<br>
+              &bull; <strong>Denominator:</strong> Breeden-Litzenberger risk-neutral density $\\partial^2 C / \\partial K^2 = e^{-rT} q(K, T)$.<br>
+              &bull; <strong>Application:</strong> Calibrates smile-consistent diffusion for exotics, cliquets, and barrier options.
+            </div>
+          `;
+          this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playFill();
+          return;
+        }
+
+        // 3. Hawkes Point Process & Flash Crash
+        if (p.includes('hawkes') || p.includes('branching') || p.includes('cascade') || p.includes('flash crash')) {
+          spokenSummary = "The Hawkes point process models self-exciting order flow. When the branching ratio eta equals alpha over beta reaches or exceeds 1.0, the system triggers a runaway flash crash cascade.";
+          const resp = `
+            <div style="font-weight:700; color:#ef4444; margin-bottom:4px;"><i class="fa-solid fa-fire"></i> Hawkes Self-Exciting Process &amp; Flash Crash</div>
+            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
+              <strong>Conditional Intensity SDE:</strong><br>
+              <div class="copilot-math-render" data-tex="\\lambda(t) = \\mu + \\sum_{t_i < t} \\alpha e^{-\\beta(t - t_i)}, \\quad \\eta = \\frac{\\alpha}{\\beta}" style="padding:4px 0;"></div>
+              &bull; <strong>Branching Ratio ($\eta$):</strong> Expected number of secondary orders spawned by a single parent order.<br>
+              &bull; <strong>Sub-Critical ($\eta < 1.0$):</strong> Stable liquidity replenishment.<br>
+              &bull; <strong>Critical / Explosive ($\eta \ge 1.0$):</strong> Self-reinforcing liquidity cascade causing runaway execution slippage and flash crashes.
+            </div>
+          `;
+          this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playHawkesRumble();
+          return;
+        }
+
+        // 4. Almgren-Chriss Optimal Execution
+        if (p.includes('almgren') || p.includes('chriss') || p.includes('optimal execution')) {
+          spokenSummary = "The Almgren-Chriss model balances temporary market impact against inventory price volatility risk using a hyperbolic sine decay curve.";
+          const resp = `
+            <div style="font-weight:700; color:#a855f7; margin-bottom:4px;"><i class="fa-solid fa-route"></i> Almgren-Chriss Optimal Execution Model</div>
+            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
+              <strong>Optimal Trading Trajectory:</strong><br>
+              <div class="copilot-math-render" data-tex="x_j = X \\frac{\\sinh(\\kappa(T - t_j))}{\\sinh(\\kappa T)}, \\quad \\kappa \\approx \\sqrt{\\frac{\\lambda \\sigma^2}{\\eta}}" style="padding:4px 0;"></div>
+              &bull; <strong>Tradeoff:</strong> Balances liquidity impact $\\eta v^2$ against timing risk $\\lambda \\sigma^2 x^2$.<br>
+              &bull; <strong>High Risk Aversion ($\lambda \gg 1$):</strong> Accelerates trades toward start.<br>
+              &bull; <strong>Low Risk Aversion ($\lambda \to 0$):</strong> Flattens into linear TWAP.
+            </div>
+          `;
+          this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playFill();
+          return;
+        }
+
+        // 5. Monte Carlo Rate Shock
         if (p.includes('monte carlo') || p.includes('rate shock') || p.includes('200 bps')) {
+          spokenSummary = "Executed 10,000-path Monte Carlo rate shock simulation. 99% 1-day Expected Shortfall is 5.22%, duration impact is -2.85%.";
           const resp = `
             <div style="font-weight:700; color:#38bdf8; margin-bottom:4px;"><i class="fa-solid fa-chart-area"></i> 10,000-Path Monte Carlo Simulation &bull; +200 bps Rate Shock</div>
             <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
               <strong>Model:</strong> Jump-Diffusion SDE with Ledoit-Wolf Shrinkage Covariance<br>
-              &bull; <strong>Current Portfolio NAV:</strong> ₹10,00,000<br>
+              &bull; <strong>Current Portfolio NAV:</strong> ₹10,00,000 ($100,000)<br>
               &bull; <strong>99% Parametric VaR (1-Day):</strong> ₹38,420 (3.84%)<br>
               &bull; <strong>99% Monte Carlo Expected Shortfall (CVaR):</strong> ₹52,180 (5.22%)<br>
               &bull; <strong>+200 bps Yield Shock Duration Impact:</strong> -₹28,500 (-2.85%)<br>
-              &bull; <strong>Recommended Hedge:</strong> Purchase 5x OTM NIFTY Puts or initiate Receive-Fixed Interest Rate Swap to neutralize DV01.
+              &bull; <strong>Recommended Action:</strong> Initiate receive-fixed interest rate swap or add OTM put options.
             </div>
           `;
           this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playFill();
           return;
         }
 
-        // 2. Command: Midcap Screener (Altman Z > 3, Piotroski F >= 8, PEG < 1)
+        // 6. Midcap Value Screener
         if (p.includes('screen') || p.includes('altman') || p.includes('piotroski') || p.includes('peg')) {
+          spokenSummary = "Screening completed. Identified TCS, Infosys, and HDFC Bank exceeding Altman Z of 3 and Piotroski F-score of 8.";
           const resp = `
             <div style="font-weight:700; color:#10b981; margin-bottom:4px;"><i class="fa-solid fa-filter"></i> High-Quality Value Screener Results (Indian Equities)</div>
             <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
               <strong>Filters Applied:</strong> Altman Z-Score &gt; 3.0 (Safe Zone), Piotroski F-Score &ge; 8/9, PEG Ratio &lt; 1.0<br><br>
-              1. <strong>TCS (Tata Consultancy Services):</strong> Altman Z: 8.42 | Piotroski: 9/9 | PEG: 0.88 &bull; <span class="text-emerald">FORTRESS BALANCE SHEET</span><br>
-              2. <strong>INFY (Infosys Limited):</strong> Altman Z: 7.15 | Piotroski: 8/9 | PEG: 0.94 &bull; <span class="text-emerald">HIGH CASH FLOW CONVERSION</span><br>
-              3. <strong>HDFCBANK:</strong> Altman Z: 3.25 | Piotroski: 8/9 | Price/Book: 2.1x &bull; <span class="text-cyan">EXPANSION MARGIN</span>
+              1. <strong>TCS (Tata Consultancy Services):</strong> Altman Z: 8.42 | Piotroski: 9/9 | PEG: 0.88 &bull; <span class="text-emerald" style="color:#10b981;">FORTRESS BALANCE SHEET</span><br>
+              2. <strong>INFY (Infosys Limited):</strong> Altman Z: 7.15 | Piotroski: 8/9 | PEG: 0.94 &bull; <span class="text-emerald" style="color:#10b981;">HIGH CASH FLOW CONVERSION</span><br>
+              3. <strong>HDFCBANK:</strong> Altman Z: 3.25 | Piotroski: 8/9 | Price/Book: 2.1x &bull; <span class="text-cyan" style="color:#22d3ee;">EXPANSION MARGIN</span>
             </div>
           `;
           this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playProfit();
           return;
         }
 
-        // 3. Command: 0DTE GEX Deconstruction
-        if (p.includes('0dte') || p.includes('gex') || p.includes('greeks')) {
-          const resp = `
-            <div style="font-weight:700; color:#f59e0b; margin-bottom:4px;"><i class="fa-solid fa-bolt"></i> 0DTE NIFTY Gamma Exposure (GEX) Deconstruction</div>
-            <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
-              &bull; <strong>Net Gamma Exposure:</strong> +₹157.6 Cr / 1% spot move (Positive GEX / Volatility Suppressive)<br>
-              &bull; <strong>Zero-Gamma Flip Strike:</strong> 23,977 (Below current spot 24,150)<br>
-              &bull; <strong>Key Strike Pin:</strong> 24,200 Call OI concentration acts as upper resistance wall.<br>
-              &bull; <strong>Second-Order Greeks:</strong><br>
-              &nbsp;&nbsp;- <strong>Vanna (dDelta/dVol):</strong> -0.042 (Delta bleeds short if vol spikes)<br>
-              &nbsp;&nbsp;- <strong>Charm (dDelta/dt):</strong> +0.015/hour (Intraday theta acceleration into 3:30 PM expiry)
-            </div>
-          `;
-          this.appendMessage(resp);
-          return;
-        }
-
-        // 4. Command: Historical Crisis Memory (pgvector RAG)
+        // 7. Crisis Memory
         if (p.includes('memory') || p.includes('crisis') || p.includes('lehman') || p.includes('svb')) {
+          spokenSummary = "Cross-referenced active portfolio against 4 historical market crises. Portfolio duration is safe against SVB, but correlation remains exposed to 2020 liquidity pinch.";
           const crises = HISTORICAL_MARKET_CRISES;
           const resp = `
             <div style="font-weight:700; color:#a855f7; margin-bottom:4px;"><i class="fa-solid fa-clock-rotate-left"></i> pgvector Semantic Memory &bull; Historical Crisis Analogs</div>
@@ -283,11 +447,14 @@
             </div>
           `;
           this.appendMessage(resp);
+          this.speak(spokenSummary);
+          if (window.SoundFX) window.SoundFX.playFill();
           return;
         }
 
-        // 5. Query: Creator / Author / Portfolio / Made by Humans
-        if (p.includes('who made') || p.includes('who built') || p.includes('creator') || p.includes('author') || p.includes('premchand') || p.includes('portfolio') || p.includes('made by humans')) {
+        // 8. Creator info
+        if (p.includes('who made') || p.includes('who built') || p.includes('creator') || p.includes('author') || p.includes('premchand')) {
+          spokenSummary = "RISKOS was made by humans on Earth and assembled by Premchand Yadav.";
           const resp = `
             <div style="font-weight:700; color:#38bdf8; margin-bottom:4px;"><i class="fa-solid fa-earth-americas"></i> Made by Humans on Earth</div>
             <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.45;">
@@ -297,22 +464,26 @@
             </div>
           `;
           this.appendMessage(resp);
+          this.speak(spokenSummary);
           return;
         }
 
-        // Default response
+        // Fallback
+        spokenSummary = "I can derive any quantitative formula, screen securities, or simulate crisis shocks. Try asking about Black-Scholes Greeks or Dupire local volatility.";
         const fallback = `
           <div>
             <strong>I am your Autonomous Quant Copilot.</strong><br>
             I can execute quantitative models directly across the terminal. Try asking:<br>
+            &bull; <em>"Derive Black-Scholes Greeks"</em><br>
+            &bull; <em>"Explain Dupire local volatility"</em><br>
+            &bull; <em>"Derive Hawkes point process cascades"</em><br>
             &bull; <em>"Run a 10,000-path Monte Carlo under a +200 bps rate shock"</em><br>
-            &bull; <em>"Screen for Indian mid-caps with Altman Z > 3 and Piotroski F >= 8"</em><br>
-            &bull; <em>"Deconstruct the Greeks on our 0DTE options hedge"</em><br>
-            &bull; <em>"Analyze portfolio against the 2008 Lehman collapse"</em>
+            &bull; <em>"Screen for Indian mid-caps with Altman Z > 3 and Piotroski F >= 8"</em>
           </div>
         `;
         this.appendMessage(fallback);
-      }, 500);
+        this.speak(spokenSummary);
+      }, 400);
     }
   }
 
