@@ -202,13 +202,22 @@
           color: '#a855f7',
           content: `
             <div style="font-size:0.82rem; line-height:1.5; color:#cbd5e1;">
-              <p style="margin-top:0;">Demonstrate institutional readiness with 1-click verifiable credentials and printable PDF reporting:</p>
-              <div style="display:flex; gap:10px; margin:14px 0; flex-wrap:wrap;">
-                <button class="tour-chip-btn primary" onclick="if (typeof HedgeFundTearSheet !== 'undefined') { const c = new HedgeFundTearSheet(); const w = window.open('', '_blank'); w.document.write(c.generatePrintableHTML()); w.document.close(); } else { alert('Tear sheet engine active in learn.html and app.html'); }">
-                  <i class="fa-solid fa-file-invoice"></i> Open Hedge Fund Tear Sheet
+              <p style="margin-top:0;">Demonstrate institutional readiness with 1-click verifiable credentials, printable presentation decks, and execution gateways:</p>
+              <div style="display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;">
+                <button class="tour-chip-btn primary" onclick="window.PitchDeckGenerator ? window.PitchDeckGenerator.openPitchDeck() : alert('Pitch Deck Generator active');">
+                  <i class="fa-solid fa-file-powerpoint text-cyan"></i> 5-Slide LP Pitch Deck (PDF)
                 </button>
-                <button class="tour-chip-btn" onclick="document.getElementById('btnClaimCertificate')?.click();">
-                  <i class="fa-solid fa-certificate text-amber"></i> View Accreditation Certificate
+                <button class="tour-chip-btn" onclick="window.VolSurfaceStudio ? window.VolSurfaceStudio.openStudioModal() : alert('Vol Studio active');">
+                  <i class="fa-solid fa-cube text-emerald"></i> 3D Vol Surface Studio
+                </button>
+                <button class="tour-chip-btn" onclick="window.LiveBrokerGateway ? window.LiveBrokerGateway.openGatewayModal() : alert('Broker Gateway active');">
+                  <i class="fa-solid fa-satellite-dish text-rose"></i> Live Broker OMS Gateway
+                </button>
+                <button class="tour-chip-btn" onclick="window.SwarmInternalCrossing ? window.SwarmInternalCrossing.openCrossingDashboard() : alert('Crossing active');">
+                  <i class="fa-solid fa-arrows-split-up-and-left text-amber"></i> Swarm Dark Crossing
+                </button>
+                <button class="tour-chip-btn" onclick="window.MultiWindowManager ? window.MultiWindowManager.openMultiWindowModal() : alert('Multi-Window active');">
+                  <i class="fa-solid fa-display text-cyan"></i> Multi-Monitor Studio
                 </button>
               </div>
               <p style="margin-bottom:0; font-size:0.75rem; color:#94a3b8;">All equations, backtest Sharpe ratios (2.1 - 3.4), drawdown recovery paths, and portfolio weights formatted for hedge fund presentation.</p>

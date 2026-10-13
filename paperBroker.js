@@ -84,6 +84,12 @@
       if (!symbol || qty <= 0) return { success: false, reason: 'Invalid parameters' };
 
       const execPrice = price > 0 ? price : 100;
+
+      // If Live Broker Gateway is armed in LIVE mode, route to live broker OMS
+      if (root.LiveBrokerGateway && typeof root.LiveBrokerGateway.isLiveMode === 'function' && root.LiveBrokerGateway.isLiveMode()) {
+        return root.LiveBrokerGateway.placeLiveOrder({ symbol, side, qty, price: execPrice, exchange });
+      }
+
       // Almgren-Chriss linear impact model: 1.5 bps + 0.05 bps * sqrt(qty)
       const slippageBps = 1.5 + (0.05 * Math.sqrt(qty));
       const effectivePrice = side === 'BUY' 
