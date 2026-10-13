@@ -1,0 +1,21 @@
+[package]
+name = "riskos-core"
+version = "2.0.0"
+edition = "2021"
+authors = ["Premchand Yadav <premchand.23bce7167@vitapstudent.ac.in>"]
+description = "Institutional Ultra-Low Latency Quantitative Trading, L3 Matching Engine & Risk Analytics in Rust"
+license = "MIT"
+
+[lib]
+name = "riskos_core"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+# Zero external heavy dependencies to guarantee sub-microsecond execution & WASM compatibility
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+overflow-checks = false
