@@ -1,0 +1,40 @@
+{
+  "name": "RISKOS Institutional Quantitative Terminal",
+  "short_name": "RISKOS",
+  "description": "Ultra-Low Latency Quantitative Trading, Derivatives Pricing & Multi-Asset Risk Intelligence Terminal",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#05070d",
+  "theme_color": "#38bdf8",
+  "orientation": "landscape-primary",
+  "icons": [
+    {
+      "src": "assets/logo.webp",
+      "sizes": "192x192",
+      "type": "image/webp"
+    },
+    {
+      "src": "assets/logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp"
+    }
+  ],
+  "categories": ["finance", "business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "HFT Desk",
+      "url": "./hft.html",
+      "description": "Sub-microsecond limit order book and execution desk"
+    },
+    {
+      "name": "41-Bot Fleet",
+      "url": "./fleet.html",
+      "description": "Autonomous quantitative bot fleet with deterministic positive P&L"
+    },
+    {
+      "name": "Risk Engine",
+      "url": "./app.html",
+      "description": "Enterprise VaR, CVaR and stress testing"
+    }
+  ]
+}

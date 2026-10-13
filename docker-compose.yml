@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  riskos-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: riskos_terminal
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
+      - RISKOS_ENV=cluster
+    restart: unless-stopped
+    depends_on:
+      - questdb-tickstore
+      - redis-cache
+
+  questdb-tickstore:
+    image: questdb/questdb:latest
+    container_name: riskos_questdb
+    ports:
+      - "9000:9000" # Web Console & REST
+      - "9009:9009" # InfluxDB Line Protocol
+      - "8812:8812" # Postgres Wire Protocol
+    volumes:
+      - questdb_data:/root/.questdb/db
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis:7-alpine
+    container_name: riskos_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  questdb_data:
+  redis_data:

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: riskos-terminal-deployment
+  labels:
+    app: riskos-terminal
+    tier: institutional-quant
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: riskos-terminal
+  template:
+    metadata:
+      labels:
+        app: riskos-terminal
+    spec:
+      containers:
+      - name: riskos-terminal
+        image: riskos/terminal:v2.0.0
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: riskos-terminal-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: riskos-terminal

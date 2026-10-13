@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="app.css">
     <!-- KaTeX CSS & JS for Real-Time Mathematical Typesetting -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
@@ -98,6 +99,18 @@
 
             <button id="btnLaunchShowcaseTour" class="launch-showcase-btn btn-topbar-action" title="Launch Demo Day Showcase Mode & Guided Replay" style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Showcase
+            </button>
+
+            <button id="btnOpenFixModal" class="open-fix-btn btn-topbar-action" title="Open FIX 4.4 / 5.0 Direct Market Access Gateway" style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">
+                <i class="fa-solid fa-satellite-dish"></i> FIX DMA
+            </button>
+
+            <button id="btnOpenDeepAlphaModal" class="open-deepalpha-btn btn-topbar-action" title="Open Multi-Head Attention Order Flow Predictor" style="background:rgba(192,132,252,0.15); border:1px solid rgba(192,132,252,0.35); color:#c084fc;">
+                <i class="fa-solid fa-brain"></i> Deep Alpha
+            </button>
+
+            <button id="btnOpenCrisisModal" class="open-crisis-btn btn-topbar-action" title="Open Historical Crisis Replay Engine" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#ef4444;">
+                <i class="fa-solid fa-triangle-exclamation"></i> Crisis Replay
             </button>
 
             <button id="btnOpenLiveBrokerModal" class="open-broker-gateway-btn btn-topbar-action" title="Open Live Broker OMS / EMS Gateway" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#ef4444;">
@@ -1872,6 +1885,10 @@
   <script src="pitchDeckGenerator.js"></script>
   <script src="multiWindowManager.js"></script>
   <script src="wasmQuantEngine.js"></script>
+  <script src="fixProtocolClient.js"></script>
+  <script src="webgpuQuantPricer.js"></script>
+  <script src="deepAlphaEngine.js"></script>
+  <script src="columnarTickStore.js"></script>
 </body>
 </html>
 

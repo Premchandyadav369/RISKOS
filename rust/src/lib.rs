@@ -6,11 +6,13 @@ pub mod matching_engine;
 pub mod black_scholes_simd;
 pub mod cvar_optimizer;
 pub mod hawkes;
+pub mod fix_engine;
 
 pub use matching_engine::*;
 pub use black_scholes_simd::*;
 pub use cvar_optimizer::*;
 pub use hawkes::*;
+pub use fix_engine::*;
 
 /// Return semantic version 0x020000 (v2.0.0)
 #[no_mangle]

@@ -1,0 +1,36 @@
+name: RISKOS Institutional CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Audit HTML DOM KaTeX Mathematical Expressions
+      run: node tests/test_all_html_math.js
+
+    - name: Run Native C++ & Rust Integration Suite
+      run: node tests/test_rust_and_cpp_native_engines.js
+
+    - name: Run 41-Bot Fleet Live Profit Tests
+      run: node tests/test_fleet_live_profit.js
+
+    - name: Run Institutional Showcase Suite
+      run: node tests/test_institutional_showcase_expansion.js
+
+    - name: Run Complete Six Pillars Verification Suite
+      run: node tests/test_all_institutional_six_pillars.js
