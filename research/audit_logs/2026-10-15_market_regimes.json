@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-15",
+  "category": "market_regimes",
+  "title": "Hidden Markov Model 3-state transition probability updates",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 340000,
+    "avgLatencyNs": 396,
+    "status": "VERIFIED"
+  }
+}
