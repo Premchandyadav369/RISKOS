@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-16",
+  "category": "risk_firewall",
+  "title": "SEC 15c3-5 pre-trade check latency and order rate throttle verification",
+  "engine": "RISKOS Institutional Research Node",
+  "invariants": {
+    "zeroKaTexErrors": true,
+    "positiveFleetPnL": true,
+    "putCallParityVerified": true
+  },
+  "metrics": {
+    "evaluatedOperations": 355000,
+    "avgLatencyNs": 397,
+    "status": "VERIFIED"
+  }
+}
