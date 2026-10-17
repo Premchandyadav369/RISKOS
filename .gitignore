@@ -17,3 +17,4 @@ scratch/
 .env
 .env.*
 *.env
+audit_findings.json

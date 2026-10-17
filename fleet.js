@@ -2279,6 +2279,7 @@
   const startRealTimeTickerEngine = () => {
     renderTickerStrip();
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       // Pick 2 to 4 random assets to jiggle every second
       const count = 2 + Math.floor(Math.random() * 3);
       for (let i = 0; i < count; i++) {
@@ -5223,6 +5224,7 @@
   // ── Dynamic Multi-Source Sentiment Fluctuation Engine (Every 2.5s) ────────
   function startDynamicSentimentEngine() {
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       // Fluctuate 3 to 5 bots' sentiment scores realistically
       const count = 3 + Math.floor(Math.random() * 3);
       for (let i = 0; i < count; i++) {
@@ -5432,6 +5434,7 @@
 
     // Auto-re-rank in Ranker view every 6s so leaderboard dynamically reflects live fills
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       if (currentViewMode === 'ranker') {
         renderRankerTable();
       }
@@ -5439,6 +5442,7 @@
 
     // Real-Time L2 Order Book & Position Jitter while modal is open
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       if (activeModalBotId && activeModalTab === 'console') {
         const bot = botRegistry.find(b => b.id === activeModalBotId);
         if (bot && bot.activePosition) {

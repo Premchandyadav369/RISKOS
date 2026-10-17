@@ -345,6 +345,7 @@
 
     // Push live BBO data slice every 1000ms
     setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       const isTrade = Math.random() < 0.45;
       const trades = [];
       if (isTrade) {

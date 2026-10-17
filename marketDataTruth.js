@@ -643,11 +643,49 @@
     CRYPTO: ['BINANCE_PUBLIC_24_7', 'COINGECKO_PUBLIC']
   };
 
+  // ── Network Connectivity & Air-Gap Resilience ─────────────────────────────
+  let _isOnline = typeof navigator !== 'undefined' ? navigator.onLine !== false : true;
+
+  function renderNetworkBanner(offline) {
+    if (typeof document === 'undefined') return;
+    let banner = document.getElementById('riskos-network-status-banner');
+    if (offline) {
+      if (!banner) {
+        banner = document.createElement('div');
+        banner.id = 'riskos-network-status-banner';
+        banner.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;background:rgba(234,179,8,0.15);border:1px solid #eab308;color:#fef08a;font-family:monospace;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,0.6);backdrop-filter:blur(8px);display:flex;align-items:center;gap:8px;pointer-events:none;letter-spacing:0.05em;';
+        banner.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#eab308;"></span> OFFLINE AIR-GAP MODE — DETERMINISTIC LOCAL MATH ACTIVE';
+        document.body.appendChild(banner);
+      }
+      banner.style.display = 'flex';
+    } else if (banner) {
+      banner.style.borderColor = '#10b981';
+      banner.style.background = 'rgba(16,185,129,0.15)';
+      banner.style.color = '#a7f3d0';
+      banner.innerHTML = '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;"></span> NETWORK RECONNECTED — SYNCED';
+      setTimeout(() => {
+        if (banner) banner.style.display = 'none';
+      }, 3000);
+    }
+  }
+
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('offline', () => {
+      _isOnline = false;
+      renderNetworkBanner(true);
+    });
+    window.addEventListener('online', () => {
+      _isOnline = true;
+      renderNetworkBanner(false);
+    });
+  }
+
   // ── Public API ─────────────────────────────────────────────────────────────
   const MarketDataTruth = {
     EXCHANGES,
     DATA_STATES,
     MODES,
+    isOnline: () => _isOnline,
     PROVIDER_FALLBACK_CHAINS,
     get activeMode() { return _activeMode; },
     get activeExchange() { return _activeExchange; },
