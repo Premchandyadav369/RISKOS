@@ -208,6 +208,7 @@
       this._updateUIBadges('SYNTHETIC');
 
       this.syntheticTimer = setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return;
         for (const [symKey, quote] of this.latestQuotes.entries()) {
           // High-precision Brownian increment with mean-reverting micro-spread
           const vol = symKey.includes('btc') ? 1.5 : (symKey.includes('eth') ? 0.25 : 0.05);

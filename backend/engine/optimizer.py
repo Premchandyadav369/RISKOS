@@ -251,7 +251,13 @@ def monte_carlo_portfolio_simulation(returns: pd.DataFrame, weights: list[float]
     cov_daily = lw.fit(returns.values).covariance_
     
     np.random.seed(42)
-    simulated_daily_asset_returns = np.random.multivariate_normal(mean_daily, cov_daily, (n_sims, horizon_days))
+    try:
+        simulated_daily_asset_returns = np.random.multivariate_normal(mean_daily, cov_daily, (n_sims, horizon_days), method='eigh')
+    except (ValueError, np.linalg.LinAlgError):
+        eigvals, eigvecs = np.linalg.eigh(cov_daily)
+        eigvals = np.maximum(eigvals, 1e-8)
+        cov_psd = eigvecs @ np.diag(eigvals) @ eigvecs.T
+        simulated_daily_asset_returns = np.random.multivariate_normal(mean_daily, cov_psd, (n_sims, horizon_days))
     
     # Portfolio daily returns shape: (n_sims, horizon_days)
     sim_port_daily = np.dot(simulated_daily_asset_returns, w)

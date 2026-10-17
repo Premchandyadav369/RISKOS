@@ -67,8 +67,14 @@ def calculate_var(
     
     rng = np.random.default_rng(random_seed)
     
-    # 1. Gaussian Monte Carlo
-    sim_returns_gauss = rng.multivariate_normal(mu_assets, cov_matrix, n_sims)
+    # 1. Gaussian Monte Carlo (with PSD covariance matrix regularization)
+    try:
+        sim_returns_gauss = rng.multivariate_normal(mu_assets, cov_matrix, n_sims, method='eigh')
+    except (ValueError, np.linalg.LinAlgError):
+        eigvals, eigvecs = np.linalg.eigh(cov_matrix)
+        eigvals = np.maximum(eigvals, 1e-8)
+        cov_matrix_psd = eigvecs @ np.diag(eigvals) @ eigvecs.T
+        sim_returns_gauss = rng.multivariate_normal(mu_assets, cov_matrix_psd, n_sims)
     sim_port_returns = sim_returns_gauss.dot(weights)
     
     mc_var = float(np.percentile(sim_port_returns, (1 - confidence) * 100))
