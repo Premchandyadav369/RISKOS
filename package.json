@@ -1,0 +1,22 @@
+{
+  "name": "riskos",
+  "version": "2.0.0",
+  "description": "Institutional Quantitative Risk, Derivatives Pricing & Multi-Asset HFT Terminal",
+  "main": "index.html",
+  "scripts": {
+    "test": "node tests/test_all_institutional_six_pillars.js",
+    "test:math": "node tests/test_all_html_math.js",
+    "test:native": "node tests/test_rust_and_cpp_native_engines.js",
+    "test:showcase": "node tests/test_institutional_showcase_expansion.js",
+    "test:fleet": "node tests/test_fleet_live_profit.js",
+    "test:all": "node tests/test_all_html_math.js && node tests/test_rust_and_cpp_native_engines.js && node tests/test_institutional_showcase_expansion.js && node tests/test_fleet_live_profit.js && node tests/test_fleet_beginner_friendly.js && node tests/test_all_institutional_six_pillars.js"
+  },
+  "dependencies": {
+    "katex": "^0.16.11"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}

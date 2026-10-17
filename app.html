@@ -93,45 +93,114 @@
                 <i class="fa-solid fa-volume-high" id="audioIcon"></i>
             </button>
 
-            <button id="btnRunNativeBenchmark" class="run-native-bench-btn btn-topbar-action" title="Run C++/Rust/WASM Performance Benchmark Suite (<1µs)" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#10b981;">
-                <i class="fa-solid fa-microchip"></i> Native Core
-            </button>
-
+            <!-- Showcase Tour Featured Action -->
             <button id="btnLaunchShowcaseTour" class="launch-showcase-btn btn-topbar-action" title="Launch Demo Day Showcase Mode & Guided Replay" style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">
                 <i class="fa-solid fa-wand-magic-sparkles"></i> Showcase
             </button>
 
-            <button id="btnOpenFixModal" class="open-fix-btn btn-topbar-action" title="Open FIX 4.4 / 5.0 Direct Market Access Gateway" style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8;">
-                <i class="fa-solid fa-satellite-dish"></i> FIX DMA
-            </button>
+            <!-- Hub 1: Quant Core Engines Dropdown -->
+            <div class="topbar-hub-dropdown" id="hubQuantCore">
+                <button type="button" class="btn-topbar-action topbar-hub-trigger" id="btnTriggerQuantHub" title="Native C++/Rust, FIX DMA, WebGPU & Deep Alpha Engines" style="background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.3); color:#10b981;">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>Quant Core</span>
+                    <i class="fa-solid fa-chevron-down caret-icon"></i>
+                </button>
+                <div class="topbar-hub-menu">
+                    <div class="hub-menu-header">INSTITUTIONAL QUANT CORE</div>
+                    <button type="button" id="btnRunNativeBenchmark" class="hub-menu-item run-native-bench-btn" title="C++/Rust/WASM Sub-Microsecond Benchmark">
+                        <i class="fa-solid fa-microchip" style="color:#10b981;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Native Core Benchmark</div>
+                            <div class="hub-item-sub">C++20 & Rust L3 Engine (&lt;1µs)</div>
+                        </div>
+                        <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">&lt;1µs</span>
+                    </button>
+                    <button type="button" id="btnOpenFixModal" class="hub-menu-item open-fix-btn" title="FIX Protocol 4.4 / 5.0 Direct Market Access">
+                        <i class="fa-solid fa-satellite-dish" style="color:#38bdf8;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">FIX 4.4 / 5.0 DMA</div>
+                            <div class="hub-item-sub">Direct Market Access & Wire Trace</div>
+                        </div>
+                        <span class="hub-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.3);">DMA</span>
+                    </button>
+                    <button type="button" id="btnOpenDeepAlphaModal" class="hub-menu-item open-deepalpha-btn" title="Multi-Head Attention Order Flow Forecast">
+                        <i class="fa-solid fa-brain" style="color:#c084fc;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Deep Alpha Transformer</div>
+                            <div class="hub-item-sub">Order Flow Attention & Avellaneda MM</div>
+                        </div>
+                        <span class="hub-badge" style="color:#c084fc; border-color:rgba(192,132,252,0.3);">AI</span>
+                    </button>
+                    <button type="button" id="btnOpenWebGpuModal" class="hub-menu-item open-webgpu-btn" title="WebGPU Parallel Monte Carlo Simulator">
+                        <i class="fa-solid fa-bolt" style="color:#fbbf24;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">WebGPU Monte Carlo</div>
+                            <div class="hub-item-sub">Parallel GPU Compute (17M+ paths/s)</div>
+                        </div>
+                        <span class="hub-badge" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);">GPU</span>
+                    </button>
+                    <button type="button" id="btnOpenCrisisModal" class="hub-menu-item open-crisis-btn" title="Historical Crisis Replay Engine">
+                        <i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Crisis Replay Lab</div>
+                            <div class="hub-item-sub">2020 / 2010 / 2008 Columnar Ticks</div>
+                        </div>
+                        <span class="hub-badge" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">REPLAY</span>
+                    </button>
+                </div>
+            </div>
 
-            <button id="btnOpenDeepAlphaModal" class="open-deepalpha-btn btn-topbar-action" title="Open Multi-Head Attention Order Flow Predictor" style="background:rgba(192,132,252,0.15); border:1px solid rgba(192,132,252,0.35); color:#c084fc;">
-                <i class="fa-solid fa-brain"></i> Deep Alpha
-            </button>
-
-            <button id="btnOpenCrisisModal" class="open-crisis-btn btn-topbar-action" title="Open Historical Crisis Replay Engine" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#ef4444;">
-                <i class="fa-solid fa-triangle-exclamation"></i> Crisis Replay
-            </button>
-
-            <button id="btnOpenLiveBrokerModal" class="open-broker-gateway-btn btn-topbar-action" title="Open Live Broker OMS / EMS Gateway" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#ef4444;">
-                <i class="fa-solid fa-satellite-dish"></i> Broker OMS
-            </button>
-
-            <button id="btnOpenVolStudio" class="open-vol-studio-btn btn-topbar-action" title="Open 3D Volatility Surface Studio" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#10b981;">
-                <i class="fa-solid fa-cube"></i> 3D Vol
-            </button>
-
-            <button id="btnGeneratePitchDeck" class="generate-pitchdeck-btn btn-topbar-action" title="Generate 5-Slide LP Pitch Deck (PDF)">
-                <i class="fa-solid fa-file-powerpoint text-cyan"></i> Pitch Deck
-            </button>
-
-            <button id="btnMultiWindowLayout" class="open-multi-window-btn btn-topbar-action" title="Multi-Monitor Tiled Layout Studio">
-                <i class="fa-solid fa-display"></i> Multi-Window
-            </button>
-
-            <button id="btnExportTearSheet" class="btn-topbar-action" title="Export Quant Tear Sheet PDF">
-                <i class="fa-solid fa-file-invoice"></i> Tear Sheet
-            </button>
+            <!-- Hub 2: Desks & Trading Ops Dropdown -->
+            <div class="topbar-hub-dropdown" id="hubDesksOps">
+                <button type="button" class="btn-topbar-action topbar-hub-trigger" id="btnTriggerDesksHub" title="Live Broker OMS, 3D Vol, Multi-Window & Reports" style="background:rgba(56,189,248,0.12); border-color:rgba(56,189,248,0.3); color:#38bdf8;">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>Desks & Ops</span>
+                    <i class="fa-solid fa-chevron-down caret-icon"></i>
+                </button>
+                <div class="topbar-hub-menu">
+                    <div class="hub-menu-header">TRADING OPERATIONS & TOOLS</div>
+                    <button type="button" id="btnOpenLiveBrokerModal" class="hub-menu-item open-broker-gateway-btn" title="Live Broker OMS / EMS Gateway">
+                        <i class="fa-solid fa-tower-broadcast" style="color:#ef4444;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Live Broker OMS/EMS</div>
+                            <div class="hub-item-sub">Zerodha, Angel, IBKR, Binance</div>
+                        </div>
+                        <span class="hub-badge" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">OMS</span>
+                    </button>
+                    <button type="button" id="btnOpenVolStudio" class="hub-menu-item open-vol-studio-btn" title="3D Volatility Surface Studio">
+                        <i class="fa-solid fa-cube" style="color:#10b981;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">3D Vol Surface Studio</div>
+                            <div class="hub-item-sub">SABR, SVI, Heston & Dupire</div>
+                        </div>
+                        <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">3D</span>
+                    </button>
+                    <button type="button" id="btnMultiWindowLayout" class="hub-menu-item open-multi-window-btn" title="Multi-Monitor Tiled Layout Studio">
+                        <i class="fa-solid fa-display" style="color:#38bdf8;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Multi-Monitor Layout</div>
+                            <div class="hub-item-sub">Quad Wall Bloomberg Setup</div>
+                        </div>
+                        <span class="hub-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.3);">WALL</span>
+                    </button>
+                    <button type="button" id="btnGeneratePitchDeck" class="hub-menu-item generate-pitchdeck-btn" title="Generate 5-Slide LP Pitch Deck">
+                        <i class="fa-solid fa-file-powerpoint" style="color:#fbbf24;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">LP Pitch Deck PDF</div>
+                            <div class="hub-item-sub">5-Slide Executive Due Diligence</div>
+                        </div>
+                        <span class="hub-badge" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);">DECK</span>
+                    </button>
+                    <button type="button" id="btnExportTearSheet" class="hub-menu-item" title="Export Quant Tear Sheet PDF">
+                        <i class="fa-solid fa-file-invoice" style="color:#a855f7;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Quant Tear Sheet</div>
+                            <div class="hub-item-sub">Printable Risk & Factor Sheet</div>
+                        </div>
+                        <span class="hub-badge" style="color:#a855f7; border-color:rgba(168,85,247,0.3);">PDF</span>
+                    </button>
+                </div>
+            </div>
 
             <!-- Workspaces Institutional Dropdown -->
             <div class="topbar-workspaces-dropdown" id="topbarWorkspacesDropdown">
@@ -1844,19 +1913,33 @@
   <script>
     // Topbar Workspaces Dropdown & Profile Hydration
     document.addEventListener('DOMContentLoaded', () => {
-      const trigger = document.getElementById('btnWorkspacesTrigger');
-      const dropdown = document.getElementById('topbarWorkspacesDropdown');
-      if (trigger && dropdown) {
-        trigger.addEventListener('click', (e) => {
-          e.stopPropagation();
-          dropdown.classList.toggle('open');
+      // Topbar Hub Dropdowns (Quant Core, Desks & Ops, Workspaces)
+      const allDropdowns = document.querySelectorAll('.topbar-hub-dropdown, .topbar-workspaces-dropdown');
+      allDropdowns.forEach(dd => {
+        const trigger = dd.querySelector('.topbar-hub-trigger, .btn-workspaces-trigger');
+        if (trigger) {
+          trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = dd.classList.contains('open');
+            allDropdowns.forEach(other => other.classList.remove('open'));
+            if (!isOpen) dd.classList.add('open');
+          });
+        }
+        // Auto-close dropdown when any inner action is clicked
+        dd.querySelectorAll('.hub-menu-item, .workspace-item').forEach(item => {
+          item.addEventListener('click', () => {
+            dd.classList.remove('open');
+          });
         });
-        document.addEventListener('click', (e) => {
-          if (!dropdown.contains(e.target)) {
-            dropdown.classList.remove('open');
+      });
+
+      document.addEventListener('click', (e) => {
+        allDropdowns.forEach(dd => {
+          if (!dd.contains(e.target)) {
+            dd.classList.remove('open');
           }
         });
-      }
+      });
 
       // Profile Hydration from authenticated session
       try {

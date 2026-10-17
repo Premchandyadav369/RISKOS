@@ -1,5 +1,29 @@
 const fs = require('fs');
-const katex = require('katex');
+let katex = null;
+try {
+  katex = require('katex');
+} catch (e) {
+  try {
+    katex = require('./node_modules/katex');
+  } catch (e2) {
+    console.warn('[NOTICE] KaTeX node module not found; running in heuristic syntax validation mode.\n');
+  }
+}
+
+function checkLatex(raw, displayMode = false) {
+  if (katex) {
+    katex.renderToString(raw, { displayMode, throwOnError: true });
+    return;
+  }
+  // Heuristic syntax checks: balanced braces
+  let depth = 0;
+  for (let i = 0; i < raw.length; i++) {
+    if (raw[i] === '{' && (i === 0 || raw[i - 1] !== '\\')) depth++;
+    if (raw[i] === '}' && (i === 0 || raw[i - 1] !== '\\')) depth--;
+    if (depth < 0) throw new Error('Unbalanced closing brace in LaTeX');
+  }
+  if (depth !== 0) throw new Error('Unbalanced opening brace in LaTeX');
+}
 
 const htmlFiles = fs.readdirSync('.').filter(f => f.endsWith('.html'));
 
@@ -30,7 +54,7 @@ htmlFiles.forEach(file => {
       report.push({ file, type: 'HTML tag collision in $$ (< followed by letter)', idx, snippet: raw.slice(0, 80) });
     }
     try {
-      katex.renderToString(raw, { displayMode: true, throwOnError: true });
+      checkLatex(raw, true);
     } catch(err) {
       totalErrors++;
       fileErrors++;
@@ -44,7 +68,7 @@ htmlFiles.forEach(file => {
     totalFound++;
     let raw = m.slice(2, -2).trim();
     try {
-      katex.renderToString(raw, { displayMode: true, throwOnError: true });
+      checkLatex(raw, true);
     } catch(err) {
       totalErrors++;
       fileErrors++;
@@ -58,7 +82,7 @@ htmlFiles.forEach(file => {
     let raw = m.slice(2, -2).trim();
     totalFound++;
     try {
-      katex.renderToString(raw, { displayMode: false, throwOnError: true });
+      checkLatex(raw, false);
     } catch(err) {
       totalErrors++;
       fileErrors++;

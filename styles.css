@@ -4529,6 +4529,149 @@ button, select, input {
   transform: translateY(-1px);
 }
 
+/* ── Institutional Topbar Hub Dropdowns (Quant Core, Desks & Ops) ────────── */
+.topbar-hub-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.topbar-hub-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  color: #e4e4e7;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.topbar-hub-trigger:hover,
+.topbar-hub-dropdown.open .topbar-hub-trigger {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+}
+
+.topbar-hub-trigger .caret-icon {
+  font-size: 0.6rem;
+  color: #71717a;
+  transition: transform 0.2s;
+  margin-left: 2px;
+}
+
+.topbar-hub-dropdown.open .topbar-hub-trigger .caret-icon {
+  transform: rotate(180deg);
+  color: #fff;
+}
+
+.topbar-hub-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 290px;
+  background: #090b10;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.08);
+  padding: 6px;
+  display: none;
+  z-index: 1200;
+  backdrop-filter: blur(24px);
+}
+
+.topbar-hub-dropdown.open .topbar-hub-menu {
+  display: block;
+  animation: fadeInHubMenu 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInHubMenu {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.hub-menu-header {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #71717a;
+  letter-spacing: 0.08em;
+  padding: 6px 10px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 4px;
+}
+
+.hub-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #e4e4e7;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 2px;
+  box-sizing: border-box;
+}
+
+.hub-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.hub-menu-item i {
+  width: 20px;
+  font-size: 0.85rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.hub-item-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.hub-item-title {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #f4f4f5;
+  line-height: 1.25;
+}
+
+.hub-item-sub {
+  font-size: 0.65rem;
+  color: #71717a;
+  line-height: 1.2;
+  margin-top: 1px;
+}
+
+.hub-menu-item:hover .hub-item-sub {
+  color: #a1a1aa;
+}
+
+.hub-badge {
+  margin-left: auto;
+  font-size: 0.58rem;
+  font-weight: 800;
+  padding: 2px 5px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+
 
 
 
