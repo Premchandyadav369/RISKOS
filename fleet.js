@@ -507,6 +507,7 @@
       strategyType: 'Optimal Execution & Smart Routing',
       mathFormula: String.raw`x_j = \frac{\sinh(\kappa (T - t_j))}{\sinh(\kappa T)} X, \quad \kappa \approx \sqrt{\frac{\lambda \sigma^2}{\eta}}`,
       tier: 'S-TIER',
+      proprietaryAlgo: 'DK-Shield',
       sentimentSource: 'Nasdaq Institutional Dark Pool Flow',
       sentimentScore: +0.62,
       sentimentRegime: 'INSTITUTIONAL_ACCUMULATION',
@@ -843,6 +844,7 @@
       strategyType: 'Macro Dual-Momentum Trend',
       mathFormula: String.raw`w_i = \frac{\sigma_{\text{target}}}{\sigma_i \cdot N} \cdot \text{sgn}(P_t - \text{EMA}_{100})`,
       tier: 'A-TIER',
+      proprietaryAlgo: 'F-Shrink',
       sentimentSource: 'Sovereign Yield Differential (US vs IN)',
       sentimentScore: +0.48,
       sentimentRegime: 'CARRY_TREND',
@@ -969,6 +971,7 @@
       strategyType: 'Solar Momentum Volatility Dispersion',
       mathFormula: String.raw`\text{Dispersion} = \sigma_{\text{Index}} - \sum_{i=1}^N w_i \sigma_i \cdot \sqrt{1 - \bar{\rho}}`,
       tier: 'S-TIER',
+      proprietaryAlgo: 'HS-JAMM',
       sentimentSource: 'Options 25Δ Risk Reversal & Solar Cycle Skew',
       sentimentScore: +0.48,
       sentimentRegime: 'SOLAR_EXPANSION',
@@ -1281,6 +1284,7 @@
       strategyType: 'High-Frequency Passive Market Quoting',
       mathFormula: String.raw`r(s, q, t) = s - q \gamma \sigma^2 (T - t), \quad \delta^a + \delta^b = \gamma \sigma^2 (T - t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)`,
       tier: 'S-TIER',
+      proprietaryAlgo: 'SE-MicroPrice',
       sentimentSource: 'Defense Ministry Acquisition Council (DAC) Contract Orders',
       sentimentScore: +0.82,
       sentimentRegime: 'FALCON_EYE_OFI',
@@ -3484,6 +3488,10 @@
                     <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
                   </span>
                 </span>
+                ${bot.proprietaryAlgo ? `
+                <span style="font-size:0.6rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; background:rgba(217,70,239,0.22); color:#f0abfc; border:1px solid rgba(217,70,239,0.5); display:inline-flex; align-items:center; gap:4px;" title="Proprietary In-House Quant Algorithm">
+                  <i class="fa-solid fa-atom"></i> ${bot.proprietaryAlgo}
+                </span>` : ''}
               </div>
 
               <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">
@@ -3628,6 +3636,10 @@
                   <i class="fa-solid ${bot.activePosition ? 'fa-crosshairs' : 'fa-radar'}"></i> ${bot.activePosition ? 'IN POSITION' : 'SCANNING'}
                 </span>
               </span>
+              ${bot.proprietaryAlgo ? `
+              <span style="font-size:0.6rem; font-weight:800; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono', monospace; background:rgba(217,70,239,0.22); color:#f0abfc; border:1px solid rgba(217,70,239,0.5); display:inline-flex; align-items:center; gap:4px;" title="Proprietary In-House Quant Algorithm">
+                <i class="fa-solid fa-atom"></i> ${bot.proprietaryAlgo}
+              </span>` : ''}
             </div>
 
             <div class="myth-badge ${pantheonCls}" style="margin-top:6px;">

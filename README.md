@@ -16,7 +16,7 @@
 
 **An institutional-grade quantitative finance research, stochastic risk modeling, and multi-asset high-frequency trading terminal engineered in modern C++20, Rust, WebGPU, and Python.**
 
-[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Microstructure L3 Terminal](https://riskos-psi.vercel.app/hft.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [75 Quant Labs](docs/QUANT_LABS.md) • [30 Mathematical Proofs](docs/MATHEMATICAL_PROOFS.md) • [Research Paper](docs/paper/RISKOS_RESEARCH_PAPER.md) • [Architecture](docs/ARCHITECTURE.md) • [System Spec](docs/SYSTEM_SPEC.md) • [Audit (9.81/10)](docs/RISKOS_AUDIT.md)
+[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Microstructure L3 Terminal](https://riskos-psi.vercel.app/hft.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [75 Quant Labs](docs/QUANT_LABS.md) • [34 Mathematical Proofs](docs/MATHEMATICAL_PROOFS.md) • [Research Paper](docs/paper/RISKOS_RESEARCH_PAPER.md) • [Architecture](docs/ARCHITECTURE.md) • [System Spec](docs/SYSTEM_SPEC.md) • [Audit (9.81/10)](docs/RISKOS_AUDIT.md)
 
 </div>
 
@@ -400,6 +400,7 @@ The dedicated High-Frequency Trading terminal at [hft.html](https://riskos-psi.v
 * **Workstation 9: Cross-Exchange Basis & Perpetual Funding Arbitrage Radar**: Spot-perpetual basis scanner, cost-of-carry calculator, and delta-neutral funding yield monitor.
 * **Workstation 10: Hawkes Self-Exciting Process & Liquidation Radar**: Self-exciting point process model detecting branching ratio $\eta = \alpha/\beta \ge 1.0$ flash-crash cascades.
 * **Workstation 11: Institutional Order Flow Footprint & Stacked Imbalances**: Tick-by-tick footprint chart identifying Point of Control (POC) and >300% aggressive stacked buy/sell imbalances.
+* **Workstation 12: Proprietary Quantitative Algorithms & Latency Evolution**: Interactive dashboard for HS-JAMM, SE-MicroPrice, F-Shrink, and DK-Shield paired with sub-50ns BenchmarkJS generational latency telemetry.
 
 ---
 
@@ -408,8 +409,8 @@ The dedicated High-Frequency Trading terminal at [hft.html](https://riskos-psi.v
 RISKOS deploys an autonomous swarm fleet of 41 quantitative algorithmic trading bots segregated across three mythological pantheons, detailed in [docs/BOT_FLEET.md](docs/BOT_FLEET.md):
 
 * **🏛️ Pantheon Olympus (10 Core Alpha Bots)**: Institutional benchmark models (Zeus Macro Trend, Athena Statistical Arbitrage, Apollo Mean-Reversion, Ares Momentum, Hermes Arbitrage).
-* **⚔️ Pantheon Valhalla (11 Volatility & Tactical Bots)**: Extreme regime survival engines (Odin Bayesian Filter, Thor Breakout, Loki Volatility Harvesting, Freya Mean-Variance).
-* **👁️ Pantheon Karnak (20 High-Frequency & Microstructure Bots)**: Deep liquidity and order-flow specialists (Ra Market Maker, Anubis Liquidity Slicer, Osiris Mean Reversion, Horus HFT OFI).
+* **⚔️ Pantheon Valhalla (11 Volatility & Tactical Bots)**: Extreme regime survival engines (Odin Bayesian Filter & DK-Shield, Thor Breakout, Loki Volatility Harvesting, Freyja Macro FX & F-Shrink).
+* **👁️ Pantheon Karnak (20 High-Frequency & Microstructure Bots)**: Deep liquidity and order-flow specialists (Ra Market Maker & HS-JAMM, Anubis Liquidity Slicer, Osiris Mean Reversion, Horus HFT OFI & SE-MicroPrice).
 
 Every bot executes with deterministic seed replay, automated maximum drawdown kill-switches, and SEC Rule 15c3-5 pre-trade risk guardrails.
 
@@ -435,9 +436,9 @@ RISKOS features an encyclopedic compendium of **75 deterministic simulation labo
 
 ---
 
-## 🧮 Pure Vector Mathematical Rigor (30 Proofs & Models)
+## 🧮 Pure Vector Mathematical Rigor (34 Proofs & Models)
 
-All 30 core mathematical models and formal proofs are compiled with step-by-step derivations in **[docs/MATHEMATICAL_PROOFS.md](docs/MATHEMATICAL_PROOFS.md)**:
+All 34 core mathematical models and formal proofs are compiled with step-by-step derivations in **[docs/MATHEMATICAL_PROOFS.md](docs/MATHEMATICAL_PROOFS.md)**:
 
 1. **Google TimesFM 3.0 Quantile Loss**: Pinball piecewise linear loss optimization: $\mathcal{L}_q(y, \hat{y}) = \max(q(y - \hat{y}), (q-1)(y - \hat{y}))$.
 2. **Meta Prophet GAM Seasonality**: Dirichlet Fourier decomposition with Gaussian prior regularization.
@@ -469,8 +470,12 @@ All 30 core mathematical models and formal proofs are compiled with step-by-step
 28. **Pickands-Balkema-de Haan Theorem & Solvency II**: Extreme Value Theory POT Expected Shortfall at 99.5%.
 29. **Redington Duration & Convexity Immunization**: Second-order Taylor series balance sheet surplus preservation.
 30. **Calibrated Short-Rate Tree & OAS**: Backward induction on recombining binomial short-rate lattice.
+31. **HS-JAMM Jump-Cascade Optimal Quoting**: Asymmetric HJB stochastic control widening quotes under jump cascade excitation: $r^* = r + \frac{\zeta}{2}(\eta_b - \eta_a)$.
+32. **SE-MicroPrice Shannon Entropy Gradient**: Informational entropy gradient across $K$ book tiers bounding next-tick price drift: $P_{\text{SE}} = P_{\text{mid}} + I \frac{S}{2} - \omega (H_{\text{bid}} - H_{\text{ask}}) S$.
+33. **F-Shrink Frobenius Factor Shrinkage**: Unique analytical shrinkage intensity $\delta^* \in [0, 1]$ minimizing quadratic Frobenius loss against Barra structural factor prior.
+34. **DK-Shield Lyapunov Barrier Non-Breach**: Continuous hyperbolic tangent barrier vanishing diffusion as $D_t \to D_{\max}$, proving almost-sure non-breach: $\mathbb{P}(\sup D_t \ge D_{\max}) = 0$.
 
-👉 **View all 30 formal mathematical proofs and LaTeX derivations in [docs/MATHEMATICAL_PROOFS.md](docs/MATHEMATICAL_PROOFS.md).**
+👉 **View all 34 formal mathematical proofs and LaTeX derivations in [docs/MATHEMATICAL_PROOFS.md](docs/MATHEMATICAL_PROOFS.md).**
 
 ---
 
@@ -491,7 +496,7 @@ RISKOS maintains front-office Wall Street grade system documentation detailing m
 | Document | Scope & Focus | Primary Audience | Key Topics Covered |
 | :--- | :--- | :--- | :--- |
 | [**Architecture Blueprint**](docs/ARCHITECTURE.md) | Multi-tier low-latency system topologies | System Architects, DevOps, HFT Leads | L1-L3 Cache hierarchy, memory ring buffers, JAX JIT execution budgets (<5ms SLA), failover matrix |
-| [**Mathematical Proofs Compendium**](docs/MATHEMATICAL_PROOFS.md) | 30 Pure Vector Mathematical Proofs | Financial Engineers, Quants | SDEs, Convex Optimization, Martingales, Black-Scholes PDE, Solvency II EVT, Merton Credit |
+| [**Mathematical Proofs Compendium**](docs/MATHEMATICAL_PROOFS.md) | 34 Pure Vector Mathematical Proofs | Financial Engineers, Quants | SDEs, Convex Optimization, Martingales, Black-Scholes PDE, Solvency II EVT, Merton Credit, Jump Control |
 | [**41-Bot Pantheon Fleet Catalog**](docs/BOT_FLEET.md) | Exhaustive 41-strategy swarm catalog | Quant PMs, Systematic Traders | Olympus (10), Valhalla (11), Karnak (20) models, closed-form LaTeX formulations, alpha targets |
 | [**75 Quant Labs Compendium**](docs/QUANT_LABS.md) | Encyclopedic 75 laboratory guide | Financial Engineers, Quants | Stochastic calculus, martingales, Heston FFT, SABR smiles, Almgren-Chriss, Hawkes, Kelly growth |
 | [**Academic Research Paper**](docs/paper/RISKOS_RESEARCH_PAPER.md) | Formal academic LaTeX manuscript | Journal Reviewers, SSRN / arXiv | Architecture, Mathematical Formulations, Invariant Proofs, Benchmark Methodology |

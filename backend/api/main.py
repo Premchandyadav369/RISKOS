@@ -68,6 +68,9 @@ from engine.model_validation import (
     var_duration_test, comprehensive_risk_validation, stationary_block_bootstrap
 )
 from engine.providers.alpha_vantage_news import alpha_vantage_provider
+from engine.proprietary_algorithms import (
+    compute_hs_jamm, compute_se_microprice, compute_factor_shrinkage, compute_dk_shield
+)
 
 app = FastAPI(
     title="RISKOS Dynamic Financial Intelligence & Portfolio Optimization API",
@@ -1457,4 +1460,117 @@ def api_market_news_feed(
 def api_news_health():
     """Returns real-time provider telemetry and health status for Alpha Vantage."""
     return alpha_vantage_provider.get_health()
+
+
+# ============================================================================
+# PROPRIETARY QUANTITATIVE ALGORITHMS ENDPOINTS (PROOFS #31 - #34)
+# ============================================================================
+
+@app.get("/api/quant/hs-jamm")
+def api_quant_hs_jamm(
+    spot: float = Query(1210.0, description="Spot price"),
+    inventory: int = Query(0, description="Current signed inventory in contracts"),
+    sigma: float = Query(0.25, description="Annualized volatility"),
+    gamma: float = Query(0.10, description="Risk aversion coefficient"),
+    kappa: float = Query(1.5, description="Order arrival intensity"),
+    jump_intensity_bid: float = Query(0.8, description="Hawkes buy jump intensity eta_b"),
+    jump_intensity_ask: float = Query(0.2, description="Hawkes sell jump intensity eta_a")
+):
+    """Hawkes-Stoikov Jump-Aware Market Maker (Proof #31)."""
+    try:
+        return {
+            "success": True,
+            "algorithm": "HS-JAMM",
+            "proof": "Proof #31: Hawkes-Stoikov Jump-Aware Market Maker",
+            "data": compute_hs_jamm(
+                spot=spot,
+                inventory=inventory,
+                sigma=sigma,
+                gamma=gamma,
+                kappa=kappa,
+                jump_intensity_bid=jump_intensity_bid,
+                jump_intensity_ask=jump_intensity_ask
+            )
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/quant/se-microprice")
+def api_quant_se_microprice(
+    mid: float = Query(1210.0, description="Mid price"),
+    spread: float = Query(0.50, description="Touch bid-ask spread"),
+    omega: float = Query(0.15, description="Entropy sensitivity weight"),
+    bids: Optional[str] = Query("5000,3000,1500,800,400", description="Comma-separated tier bid volumes"),
+    asks: Optional[str] = Query("2000,4000,2500,1200,600", description="Comma-separated tier ask volumes")
+):
+    """Shannon-Entropy L3 Queue Micro-Price (Proof #32)."""
+    try:
+        b_list = [float(x.strip()) for x in bids.split(",") if x.strip()] if bids else [5000.0, 3000.0, 1500.0, 800.0, 400.0]
+        a_list = [float(x.strip()) for x in asks.split(",") if x.strip()] if asks else [2000.0, 4000.0, 2500.0, 1200.0, 600.0]
+        return {
+            "success": True,
+            "algorithm": "SE-MicroPrice",
+            "proof": "Proof #32: Shannon-Entropy L3 Queue Micro-Price",
+            "data": compute_se_microprice(
+                mid=mid,
+                bids=b_list,
+                asks=a_list,
+                spread=spread,
+                omega=omega
+            )
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/quant/f-shrink")
+def api_quant_f_shrink(
+    n_assets: int = Query(5, description="Number of assets in universe"),
+    sample_corr_mean: float = Query(0.55, description="Empirical sample correlation mean"),
+    factor_explained_ratio: float = Query(0.72, description="Variance explained by Barra factor prior"),
+    n_obs: int = Query(252, description="Sample observation days")
+):
+    """Barra Structural Factor-Shrunk Ledoit-Wolf Covariance (Proof #33)."""
+    try:
+        return {
+            "success": True,
+            "algorithm": "F-Shrink",
+            "proof": "Proof #33: Barra Structural Factor-Shrunk Covariance",
+            "data": compute_factor_shrinkage(
+                n_assets=n_assets,
+                sample_corr_mean=sample_corr_mean,
+                factor_explained_ratio=factor_explained_ratio,
+                n_obs=n_obs
+            )
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/quant/dk-shield")
+def api_quant_dk_shield(
+    kelly_fraction: float = Query(1.0, description="Unconstrained Kelly fraction"),
+    current_drawdown: float = Query(0.08, description="Current portfolio drawdown (0.0 to 1.0)"),
+    max_drawdown: float = Query(0.15, description="Maximum allowable drawdown barrier limit"),
+    cvar_99: float = Query(0.045, description="Portfolio 99% CVaR tail risk"),
+    volatility: float = Query(0.18, description="Annualized portfolio volatility")
+):
+    """Dynamic Kelly-CVaR Hyperbolic Drawdown Shield (Proof #34)."""
+    try:
+        return {
+            "success": True,
+            "algorithm": "DK-Shield",
+            "proof": "Proof #34: Dynamic Kelly-CVaR Hyperbolic Drawdown Shield",
+            "data": compute_dk_shield(
+                kelly_fraction=kelly_fraction,
+                current_drawdown=current_drawdown,
+                max_drawdown=max_drawdown,
+                cvar_99=cvar_99,
+                volatility=volatility
+            )
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 
