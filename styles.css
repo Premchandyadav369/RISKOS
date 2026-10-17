@@ -4671,6 +4671,20 @@ button, select, input {
   flex-shrink: 0;
 }
 
+/* KaTeX selection bug fix: prevent hidden MathML from duplicating into clipboard */
+.katex-mathml {
+  position: absolute !important;
+  clip: rect(1px, 1px, 1px, 1px) !important;
+  padding: 0 !important;
+  border: 0 !important;
+  height: 1px !important;
+  width: 1px !important;
+  overflow: hidden !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+
+
 
 
 

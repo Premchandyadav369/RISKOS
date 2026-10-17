@@ -226,6 +226,14 @@
       <a href="#ws-basis" class="hft-jump-link highlight"><i class="fa-solid fa-arrow-right-arrow-left"></i> 9. Basis & Funding Radar</a>
       <a href="#ws-hawkes" class="hft-jump-link highlight"><i class="fa-solid fa-fire"></i> 10. Hawkes Cascade Radar</a>
       <a href="#ws-footprint" class="hft-jump-link highlight"><i class="fa-solid fa-chart-column"></i> 11. Order Flow Footprint</a>
+      <div class="hft-mode-switcher">
+        <button type="button" id="btnHftProMode" class="hft-mode-btn active" title="High-density real-time order execution layout (hides tutorial text)">
+          <i class="fa-solid fa-terminal" style="color:#00f0ff;"></i> PRO DESK
+        </button>
+        <button type="button" id="btnHftTheoryMode" class="hft-mode-btn" title="Expand Microstructure SDEs and Mathematical Formulations">
+          <i class="fa-solid fa-graduation-cap" style="color:#fbbf24;"></i> THEORY &amp; SDEs
+        </button>
+      </div>
     </nav>
 
     <!-- ── 4-Module Institutional Workstation Grid ────────────────────────── -->
@@ -303,6 +311,12 @@
             </button>
             <button id="btnDomSellMkt" class="hft-btn-dom hft-btn-dom-sell" title="Instant Market Sell Order">
               <i class="fa-solid fa-arrow-down"></i> SELL MKT
+            </button>
+            <button id="btnDomCancelAll" class="hft-btn-dom hft-btn-dom-cancel" title="Cancel All Active Working Orders">
+              <i class="fa-solid fa-xmark"></i> CANCEL ALL
+            </button>
+            <button id="btnDomFlatten" class="hft-btn-dom hft-btn-dom-flatten" title="Flatten Net Inventory Position">
+              <i class="fa-solid fa-hand-holding-dollar"></i> FLATTEN
             </button>
           </div>
         </div>

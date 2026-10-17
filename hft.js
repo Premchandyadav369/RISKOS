@@ -861,6 +861,74 @@
       });
     }
 
+    // Cancel All Orders Button
+    const btnCancelAll = document.getElementById('btnDomCancelAll');
+    if (btnCancelAll) {
+      btnCancelAll.addEventListener('click', () => {
+        state.userQueueOrder = null;
+        updateQueueDisplay();
+        renderL3DOMLadder();
+        SoundFX.playTone(440, 'sawtooth', 0.1, 0.08);
+      });
+    }
+
+    // Flatten Position Button
+    const btnFlatten = document.getElementById('btnDomFlatten');
+    if (btnFlatten) {
+      btnFlatten.addEventListener('click', () => {
+        if (state.asInventory !== 0) {
+          const side = state.asInventory > 0 ? 'SELL' : 'BUY';
+          const qty = Math.abs(state.asInventory);
+          executeDomOrder(side, qty);
+          state.asInventory = 0;
+          updateAvellanedaStoikovQuotes();
+        }
+      });
+    }
+
+    // Pro Desk View vs Theory & SDE Mode Switcher
+    const btnPro = document.getElementById('btnHftProMode');
+    const btnTheory = document.getElementById('btnHftTheoryMode');
+    if (btnPro && btnTheory) {
+      btnPro.addEventListener('click', () => {
+        document.body.classList.remove('hft-theory-mode');
+        btnPro.classList.add('active');
+        btnTheory.classList.remove('active');
+      });
+      btnTheory.addEventListener('click', () => {
+        document.body.classList.add('hft-theory-mode');
+        btnTheory.classList.add('active');
+        btnPro.classList.remove('active');
+      });
+    }
+
+    // Individual Card Math Header Click to Toggle Theory
+    document.querySelectorAll('.hft-math-header').forEach(header => {
+      header.setAttribute('title', 'Click to toggle quantitative theory & SDE derivation');
+      header.addEventListener('click', () => {
+        const box = header.closest('.hft-math-box');
+        if (box) box.classList.toggle('is-open');
+      });
+    });
+
+    // Zero-Click Live WebSocket Market Feed Connection
+    if (typeof window !== 'undefined' && window.liveWebSocketStream) {
+      window.liveWebSocketStream.on('bookTicker', (quote) => {
+        if (!quote) return;
+        if (state.symbol.includes('BTC') || state.symbol.includes('USD') || quote.symbol.toLowerCase() === 'btcusdt') {
+          state.bestBid = quote.bidPrice;
+          state.bestAsk = quote.askPrice;
+          state.midPrice = quote.midPrice;
+          state.spread = quote.spread;
+          state.livePrice = quote.midPrice;
+          state.microPrice = (quote.bidPrice * quote.askQty + quote.askPrice * quote.bidQty) / (quote.bidQty + quote.askQty);
+          renderL3DOMLadder();
+          updateMicroPriceRadar();
+          updateAvellanedaStoikovQuotes();
+        }
+      });
+    }
+
     // Workstation 5: Tape Filter Buttons
     const filterBtns = document.querySelectorAll('.hft-filter-btn');
     filterBtns.forEach(btn => {
