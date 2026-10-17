@@ -7,12 +7,18 @@ pub mod black_scholes_simd;
 pub mod cvar_optimizer;
 pub mod hawkes;
 pub mod fix_engine;
+pub mod spsc_queue;
+pub mod itch50;
+pub mod stochastic_vol;
 
 pub use matching_engine::*;
 pub use black_scholes_simd::*;
 pub use cvar_optimizer::*;
 pub use hawkes::*;
 pub use fix_engine::*;
+pub use spsc_queue::*;
+pub use itch50::*;
+pub use stochastic_vol::*;
 
 /// Return semantic version 0x020000 (v2.0.0)
 #[no_mangle]
@@ -232,3 +238,34 @@ pub extern "C" fn riskos_book_spread(ptr: *const LimitOrderBook) -> u32 {
         (*ptr).spread_ticks().unwrap_or(0)
     }
 }
+
+/// Extern "C" Hagan SABR Implied Volatility
+#[no_mangle]
+pub extern "C" fn riskos_sabr_vol(
+    f: f64,
+    k: f64,
+    t: f64,
+    alpha: f64,
+    beta: f64,
+    rho: f64,
+    nu: f64,
+) -> f64 {
+    sabr_implied_volatility(f, k, t, alpha, beta, rho, nu)
+}
+
+/// Extern "C" Heston European Call Option Price
+#[no_mangle]
+pub extern "C" fn riskos_heston_price(
+    s0: f64,
+    k: f64,
+    t: f64,
+    r: f64,
+    v0: f64,
+    kappa: f64,
+    theta: f64,
+    sigma_v: f64,
+    rho: f64,
+) -> f64 {
+    heston_call_price(s0, k, t, r, v0, kappa, theta, sigma_v, rho)
+}
+

@@ -367,7 +367,160 @@
   }
 
   // ==========================================================================
-  // 5. INSTITUTIONAL BENCHMARK SUITE
+  // 5. SABR & HESTON STOCHASTIC VOLATILITY ENGINE
+  // ==========================================================================
+  class SabrHestonEngine {
+    static sabrImpliedVol(F, K, T, alpha, beta, rho, nu) {
+      if (F <= 0 || K <= 0 || T <= 0 || alpha <= 0) return alpha;
+      const EPS = 1e-8;
+
+      if (Math.abs(F - K) < EPS) {
+        const fBeta = Math.pow(F, 1.0 - beta);
+        const term1 = ((1.0 - beta) ** 2 * alpha * alpha) / (24.0 * fBeta * fBeta);
+        const term2 = (rho * beta * nu * alpha) / (4.0 * fBeta);
+        const term3 = ((2.0 - 3.0 * rho * rho) * nu * nu) / 24.0;
+        return (alpha / fBeta) * (1.0 + (term1 + term2 + term3) * T);
+      }
+
+      const logFk = Math.log(F / K);
+      const fkBeta = Math.pow(F * K, (1.0 - beta) / 2.0);
+      const z = (nu / alpha) * fkBeta * logFk;
+
+      let xZ = 1.0;
+      if (Math.abs(z) >= 1e-5) {
+        const sqrtTerm = Math.sqrt(1.0 - 2.0 * rho * z + z * z);
+        const num = sqrtTerm + z - rho;
+        const den = 1.0 - rho;
+        if (num > 0 && den > 0) {
+          xZ = z / Math.log(num / den);
+        }
+      }
+
+      const denomGamma = fkBeta * (1.0 + 
+        (((1.0 - beta) ** 2) / 24.0) * logFk * logFk + 
+        (Math.pow(1.0 - beta, 4.0) / 1920.0) * Math.pow(logFk, 4.0));
+
+      const bracket = 1.0 + (
+        (((1.0 - beta) ** 2 * alpha * alpha) / (24.0 * Math.pow(F * K, 1.0 - beta))) +
+        (rho * beta * nu * alpha) / (4.0 * fkBeta) +
+        ((2.0 - 3.0 * rho * rho) * nu * nu) / 24.0
+      ) * T;
+
+      return (alpha / denomGamma) * xZ * bracket;
+    }
+
+    static hestonCallPrice(S0, K, T, r, V0, kappa, theta, sigmaV, rho) {
+      if (S0 <= 0 || K <= 0 || T <= 0) return Math.max(0, S0 - K);
+
+      function charFunc(uReal, uImag) {
+        const uR = uReal, uI = uImag;
+        const aR = kappa + rho * sigmaV * uI;
+        const aI = -rho * sigmaV * uR;
+        const a2R = aR * aR - aI * aI;
+        const a2I = 2 * aR * aI;
+
+        const bR = -uI + uR * uR - uI * uI;
+        const bI = uR + 2 * uR * uI;
+
+        const insideR = a2R + sigmaV * sigmaV * bR;
+        const insideI = a2I + sigmaV * sigmaV * bI;
+
+        const mod = Math.hypot(insideR, insideI);
+        const arg = Math.atan2(insideI, insideR);
+        const dR = Math.sqrt(mod) * Math.cos(arg / 2);
+        const dI = Math.sqrt(mod) * Math.sin(arg / 2);
+
+        const numR = aR - dR, numI = aI - dI;
+        const denR = aR + dR, denI = aI + dI;
+        const denMod2 = denR * denR + denI * denI + 1e-15;
+        const gR = (numR * denR + numI * denI) / denMod2;
+        const gI = (numI * denR - numR * denI) / denMod2;
+
+        const expR = Math.exp(-dR * T) * Math.cos(-dI * T);
+        const expI = Math.exp(-dR * T) * Math.sin(-dI * T);
+
+        const oneMinusGExpR = 1.0 - (gR * expR - gI * expI);
+        const oneMinusGExpI = -(gR * expI + gI * expR);
+
+        const oneMinusGR = 1.0 - gR;
+        const oneMinusGI = -gI;
+
+        const divR = (oneMinusGExpR * oneMinusGR + oneMinusGExpI * oneMinusGI) / (oneMinusGR * oneMinusGR + oneMinusGI * oneMinusGI + 1e-15);
+        const divI = (oneMinusGExpI * oneMinusGR - oneMinusGExpR * oneMinusGI) / (oneMinusGR * oneMinusGR + oneMinusGI * oneMinusGI + 1e-15);
+        const logDivR = Math.log(Math.hypot(divR, divI));
+        const logDivI = Math.atan2(divI, divR);
+
+        const factor = (kappa * theta) / (sigmaV * sigmaV);
+        const CR = r * (-uI) * T + factor * ((aR - dR) * T - 2 * logDivR);
+        const CI = r * uR * T + factor * ((aI - dI) * T - 2 * logDivI);
+
+        const oneMinusExpR = 1.0 - expR;
+        const oneMinusExpI = -expI;
+        const fracR = (oneMinusExpR * oneMinusGExpR + oneMinusExpI * oneMinusGExpI) / (oneMinusGExpR * oneMinusGExpR + oneMinusGExpI * oneMinusGExpI + 1e-15);
+        const fracI = (oneMinusExpI * oneMinusGExpR - oneMinusExpR * oneMinusGExpI) / (oneMinusGExpR * oneMinusGExpR + oneMinusGExpI * oneMinusGExpI + 1e-15);
+
+        const DR = (numR * fracR - numI * fracI) / (sigmaV * sigmaV);
+        const DI = (numR * fracI + numI * fracR) / (sigmaV * sigmaV);
+
+        const totalR = CR + DR * V0 - uI * Math.log(S0);
+        const totalI = CI + DI * V0 + uR * Math.log(S0);
+
+        return { r: Math.exp(totalR) * Math.cos(totalI), i: Math.exp(totalR) * Math.sin(totalI) };
+      }
+
+      const N = 80, du = 0.5;
+      let sumP1 = 0, sumP2 = 0;
+      for (let step = 1; step <= N; step++) {
+        const u = step * du;
+        const phi2 = charFunc(u, 0);
+        const cosK = Math.cos(u * Math.log(K)), sinK = -Math.sin(u * Math.log(K));
+        const prod2I = phi2.r * sinK + phi2.i * cosK;
+        sumP2 += (prod2I / u) * du;
+
+        const phi1 = charFunc(u, -1);
+        const prod1I = phi1.r * sinK + phi1.i * cosK;
+        sumP1 += (prod1I / (u * S0 * Math.exp(r * T))) * du;
+      }
+      const P1 = 0.5 + sumP1 / Math.PI;
+      const P2 = 0.5 + sumP2 / Math.PI;
+      return Math.max(0, S0 * P1 - K * Math.exp(-r * T) * P2);
+    }
+  }
+
+  // ==========================================================================
+  // 6. LOCK-FREE SPSC RING BUFFER (JS SIMULATION OF C++20 / RUST CORE)
+  // ==========================================================================
+  class SpscRingBuffer {
+    constructor(capacity = 1024) {
+      this.capacity = capacity;
+      this.mask = capacity - 1;
+      this.buffer = new Array(capacity);
+      this.head = 0;
+      this.tail = 0;
+    }
+
+    push(item) {
+      if ((this.tail - this.head) >= this.capacity) return false;
+      this.buffer[this.tail & this.mask] = item;
+      this.tail++;
+      return true;
+    }
+
+    pop() {
+      if (this.head === this.tail) return null;
+      const item = this.buffer[this.head & this.mask];
+      this.buffer[this.head & this.mask] = null;
+      this.head++;
+      return item;
+    }
+
+    size() {
+      return this.tail - this.head;
+    }
+  }
+
+  // ==========================================================================
+  // 7. INSTITUTIONAL BENCHMARK SUITE
   // ==========================================================================
   class WasmQuantEngineController {
     constructor() {
@@ -375,6 +528,8 @@
       this.OrderBook = NativeOrderBook;
       this.Simplex = SimplexOptimizer;
       this.Hawkes = HawkesEngine;
+      this.SabrHeston = SabrHestonEngine;
+      this.SpscRingBuffer = SpscRingBuffer;
       this.version = '2.0.0';
     }
 

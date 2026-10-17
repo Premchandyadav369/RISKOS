@@ -29,6 +29,9 @@ jobs:
     - name: Run Native C++ & Rust Integration Suite
       run: node tests/test_rust_and_cpp_native_engines.js
 
+    - name: Run Barra Factor Risk & Quant Research Suite
+      run: node tests/test_factor_risk_and_quant_research.js
+
     - name: Run 41-Bot Fleet Live Profit Tests
       run: node tests/test_fleet_live_profit.js
 

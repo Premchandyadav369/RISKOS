@@ -83,6 +83,27 @@ runTest('rust/src/black_scholes_simd.rs provides complete analytical Greeks', ()
   assert(content.includes('norm_cdf'), 'Must implement Abramowitz & Stegun rational approximation');
 });
 
+runTest('rust/src/spsc_queue.rs, itch50.rs, and stochastic_vol.rs implement low-latency HFT protocols', () => {
+  const spsc = path.join(__dirname, '..', 'rust', 'src', 'spsc_queue.rs');
+  const itch = path.join(__dirname, '..', 'rust', 'src', 'itch50.rs');
+  const stoch = path.join(__dirname, '..', 'rust', 'src', 'stochastic_vol.rs');
+  assert(fs.existsSync(spsc), 'rust/src/spsc_queue.rs must exist');
+  assert(fs.existsSync(itch), 'rust/src/itch50.rs must exist');
+  assert(fs.existsSync(stoch), 'rust/src/stochastic_vol.rs must exist');
+
+  const spscContent = fs.readFileSync(spsc, 'utf8');
+  assert(spscContent.includes('pub struct SpscQueue'), 'Must define SpscQueue');
+  assert(spscContent.includes('Ordering::Acquire'), 'Must use acquire/release semantics');
+
+  const itchContent = fs.readFileSync(itch, 'utf8');
+  assert(itchContent.includes('pub struct RawAddOrder'), 'Must define RawAddOrder');
+  assert(itchContent.includes('pub fn parse_itch_add_order'), 'Must implement parse_itch_add_order');
+
+  const stochContent = fs.readFileSync(stoch, 'utf8');
+  assert(stochContent.includes('pub fn sabr_implied_volatility'), 'Must implement sabr_implied_volatility');
+  assert(stochContent.includes('pub fn heston_call_price'), 'Must implement heston_call_price');
+});
+
 // ----------------------------------------------------------------------------
 // 2. C++20 CORE SOURCE INTEGRITY
 // ----------------------------------------------------------------------------
@@ -97,6 +118,27 @@ runTest('cpp/simd_options_pricer.cpp provides AVX2 SIMD & batch evaluation', () 
   assert(content.includes('batch_evaluate('), 'Must implement batch_evaluate');
   assert(content.includes('extern "C"'), 'Must declare extern "C" bindings for WASM');
   assert(content.includes('cpp_benchmark_options_throughput'), 'Must provide standalone throughput benchmark');
+});
+
+runTest('cpp/spsc_ring_buffer.hpp, itch50_decoder.hpp, and sabr_heston_pricer.cpp exist with zero-copy features', () => {
+  const spsc = path.join(__dirname, '..', 'cpp', 'spsc_ring_buffer.hpp');
+  const itch = path.join(__dirname, '..', 'cpp', 'itch50_decoder.hpp');
+  const sabr = path.join(__dirname, '..', 'cpp', 'sabr_heston_pricer.cpp');
+  assert(fs.existsSync(spsc), 'cpp/spsc_ring_buffer.hpp must exist');
+  assert(fs.existsSync(itch), 'cpp/itch50_decoder.hpp must exist');
+  assert(fs.existsSync(sabr), 'cpp/sabr_heston_pricer.cpp must exist');
+
+  const spscContent = fs.readFileSync(spsc, 'utf8');
+  assert(spscContent.includes('class SpscRingBuffer'), 'Must define SpscRingBuffer');
+  assert(spscContent.includes('alignas(HARDWARE_DESTRUCTIVE_INTERFERENCE_SIZE)'), 'Must isolate cache lines');
+
+  const itchContent = fs.readFileSync(itch, 'utf8');
+  assert(itchContent.includes('struct MsgAddOrder'), 'Must define MsgAddOrder');
+  assert(itchContent.includes('parse_add_order'), 'Must implement parse_add_order');
+
+  const sabrContent = fs.readFileSync(sabr, 'utf8');
+  assert(sabrContent.includes('sabr_implied_volatility'), 'Must implement sabr_implied_volatility');
+  assert(sabrContent.includes('heston_call_price'), 'Must implement heston_call_price');
 });
 
 runTest('cpp/CMakeLists.txt configures C++20 and compiler vectorization flags', () => {
@@ -190,6 +232,38 @@ runTest('Hawkes point process exhibits exponential memory decay and stable branc
 
   assert(intensityLater < intensityImmediately, 'Intensity must decay over forward time');
   assert(intensityLater >= hawkes.mu, 'Intensity must not fall below baseline mu');
+});
+
+runTest('SabrHestonEngine computes asymptotic SABR implied vol smile and Heston call option', () => {
+  assert(WasmEngine.SabrHeston, 'SabrHeston engine must be exported');
+  const F = 100.0, K = 105.0, T = 1.0;
+  const alpha = 0.20, beta = 0.70, rho = -0.30, nu = 0.40;
+
+  const atmVol = WasmEngine.SabrHeston.sabrImpliedVol(F, F, T, alpha, beta, rho, nu);
+  const otmVol = WasmEngine.SabrHeston.sabrImpliedVol(F, K, T, alpha, beta, rho, nu);
+  assert(atmVol > 0.01 && atmVol < 1.0, `ATM vol expected reasonable, got ${atmVol}`);
+  assert(otmVol > 0.01 && otmVol < 1.0, `OTM vol expected positive, got ${otmVol}`);
+
+  const hestonCall = WasmEngine.SabrHeston.hestonCallPrice(100.0, 100.0, 1.0, 0.03, 0.04, 2.0, 0.04, 0.3, -0.7);
+  assert(hestonCall > 5.0 && hestonCall < 20.0, `Heston call expected reasonable positive price, got ${hestonCall}`);
+});
+
+runTest('SpscRingBuffer enforces bounded lock-free FIFO queue semantics', () => {
+  assert(WasmEngine.SpscRingBuffer, 'SpscRingBuffer must be exported');
+  const queue = new WasmEngine.SpscRingBuffer(4);
+  assert.strictEqual(queue.size(), 0);
+  assert.strictEqual(queue.pop(), null);
+
+  assert(queue.push(101));
+  assert(queue.push(102));
+  assert(queue.push(103));
+  assert(queue.push(104));
+  assert(!queue.push(105), 'Buffer must reject when full');
+
+  assert.strictEqual(queue.pop(), 101);
+  assert.strictEqual(queue.pop(), 102);
+  assert.strictEqual(queue.size(), 2);
+  assert(queue.push(105), 'Buffer should accept after pop');
 });
 
 // ----------------------------------------------------------------------------

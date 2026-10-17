@@ -15,6 +15,7 @@ add_library(riskos_cpp_core SHARED
     matching_engine.cpp
     simd_options_pricer.cpp
     fix_protocol_engine.cpp
+    sabr_heston_pricer.cpp
 )
 
 set_target_properties(riskos_cpp_core PROPERTIES
