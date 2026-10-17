@@ -4887,5 +4887,17 @@ if (typeof window !== 'undefined') {
         }
       });
     }
+
+    // ── Mount Interactive Backtest Sandbox & Contagion Radar ──
+    try {
+      if (typeof window !== 'undefined' && window.interactiveBacktestSandbox) {
+        window.interactiveBacktestSandbox.renderHTMLComponent('interactiveBacktestSandboxContainer');
+      }
+      if (typeof window !== 'undefined' && window.correlationContagionRadar) {
+        window.correlationContagionRadar.renderHTMLComponent('correlationContagionRadarContainer');
+      }
+    } catch (e) {
+      console.warn('[RISKOS] Sandbox / Radar mount notice:', e.message);
+    }
   });
 }

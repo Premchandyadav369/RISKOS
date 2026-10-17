@@ -47,6 +47,7 @@
   <link rel="stylesheet" href="universalExplainer.css" />
   <link rel="stylesheet" href="themeEngine.css" />
   <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="terminalBottomBar.css" />
 </head>
 <body class="observatory-page fleet-page">
 
@@ -192,10 +193,10 @@
       </div>
       <div class="tel-box tel-box-profit-hero" style="background:linear-gradient(180deg, rgba(16,185,129,0.12) 0%, rgba(9,13,22,0.98) 100%); border:1px solid rgba(16,185,129,0.45); box-shadow:0 0 20px rgba(16,185,129,0.18);">
         <div class="tel-label"><i class="fa-solid fa-sack-dollar text-green"></i> TOTAL CUMULATIVE FLEET PROFIT (41 BOTS)</div>
-        <div class="tel-val text-green" id="telDailyPnl" style="font-size:1.42rem; font-weight:900; text-shadow:0 0 12px rgba(16,185,129,0.4);">+₹58,40,000 ($69,600)</div>
+        <div class="tel-val text-green" id="telDailyPnl" style="font-size:1.42rem; font-weight:900; text-shadow:0 0 12px rgba(16,185,129,0.4);">+₹6,58,40,000 ($788,500)</div>
         <div class="tel-sub text-green" id="telPnlReturn" style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
-          <span><i class="fa-solid fa-arrow-up"></i> +11.27% Improved Return</span>
-          <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong id="telRealizedOnly" style="color:#10b981;">₹52.40L</strong> &bull; Open: <strong id="telUnrealizedOnly" style="color:#22d3ee;">₹6.00L</strong></span>
+          <span><i class="fa-solid fa-arrow-up"></i> +36.9% Improved Return</span>
+          <span style="color:#a1a1aa; font-size:0.68rem;">Realized: <strong id="telRealizedOnly" style="color:#10b981;">₹6.37 Cr</strong> &bull; Open: <strong id="telUnrealizedOnly" style="color:#22d3ee;">₹21.60L</strong></span>
         </div>
       </div>
 
@@ -478,7 +479,7 @@
         <div class="div-stats-row">
           <div class="div-stat">
             <span class="div-stat-lbl">Grand Total Net Realized P&amp;L</span>
-            <strong class="div-stat-val text-green" id="grandTotalPnl" style="font-size:1.15rem; font-weight:900;">+₹18,92,450 ($22,664)</strong>
+            <strong class="div-stat-val text-green" id="grandTotalPnl" style="font-size:1.15rem; font-weight:900;">+₹6,36,80,500 ($762,640)</strong>
           </div>
           <div class="div-stat">
             <span class="div-stat-lbl">Aggregate Win Rate &bull; Sharpe</span>
@@ -974,6 +975,8 @@
   <script src="swarmInternalCrossing.js"></script>
   <script src="pitchDeckGenerator.js"></script>
   <script src="multiWindowManager.js"></script>
+  <script src="liveWebSocketStream.js"></script>
+  <script src="terminalBottomBar.js"></script>
 </body>
 </html>
 

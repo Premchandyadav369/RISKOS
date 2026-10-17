@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="universalExplainer.css" />
   <link rel="stylesheet" href="themeEngine.css" />
   <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="terminalBottomBar.css" />
 </head>
 <body>
     <!-- Topbar -->
@@ -57,6 +58,10 @@
             <div class="topbar-latency-pill" title="Ultra-low latency connection">
                 <span class="live-pulse-dot" style="width:5px; height:5px; background:#10b981; border-radius:50%; display:inline-block;"></span>
                 <span>&lt;1ms</span>
+            </div>
+            <div class="topbar-latency-pill ws-stream-badge status-live" id="wsStreamBadge" style="margin-left:6px; background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#10b981;" title="24/7 Binance WebSocket Stream Active">
+                <span class="pulse-dot-green"></span>
+                <span>WS LIVE 32ms</span>
             </div>
         </div>
 
@@ -356,6 +361,9 @@
                 </div>
             </div>
 
+            <!-- ═══════════ DYNAMIC CORRELATION BREAKDOWN & CONTAGION RADAR ═══════════ -->
+            <div id="correlationContagionRadarContainer" class="mt-4"></div>
+
             <!-- ═══════════ PERSPECTIVE HIGH-PERFORMANCE STREAMING GRID ═══════════ -->
             <div class="card mt-4" style="padding:0; overflow:hidden; border:1px solid rgba(34,211,238,0.25);">
                 <div id="perspectiveGridContainerDesk1" style="min-height:380px;">
@@ -472,6 +480,10 @@
                 </div>
                 <div id="backtest-stats" class="stats-row mt-4"></div>
             </div>
+
+            <!-- ═══════════ INTERACTIVE FACTOR SIZING & KELLY SANDBOX ═══════════ -->
+            <div id="interactiveBacktestSandboxContainer" class="mt-4"></div>
+
             <div class="grid-2-col mt-4">
                 <div class="card">
                     <div class="card-header">
@@ -1972,6 +1984,10 @@
   <script src="webgpuQuantPricer.js"></script>
   <script src="deepAlphaEngine.js"></script>
   <script src="columnarTickStore.js"></script>
+  <script src="liveWebSocketStream.js"></script>
+  <script src="terminalBottomBar.js"></script>
+  <script src="interactiveBacktestSandbox.js"></script>
+  <script src="correlationContagionRadar.js"></script>
 </body>
 </html>
 

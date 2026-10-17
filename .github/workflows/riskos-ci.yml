@@ -37,3 +37,6 @@ jobs:
 
     - name: Run Complete Six Pillars Verification Suite
       run: node tests/test_all_institutional_six_pillars.js
+
+    - name: Run Features 1, 2, 3, 6 & Fleet Profits Test Suite
+      run: node tests/test_features_1_2_3_6_and_fleet_profits.js

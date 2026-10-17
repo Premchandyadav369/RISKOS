@@ -1,0 +1,141 @@
+/* RISKOS Institutional Bloomberg Amber CRT Bottom Telemetry Bar */
+
+.riskos-bottom-telemetry-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: #050608;
+  border-top: 1px solid rgba(255, 176, 0, 0.35);
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 176, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 0.68rem;
+  color: #ffb000;
+  z-index: 99999;
+  user-select: none;
+  backdrop-filter: blur(8px);
+}
+
+.bottom-bar-left, .bottom-bar-center, .bottom-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bottom-bar-left {
+  flex-shrink: 0;
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #a1a1aa;
+}
+
+.telemetry-item strong {
+  color: #00f0ff;
+  font-weight: 700;
+}
+
+.telemetry-item .badge-pass {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.telemetry-item .badge-amber {
+  background: rgba(255, 176, 0, 0.15);
+  border: 1px solid rgba(255, 176, 0, 0.4);
+  color: #ffb000;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.telemetry-item .badge-vault {
+  background: rgba(34, 211, 238, 0.15);
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  color: #22d3ee;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.pulse-dot-green, .pulse-dot-cyan, .pulse-dot-amber {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  animation: barPulse 1.8s infinite;
+}
+
+.pulse-dot-green { background: #10b981; box-shadow: 0 0 6px #10b981; }
+.pulse-dot-cyan { background: #00f0ff; box-shadow: 0 0 6px #00f0ff; }
+.pulse-dot-amber { background: #ffb000; box-shadow: 0 0 6px #ffb000; }
+
+@keyframes barPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
+}
+
+.bottom-bar-keys {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fkey-btn {
+  background: rgba(255, 176, 0, 0.08);
+  border: 1px solid rgba(255, 176, 0, 0.25);
+  color: #ffb000;
+  font-family: inherit;
+  font-size: 0.64rem;
+  padding: 2px 7px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fkey-btn strong {
+  color: #fff;
+  font-weight: 800;
+}
+
+.fkey-btn:hover {
+  background: rgba(255, 176, 0, 0.25);
+  border-color: #ffb000;
+  color: #fff;
+  box-shadow: 0 0 8px rgba(255, 176, 0, 0.4);
+}
+
+.bottom-bar-right {
+  flex-shrink: 0;
+  color: #71717a;
+  font-size: 0.65rem;
+}
+
+.clock-live {
+  color: #e4e4e7;
+  font-weight: 700;
+}
+
+/* Adjust page padding so bottom bar does not overlap content */
+body {
+  padding-bottom: 36px !important;
+}
