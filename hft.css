@@ -406,6 +406,7 @@ body.hft-theory-mode .hft-layman-box,
   align-items: center;
   gap: 6px;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 .hft-mode-btn {
@@ -1023,6 +1024,7 @@ body.hft-theory-mode .hft-layman-box,
   align-items: center;
   gap: 6px;
   margin-right: 4px;
+  flex-shrink: 0;
 }
 
 .hft-jump-link {
@@ -1038,6 +1040,7 @@ body.hft-theory-mode .hft-layman-box,
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  flex-shrink: 0;
 }
 
 .hft-jump-link:hover {

@@ -213,6 +213,11 @@
 
         const t1 = performance.now();
         stagingBuffer.unmap();
+        try {
+          stagingBuffer.destroy();
+          resultBuffer.destroy();
+          paramBuffer.destroy();
+        } catch (bufErr) {}
 
         const elapsedMs = Math.max(0.01, t1 - t0);
         const discount = Math.exp(-params.rate * params.expiry);

@@ -17,6 +17,15 @@
     document.body.classList.remove('menu-locked');
   };
 
+  // ── Safe JSON Parser ──────────────────────────────────────────────────────
+  const safeJsonParse = (str, fallback) => {
+    try {
+      return str ? JSON.parse(str) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
+
   // ── Global Lab State ──────────────────────────────────────────────────────
   const labState = {
     activeModuleId: 'cagr',
@@ -27,8 +36,8 @@
     activeSecuritySymbol: 'RELIANCE.NS',
     simInputs: {},
     chartInstance: null,
-    savedScenarios: JSON.parse(localStorage.getItem('riskos_lab_scenarios') || '[]'),
-    completedLabs: new Set(JSON.parse(localStorage.getItem('riskos_completed_labs') || '[]')),
+    savedScenarios: safeJsonParse(localStorage.getItem('riskos_lab_scenarios'), []),
+    completedLabs: new Set(safeJsonParse(localStorage.getItem('riskos_completed_labs'), [])),
     activeFilterMode: 'all' // 'all' | 'completed' | 'remaining'
   };
 

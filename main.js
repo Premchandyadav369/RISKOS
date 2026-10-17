@@ -8,14 +8,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const USD_TO_INR = 83.50;
 
+  // ── Safe JSON Parser ──────────────────────────────────────────────────────
+  const safeJsonParse = (str, fallback) => {
+    try {
+      return str ? JSON.parse(str) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
+
   // ── 1. Global Application State & Local Storage ───────────────────────────
   const appState = {
     userMode: localStorage.getItem('riskos_user_mode') || 'beginner', // 'beginner' | 'investor' | 'quant'
     marketRegion: localStorage.getItem('riskos_market_region') || 'IN', // 'IN' | 'US'
     currency: localStorage.getItem('riskos_currency') || 'INR', // 'INR' | 'USD'
     marketContext: 'NSE', // 'NSE' | 'US'
-    watchlist: JSON.parse(localStorage.getItem('riskos_watchlist') || '["RELIANCE", "TCS", "HDFCBANK", "INFY", "GOLDBEES", "NIFTYBEES", "AAPL", "NVDA"]'),
-    searchHistory: JSON.parse(localStorage.getItem('riskos_search_history') || '["Reliance", "TCS", "HDFC Bank", "Gold BeES", "Nvidia"]'),
+    watchlist: safeJsonParse(localStorage.getItem('riskos_watchlist'), ["RELIANCE", "TCS", "HDFCBANK", "INFY", "GOLDBEES", "NIFTYBEES", "AAPL", "NVDA"]),
+    searchHistory: safeJsonParse(localStorage.getItem('riskos_search_history'), ["Reliance", "TCS", "HDFC Bank", "Gold BeES", "Nvidia"]),
     activeSecurity: null,
     activeTimeframe: '1Y',
     candleIndicators: { sma: true, ema: true, vol: true },
@@ -330,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 'tx-5', symbol: 'GOLDBEES', type: 'BUY', quantity: 200, price: 62.50, fees: 10.00, date: '2026-01-05', notes: 'Macro volatility hedge' }
   ];
 
-  let portfolioTransactions = JSON.parse(localStorage.getItem('riskos_transactions_v2') || JSON.stringify(DEFAULT_TRANSACTIONS));
+  let portfolioTransactions = safeJsonParse(localStorage.getItem('riskos_transactions_v2'), DEFAULT_TRANSACTIONS);
 
   const saveTransactionsToStorage = () => {
     localStorage.setItem('riskos_transactions_v2', JSON.stringify(portfolioTransactions));

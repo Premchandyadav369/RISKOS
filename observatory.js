@@ -7,6 +7,15 @@
 (() => {
   'use strict';
 
+  // ── Safe JSON Parser ──────────────────────────────────────────────────────
+  const safeJsonParse = (str, fallback) => {
+    try {
+      return str ? JSON.parse(str) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  };
+
   // ── 1. Application State ──────────────────────────────────────────────────
   const obsState = {
     marketScope: 'india', // 'india' | 'global' | 'all'
@@ -16,9 +25,9 @@
     refreshIntervalId: null,
     lastUpdated: new Date(),
     observations: [],
-    savedObservations: JSON.parse(localStorage.getItem('riskos_saved_observations') || '[]'),
-    watchlist: JSON.parse(localStorage.getItem('riskos_watchlist') || '["RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ZOMATO"]'),
-    portfolio: JSON.parse(localStorage.getItem('riskos_portfolio_ledger') || '[]'),
+    savedObservations: safeJsonParse(localStorage.getItem('riskos_saved_observations'), []),
+    watchlist: safeJsonParse(localStorage.getItem('riskos_watchlist'), ["RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", "ZOMATO"]),
+    portfolio: safeJsonParse(localStorage.getItem('riskos_portfolio_ledger'), []),
     activeDetailObs: null,
     drawerChartInstance: null,
     explanationMode: 'investor'
