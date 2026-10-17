@@ -32,6 +32,9 @@ jobs:
     - name: Run Barra Factor Risk & Quant Research Suite
       run: node tests/test_factor_risk_and_quant_research.js
 
+    - name: Run Proprietary Algorithms & Latency Suite
+      run: node tests/test_proprietary_algorithms_and_latency.js
+
     - name: Run 41-Bot Fleet Live Profit Tests
       run: node tests/test_fleet_live_profit.js
 

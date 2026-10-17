@@ -10,6 +10,10 @@ pub mod fix_engine;
 pub mod spsc_queue;
 pub mod itch50;
 pub mod stochastic_vol;
+pub mod hs_jamm;
+pub mod se_microprice;
+pub mod factor_shrink;
+pub mod dk_shield;
 
 pub use matching_engine::*;
 pub use black_scholes_simd::*;
@@ -19,6 +23,10 @@ pub use fix_engine::*;
 pub use spsc_queue::*;
 pub use itch50::*;
 pub use stochastic_vol::*;
+pub use hs_jamm::*;
+pub use se_microprice::*;
+pub use factor_shrink::*;
+pub use dk_shield::*;
 
 /// Return semantic version 0x020000 (v2.0.0)
 #[no_mangle]
