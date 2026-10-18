@@ -168,6 +168,22 @@
                         </div>
                         <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">RTS 25</span>
                     </button>
+                    <button type="button" id="btnOpenColoModalApp" class="hub-menu-item open-colo-bench-btn" title="Hardware Co-Location & Sub-100ns FPGA Latency Simulator" onclick="window.HardwareColocationSimulator && window.HardwareColocationSimulator.showColoModal()">
+                        <i class="fa-solid fa-microchip" style="color:#22d3ee;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Hardware Co-Location &amp; FPGA</div>
+                            <div class="hub-item-sub">Mahwah, Carteret, BKC (&lt;100ns)</div>
+                        </div>
+                        <span class="hub-badge" style="color:#22d3ee; border-color:rgba(34,211,238,0.3);">&lt;100ns</span>
+                    </button>
+                    <button type="button" id="btnOpenCloudVaultModalApp" class="hub-menu-item open-cloud-vault-btn" title="Cloud Key Vault & KMS Enclave" onclick="window.CloudKeyVault && window.CloudKeyVault.showVaultModal()">
+                        <i class="fa-solid fa-vault" style="color:#10b981;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Cloud Key Vault &amp; KMS Enclave</div>
+                            <div class="hub-item-sub">Zero-Knowledge AES-256-GCM Storage</div>
+                        </div>
+                        <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">VAULT</span>
+                    </button>
                 </div>
             </div>
 
@@ -2004,6 +2020,8 @@
   <script src="terminalBottomBar.js"></script>
   <script src="interactiveBacktestSandbox.js"></script>
   <script src="correlationContagionRadar.js"></script>
+  <script src="hardwareColocationSimulator.js"></script>
+  <script src="cloudKeyVault.js"></script>
 </body>
 </html>
 

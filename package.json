@@ -13,7 +13,8 @@
     "test:factor": "node tests/test_factor_risk_and_quant_research.js",
     "test:proprietary": "node tests/test_proprietary_algorithms_and_latency.js",
     "test:pillars": "node tests/test_institutional_four_pillars.js",
-    "test:all": "node tests/test_all_html_math.js && node tests/test_rust_and_cpp_native_engines.js && node tests/test_factor_risk_and_quant_research.js && node tests/test_proprietary_algorithms_and_latency.js && node tests/test_institutional_showcase_expansion.js && node tests/test_fleet_live_profit.js && node tests/test_features_1_2_3_6_and_fleet_profits.js && node tests/test_fleet_beginner_friendly.js && node tests/test_all_institutional_six_pillars.js && node tests/test_institutional_four_pillars.js"
+    "test:vault": "node tests/test_colocation_and_cloud_vault.js",
+    "test:all": "node tests/test_all_html_math.js && node tests/test_rust_and_cpp_native_engines.js && node tests/test_factor_risk_and_quant_research.js && node tests/test_proprietary_algorithms_and_latency.js && node tests/test_institutional_showcase_expansion.js && node tests/test_fleet_live_profit.js && node tests/test_features_1_2_3_6_and_fleet_profits.js && node tests/test_fleet_beginner_friendly.js && node tests/test_all_institutional_six_pillars.js && node tests/test_institutional_four_pillars.js && node tests/test_colocation_and_cloud_vault.js"
   },
   "dependencies": {
     "katex": "^0.16.11"

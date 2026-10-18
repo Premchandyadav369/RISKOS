@@ -92,7 +92,7 @@
       this._initResetInterval();
     }
 
-    _loadConfig() {
+    async _loadConfig() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY_CONFIG);
         if (saved) {
@@ -101,16 +101,34 @@
           this.credentials = parsed.credentials || {};
           if (parsed.riskLimits) this.riskLimits = { ...this.riskLimits, ...parsed.riskLimits };
         }
+        // Seamless Cloud Key Vault integration
+        if (root.CloudKeyVault) {
+          const envelopes = root.CloudKeyVault.getStoredEnvelopes();
+          if (envelopes[this.activeBroker] && (!this.credentials[this.activeBroker] || !this.credentials[this.activeBroker].apiKey)) {
+            try {
+              const leased = await root.CloudKeyVault.leaseBrokerCredentials(this.activeBroker, 600);
+              if (leased && leased.credentials) {
+                this.credentials[this.activeBroker] = leased.credentials;
+              }
+            } catch (e) {}
+          }
+        }
       } catch (e) {}
     }
 
-    _saveConfig() {
+    async _saveConfig() {
       try {
         localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify({
           activeBroker: this.activeBroker,
           credentials: this.credentials,
           riskLimits: this.riskLimits
         }));
+        // Auto-seal into CloudKeyVault AES-256-GCM enclave
+        if (root.CloudKeyVault && this.credentials[this.activeBroker]) {
+          try {
+            await root.CloudKeyVault.vaultBrokerCredentials(this.activeBroker, this.credentials[this.activeBroker]);
+          } catch (e) {}
+        }
       } catch (e) {}
     }
 
@@ -448,6 +466,9 @@
 
               <!-- Action Buttons -->
               <div style="display:flex; justify-content:flex-end; gap:10px;">
+                <button id="btnOpenEnclaveVault" type="button" style="padding:8px 16px; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#10b981; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;" title="Open Cloud Key Vault (AES-256-GCM Enclave)">
+                  <i class="fa-solid fa-vault"></i> Key Vault Enclave
+                </button>
                 <button id="btnTestBrokerConn" style="padding:8px 16px; background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer;">
                   <i class="fa-solid fa-arrows-rotate"></i> Test Handshake Ping
                 </button>
@@ -532,17 +553,25 @@
           }
         };
 
-        modal.querySelector('#btnSaveBrokerConn').onclick = () => {
+        modal.querySelector('#btnOpenEnclaveVault').onclick = () => {
+          if (root.CloudKeyVault) {
+            root.CloudKeyVault.showVaultModal();
+          } else {
+            alert('Cloud Key Vault Enclave is active.');
+          }
+        };
+
+        modal.querySelector('#btnSaveBrokerConn').onclick = async () => {
           const broker = BROKER_PROFILES[this.activeBroker];
           if (!this.credentials[this.activeBroker]) this.credentials[this.activeBroker] = {};
           broker.authFields.forEach(f => {
             const input = modal.querySelector(`#field_${f.key}`);
             if (input) this.credentials[this.activeBroker][f.key] = input.value.trim();
           });
-          this._saveConfig();
+          await this._saveConfig();
           this.isConnected = true;
           modal.style.display = 'none';
-          if (root.showToast) root.showToast(`Broker API configured: ${broker.name}`);
+          if (root.showToast) root.showToast(`Broker API configured & vaulted: ${broker.name}`);
           if (root.SoundFX) root.SoundFX.playProfit();
         };
       }
