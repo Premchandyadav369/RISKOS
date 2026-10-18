@@ -16,7 +16,7 @@
 
 **An institutional-grade quantitative finance research, stochastic risk modeling, and multi-asset high-frequency trading terminal engineered in modern C++20, Rust, WebGPU, and Python.**
 
-[Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Microstructure L3 Terminal](https://riskos-psi.vercel.app/hft.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [75 Quant Labs](docs/QUANT_LABS.md) • [34 Mathematical Proofs](docs/MATHEMATICAL_PROOFS.md) • [Research Paper](docs/paper/RISKOS_RESEARCH_PAPER.md) • [Architecture](docs/ARCHITECTURE.md) • [System Spec](docs/SYSTEM_SPEC.md) • [Audit (9.81/10)](docs/RISKOS_AUDIT.md)
+[🐣 Beginner Guide](#-layman--beginner-mode-understanding-riskos-in-plain-english) • [Live Terminal](https://riskos-psi.vercel.app/app.html) • [Portfolio Optimizer](https://riskos-psi.vercel.app/portfolio_optimizer.html) • [Microstructure L3 Terminal](https://riskos-psi.vercel.app/hft.html) • [Autonomous Fleet (41 Bots)](https://riskos-psi.vercel.app/fleet.html) • [80 Quant Labs](docs/QUANT_LABS.md) • [34 Mathematical Proofs](docs/MATHEMATICAL_PROOFS.md) • [Research Paper](docs/paper/RISKOS_RESEARCH_PAPER.md) • [Architecture](docs/ARCHITECTURE.md) • [System Spec](docs/SYSTEM_SPEC.md) • [Audit (9.95/10)](docs/RISKOS_AUDIT.md)
 
 </div>
 
@@ -32,7 +32,133 @@
 > - **RESEARCH & WALK-FORWARD BACKTESTING**: Backtesting incorporates Almgren-Chriss quadratic slippage, Indian turnover taxes (STT), exchange fees, and liquidity volume ceilings (5% ADV).
 > - **SIMULATED AGENT FLEET**: 41 autonomous strategy bots across Greek, Norse, and Egyptian pantheons execute in a simulated order-book environment with automated circuit breakers, drawdown limits, and deterministic seed replay.
 > - **MODEL-IMPLIED SCENARIOS**: Probabilistic multi-quantile projections (TimesFM 3.0, Prophet GAM, Merton Jump) are statistical scenarios with calibrated uncertainty bands, not guaranteed forecasts.
-> - **75 DETERMINISTIC SIMULATION LABORATORIES**: Interactive financial engineering modules providing dual layman explanations alongside rigorous LaTeX mathematical derivations.
+> - **80 DETERMINISTIC SIMULATION LABORATORIES**: Interactive financial engineering modules providing dual layman explanations alongside rigorous LaTeX mathematical derivations.
+
+---
+
+## 🐣 Layman & Beginner Mode: Understanding RISKOS in Plain English
+
+> [!TIP]
+> **New to quantitative finance, algorithms, or Wall Street terminology?**  
+> Don't worry! You don't need a PhD in Applied Mathematics or 10 years of trading experience to understand RISKOS. This section explains every major concept, tool, and feature using simple, everyday analogies that anyone can grasp in 5 minutes.
+
+```mermaid
+flowchart TD
+    A["👤 You (The Trader / Learner)"] --> B["🖥️ RISKOS Terminal Interface"]
+    B --> C["🏢 8 Trading Desks (Stocks, Currencies, Crypto, Gold, Bonds...)"]
+    B --> D["🤖 41-Bot Swarm (Automated Trading Pilots)"]
+    B --> E["🛡️ Risk Firewall (Safety Seatbelts & Crash Bags)"]
+    B --> F["⚡ Low-Latency Engine (Sub-100 Nanosecond Speed)"]
+    B --> G["🔬 80 Interactive Labs (Hands-on Visual Learning)"]
+```
+
+### 1. What is RISKOS, Really? (The "Flight Simulator" Analogy)
+Think of RISKOS as a **high-tech digital flight simulator for money and markets**.
+
+When commercial airline pilots learn how to fly a Boeing 787 Dreamliner, they spend hundreds of hours inside hydraulic flight simulators first. They practice navigating heavy thunderstorms, engine failures, mountain turbulence, and emergency landings—all without risking real human lives or a \$200-million aircraft.
+
+**RISKOS does the exact same thing for finance:**
+- Instead of risking real life savings in volatile financial markets, RISKOS lets students, developers, quants, and investors simulate market crashes (like the 2008 Lehman collapse or the 2020 COVID shock).
+- You can test algorithmic trading strategies, measure risk exposure, analyze real-time market depth, and learn the underlying math visually—all running smoothly in your web browser with zero installation.
+
+---
+
+### 2. The 8 Trading Desks Explained (Like Control Rooms in an Airport)
+In a major hospital or international airport, different specialized teams handle different emergencies (emergency care, air traffic control, baggage handling, weather monitoring). Similarly, professional hedge funds divide their trading into specialized "Desks":
+
+| Trading Desk | Everyday Real-World Analogy | What This Desk Actually Does |
+| :--- | :--- | :--- |
+| **Desk 1: Equity Desk (Stocks)** | **Buying slices of companies** | Evaluates individual companies (Apple, Reliance, Microsoft) to see if their stock is fairly priced or if the crowd is panicking. |
+| **Desk 2: Forex Desk (Currencies)** | **The Airport Currency Exchange Counter** | Trades currency pairs like USD/INR or EUR/USD, capturing microscopic price shifts between world currencies. |
+| **Desk 3: Crypto Desk (Digital Assets)** | **The 24/7 Global Night Market** | Trades Bitcoin, Ethereum, and digital assets around the clock without ever shutting down for weekends or holidays. |
+| **Desk 4: Rates Desk (Bonds / Fixed Income)** | **Government Fixed Deposits (FDs)** | Analyzes loans made to governments and top banks. When interest rates change, bond prices move like a seesaw. |
+| **Desk 5: Credit Desk (Corporate Loans)** | **Credit Score & Loan Underwriting** | Calculates the odds that a borrowing company will pay back its debt or default (go bankrupt). |
+| **Desk 6: Commodities Desk (Raw Materials)** | **The Global Supermarket Warehouse** | Tracks real tangible physical goods from the earth: crude oil, gold bullion, wheat, and natural gas. |
+| **Desk 7: Volatility & Options Desk** | **The Financial Insurance Agency** | Buys and sells contracts that protect investors against violent market storms (just like car or health insurance). |
+| **Desk 8: Market Observatory** | **The Satellite Weather Radar** | Watches global inflation, gross domestic product (GDP), central bank interest rate decisions, and macroeconomic currents. |
+
+---
+
+### 3. Core Concepts Explained Without Jargon
+
+#### 🛡️ A. Value-at-Risk (VaR) & Expected Shortfall (CVaR) — The "Storm Umbrella" Metaphor
+- **Value at Risk (VaR 99%)**: Imagine planning an outdoor wedding. You check the weather forecast for the last 100 days. 99 out of 100 days, you might get at most a light drizzle (say, losing ₹10,000). That ₹10,000 threshold is your **VaR**. It tells you: *"99% of normal trading days, my loss will not exceed this number."*
+- **Conditional VaR (CVaR / Expected Shortfall)**: Now imagine that rare 1-in-100 day monster hurricane *does* strike. VaR only tells you the storm breached your threshold; it doesn't tell you how deep the flood water gets! **CVaR** calculates: *"When disaster does strike and floods breach our threshold, how deep is the average water?"* It is the true measure of crash risk.
+
+#### 🤖 B. The 41-Bot Swarm Fleet — The "Automated Airline Autopilots"
+Instead of one tired human staring at blinking screens for 14 hours with coffee and emotion, RISKOS deploys **41 specialized autonomous trading bots**:
+- **Macro Bots**: Ride steady long-term economic winds like a sailboat.
+- **Microstructure / HFT Bots**: Collect tiny sub-penny price differences thousands of times per minute (like picking up loose coins off the sidewalk at lightning speed).
+- **Volatility Bots**: Act like insurance companies—collecting small steady premiums during sunny weather.
+- **Tail-Risk Bots**: The firefighters. They keep cheap insurance in their back pocket so that when a panic crash occurs, their insurance pays out huge profits, keeping the overall fund safe.
+- **The DPEA Rule (Deterministic Positive Equity Accumulator)**: A strict mathematical rule built into the bots: *"Never gamble. Only take trades where the statistical edge heavily favors us, cut losing trades immediately, and lock in small steady profits forever."*
+
+#### ⚡ C. High-Frequency Trading (HFT) & The "Order Book" — The Auction Hall
+- Imagine an auction room for rare art or vintage cars.
+- On the left side stand buyers shouting: *"I will pay ₹99 for 10 shares!"* (These are **Bids**).
+- On the right side stand sellers shouting: *"I will sell for ₹101 for 10 shares!"* (These are **Asks**).
+- The difference between ₹99 and ₹101 is the **Spread** (₹2.00).
+- The **Order Book** is simply the live digital chalkboard listing every single buyer and seller standing in line.
+- **High-Frequency Trading (HFT)** is writing software in lightning-fast languages (like C++20 and Rust) that can read that chalkboard, match buyers with sellers, or cancel an order in **nanoseconds** (billionths of a second)—faster than light can travel across a room.
+
+#### 🏎️ D. Hardware Co-Location & Sub-100 Nanoseconds — The "Living Inside the Exchange" Principle
+- If you order a pizza from an app, the delivery driver takes 30 minutes to drive across town to your house.
+- But what if you moved your dining table **directly inside the pizza kitchen**? You would get your pizza in 2 seconds hot out of the oven!
+- In modern finance, elite trading firms pay stock exchanges millions of dollars to place their server computers inside the exact same datacenter building as the stock exchange (e.g. Mahwah for the NYSE, Carteret for NASDAQ, or BKC Mumbai for the NSE).
+- By connecting with a short 10-meter fiber-optic laser cable instead of thousands of miles of public internet, orders travel from the computer to the exchange matching engine in **under 100 nanoseconds** (0.0000001 seconds), giving them the fastest speed in the world.
+
+#### 📜 E. Options & Greeks — The "Car Insurance" Analogy
+- A **Call Option** is a voucher that locks in the right to buy a new smartphone for ₹50,000 anytime in the next 3 months. If the market price skyrockets to ₹90,000, your voucher lets you buy it for ₹50,000 and pocket ₹40,000 profit!
+- A **Put Option** is insurance on your house or car. If you buy insurance for ₹5,000 and your car gets totaled in an accident, the insurance pays you the full ₹5,00,000 replacement value.
+- What are the **Greeks**? They are just diagnostic gauges on your car's dashboard:
+  - **Delta ($\Delta$)**: How fast the insurance price changes when the stock price moves ₹1.
+  - **Theta ($\Theta$)**: The cost of time ticking away each day as the expiration date gets closer.
+  - **Vega ($\mathcal{V}$)**: How much the insurance price shoots up when storm clouds appear on the horizon.
+
+#### 🔐 F. The Cloud Key Vault & Enclave — The "Bank Vault vs. Sticky Note" Security
+- Most beginner web applications save your private API keys and broker passwords in plain readable text inside your browser (`localStorage`). That is like writing your bank ATM PIN on a yellow sticky note stuck to your laptop!
+- RISKOS introduces a **Zero-Knowledge Cloud Key Vault Enclave** using military-grade **AES-256-GCM authenticated encryption**:
+  - Your passwords and API keys are scrambled using 100,000 rounds of PBKDF2-SHA512 encryption.
+  - When you click "Place Order", the vault temporarily unlocks in computer memory for a fraction of a second, signs your trade, and **instantly wipes the password from memory** (`zeroization`).
+  - An unhackable cryptographic chained audit trail (SHA-256) records every single access so you always have proof of what happened.
+
+---
+
+### 4. The 3-Way Mode Switcher (Learn at Your Own Pace)
+Inside [`learn.html`](https://riskos-psi.vercel.app/learn.html) and [`app.html`](https://riskos-psi.vercel.app/app.html), you will find a 3-way toggle button in the top navigation bar:
+
+```
+[ 🟢 Beginner ]   [ 🔵 Investor ]   [ 🟣 Quant ]
+```
+
+1. **🟢 Beginner Mode (Default)**:
+   - Strips away confusing Wall Street jargon.
+   - Replaces heavy calculus with clean interactive visual sliders, plain-English explanations, and real-world analogies.
+   - Great for students, curious software engineers, and newcomers to finance.
+2. **🔵 Investor Mode**:
+   - Focuses on real portfolio results: Annual Returns (CAGR), Maximum Drawdowns, Dividend Yields, and Asset Allocation.
+   - Designed for fund managers, wealth advisors, and long-term individual investors.
+3. **🟣 Quant Mode**:
+   - Unlocks full institutional mathematical derivations, closed-form Black-Scholes PDEs, Martingale proofs, stochastic Taylor series expansions, and nanosecond latency traces.
+   - Designed for quantitative researchers, algorithmic developers, and mathematical physicists.
+
+---
+
+### 5. Quick-Reference Rosetta Stone: Translating Quant Jargon to Everyday English
+
+| Wall Street / Quant Term | What It Sounds Like | What It Actually Means in Everyday Plain English |
+| :--- | :--- | :--- |
+| **Alpha ($\alpha$)** | Greek letter | **Pure Skill / Outsmarting the Market.** Extra profit made from smart decisions rather than general market luck. |
+| **Beta ($\beta$)** | Greek letter | **Bounciness.** A stock with Beta = 1 moves with the market. Beta = 2 means if the market goes up 10%, this stock shoots up 20% (and crashes twice as hard on bad days). |
+| **Sharpe Ratio** | Complex math | **Bang for Your Buck.** How much return you earned for every unit of stress (risk) you took. (> 2 is great, > 3 is world-class). |
+| **Drawdown** | Subtraction | **The Dip.** The drop in your account balance from its highest peak to its lowest valley before recovering. |
+| **Arbitrage** | French term | **Free Money / Discrepancy.** Buying gold in London for ₹60,000/oz and simultaneously selling it in Mumbai for ₹60,500/oz to lock in a risk-free profit. |
+| **Slippage** | Losing grip | **Price Drift.** The tiny difference between the price you clicked "Buy" at and the actual price your order was executed at a millisecond later. |
+| **Order Book DOM** | Tech acronym | **The Live Line of Buyers & Sellers.** The list of everyone currently waiting to buy (bids) and sell (asks). |
+| **Liquidity** | Water / Liquid | **How easy it is to cash out.** Cash is 100% liquid; a house takes 6 months to sell so it is illiquid. |
+| **Backtesting** | Time travel | **Testing on the past.** Running your trading rules on the last 10 years of market history to see if you would have made or lost money. |
+| **Monte Carlo Simulation** | Casino city | **Rolling the dice a million times.** Using a computer to simulate thousands of possible future market paths to see what could happen. |
+| **Order Routing / DMA** | Telecom term | **Direct Market Access.** Sending your order directly to the stock exchange without going through a slow human broker middleman. |
 
 ---
 
