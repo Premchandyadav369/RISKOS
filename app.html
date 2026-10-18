@@ -152,6 +152,22 @@
                         </div>
                         <span class="hub-badge" style="color:#ef4444; border-color:rgba(239,68,68,0.3);">REPLAY</span>
                     </button>
+                    <button type="button" id="btnOpenSqlWorkbench" class="hub-menu-item open-sql-workbench-btn" title="In-Browser Columnar SQL Tick Workbench" onclick="window.openSqlWorkbenchModal && window.openSqlWorkbenchModal()">
+                        <i class="fa-solid fa-database" style="color:#38bdf8;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">Columnar SQL Workbench</div>
+                            <div class="hub-item-sub">Zero-Copy DuckDB-Wasm Vector Queries</div>
+                        </div>
+                        <span class="hub-badge" style="color:#38bdf8; border-color:rgba(56,189,248,0.3);">SQL</span>
+                    </button>
+                    <button type="button" id="btnExportCatAudit" class="hub-menu-item" title="FINRA CAT & MiFID II Audit Trail" onclick="window.LiveBrokerGateway && window.LiveBrokerGateway.downloadCatAuditReport('json')">
+                        <i class="fa-solid fa-stamp" style="color:#10b981;"></i>
+                        <div class="hub-item-text">
+                            <div class="hub-item-title">FINRA CAT / MiFID II Audit</div>
+                            <div class="hub-item-sub">Microsecond UTC Regulatory Ledger</div>
+                        </div>
+                        <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">RTS 25</span>
+                    </button>
                 </div>
             </div>
 

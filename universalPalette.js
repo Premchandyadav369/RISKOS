@@ -85,6 +85,10 @@
     { id: 'act_prov', title: 'Inspect Market Data Truth & Provenance', desc: 'Verify exchange hours, live vs closed status, and provider feeds', category: 'Actions', badge: 'AUDIT', icon: 'fa-fingerprint', action: () => root.MarketDataTruth ? root.MarketDataTruth.openProvenanceModal('RELIANCE') : alert('MarketDataTruth active') },
     { id: 'act_sync', title: 'Sync Live Global Market Quotes', desc: 'Force refresh prices across global exchanges', category: 'Actions', badge: 'SYNC', icon: 'fa-bolt', action: () => document.getElementById('globalLiveSyncBtn')?.click() || (window.location.href='app.html') },
     { id: 'act_curr', title: 'Toggle Currency (INR ₹ / USD $)', desc: 'Switch baseline currency between Indian Rupee and US Dollar', category: 'Actions', badge: 'FX', icon: 'fa-coins', action: () => document.getElementById('currencyToggleBtn')?.click() || document.getElementById('currencyTogglePill')?.click() },
+    { id: 'act_cat', title: 'Export FINRA CAT / MiFID II Regulatory Audit Report (/cat-report)', desc: 'Generate microsecond-precision UTC regulatory order audit trail ledger (JSON/CSV)', category: 'Actions', badge: 'CAT/MIFID', icon: 'fa-stamp', action: () => root.LiveBrokerGateway ? root.LiveBrokerGateway.downloadCatAuditReport('json') : alert('CAT Audit Trail active') },
+    { id: 'act_sqlticks', title: 'Open Columnar SQL Tick Workbench (/sql-ticks)', desc: 'Zero-copy vectorized SQL execution over nanosecond BigInt64 tick columns', category: 'Actions', badge: 'DUCKDB SQL', icon: 'fa-database', action: () => root.openSqlWorkbenchModal ? root.openSqlWorkbenchModal() : alert('Columnar SQL Workbench active') },
+    { id: 'act_canvasladder', title: 'Toggle Canvas 2D L3 Order Book Ladder (/canvas-ladder)', desc: 'Switch between 120 FPS hardware-accelerated Canvas 2D and classic DOM table', category: 'Actions', badge: '120 FPS', icon: 'fa-microchip', action: () => root.toggleLadderPipeline ? root.toggleLadderPipeline() : (window.location.href='hft.html') },
+    { id: 'act_impact', title: 'Launch Almgren-Chriss Endogenous Market Impact Sandbox (/market-impact)', desc: 'Square-root volume participation model scaling portfolio capacity against ADV', category: 'Actions', badge: 'QUANT', icon: 'fa-chart-area', action: () => window.location.href='app.html?desk=desk6' },
     { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 80 labs, 41 autonomous bots, and live cross-asset desks.") }
   ];
 
@@ -292,6 +296,18 @@
         }
         if (slashQuery.includes('vip') || slashQuery.includes('secret') || slashQuery.includes('crush')) {
           matched.push(CATALOG.find(c => c.id === 'act_vip'));
+        }
+        if (slashQuery.includes('cat') || slashQuery.includes('mifid') || slashQuery.includes('regulatory') || slashQuery.includes('audit')) {
+          matched.push(CATALOG.find(c => c.id === 'act_cat'));
+        }
+        if (slashQuery.includes('sql') || slashQuery.includes('duckdb') || slashQuery.includes('ticks')) {
+          matched.push(CATALOG.find(c => c.id === 'act_sqlticks'));
+        }
+        if (slashQuery.includes('ladder') || slashQuery.includes('canvas') || slashQuery.includes('120fps')) {
+          matched.push(CATALOG.find(c => c.id === 'act_canvasladder'));
+        }
+        if (slashQuery.includes('impact') || slashQuery.includes('almgren') || slashQuery.includes('adv')) {
+          matched.push(CATALOG.find(c => c.id === 'act_impact'));
         }
       }
 

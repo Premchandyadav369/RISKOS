@@ -237,8 +237,190 @@
     }
   };
 
-  const renderL3DOMLadder = () => {
-    const container = document.getElementById('hftDomLadder');
+  let ladderCanvas = null;
+  let ladderCtx = null;
+  let ladderPipelineMode = 'CANVAS_2D'; // 'CANVAS_2D' | 'DOM_TABLE'
+
+  window.toggleLadderPipeline = () => {
+    ladderPipelineMode = ladderPipelineMode === 'CANVAS_2D' ? 'DOM_TABLE' : 'CANVAS_2D';
+    const btn = document.getElementById('toggleLadderPipelineBtn');
+    if (btn) {
+      btn.innerHTML = ladderPipelineMode === 'CANVAS_2D'
+        ? '<i class="fa-solid fa-microchip"></i> PIPELINE: CANVAS 2D (120 FPS)'
+        : '<i class="fa-solid fa-table"></i> PIPELINE: CLASSIC DOM TABLE';
+    }
+    const canvasEl = document.getElementById('hftLadderCanvas');
+    const domTableWrap = document.getElementById('hftDomTableWrap');
+    if (canvasEl && domTableWrap) {
+      if (ladderPipelineMode === 'CANVAS_2D') {
+        canvasEl.style.display = 'block';
+        domTableWrap.style.display = 'none';
+        renderL3CanvasLadder();
+      } else {
+        canvasEl.style.display = 'none';
+        domTableWrap.style.display = 'block';
+        renderL3ClassicDomTable();
+      }
+    }
+  };
+
+  const renderL3CanvasLadder = () => {
+    if (!ladderCanvas && typeof document !== 'undefined') {
+      ladderCanvas = document.getElementById('hftLadderCanvas');
+      if (ladderCanvas) {
+        ladderCtx = ladderCanvas.getContext('2d');
+        ladderCanvas.onclick = (e) => {
+          const rect = ladderCanvas.getBoundingClientRect();
+          const clickY = e.clientY - rect.top;
+          const reversedAsks = [...state.asksDepth].reverse();
+          const askCount = reversedAsks.length;
+          const rowH = 22;
+          const headerH = 22;
+          const spreadH = 22;
+          if (clickY > headerH && clickY <= headerH + askCount * rowH) {
+            const idx = Math.floor((clickY - headerH) / rowH);
+            if (reversedAsks[idx]) window.setQueuePrice(reversedAsks[idx].price);
+          } else if (clickY > headerH + askCount * rowH + spreadH) {
+            const bidIdx = Math.floor((clickY - (headerH + askCount * rowH + spreadH)) / rowH);
+            if (state.bidsDepth[bidIdx]) window.setQueuePrice(state.bidsDepth[bidIdx].price);
+          }
+        };
+      }
+    }
+    if (!ladderCanvas || !ladderCtx) return;
+
+    const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+    const w = ladderCanvas.clientWidth || 300;
+    const h = ladderCanvas.clientHeight || 450;
+    if (ladderCanvas.width !== Math.floor(w * dpr) || ladderCanvas.height !== Math.floor(h * dpr)) {
+      ladderCanvas.width = Math.floor(w * dpr);
+      ladderCanvas.height = Math.floor(h * dpr);
+    }
+    ladderCtx.save();
+    ladderCtx.scale(dpr, dpr);
+    ladderCtx.clearRect(0, 0, w, h);
+
+    const currSym = state.currency === 'INR' ? '₹' : '$';
+    const maxQty = Math.max(
+      state.bidsDepth.length ? state.bidsDepth[state.bidsDepth.length - 1].cumQty : 10000,
+      state.asksDepth.length ? state.asksDepth[state.asksDepth.length - 1].cumQty : 10000
+    );
+
+    const rowH = 22;
+    let y = 0;
+
+    // Header
+    ladderCtx.fillStyle = '#0f172a';
+    ladderCtx.fillRect(0, y, w, rowH);
+    ladderCtx.fillStyle = '#64748b';
+    ladderCtx.font = 'bold 10px monospace';
+    ladderCtx.textBaseline = 'middle';
+    ladderCtx.textAlign = 'left';
+    ladderCtx.fillText('BID SIZE', 8, y + rowH / 2);
+    ladderCtx.fillText('ORD', 65, y + rowH / 2);
+    ladderCtx.textAlign = 'center';
+    ladderCtx.fillText(`PRICE (${currSym})`, w / 2, y + rowH / 2);
+    ladderCtx.textAlign = 'right';
+    ladderCtx.fillText('ORD', w - 68, y + rowH / 2);
+    ladderCtx.fillText('ASK SIZE', w - 8, y + rowH / 2);
+    y += rowH;
+
+    // Asks
+    const reversedAsks = [...state.asksDepth].reverse();
+    reversedAsks.forEach(a => {
+      const isBest = a.price === state.bestAsk;
+      const barPct = Math.min(1.0, a.qty / maxQty);
+      const hasUserOrder = state.userQueueOrder && state.userQueueOrder.side === 'SELL' && Math.abs(state.userQueueOrder.price - a.price) < 0.01;
+
+      // Depth bar
+      ladderCtx.fillStyle = isBest ? 'rgba(239, 68, 68, 0.25)' : 'rgba(239, 68, 68, 0.12)';
+      ladderCtx.fillRect(w - (w * 0.45 * barPct), y, w * 0.45 * barPct, rowH - 1);
+
+      if (isBest) {
+        ladderCtx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+        ladderCtx.strokeRect(0.5, y + 0.5, w - 1, rowH - 2);
+      }
+
+      ladderCtx.textAlign = 'center';
+      ladderCtx.font = 'bold 11px monospace';
+      ladderCtx.fillStyle = '#ef4444';
+      let priceText = `${currSym}${a.price.toFixed(2)}`;
+      if (hasUserOrder) priceText += ' [MY ORDER]';
+      ladderCtx.fillText(priceText, w / 2, y + rowH / 2);
+
+      ladderCtx.textAlign = 'right';
+      ladderCtx.font = '10px monospace';
+      ladderCtx.fillStyle = '#94a3b8';
+      ladderCtx.fillText(String(a.orders), w - 68, y + rowH / 2);
+      ladderCtx.font = 'bold 10px monospace';
+      ladderCtx.fillStyle = '#ef4444';
+      ladderCtx.fillText(a.qty.toLocaleString(), w - 8, y + rowH / 2);
+
+      y += rowH;
+    });
+
+    // Spread Channel Marker
+    const spreadH = 22;
+    ladderCtx.fillStyle = 'rgba(34, 211, 238, 0.08)';
+    ladderCtx.fillRect(0, y, w, spreadH);
+    ladderCtx.strokeStyle = 'rgba(34, 211, 238, 0.4)';
+    ladderCtx.setLineDash([4, 4]);
+    ladderCtx.beginPath();
+    ladderCtx.moveTo(0, y);
+    ladderCtx.lineTo(w, y);
+    ladderCtx.moveTo(0, y + spreadH);
+    ladderCtx.lineTo(w, y + spreadH);
+    ladderCtx.stroke();
+    ladderCtx.setLineDash([]);
+
+    ladderCtx.textAlign = 'center';
+    ladderCtx.font = 'bold 10px monospace';
+    ladderCtx.fillStyle = '#22d3ee';
+    ladderCtx.fillText(
+      `INSIDE SPREAD: ${currSym}${state.spread.toFixed(2)} (${((state.spread / state.livePrice) * 10000).toFixed(1)} bps)`,
+      w / 2,
+      y + spreadH / 2
+    );
+    y += spreadH;
+
+    // Bids
+    state.bidsDepth.forEach(b => {
+      const isBest = b.price === state.bestBid;
+      const barPct = Math.min(1.0, b.qty / maxQty);
+      const hasUserOrder = state.userQueueOrder && state.userQueueOrder.side === 'BUY' && Math.abs(state.userQueueOrder.price - b.price) < 0.01;
+
+      // Depth bar
+      ladderCtx.fillStyle = isBest ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.12)';
+      ladderCtx.fillRect(0, y, w * 0.45 * barPct, rowH - 1);
+
+      if (isBest) {
+        ladderCtx.strokeStyle = 'rgba(16, 185, 129, 0.6)';
+        ladderCtx.strokeRect(0.5, y + 0.5, w - 1, rowH - 2);
+      }
+
+      ladderCtx.textAlign = 'left';
+      ladderCtx.font = 'bold 10px monospace';
+      ladderCtx.fillStyle = '#10b981';
+      ladderCtx.fillText(b.qty.toLocaleString(), 8, y + rowH / 2);
+      ladderCtx.font = '10px monospace';
+      ladderCtx.fillStyle = '#94a3b8';
+      ladderCtx.fillText(String(b.orders), 65, y + rowH / 2);
+
+      ladderCtx.textAlign = 'center';
+      ladderCtx.font = 'bold 11px monospace';
+      ladderCtx.fillStyle = '#10b981';
+      let priceText = `${currSym}${b.price.toFixed(2)}`;
+      if (hasUserOrder) priceText += ' [MY ORDER]';
+      ladderCtx.fillText(priceText, w / 2, y + rowH / 2);
+
+      y += rowH;
+    });
+
+    ladderCtx.restore();
+  };
+
+  const renderL3ClassicDomTable = () => {
+    const container = document.getElementById('hftDomTableWrap') || document.getElementById('hftDomLadder');
     if (!container) return;
 
     const currSym = state.currency === 'INR' ? '₹' : '$';
@@ -247,9 +429,7 @@
       state.asksDepth.length ? state.asksDepth[state.asksDepth.length - 1].cumQty : 10000
     );
 
-    // Asks in reverse order (highest ask at top)
     const reversedAsks = [...state.asksDepth].reverse();
-
     let html = `
       <div style="display:grid; grid-template-columns:65px 70px 1fr 70px 65px; font-weight:700; color:#64748b; font-size:0.68rem; padding:4px 6px; border-bottom:1px solid #1e293b; text-transform:uppercase;">
         <span>Bid Size</span>
@@ -260,7 +440,6 @@
       </div>
     `;
 
-    // Render Asks
     reversedAsks.forEach(a => {
       const isBest = a.price === state.bestAsk;
       const barPct = Math.min(100, Math.round((a.qty / maxQty) * 100));
@@ -280,14 +459,12 @@
       `;
     });
 
-    // Spread Channel Marker
     html += `
       <div style="background:rgba(34,211,238,0.08); border-top:1px dashed rgba(34,211,238,0.3); border-bottom:1px dashed rgba(34,211,238,0.3); padding:4px 6px; font-size:0.68rem; text-align:center; color:var(--hft-cyan); font-weight:700;">
         INSIDE SPREAD: ${currSym}${state.spread.toFixed(2)} (${((state.spread / state.livePrice) * 10000).toFixed(1)} bps)
       </div>
     `;
 
-    // Render Bids
     state.bidsDepth.forEach(b => {
       const isBest = b.price === state.bestBid;
       const barPct = Math.min(100, Math.round((b.qty / maxQty) * 100));
@@ -308,6 +485,14 @@
     });
 
     container.innerHTML = html;
+  };
+
+  const renderL3DOMLadder = () => {
+    if (ladderPipelineMode === 'CANVAS_2D') {
+      renderL3CanvasLadder();
+    } else {
+      renderL3ClassicDomTable();
+    }
   };
 
   // ── 4. Realistic Sub-Pixel Microstructure Waterfall Canvas ──────────────────
@@ -373,6 +558,9 @@
 
     const renderLoop = () => {
       renderBookmapWaterfall();
+      if (ladderPipelineMode === 'CANVAS_2D') {
+        renderL3CanvasLadder();
+      }
       animationId = requestAnimationFrame(renderLoop);
     };
     animationId = requestAnimationFrame(renderLoop);

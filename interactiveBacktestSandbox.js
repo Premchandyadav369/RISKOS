@@ -27,6 +27,8 @@
       this.volTarget = options.volTarget || 0.15;          // 15% annualized vol target
       this.riskFreeRate = options.riskFreeRate || 0.065;   // 6.5% INR risk-free rate
       this.baseCapital = options.baseCapital || 10000000;  // ₹1 Crore base capital
+      this.assetAdvINR = options.assetAdvINR || 500000000; // ₹50 Crore baseline ADV
+      this.useAlmgrenChrissImpact = options.useAlmgrenChrissImpact !== false;
 
       // Pre-generate stationary multi-factor return series (252 trading days)
       this.days = 252;
@@ -101,10 +103,23 @@
         const volScaler = Math.min(1.8, volTgt / Math.max(0.05, annVol));
         const finalKellyWeight = targetKellyWeight * volScaler;
 
-        // 4. Turnover and slippage cost
+        // 4. Turnover and Almgren-Chriss Endogenous Market Impact Cost
         const weightDelta = Math.abs(finalKellyWeight - prevWeight);
         totalTurnover += weightDelta;
-        const slippageCost = weightDelta * (slipBps / 10000.0);
+        
+        const adv = params.assetAdvINR || this.assetAdvINR;
+        const currentCap = equityKelly[equityKelly.length - 1];
+        const tradeNotional = weightDelta * currentCap;
+        const participationRate = Math.min(1.0, tradeNotional / Math.max(1000000, adv));
+        
+        let effectiveSlippageBps = slipBps;
+        if (this.useAlmgrenChrissImpact && participationRate > 0) {
+          // Square-Root Law of Market Impact: I = half_spread + 0.6 * sigma * sqrt(Q / V)
+          const impactDragBps = 0.6 * (annVol * 10000.0) * Math.sqrt(participationRate) * 0.05;
+          effectiveSlippageBps = slipBps + impactDragBps;
+        }
+        
+        const slippageCost = weightDelta * (effectiveSlippageBps / 10000.0);
         prevWeight = finalKellyWeight;
 
         // 5. Daily step returns
@@ -129,14 +144,16 @@
 
       return {
         elapsedMs,
-        params: { kellyFraction: kFrac, lookbackDays: lookback, slippageBps: slipBps, volTarget: volTgt },
+        params: { kellyFraction: kFrac, lookbackDays: lookback, slippageBps: slipBps, volTarget: volTgt, assetAdvINR: params.assetAdvINR || this.assetAdvINR },
         kelly: statsKelly,
         benchmark: statsBench,
         equityCurves: {
           kelly: equityKelly,
           benchmark: equityBenchmark
         },
-        totalTurnover: +(totalTurnover).toFixed(2)
+        totalTurnover: +(totalTurnover).toFixed(2),
+        marketImpactModel: 'ALMGREN_CHRISS_SQUARE_ROOT',
+        capacityEstimateINR: Math.round((params.assetAdvINR || this.assetAdvINR) * 0.15)
       };
     }
 
