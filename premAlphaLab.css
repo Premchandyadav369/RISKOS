@@ -1,0 +1,320 @@
+/**
+ * RISKOS PREM-Alpha Laboratory Stylesheet
+ * ==============================================================================
+ * Flagship Quantitative Workbench: Predictive Regime & Entropy Micro-Alpha Engine
+ */
+
+#riskosPremAlphaModal {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-sizing: border-box;
+}
+
+.prem-lab-dialog {
+  background: #090e1a;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 1060px;
+  max-height: 94vh;
+  box-shadow: 0 25px 70px -15px rgba(0, 0, 0, 0.95), 0 0 35px rgba(245, 158, 11, 0.15);
+  color: #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.prem-lab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: linear-gradient(90deg, #0d1527 0%, #151d33 100%);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.prem-lab-title-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.prem-lab-logo-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
+  font-size: 16px;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+}
+
+.prem-lab-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.prem-lab-close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 26px;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.15s ease;
+}
+
+.prem-lab-close-btn:hover {
+  color: #fff;
+}
+
+/* Tab Bar */
+.prem-lab-tabs {
+  display: flex;
+  border-bottom: 1px solid #1e293b;
+  background: #060a14;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.prem-tab-btn {
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #94a3b8;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.15s ease;
+}
+
+.prem-tab-btn:hover {
+  color: #e2e8f0;
+}
+
+.prem-tab-btn.active {
+  color: #f59e0b;
+  border-bottom-color: #f59e0b;
+}
+
+/* Content Container */
+.prem-lab-body {
+  padding: 18px;
+  flex: 1;
+  overflow-y: auto;
+  background: #040711;
+}
+
+/* Grid Layouts */
+.prem-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 840px) {
+  .prem-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.prem-card {
+  background: #0b1120;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.prem-card-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: #f59e0b;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Parameter Sliders */
+.prem-slider-row {
+  margin-bottom: 10px;
+}
+
+.prem-slider-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.prem-slider-val {
+  font-family: var(--font-mono, monospace);
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.prem-range-input {
+  width: 100%;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+/* Telemetry Metric Gauges */
+.prem-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.prem-metric-box {
+  background: #070d19;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.prem-metric-box .label {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.prem-metric-box .val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+  font-family: var(--font-mono, monospace);
+}
+
+/* Signal Badges */
+.prem-signal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* Preset Buttons */
+.prem-presets-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.prem-preset-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prem-preset-chip:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+/* Replay Controls */
+.prem-btn-action {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #000;
+  border: none;
+  font-weight: 800;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.prem-btn-action:hover {
+  opacity: 0.9;
+}
+
+.prem-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-weight: 700;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prem-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Trade Log Table */
+.prem-trade-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: left;
+}
+
+.prem-trade-table th {
+  padding: 8px 10px;
+  background: #070d19;
+  color: #94a3b8;
+  font-weight: 700;
+  border-bottom: 1px solid #1e293b;
+}
+
+.prem-trade-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e2e8f0;
+  font-family: var(--font-mono, monospace);
+}

@@ -39,6 +39,7 @@
   <link rel="stylesheet" href="quantCopilot.css" />
   <link rel="stylesheet" href="accreditationCert.css" />
   <link rel="stylesheet" href="orderBookDom.css" />
+  <link rel="stylesheet" href="premAlphaLab.css" />
 </head>
 <body class="learn-page" data-user-mode="beginner">
 
@@ -329,18 +330,43 @@
               <span class="chip-dot chip-dot--cyan"></span>
               <span style="font-size: 0.72rem; font-weight: 800; color: var(--accent-cyan); letter-spacing: 0.06em; text-transform: uppercase;">Comprehensive Financial Knowledge Pathways</span>
             </div>
-            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">QUANTITATIVE MASTERY CURRICULUM &bull; 10 STRUCTURED TRACKS (80 INTERACTIVE LABS)</h3>
+            <h3 style="font-size: 1.15rem; font-weight: 800; color: #fff; margin: 4px 0 2px 0;">QUANTITATIVE MASTERY CURRICULUM &bull; 11 STRUCTURED TRACKS (81 INTERACTIVE LABS)</h3>
             <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 0;">Complete step-by-step curriculum covering all 80 mathematical laboratories across risk, alpha, execution, and portfolio architecture.</p>
           </div>
 
           <!-- Persona Filter Tabs -->
           <div class="curriculum-persona-filter" style="display: flex; flex-wrap: wrap; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 3px; gap: 4px;">
-            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">All 10 Tracks (80 Labs)</button>
+            <button class="curriculum-filter-btn active" id="filterCurriculumAll" data-curriculum="all" style="background: rgba(34, 211, 238, 0.15); color: #22d3ee; border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;">All 11 Tracks (81 Labs)</button>
             <button class="curriculum-filter-btn" id="filterCurriculumLayman" data-curriculum="layman" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-seedling text-emerald" style="margin-right: 5px;"></i> Retail &amp; Foundations</button>
             <button class="curriculum-filter-btn" id="filterCurriculumTrading" data-curriculum="trading" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-chart-line text-pink" style="margin-right: 5px;"></i> Trading &amp; Alpha</button>
             <button class="curriculum-filter-btn" id="filterCurriculumDerivatives" data-curriculum="derivatives" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-cube text-amber" style="margin-right: 5px;"></i> Derivatives &amp; Vol</button>
             <button class="curriculum-filter-btn" id="filterCurriculumInst" data-curriculum="institutional" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-building-columns text-cyan" style="margin-right: 5px;"></i> Institutional Risk</button>
             <button class="curriculum-filter-btn" id="filterCurriculumAiHft" data-curriculum="ai_hft" style="background: transparent; color: var(--text-muted); border: none; border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 700; cursor: pointer;"><i class="fa-solid fa-brain text-purple" style="margin-right: 5px;"></i> HFT &amp; AI Alpha</button>
+            <button class="curriculum-filter-btn" id="filterCurriculumPrem" onclick="window.openPremAlphaLab && window.openPremAlphaLab('tab_studio')" style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 6px; padding: 6px 12px; font-size: 0.72rem; font-weight: 800; cursor: pointer;"><i class="fa-solid fa-crown" style="margin-right: 5px;"></i> Flagship PREM Lab 81</button>
+          </div>
+        </div>
+
+        <!-- 🌟 PROPRIETARY FLAGSHIP SHOWCASE: PREM-ALPHA ENGINE (LAB 81) 🌟 -->
+        <div class="prem-flagship-hero-banner" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(13, 21, 39, 0.95) 50%, rgba(34, 211, 238, 0.15) 100%); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 18px 22px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 25px rgba(245, 158, 11, 0.1); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div style="flex: 1; min-width: 320px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+              <span style="background: #f59e0b; color: #000; font-size: 0.68rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.05em;">OUR SPECIAL FLAGSHIP</span>
+              <span style="font-size: 0.72rem; color: #f59e0b; font-weight: 700;"><i class="fa-solid fa-crown"></i> PROPRIETARY QUANT ALGORITHM</span>
+            </div>
+            <h2 style="margin: 0 0 6px 0; font-size: 1.25rem; font-weight: 900; color: #fff; letter-spacing: -0.01em;">
+              P.R.E.M. — Predictive Regime &amp; Entropy Micro-Alpha Engine <span style="color: #f59e0b;">(Lab 81)</span>
+            </h2>
+            <p style="margin: 0; font-size: 0.8rem; color: #cbd5e1; line-height: 1.5; max-width: 780px;">
+              Named after architect <strong>Prem</strong>, this institutional algorithm synthesizes 3-state Hamilton HMM regime drift, 5-tier Order Flow Imbalance, Shannon depth entropy deficit coiling, and Hawkes point process jump cascade defense into a single unified predictive quoting matrix.
+            </p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button onclick="window.openPremAlphaLab && window.openPremAlphaLab('tab_studio')" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #000; font-weight: 800; font-size: 0.8rem; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4);">
+              <i class="fa-solid fa-sliders"></i> Launch PREM Studio
+            </button>
+            <button onclick="window.switchModule && window.switchModule('prem_alpha'); document.getElementById('activeLabWorkspace')?.scrollIntoView({behavior:'smooth'});" style="background: rgba(255, 255, 255, 0.08); color: #fff; font-weight: 700; font-size: 0.8rem; border: 1px solid rgba(255, 255, 255, 0.2); padding: 10px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-microchip" style="color: #38bdf8;"></i> Load in Workspace
+            </button>
           </div>
         </div>
 
@@ -1660,6 +1686,9 @@
   <script src="cloudKeyVault.js"></script>
   <script src="careerAcademy.js"></script>
   <script src="exoticDerivativesEngine.js"></script>
+  <!-- Flagship Algorithm: PREM-Alpha Proprietary Execution Matrix & Lab 81 -->
+  <script src="premAlphaEngine.js"></script>
+  <script src="premAlphaLab.js"></script>
 </body>
 </html>
 

@@ -1740,6 +1740,19 @@
         { moduleId: 'yen_carry_unwind', title: 'Global FX Carry Trade Unwind Mechanics', role: 'Interest rate differential unwinds & liquidity runs', unlock: 'Cross-Currency Margin & Liquidity Radar' },
         { moduleId: 'backtrader_cerebro', title: 'Backtrader Cerebro Event-Driven Architecture', role: 'Event-driven execution loops vs vectorized backtests', unlock: 'Event-Driven Strategy Execution Engine' }
       ]
+    },
+    {
+      id: 'prem_flagship_alpha',
+      title: 'Flagship PREM-Alpha Proprietary Execution Matrix',
+      subtitle: 'Predictive Regime Entropy & Dynamic Skew (Special Prem)',
+      badge: 'Flagship Lab 81',
+      personas: ['layman', 'trading', 'institutional', 'ai_hft'],
+      color: '#f59e0b',
+      icon: 'fa-brain',
+      description: 'Our proprietary flagship quantitative engine: compounds Hamilton HMM 3-state regime drift, multi-level Order Flow Imbalance, Shannon depth entropy deficit, and Hawkes point process jump cascade defense.',
+      steps: [
+        { moduleId: 'prem_alpha', title: 'Lab 81: PREM-Alpha Proprietary Execution Matrix', role: 'Flagship micro-price drift, coiled queue entropy & Hawkes jump resilience', unlock: 'Autonomous PREM-Alpha Dynamic Quoting & Skew Matrix' }
+      ]
     }
   ];
 
@@ -2042,6 +2055,36 @@
         options: ["d(ln S) = μ dt + σ dW", "d(ln S) = (μ - ½σ²) dt + σ dW", "d(ln S) = ½σ² dt + σ dW"],
         answerIndex: 1,
         explanation: "By Itô's Lemma: df = (f' μ S + ½ f'' σ² S²) dt + f' σ S dW. With f'(S) = 1/S and f''(S) = -1/S², the drift term becomes (μ - ½σ²) dt."
+      }
+    },
+    prem_flagship_alpha: {
+      symbol: 'PREM-ALPHA',
+      benchmark: '^NSEI',
+      deskUrl: 'learn.html#prem-alpha-lab',
+      deskLabel: 'PREM Studio',
+      deskIcon: 'fa-microchip',
+      actionLabel: 'Launch PREM-Alpha Workbench',
+      actionOrder: { symbol: 'PREM-ALPHA', side: 'BUY', qty: 10, price: 1250 },
+      metricTitle: 'PREM-Alpha Real-Time Telemetry',
+      sliderLabel: 'Simulated OFI Flow (-1 to +1)',
+      sliderMin: -1.0,
+      sliderMax: 1.0,
+      sliderStep: 0.1,
+      sliderDefault: 0.45,
+      unit: '',
+      compute: (val, quote) => {
+        const bps = (18.0 * 0.65 - 24.0 * 0.10 + 1.0 * 0.25) + (15.0 * val * 1.57);
+        return `OFI: ${val >= 0 ? '+' : ''}${val} → Instantaneous Alpha: ${bps >= 0 ? '+' : ''}${bps.toFixed(1)} bps | Dynamic Skew Active`;
+      },
+      quickQuiz: {
+        question: "When order book Shannon entropy decreases (queue becomes concentrated), how does PREM-Alpha respond?",
+        options: [
+          "It ignores entropy and quotes wider spreads.",
+          "It amplifies directional alpha drift via the Entropy Deficit Multiplier (1 + γ_H(1 - H_LOB)).",
+          "It automatically switches off the server."
+        ],
+        answerIndex: 1,
+        explanation: "Concentrated depth indicates high queue pressure or iceberg replenishment at the touch, amplifying impending directional breakout drift."
       }
     }
   };

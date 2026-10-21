@@ -69,7 +69,7 @@ from engine.model_validation import (
 )
 from engine.providers.alpha_vantage_news import alpha_vantage_provider
 from engine.proprietary_algorithms import (
-    compute_hs_jamm, compute_se_microprice, compute_factor_shrinkage, compute_dk_shield
+    compute_hs_jamm, compute_se_microprice, compute_factor_shrinkage, compute_dk_shield, compute_prem_alpha
 )
 
 app = FastAPI(
@@ -1582,3 +1582,39 @@ def api_quant_dk_shield(
         return {"success": False, "error": str(e)}
 
 
+
+
+@app.get("/api/quant/prem-alpha")
+def api_quant_prem_alpha(
+    spot: float = Query(1250.0, description="Asset spot mid price"),
+    ofi: float = Query(0.45, description="Normalized order flow imbalance [-1.0, 1.0]"),
+    p_bull: float = Query(0.65, description="HMM Bull regime probability"),
+    p_bear: float = Query(0.10, description="HMM Bear regime probability"),
+    p_chop: float = Query(0.25, description="HMM Chop regime probability"),
+    hawkes_eta: float = Query(0.35, description="Hawkes branching ratio eta"),
+    inventory: int = Query(0, description="Current market maker inventory"),
+    volatility: float = Query(0.25, description="Annual asset volatility"),
+    bids: Optional[str] = Query("5200,3100,1800,950,420", description="Comma-separated tier bid volumes"),
+    asks: Optional[str] = Query("2100,3900,2600,1300,680", description="Comma-separated tier ask volumes")
+):
+    """P.R.E.M. Predictive Regime & Entropy Micro-Alpha Engine (Flagship Algorithm)."""
+    try:
+        b_list = [float(x.strip()) for x in bids.split(",") if x.strip()] if bids else [5200.0, 3100.0, 1800.0, 950.0, 420.0]
+        a_list = [float(x.strip()) for x in asks.split(",") if x.strip()] if asks else [2100.0, 3900.0, 2600.0, 1300.0, 680.0]
+        return {
+            "success": True,
+            "algorithm": "PREM-Alpha",
+            "proof": "Flagship Proof: Predictive Regime Entropy Microstructure & Dynamic Execution",
+            "data": compute_prem_alpha(
+                spot=spot,
+                regime_probs=[p_bull, p_bear, p_chop],
+                ofi=ofi,
+                bid_volumes=b_list,
+                ask_volumes=a_list,
+                hawkes_eta=hawkes_eta,
+                inventory=inventory,
+                volatility=volatility
+            )
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}

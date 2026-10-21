@@ -220,3 +220,132 @@ def compute_dk_shield(
         "non_breach_probability_guarantee": 1.0 if current_drawdown < max_drawdown else 0.0,
         "barrier_state": "SAFE_EXPANSION" if shield_multiplier > 0.85 else ("THROTTLED_BUFFER" if shield_multiplier > 0.25 else "CRITICAL_BARRIER_HALT")
     }
+
+
+def compute_prem_alpha(
+    spot: float = 1250.0,
+    regime_probs: Optional[List[float]] = None,
+    ofi: float = 0.45,
+    bid_volumes: Optional[List[float]] = None,
+    ask_volumes: Optional[List[float]] = None,
+    hawkes_eta: float = 0.35,
+    inventory: int = 0,
+    volatility: float = 0.25,
+    risk_aversion: float = 0.10,
+    kappa: float = 1.50,
+    horizon_sec: float = 1.0
+) -> Dict[str, Any]:
+    """
+    Computes P.R.E.M. Predictive Regime Entropy Micro-Alpha Engine (Flagship Algorithm).
+    Synthesizes HMM regime expectation, multi-level OFI, Shannon order book entropy deficit,
+    and Hawkes point process jump cascade attenuation.
+    """
+    if regime_probs is None or len(regime_probs) < 3:
+        regime_probs = [0.65, 0.10, 0.25]
+    
+    prob_sum = max(1e-6, sum(regime_probs))
+    p_bull = regime_probs[0] / prob_sum
+    p_bear = regime_probs[1] / prob_sum
+    p_chop = regime_probs[2] / prob_sum
+
+    # 1. Regime Expected Drift (Bull: +18 bps, Bear: -24 bps, Chop: +1 bp)
+    mu_bull = 0.0018
+    mu_bear = -0.0024
+    mu_chop = 0.0001
+    mu_regime = (p_bull * mu_bull) + (p_bear * mu_bear) + (p_chop * mu_chop)
+
+    # 2. Shannon Queue Entropy Deficit across depth
+    if bid_volumes is None or len(bid_volumes) == 0:
+        bid_volumes = [5200.0, 3100.0, 1800.0, 950.0, 420.0]
+    if ask_volumes is None or len(ask_volumes) == 0:
+        ask_volumes = [2100.0, 3900.0, 2600.0, 1300.0, 680.0]
+
+    def _entropy(vols: List[float]) -> float:
+        s = sum(max(0.0, v) for v in vols)
+        if s <= 0:
+            return 1.0
+        k = len(vols)
+        max_h = math.log(max(2, k))
+        h = 0.0
+        for v in vols:
+            p = max(0.0, v) / s
+            if p > 1e-12:
+                h -= p * math.log(p)
+        return min(1.0, max(0.0, h / max_h))
+
+    h_bids = _entropy(bid_volumes)
+    h_asks = _entropy(ask_volumes)
+    h_avg = 0.5 * (h_bids + h_asks)
+    entropy_deficit = max(0.0, 1.0 - h_avg)
+    entropy_multiplier = 1.0 + 1.50 * entropy_deficit
+
+    # 3. Hawkes Jump Attenuation
+    eta = max(0.0, float(hawkes_eta))
+    eta_crit = 0.50
+    lambda_damp = 2.20
+    excess_eta = max(0.0, eta - eta_crit)
+    attenuation = math.exp(-lambda_damp * excess_eta)
+    is_cascade_hazard = bool(eta >= 0.85)
+
+    # 4. Master PREM-Alpha calculation
+    kappa_ofi = 0.0015
+    raw_alpha = (mu_regime + (kappa_ofi * ofi * entropy_multiplier)) * attenuation
+    alpha_bps = round(raw_alpha * 10000.0, 2)
+
+    # 5. Avellaneda-Stoikov Dynamic Reservation Price & Quoting Skew
+    gamma = max(1e-4, risk_aversion)
+    tau = max(1e-4, horizon_sec / 3600.0)
+    theta_alpha = 0.85
+    alpha_drift_comp = spot * (theta_alpha * raw_alpha)
+    inventory_penalty = inventory * gamma * (volatility ** 2) * tau * spot
+    reservation_price = spot + alpha_drift_comp - inventory_penalty
+
+    base_half_spread = (1.0 / gamma) * math.log(1.0 + (gamma / max(1e-4, kappa)))
+    jump_penalty = (1.0 + 2.5 * ((max(0.0, eta - 0.70)) ** 2)) if is_cascade_hazard else 1.0
+    dynamic_half_spread = base_half_spread * jump_penalty
+
+    alpha_skew_shift = raw_alpha * spot * 0.40
+    clamped_skew = max(-dynamic_half_spread * 0.6, min(dynamic_half_spread * 0.6, alpha_skew_shift))
+    optimal_bid = reservation_price - dynamic_half_spread + clamped_skew
+    optimal_ask = reservation_price + dynamic_half_spread + clamped_skew
+    effective_spread_bps = round(((optimal_ask - optimal_bid) / spot) * 10000.0, 2)
+
+    # Signal Classification
+    if is_cascade_hazard:
+        signal = "PREM_HAWKES_SHUTDOWN"
+        rec = "Pull resting limit orders or double spread to prevent toxic adverse selection"
+    elif alpha_bps >= 14.0:
+        signal = "PREM_STRONG_ALPHA_BUY"
+        rec = "Aggressive cross-spread buy or tighten bid to absorb incoming liquidity"
+    elif alpha_bps >= 4.0:
+        signal = "PREM_MOMENTUM_LONG"
+        rec = "Skew quotes long: advance bid level toward mid"
+    elif alpha_bps <= -14.0:
+        signal = "PREM_STRONG_ALPHA_SELL"
+        rec = "Aggressive sell liquidation or shade ask into active bid queue"
+    elif alpha_bps <= -4.0:
+        signal = "PREM_DEFENSIVE_SHORT"
+        rec = "Skew quotes short: lower ask level toward mid"
+    else:
+        signal = "PREM_NEUTRAL_ARBITRAGE"
+        rec = "Provide passive two-way liquidity around reservation price r*"
+
+    return {
+        "engine": "PREM-Alpha",
+        "spot": spot,
+        "alpha_prem_bps": alpha_bps,
+        "alpha_prem_raw": round(raw_alpha, 6),
+        "regime_drift_bps": round(mu_regime * 10000.0, 2),
+        "entropy_avg": round(h_avg, 3),
+        "entropy_multiplier": round(entropy_multiplier, 3),
+        "hawkes_eta": round(eta, 3),
+        "hawkes_attenuation": round(attenuation, 4),
+        "is_cascade_hazard": is_cascade_hazard,
+        "reservation_price": round(reservation_price, 2),
+        "optimal_bid": round(optimal_bid, 2),
+        "optimal_ask": round(optimal_ask, 2),
+        "spread_bps": effective_spread_bps,
+        "signal": signal,
+        "recommendation": rec
+    }
+

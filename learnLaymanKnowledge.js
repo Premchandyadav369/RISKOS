@@ -485,6 +485,12 @@ const LearnLaymanKnowledge = (() => {
     analogy: "Dropping a pebble into a pool of honey. The initial splash creates a ripple, but the viscosity of the honey slowly dampens the waves over time until the surface is flat again.",
     whyItMatters: "Proves that market impact is temporary and decays as a power-law G(t) ~ t^{-γ}; crucial for multi-day institutional block liquidation schedules.",
     realWorldExample: "Liquidating a ₹100 Crore block: power-law propagator with γ = 0.5 reveals that 60% of temporary price impact recovers within 30 minutes of order completion."
+  },
+  prem_alpha: {
+    whatIsIt: "P.R.E.M. — Predictive Regime Entropy Micro-Alpha Engine, our flagship proprietary quantitative algorithm named after Prem, integrating HMM regimes, queue entropy, and Hawkes cascade resilience.",
+    analogy: "A Formula 1 car telemetry system that senses track weather (HMM regime), engine compression (order book entropy), and immediately deploys emergency anti-spin braking when an oil slick or pile-up begins ahead (Hawkes jump crash).",
+    whyItMatters: "Standard market makers get adversely selected and blown out during flash crashes; PREM dynamically widens quotes and skews quotes long/short ahead of the move, capturing consistent alpha.",
+    realWorldExample: "During an intraday sell cascade where Hawkes branching ratio eta surges to 0.95, PREM automatically halts quoting or doubles spreads, preventing millions in toxic adverse fills."
   }
 };
 

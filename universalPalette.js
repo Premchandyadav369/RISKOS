@@ -93,7 +93,8 @@
     { id: 'act_cloudvault', title: 'Open Cloud Key Vault & Cryptographic Enclave (/vault)', desc: 'Zero-knowledge AES-256-GCM broker API envelope encryption & chained audit trail', category: 'Actions', badge: 'ENCLAVE', icon: 'fa-vault', action: () => root.CloudKeyVault ? root.CloudKeyVault.showVaultModal() : alert('Cloud Vault active') },
     { id: 'act_exotics', title: 'Launch Exotic Derivatives & Multi-Curve Yield Engine (/exotics)', desc: 'Carr-Ehrhardt barrier options, Kemna-Vorst Asian options, Variance Swaps & SOFR/MIBOR bootstrapping', category: 'Actions', badge: 'EXOTICS', icon: 'fa-cubes-stacked', action: () => window.location.href='gs_quant.html#exotic-pricer' },
     { id: 'act_academy', title: 'Launch Quant Career Academy & 2-Way MM Game (/academy)', desc: 'Jane Street/Optiver quoting simulation, 8s mental math drills & Green Book 50 solver', category: 'Actions', badge: 'ACADEMY', icon: 'fa-graduation-cap', action: () => root.CareerAcademy ? root.CareerAcademy.getInstance().openModal() : (window.location.href='learn.html#career-academy') },
-    { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 80 labs, 41 autonomous bots, and live cross-asset desks.") }
+    { id: 'act_prem', title: 'Launch PREM-Alpha Proprietary Quantitative Lab (/prem)', desc: 'Our flagship Predictive Regime & Entropy Micro-Alpha Engine (Architect: Prem)', category: 'Actions', badge: 'FLAGSHIP PREM', icon: 'fa-brain', action: () => root.PremAlphaLab ? root.PremAlphaLab.openModal() : (window.location.href='learn.html#prem-alpha-lab') },
+    { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 81 labs, 41 autonomous bots, and live cross-asset desks.") }
   ];
 
   // Safe Financial & Math Expression Evaluator
@@ -318,6 +319,9 @@
         }
         if (slashQuery.includes('academy') || slashQuery.includes('career') || slashQuery.includes('interview')) {
           matched.push(CATALOG.find(c => c.id === 'act_academy'));
+        }
+        if (slashQuery.includes('prem') || slashQuery.includes('special') || slashQuery.includes('algo')) {
+          matched.push(CATALOG.find(c => c.id === 'act_prem'));
         }
       }
 
