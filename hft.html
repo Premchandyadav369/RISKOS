@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="universalPalette.css" />
   <link rel="stylesheet" href="authModal.css" />
   <link rel="stylesheet" href="terminalBottomBar.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
 </head>
 <body class="hft-page" data-theme="dark">
 
@@ -44,7 +45,7 @@
       <!-- Left: Logo & Market Clock Badge -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" />
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" / style="width:34px !important; height:34px !important; max-width:34px !important; max-height:34px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle Indian (NSE) / US (NYSE) market hours">
           <span class="market-status-dot dot--open" id="marketStatusDot"></span>
@@ -1687,5 +1688,6 @@
       });
     });
   </script>
+  <script src="mobileNav.js"></script>
 </body>
 </html>

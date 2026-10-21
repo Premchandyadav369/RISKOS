@@ -19,6 +19,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="news.css">
   <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="mobileResponsive.css" />
 </head>
 <body class="news-terminal-body">
 
@@ -29,7 +30,7 @@
       <!-- Brand Logo & Market Clock -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home" title="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" onerror="this.src='assets/logo.png'" />
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" onerror="this.src='assets/logo.png'" / style="width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         <span class="brand-name-text">RISKOS</span>
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
@@ -432,5 +433,6 @@
   <script src="supabaseConfig.js"></script>
   <script src="supabaseClient.js"></script>
   <script src="authModal.js"></script>
+  <script src="mobileNav.js"></script>
 </body>
 </html>

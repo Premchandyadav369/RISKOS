@@ -15,6 +15,45 @@ html, body {
   box-sizing: inherit;
 }
 
+/* ── Universal Logo Hardening & Defensive Containment ────────────────────── */
+.logo-img,
+.logo-btn img,
+.logo-container img,
+.signup-logo-img,
+.login-logo-link img,
+.mobile-logo-img,
+.obs-logo,
+img[src*="logo"] {
+  max-width: 38px !important;
+  max-height: 38px !important;
+  object-fit: contain !important;
+  border-radius: 8px !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+}
+
+/* ── Universal Dark High-Performance Scrollbar ───────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Accessibility: High-Visibility Focus Outline ────────────────────────── */
+:focus-visible {
+  outline: 2px solid #22d3ee !important;
+  outline-offset: 2px !important;
+}
+
 /* ── Responsive Tables & Sticky Primary Columns ──────────────────────────── */
 .table-responsive-wrapper,
 .ticker-table-wrapper,
@@ -51,7 +90,7 @@ html, body {
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 99990;
+  z-index: 9005;
   align-items: center;
   justify-content: space-around;
   padding-inline: 4px;
@@ -96,7 +135,7 @@ html, body {
   background: rgba(0, 0, 0, 0.82);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  z-index: 99995;
+  z-index: 30000;
   display: none;
   align-items: flex-end;
   justify-content: center;

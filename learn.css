@@ -1139,7 +1139,7 @@ header.header {
 .lab-drawer-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 25000;
   display: flex;
   justify-content: flex-end;
 }
@@ -1215,7 +1215,7 @@ header.header {
   background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  z-index: 200;
+  z-index: 30000;
   display: flex;
   flex-direction: column;
   padding: 24px;

@@ -1040,7 +1040,7 @@ button, select, input {
 .canvas-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 260;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1132,7 +1132,7 @@ button, select, input {
 .why-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 350;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1372,7 +1372,7 @@ button, select, input {
 .glossary-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 250;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2504,7 +2504,7 @@ button, select, input {
 .universal-drawer-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1200;
+  z-index: 25000;
   display: flex;
   justify-content: flex-end;
   pointer-events: none;
@@ -3088,7 +3088,7 @@ button, select, input {
 .tx-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 1300;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3670,7 +3670,7 @@ button, select, input {
 .sec-picker-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4118,7 +4118,7 @@ button, select, input {
 .canvas-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 260;
+  z-index: 30000;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -212,7 +212,8 @@ a {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .topbar-pill-provider {
@@ -302,7 +303,7 @@ a {
     box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(255, 255, 255, 0.05);
     padding: 8px 6px;
     display: none;
-    z-index: 1100;
+    z-index: 12000;
     backdrop-filter: blur(20px);
 }
 
@@ -868,7 +869,7 @@ button:hover {
 .palette-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99999;
+    z-index: 30000;
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -1138,7 +1139,7 @@ button:hover {
 .explain-modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99999;
+    z-index: 30000;
     display: flex;
     justify-content: flex-end;
 }
@@ -1414,7 +1415,7 @@ body.quad-grid-active .tab-content {
 .fix-modal-overlay {
     position: fixed;
     inset: 0;
-    z-index: 99999;
+    z-index: 30000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1567,7 +1568,7 @@ body.quad-grid-active .tab-content {
     box-shadow: 0 20px 48px rgba(0, 0, 0, 0.85), 0 0 1px 1px rgba(255, 255, 255, 0.08);
     padding: 6px;
     display: none;
-    z-index: 1200;
+    z-index: 12000;
     backdrop-filter: blur(24px);
 }
 

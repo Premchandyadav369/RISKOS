@@ -16,7 +16,7 @@
   font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 0.68rem;
   color: #ffb000;
-  z-index: 99999;
+  z-index: 9000;
   user-select: none;
   backdrop-filter: blur(8px);
 }
@@ -138,4 +138,10 @@
 /* Adjust page padding so bottom bar does not overlap content */
 body {
   padding-bottom: 36px !important;
+}
+
+@media (max-width: 768px) {
+  .riskos-bottom-telemetry-bar {
+    display: none !important;
+  }
 }
