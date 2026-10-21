@@ -206,6 +206,44 @@
         openSheet();
       });
     });
+
+    // ── Universal Topbar "Other ▾" Dropdown Listener ──
+    document.querySelectorAll('.nav-dropdown-trigger').forEach(trigger => {
+      trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const parent = trigger.closest('.nav-dropdown');
+        if (parent) {
+          const isOpen = parent.classList.contains('open');
+          document.querySelectorAll('.nav-dropdown.open').forEach(d => {
+            d.classList.remove('open');
+            d.querySelector('.nav-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+          });
+          if (!isOpen) {
+            parent.classList.add('open');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        }
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.nav-dropdown')) {
+        document.querySelectorAll('.nav-dropdown.open').forEach(d => {
+          d.classList.remove('open');
+          d.querySelector('.nav-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.nav-dropdown.open').forEach(d => {
+          d.classList.remove('open');
+          d.querySelector('.nav-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
   }
 
   if (typeof window !== 'undefined') {

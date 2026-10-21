@@ -60,17 +60,91 @@
       </div>
 
       <!-- Center Navigation Pill Bar -->
-      <nav class="nav-pill" aria-label="Main Navigation">
-        <a href="index.html" class="nav-link">Dashboard</a>
-        <a href="app.html" class="nav-link">8 Desks</a>
-        <a href="fleet.html" class="nav-link">Fleet</a>
-        <a href="observatory.html" class="nav-link">Observatory</a>
-        <a href="learn.html" class="nav-link">Labs</a>
-        <a href="ticker.html" class="nav-link active">Screener</a>
-        <a href="news.html" class="nav-link">News</a>
-        <a href="portfolio_optimizer.html" class="nav-link">Optimizer</a>
-        <a href="docs.html" class="nav-link">Docs</a>
-      </nav>
+              <nav class="nav-pill" aria-label="Main Navigation">
+          <button class="nav-search-trigger" id="navSearchTrigger" title="Search Securities, News, or Ask Anything (⌘K)">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search (⌘K)...</span>
+            <kbd class="kbd-pill">⌘K</kbd>
+          </button>
+          <a href="index.html" class="nav-link">Dashboard</a>
+          <a href="app.html" class="nav-link">8 Desks</a>
+          <a href="hft.html" class="nav-link" style="color:var(--accent-cyan); font-weight:700;"><i class="fa-solid fa-bolt-lightning" style="margin-right:2px;"></i> HFT</a>
+          <a href="fleet.html" class="nav-link">Fleet</a>
+          <a href="learn.html" class="nav-link">Labs</a>
+          <div class="nav-dropdown" id="navOtherDropdown">
+            <button class="nav-link nav-dropdown-trigger active" id="navOtherTrigger" type="button" aria-expanded="false" aria-haspopup="true">
+              <span>Other</span> <i class="fa-solid fa-chevron-down nav-dropdown-caret"></i>
+            </button>
+            <div class="nav-dropdown-menu" id="navOtherMenu" role="menu">
+              <div class="nav-dropdown-header">Specialized Desks &amp; Analytics</div>
+              <a href="gs_quant.html" class="nav-dropdown-item" role="menuitem">
+                <i class="fa-solid fa-gem" style="color:#fbbf24;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">GS Quant Desk</div>
+                  <div class="nav-dropdown-sub">IRS, CDS Spreads, Vol Smiles &amp; Python</div>
+                </div>
+              </a>
+              <a href="observatory.html" class="nav-dropdown-item" role="menuitem">
+                <i class="fa-solid fa-satellite-dish" style="color:#22d3ee;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">Macro Observatory</div>
+                  <div class="nav-dropdown-sub">Global Causality Network &amp; Central Banks</div>
+                </div>
+              </a>
+              <a href="ticker.html" class="nav-dropdown-item active" role="menuitem">
+                <i class="fa-solid fa-layer-group" style="color:#38bdf8;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">Security Screener</div>
+                  <div class="nav-dropdown-sub">Multi-Factor Radar &amp; Penny Screener</div>
+                </div>
+              </a>
+              <a href="news.html" class="nav-dropdown-item" role="menuitem">
+                <i class="fa-solid fa-newspaper" style="color:#10b981;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">News Wire &amp; Impact</div>
+                  <div class="nav-dropdown-sub">Alpha Vantage News &amp; Event Analysis</div>
+                </div>
+              </a>
+              <a href="portfolio_optimizer.html" class="nav-dropdown-item" role="menuitem">
+                <i class="fa-solid fa-sliders" style="color:#a855f7;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">Portfolio Optimizer</div>
+                  <div class="nav-dropdown-sub">Markowitz, Black-Litterman &amp; HRP</div>
+                </div>
+              </a>
+              <a href="docs.html" class="nav-dropdown-item" role="menuitem">
+                <i class="fa-solid fa-book-bookmark" style="color:#f59e0b;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">System Documentation</div>
+                  <div class="nav-dropdown-sub">Mathematical Proofs &amp; Whitepapers</div>
+                </div>
+              </a>
+              <div class="nav-dropdown-divider"></div>
+              <div class="nav-dropdown-header">Quick Hubs &amp; Tools</div>
+              <a href="#" class="nav-dropdown-item" onclick="if(window.CareerAcademy){window.CareerAcademy.getInstance().openModal();}else if(window.UniversalPalette){window.UniversalPalette.open('/academy');}return false;" role="menuitem">
+                <i class="fa-solid fa-graduation-cap" style="color:#22d3ee;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">Career Academy (Jane Street MM)</div>
+                  <div class="nav-dropdown-sub">2-Way Quoting Game &amp; Mental Math</div>
+                </div>
+              </a>
+              <a href="#" class="nav-dropdown-item" onclick="if(window.LiveBrokerGateway){window.LiveBrokerGateway.openGatewayModal();}return false;" role="menuitem">
+                <i class="fa-solid fa-tower-broadcast" style="color:#ef4444;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">Live Broker OMS/EMS Gateway</div>
+                  <div class="nav-dropdown-sub">Zerodha, Angel, IBKR &amp; Binance</div>
+                </div>
+              </a>
+              <a href="#" class="nav-dropdown-item" onclick="if(window.VolSurfaceStudio){window.VolSurfaceStudio.openStudioModal();}return false;" role="menuitem">
+                <i class="fa-solid fa-cube" style="color:#a855f7;"></i>
+                <div class="nav-dropdown-text">
+                  <div class="nav-dropdown-title">3D Volatility Surface Studio</div>
+                  <div class="nav-dropdown-sub">Interactive 3D WebGL SABR/SVI Mesh</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </nav>
 
       <!-- Right Header Actions -->
       <div class="header-actions">
