@@ -91,6 +91,8 @@
     { id: 'act_impact', title: 'Launch Almgren-Chriss Endogenous Market Impact Sandbox (/market-impact)', desc: 'Square-root volume participation model scaling portfolio capacity against ADV', category: 'Actions', badge: 'QUANT', icon: 'fa-chart-area', action: () => window.location.href='app.html?desk=desk6' },
     { id: 'act_colobench', title: 'Launch Hardware Co-Location & Sub-100ns FPGA Latency Simulator (/colo-bench)', desc: 'Benchmark Mahwah, Carteret, Slough & BKC tick-to-trade physical layers & queue win rate', category: 'Actions', badge: 'FPGA/COLO', icon: 'fa-microchip', action: () => root.HardwareColocationSimulator ? root.HardwareColocationSimulator.showColoModal() : alert('Colo Simulator active') },
     { id: 'act_cloudvault', title: 'Open Cloud Key Vault & Cryptographic Enclave (/vault)', desc: 'Zero-knowledge AES-256-GCM broker API envelope encryption & chained audit trail', category: 'Actions', badge: 'ENCLAVE', icon: 'fa-vault', action: () => root.CloudKeyVault ? root.CloudKeyVault.showVaultModal() : alert('Cloud Vault active') },
+    { id: 'act_exotics', title: 'Launch Exotic Derivatives & Multi-Curve Yield Engine (/exotics)', desc: 'Carr-Ehrhardt barrier options, Kemna-Vorst Asian options, Variance Swaps & SOFR/MIBOR bootstrapping', category: 'Actions', badge: 'EXOTICS', icon: 'fa-cubes-stacked', action: () => window.location.href='gs_quant.html#exotic-pricer' },
+    { id: 'act_academy', title: 'Launch Quant Career Academy & 2-Way MM Game (/academy)', desc: 'Jane Street/Optiver quoting simulation, 8s mental math drills & Green Book 50 solver', category: 'Actions', badge: 'ACADEMY', icon: 'fa-graduation-cap', action: () => root.CareerAcademy ? root.CareerAcademy.getInstance().openModal() : (window.location.href='learn.html#career-academy') },
     { id: 'act_vip', title: 'VIP Terminal Pass & Easter Egg (/vip)', desc: 'Secret developer clearance and greeting for VIP visitors', category: 'System', badge: 'VIP', icon: 'fa-gem', action: () => alert("✨ Access Granted: VIP Level 9 Clearance.\n\nWelcome to RISKOS Institutional Terminal! Enjoy exploring all 80 labs, 41 autonomous bots, and live cross-asset desks.") }
   ];
 
@@ -310,6 +312,12 @@
         }
         if (slashQuery.includes('impact') || slashQuery.includes('almgren') || slashQuery.includes('adv')) {
           matched.push(CATALOG.find(c => c.id === 'act_impact'));
+        }
+        if (slashQuery.includes('exotic') || slashQuery.includes('barrier') || slashQuery.includes('asian')) {
+          matched.push(CATALOG.find(c => c.id === 'act_exotics'));
+        }
+        if (slashQuery.includes('academy') || slashQuery.includes('career') || slashQuery.includes('interview')) {
+          matched.push(CATALOG.find(c => c.id === 'act_academy'));
         }
       }
 

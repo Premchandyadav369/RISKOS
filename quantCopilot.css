@@ -14,7 +14,7 @@
   -webkit-backdrop-filter: blur(20px);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: -10px 0 40px rgba(0, 0, 0, 0.7);
-  z-index: 10000;
+  z-index: 26000;
   display: flex;
   flex-direction: column;
   transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -222,27 +222,65 @@
 }
 
 /* Floating Trigger Button */
-.copilot-float-trigger {
+.copilot-float-trigger,
+.copilot-floating-pill {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: #fff;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(10, 14, 23, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #f8fafc;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+  gap: 8px;
+  font-family: 'JetBrains Mono', 'Inter', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7), 0 0 15px rgba(56, 189, 248, 0.25);
   cursor: pointer;
-  z-index: 9999;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  z-index: 24000;
+  border: 1px solid rgba(56, 189, 248, 0.4);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
 }
 
-.copilot-float-trigger:hover {
-  transform: scale(1.08);
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.6);
+.copilot-float-trigger:hover,
+.copilot-floating-pill:hover {
+  transform: translateY(-2px);
+  border-color: #38bdf8;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 24px rgba(56, 189, 248, 0.45);
+}
+
+.copilot-floating-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: copilot-pulse-anim 1.8s infinite;
+}
+
+.copilot-kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 9px;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .copilot-float-trigger,
+  .copilot-floating-pill {
+    bottom: 74px; /* Lift above mobile navigation bar */
+    right: 14px;
+    height: 36px;
+    padding: 0 12px;
+    font-size: 10px;
+  }
 }

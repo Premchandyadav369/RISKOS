@@ -1,0 +1,35 @@
+{
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "devPath": "http://localhost:8000",
+    "distDir": "../"
+  },
+  "package": {
+    "productName": "RISKOS",
+    "version": "2.0.0"
+  },
+  "tauri": {
+    "windows": [
+      {
+        "title": "RISKOS Institutional Terminal",
+        "width": 1600,
+        "height": 1000,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false
+      }
+    ],
+    "bundle": {
+      "active": true,
+      "identifier": "com.riskos.terminal",
+      "icon": [
+        "icons/icon.png"
+      ]
+    },
+    "security": {
+      "csp": "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:;"
+    }
+  }
+}
