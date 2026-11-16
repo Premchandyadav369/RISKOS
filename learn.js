@@ -203,6 +203,11 @@
     }
   };
 
+  // Expose switchModule globally to window for UI buttons, tracks, and workbench deep-linking
+  if (typeof window !== 'undefined') {
+    window.switchModule = switchModule;
+  }
+
   // ── Render Interactive Controls Panel ─────────────────────────────────────
   const renderControlsPanel = (mod) => {
     const panel = document.getElementById('simControlsPanel');
@@ -2220,7 +2225,7 @@
       } catch (e) {}
     }
     updateCoursesLiveTelemetry();
-    showToast('Live Market Sync Complete', 'All 10 courses synchronized with fresh exchange quotes', 'success');
+    showToast('Live Market Sync Complete', 'All 11 courses synchronized with fresh exchange quotes', 'success');
   };
 
   function updateCoursesLiveTelemetry() {
@@ -2399,6 +2404,7 @@
   };
 
   const advanceNextCurriculumLab = () => {
+
     if (typeof LearnMathEngine === 'undefined') return;
     const all = LearnMathEngine.MODULES_DIRECTORY;
     const currentIdx = all.findIndex(m => m.id === labState.activeModuleId);
@@ -2427,6 +2433,11 @@
       showToast('Next Lab Loaded', `Advanced to ${nextModId.toUpperCase()}`, 'info');
     }
   };
+
+  if (typeof window !== 'undefined') {
+    window.advanceNextCurriculumLab = advanceNextCurriculumLab;
+    window.setExplanationMode = setExplanationMode;
+  }
 
   const setExplanationMode = (mode) => {
     if (!['beginner', 'investor', 'quant'].includes(mode)) return;

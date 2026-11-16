@@ -228,12 +228,14 @@
    * @returns {Object} Comprehensive PREM-Alpha analytics and optimal quotes
    */
   function computePremAlpha(params = {}) {
-    const s = Number(params.midPrice || 1250.0);
-    const probs = params.regimeProbs || DEFAULT_REGIME_CONFIG.defaultProbs;
-    const pBull = Math.max(0, Number(probs[0] !== undefined ? probs[0] : 0.65));
-    const pBear = Math.max(0, Number(probs[1] !== undefined ? probs[1] : 0.10));
-    const pChop = Math.max(0, Number(probs[2] !== undefined ? probs[2] : 0.25));
-    const probSum = pBull + pBear + pChop || 1.0;
+    const s = Math.max(0.01, Number(params.midPrice && !isNaN(params.midPrice) ? params.midPrice : 1250.0));
+    const probs = (params.regimeProbs && Array.isArray(params.regimeProbs) && params.regimeProbs.length >= 3)
+      ? params.regimeProbs
+      : DEFAULT_REGIME_CONFIG.defaultProbs;
+    const pBull = Math.max(0, Number(!isNaN(probs[0]) ? probs[0] : 0.65));
+    const pBear = Math.max(0, Number(!isNaN(probs[1]) ? probs[1] : 0.10));
+    const pChop = Math.max(0, Number(!isNaN(probs[2]) ? probs[2] : 0.25));
+    const probSum = (pBull + pBear + pChop) > 0 ? (pBull + pBear + pChop) : 1.0;
     const normProbs = [pBull / probSum, pBear / probSum, pChop / probSum];
 
     // 1. Regime Drift: mu_regime = sum(P(S_t = k) * mu_k)
@@ -249,7 +251,7 @@
 
     // 3. Order Flow Imbalance (OFI)
     let ofiVal = 0;
-    if (params.ofi !== undefined) {
+    if (params.ofi !== undefined && !isNaN(params.ofi)) {
       ofiVal = Math.max(-1.0, Math.min(1.0, Number(params.ofi)));
     } else {
       const sumB = bidVols.reduce((a, b) => a + b, 0);
@@ -258,7 +260,7 @@
     }
 
     // 4. Hawkes Jump Attenuation
-    const eta = Number(params.hawkesEta !== undefined ? params.hawkesEta : 0.35);
+    const eta = Math.max(0, Number(!isNaN(params.hawkesEta) && params.hawkesEta !== undefined ? params.hawkesEta : 0.35));
     const hawkesMetrics = computeHawkesAttenuation(eta);
 
     // 5. Compute Master PREM-Alpha
@@ -267,8 +269,8 @@
     const alphaBps = Number((rawAlpha * 10000).toFixed(2)); // in basis points
 
     // 6. Dynamic Inventory & Avellaneda-Stoikov Quoting
-    const q = Number(params.inventory !== undefined ? params.inventory : 0);
-    const sigma = Number(params.volatility !== undefined ? params.volatility : 0.25);
+    const q = Number(!isNaN(params.inventory) && params.inventory !== undefined ? params.inventory : 0);
+    const sigma = Math.max(1e-4, Number(!isNaN(params.volatility) && params.volatility !== undefined ? params.volatility : 0.25));
     const gamma = Math.max(1e-4, Number(params.riskAversion !== undefined ? params.riskAversion : 0.10));
     const kappa = Math.max(1e-4, Number(params.intensityKappa !== undefined ? params.intensityKappa : 1.50));
     const tau = Math.max(1e-4, Number(params.horizonSec || 1.0) / 3600.0);

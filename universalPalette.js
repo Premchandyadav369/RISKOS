@@ -1,6 +1,6 @@
 /**
  * RISKOS — Universal Command Center Palette Component (Supercharged Edition)
- * Provides Cmd+K / Ctrl+K search across 80 Labs, 41 Bots, 8 Desks, Securities,
+ * Provides Cmd+K / Ctrl+K search across 81 Labs, 41 Bots, 8 Desks, Securities,
  * built-in financial math calculator, category tabs, and /slash commands.
  */
 
@@ -172,7 +172,7 @@
             type="text" 
             class="universal-palette-input" 
             id="universalPaletteInput" 
-            placeholder="Search 80 labs, 41 bots, 8 desks, formulas, math (e.g. '1000000 * 0.08', '/theme', 'SABR')..." 
+            placeholder="Search 81 labs, 41 bots, 8 desks, formulas, math (e.g. '1000000 * 0.08', '/theme', 'SABR')..." 
             autocomplete="off" 
           />
           <kbd class="universal-palette-esc">ESC</kbd>
@@ -182,7 +182,7 @@
         <div class="universal-palette-tabs" id="paletteTabsBar">
           <button class="universal-palette-tab active" data-cat="All">All</button>
           <button class="universal-palette-tab" data-cat="Trading Desks">⚡ Desks</button>
-          <button class="universal-palette-tab" data-cat="Labs">🔬 80 Labs</button>
+          <button class="universal-palette-tab" data-cat="Labs">🔬 81 Labs</button>
           <button class="universal-palette-tab" data-cat="Bots">🤖 41 Bots</button>
           <button class="universal-palette-tab" data-cat="Securities">📈 Equities</button>
           <button class="universal-palette-tab" data-cat="Actions">⚙️ Actions</button>

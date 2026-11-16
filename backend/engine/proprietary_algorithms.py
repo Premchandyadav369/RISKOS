@@ -240,13 +240,15 @@ def compute_prem_alpha(
     Synthesizes HMM regime expectation, multi-level OFI, Shannon order book entropy deficit,
     and Hawkes point process jump cascade attenuation.
     """
+    spot = max(1e-2, float(spot))
     if regime_probs is None or len(regime_probs) < 3:
         regime_probs = [0.65, 0.10, 0.25]
     
-    prob_sum = max(1e-6, sum(regime_probs))
-    p_bull = regime_probs[0] / prob_sum
-    p_bear = regime_probs[1] / prob_sum
-    p_chop = regime_probs[2] / prob_sum
+    clean_probs = [max(0.0, float(x)) for x in regime_probs]
+    prob_sum = max(1e-6, sum(clean_probs))
+    p_bull = clean_probs[0] / prob_sum
+    p_bear = clean_probs[1] / prob_sum
+    p_chop = clean_probs[2] / prob_sum
 
     # 1. Regime Expected Drift (Bull: +18 bps, Bear: -24 bps, Chop: +1 bp)
     mu_bull = 0.0018

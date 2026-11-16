@@ -62,21 +62,28 @@ const StockLabEngine = (() => {
   const runSuite = (sec) => {
     if (!sec) return null;
 
-    const price = Number(sec.basePrice || 100);
+    if (typeof sec === 'string') {
+      sec = (typeof SecurityMaster !== 'undefined' && typeof SecurityMaster.getSecurity === 'function')
+        ? SecurityMaster.getSecurity(sec) || { symbol: sec }
+        : { symbol: sec };
+    }
+
+    const symbol = sec.symbol || 'SYM';
+    const price = Number(sec.basePrice || sec.price || 100);
     const beta = Number(sec.beta || 1.0);
     const vol = Number(sec.vol || 0.20);
     const pe = Number(sec.pe || 22.0);
     const eps = Number(sec.eps || (price / pe));
     const roe = Number(sec.roe || 15.0);
     const mktCap = Number(sec.marketCap || 50000000000);
-    const curr = sec.currency || (sec.symbol.includes('.NS') || sec.symbol.includes('.BO') ? 'INR' : 'USD');
+    const curr = sec.currency || (symbol.includes('.NS') || symbol.includes('.BO') ? 'INR' : 'USD');
     const currSym = curr === 'INR' ? '₹' : '$';
     const currLatexSym = curr === 'INR' ? '\\text{₹}' : '\\$';
     const rf = curr === 'INR' ? 0.068 : 0.042; // Risk-free rate
     const dailyVol = vol / Math.sqrt(252);
 
     // Dynamic hash to ensure deterministic consistency per symbol
-    const symHash = (sec.symbol || 'SYM').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const symHash = symbol.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
 
     // =========================================================================
     // GROUP 1: STATISTICAL & TIME-SERIES INVARIANTS
