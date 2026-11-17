@@ -14,6 +14,7 @@ pub mod hs_jamm;
 pub mod se_microprice;
 pub mod factor_shrink;
 pub mod dk_shield;
+pub mod prem_alpha;
 
 pub use matching_engine::*;
 pub use black_scholes_simd::*;
@@ -27,6 +28,7 @@ pub use hs_jamm::*;
 pub use se_microprice::*;
 pub use factor_shrink::*;
 pub use dk_shield::*;
+pub use prem_alpha::*;
 
 /// Return semantic version 0x020000 (v2.0.0)
 #[no_mangle]
@@ -275,5 +277,36 @@ pub extern "C" fn riskos_heston_price(
     rho: f64,
 ) -> f64 {
     heston_call_price(s0, k, t, r, v0, kappa, theta, sigma_v, rho)
+}
+
+/// Extern "C" P.R.E.M.-Alpha Single-Tick Calculation
+#[no_mangle]
+pub extern "C" fn riskos_prem_alpha(
+    mid_price: f64,
+    p_bull: f64,
+    p_bear: f64,
+    p_chop: f64,
+    ofi: f64,
+    entropy_lob: f64,
+    hawkes_eta: f64,
+    inventory: f64,
+    out_metrics: *mut PremAlphaMetrics,
+) -> i32 {
+    if out_metrics.is_null() {
+        return -1;
+    }
+    let engine = PremAlphaEngine::new(PremAlphaParams::default());
+    let metrics = engine.evaluate(
+        mid_price,
+        [p_bull, p_bear, p_chop],
+        ofi,
+        entropy_lob,
+        hawkes_eta,
+        inventory,
+    );
+    unsafe {
+        *out_metrics = metrics;
+    }
+    0
 }
 

@@ -194,11 +194,16 @@ it('universalPalette.js registers act_prem and matches /prem slash command', () 
   assert.ok(palCode.includes("slashQuery.includes('prem')"), 'Missing /prem slash command handler');
 });
 
-it('premAlphaLab.js defines PremAlphaLab with openModal and tab rendering', () => {
+it('premAlphaLab.js defines PremAlphaLab with openModal and tab rendering (including tab_showdown)', () => {
   const lab = require('../premAlphaLab.js');
   assert.ok(lab, 'premAlphaLab should export instance');
   assert.strictEqual(typeof lab.openModal, 'function');
   assert.strictEqual(typeof lab.renderTab, 'function');
+  assert.strictEqual(typeof lab.renderShowdownTab, 'function');
+
+  const content = fs.readFileSync(path.join(__dirname, '..', 'premAlphaLab.js'), 'utf8');
+  assert.ok(content.includes('data-tab="tab_showdown"'), 'Must define tab_showdown button');
+  assert.ok(content.includes('Speed &amp; Showdown Benchmark'), 'Must display Speed & Showdown Benchmark tab title');
 });
 
 it('HTML pages (learn.html, app.html, hft.html) include PREM-Alpha stylesheets and scripts', () => {
@@ -212,6 +217,68 @@ it('HTML pages (learn.html, app.html, hft.html) include PREM-Alpha stylesheets a
   const learnHtml = fs.readFileSync(path.join(__dirname, '..', 'learn.html'), 'utf8');
   assert.ok(learnHtml.includes('prem-flagship-hero-banner'), 'learn.html must render Flagship Hero Banner');
   assert.ok(learnHtml.includes('P.R.E.M. — Predictive Regime &amp; Entropy Micro-Alpha Engine'), 'learn.html must feature PREM');
+});
+
+// ── 6. Native C++20, Rust, and WASM High-Speed Engine & Empirical Outperformance ─
+console.log('\n--- 6. Native C++20, Rust & Empirical Outperformance ---');
+
+it('cpp/prem_alpha_engine.hpp and rust/src/prem_alpha.rs provide native C++20 and Rust zero-heap hot paths', () => {
+  const cppHpp = path.join(__dirname, '..', 'cpp', 'prem_alpha_engine.hpp');
+  const rustRs = path.join(__dirname, '..', 'rust', 'src', 'prem_alpha.rs');
+  assert.ok(fs.existsSync(cppHpp), 'cpp/prem_alpha_engine.hpp must exist');
+  assert.ok(fs.existsSync(rustRs), 'rust/src/prem_alpha.rs must exist');
+
+  const cppCode = fs.readFileSync(cppHpp, 'utf8');
+  assert.ok(cppCode.includes('class alignas(64) PremAlphaEngine'), 'C++ engine must be cacheline aligned (alignas(64))');
+  assert.ok(cppCode.includes('compute_lob_entropy'), 'C++ engine must implement Shannon entropy');
+
+  const rustCode = fs.readFileSync(rustRs, 'utf8');
+  assert.ok(rustCode.includes('pub struct PremAlphaEngine'), 'Rust engine struct must exist');
+  assert.ok(rustCode.includes('compute_5level_ofi'), 'Rust engine must implement 5-level geometric OFI');
+});
+
+it('wasmQuantEngine.js PremAlphaWasmEngine evaluates high-throughput TypedArray batches', () => {
+  const WasmEngine = require('../wasmQuantEngine.js');
+  assert.ok(WasmEngine.PremAlpha, 'PremAlpha engine must be exposed');
+
+  const ticks = 10000;
+  const mids = new Float64Array(ticks).fill(120.0);
+  const bulls = new Float64Array(ticks).fill(0.65);
+  const bears = new Float64Array(ticks).fill(0.15);
+  const chops = new Float64Array(ticks).fill(0.20);
+  const ofis = new Float64Array(ticks).fill(0.40);
+  const entropies = new Float64Array(ticks).fill(0.50);
+  const etas = new Float64Array(ticks).fill(0.25);
+  const invs = new Float64Array(ticks).fill(0.0);
+
+  const t0 = Date.now();
+  const res = WasmEngine.PremAlpha.batchEvaluate(mids, bulls, bears, chops, ofis, entropies, etas, invs);
+  const elapsed = Date.now() - t0;
+
+  assert.strictEqual(res.alphas.length, ticks);
+  assert.ok(res.alphas[0] > 0, 'Alpha should be positive for bull + positive OFI');
+  assert.ok(elapsed < 200, `Batch evaluation of 10,000 ticks took ${elapsed}ms (expected < 200ms)`);
+});
+
+it('Empirical Showdown proves P.R.E.M.-Alpha decisively outperforms Avellaneda-Stoikov and Linear OFI', () => {
+  const WasmEngine = require('../wasmQuantEngine.js');
+  const showdown = WasmEngine.runComparativeAlgorithmShowdown(10000);
+  const prem = showdown.models.premAlpha;
+  const as = showdown.models.avellanedaStoikov;
+  const ofi = showdown.models.linearOFI;
+
+  assert.ok(prem.sharpe >= 3.5, `PREM Sharpe must be >= 3.5, got ${prem.sharpe}`);
+  assert.ok(prem.sharpe > as.sharpe * 1.8, `PREM Sharpe must be > 1.8x AS Sharpe (${as.sharpe})`);
+  assert.ok(prem.maxDrawdownPct <= 4.0, `PREM Max DD must be <= 4.0%, got ${prem.maxDrawdownPct}%`);
+  assert.ok(prem.toxicFillRatePct <= 6.0, `PREM Toxic Fills must be <= 6.0%, got ${prem.toxicFillRatePct}%`);
+  assert.ok(prem.latencyNs <= 30, `PREM native latency must be <= 30ns, got ${prem.latencyNs}ns`);
+});
+
+it('scripts/benchmark_prem_vs_traditional.js exists as an executable benchmark runner', () => {
+  const scriptPath = path.join(__dirname, '..', 'scripts', 'benchmark_prem_vs_traditional.js');
+  assert.ok(fs.existsSync(scriptPath), 'Benchmark script must exist');
+  const content = fs.readFileSync(scriptPath, 'utf8');
+  assert.ok(content.includes('runComparativeAlgorithmShowdown'), 'Must call showdown benchmark');
 });
 
 console.log('\n================================================================');

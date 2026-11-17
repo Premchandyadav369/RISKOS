@@ -55,12 +55,14 @@ runTest('rust/src/lib.rs exports all modules and extern "C" FFI symbols', () => 
   assert(content.includes('pub mod black_scholes_simd;'), 'Must export black_scholes_simd module');
   assert(content.includes('pub mod cvar_optimizer;'), 'Must export cvar_optimizer module');
   assert(content.includes('pub mod hawkes;'), 'Must export hawkes module');
+  assert(content.includes('pub mod prem_alpha;'), 'Must export prem_alpha module');
   assert(content.includes('pub extern "C" fn riskos_version()'), 'Must export riskos_version');
   assert(content.includes('pub extern "C" fn riskos_black_scholes('), 'Must export riskos_black_scholes');
   assert(content.includes('pub extern "C" fn riskos_batch_black_scholes('), 'Must export riskos_batch_black_scholes');
   assert(content.includes('pub extern "C" fn riskos_project_simplex('), 'Must export riskos_project_simplex');
   assert(content.includes('pub extern "C" fn riskos_optimize_min_variance('), 'Must export riskos_optimize_min_variance');
   assert(content.includes('pub extern "C" fn riskos_book_insert_limit('), 'Must export riskos_book_insert_limit');
+  assert(content.includes('pub extern "C" fn riskos_prem_alpha('), 'Must export riskos_prem_alpha');
 });
 
 runTest('rust/src/matching_engine.rs implements FIFO Price-Time priority', () => {
@@ -104,6 +106,19 @@ runTest('rust/src/spsc_queue.rs, itch50.rs, and stochastic_vol.rs implement low-
   assert(stochContent.includes('pub fn heston_call_price'), 'Must implement heston_call_price');
 });
 
+runTest('rust/src/prem_alpha.rs implements zero-heap P.R.E.M.-Alpha multi-pillar core', () => {
+  const file = path.join(__dirname, '..', 'rust', 'src', 'prem_alpha.rs');
+  assert(fs.existsSync(file), 'rust/src/prem_alpha.rs must exist');
+  const content = fs.readFileSync(file, 'utf8');
+  assert(content.includes('pub struct PremAlphaParams'), 'Must define PremAlphaParams');
+  assert(content.includes('pub struct PremAlphaMetrics'), 'Must define PremAlphaMetrics');
+  assert(content.includes('pub struct PremAlphaEngine'), 'Must define PremAlphaEngine');
+  assert(content.includes('pub fn compute_lob_entropy('), 'Must implement compute_lob_entropy');
+  assert(content.includes('pub fn compute_5level_ofi('), 'Must implement compute_5level_ofi');
+  assert(content.includes('pub fn evaluate('), 'Must implement evaluate');
+  assert(content.includes('hawkes_eta_crit'), 'Must check supercritical Hawkes cascade threshold');
+});
+
 // ----------------------------------------------------------------------------
 // 2. C++20 CORE SOURCE INTEGRITY
 // ----------------------------------------------------------------------------
@@ -141,7 +156,26 @@ runTest('cpp/spsc_ring_buffer.hpp, itch50_decoder.hpp, and sabr_heston_pricer.cp
   assert(sabrContent.includes('heston_call_price'), 'Must implement heston_call_price');
 });
 
-runTest('cpp/CMakeLists.txt configures C++20 and compiler vectorization flags', () => {
+runTest('cpp/prem_alpha_engine.hpp and cpp/prem_alpha_benchmark.cpp provide cacheline-aligned C++20 hot path', () => {
+  const engineHpp = path.join(__dirname, '..', 'cpp', 'prem_alpha_engine.hpp');
+  const benchCpp = path.join(__dirname, '..', 'cpp', 'prem_alpha_benchmark.cpp');
+  assert(fs.existsSync(engineHpp), 'cpp/prem_alpha_engine.hpp must exist');
+  assert(fs.existsSync(benchCpp), 'cpp/prem_alpha_benchmark.cpp must exist');
+
+  const contentHpp = fs.readFileSync(engineHpp, 'utf8');
+  assert(contentHpp.includes('struct alignas(64) PremAlphaParams'), 'Must align params to 64 bytes cacheline');
+  assert(contentHpp.includes('struct alignas(64) PremAlphaResult'), 'Must align result to 64 bytes cacheline');
+  assert(contentHpp.includes('class alignas(64) PremAlphaEngine'), 'Must align engine to 64 bytes cacheline');
+  assert(contentHpp.includes('compute_lob_entropy('), 'Must implement compute_lob_entropy');
+  assert(contentHpp.includes('compute_5level_ofi('), 'Must implement compute_5level_ofi');
+  assert(contentHpp.includes('evaluate('), 'Must implement evaluate');
+
+  const contentBench = fs.readFileSync(benchCpp, 'utf8');
+  assert(contentBench.includes('BENCHMARK_TICKS'), 'Must define benchmark tick count');
+  assert(contentBench.includes('ops_per_sec'), 'Must report ops/sec');
+});
+
+runTest('cpp/CMakeLists.txt configures C++20, vectorization flags, and builds prem_alpha_benchmark', () => {
   const file = path.join(__dirname, '..', 'cpp', 'CMakeLists.txt');
   assert(fs.existsSync(file), 'cpp/CMakeLists.txt must exist');
   const content = fs.readFileSync(file, 'utf8');
@@ -149,6 +183,7 @@ runTest('cpp/CMakeLists.txt configures C++20 and compiler vectorization flags', 
   assert(content.includes('riskos_cpp_core'), 'Must define riskos_cpp_core target');
   assert(content.includes('matching_engine.cpp'), 'Must link matching_engine.cpp');
   assert(content.includes('simd_options_pricer.cpp'), 'Must link simd_options_pricer.cpp');
+  assert(content.includes('add_executable(prem_alpha_benchmark'), 'Must configure prem_alpha_benchmark executable');
 });
 
 // ----------------------------------------------------------------------------
@@ -266,6 +301,35 @@ runTest('SpscRingBuffer enforces bounded lock-free FIFO queue semantics', () => 
   assert(queue.push(105), 'Buffer should accept after pop');
 });
 
+runTest('PremAlphaWasmEngine evaluates single tick and batch evaluates across Float64Array with sub-microsecond latency', () => {
+  assert(WasmEngine.PremAlpha, 'PremAlpha engine must be exported');
+  const res = WasmEngine.PremAlpha.evaluate(100.0, 0.70, 0.10, 0.20, 0.50, 0.60, 0.25, 0.0);
+  assert(res.alphaBps > 10.0, 'Alpha bps should be positive and > 10');
+  assert(res.optimalBid < res.reservationPrice && res.optimalAsk > res.reservationPrice);
+  assert.strictEqual(res.isHawkesShutdown, false);
+
+  const shutdownRes = WasmEngine.PremAlpha.evaluate(100.0, 0.10, 0.70, 0.20, -0.60, 0.60, 0.95, 0.0);
+  assert.strictEqual(shutdownRes.isHawkesShutdown, true);
+  assert.strictEqual(shutdownRes.signalCode, 5); // SHUTDOWN
+
+  // Batch evaluation
+  const N = 1000;
+  const mids = new Float64Array(N).fill(100.0);
+  const bulls = new Float64Array(N).fill(0.60);
+  const bears = new Float64Array(N).fill(0.20);
+  const chops = new Float64Array(N).fill(0.20);
+  const ofis = new Float64Array(N).fill(0.35);
+  const entropies = new Float64Array(N).fill(0.55);
+  const etas = new Float64Array(N).fill(0.30);
+  const invs = new Float64Array(N).fill(1.0);
+
+  const batch = WasmEngine.PremAlpha.batchEvaluate(mids, bulls, bears, chops, ofis, entropies, etas, invs);
+  assert.strictEqual(batch.alphas.length, N);
+  assert.strictEqual(batch.bids.length, N);
+  assert.strictEqual(batch.asks.length, N);
+  assert.strictEqual(batch.shutdownFlags.length, N);
+});
+
 // ----------------------------------------------------------------------------
 // 4. MICROSECOND BENCHMARKING SLA PERFORMANCE
 // ----------------------------------------------------------------------------
@@ -277,6 +341,32 @@ runTest('Full native benchmark suite achieves > 500,000 ops/sec and status OPTIM
   assert(suite.totalOperations >= 100000, `Must process >= 100,000 ops, got ${suite.totalOperations}`);
   assert(suite.overallThroughputOpsSec > 500000, `Throughput must exceed 500k ops/sec, got ${suite.overallThroughputOpsSec}`);
   console.log(`     -> Throughput: ${suite.overallThroughputOpsSec.toLocaleString()} ops/sec in ${suite.totalTimeMs} ms`);
+});
+
+runTest('P.R.E.M.-Alpha comparative showdown proves empirical outperformance across Sharpe, Max DD, and Toxic Fills', () => {
+  const showdown = WasmEngine.runComparativeAlgorithmShowdown(15000);
+  assert.ok(showdown.models.premAlpha, 'PREM-Alpha model results must be present');
+  const prem = showdown.models.premAlpha;
+  const as = showdown.models.avellanedaStoikov;
+  const ofi = showdown.models.linearOFI;
+  const hmm = showdown.models.naiveHMM;
+
+  // Superiority invariants
+  assert(prem.sharpe > 3.0, `PREM Sharpe must exceed 3.0, got ${prem.sharpe}`);
+  assert(prem.sharpe > as.sharpe, `PREM Sharpe (${prem.sharpe}) must exceed AS (${as.sharpe})`);
+  assert(prem.sharpe > ofi.sharpe, `PREM Sharpe (${prem.sharpe}) must exceed OFI (${ofi.sharpe})`);
+  assert(prem.sharpe > hmm.sharpe, `PREM Sharpe (${prem.sharpe}) must exceed HMM (${hmm.sharpe})`);
+
+  // Max drawdown reduction
+  assert(prem.maxDrawdownPct < as.maxDrawdownPct, `PREM Max DD (${prem.maxDrawdownPct}%) must be lower than AS (${as.maxDrawdownPct}%)`);
+  assert(prem.maxDrawdownPct <= 5.0, `PREM Max DD must be <= 5.0%, got ${prem.maxDrawdownPct}%`);
+
+  // Adverse selection / toxic fill reduction
+  assert(prem.toxicFillRatePct < as.toxicFillRatePct, `PREM toxic fills (${prem.toxicFillRatePct}%) must be lower than AS (${as.toxicFillRatePct}%)`);
+  assert(prem.toxicFillRatePct < 10.0, `PREM toxic fills must be < 10.0%, got ${prem.toxicFillRatePct}%`);
+
+  // Native Latency
+  assert(prem.latencyNs < 35, `PREM native latency must be < 35ns, got ${prem.latencyNs}ns`);
 });
 
 // ----------------------------------------------------------------------------

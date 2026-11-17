@@ -22,3 +22,6 @@ set_target_properties(riskos_cpp_core PROPERTIES
     PREFIX "lib"
     OUTPUT_NAME "riskos_cpp_core"
 )
+
+add_executable(prem_alpha_benchmark prem_alpha_benchmark.cpp)
+target_include_directories(prem_alpha_benchmark PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

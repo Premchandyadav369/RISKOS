@@ -318,3 +318,14 @@
   color: #e2e8f0;
   font-family: var(--font-mono, monospace);
 }
+
+/* Showdown & Benchmarking Cards */
+.prem-stat-box {
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.prem-stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border-color: rgba(245, 158, 11, 0.6) !important;
+}
