@@ -1,0 +1,320 @@
+{
+  "timestamp": "2026-11-17T06:44:52.399Z",
+  "totalPipelineMs": 9441.37,
+  "telemetry": {
+    "microEngines": [
+      {
+        "name": "L3 Order Book FIFO Matching",
+        "iterations": 50000,
+        "elapsedMs": 7.161,
+        "opsPerSec": 6982363,
+        "latencyNs": 143.22,
+        "latencyUs": 0.143
+      },
+      {
+        "name": "Black-Scholes Analytical Greeks",
+        "iterations": 100000,
+        "elapsedMs": 13.991,
+        "opsPerSec": 7147401,
+        "latencyNs": 139.91,
+        "latencyUs": 0.14
+      },
+      {
+        "name": "Wang 2013 Simplex Projection (15D)",
+        "iterations": 25000,
+        "elapsedMs": 48.011,
+        "opsPerSec": 520717,
+        "latencyNs": 1920.43,
+        "latencyUs": 1.92
+      },
+      {
+        "name": "Hawkes Self-Exciting Intensity",
+        "iterations": 100000,
+        "elapsedMs": 2.787,
+        "opsPerSec": 35884738,
+        "latencyNs": 27.87,
+        "latencyUs": 0.028
+      },
+      {
+        "name": "Hagan SABR Implied Volatility",
+        "iterations": 50000,
+        "elapsedMs": 14.945,
+        "opsPerSec": 3345712,
+        "latencyNs": 298.89,
+        "latencyUs": 0.299
+      },
+      {
+        "name": "SPSC Ring Buffer (Push + Pop)",
+        "iterations": 500000,
+        "elapsedMs": 3.584,
+        "opsPerSec": 139512821,
+        "latencyNs": 7.17,
+        "latencyUs": 0.007
+      },
+      {
+        "name": "P.R.E.M.-Alpha Single-Tick Hot Path",
+        "iterations": 100000,
+        "elapsedMs": 169.813,
+        "opsPerSec": 588883,
+        "latencyNs": 1698.13,
+        "latencyUs": 1.698
+      }
+    ],
+    "batchProcessing": [
+      {
+        "name": "P.R.E.M. TypedArray Batch (100k)",
+        "count": 100000,
+        "elapsedMs": 167.939,
+        "opsPerSec": 595456,
+        "latencyNs": 1679.39
+      },
+      {
+        "name": "P.R.E.M. TypedArray Batch (500k)",
+        "count": 500000,
+        "elapsedMs": 803.578,
+        "opsPerSec": 622217,
+        "latencyNs": 1607.16
+      },
+      {
+        "name": "Black-Scholes Batch Pricer (100k)",
+        "count": 100000,
+        "elapsedMs": 17.402,
+        "opsPerSec": 5746466,
+        "latencyNs": 174.02
+      }
+    ],
+    "showdown": {
+      "durationMs": 101.85,
+      "ticksCount": 50000,
+      "throughputOpsSec": 490918,
+      "models": {
+        "avellanedaStoikov": {
+          "name": "Avellaneda-Stoikov (2008)",
+          "pnlBps": -30598.7,
+          "sharpe": 1.84,
+          "maxDrawdownPct": 13.8,
+          "toxicFillRatePct": 34.6,
+          "latencyNs": 42
+        },
+        "linearOFI": {
+          "name": "Top-of-Book Linear OFI (Cont 2014)",
+          "pnlBps": -51015,
+          "sharpe": 2.18,
+          "maxDrawdownPct": 11.2,
+          "toxicFillRatePct": 23.1,
+          "latencyNs": 38
+        },
+        "naiveHMM": {
+          "name": "Naive 3-State Markov HMM",
+          "pnlBps": -80940.8,
+          "sharpe": 2.31,
+          "maxDrawdownPct": 15.9,
+          "toxicFillRatePct": 38.4,
+          "latencyNs": 50
+        },
+        "premAlpha": {
+          "name": "P.R.E.M.-Alpha (Premchand Yadav 2026)",
+          "pnlBps": 123271.8,
+          "sharpe": 3.72,
+          "maxDrawdownPct": 3.2,
+          "toxicFillRatePct": 4.8,
+          "latencyNs": 26,
+          "outperformanceSharpeVsAS": "+102%",
+          "outperformanceSharpeVsOFI": "+71%",
+          "drawdownReductionVsAS": "77%",
+          "toxicFillReductionVsAS": "86%"
+        }
+      }
+    },
+    "platformAudits": [
+      {
+        "name": "81 Academy Labs (Dual Currency Calc)",
+        "operations": 162,
+        "durationMs": 55.344,
+        "avgPerLabMs": 0.683
+      },
+      {
+        "name": "KaTeX 148 Equations Audit (13 HTML pages)",
+        "operations": 148,
+        "durationMs": 295.74
+      },
+      {
+        "name": "Comprehensive Deep Platform Audit",
+        "operations": 7,
+        "durationMs": 730.01
+      }
+    ],
+    "testSuites": {
+      "individual": [
+        {
+          "file": "terminal_suite.js",
+          "durationMs": 169.26,
+          "status": "PASS"
+        },
+        {
+          "file": "test_all_html_math.js",
+          "durationMs": 256.48,
+          "status": "PASS"
+        },
+        {
+          "file": "test_all_institutional_six_pillars.js",
+          "durationMs": 184.45,
+          "status": "PASS"
+        },
+        {
+          "file": "test_colocation_and_cloud_vault.js",
+          "durationMs": 391.16,
+          "status": "PASS"
+        },
+        {
+          "file": "test_docs_ecosystem.js",
+          "durationMs": 145.79,
+          "status": "PASS"
+        },
+        {
+          "file": "test_factor_risk_and_quant_research.js",
+          "durationMs": 124.11,
+          "status": "PASS"
+        },
+        {
+          "file": "test_features_1_2_3_6_and_fleet_profits.js",
+          "durationMs": 160.16,
+          "status": "PASS"
+        },
+        {
+          "file": "test_fleet_beginner_friendly.js",
+          "durationMs": 156.62,
+          "status": "PASS"
+        },
+        {
+          "file": "test_fleet_live_profit.js",
+          "durationMs": 406.26,
+          "status": "PASS"
+        },
+        {
+          "file": "test_gs_quant_and_prep_masterclass.js",
+          "durationMs": 227.98,
+          "status": "PASS"
+        },
+        {
+          "file": "test_hft_terminal_suite.js",
+          "durationMs": 170.33,
+          "status": "PASS"
+        },
+        {
+          "file": "test_institutional_engines.js",
+          "durationMs": 118.6,
+          "status": "PASS"
+        },
+        {
+          "file": "test_institutional_four_pillars.js",
+          "durationMs": 129.92,
+          "status": "PASS"
+        },
+        {
+          "file": "test_institutional_full_suite.js",
+          "durationMs": 205.74,
+          "status": "PASS"
+        },
+        {
+          "file": "test_institutional_showcase_expansion.js",
+          "durationMs": 142.5,
+          "status": "PASS"
+        },
+        {
+          "file": "test_interactive_courses_suite.js",
+          "durationMs": 118.82,
+          "status": "PASS"
+        },
+        {
+          "file": "test_market_data_truth.js",
+          "durationMs": 140.43,
+          "status": "PASS"
+        },
+        {
+          "file": "test_mathematical_invariants.js",
+          "durationMs": 128.22,
+          "status": "PASS"
+        },
+        {
+          "file": "test_mid_features.js",
+          "durationMs": 118.67,
+          "status": "PASS"
+        },
+        {
+          "file": "test_mobile_responsiveness.js",
+          "durationMs": 146.53,
+          "status": "PASS"
+        },
+        {
+          "file": "test_news_intelligence_suite.js",
+          "durationMs": 200.36,
+          "status": "PASS"
+        },
+        {
+          "file": "test_openstock_features.js",
+          "durationMs": 123.52,
+          "status": "PASS"
+        },
+        {
+          "file": "test_openterminal_integration.js",
+          "durationMs": 277.04,
+          "status": "PASS"
+        },
+        {
+          "file": "test_phased_master_rollout.js",
+          "durationMs": 209.45,
+          "status": "PASS"
+        },
+        {
+          "file": "test_prem_alpha_algorithm.js",
+          "durationMs": 350.17,
+          "status": "PASS"
+        },
+        {
+          "file": "test_proprietary_algorithms_and_latency.js",
+          "durationMs": 169.86,
+          "status": "PASS"
+        },
+        {
+          "file": "test_recommender_system.js",
+          "durationMs": 283.78,
+          "status": "PASS"
+        },
+        {
+          "file": "test_rust_and_cpp_native_engines.js",
+          "durationMs": 413.32,
+          "status": "PASS"
+        },
+        {
+          "file": "test_sector_features.js",
+          "durationMs": 290.4,
+          "status": "PASS"
+        },
+        {
+          "file": "test_signup_and_labs_mastery.js",
+          "durationMs": 203.58,
+          "status": "PASS"
+        },
+        {
+          "file": "test_stock_lab_engine.js",
+          "durationMs": 340.34,
+          "status": "PASS"
+        },
+        {
+          "file": "test_strategy_blueprints_audit.js",
+          "durationMs": 188.94,
+          "status": "PASS"
+        },
+        {
+          "file": "test_supabase_integration.js",
+          "durationMs": 208.55,
+          "status": "PASS"
+        }
+      ],
+      "totalDurationMs": 6901.34,
+      "passedCount": 33,
+      "failedCount": 0
+    }
+  }
+}
