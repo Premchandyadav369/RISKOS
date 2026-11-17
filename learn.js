@@ -2298,7 +2298,7 @@
   // ── Course Progress & Accreditation Mastery Engine ────────────────────────
   const updateCourseProgressHUD = () => {
     if (typeof LearnMathEngine === 'undefined') return;
-    const totalLabs = (LearnMathEngine.MODULES_DIRECTORY && LearnMathEngine.MODULES_DIRECTORY.length) || 80;
+    const totalLabs = (LearnMathEngine.MODULES_DIRECTORY && LearnMathEngine.MODULES_DIRECTORY.length) || 81;
     const completedCount = labState.completedLabs.size;
     const percent = Math.min(100, Math.round((completedCount / totalLabs) * 100));
 

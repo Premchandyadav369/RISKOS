@@ -1020,7 +1020,7 @@
   ];
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 7.5. 75 INTERACTIVE QUANTITATIVE FINANCE LABORATORIES DIRECTORY
+  // 7.5. 81 INTERACTIVE QUANTITATIVE FINANCE LABORATORIES DIRECTORY
   // ══════════════════════════════════════════════════════════════════════════
   const initLabsDirectory = () => {
     const grid = document.getElementById('labsDirectoryGrid');
@@ -1040,12 +1040,12 @@
         'backtrader_cerebro', 'rough_volatility', 'malliavin_calculus', 'fama_french_5factor',
         'deflated_sharpe', 'svi_sabr_calibration', 'hawkes_process', 'yen_carry_unwind',
         'cds_index_tranches', 'commodity_roll_yield', 'yield_curve_probit', 'dark_pool_adverse_selection',
-        'kyles_lambda_microstructure', 'tsmom_volatility_targeting', 'dual_momentum_antonacci'
+        'kyles_lambda_microstructure', 'tsmom_volatility_targeting', 'dual_momentum_antonacci', 'prem_alpha'
       ].includes(m.id),
       ai_predictive: (m) => m.categoryKey === 'ai_predictive' || [
         'hjb_stochastic_control', 'dqn_optimal_execution', 'quantum_monte_carlo', 'hawkes_process',
         'deflated_sharpe', 'egyptian_pantheon_hft', 'reinforcement_learning_mm', 'hmm_regime_switching',
-        'rough_volatility'
+        'rough_volatility', 'prem_alpha'
       ].includes(m.id),
       derivatives: (m) => [
         'options_payoff', 'heston_fft', 'perpetual_american', 'bachelier_model',
@@ -1061,7 +1061,7 @@
       microstructure: (m) => [
         'avellaneda_stoikov', 'almgren_chriss', 'dark_pool_adverse_selection',
         'kyles_lambda_microstructure', 'hawkes_liquidity_cascades', 'egyptian_pantheon_hft',
-        'optimal_vwap_execution', 'reinforcement_learning_mm'
+        'optimal_vwap_execution', 'reinforcement_learning_mm', 'prem_alpha'
       ].includes(m.id),
       growth: (m) => m.categoryKey === 'growth' || [
         'cagr', 'compounding', 'sip_dca', 'lumpsum_sip', 'compound_timeline'

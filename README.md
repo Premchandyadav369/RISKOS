@@ -592,29 +592,39 @@ RISKOS introduces four novel mathematical algorithms specifically designed to ov
 * **Innovation**: When the Hawkes branching ratio $\eta = \alpha/\beta \ge 0.70$, institutional sweeps trigger self-exciting clusters. The engine dynamically **widens the vulnerable half-spread $\delta^b, \delta^a$ and skews reservation prices** away from the toxic side before the sweep depletes the order book, preventing toxic adverse selection.
 * **Code Implementation**: [`cpp/hs_jamm_engine.hpp`](cpp/hs_jamm_engine.hpp) • [`rust/src/hs_jamm.rs`](rust/src/hs_jamm.rs) • [`hsJammEngine.js`](hsJammEngine.js)
 
-$$\delta^a_t + \delta^b_t = \frac{2}{\gamma} \ln \left(1 + \frac{\gamma}{\kappa(\lambda_t)}\right) + \zeta \cdot \max(0, \eta_t - 0.70)$$
+$$
+\delta^a_t + \delta^b_t = \frac{2}{\gamma} \ln \left(1 + \frac{\gamma}{\kappa(\lambda_t)}\right) + \zeta \cdot \max(0, \eta_t - 0.70)
+$$
 
 ### 2. SE-MicroPrice (Shannon-Entropy L3 Queue Micro-Price Filter)
 * **Mathematical Synthesis**: Computes the normalized Shannon Entropy $H(Q) = -\frac{1}{\ln K} \sum p_i \ln p_i$ across all $K$ price tiers of the L3 Depth of Market.
 * **Innovation**: Standard micro-price only checks top-of-book volumes. When bid entropy drops while ask entropy disperses, institutional icebergs are clustering at a tight tick. The algorithm injects an informational entropy drift term $\Delta P_{\text{entropy}} = -\omega \cdot (H_{\text{bid}} - H_{\text{ask}}) \cdot S$, generating predictive lead-lag alpha before slow market participants react.
 * **Code Implementation**: [`cpp/se_microprice.hpp`](cpp/se_microprice.hpp) • [`rust/src/se_microprice.rs`](rust/src/se_microprice.rs) • [`seMicropriceEngine.js`](seMicropriceEngine.js)
 
-$$P_{\text{SE}} = P_{\text{mid}} + \left(\frac{\sum Q_b - \sum Q_a}{\sum Q_b + \sum Q_a}\right)\frac{S}{2} - \omega \cdot (H_{\text{bid}} - H_{\text{ask}}) \cdot S$$
+$$
+P_{\text{SE}} = P_{\text{mid}} + \left(\frac{\sum Q_b - \sum Q_a}{\sum Q_b + \sum Q_a}\right)\frac{S}{2} - \omega \cdot (H_{\text{bid}} - H_{\text{ask}}) \cdot S
+$$
 
 ### 3. F-Shrink (Factor-Shrunk Ledoit-Wolf Covariance Operator)
 * **Mathematical Synthesis**: Solves an optimal convex shrinkage problem under quadratic Frobenius loss:
-  $$\min_{\delta \in [0, 1]} \mathbb{E} \left[ \| \mathbf{\Sigma}^* - \mathbf{\Sigma}_{\text{true}} \|_F^2 \right]$$
+$$
+\min_{\delta \in [0, 1]} \mathbb{E} \left[ \| \mathbf{\Sigma}^* - \mathbf{\Sigma}_{\text{true}} \|_F^2 \right]
+$$
 * **Innovation**: Rather than shrinking sample covariance towards an uninformative identity target, F-Shrink shrinks sample covariance $\mathbf{S}$ directly towards a **Barra Multi-Factor Structural Prior** $\mathbf{F}_{\text{prior}} = \mathbf{X} \mathbf{F} \mathbf{X}^T + \mathbf{\Delta}$. This guarantees strictly positive-definite, well-conditioned covariance matrices even when $N \gg T$ (e.g., 500 assets with only 60 days of history).
 * **Code Implementation**: [`factorShrinkEngine.js`](factorShrinkEngine.js) • [`rust/src/factor_shrink.rs`](rust/src/factor_shrink.rs) • [`backend/engine/factor_risk.py`](backend/engine/factor_risk.py)
 
-$$\mathbf{\Sigma}_{\text{F-Shrink}} = \delta^* (\mathbf{X} \mathbf{F} \mathbf{X}^T + \mathbf{\Delta}) + (1 - \delta^*) \mathbf{S}$$
+$$
+\mathbf{\Sigma}_{\text{F-Shrink}} = \delta^* (\mathbf{X} \mathbf{F} \mathbf{X}^T + \mathbf{\Delta}) + (1 - \delta^*) \mathbf{S}
+$$
 
 ### 4. DK-Shield (Dynamic Kelly-CVaR Hyperbolic Drawdown Shield)
 * **Mathematical Synthesis**: Continuous optimal control capital growth sizing with a hyperbolic tangent barrier.
 * **Innovation**: Classical Kelly sizing causes catastrophic $50\%+$ drawdowns. DK-Shield dynamically modulates leverage $f_{\text{DK}}^*(t)$ as an asymptotic function of the remaining drawdown budget $(D_{\max} - D_t)$ and the Conditional Value at Risk ($\text{CVaR}_{99\%}$). As drawdown nears the hard stop-loss ceiling, exposure smoothly transitions to zero, mathematically guaranteeing that the portfolio **never breaches its hard stop-loss threshold**.
 * **Code Implementation**: [`dkShieldEngine.js`](dkShieldEngine.js) • [`rust/src/dk_shield.rs`](rust/src/dk_shield.rs)
 
-$$f_{\text{DK}}^*(t) = f^* \cdot \tanh\left(\max\left(0, \frac{D_{\max} - D_t}{\text{CVaR}_{99\%}}\right)\right) \cdot \frac{1}{1 + \psi \cdot \text{VolRegime}}$$
+$$
+f_{\text{DK}}^*(t) = f^* \cdot \tanh\left(\max\left(0, \frac{D_{\max} - D_t}{\text{CVaR}_{99\%}}\right)\right) \cdot \frac{1}{1 + \psi \cdot \text{VolRegime}}
+$$
 
 ---
 

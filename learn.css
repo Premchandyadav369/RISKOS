@@ -706,21 +706,55 @@ header.header {
   width: 100%;
   height: 6px;
   border-radius: var(--radius-full, 9999px);
-  background: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(90deg, rgba(34, 211, 238, 0.35) 0%, rgba(255, 255, 255, 0.1) 100%);
   outline: none;
+  cursor: pointer;
   transition: all var(--motion-fast, 140ms);
+}
+
+.sim-range-slider:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(34, 211, 238, 0.3);
 }
 
 .sim-range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   background: var(--accent-cyan, #22d3ee);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(34, 211, 238, 0.5);
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
   border: 2px solid #000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sim-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.95);
+}
+
+.sim-range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent-cyan, #22d3ee);
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(34, 211, 238, 0.7);
+  border: 2px solid #000;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sim-range-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.95);
+}
+
+.sim-range-slider::-moz-range-track {
+  height: 6px;
+  border-radius: var(--radius-full, 9999px);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .sim-chart-wrapper {
@@ -848,9 +882,15 @@ header.header {
   max-width: 100%;
 }
 
-.equation-wrapper mjx-container {
-  margin: 0 !important;
-  font-size: 1.1rem !important;
+.equation-wrapper mjx-container,
+.equation-wrapper .katex-display {
+  margin: 6px 0 !important;
+  font-size: 1.15rem !important;
+}
+
+.equation-wrapper .katex {
+  color: #f8fafc;
+  font-size: 1.12rem;
 }
 
 .substituted-calc-wrapper {

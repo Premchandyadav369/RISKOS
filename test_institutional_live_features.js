@@ -110,7 +110,7 @@ it('portfolio_optimizer.css clamps .modal-panel with max-height and overflow-y',
   assert(optCss.includes('overflow-y: auto;'), 'Missing overflow-y on .modal-panel');
 });
 
-// ── 4. UNIVERSAL 75 LABS REAL TICKER BINDING ────────────────────────────────
+// ── 4. UNIVERSAL 81 LABS REAL TICKER BINDING ────────────────────────────────
 console.log('\n── Section 4: Universal Real Ticker Binding Across Quantitative Labs ──');
 
 const learnHtml = fs.readFileSync(path.join(__dirname, 'learn.html'), 'utf8');

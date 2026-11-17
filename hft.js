@@ -1980,8 +1980,17 @@
 
       // Draw canvas
       if (ctx && canvas) {
-        const w = canvas.width;
-        const h = canvas.height;
+        const dpr = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
+        const cssW = canvas.clientWidth || 300;
+        const cssH = canvas.clientHeight || 120;
+        if (canvas.width !== Math.floor(cssW * dpr) || canvas.height !== Math.floor(cssH * dpr)) {
+          canvas.width = Math.floor(cssW * dpr);
+          canvas.height = Math.floor(cssH * dpr);
+        }
+        ctx.save();
+        ctx.scale(dpr, dpr);
+        const w = cssW;
+        const h = cssH;
         ctx.clearRect(0, 0, w, h);
 
         // Dark background
@@ -2054,6 +2063,7 @@
           ctx.textAlign = 'center';
           ctx.fillText('Awaiting order flow prints for intensity accumulation...', w / 2, h / 2);
         }
+        ctx.restore();
       }
 
       requestAnimationFrame(renderHawkes);

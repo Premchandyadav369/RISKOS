@@ -204,9 +204,9 @@ scanFiles.forEach(file => {
   const content = fs.readFileSync(path.join(rootDir, file), 'utf8');
   const lines = content.split('\n');
   lines.forEach((l, lIdx) => {
-    // Check for "80 labs", "80 interactive", "10 tracks", etc.
-    if (/\b80\s+(labs?|laborator|interactive\s+labs?)\b/i.test(l)) {
-      issues.push({ category: 'Stale Lab Count', file, line: lIdx + 1, detail: `Found stale '80 Labs': "${l.trim()}"` });
+    // Check for "80 labs", "18 modules", "75 labs", etc.
+    if (/\b(18|75|80)\s+(labs?|laborator|modules?|interactive\s+labs?|quantitative\s+laboratory)\b/i.test(l)) {
+      issues.push({ category: 'Stale Lab Count', file, line: lIdx + 1, detail: `Found stale Lab/Module Count: "${l.trim()}"` });
     }
     if (/\b10\s+(structured\s+tracks?|courses?\s+synced)\b/i.test(l)) {
       issues.push({ category: 'Stale Track Count', file, line: lIdx + 1, detail: `Found stale '10 Tracks/Courses': "${l.trim()}"` });

@@ -162,6 +162,61 @@
       this.initUI();
     }
 
+    /**
+     * Process Natural Language Quantitative Commands into structured execution payloads
+     */
+    processAnalyticalCommand(prompt = '') {
+      const q = String(prompt).toLowerCase();
+
+      // Monte Carlo Rates Shock
+      if (q.includes('monte carlo') || q.includes('rate shock') || q.includes('bps')) {
+        const pathsMatch = q.match(/(\d+[\d,]*)\s*-?\s*path/);
+        const paths = pathsMatch ? parseInt(pathsMatch[1].replace(/,/g, ''), 10) : 10000;
+        const bpsMatch = q.match(/([+-]?\d+)\s*bps/);
+        const rateShockBps = bpsMatch ? parseInt(bpsMatch[1], 10) : 200;
+        return {
+          type: 'MONTE_CARLO_RATES',
+          paths,
+          rateShockBps,
+          description: `Simulate ${paths.toLocaleString()}-path portfolio Monte Carlo with ${rateShockBps > 0 ? '+' : ''}${rateShockBps} bps shift in yield curve.`
+        };
+      }
+
+      // Screener Commands (Midcaps, Altman, Piotroski, PEG)
+      if (q.includes('screen') || q.includes('mid-caps') || q.includes('altman') || q.includes('piotroski')) {
+        const altmanMatch = q.match(/altman\s*z?\s*>\s*([\d.]+)/);
+        const piotroskiMatch = q.match(/piotroski\s*f?\s*>=\s*([\d.]+)/);
+        const pegMatch = q.match(/peg\s*<\s*([\d.]+)/);
+
+        return {
+          type: 'SCREEN_MIDCAPS',
+          criteria: {
+            universe: 'NIFTY_MIDCAP_150',
+            altmanZ: altmanMatch ? parseFloat(altmanMatch[1]) : 3.0,
+            piotroskiF: piotroskiMatch ? parseFloat(piotroskiMatch[1]) : 8,
+            pegMax: pegMatch ? parseFloat(pegMatch[1]) : 1.0
+          },
+          description: 'Multi-factor midcap fundamental screen for high financial strength and PEG growth undervaluation.'
+        };
+      }
+
+      // Flagship PREM-Alpha Command
+      if (q.includes('prem') || q.includes('prem-alpha') || q.includes('alpha')) {
+        return {
+          type: 'PREM_ALPHA_ANALYTICS',
+          symbol: 'NIFTY50',
+          description: 'Execute P.R.E.M. Proprietary Multi-Pillar Alpha Engine (HMM + Hawkes + Entropy + OFI).'
+        };
+      }
+
+      // Generic Quantitative Analytical Intent
+      return {
+        type: 'QUANT_ANALYTICS',
+        rawQuery: prompt,
+        description: `Analytical query processed for: "${prompt}"`
+      };
+    }
+
     initVoiceRecognition() {
       if (typeof window === 'undefined') return;
       const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;

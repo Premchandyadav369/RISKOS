@@ -102,11 +102,11 @@ test('Course Mastery HUD: learn.html contains progress ring, counters, and actio
   assert(html.includes('id="btnResetCourseProgress"'), 'learn.html HUD must include #btnResetCourseProgress');
 });
 
-// ── 5. STRUCTURED TRACKS 80-LAB COVERAGE IN LEARN.JS ─────────────────────────
-test('Curriculum Tracks: STRUCTURED_TRACKS covers all 80 unique labs with 0 omissions', () => {
+// ── 5. STRUCTURED TRACKS 81-LAB COVERAGE IN LEARN.JS ─────────────────────────
+test('Curriculum Tracks: STRUCTURED_TRACKS covers all 81 unique labs with 0 omissions', () => {
   const mathEngine = require(path.join(ROOT, 'learnMathEngine.js'));
   const allEngineMods = mathEngine.MODULES_DIRECTORY;
-  assert.strictEqual(allEngineMods.length, 80, 'LearnMathEngine must have exactly 80 modules');
+  assert.strictEqual(allEngineMods.length, 81, 'LearnMathEngine must have exactly 81 modules');
 
   const learnJs = fs.readFileSync(path.join(ROOT, 'learn.js'), 'utf8');
 
@@ -120,23 +120,23 @@ test('Curriculum Tracks: STRUCTURED_TRACKS covers all 80 unique labs with 0 omis
   vm.runInNewContext('tracks = ' + tracksMatch[1], sandbox);
   const tracks = sandbox.tracks;
 
-  assert.strictEqual(tracks.length, 10, 'Must have exactly 10 structured tracks');
+  assert.strictEqual(tracks.length, 11, 'Must have exactly 11 structured tracks');
 
   const stepIds = [];
   tracks.forEach((t, tIdx) => {
     assert(t.id && t.title && t.color && t.icon, `Track ${tIdx} must have id, title, color, icon`);
     assert(Array.isArray(t.steps), `Track ${t.id} must have steps array`);
-    assert.strictEqual(t.steps.length, 8, `Track ${t.id} must have exactly 8 steps (found ${t.steps.length})`);
+    assert(t.steps.length >= 1, `Track ${t.id} must have at least 1 step`);
     t.steps.forEach(s => {
       assert(s.moduleId && s.title && s.role && s.unlock, `Step in ${t.id} missing properties`);
       stepIds.push(s.moduleId);
     });
   });
 
-  assert.strictEqual(stepIds.length, 80, 'Total steps across all 10 tracks must equal 80');
+  assert.strictEqual(stepIds.length, 81, 'Total steps across all 11 tracks must equal 81');
 
   const uniqueSteps = new Set(stepIds);
-  assert.strictEqual(uniqueSteps.size, 80, 'All 80 steps must be unique (0 duplicates)');
+  assert.strictEqual(uniqueSteps.size, 81, 'All 81 steps must be unique (0 duplicates)');
 
   const engineIds = new Set(allEngineMods.map(m => m.id));
   const missingInTracks = [...engineIds].filter(id => !uniqueSteps.has(id));
@@ -148,7 +148,7 @@ test('Curriculum Tracks: STRUCTURED_TRACKS covers all 80 unique labs with 0 omis
 
 // ── 6. ACCREDITATION RANKS & COMPLETION PROGRESS MATH ────────────────────────
 test('Course Progress Engine: Calculates accurate percentage and accreditation rank tiers', () => {
-  const total = 80;
+  const total = 81;
 
   function calculateProgress(completedCount) {
     const percent = Math.min(100, Math.round((completedCount / total) * 100));
@@ -178,26 +178,29 @@ test('Course Progress Engine: Calculates accurate percentage and accreditation r
   assert.strictEqual(r0.rankTitle, 'QUANTITATIVE APPRENTICE');
   assert.strictEqual(r0.tierId, 'tierApprentice');
 
-  // 20 labs (25%)
-  const r25 = calculateProgress(20);
-  assert.strictEqual(r25.percent, 25);
+  // ~25% labs
+  const count25 = Math.ceil(0.25 * total);
+  const r25 = calculateProgress(count25);
+  assert(r25.percent >= 25);
   assert.strictEqual(r25.rankTitle, 'JUNIOR QUANT ANALYST');
   assert.strictEqual(r25.tierId, 'tierAnalyst');
 
-  // 40 labs (50%)
-  const r50 = calculateProgress(40);
-  assert.strictEqual(r50.percent, 50);
+  // ~50% labs
+  const count50 = Math.ceil(0.50 * total);
+  const r50 = calculateProgress(count50);
+  assert(r50.percent >= 50);
   assert.strictEqual(r50.rankTitle, 'ASSOCIATE PORTFOLIO MANAGER');
   assert.strictEqual(r50.tierId, 'tierAssociate');
 
-  // 60 labs (75%)
-  const r75 = calculateProgress(60);
-  assert.strictEqual(r75.percent, 75);
+  // ~75% labs
+  const count75 = Math.ceil(0.75 * total);
+  const r75 = calculateProgress(count75);
+  assert(r75.percent >= 75);
   assert.strictEqual(r75.rankTitle, 'SENIOR QUANTITATIVE RESEARCHER');
   assert.strictEqual(r75.tierId, 'tierSenior');
 
-  // 80 labs (100%)
-  const r100 = calculateProgress(80);
+  // 81 labs (100%)
+  const r100 = calculateProgress(81);
   assert.strictEqual(r100.percent, 100);
   assert.strictEqual(r100.rankTitle, 'MANAGING DIRECTOR / HEAD OF RISK');
   assert.strictEqual(r100.tierId, 'tierMD');

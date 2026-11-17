@@ -40,8 +40,8 @@ function it(desc, fn) {
   }
 }
 
-// ── 1. LEARN.HTML & 80 LABS KATEX OPTIMIZATION ─────────────────────────────
-it('Learn: 80 labs categorized with KaTeX and zero MathJax overhead', () => {
+// ── 1. LEARN.HTML & 81 LABS KATEX OPTIMIZATION ─────────────────────────────
+it('Learn: 81 labs categorized with KaTeX and zero MathJax overhead', () => {
   const learnHtml = fs.readFileSync(path.join(ROOT, 'learn.html'), 'utf8');
   assert(!learnHtml.includes('mathjax@3'), 'MathJax 3 bundle must be removed for speed');
   assert(learnHtml.includes('katex.min.css') || learnHtml.includes('renderMathInElement'), 'KaTeX engine must be present');
@@ -54,9 +54,9 @@ it('Learn: 80 labs categorized with KaTeX and zero MathJax overhead', () => {
   assert(learnJs.includes('getFilteredModules'), 'learn.js must define dynamic getFilteredModules');
   assert(learnJs.includes('renderSensitivityMatrix'), 'learn.js must define dynamic renderSensitivityMatrix');
 
-  // Verify all 80 quantitative labs have valid closed-form LaTeX formulas
+  // Verify all quantitative labs have valid closed-form LaTeX formulas
   const LearnMathEngine = require(path.join(ROOT, 'learnMathEngine.js'));
-  assert(LearnMathEngine.MODULES_DIRECTORY.length === 80, 'Must have exactly 80 quantitative labs');
+  assert(LearnMathEngine.MODULES_DIRECTORY.length === 81, 'Must have exactly 81 quantitative labs');
   LearnMathEngine.MODULES_DIRECTORY.forEach(mod => {
     const res = mod.calc(mod.defaultInputs || {}, 'INR');
     assert(res.equationLatex && res.equationLatex.length > 5, `Module ${mod.id} missing equationLatex`);

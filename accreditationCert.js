@@ -129,7 +129,7 @@
       const credentialTitle = options.credentialTitle || 'Chartered Quantitative Risk & Cross-Asset Specialist (CQR-CATS)';
       const completionDate = options.completionDate || new Date().toISOString().split('T')[0];
       const distinction = options.distinction || 'Summa Cum Laude (Top 1%)';
-      const completedModulesCount = options.completedModulesCount || 80;
+      const completedModulesCount = options.completedModulesCount || 81;
 
       const rawVerificationData = `${studentName}|${credentialTitle}|${completionDate}|${distinction}|${completedModulesCount}|RISKOS_ACCREDITED`;
       const verificationHash = sha256Sync(rawVerificationData);
