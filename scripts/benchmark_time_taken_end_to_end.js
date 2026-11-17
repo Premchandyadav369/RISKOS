@@ -245,13 +245,13 @@ telemetry.platformAudits.push({
 console.log(`  - Deep Platform Audit (7 Checkpoints) : ${deepMs} ms`);
 
 // -----------------------------------------------------------------------------
-// 4. FULL FLEET 33 TEST SUITES TIME AUDIT
+// 4. FULL FLEET TEST SUITES TIME AUDIT
 // -----------------------------------------------------------------------------
-console.log('\n>>> [PHASE 4/4] Measuring Execution Time for All 33 Platform Test Suites...');
-
 const testFiles = fs.readdirSync(path.join(__dirname, '..', 'tests'))
   .filter(f => f.endsWith('.js'))
   .sort();
+
+console.log(`\n>>> [PHASE 4/4] Measuring Execution Time for All ${testFiles.length} Platform Test Suites...`);
 
 let totalTestDuration = 0;
 
@@ -276,7 +276,7 @@ testFiles.forEach((file, idx) => {
     status: passed ? 'PASS' : 'FAIL'
   });
 
-  const numStr = `[${String(idx + 1).padStart(2, '0')}/33]`;
+  const numStr = `[${String(idx + 1).padStart(2, '0')}/${testFiles.length}]`;
   console.log(`  ${numStr} ${file.padEnd(42)}: ${dur.toFixed(2).padStart(8)} ms | ${passed ? 'PASS' : 'FAIL'}`);
 });
 
@@ -295,7 +295,7 @@ console.log(`  3. Vectorized Batch Processing Throughput        : 650,000 \u2013
 console.log(`  4. 50,000-Tick 4-Model Showdown Race Runtime     : ${showdownMs} ms`);
 console.log(`  5. 81 Labs Dual-Currency Calculation Time        : ${labsMs} ms (${(labsMs / 81).toFixed(2)} ms/lab)`);
 console.log(`  6. KaTeX 148 DOM Equations Audit Runtime         : ${katexMs} ms`);
-console.log(`  7. All 33 Platform Test Suites Cumulative Time   : ${(totalTestDuration / 1000).toFixed(2)} s (${totalTestDuration.toLocaleString()} ms)`);
+console.log(`  7. All ${testFiles.length} Platform Test Suites Cumulative Time   : ${(totalTestDuration / 1000).toFixed(2)} s (${totalTestDuration.toLocaleString()} ms)`);
 console.log(`  8. Test Fleet Pass Rate                          : ${telemetry.testSuites.passedCount}/${testFiles.length} Passed (100%)`);
 console.log('================================================================================\n');
 
