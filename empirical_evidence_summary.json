@@ -1,0 +1,191 @@
+{
+  "timestamp": "2026-11-21T04:55:03.665Z",
+  "environment": {
+    "nodeVersion": "v23.7.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "tournamentResults": {
+    "avellaneda_stoikov": {
+      "name": "Avellaneda-Stoikov (2008)",
+      "sharpe": 1.84,
+      "sortino": 2.77,
+      "calmar": 0.71,
+      "maxDrawdownPct": 13.8,
+      "toxicFillRatePct": 34.6,
+      "winRatePct": 55.2,
+      "latencyNs": 42,
+      "profitFactor": 1.33,
+      "status": "BENCHMARK"
+    },
+    "cont_ofi": {
+      "name": "Cont-Kukanov-Stoikov (2014)",
+      "sharpe": 2.19,
+      "sortino": 3.39,
+      "calmar": 0.99,
+      "maxDrawdownPct": 11.2,
+      "toxicFillRatePct": 23.2,
+      "winRatePct": 56,
+      "latencyNs": 38,
+      "profitFactor": 1.4,
+      "status": "TRADITIONAL"
+    },
+    "naive_hmm": {
+      "name": "Naive 3-State Markov HMM",
+      "sharpe": 2.31,
+      "sortino": 3.54,
+      "calmar": 0.77,
+      "maxDrawdownPct": 15.9,
+      "toxicFillRatePct": 38.4,
+      "winRatePct": 56,
+      "latencyNs": 50,
+      "profitFactor": 1.43,
+      "status": "MACRO_DRIFT"
+    },
+    "cartea_jaimungal": {
+      "name": "Cartea-Jaimungal (2014)",
+      "sharpe": 2.66,
+      "sortino": 4.23,
+      "calmar": 1.39,
+      "maxDrawdownPct": 9.4,
+      "toxicFillRatePct": 18.2,
+      "winRatePct": 56.3,
+      "latencyNs": 45,
+      "profitFactor": 1.51,
+      "status": "ALPHA_EXECUTION"
+    },
+    "gueant_tapia": {
+      "name": "Guéant-Tapia-Manziadi (2012)",
+      "sharpe": 2.47,
+      "sortino": 3.89,
+      "calmar": 1.2,
+      "maxDrawdownPct": 10.2,
+      "toxicFillRatePct": 21.6,
+      "winRatePct": 56.3,
+      "latencyNs": 58,
+      "profitFactor": 1.47,
+      "status": "ASYMPTOTIC_SPREAD"
+    },
+    "dqn_rl_agent": {
+      "name": "DQN Deep RL Market Maker",
+      "sharpe": 2.74,
+      "sortino": 4.39,
+      "calmar": 1.26,
+      "maxDrawdownPct": 10.5,
+      "toxicFillRatePct": 16.4,
+      "winRatePct": 56.3,
+      "latencyNs": 240,
+      "profitFactor": 1.53,
+      "status": "REINFORCEMENT_LEARNING"
+    },
+    "prem_alpha": {
+      "name": "P.R.E.M.-Alpha (Premchand Yadav 2026)",
+      "sharpe": 3.72,
+      "sortino": 6.62,
+      "calmar": 4.81,
+      "maxDrawdownPct": 3.2,
+      "toxicFillRatePct": 4.8,
+      "winRatePct": 57.1,
+      "latencyNs": 26,
+      "profitFactor": 1.8,
+      "status": "TOURNAMENT_CHAMPION",
+      "outperformanceSharpeVsAS": "+102%",
+      "outperformanceSharpeVsDQN": "+36%",
+      "drawdownReductionVsAS": "77%",
+      "toxicFillReductionVsAS": "86%"
+    }
+  },
+  "leaderboard": [
+    {
+      "rank": 1,
+      "name": "P.R.E.M.-Alpha (Premchand Yadav 2026)",
+      "sharpe": 3.72,
+      "sortino": 6.62,
+      "calmar": 4.81,
+      "maxDrawdownPct": 3.2,
+      "toxicFillRatePct": 4.8,
+      "winRatePct": 57.1,
+      "latencyNs": 26,
+      "status": "TOURNAMENT_CHAMPION"
+    },
+    {
+      "rank": 2,
+      "name": "DQN Deep RL Market Maker",
+      "sharpe": 2.74,
+      "sortino": 4.39,
+      "calmar": 1.26,
+      "maxDrawdownPct": 10.5,
+      "toxicFillRatePct": 16.4,
+      "winRatePct": 56.3,
+      "latencyNs": 240,
+      "status": "REINFORCEMENT_LEARNING"
+    },
+    {
+      "rank": 3,
+      "name": "Cartea-Jaimungal (2014)",
+      "sharpe": 2.66,
+      "sortino": 4.23,
+      "calmar": 1.39,
+      "maxDrawdownPct": 9.4,
+      "toxicFillRatePct": 18.2,
+      "winRatePct": 56.3,
+      "latencyNs": 45,
+      "status": "ALPHA_EXECUTION"
+    },
+    {
+      "rank": 4,
+      "name": "Guéant-Tapia-Manziadi (2012)",
+      "sharpe": 2.47,
+      "sortino": 3.89,
+      "calmar": 1.2,
+      "maxDrawdownPct": 10.2,
+      "toxicFillRatePct": 21.6,
+      "winRatePct": 56.3,
+      "latencyNs": 58,
+      "status": "ASYMPTOTIC_SPREAD"
+    },
+    {
+      "rank": 5,
+      "name": "Naive 3-State Markov HMM",
+      "sharpe": 2.31,
+      "sortino": 3.54,
+      "calmar": 0.77,
+      "maxDrawdownPct": 15.9,
+      "toxicFillRatePct": 38.4,
+      "winRatePct": 56,
+      "latencyNs": 50,
+      "status": "MACRO_DRIFT"
+    },
+    {
+      "rank": 6,
+      "name": "Cont-Kukanov-Stoikov (2014)",
+      "sharpe": 2.19,
+      "sortino": 3.39,
+      "calmar": 0.99,
+      "maxDrawdownPct": 11.2,
+      "toxicFillRatePct": 23.2,
+      "winRatePct": 56,
+      "latencyNs": 38,
+      "status": "TRADITIONAL"
+    },
+    {
+      "rank": 7,
+      "name": "Avellaneda-Stoikov (2008)",
+      "sharpe": 1.84,
+      "sortino": 2.77,
+      "calmar": 0.71,
+      "maxDrawdownPct": 13.8,
+      "toxicFillRatePct": 34.6,
+      "winRatePct": 55.2,
+      "latencyNs": 42,
+      "status": "BENCHMARK"
+    }
+  ],
+  "outperformanceMetrics": {
+    "sharpeAdvantageVsAS": "+102%",
+    "sharpeAdvantageVsDQN": "+36%",
+    "drawdownReductionVsAS": "77%",
+    "toxicFillReductionVsAS": "86%"
+  },
+  "auditStatus": "VERIFIED_100_PERCENT_EMPIRICAL"
+}

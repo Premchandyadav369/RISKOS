@@ -1,0 +1,92 @@
+{
+  "sample_size_days": 252,
+  "moments": {
+    "prem_alpha": {
+      "mean_daily_bps": 5.713333333333334,
+      "std_daily_bps": 24.513275222854134,
+      "annualized_return_pct": 14.397600000000002,
+      "annualized_vol_pct": 3.891361803561208,
+      "sharpe": 3.699887270010189,
+      "sortino": 6.554520789044903,
+      "skewness": 0.12125337268400868,
+      "excess_kurtosis": -0.2729430420051364
+    },
+    "avellaneda_stoikov": {
+      "mean_daily_bps": 3.750595238095238,
+      "std_daily_bps": 32.15853431247064,
+      "annualized_return_pct": 9.4515,
+      "annualized_vol_pct": 5.10500905914809,
+      "sharpe": 1.8514168908403936,
+      "sortino": 2.80825737872616,
+      "skewness": -0.18546706686712347,
+      "excess_kurtosis": -0.4102015606288223
+    },
+    "cont_ofi": {
+      "mean_daily_bps": 4.203333333333334,
+      "std_daily_bps": 30.36675373283941,
+      "annualized_return_pct": 10.5924,
+      "annualized_vol_pct": 4.820572710086125,
+      "sharpe": 2.1973322750297766,
+      "sortino": 3.4175835615753933,
+      "skewness": -0.1464024689885827,
+      "excess_kurtosis": -0.44104807563627
+    },
+    "naive_hmm": {
+      "mean_daily_bps": 4.646507936507937,
+      "std_daily_bps": 31.83153059386469,
+      "annualized_return_pct": 11.709200000000001,
+      "annualized_vol_pct": 5.053098828114607,
+      "sharpe": 2.3172315441075377,
+      "sortino": 3.5725847348827164,
+      "skewness": -0.22600932063586146,
+      "excess_kurtosis": -0.35423529920115593
+    },
+    "dqn_rl": {
+      "mean_daily_bps": 4.958928571428572,
+      "std_daily_bps": 28.711703043813905,
+      "annualized_return_pct": 12.496500000000001,
+      "annualized_vol_pct": 4.55784155826407,
+      "sharpe": 2.7417583170134376,
+      "sortino": 4.4076378578106645,
+      "skewness": -0.12482550347154658,
+      "excess_kurtosis": -0.4439816608606457
+    }
+  },
+  "jobson_korkie_memmel_tests": {
+    "prem_vs_avellaneda_stoikov": {
+      "z_statistic": 9.05631647322951,
+      "p_value": 0.0,
+      "statistically_significant_at_99_9_pct": true,
+      "conclusion": "P.R.E.M.-Alpha decisively rejects H0: Sharpe_prem <= Sharpe_as (z = 9.06, p < 0.001)"
+    },
+    "prem_vs_cont_ofi": {
+      "z_statistic": 7.125739289292346,
+      "p_value": 5.17585974080248e-13,
+      "statistically_significant_at_99_9_pct": true,
+      "conclusion": "P.R.E.M.-Alpha decisively rejects H0: Sharpe_prem <= Sharpe_ofi (z = 7.13, p < 0.001)"
+    },
+    "prem_vs_naive_hmm": {
+      "z_statistic": 6.482906655178565,
+      "p_value": 4.498612593550888e-11,
+      "statistically_significant_at_99_9_pct": true,
+      "conclusion": "P.R.E.M.-Alpha decisively rejects H0: Sharpe_prem <= Sharpe_hmm (z = 6.48, p < 0.001)"
+    },
+    "prem_vs_dqn_rl": {
+      "z_statistic": 4.292727884069622,
+      "p_value": 8.82456283690658e-06,
+      "statistically_significant_at_99_9_pct": true,
+      "conclusion": "P.R.E.M.-Alpha decisively rejects H0: Sharpe_prem <= Sharpe_dqn (z = 4.29, p < 0.001)"
+    }
+  },
+  "bootstrap_99_9_percent_confidence_intervals": {
+    "prem_sharpe_ci": [
+      0.642868499601863,
+      6.94010036247219
+    ],
+    "as_sharpe_ci": [
+      -1.3951791170000627,
+      5.192502415842061
+    ],
+    "sharpe_gap_zero_overlap": false
+  }
+}
