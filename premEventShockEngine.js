@@ -108,9 +108,18 @@
         // Sudden resolution of leadership crisis (e.g., Jensen Huang reinstatement)
         score += 0.65 * (leadershipConfidence || 0.90);
         description += 'Leadership crisis abruptly resolved with full board backing. ';
+      } else if (type === 'REGULATORY_APPROVAL' || type === 'REGULATORY_CLEARANCE') {
+        score += 0.62 * (leadershipConfidence || 0.90);
+        description += 'Regulatory clearance & commercial deployment approvals granted. ';
+      } else if (type === 'DEMERGER_VALUE_UNLOCK' || type === 'CORPORATE_RESTRUCTURING') {
+        score += 0.65 * (leadershipConfidence || 0.90);
+        description += 'Corporate demerger & subsidiary value unlock formal approval. ';
+      } else if (type === 'MERGER_ACQUISITION_TARGET') {
+        score += 0.58 * (leadershipConfidence || 0.90);
+        description += 'Material M&A cash/stock takeover premium offer. ';
       }
 
-      if (regulatoryClearance) {
+      if (regulatoryClearance && type !== 'REGULATORY_APPROVAL' && type !== 'REGULATORY_CLEARANCE') {
         score += 0.15;
         description += 'U.S. Federal Government confirmed zero national security/antitrust blockers. ';
       }

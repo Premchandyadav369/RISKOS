@@ -34,6 +34,7 @@
   <link rel="stylesheet" href="bookDepthHeatmap.css" />
   <link rel="stylesheet" href="quantStrategyStudio.css" />
   <link rel="stylesheet" href="eventShockLab.css" />
+  <link rel="stylesheet" href="webSeerTerminal.css" />
 </head>
 <body class="hft-page" data-theme="dark">
 
@@ -235,6 +236,14 @@
                 <div class="hub-item-sub">Discontinuous Jumps &amp; Gamma Squeeze</div>
               </div>
               <span class="hub-badge" style="color:#f43f5e; border-color:rgba(244,63,94,0.3);">SHOCK</span>
+            </button>
+            <button type="button" id="btnOpenWebSeerModal" class="hub-menu-item open-web-seer-btn" title="P.R.E.M.-WebSeer Real-Time Alternative Data Radar" onclick="window.WebSeerTerminal && window.WebSeerTerminal.open()">
+              <i class="fa-solid fa-satellite-dish" style="color:#06b6d4;"></i>
+              <div class="hub-item-text">
+                <div class="hub-item-title">WebSeer™ Alternative Data Radar</div>
+                <div class="hub-item-sub">Real-Time News Ingestion &amp; Shock Crawler</div>
+              </div>
+              <span class="hub-badge" style="color:#06b6d4; border-color:rgba(6,182,212,0.3);">WIRE</span>
             </button>
           </div>
         </div>
@@ -1788,5 +1797,7 @@
   <script src="premEventShockEngine.js"></script>
   <script src="eventSurveillanceEngine.js"></script>
   <script src="eventShockLab.js"></script>
+  <script src="webSeerEngine.js"></script>
+  <script src="webSeerTerminal.js"></script>
 </body>
 </html>
