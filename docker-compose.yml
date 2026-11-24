@@ -1,6 +1,22 @@
 version: '3.8'
 
 services:
+  riskos-terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: riskos_terminal
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - RISKOS_ENV=cluster
+    restart: unless-stopped
+    depends_on:
+      - riskos-daemon
+      - questdb-tickstore
+      - redis-cache
+
   riskos-daemon:
     build:
       context: .
