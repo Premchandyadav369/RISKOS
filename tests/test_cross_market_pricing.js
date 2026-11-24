@@ -108,10 +108,12 @@ it('Extracts Top 10 Long opportunities for both India and US without error', () 
 // -----------------------------------------------------------------------------
 console.log('\n--- 3. CSV Tear-Sheet & Runner Verification ---');
 
-it('Generates valid CSV tear-sheet containing all 23 quantitative headers', () => {
+it('Generates valid CSV tear-sheet containing all quantitative headers', () => {
   const res = CrossMarketPricingEngine.predictUniverse();
   const csv = CrossMarketPricingEngine.generateCsvTearSheet(res);
-  assert.ok(csv.includes('Symbol,Name,Country,Currency,Sector,SpotMid,Beta,AnnVol(%)'));
+  assert.ok(csv.includes('Symbol,Name,Country,Currency,Sector,SpotMid'));
+  assert.ok(csv.includes('IsRealTime,Provider'));
+  assert.ok(csv.includes('Target1d,Target5d,Target20d'));
   assert.ok(csv.includes('"RELIANCE"'));
   assert.ok(csv.includes('"NVDA"'));
   assert.ok(csv.includes('"AAPL"'));

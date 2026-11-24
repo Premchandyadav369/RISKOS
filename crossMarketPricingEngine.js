@@ -65,7 +65,10 @@
       const currency = sec.currency || (country === 'IN' ? 'INR' : 'USD');
       const currSym = currency === 'INR' ? '₹' : '$';
       const sector = sec.sector || 'Equities';
-      const spotMid = Number(sec.basePrice || sec.price || 100.0);
+      const rawPrice = overrides.midPrice !== undefined ? overrides.midPrice : (sec.price || sec.basePrice || 100.0);
+      const spotMid = Number(Number(rawPrice).toFixed(2));
+      const isRealTime = overrides.isRealTime !== undefined ? overrides.isRealTime : false;
+      const provider = overrides.provider || (sec.provider || 'Model Baseline Snapshot');
       const beta = Number(sec.beta !== undefined ? sec.beta : 1.0);
       const vol = Number(sec.vol !== undefined ? sec.vol : 0.22);
       const pe = sec.pe !== null && sec.pe !== undefined ? Number(sec.pe) : null;
@@ -195,6 +198,8 @@
         currencySymbol: currSym,
         sector,
         spotMid,
+        isRealTime,
+        provider,
         beta,
         annualVolatility: vol,
         pe,
@@ -319,15 +324,155 @@
     }
 
     /**
+     * Batch-fetch real-world market quotes from live exchange feeds (Yahoo Finance API)
+     * @param {Array<Object>} securities - Array of security objects from SecurityMaster
+     * @returns {Promise<Map<string, Object>>} Map of symbol to live quote details
+     */
+    async fetchLiveQuotesForUniverse(securities) {
+      const quoteMap = new Map();
+      const BATCH_SIZE = 12;
+
+      for (let i = 0; i < securities.length; i += BATCH_SIZE) {
+        const batch = securities.slice(i, i + BATCH_SIZE);
+        await Promise.all(batch.map(async (sec) => {
+          let ticker = sec.symbolNS || (sec.country === 'IN' ? `${sec.symbol}.NS` : sec.symbol);
+          if (sec.symbol === 'TATAMOTORS') ticker = 'TMPV.NS';
+
+          try {
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=5d`;
+            const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
+            if (res.ok) {
+              const data = await res.json();
+              const meta = data?.chart?.result?.[0]?.meta;
+              const price = meta?.regularMarketPrice;
+              if (price !== undefined && price !== null && !isNaN(price)) {
+                quoteMap.set(sec.symbol, {
+                  price: Number(price),
+                  currency: meta.currency || sec.currency,
+                  exchange: meta.exchangeName || sec.exchange,
+                  isRealTime: true,
+                  provider: 'Yahoo Finance Live'
+                });
+                return;
+              }
+            }
+          } catch (e) {
+            // Fall through to fallback
+          }
+
+          // Fallback to model baseline snapshot
+          quoteMap.set(sec.symbol, {
+            price: sec.basePrice,
+            currency: sec.currency,
+            exchange: sec.exchange,
+            isRealTime: false,
+            provider: 'Model Baseline Snapshot'
+          });
+        }));
+      }
+
+      return quoteMap;
+    }
+
+    /**
+     * Asynchronously run Predictive Pricing using LIVE real-world exchange quotes
+     * @param {Object} [filter] - Filter criteria
+     * @returns {Promise<Object>} Complete predictions computed on live market quotes
+     */
+    async predictUniverseLive(filter = {}) {
+      let securities = SecurityMaster.LOCAL_REGISTRY.filter(s => s.assetType === 'EQUITY' || s.assetType === 'PENNY_EQUITY');
+
+      if (filter.country && filter.country !== 'ALL') {
+        securities = securities.filter(s => s.country === filter.country);
+      }
+      if (filter.sector && filter.sector !== 'ALL') {
+        securities = securities.filter(s => s.sector.toLowerCase().includes(filter.sector.toLowerCase()));
+      }
+      if (filter.minMarketCap) {
+        securities = securities.filter(s => (s.marketCap || 0) >= filter.minMarketCap);
+      }
+
+      const liveQuotes = await this.fetchLiveQuotesForUniverse(securities);
+
+      const predictions = securities.map(sec => {
+        const live = liveQuotes.get(sec.symbol) || { price: sec.basePrice, isRealTime: false, provider: 'Model Baseline Snapshot' };
+        return this.predictSecurity(sec, {
+          midPrice: live.price,
+          isRealTime: live.isRealTime,
+          provider: live.provider
+        });
+      });
+
+      // Aggregate sector metrics
+      const sectorGroups = {};
+      predictions.forEach(p => {
+        if (!sectorGroups[p.sector]) sectorGroups[p.sector] = [];
+        sectorGroups[p.sector].push(p);
+      });
+
+      const sectorBreakdown = Object.entries(sectorGroups).map(([secName, list]) => {
+        const avgAlpha = list.reduce((a, b) => a + b.predictions.alphaBps, 0) / list.length;
+        const avgMove20d = list.reduce((a, b) => a + b.predictions.expectedMove20dPct, 0) / list.length;
+        const avgVol = list.reduce((a, b) => a + b.annualVolatility, 0) / list.length;
+        const bullCount = list.filter(s => s.signals.action === 'STRONG_BUY' || s.signals.action === 'ACCUMULATE').length;
+        const bearCount = list.filter(s => s.signals.action === 'STRONG_SELL' || s.signals.action === 'TRIM_EXPOSURE').length;
+
+        return {
+          sector: secName,
+          count: list.length,
+          avgAlphaBps: Number(avgAlpha.toFixed(2)),
+          avgExpectedMove20dPct: Number(avgMove20d.toFixed(2)),
+          avgAnnualVol: Number(avgVol.toFixed(3)),
+          sentiment: bullCount >= bearCount ? (bullCount > bearCount ? 'BULLISH' : 'NEUTRAL') : 'BEARISH'
+        };
+      }).sort((a, b) => b.avgAlphaBps - a.avgAlphaBps);
+
+      const inStocks = predictions.filter(p => p.country === 'IN' && !p.microstructure.isHawkesShutdown);
+      const usStocks = predictions.filter(p => p.country === 'US' && !p.microstructure.isHawkesShutdown);
+
+      const topIndiaLongs = inStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
+      const topUSLongs = usStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
+      const topHawkesAlerts = predictions.filter(p => p.microstructure.isHawkesShutdown);
+      const liveCount = predictions.filter(p => p.isRealTime).length;
+
+      return {
+        timestamp: new Date().toISOString(),
+        engine: 'P.R.E.M.-Alpha Cross-Market Predictive Pricing Engine (LIVE FEED MODE)',
+        version: this.version,
+        architect: this.architect,
+        feedMode: 'LIVE_EXCHANGE_DATA',
+        liveQuotesCount: liveCount,
+        baselineQuotesCount: predictions.length - liveCount,
+        summary: {
+          totalStocksEvaluated: predictions.length,
+          indiaStocksCount: predictions.filter(p => p.country === 'IN').length,
+          usStocksCount: predictions.filter(p => p.country === 'US').length,
+          globalStocksCount: predictions.filter(p => p.country === 'GLOBAL').length,
+          strongBuyCount: predictions.filter(p => p.signals.action === 'STRONG_BUY').length,
+          accumulateCount: predictions.filter(p => p.signals.action === 'ACCUMULATE').length,
+          neutralCount: predictions.filter(p => p.signals.action === 'NEUTRAL_SPREAD_CAPTURE').length,
+          trimCount: predictions.filter(p => p.signals.action === 'TRIM_EXPOSURE').length,
+          strongSellCount: predictions.filter(p => p.signals.action === 'STRONG_SELL').length,
+          hawkesShutdownCount: topHawkesAlerts.length
+        },
+        sectorBreakdown,
+        topIndiaLongs,
+        topUSLongs,
+        topHawkesAlerts,
+        predictions
+      };
+    }
+
+    /**
      * Export complete predictions tear-sheet to CSV format
      * @param {Object} results - Universe prediction result
      * @returns {string} CSV text
      */
     generateCsvTearSheet(results) {
       const headers = [
-        'Symbol', 'Name', 'Country', 'Currency', 'Sector', 'SpotMid', 'Beta', 'AnnVol(%)',
-        'AlphaDrift(bps)', 'ReservationPrice', 'Target1d', 'Target5d', 'Target20d',
-        'ExpectedMove20d(%)', 'OptimalBid', 'OptimalAsk', 'Spread(bps)', 'VaR99_1d',
+        'Symbol', 'Name', 'Country', 'Currency', 'Sector', 'SpotMid', 'IsRealTime', 'Provider',
+        'Beta', 'AnnVol(%)', 'AlphaDrift(bps)', 'ReservationPrice', 'Target1d', 'Target5d',
+        'Target20d', 'ExpectedMove20d(%)', 'OptimalBid', 'OptimalAsk', 'Spread(bps)', 'VaR99_1d',
         'CVaR99_1d', 'Confidence(%)', 'Action', 'HawkesState', 'OrderBookCoiled'
       ];
 
@@ -338,6 +483,8 @@
         p.currency,
         `"${p.sector}"`,
         p.spotMid.toFixed(2),
+        p.isRealTime ? 'YES' : 'NO',
+        `"${p.provider || 'Model Baseline Snapshot'}"`,
         p.beta.toFixed(2),
         (p.annualVolatility * 100).toFixed(1),
         p.predictions.alphaBps.toFixed(2),
