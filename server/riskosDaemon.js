@@ -37,6 +37,31 @@ try {
   console.warn('[Daemon] SecurityMaster warning:', e.message);
 }
 
+// Optional Zero-Dependency .env Loader
+const envPath = path.resolve(__dirname, '..', '.env');
+if (fs.existsSync(envPath)) {
+  try {
+    const raw = fs.readFileSync(envPath, 'utf8');
+    raw.split(/\r?\n/).forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) return;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const k = trimmed.slice(0, eqIdx).trim();
+        let v = trimmed.slice(eqIdx + 1).trim();
+        if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+          v = v.slice(1, -1);
+        }
+        if (!process.env[k]) {
+          process.env[k] = v;
+        }
+      }
+    });
+  } catch (e) {
+    console.warn('[Daemon] Error reading .env file:', e.message);
+  }
+}
+
 // Configuration & Environment Defaults
 const CONFIG = {
   port: parseInt(process.env.PORT, 10) || 8080,
