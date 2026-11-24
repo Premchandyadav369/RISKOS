@@ -30,6 +30,7 @@ const os = require('os');
 // Import Core RISKOS Engines
 const { WebSeerEngine } = require('../webSeerEngine.js');
 const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
+const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
 let SecurityMaster;
 try {
   SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
@@ -74,6 +75,7 @@ const CONFIG = {
     heartbeatMs: 5000,
     webSeerMs: 60000,
     pricingMs: 300000, // 5 minutes
+    macroMs: 120000,   // 2 minutes (FRED, EIA, CoinGecko)
     riskWatchdogMs: 10000
   },
   priorityWatchlist: ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'SMCI', 'RELIANCE', 'HDFCBANK', 'TCS', 'TATAMOTORS', 'ADANIENT']
@@ -101,6 +103,7 @@ class RiskosDaemon {
     this.config = Object.assign({}, CONFIG, options);
     this.webSeer = new WebSeerEngine();
     this.pricingEngine = new InstitutionalPricingEngine();
+    this.macroFeed = new (MacroDataFeedClient || MacroDataFeedEngine.MacroDataFeedClient)({ timeoutMs: 6000 });
     
     this.connectedSockets = new Set();
     this.sseClients = new Set();
@@ -111,8 +114,11 @@ class RiskosDaemon {
       totalCrawls: 0,
       totalAlertsGenerated: 0,
       totalPricingRuns: 0,
+      totalMacroFetches: 0,
       lastCrawlTime: null,
       lastPricingTime: null,
+      lastMacroTime: null,
+      lastMacroSnapshot: null,
       circuitBreakerTripped: false,
       recentAlerts: []
     };
@@ -365,7 +371,39 @@ class RiskosDaemon {
   }
 
   // --------------------------------------------------------------------------
-  // Cadence 4: Pre-Trade Risk & Circuit Breaker Watchdog (10s)
+  // Cadence 4: Live Sovereign Macro & Cross-Asset Ingestion (2 min)
+  // Feeds: FRED (Yields, Spreads, Inflation), EIA (Brent, WTI, Gas), CoinGecko
+  // --------------------------------------------------------------------------
+  async runMacroCycle() {
+    this.stats.totalMacroFetches++;
+    try {
+      const telemetry = await this.macroFeed.fetchAllTelemetry(true);
+      this.macroFeed.injectIntoPricingEngine(this.pricingEngine);
+
+      this.stats.lastMacroTime = telemetry.timestamp;
+      this.stats.lastMacroSnapshot = telemetry;
+
+      // Persist to disk for high-performance terminal hydration
+      const dataDir = path.join(this.config.rootDir, 'data');
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      const jsonPath = path.join(dataDir, 'live_macro_telemetry.json');
+      fs.writeFileSync(jsonPath, JSON.stringify(telemetry, null, 2), 'utf8');
+
+      console.log(`[Macro 24/7] Ingested: FRED 10Y Real: ${telemetry.fred.realYield10Y}% | EIA Brent: $${telemetry.eia.brentCrudeUsd}/bbl | BTC: $${telemetry.coingecko.bitcoin ? telemetry.coingecko.bitcoin.usd : 'N/A'}`);
+
+      // Broadcast real-time macro telemetry to UI clients
+      this.broadcast('MACRO_UPDATE', telemetry);
+      return telemetry;
+    } catch (err) {
+      console.warn('[Daemon] Macro cycle notice:', err.message);
+      return null;
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Cadence 5: Pre-Trade Risk & Circuit Breaker Watchdog (10s)
   // --------------------------------------------------------------------------
   runRiskWatchdogCycle() {
     // In production, pulls live portfolio PnL, margin utilization & FRTB capital charges
@@ -455,7 +493,20 @@ class RiskosDaemon {
       return;
     }
 
-    // 5. Force Trigger Endpoints (Manual Re-run on Demand)
+    // 5. Macroeconomic, EIA Energy & Digital Asset Telemetry Endpoint
+    if (pathname === '/api/macro' || pathname === '/api/telemetry/macro') {
+      const livePath = path.join(this.config.rootDir, 'data', 'live_macro_telemetry.json');
+      if (fs.existsSync(livePath)) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        fs.createReadStream(livePath).pipe(res);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(this.macroFeed.cachedTelemetry || {}));
+      }
+      return;
+    }
+
+    // 6. Force Trigger Endpoints (Manual Re-run on Demand)
     if (req.method === 'POST' && pathname === '/api/trigger/crawl') {
       this.runWebSeerCycle();
       res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -470,7 +521,18 @@ class RiskosDaemon {
       return;
     }
 
-    // 6. Server-Sent Events (SSE) Stream
+    if (req.method === 'POST' && pathname === '/api/trigger/macro') {
+      this.runMacroCycle().then(telemetry => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'Macro telemetry cycle triggered', telemetry }));
+      }).catch(err => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      });
+      return;
+    }
+
+    // 7. Server-Sent Events (SSE) Stream
     if (pathname === '/events') {
       res.writeHead(200, {
         'Content-Type': 'text/event-stream',
@@ -580,10 +642,12 @@ class RiskosDaemon {
       this.timers.heartbeat = setInterval(() => this.runHeartbeatCycle(), this.config.intervals.heartbeatMs);
       this.timers.webSeer = setInterval(() => this.runWebSeerCycle(), this.config.intervals.webSeerMs);
       this.timers.pricing = setInterval(() => this.runPricingCycle(), this.config.intervals.pricingMs);
+      this.timers.macro = setInterval(() => this.runMacroCycle(), this.config.intervals.macroMs);
       this.timers.risk = setInterval(() => this.runRiskWatchdogCycle(), this.config.intervals.riskWatchdogMs);
 
       // Run initial boot passes
       this.runHeartbeatCycle();
+      setTimeout(() => this.runMacroCycle(), 1000);
       setTimeout(() => this.runWebSeerCycle(), 2000);
       setTimeout(() => this.runPricingCycle(), 5000);
     });
