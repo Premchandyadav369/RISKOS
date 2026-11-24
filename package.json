@@ -29,6 +29,7 @@
     "test:compounder": "node tests/test_long_term_investment_engine.js",
     "test:institutionalpricing": "node tests/test_institutional_pricing_engine.js",
     "test:daemon": "node tests/test_riskos_daemon.js",
+    "test:telegram": "node scripts/test_telegram_connection.js",
     "start:daemon": "node server/riskosDaemon.js",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop ecosystem.config.js",
