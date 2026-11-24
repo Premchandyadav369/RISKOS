@@ -1,20 +1,29 @@
 version: '3.8'
 
 services:
-  riskos-terminal:
+  riskos-daemon:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: riskos_terminal
+      dockerfile: Dockerfile.daemon
+    container_name: riskos_daemon
     ports:
-      - "8080:80"
+      - "8080:8080"
     environment:
       - NODE_ENV=production
-      - RISKOS_ENV=cluster
-    restart: unless-stopped
+      - PORT=8080
+      - HOST=0.0.0.0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+    restart: always
     depends_on:
       - questdb-tickstore
       - redis-cache
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
   questdb-tickstore:
     image: questdb/questdb:latest

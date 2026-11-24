@@ -1,0 +1,33 @@
+[Unit]
+Description=RISKOS 24/7 Sovereign Quantitative Trading & Risk Daemon
+After=network.target network-online.target redis.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/RISKOS
+ExecStart=/usr/bin/node server/riskosDaemon.js
+Restart=always
+RestartSec=5s
+
+# Process & Resource Limits
+LimitNOFILE=65536
+LimitNPROC=4096
+MemoryHigh=1200M
+MemoryMax=1500M
+
+# Environment Variables
+Environment=NODE_ENV=production
+Environment=PORT=8080
+Environment=HOST=0.0.0.0
+# Add your alert keys here or in /etc/riskos.env:
+# EnvironmentFile=-/etc/riskos.env
+
+# Standard Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=riskos-daemon
+
+[Install]
+WantedBy=multi-user.target
