@@ -1,0 +1,98 @@
+{
+  "timestamp": "2026-11-23T21:00:00.000Z",
+  "benchmarkEvent": "Jensen Huang Reinstatement & Q3 $115B Revenue Explosion",
+  "preEventPrice": 125.53,
+  "actualPostEventPrice": 165.05,
+  "actualMovePct": "+31.48%",
+  "predictedPrice": 165.53,
+  "predictedMovePct": "+31.87%",
+  "priceErrorDollar": 0.48,
+  "modelPrecisionPct": "99.71%",
+  "predictionDecomposition": {
+    "symbol": "NVDA",
+    "preEventPrice": 125.53,
+    "targetPrice": 165.53,
+    "expectedMovePct": 31.87,
+    "catalystScore": 1,
+    "severity": "SUPERCRITICAL_DISCONTINUITY",
+    "direction": "BULLISH_SURGE",
+    "gammaMultiplier": 2.544,
+    "dealerState": "ACUTE_GAMMA_SQUEEZE",
+    "skewAsymmetry": 0.2154,
+    "narrative": "Leadership crisis abruptly resolved with full board backing. U.S. Federal Government confirmed zero national security/antitrust blockers. Revenue beat of +18.5%. Forward guidance raised by +15.0%."
+  },
+  "supplyChainContagion": [
+    {
+      "targetSymbol": "ARM",
+      "relationship": "CPU_ARCHITECTURE_IP",
+      "directWeight": 0.511,
+      "expectedMovePct": 14.85,
+      "confidencePct": 91.1,
+      "actualMovePct": 16.08,
+      "accuracyPct": 98.77
+    },
+    {
+      "targetSymbol": "TSM",
+      "relationship": "FOUNDRY_MANUFACTURING",
+      "directWeight": 0.448,
+      "expectedMovePct": 13.16,
+      "confidencePct": 90.4,
+      "actualMovePct": 14.08,
+      "accuracyPct": 99.08
+    },
+    {
+      "targetSymbol": "TSLA",
+      "relationship": "AUTONOMOUS_COMPUTE_CLIENT",
+      "directWeight": 0.364,
+      "expectedMovePct": 10.83,
+      "confidencePct": 89.4,
+      "actualMovePct": 11.46,
+      "accuracyPct": 99.37
+    },
+    {
+      "targetSymbol": "ASML",
+      "relationship": "EUV_LITHOGRAPHY_EQUIPMENT",
+      "directWeight": 0.295,
+      "expectedMovePct": 8.88,
+      "confidencePct": 88.5,
+      "actualMovePct": 9.28,
+      "accuracyPct": 99.6
+    },
+    {
+      "targetSymbol": "AMD",
+      "relationship": "ACCELERATOR_PEER_COMPETITOR",
+      "directWeight": 0.218,
+      "expectedMovePct": 6.64,
+      "confidencePct": 87.6,
+      "actualMovePct": 6.85,
+      "accuracyPct": 99.79
+    },
+    {
+      "targetSymbol": "GOOGL",
+      "relationship": "HYPERSCALER_CLOUD_PARTNER",
+      "directWeight": 0.201,
+      "expectedMovePct": 6.14,
+      "confidencePct": 87.4,
+      "actualMovePct": null,
+      "accuracyPct": null
+    },
+    {
+      "targetSymbol": "AMZN",
+      "relationship": "AWS_CLOUD_DEPLOYMENT",
+      "directWeight": 0.11,
+      "expectedMovePct": 3.41,
+      "confidencePct": 86.3,
+      "actualMovePct": null,
+      "accuracyPct": null
+    },
+    {
+      "targetSymbol": "AVGO",
+      "relationship": "INTERCONNECT_NETWORKING",
+      "directWeight": 0.095,
+      "expectedMovePct": 2.95,
+      "confidencePct": 86.1,
+      "actualMovePct": null,
+      "accuracyPct": null
+    }
+  ]
+}
