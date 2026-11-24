@@ -33,6 +33,7 @@
   <link rel="stylesheet" href="premAlphaLab.css" />
   <link rel="stylesheet" href="bookDepthHeatmap.css" />
   <link rel="stylesheet" href="quantStrategyStudio.css" />
+  <link rel="stylesheet" href="eventShockLab.css" />
 </head>
 <body class="hft-page" data-theme="dark">
 
@@ -226,6 +227,14 @@
                 <div class="hub-item-sub">Zero-Knowledge AES-256-GCM Storage</div>
               </div>
               <span class="hub-badge" style="color:#10b981; border-color:rgba(16,185,129,0.3);">VAULT</span>
+            </button>
+            <button type="button" id="btnOpenEventShockModal" class="hub-menu-item open-event-shock-btn" title="P.R.E.M.-Event Discontinuous Shock & Gamma Squeeze Lab" onclick="window.EventShockLab && window.EventShockLab.openModal()">
+              <i class="fa-solid fa-bolt-lightning" style="color:#f43f5e;"></i>
+              <div class="hub-item-text">
+                <div class="hub-item-title">P.R.E.M.-Event Shock Lab</div>
+                <div class="hub-item-sub">Discontinuous Jumps &amp; Gamma Squeeze</div>
+              </div>
+              <span class="hub-badge" style="color:#f43f5e; border-color:rgba(244,63,94,0.3);">SHOCK</span>
             </button>
           </div>
         </div>
@@ -1776,5 +1785,8 @@
   <script src="quantStrategyStudio.js"></script>
   <script src="enterpriseRiskEngine.js"></script>
   <script src="algoTournamentEngine.js"></script>
+  <script src="premEventShockEngine.js"></script>
+  <script src="eventSurveillanceEngine.js"></script>
+  <script src="eventShockLab.js"></script>
 </body>
 </html>

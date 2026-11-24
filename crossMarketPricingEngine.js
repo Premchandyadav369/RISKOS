@@ -32,15 +32,19 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['./securityMaster', './premAlphaEngine'], factory);
+    define(['./securityMaster', './premAlphaEngine', './eventSurveillanceEngine'], factory);
   } else if (typeof module === 'object' && module.exports) {
     const { SecurityMaster } = require('./securityMaster.js');
     const PremAlphaEngine = require('./premAlphaEngine.js');
-    module.exports = factory(SecurityMaster, PremAlphaEngine);
+    let EventSurveillanceEngine = null;
+    try {
+      EventSurveillanceEngine = require('./eventSurveillanceEngine.js');
+    } catch (e) {}
+    module.exports = factory(SecurityMaster, PremAlphaEngine, EventSurveillanceEngine);
   } else {
-    root.CrossMarketPricingEngine = factory(root.SecurityMaster, root.PremAlphaEngine);
+    root.CrossMarketPricingEngine = factory(root.SecurityMaster, root.PremAlphaEngine, root.EventSurveillanceEngine);
   }
-}(typeof self !== 'undefined' ? self : this, function (SecurityMaster, PremAlphaEngine) {
+}(typeof self !== 'undefined' ? self : this, function (SecurityMaster, PremAlphaEngine, EventSurveillanceEngine) {
   'use strict';
 
   class CrossMarketPricingEngine {
@@ -190,6 +194,46 @@
         recommendation = 'Negative alpha drift. Skew inventory short and tighten stop-loss bounds.';
       }
 
+      // ── 5. Event Shock & Discontinuous Jump Analysis ──────────────────────
+      let eventRisk = null;
+      if (EventSurveillanceEngine) {
+        const watchlistEntry = EventSurveillanceEngine.watchlist ? EventSurveillanceEngine.watchlist[symbol] : null;
+        const eventData = overrides.eventData || (watchlistEntry ? {
+          type: watchlistEntry.catalystType,
+          confidence: watchlistEntry.confidence,
+          regulatoryClearance: watchlistEntry.regulatoryClearance,
+          revenueSurprisePct: watchlistEntry.revenueSurprisePct,
+          guidanceRaisePct: watchlistEntry.guidanceRaisePct
+        } : (overrides.includeEventRisk ? {
+          type: 'MACRO_MOMENTUM',
+          confidence: 0.75,
+          regulatoryClearance: true,
+          revenueSurprisePct: Math.max(0, (beta - 1.0) * 5.0)
+        } : null));
+
+        const optionsData = overrides.optionsData || (watchlistEntry ? {
+          netGexMillions: watchlistEntry.netGexMillions,
+          normalizedGex: watchlistEntry.normalizedGex,
+          atmIv: watchlistEntry.atmIv,
+          riskReversal25d: watchlistEntry.riskReversal25d
+        } : (overrides.includeEventRisk ? {
+          netGexMillions: vol > 0.35 ? -800 * (beta - 0.8) : 500,
+          normalizedGex: 1500,
+          atmIv: vol,
+          riskReversal25d: (beta - 1.0) * 3.0
+        } : null));
+
+        if (eventData || optionsData) {
+          eventRisk = EventSurveillanceEngine.predictEventPrice({
+            symbol,
+            spotPrice: spotMid,
+            beta,
+            eventData: eventData || {},
+            optionsData: optionsData || {}
+          });
+        }
+      }
+
       return {
         symbol,
         name,
@@ -229,10 +273,14 @@
           expectedMove1dPct,
           expectedMove5dPct,
           expectedMove20dPct,
+          targetEvent: eventRisk ? eventRisk.targetPrice : null,
+          expectedMoveEventPct: eventRisk ? eventRisk.expectedMovePct : null,
+          jumpProbability: eventRisk ? eventRisk.jumpProbability : null,
           optimalBid,
           optimalAsk,
           spreadBps
         },
+        eventRisk,
         risk: {
           var99_1d,
           cvar99_1d,
@@ -297,6 +345,10 @@
       const topIndiaLongs = inStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
       const topUSLongs = usStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
       const topHawkesAlerts = predictions.filter(p => p.microstructure.isHawkesShutdown);
+      const topEventJumps = predictions
+        .filter(p => p.eventRisk && p.eventRisk.expectedMovePct !== null)
+        .sort((a, b) => b.eventRisk.expectedMovePct - a.eventRisk.expectedMovePct)
+        .slice(0, 10);
 
       return {
         timestamp: new Date().toISOString(),
@@ -313,12 +365,14 @@
           neutralCount: predictions.filter(p => p.signals.action === 'NEUTRAL_SPREAD_CAPTURE').length,
           trimCount: predictions.filter(p => p.signals.action === 'TRIM_EXPOSURE').length,
           strongSellCount: predictions.filter(p => p.signals.action === 'STRONG_SELL').length,
-          hawkesShutdownCount: topHawkesAlerts.length
+          hawkesShutdownCount: topHawkesAlerts.length,
+          highEventRiskCount: predictions.filter(p => p.eventRisk && Math.abs(p.eventRisk.expectedMovePct) > 10.0).length
         },
         sectorBreakdown,
         topIndiaLongs,
         topUSLongs,
         topHawkesAlerts,
+        topEventJumps,
         predictions
       };
     }
@@ -433,6 +487,10 @@
       const topIndiaLongs = inStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
       const topUSLongs = usStocks.sort((a, b) => b.predictions.alphaBps - a.predictions.alphaBps).slice(0, 10);
       const topHawkesAlerts = predictions.filter(p => p.microstructure.isHawkesShutdown);
+      const topEventJumps = predictions
+        .filter(p => p.eventRisk && p.eventRisk.expectedMovePct !== null)
+        .sort((a, b) => b.eventRisk.expectedMovePct - a.eventRisk.expectedMovePct)
+        .slice(0, 10);
       const liveCount = predictions.filter(p => p.isRealTime).length;
 
       return {
@@ -453,12 +511,14 @@
           neutralCount: predictions.filter(p => p.signals.action === 'NEUTRAL_SPREAD_CAPTURE').length,
           trimCount: predictions.filter(p => p.signals.action === 'TRIM_EXPOSURE').length,
           strongSellCount: predictions.filter(p => p.signals.action === 'STRONG_SELL').length,
-          hawkesShutdownCount: topHawkesAlerts.length
+          hawkesShutdownCount: topHawkesAlerts.length,
+          highEventRiskCount: predictions.filter(p => p.eventRisk && Math.abs(p.eventRisk.expectedMovePct) > 10.0).length
         },
         sectorBreakdown,
         topIndiaLongs,
         topUSLongs,
         topHawkesAlerts,
+        topEventJumps,
         predictions
       };
     }
@@ -473,7 +533,8 @@
         'Symbol', 'Name', 'Country', 'Currency', 'Sector', 'SpotMid', 'IsRealTime', 'Provider',
         'Beta', 'AnnVol(%)', 'AlphaDrift(bps)', 'ReservationPrice', 'Target1d', 'Target5d',
         'Target20d', 'ExpectedMove20d(%)', 'OptimalBid', 'OptimalAsk', 'Spread(bps)', 'VaR99_1d',
-        'CVaR99_1d', 'Confidence(%)', 'Action', 'HawkesState', 'OrderBookCoiled'
+        'CVaR99_1d', 'Confidence(%)', 'Action', 'HawkesState', 'OrderBookCoiled',
+        'EventScore', 'EventTarget', 'EventMove(%)', 'DealerGexState'
       ];
 
       const rows = results.predictions.map(p => [
@@ -501,7 +562,11 @@
         p.signals.confidencePct.toFixed(1),
         p.signals.action,
         p.microstructure.hawkesState,
-        p.microstructure.isCoiled ? 'YES' : 'NO'
+        p.microstructure.isCoiled ? 'YES' : 'NO',
+        p.eventRisk ? p.eventRisk.catalystScore.toFixed(2) : '0.00',
+        p.eventRisk ? p.eventRisk.targetPrice.toFixed(2) : p.spotMid.toFixed(2),
+        p.eventRisk ? p.eventRisk.expectedMovePct.toFixed(2) : '0.00',
+        p.eventRisk ? `"${p.eventRisk.dealerState}"` : '"BALANCED"'
       ].join(','));
 
       return [headers.join(','), ...rows].join('\n');
