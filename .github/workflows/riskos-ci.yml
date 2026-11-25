@@ -65,6 +65,9 @@ jobs:
     - name: Run FRED, EIA & CoinGecko Macro Telemetry Test Suite
       run: node tests/test_macro_data_feed.js
 
+    - name: Run Real-Time Live Market Quotes Test Suite
+      run: node tests/test_live_market_quotes.js
+
     - name: Run 24/7 Autonomous Daemon Test Suite
       run: node tests/test_riskos_daemon.js
 

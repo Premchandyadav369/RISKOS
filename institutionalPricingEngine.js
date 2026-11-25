@@ -55,15 +55,17 @@
 
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
-    define(['./securityMaster.js'], factory);
+    define(['./securityMaster.js', './liveMarketDataFeed.js'], factory);
   } else if (typeof module === 'object' && module.exports) {
     let SecurityMaster;
     try { SecurityMaster = require('./securityMaster.js').SecurityMaster || require('./securityMaster.js'); } catch (e) {}
-    module.exports = factory(SecurityMaster);
+    let LiveMarketDataFeed;
+    try { LiveMarketDataFeed = require('./liveMarketDataFeed.js'); } catch (e) {}
+    module.exports = factory(SecurityMaster, LiveMarketDataFeed);
   } else {
-    root.InstitutionalPricingEngine = factory(root.SecurityMaster);
+    root.InstitutionalPricingEngine = factory(root.SecurityMaster, root.LiveMarketDataFeed);
   }
-}(typeof self !== 'undefined' ? self : this, function (SecurityMaster) {
+}(typeof self !== 'undefined' ? self : this, function (SecurityMaster, LiveMarketDataFeed) {
   'use strict';
 
   const VERSION = '5.0.0-PROPRIETARY';
@@ -94,7 +96,7 @@
       darkPoolShare: 0.44, // 44% dark pool volume
       instFlowDelta: 0.028,
       netVanna: 14500,
-      maxPainStrike: 215.0,
+      maxPainStrike: 150.0,
       hiringVelocity: 0.18, // +18% tech hiring
       appTrafficVelocity: 0.22,
       brentBeta: -0.05,
@@ -112,7 +114,7 @@
       darkPoolShare: 0.42,
       instFlowDelta: 0.015,
       netVanna: 18200,
-      maxPainStrike: 315.0,
+      maxPainStrike: 350.0,
       hiringVelocity: 0.05,
       appTrafficVelocity: 0.08,
       brentBeta: -0.08,
@@ -130,7 +132,7 @@
       darkPoolShare: 0.40,
       instFlowDelta: 0.021,
       netVanna: 16500,
-      maxPainStrike: 440.0,
+      maxPainStrike: 495.0,
       hiringVelocity: 0.12,
       appTrafficVelocity: 0.15,
       brentBeta: -0.04,
@@ -148,7 +150,7 @@
       darkPoolShare: 0.48,
       instFlowDelta: -0.008,
       netVanna: -8500, // Short vanna asymmetry
-      maxPainStrike: 210.0,
+      maxPainStrike: 375.0,
       hiringVelocity: 0.08,
       appTrafficVelocity: 0.25,
       brentBeta: -0.15,
@@ -166,7 +168,7 @@
       darkPoolShare: 0.52,
       instFlowDelta: -0.035,
       netVanna: -14500,
-      maxPainStrike: 40.0,
+      maxPainStrike: 22.5,
       hiringVelocity: -0.05,
       appTrafficVelocity: 0.10,
       brentBeta: 0.02,
@@ -186,7 +188,7 @@
       darkPoolShare: 0.22,
       instFlowDelta: 0.018,
       netVanna: 4200,
-      maxPainStrike: 4400.0,
+      maxPainStrike: 2450.0,
       hiringVelocity: 0.06,
       appTrafficVelocity: 0.05,
       brentBeta: -0.04,
@@ -204,7 +206,7 @@
       darkPoolShare: 0.32,
       instFlowDelta: 0.025,
       netVanna: 6800,
-      maxPainStrike: 1300.0,
+      maxPainStrike: 1350.0,
       hiringVelocity: 0.14,
       appTrafficVelocity: 0.20,
       brentBeta: 0.35, // High refining margin positive correlation
@@ -222,7 +224,7 @@
       darkPoolShare: 0.35,
       instFlowDelta: 0.032,
       netVanna: 8500,
-      maxPainStrike: 1750.0,
+      maxPainStrike: 820.0,
       hiringVelocity: 0.10,
       appTrafficVelocity: 0.14,
       brentBeta: -0.12,
@@ -240,7 +242,7 @@
       darkPoolShare: 0.36,
       instFlowDelta: 0.028,
       netVanna: 7200,
-      maxPainStrike: 1000.0,
+      maxPainStrike: 455.0,
       hiringVelocity: 0.12,
       appTrafficVelocity: 0.18,
       brentBeta: -0.18,
@@ -258,7 +260,7 @@
       darkPoolShare: 0.42,
       instFlowDelta: 0.019,
       netVanna: -3200,
-      maxPainStrike: 3100.0,
+      maxPainStrike: 2680.0,
       hiringVelocity: 0.16,
       appTrafficVelocity: 0.15,
       brentBeta: 0.05,
@@ -342,21 +344,37 @@
      * Convenience method to evaluate a symbol by ticker string
      */
     evaluateSymbol(symbol, overrides = {}) {
-      const sym = (symbol || '').toUpperCase();
+      const sym = (symbol || '').toUpperCase().replace('.NS', '');
       const registry = SecurityMaster && SecurityMaster.LOCAL_REGISTRY ? SecurityMaster.LOCAL_REGISTRY : [];
-      const sec = registry.find(s => (s.symbol || '').toUpperCase() === sym);
+      let sec = registry.find(s => (s.symbol || '').toUpperCase() === sym);
+
+      // Check live market feed for real-time dynamic quote
+      let livePrice = overrides.spotPrice;
+      if (!livePrice && LiveMarketDataFeed && LiveMarketDataFeed.defaultMarketFeed) {
+        const liveQuote = LiveMarketDataFeed.defaultMarketFeed.cachedQuotes.get(sym);
+        if (liveQuote && typeof liveQuote.price === 'number' && liveQuote.price > 0) {
+          livePrice = liveQuote.price;
+        }
+      }
+
       if (!sec) {
         return this.evaluate12FactorPricing({
           symbol: sym,
           name: sym,
           country: 'US',
           currency: 'USD',
-          basePrice: overrides.spotPrice || 100.0,
+          basePrice: livePrice || 100.0,
           pe: 22.0,
           roe: 15.0
-        }, overrides);
+        }, Object.assign({}, overrides, livePrice ? { spotPrice: livePrice } : {}));
       }
-      return this.evaluate12FactorPricing(sec, overrides);
+
+      const activeOverrides = Object.assign({}, overrides);
+      if (livePrice && !activeOverrides.spotPrice) {
+        activeOverrides.spotPrice = livePrice;
+      }
+
+      return this.evaluate12FactorPricing(sec, activeOverrides);
     }
 
     /**

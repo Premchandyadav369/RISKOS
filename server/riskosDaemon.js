@@ -31,6 +31,7 @@ const os = require('os');
 const { WebSeerEngine } = require('../webSeerEngine.js');
 const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
 const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
+const { LiveMarketDataFeedClient, defaultMarketFeed } = require('../liveMarketDataFeed.js');
 let SecurityMaster;
 try {
   SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
@@ -74,8 +75,9 @@ const CONFIG = {
   intervals: {
     heartbeatMs: 5000,
     webSeerMs: 60000,
-    pricingMs: 300000, // 5 minutes
-    macroMs: 120000,   // 2 minutes (FRED, EIA, CoinGecko)
+    marketQuotesMs: 30000, // 30 seconds for live stock/crypto quotes
+    pricingMs: 300000,     // 5 minutes
+    macroMs: 120000,       // 2 minutes (FRED, EIA, CoinGecko)
     riskWatchdogMs: 10000
   },
   priorityWatchlist: ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'SMCI', 'RELIANCE', 'HDFCBANK', 'TCS', 'TATAMOTORS', 'ADANIENT']
@@ -104,6 +106,7 @@ class RiskosDaemon {
     this.webSeer = new WebSeerEngine();
     this.pricingEngine = new InstitutionalPricingEngine();
     this.macroFeed = new (MacroDataFeedClient || MacroDataFeedEngine.MacroDataFeedClient)({ timeoutMs: 6000 });
+    this.marketFeed = new (LiveMarketDataFeedClient || defaultMarketFeed.constructor)({ timeoutMs: 6000 });
     
     this.connectedSockets = new Set();
     this.sseClients = new Set();
@@ -115,10 +118,12 @@ class RiskosDaemon {
       totalAlertsGenerated: 0,
       totalPricingRuns: 0,
       totalMacroFetches: 0,
+      totalMarketQuotesFetches: 0,
       lastCrawlTime: null,
       lastPricingTime: null,
       lastMacroTime: null,
       lastMacroSnapshot: null,
+      lastMarketQuotesTime: null,
       circuitBreakerTripped: false,
       recentAlerts: []
     };
@@ -337,7 +342,32 @@ class RiskosDaemon {
   }
 
   // --------------------------------------------------------------------------
-  // Cadence 3: Sovereign 12-Factor Pricing Recalculation (5 min)
+  // Cadence 3: Live Real-Time Market Quotes Ingestion (30s)
+  // Feeds: Public Institutional Exchange Gateway (US + Indian Equities)
+  // --------------------------------------------------------------------------
+  async runMarketQuotesCycle() {
+    this.stats.totalMarketQuotesFetches++;
+    try {
+      const quotes = await this.marketFeed.fetchAllQuotes(true);
+      const syncedCount = this.marketFeed.syncWithSecurityMaster(SecurityMaster);
+      this.stats.lastMarketQuotesTime = new Date().toISOString();
+
+      // Persist live quotes to disk
+      const dataDir = path.join(this.config.rootDir, 'data');
+      if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+      fs.writeFileSync(path.join(dataDir, 'live_market_quotes.json'), JSON.stringify(quotes, null, 2), 'utf8');
+
+      // Broadcast live tick updates to connected UI terminals
+      this.broadcast('MARKET_QUOTES_UPDATE', quotes);
+      return quotes;
+    } catch (err) {
+      console.warn('[Daemon] Market quotes cycle notice:', err.message);
+      return null;
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // Cadence 4: Sovereign 12-Factor Pricing Recalculation (5 min)
   // --------------------------------------------------------------------------
   async runPricingCycle() {
     this.stats.totalPricingRuns++;
@@ -345,6 +375,11 @@ class RiskosDaemon {
     console.log(`[Pricing 24/7] Running 12-Factor Sovereign Pricing recalculation (Run #${this.stats.totalPricingRuns})...`);
 
     try {
+      // Ensure prices are synced with latest live market ticks
+      if (this.marketFeed && SecurityMaster) {
+        this.marketFeed.syncWithSecurityMaster(SecurityMaster);
+      }
+
       const results = this.pricingEngine.evaluateUniverse();
       if (results && results.fullEvaluations) {
         // Save to disk
@@ -371,7 +406,7 @@ class RiskosDaemon {
   }
 
   // --------------------------------------------------------------------------
-  // Cadence 4: Live Sovereign Macro & Cross-Asset Ingestion (2 min)
+  // Cadence 5: Live Sovereign Macro & Cross-Asset Ingestion (2 min)
   // Feeds: FRED (Yields, Spreads, Inflation), EIA (Brent, WTI, Gas), CoinGecko
   // --------------------------------------------------------------------------
   async runMacroCycle() {
@@ -506,11 +541,35 @@ class RiskosDaemon {
       return;
     }
 
-    // 6. Force Trigger Endpoints (Manual Re-run on Demand)
+    // 6. Live Market Real-Time Equity & Crypto Quotes Endpoint
+    if (pathname === '/api/market/quotes') {
+      const livePath = path.join(this.config.rootDir, 'data', 'live_market_quotes.json');
+      if (fs.existsSync(livePath)) {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        fs.createReadStream(livePath).pipe(res);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(this.marketFeed.getAllQuotesObject()));
+      }
+      return;
+    }
+
+    // 7. Force Trigger Endpoints (Manual Re-run on Demand)
     if (req.method === 'POST' && pathname === '/api/trigger/crawl') {
       this.runWebSeerCycle();
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ success: true, message: 'WebSeer crawl cycle triggered' }));
+      return;
+    }
+
+    if (req.method === 'POST' && pathname === '/api/trigger/market') {
+      this.runMarketQuotesCycle().then(quotes => {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'Market quotes cycle triggered', count: Object.keys(quotes || {}).length }));
+      }).catch(err => {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      });
       return;
     }
 
@@ -640,6 +699,7 @@ class RiskosDaemon {
 
       // Schedule Autonomous Cadences
       this.timers.heartbeat = setInterval(() => this.runHeartbeatCycle(), this.config.intervals.heartbeatMs);
+      this.timers.marketQuotes = setInterval(() => this.runMarketQuotesCycle(), this.config.intervals.marketQuotesMs);
       this.timers.webSeer = setInterval(() => this.runWebSeerCycle(), this.config.intervals.webSeerMs);
       this.timers.pricing = setInterval(() => this.runPricingCycle(), this.config.intervals.pricingMs);
       this.timers.macro = setInterval(() => this.runMacroCycle(), this.config.intervals.macroMs);
@@ -647,6 +707,7 @@ class RiskosDaemon {
 
       // Run initial boot passes
       this.runHeartbeatCycle();
+      setTimeout(() => this.runMarketQuotesCycle(), 500);
       setTimeout(() => this.runMacroCycle(), 1000);
       setTimeout(() => this.runWebSeerCycle(), 2000);
       setTimeout(() => this.runPricingCycle(), 5000);
