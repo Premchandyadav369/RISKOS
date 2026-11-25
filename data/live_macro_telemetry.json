@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-11-24T16:42:48.193Z",
+  "timestamp": "2026-11-25T15:21:05.256Z",
   "fred": {
-    "realYield10Y": 2.77,
-    "yieldCurveSlope10Y2Y": 0.29,
-    "highYieldOas": 376,
+    "realYield10Y": 2.79,
+    "yieldCurveSlope10Y2Y": 0.28,
+    "highYieldOas": 372,
     "fedFundsRate": 3.88,
-    "breakevenInflation10Y": 2.13,
-    "lastUpdated": "2026-11-20"
+    "breakevenInflation10Y": 2.12,
+    "lastUpdated": "2026-11-23"
   },
   "eia": {
     "brentCrudeUsd": 92.94,
@@ -18,30 +18,30 @@
   },
   "coingecko": {
     "bitcoin": {
-      "usd": 59363,
-      "usd_market_cap": 1194191183946.411,
-      "usd_24h_change": -4.53315954192945
+      "usd": 57730,
+      "usd_market_cap": 1161366669294.2288,
+      "usd_24h_change": -3.228008445494056
     },
     "ethereum": {
-      "usd": 1666.23,
-      "usd_market_cap": 203693326855.0594,
-      "usd_24h_change": -5.405345659586515
+      "usd": 1627.93,
+      "usd_market_cap": 199015405058.89578,
+      "usd_24h_change": -2.607289803143639
     },
     "solana": {
-      "usd": 68.7,
-      "usd_market_cap": 40676560087.19553,
-      "usd_24h_change": -7.518079947670871
+      "usd": 66.74,
+      "usd_market_cap": 39521019393.40371,
+      "usd_24h_change": -2.9245078671892
     },
     "binancecoin": {
-      "usd": 544.17,
-      "usd_market_cap": 71563666833.35956,
-      "usd_24h_change": -3.528929943353058
+      "usd": 531.92,
+      "usd_market_cap": 69952143564.63321,
+      "usd_24h_change": -2.456923095121676
     },
     "ripple": {
-      "usd": 0.910406,
-      "usd_market_cap": 57825898858.71972,
-      "usd_24h_change": -6.423423334147242
+      "usd": 0.894863,
+      "usd_market_cap": 56786189577.944305,
+      "usd_24h_change": -1.7833524283814013
     },
-    "lastUpdated": "2026-11-24T16:42:47.715Z"
+    "lastUpdated": "2026-11-25T15:21:03.074Z"
   }
 }

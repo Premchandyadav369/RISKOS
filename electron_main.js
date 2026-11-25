@@ -70,7 +70,7 @@ app.whenReady().then(() => {
         { label: 'Goldman Sachs Quant Desk', click: () => mainWindow.loadFile('gs_quant.html') },
         { label: 'Autonomous Fleet (41 Bots)', click: () => mainWindow.loadFile('fleet.html') },
         { label: 'Macro Observatory', click: () => mainWindow.loadFile('observatory.html') },
-        { label: '80 Quant Labs & Academy', click: () => mainWindow.loadFile('learn.html') }
+        { label: '81 Quant Labs & Academy', click: () => mainWindow.loadFile('learn.html') }
       ]
     },
     {

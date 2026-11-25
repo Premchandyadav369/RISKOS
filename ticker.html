@@ -9,6 +9,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
 
   <!-- Inter UI Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +49,7 @@
       <!-- Brand Logo & Market Clock -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" / style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
@@ -216,15 +217,15 @@
         <button class="ticker-chip" data-query="TCS">TCS</button>
         <button class="ticker-chip" data-query="HDFCBANK">HDFC Bank</button>
         <button class="ticker-chip" data-query="NVDA">NVIDIA</button>
-        <button class="ticker-chip chip-penny" data-query="GTLINFRA"><i class="fa-solid fa-coins text-amber"></i> GTLINFRA (₹1.16)</button>
-        <button class="ticker-chip chip-penny" data-query="VISAGAR"><i class="fa-solid fa-coins text-amber"></i> VISAGAR (₹1.45)</button>
-        <button class="ticker-chip chip-penny" data-query="IDEA"><i class="fa-solid fa-bolt text-cyan"></i> IDEA (₹8.25)</button>
-        <button class="ticker-chip chip-penny" data-query="JPPOWER"><i class="fa-solid fa-coins text-amber"></i> JPPOWER (₹16.29)</button>
-        <button class="ticker-chip chip-penny" data-query="SUZLON"><i class="fa-solid fa-fire text-rose"></i> SUZLON (₹64.50)</button>
-        <button class="ticker-chip chip-penny" data-query="PLUG"><i class="fa-solid fa-bolt text-cyan"></i> PLUG ($2.17)</button>
-        <button class="ticker-chip chip-penny" data-query="BBAI"><i class="fa-solid fa-robot text-purple"></i> BBAI ($1.85)</button>
-        <button class="ticker-chip chip-penny" data-query="SOUN"><i class="fa-solid fa-wave-square text-cyan"></i> SOUN ($6.74)</button>
-        <button class="ticker-chip chip-penny" data-query="BITF"><i class="fa-brands fa-bitcoin text-amber"></i> BITF ($2.30)</button>
+        <button class="ticker-chip chip-penny" data-query="GTLINFRA"><i class="fa-solid fa-coins text-amber"></i> GTLINFRA (₹1.03)</button>
+        <button class="ticker-chip chip-penny" data-query="VISAGAR"><i class="fa-solid fa-coins text-amber"></i> VISAGAR (₹0.29)</button>
+        <button class="ticker-chip chip-penny" data-query="IDEA"><i class="fa-solid fa-bolt text-cyan"></i> IDEA (₹12.03)</button>
+        <button class="ticker-chip chip-penny" data-query="JPPOWER"><i class="fa-solid fa-coins text-amber"></i> JPPOWER (₹13.31)</button>
+        <button class="ticker-chip chip-penny" data-query="SUZLON"><i class="fa-solid fa-fire text-rose"></i> SUZLON (₹36.31)</button>
+        <button class="ticker-chip chip-penny" data-query="PLUG"><i class="fa-solid fa-bolt text-cyan"></i> PLUG ($0.93)</button>
+        <button class="ticker-chip chip-penny" data-query="BBAI"><i class="fa-solid fa-robot text-purple"></i> BBAI ($1.54)</button>
+        <button class="ticker-chip chip-penny" data-query="SOUN"><i class="fa-solid fa-wave-square text-cyan"></i> SOUN ($2.63)</button>
+        <button class="ticker-chip chip-penny" data-query="CLSK"><i class="fa-brands fa-bitcoin text-amber"></i> CLSK ($5.12)</button>
       </div>
     </section>
 
@@ -902,6 +903,8 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="liveMarketDataFeed.js"></script>
+  <script src="macroDataFeedEngine.js"></script>
   <script src="securityMaster.js"></script>
   <script src="engine.js"></script>
   <script src="chartSuite.js"></script>

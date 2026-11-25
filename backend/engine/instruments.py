@@ -20,7 +20,16 @@ CACHE_TTL_HISTORY = 3600
 
 # Base Currencies and Fallbacks
 DEFAULT_CURRENCY = "INR"
-USD_TO_INR = 83.50
+USD_TO_INR = 92.57
+_YF_SYMBOL_OVERRIDES = {
+    "TATAMOTORS.NS": "TMCV.NS",
+    "ZOMATO.NS": "ETERNAL.NS",
+    "LTIM.NS": "LTM.NS",
+}
+
+
+def _yf_symbol(resolved_sym: str) -> str:
+    return _YF_SYMBOL_OVERRIDES.get(resolved_sym, resolved_sym)
 
 # Fast Instrument Registry Index (Major Benchmarks, ETFs, NSE & BSE Equities, Global Indices)
 INSTRUMENT_REGISTRY: List[Dict[str, Any]] = [
@@ -201,7 +210,7 @@ def get_quote(symbol: str) -> Dict[str, Any]:
     name = resolved_sym
 
     try:
-        t = yf.Ticker(resolved_sym)
+        t = yf.Ticker(_yf_symbol(resolved_sym))
         fi = t.fast_info
 
         price = float(getattr(fi, 'last_price', 0.0) or 0.0)
@@ -309,7 +318,7 @@ def get_historical_ohlcv(symbol: str, timeframe: str = "1Y") -> Dict[str, Any]:
     status = "HISTORICAL"
 
     try:
-        t = yf.Ticker(resolved_sym)
+        t = yf.Ticker(_yf_symbol(resolved_sym))
         df = t.history(period=period, interval=interval)
         if df.empty and period != "1y":
             df = t.history(period="1y", interval="1d")
@@ -395,7 +404,7 @@ def get_fundamentals(symbol: str) -> Dict[str, Any]:
     }
 
     try:
-        t = yf.Ticker(resolved_sym)
+        t = yf.Ticker(_yf_symbol(resolved_sym))
         inf = t.info or {}
 
         metrics["pe"] = inf.get("trailingPE") or inf.get("forwardPE")
@@ -425,7 +434,7 @@ def get_news(symbol: str) -> List[Dict[str, Any]]:
     news_items = []
 
     try:
-        t = yf.Ticker(resolved_sym)
+        t = yf.Ticker(_yf_symbol(resolved_sym))
         raw_news = getattr(t, 'news', []) or []
         seen_titles = set()
 

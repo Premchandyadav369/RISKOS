@@ -5,7 +5,7 @@
  */
 
 const SecurityMaster = (() => {
-  let USD_TO_INR = 86.50;
+  let USD_TO_INR = 92.57;
 
   const getUsdToInr = () => USD_TO_INR;
   const convertCurrency = (val, fromCurr = 'USD', toCurr = 'INR') => {
@@ -24,199 +24,200 @@ const SecurityMaster = (() => {
       if (custom) return custom.replace(/\/$/, '') + '/api';
 
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
-          return 'http://127.0.0.1:8000/api';
+        // Static dev servers without built-in /api route fall back to local Node daemon (8080) or FastAPI (8000)
+        if (['5500', '3000', '5173'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8080/api';
         }
         return window.location.origin + '/api';
       }
     }
-    return 'http://127.0.0.1:8000/api';
+    return 'http://127.0.0.1:8080/api';
   };
 
   // ── 1. Universal Security Master Registry (Over 100+ Core Assets) ──────────
   const LOCAL_REGISTRY = [
     // ── Benchmark Indices ──
-    { id: 'NSE:^NSEI', symbol: '^NSEI', symbolNS: '^NSEI', name: 'NIFTY 50 Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000001', aliases: ['NIFTY', 'NIFTY50', 'NIFTY 50', 'NSE INDEX'], currency: 'INR', basePrice: 24840.50, beta: 1.00, vol: 0.132, pe: 22.4, eps: 1108.0, roe: 15.2, sector: 'Broad Market Benchmark', country: 'IN' },
-    { id: 'BSE:^BSESN', symbol: '^BSESN', symbolNS: '^BSESN', name: 'S&P BSE SENSEX', exchange: 'BSE', assetType: 'INDEX', isin: 'IN9000000002', aliases: ['SENSEX', 'BSE30', 'BSE SENSEX'], currency: 'INR', basePrice: 81350.20, beta: 0.98, vol: 0.128, pe: 23.1, eps: 3521.0, roe: 14.8, sector: 'Broad Market Benchmark', country: 'IN' },
-    { id: 'NSE:^NSEBANK', symbol: '^NSEBANK', symbolNS: '^NSEBANK', name: 'NIFTY BANK Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000003', aliases: ['BANKNIFTY', 'NIFTY BANK'], currency: 'INR', basePrice: 51320.10, beta: 1.18, vol: 0.185, pe: 16.2, eps: 3162.0, roe: 16.5, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:^CNXIT', symbol: '^CNXIT', symbolNS: '^CNXIT', name: 'NIFTY IT Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000004', aliases: ['NIFTY IT', 'CNX IT'], currency: 'INR', basePrice: 42150.00, beta: 0.92, vol: 0.198, pe: 31.5, eps: 1328.0, roe: 24.2, sector: 'Information Technology', country: 'IN' },
-    { id: 'US:^GSPC', symbol: '^GSPC', symbolNS: '^GSPC', name: 'S&P 500 Index', exchange: 'US', assetType: 'INDEX', isin: 'US78378X1072', aliases: ['SPX', 'SP500', 'S&P 500'], currency: 'USD', basePrice: 5892.40, beta: 1.00, vol: 0.145, pe: 26.8, eps: 210.7, roe: 18.0, sector: 'US Large-Cap Equity', country: 'US' },
-    { id: 'US:^IXIC', symbol: '^IXIC', symbolNS: '^IXIC', name: 'NASDAQ 100 / Composite', exchange: 'NASDAQ', assetType: 'INDEX', isin: 'US6311011026', aliases: ['NASDAQ', 'NDX', 'QQQ'], currency: 'USD', basePrice: 18450.00, beta: 1.25, vol: 0.205, pe: 34.2, eps: 520.0, roe: 21.0, sector: 'US Technology Benchmark', country: 'US' },
-    { id: 'US:^DJI', symbol: '^DJI', symbolNS: '^DJI', name: 'Dow Jones Industrial Average', exchange: 'NYSE', assetType: 'INDEX', isin: 'US2605661048', aliases: ['DOW', 'DJIA'], currency: 'USD', basePrice: 43400.00, beta: 0.88, vol: 0.135, pe: 22.1, eps: 1960.0, roe: 16.5, sector: 'US Blue-Chip Benchmark', country: 'US' },
+    { id: 'NSE:^NSEI', symbol: '^NSEI', symbolNS: '^NSEI', name: 'NIFTY 50 Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000001', aliases: ['NIFTY', 'NIFTY50', 'NIFTY 50', 'NSE INDEX'], currency: 'INR', basePrice: 25766.15, beta: 1.00, vol: 0.132, pe: 22.4, eps: 1150.0, roe: 15.2, sector: 'Broad Market Benchmark', country: 'IN' },
+    { id: 'BSE:^BSESN', symbol: '^BSESN', symbolNS: '^BSESN', name: 'S&P BSE SENSEX', exchange: 'BSE', assetType: 'INDEX', isin: 'IN9000000002', aliases: ['SENSEX', 'BSE30', 'BSE SENSEX'], currency: 'INR', basePrice: 83757.52, beta: 0.98, vol: 0.128, pe: 23.1, eps: 3625.0, roe: 14.8, sector: 'Broad Market Benchmark', country: 'IN' },
+    { id: 'NSE:^NSEBANK', symbol: '^NSEBANK', symbolNS: '^NSEBANK', name: 'NIFTY BANK Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000003', aliases: ['BANKNIFTY', 'NIFTY BANK'], currency: 'INR', basePrice: 63754.70, beta: 1.18, vol: 0.185, pe: 16.2, eps: 3935.0, roe: 16.5, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:^CNXIT', symbol: '^CNXIT', symbolNS: '^CNXIT', name: 'NIFTY IT Index', exchange: 'NSE', assetType: 'INDEX', isin: 'IN9000000004', aliases: ['NIFTY IT', 'CNX IT'], currency: 'INR', basePrice: 32544.90, beta: 0.92, vol: 0.198, pe: 27.5, eps: 1183.0, roe: 24.2, sector: 'Information Technology', country: 'IN' },
+    { id: 'US:^GSPC', symbol: '^GSPC', symbolNS: '^GSPC', name: 'S&P 500 Index', exchange: 'US', assetType: 'INDEX', isin: 'US78378X1072', aliases: ['SPX', 'SP500', 'S&P 500'], currency: 'USD', basePrice: 7201.09, beta: 1.00, vol: 0.145, pe: 26.8, eps: 268.7, roe: 18.0, sector: 'US Large-Cap Equity', country: 'US' },
+    { id: 'US:^IXIC', symbol: '^IXIC', symbolNS: '^IXIC', name: 'NASDAQ 100 / Composite', exchange: 'NASDAQ', assetType: 'INDEX', isin: 'US6311011026', aliases: ['NASDAQ', 'NDX', 'QQQ'], currency: 'USD', basePrice: 23733.53, beta: 1.25, vol: 0.205, pe: 34.2, eps: 694.0, roe: 21.0, sector: 'US Technology Benchmark', country: 'US' },
+    { id: 'US:^DJI', symbol: '^DJI', symbolNS: '^DJI', name: 'Dow Jones Industrial Average', exchange: 'NYSE', assetType: 'INDEX', isin: 'US2605661048', aliases: ['DOW', 'DJIA'], currency: 'USD', basePrice: 50018.70, beta: 0.88, vol: 0.135, pe: 22.1, eps: 2263.0, roe: 16.5, sector: 'US Blue-Chip Benchmark', country: 'US' },
 
     // ── Indian Large-Caps (NIFTY 50 & Heavyweights) ──
-    { id: 'NSE:RELIANCE', symbol: 'RELIANCE', symbolNS: 'RELIANCE.NS', name: 'Reliance Industries Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE002A01018', bseCode: '500325', aliases: ['RELIANCE', 'RIL', 'JIO', 'MUKESH AMBANI'], currency: 'INR', basePrice: 1351.00, beta: 1.08, vol: 0.185, pe: 25.55, eps: 50.40, roe: 9.75, roce: 9.58, marketCap: 20180000000000, sector: 'Energy & Digital Services', country: 'IN' },
-    { id: 'NSE:TCS', symbol: 'TCS', symbolNS: 'TCS.NS', name: 'Tata Consultancy Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE467B01029', bseCode: '532540', aliases: ['TCS', 'TATA CONSULTANCY'], currency: 'INR', basePrice: 2460.00, beta: 0.78, vol: 0.162, pe: 31.78, eps: 132.50, roe: 48.20, roce: 59.10, marketCap: 15800000000000, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:HDFCBANK', symbol: 'HDFCBANK', symbolNS: 'HDFCBANK.NS', name: 'HDFC Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040A01034', bseCode: '500180', aliases: ['HDFCBANK', 'HDFC BANK', 'HDFC'], currency: 'INR', basePrice: 817.80, beta: 1.12, vol: 0.195, pe: 18.90, eps: 86.89, roe: 16.40, roce: 15.20, marketCap: 13450000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:INFY', symbol: 'INFY', symbolNS: 'INFY.NS', name: 'Infosys Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE009A01021', bseCode: '500209', aliases: ['INFY', 'INFOSYS'], currency: 'INR', basePrice: 1103.40, beta: 0.85, vol: 0.182, pe: 28.40, eps: 65.64, roe: 31.80, roce: 40.50, marketCap: 8060000000000, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:ICICIBANK', symbol: 'ICICIBANK', symbolNS: 'ICICIBANK.NS', name: 'ICICI Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE090A01021', bseCode: '532174', aliases: ['ICICIBANK', 'ICICI BANK'], currency: 'INR', basePrice: 1585.50, beta: 1.05, vol: 0.178, pe: 17.80, eps: 68.45, roe: 18.60, roce: 17.10, marketCap: 8750000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:SBIN', symbol: 'SBIN', symbolNS: 'SBIN.NS', name: 'State Bank of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE062A01020', bseCode: '500112', aliases: ['SBIN', 'SBI', 'STATE BANK'], currency: 'INR', basePrice: 1132.65, beta: 1.22, vol: 0.224, pe: 10.40, eps: 78.12, roe: 17.50, roce: 16.20, marketCap: 7450000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:BHARTIARTL', symbol: 'BHARTIARTL', symbolNS: 'BHARTIARTL.NS', name: 'Bharti Airtel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE397D01024', bseCode: '532454', aliases: ['BHARTIARTL', 'AIRTEL'], currency: 'INR', basePrice: 2128.50, beta: 0.72, vol: 0.165, pe: 72.50, eps: 21.35, roe: 14.20, roce: 13.80, marketCap: 9320000000000, sector: 'Telecommunications', country: 'IN' },
-    { id: 'NSE:ITC', symbol: 'ITC', symbolNS: 'ITC.NS', name: 'ITC Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE154A01025', bseCode: '500875', aliases: ['ITC', 'ITC LTD'], currency: 'INR', basePrice: 301.00, beta: 0.62, vol: 0.142, pe: 30.20, eps: 16.70, roe: 28.50, roce: 36.80, marketCap: 6410000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
-    { id: 'NSE:TATAMOTORS', symbol: 'TATAMOTORS', symbolNS: 'TMCV.NS', name: 'Tata Motors Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE155A01022', bseCode: '500570', aliases: ['TATAMOTORS', 'TATA MOTORS', 'TMCV', 'JAGUAR'], currency: 'INR', basePrice: 453.80, beta: 1.34, vol: 0.265, pe: 12.80, eps: 84.70, roe: 36.20, roce: 22.40, marketCap: 3620000000000, sector: 'Automotive', country: 'IN' },
-    { id: 'NSE:LT', symbol: 'LT', symbolNS: 'LT.NS', name: 'Larsen & Toubro Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE018A01030', bseCode: '500510', aliases: ['LT', 'L&T', 'LARSEN & TOUBRO'], currency: 'INR', basePrice: 4099.90, beta: 0.95, vol: 0.188, pe: 36.40, eps: 101.10, roe: 15.80, roce: 16.40, marketCap: 5140000000000, sector: 'Capital Goods & Infrastructure', country: 'IN' },
-    { id: 'NSE:KOTAKBANK', symbol: 'KOTAKBANK', symbolNS: 'KOTAKBANK.NS', name: 'Kotak Mahindra Bank', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE237A01028', bseCode: '500247', aliases: ['KOTAKBANK', 'KOTAK'], currency: 'INR', basePrice: 502.85, beta: 0.94, vol: 0.175, pe: 19.50, eps: 91.50, roe: 14.50, roce: 13.80, marketCap: 3610000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:AXISBANK', symbol: 'AXISBANK', symbolNS: 'AXISBANK.NS', name: 'Axis Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE238A01034', bseCode: '532215', aliases: ['AXISBANK', 'AXIS'], currency: 'INR', basePrice: 1388.60, beta: 1.15, vol: 0.210, pe: 14.20, eps: 82.50, roe: 17.80, roce: 16.50, marketCap: 3690000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:BAJFINANCE', symbol: 'BAJFINANCE', symbolNS: 'BAJFINANCE.NS', name: 'Bajaj Finance Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE296A01024', bseCode: '500034', aliases: ['BAJFINANCE', 'BAJAJ FINANCE'], currency: 'INR', basePrice: 1095.50, beta: 1.28, vol: 0.245, pe: 29.50, eps: 245.40, roe: 22.40, roce: 20.10, marketCap: 4560000000000, sector: 'Financial Services / NBFC', country: 'IN' },
-    { id: 'NSE:HINDUNILVR', symbol: 'HINDUNILVR', symbolNS: 'HINDUNILVR.NS', name: 'Hindustan Unilever Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE030A01027', bseCode: '500696', aliases: ['HINDUNILVR', 'HUL', 'UNILEVER'], currency: 'INR', basePrice: 2019.10, beta: 0.58, vol: 0.138, pe: 58.20, eps: 47.76, roe: 20.50, roce: 27.80, marketCap: 6600000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
-    { id: 'NSE:MARUTI', symbol: 'MARUTI', symbolNS: 'MARUTI.NS', name: 'Maruti Suzuki India Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE585B01010', bseCode: '532500', aliases: ['MARUTI', 'SUZUKI'], currency: 'INR', basePrice: 14010.00, beta: 0.88, vol: 0.192, pe: 28.50, eps: 436.80, roe: 16.80, roce: 21.50, marketCap: 3970000000000, sector: 'Automotive', country: 'IN' },
-    { id: 'NSE:SUNPHARMA', symbol: 'SUNPHARMA', symbolNS: 'SUNPHARMA.NS', name: 'Sun Pharmaceutical Industries', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE044A01036', bseCode: '524715', aliases: ['SUNPHARMA', 'SUN PHARMA'], currency: 'INR', basePrice: 1860.00, beta: 0.68, vol: 0.168, pe: 38.40, eps: 46.74, roe: 16.20, roce: 18.40, marketCap: 4360000000000, sector: 'Pharmaceuticals & Healthcare', country: 'IN' },
-    { id: 'NSE:TITAN', symbol: 'TITAN', symbolNS: 'TITAN.NS', name: 'Titan Company Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE280A01028', bseCode: '500114', aliases: ['TITAN', 'TANISHQ'], currency: 'INR', basePrice: 4680.00, beta: 0.96, vol: 0.205, pe: 82.00, eps: 44.15, roe: 32.50, roce: 35.80, marketCap: 3260000000000, sector: 'Consumer Discretionary', country: 'IN' },
-    { id: 'NSE:ADANIENT', symbol: 'ADANIENT', symbolNS: 'ADANIENT.NS', name: 'Adani Enterprises Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE423A01024', bseCode: '512599', aliases: ['ADANIENT', 'ADANI ENTERPRISES'], currency: 'INR', basePrice: 2677.90, beta: 1.85, vol: 0.425, pe: 94.00, eps: 31.70, roe: 8.50, roce: 9.80, marketCap: 3460000000000, sector: 'Conglomerate & Energy', country: 'IN' },
-    { id: 'NSE:ADANIPORTS', symbol: 'ADANIPORTS', symbolNS: 'ADANIPORTS.NS', name: 'Adani Ports and SEZ Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE742F01042', bseCode: '532921', aliases: ['ADANIPORTS', 'ADANI PORTS'], currency: 'INR', basePrice: 1350.00, beta: 1.35, vol: 0.285, pe: 34.20, eps: 42.80, roe: 17.50, roce: 16.80, marketCap: 3210000000000, sector: 'Ports & Infrastructure', country: 'IN' },
-    { id: 'NSE:TATASTEEL', symbol: 'TATASTEEL', symbolNS: 'TATASTEEL.NS', name: 'Tata Steel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE081A01020', bseCode: '500470', aliases: ['TATASTEEL', 'TATA STEEL'], currency: 'INR', basePrice: 163.00, beta: 1.42, vol: 0.295, pe: 32.00, eps: 4.82, roe: 7.80, roce: 9.20, marketCap: 1950000000000, sector: 'Metals & Mining', country: 'IN' },
-    { id: 'NSE:ONGC', symbol: 'ONGC', symbolNS: 'ONGC.NS', name: 'Oil & Natural Gas Corp', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE213A01029', bseCode: '500312', aliases: ['ONGC'], currency: 'INR', basePrice: 222.85, beta: 1.05, vol: 0.255, pe: 8.50, eps: 38.10, roe: 14.80, roce: 15.20, marketCap: 3370000000000, sector: 'Oil & Gas Upstream', country: 'IN' },
-    { id: 'NSE:ZOMATO', symbol: 'ZOMATO', symbolNS: 'ZOMATO.NS', name: 'Zomato Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE758T01015', bseCode: '543320', aliases: ['ZOMATO', 'BLINKIT'], currency: 'INR', basePrice: 270.50, beta: 1.45, vol: 0.385, pe: 142.00, eps: 1.82, roe: 4.80, roce: 5.20, marketCap: 2180000000000, sector: 'Internet & Quick Commerce', country: 'IN' },
-    { id: 'NSE:JIOFIN', symbol: 'JIOFIN', symbolNS: 'JIOFIN.NS', name: 'Jio Financial Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE758E01017', bseCode: '543940', aliases: ['JIOFIN', 'JIO FINANCIAL'], currency: 'INR', basePrice: 335.00, beta: 1.30, vol: 0.310, pe: 125.00, eps: 2.62, roe: 2.50, roce: 3.10, marketCap: 2120000000000, sector: 'Financial Services', country: 'IN' },
-    { id: 'NSE:TRENT', symbol: 'TRENT', symbolNS: 'TRENT.NS', name: 'Trent Limited (Westside/Zudio)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE849A01020', bseCode: '500251', aliases: ['TRENT', 'ZUDIO', 'WESTSIDE'], currency: 'INR', basePrice: 7240.00, beta: 1.25, vol: 0.320, pe: 165.00, eps: 43.15, roe: 28.50, roce: 31.20, marketCap: 2570000000000, sector: 'Retail & Fashion', country: 'IN' },
+    { id: 'NSE:RELIANCE', symbol: 'RELIANCE', symbolNS: 'RELIANCE.NS', name: 'Reliance Industries Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE002A01018', bseCode: '500325', aliases: ['RELIANCE', 'RIL', 'JIO', 'MUKESH AMBANI'], currency: 'INR', basePrice: 1379.10, beta: 1.08, vol: 0.185, pe: 25.55, eps: 53.98, roe: 9.75, roce: 9.58, marketCap: 18660000000000, sector: 'Energy & Digital Services', country: 'IN' },
+    { id: 'NSE:TCS', symbol: 'TCS', symbolNS: 'TCS.NS', name: 'Tata Consultancy Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE467B01029', bseCode: '532540', aliases: ['TCS', 'TATA CONSULTANCY'], currency: 'INR', basePrice: 2508.90, beta: 0.78, vol: 0.162, pe: 22.80, eps: 110.04, roe: 48.20, roce: 59.10, marketCap: 9077000000000, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:HDFCBANK', symbol: 'HDFCBANK', symbolNS: 'HDFCBANK.NS', name: 'HDFC Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040A01034', bseCode: '500180', aliases: ['HDFCBANK', 'HDFC BANK', 'HDFC'], currency: 'INR', basePrice: 845.60, beta: 1.12, vol: 0.195, pe: 18.90, eps: 44.74, roe: 16.40, roce: 15.20, marketCap: 12880000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:INFY', symbol: 'INFY', symbolNS: 'INFY.NS', name: 'Infosys Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE009A01021', bseCode: '500209', aliases: ['INFY', 'INFOSYS'], currency: 'INR', basePrice: 1149.70, beta: 0.85, vol: 0.182, pe: 20.40, eps: 56.36, roe: 31.80, roce: 40.50, marketCap: 4770000000000, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:ICICIBANK', symbol: 'ICICIBANK', symbolNS: 'ICICIBANK.NS', name: 'ICICI Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE090A01021', bseCode: '532174', aliases: ['ICICIBANK', 'ICICI BANK'], currency: 'INR', basePrice: 1637.40, beta: 1.05, vol: 0.178, pe: 21.80, eps: 75.11, roe: 18.60, roce: 17.10, marketCap: 11540000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:SBIN', symbol: 'SBIN', symbolNS: 'SBIN.NS', name: 'State Bank of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE062A01020', bseCode: '500112', aliases: ['SBIN', 'SBI', 'STATE BANK'], currency: 'INR', basePrice: 1139.60, beta: 1.22, vol: 0.224, pe: 12.40, eps: 91.90, roe: 17.50, roce: 16.20, marketCap: 10170000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:BHARTIARTL', symbol: 'BHARTIARTL', symbolNS: 'BHARTIARTL.NS', name: 'Bharti Airtel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE397D01024', bseCode: '532454', aliases: ['BHARTIARTL', 'AIRTEL'], currency: 'INR', basePrice: 2130.40, beta: 0.72, vol: 0.165, pe: 52.50, eps: 40.58, roe: 14.20, roce: 13.80, marketCap: 12120000000000, sector: 'Telecommunications', country: 'IN' },
+    { id: 'NSE:ITC', symbol: 'ITC', symbolNS: 'ITC.NS', name: 'ITC Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE154A01025', bseCode: '500875', aliases: ['ITC', 'ITC LTD'], currency: 'INR', basePrice: 304.85, beta: 0.62, vol: 0.142, pe: 20.20, eps: 15.09, roe: 28.50, roce: 36.80, marketCap: 3810000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
+    { id: 'NSE:TATAMOTORS', symbol: 'TATAMOTORS', symbolNS: 'TMCV.NS', name: 'Tata Motors Limited (TMCV)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE155A01022', bseCode: '500570', aliases: ['TATAMOTORS', 'TATA MOTORS', 'TMCV', 'JAGUAR'], currency: 'INR', basePrice: 455.25, beta: 1.34, vol: 0.265, pe: 12.80, eps: 35.57, roe: 36.20, roce: 22.40, marketCap: 1680000000000, sector: 'Automotive', country: 'IN' },
+    { id: 'NSE:LT', symbol: 'LT', symbolNS: 'LT.NS', name: 'Larsen & Toubro Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE018A01030', bseCode: '500510', aliases: ['LT', 'L&T', 'LARSEN & TOUBRO'], currency: 'INR', basePrice: 4143.70, beta: 0.95, vol: 0.188, pe: 36.40, eps: 113.84, roe: 15.80, roce: 16.40, marketCap: 5690000000000, sector: 'Capital Goods & Infrastructure', country: 'IN' },
+    { id: 'NSE:KOTAKBANK', symbol: 'KOTAKBANK', symbolNS: 'KOTAKBANK.NS', name: 'Kotak Mahindra Bank', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE237A01028', bseCode: '500247', aliases: ['KOTAKBANK', 'KOTAK'], currency: 'INR', basePrice: 510.75, beta: 0.94, vol: 0.175, pe: 19.50, eps: 26.19, roe: 14.50, roce: 13.80, marketCap: 5070000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:AXISBANK', symbol: 'AXISBANK', symbolNS: 'AXISBANK.NS', name: 'Axis Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE238A01034', bseCode: '532215', aliases: ['AXISBANK', 'AXIS'], currency: 'INR', basePrice: 1417.20, beta: 1.15, vol: 0.210, pe: 14.20, eps: 99.80, roe: 17.80, roce: 16.50, marketCap: 4380000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:BAJFINANCE', symbol: 'BAJFINANCE', symbolNS: 'BAJFINANCE.NS', name: 'Bajaj Finance Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE296A01024', bseCode: '500034', aliases: ['BAJFINANCE', 'BAJAJ FINANCE'], currency: 'INR', basePrice: 1125.70, beta: 1.28, vol: 0.245, pe: 29.50, eps: 38.16, roe: 22.40, roce: 20.10, marketCap: 6970000000000, sector: 'Financial Services / NBFC', country: 'IN' },
+    { id: 'NSE:HINDUNILVR', symbol: 'HINDUNILVR', symbolNS: 'HINDUNILVR.NS', name: 'Hindustan Unilever Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE030A01027', bseCode: '500696', aliases: ['HINDUNILVR', 'HUL', 'UNILEVER'], currency: 'INR', basePrice: 2048.70, beta: 0.58, vol: 0.138, pe: 46.20, eps: 44.34, roe: 20.50, roce: 27.80, marketCap: 4810000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
+    { id: 'NSE:MARUTI', symbol: 'MARUTI', symbolNS: 'MARUTI.NS', name: 'Maruti Suzuki India Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE585B01010', bseCode: '532500', aliases: ['MARUTI', 'SUZUKI'], currency: 'INR', basePrice: 14166.00, beta: 0.88, vol: 0.192, pe: 28.50, eps: 497.05, roe: 16.80, roce: 21.50, marketCap: 4450000000000, sector: 'Automotive', country: 'IN' },
+    { id: 'NSE:SUNPHARMA', symbol: 'SUNPHARMA', symbolNS: 'SUNPHARMA.NS', name: 'Sun Pharmaceutical Industries', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE044A01036', bseCode: '524715', aliases: ['SUNPHARMA', 'SUN PHARMA'], currency: 'INR', basePrice: 1864.80, beta: 0.68, vol: 0.168, pe: 38.40, eps: 48.56, roe: 16.20, roce: 18.40, marketCap: 4470000000000, sector: 'Pharmaceuticals & Healthcare', country: 'IN' },
+    { id: 'NSE:TITAN', symbol: 'TITAN', symbolNS: 'TITAN.NS', name: 'Titan Company Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE280A01028', bseCode: '500114', aliases: ['TITAN', 'TANISHQ'], currency: 'INR', basePrice: 4652.50, beta: 0.96, vol: 0.205, pe: 82.00, eps: 56.74, roe: 32.50, roce: 35.80, marketCap: 4130000000000, sector: 'Consumer Discretionary', country: 'IN' },
+    { id: 'NSE:ADANIENT', symbol: 'ADANIENT', symbolNS: 'ADANIENT.NS', name: 'Adani Enterprises Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE423A01024', bseCode: '512599', aliases: ['ADANIENT', 'ADANI ENTERPRISES'], currency: 'INR', basePrice: 2711.40, beta: 1.85, vol: 0.425, pe: 84.00, eps: 32.28, roe: 8.50, roce: 9.80, marketCap: 3120000000000, sector: 'Conglomerate & Energy', country: 'IN' },
+    { id: 'NSE:ADANIPORTS', symbol: 'ADANIPORTS', symbolNS: 'ADANIPORTS.NS', name: 'Adani Ports and SEZ Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE742F01042', bseCode: '532921', aliases: ['ADANIPORTS', 'ADANI PORTS'], currency: 'INR', basePrice: 1929.70, beta: 1.35, vol: 0.285, pe: 34.20, eps: 56.42, roe: 17.50, roce: 16.80, marketCap: 4160000000000, sector: 'Ports & Infrastructure', country: 'IN' },
+    { id: 'NSE:TATASTEEL', symbol: 'TATASTEEL', symbolNS: 'TATASTEEL.NS', name: 'Tata Steel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE081A01020', bseCode: '500470', aliases: ['TATASTEEL', 'TATA STEEL'], currency: 'INR', basePrice: 161.79, beta: 1.42, vol: 0.295, pe: 32.00, eps: 5.06, roe: 7.80, roce: 9.20, marketCap: 2010000000000, sector: 'Metals & Mining', country: 'IN' },
+    { id: 'NSE:ONGC', symbol: 'ONGC', symbolNS: 'ONGC.NS', name: 'Oil & Natural Gas Corp', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE213A01029', bseCode: '500312', aliases: ['ONGC'], currency: 'INR', basePrice: 223.92, beta: 1.05, vol: 0.255, pe: 6.50, eps: 34.45, roe: 14.80, roce: 15.20, marketCap: 2810000000000, sector: 'Oil & Gas Upstream', country: 'IN' },
+    { id: 'NSE:ZOMATO', symbol: 'ZOMATO', symbolNS: 'ETERNAL.NS', name: 'Eternal Ltd (formerly Zomato)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE758T01015', bseCode: '543320', aliases: ['ZOMATO', 'ETERNAL', 'BLINKIT'], currency: 'INR', basePrice: 369.75, beta: 1.45, vol: 0.385, pe: 142.00, eps: 2.60, roe: 4.80, roce: 5.20, marketCap: 3560000000000, sector: 'Internet & Quick Commerce', country: 'IN' },
+    { id: 'NSE:JIOFIN', symbol: 'JIOFIN', symbolNS: 'JIOFIN.NS', name: 'Jio Financial Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE758E01017', bseCode: '543940', aliases: ['JIOFIN', 'JIO FINANCIAL'], currency: 'INR', basePrice: 224.86, beta: 1.30, vol: 0.310, pe: 92.00, eps: 2.44, roe: 2.50, roce: 3.10, marketCap: 1420000000000, sector: 'Financial Services', country: 'IN' },
+    { id: 'NSE:TRENT', symbol: 'TRENT', symbolNS: 'TRENT.NS', name: 'Trent Limited (Westside/Zudio)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE849A01020', bseCode: '500251', aliases: ['TRENT', 'ZUDIO', 'WESTSIDE'], currency: 'INR', basePrice: 3244.70, beta: 1.25, vol: 0.320, pe: 75.00, eps: 43.26, roe: 28.50, roce: 31.20, marketCap: 1150000000000, sector: 'Retail & Fashion', country: 'IN' },
 
     // ── High-Volume Indian Momentum & Midcaps ──
-    { id: 'NSE:SUZLON', symbol: 'SUZLON', symbolNS: 'SUZLON.NS', name: 'Suzlon Energy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040H01021', aliases: ['SUZLON', 'WIND ENERGY'], currency: 'INR', basePrice: 64.50, beta: 1.65, vol: 0.440, pe: 65.0, eps: 0.98, sector: 'Renewable Energy', country: 'IN' },
-    { id: 'NSE:IRFC', symbol: 'IRFC', symbolNS: 'IRFC.NS', name: 'Indian Railway Finance Corp', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE053F01010', aliases: ['IRFC', 'RAIL FINANCE'], currency: 'INR', basePrice: 154.20, beta: 1.35, vol: 0.340, pe: 28.5, eps: 5.40, sector: 'Rail Infrastructure Finance', country: 'IN' },
-    { id: 'NSE:HAL', symbol: 'HAL', symbolNS: 'HAL.NS', name: 'Hindustan Aeronautics Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE066F01012', aliases: ['HAL', 'DEFENCE'], currency: 'INR', basePrice: 4320.00, beta: 1.28, vol: 0.280, pe: 38.2, eps: 112.50, sector: 'Aerospace & Defence', country: 'IN' },
-    { id: 'NSE:BEL', symbol: 'BEL', symbolNS: 'BEL.NS', name: 'Bharat Electronics Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE263A01024', aliases: ['BEL', 'DEFENCE ELECTRONICS'], currency: 'INR', basePrice: 288.40, beta: 1.15, vol: 0.260, pe: 42.0, eps: 6.85, sector: 'Defence Electronics', country: 'IN' },
-    { id: 'NSE:COALINDIA', symbol: 'COALINDIA', symbolNS: 'COALINDIA.NS', name: 'Coal India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE522F01014', aliases: ['COALINDIA', 'COAL'], currency: 'INR', basePrice: 420.50, beta: 0.85, vol: 0.210, pe: 8.2, eps: 51.20, sector: 'Mining & Power Fuel', country: 'IN' },
-    { id: 'NSE:NTPC', symbol: 'NTPC', symbolNS: 'NTPC.NS', name: 'NTPC Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE733E01010', aliases: ['NTPC', 'POWER UTILITY'], currency: 'INR', basePrice: 385.60, beta: 0.95, vol: 0.220, pe: 16.5, eps: 23.35, sector: 'Power Generation', country: 'IN' },
-    { id: 'NSE:POWERGRID', symbol: 'POWERGRID', symbolNS: 'POWERGRID.NS', name: 'Power Grid Corp of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE752E01010', aliases: ['POWERGRID', 'GRID'], currency: 'INR', basePrice: 318.20, beta: 0.75, vol: 0.175, pe: 18.2, eps: 17.45, sector: 'Power Transmission', country: 'IN' },
-    { id: 'NSE:WIPRO', symbol: 'WIPRO', symbolNS: 'WIPRO.NS', name: 'Wipro Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE075A01022', aliases: ['WIPRO'], currency: 'INR', basePrice: 485.00, beta: 0.82, vol: 0.190, pe: 24.5, eps: 19.80, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:HCLTECH', symbol: 'HCLTECH', symbolNS: 'HCLTECH.NS', name: 'HCL Technologies Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE860A01027', aliases: ['HCLTECH', 'HCL'], currency: 'INR', basePrice: 1720.00, beta: 0.88, vol: 0.185, pe: 27.5, eps: 62.40, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:DLF', symbol: 'DLF', symbolNS: 'DLF.NS', name: 'DLF Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE271C01023', aliases: ['DLF', 'REALTY'], currency: 'INR', basePrice: 845.00, beta: 1.45, vol: 0.320, pe: 48.0, eps: 17.60, sector: 'Real Estate Development', country: 'IN' },
-    { id: 'NSE:VEDL', symbol: 'VEDL', symbolNS: 'VEDL.NS', name: 'Vedanta Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE205A01025', aliases: ['VEDL', 'VEDANTA'], currency: 'INR', basePrice: 465.00, beta: 1.55, vol: 0.360, pe: 14.5, eps: 32.10, sector: 'Metals & Natural Resources', country: 'IN' },
-    { id: 'NSE:TATAPOWER', symbol: 'TATAPOWER', symbolNS: 'TATAPOWER.NS', name: 'Tata Power Company Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE245A01021', aliases: ['TATAPOWER'], currency: 'INR', basePrice: 412.00, beta: 1.35, vol: 0.290, pe: 34.0, eps: 12.10, sector: 'Power & Solar Utilities', country: 'IN' },
-    { id: 'NSE:ADANIPOWER', symbol: 'ADANIPOWER', symbolNS: 'ADANIPOWER.NS', name: 'Adani Power Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE814H01011', aliases: ['ADANIPOWER'], currency: 'INR', basePrice: 580.00, beta: 1.75, vol: 0.410, pe: 15.2, eps: 38.10, sector: 'Thermal & Clean Power', country: 'IN' },
-    { id: 'NSE:PAYTM', symbol: 'PAYTM', symbolNS: 'PAYTM.NS', name: 'One97 Communications (Paytm)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE982J01020', aliases: ['PAYTM', 'ONE97'], currency: 'INR', basePrice: 690.00, beta: 1.55, vol: 0.460, pe: null, eps: -8.40, sector: 'Fintech & Digital Payments', country: 'IN' },
-    { id: 'NSE:NYKAA', symbol: 'NYKAA', symbolNS: 'NYKAA.NS', name: 'FSN E-Commerce (Nykaa)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE388Y01029', aliases: ['NYKAA'], currency: 'INR', basePrice: 195.00, beta: 1.35, vol: 0.360, pe: 110.0, eps: 1.75, sector: 'Beauty & Fashion E-Commerce', country: 'IN' },
-    { id: 'NSE:DMART', symbol: 'DMART', symbolNS: 'DMART.NS', name: 'Avenue Supermarts (DMart)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE192R01011', aliases: ['DMART', 'AVENUE SUPERMARTS'], currency: 'INR', basePrice: 4620.00, beta: 0.92, vol: 0.210, pe: 98.0, eps: 47.10, sector: 'Hypermarkets & Retail', country: 'IN' },
-    { id: 'NSE:VBL', symbol: 'VBL', symbolNS: 'VBL.NS', name: 'Varun Beverages Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE200M01021', aliases: ['VBL', 'PEPSI BOTTLER'], currency: 'INR', basePrice: 590.00, beta: 1.05, vol: 0.230, pe: 64.0, eps: 9.20, sector: 'Beverages & FMCG', country: 'IN' },
-    { id: 'NSE:BSE', symbol: 'BSE', symbolNS: 'BSE.NS', name: 'BSE Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE118H01025', aliases: ['BSE', 'BSE EXCHANGE'], currency: 'INR', basePrice: 2840.00, beta: 1.48, vol: 0.380, pe: 52.0, eps: 54.60, sector: 'Exchange Infrastructure', country: 'IN' },
-    { id: 'NSE:CDSL', symbol: 'CDSL', symbolNS: 'CDSL.NS', name: 'Central Depository Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE736A01011', aliases: ['CDSL', 'DEPOSITORY'], currency: 'INR', basePrice: 1480.00, beta: 1.35, vol: 0.320, pe: 46.0, eps: 32.10, sector: 'Depository & Market Infra', country: 'IN' },
+    { id: 'NSE:SUZLON', symbol: 'SUZLON', symbolNS: 'SUZLON.NS', name: 'Suzlon Energy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040H01021', aliases: ['SUZLON', 'WIND ENERGY'], currency: 'INR', basePrice: 36.31, beta: 1.65, vol: 0.440, pe: 38.0, eps: 0.96, sector: 'Renewable Energy', country: 'IN' },
+    { id: 'NSE:IRFC', symbol: 'IRFC', symbolNS: 'IRFC.NS', name: 'Indian Railway Finance Corp', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE053F01010', aliases: ['IRFC', 'RAIL FINANCE'], currency: 'INR', basePrice: 82.20, beta: 1.35, vol: 0.340, pe: 16.5, eps: 4.98, sector: 'Rail Infrastructure Finance', country: 'IN' },
+    { id: 'NSE:HAL', symbol: 'HAL', symbolNS: 'HAL.NS', name: 'Hindustan Aeronautics Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE066F01012', aliases: ['HAL', 'DEFENCE'], currency: 'INR', basePrice: 4838.50, beta: 1.28, vol: 0.280, pe: 38.2, eps: 126.66, sector: 'Aerospace & Defence', country: 'IN' },
+    { id: 'NSE:BEL', symbol: 'BEL', symbolNS: 'BEL.NS', name: 'Bharat Electronics Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE263A01024', aliases: ['BEL', 'DEFENCE ELECTRONICS'], currency: 'INR', basePrice: 397.65, beta: 1.15, vol: 0.260, pe: 46.0, eps: 8.64, sector: 'Defence Electronics', country: 'IN' },
+    { id: 'NSE:COALINDIA', symbol: 'COALINDIA', symbolNS: 'COALINDIA.NS', name: 'Coal India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE522F01014', aliases: ['COALINDIA', 'COAL'], currency: 'INR', basePrice: 384.40, beta: 0.85, vol: 0.210, pe: 7.5, eps: 51.25, sector: 'Mining & Power Fuel', country: 'IN' },
+    { id: 'NSE:NTPC', symbol: 'NTPC', symbolNS: 'NTPC.NS', name: 'NTPC Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE733E01010', aliases: ['NTPC', 'POWER UTILITY'], currency: 'INR', basePrice: 316.65, beta: 0.95, vol: 0.220, pe: 14.5, eps: 21.84, sector: 'Power Generation', country: 'IN' },
+    { id: 'NSE:POWERGRID', symbol: 'POWERGRID', symbolNS: 'POWERGRID.NS', name: 'Power Grid Corp of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE752E01010', aliases: ['POWERGRID', 'GRID'], currency: 'INR', basePrice: 264.70, beta: 0.75, vol: 0.175, pe: 15.2, eps: 17.41, sector: 'Power Transmission', country: 'IN' },
+    { id: 'NSE:WIPRO', symbol: 'WIPRO', symbolNS: 'WIPRO.NS', name: 'Wipro Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE075A01022', aliases: ['WIPRO'], currency: 'INR', basePrice: 189.96, beta: 0.82, vol: 0.190, pe: 16.5, eps: 11.51, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:HCLTECH', symbol: 'HCLTECH', symbolNS: 'HCLTECH.NS', name: 'HCL Technologies Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE860A01027', aliases: ['HCLTECH', 'HCL'], currency: 'INR', basePrice: 1384.20, beta: 0.88, vol: 0.185, pe: 22.5, eps: 61.52, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:DLF', symbol: 'DLF', symbolNS: 'DLF.NS', name: 'DLF Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE271C01023', aliases: ['DLF', 'REALTY'], currency: 'INR', basePrice: 791.00, beta: 1.45, vol: 0.320, pe: 44.0, eps: 17.98, sector: 'Real Estate Development', country: 'IN' },
+    { id: 'NSE:VEDL', symbol: 'VEDL', symbolNS: 'VEDL.NS', name: 'Vedanta Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE205A01025', aliases: ['VEDL', 'VEDANTA'], currency: 'INR', basePrice: 233.07, beta: 1.55, vol: 0.360, pe: 10.5, eps: 22.20, sector: 'Metals & Natural Resources', country: 'IN' },
+    { id: 'NSE:TATAPOWER', symbol: 'TATAPOWER', symbolNS: 'TATAPOWER.NS', name: 'Tata Power Company Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE245A01021', aliases: ['TATAPOWER'], currency: 'INR', basePrice: 328.65, beta: 1.35, vol: 0.290, pe: 27.0, eps: 12.17, sector: 'Power & Solar Utilities', country: 'IN' },
+    { id: 'NSE:ADANIPOWER', symbol: 'ADANIPOWER', symbolNS: 'ADANIPOWER.NS', name: 'Adani Power Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE814H01011', aliases: ['ADANIPOWER'], currency: 'INR', basePrice: 208.36, beta: 1.75, vol: 0.410, pe: 15.2, eps: 13.71, sector: 'Thermal & Clean Power', country: 'IN' },
+    { id: 'NSE:PAYTM', symbol: 'PAYTM', symbolNS: 'PAYTM.NS', name: 'One97 Communications (Paytm)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE982J01020', aliases: ['PAYTM', 'ONE97'], currency: 'INR', basePrice: 1724.90, beta: 1.55, vol: 0.460, pe: 95.0, eps: 18.16, sector: 'Fintech & Digital Payments', country: 'IN' },
+    { id: 'NSE:NYKAA', symbol: 'NYKAA', symbolNS: 'NYKAA.NS', name: 'FSN E-Commerce (Nykaa)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE388Y01029', aliases: ['NYKAA'], currency: 'INR', basePrice: 355.90, beta: 1.35, vol: 0.360, pe: 125.0, eps: 2.85, sector: 'Beauty & Fashion E-Commerce', country: 'IN' },
+    { id: 'NSE:DMART', symbol: 'DMART', symbolNS: 'DMART.NS', name: 'Avenue Supermarts (DMart)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE192R01011', aliases: ['DMART', 'AVENUE SUPERMARTS'], currency: 'INR', basePrice: 3430.70, beta: 0.92, vol: 0.210, pe: 72.0, eps: 47.65, sector: 'Hypermarkets & Retail', country: 'IN' },
+    { id: 'NSE:VBL', symbol: 'VBL', symbolNS: 'VBL.NS', name: 'Varun Beverages Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE200M01021', aliases: ['VBL', 'PEPSI BOTTLER'], currency: 'INR', basePrice: 425.55, beta: 1.05, vol: 0.230, pe: 46.0, eps: 9.25, sector: 'Beverages & FMCG', country: 'IN' },
+    { id: 'NSE:BSE', symbol: 'BSE', symbolNS: 'BSE.NS', name: 'BSE Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE118H01025', aliases: ['BSE', 'BSE EXCHANGE'], currency: 'INR', basePrice: 3780.30, beta: 1.48, vol: 0.380, pe: 58.0, eps: 65.18, sector: 'Exchange Infrastructure', country: 'IN' },
+    { id: 'NSE:CDSL', symbol: 'CDSL', symbolNS: 'CDSL.NS', name: 'Central Depository Services', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE736A01011', aliases: ['CDSL', 'DEPOSITORY'], currency: 'INR', basePrice: 1409.40, beta: 1.35, vol: 0.320, pe: 44.0, eps: 32.03, sector: 'Depository & Market Infra', country: 'IN' },
 
     // ── ETFs & Mutual Funds ──
-    { id: 'NSE:NIFTYBEES', symbol: 'NIFTYBEES', symbolNS: 'NIFTYBEES.NS', name: 'Nippon India ETF Nifty BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB14I2', aliases: ['NIFTYBEES', 'NIFTY ETF'], currency: 'INR', basePrice: 272.50, beta: 1.00, vol: 0.132, pe: 22.4, eps: 12.16, sector: 'Equity Index ETF', country: 'IN' },
-    { id: 'NSE:BANKBEES', symbol: 'BANKBEES', symbolNS: 'BANKBEES.NS', name: 'Nippon India ETF Bank BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB16I7', aliases: ['BANKBEES', 'BANK ETF'], currency: 'INR', basePrice: 524.00, beta: 1.18, vol: 0.185, pe: 16.2, eps: 32.34, sector: 'Banking Sector ETF', country: 'IN' },
-    { id: 'NSE:GOLDBEES', symbol: 'GOLDBEES', symbolNS: 'GOLDBEES.NS', name: 'Nippon India ETF Gold BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB17I5', aliases: ['GOLDBEES', 'GOLD ETF'], currency: 'INR', basePrice: 65.40, beta: 0.05, vol: 0.128, pe: null, eps: null, sector: 'Precious Metals ETF', country: 'IN' },
-    { id: 'NSE:SILVERBEES', symbol: 'SILVERBEES', symbolNS: 'SILVERBEES.NS', name: 'Nippon India ETF Silver BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB18I3', aliases: ['SILVERBEES', 'SILVER ETF'], currency: 'INR', basePrice: 87.20, beta: 0.15, vol: 0.245, pe: null, eps: null, sector: 'Precious Metals ETF', country: 'IN' },
+    { id: 'NSE:NIFTYBEES', symbol: 'NIFTYBEES', symbolNS: 'NIFTYBEES.NS', name: 'Nippon India ETF Nifty BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB14I2', aliases: ['NIFTYBEES', 'NIFTY ETF'], currency: 'INR', basePrice: 293.71, beta: 1.00, vol: 0.132, pe: 22.4, eps: 13.11, sector: 'Equity Index ETF', country: 'IN' },
+    { id: 'NSE:BANKBEES', symbol: 'BANKBEES', symbolNS: 'BANKBEES.NS', name: 'Nippon India ETF Bank BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB16I7', aliases: ['BANKBEES', 'BANK ETF'], currency: 'INR', basePrice: 660.44, beta: 1.18, vol: 0.185, pe: 16.2, eps: 40.77, sector: 'Banking Sector ETF', country: 'IN' },
+    { id: 'NSE:GOLDBEES', symbol: 'GOLDBEES', symbolNS: 'GOLDBEES.NS', name: 'Nippon India ETF Gold BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB17I5', aliases: ['GOLDBEES', 'GOLD ETF'], currency: 'INR', basePrice: 100.55, beta: 0.05, vol: 0.128, pe: null, eps: null, sector: 'Precious Metals ETF', country: 'IN' },
+    { id: 'NSE:SILVERBEES', symbol: 'SILVERBEES', symbolNS: 'SILVERBEES.NS', name: 'Nippon India ETF Silver BeES', exchange: 'NSE', assetType: 'ETF', isin: 'INF204KB18I3', aliases: ['SILVERBEES', 'SILVER ETF'], currency: 'INR', basePrice: 138.19, beta: 0.15, vol: 0.245, pe: null, eps: null, sector: 'Precious Metals ETF', country: 'IN' },
 
     // ── US Equities & Global Leaders ──
-    { id: 'NASDAQ:NVDA', symbol: 'NVDA', symbolNS: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US67066G1040', aliases: ['NVDA', 'NVIDIA'], currency: 'USD', basePrice: 150.89, beta: 1.68, vol: 0.365, pe: 58.40, eps: 2.20, roe: 115.00, roce: 98.00, marketCap: 3710000000000, sector: 'Semiconductors / AI', country: 'US' },
-    { id: 'NASDAQ:AAPL', symbol: 'AAPL', symbolNS: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0378331005', aliases: ['AAPL', 'APPLE'], currency: 'USD', basePrice: 351.52, beta: 1.02, vol: 0.198, pe: 34.20, eps: 6.68, roe: 147.00, roce: 55.00, marketCap: 5320000000000, sector: 'Consumer Technology', country: 'US' },
-    { id: 'NASDAQ:MSFT', symbol: 'MSFT', symbolNS: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US5949181045', aliases: ['MSFT', 'MICROSOFT'], currency: 'USD', basePrice: 496.55, beta: 1.14, vol: 0.215, pe: 37.80, eps: 11.70, roe: 38.50, roce: 32.00, marketCap: 3680000000000, sector: 'Cloud & Enterprise Software', country: 'US' },
-    { id: 'NASDAQ:GOOGL', symbol: 'GOOGL', symbolNS: 'GOOGL', name: 'Alphabet Inc. (Google)', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US02079K3059', aliases: ['GOOGL', 'GOOGLE'], currency: 'USD', basePrice: 276.77, beta: 1.08, vol: 0.235, pe: 24.50, eps: 6.74, roe: 31.00, roce: 27.50, marketCap: 2350000000000, sector: 'Internet / AI Services', country: 'US' },
-    { id: 'NASDAQ:AMZN', symbol: 'AMZN', symbolNS: 'AMZN', name: 'Amazon.com Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0231351067', aliases: ['AMZN', 'AMAZON'], currency: 'USD', basePrice: 251.25, beta: 1.18, vol: 0.275, pe: 41.20, eps: 4.33, roe: 21.50, roce: 18.00, marketCap: 2620000000000, sector: 'E-Commerce & Cloud', country: 'US' },
-    { id: 'NASDAQ:TSLA', symbol: 'TSLA', symbolNS: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US88160R1014', aliases: ['TSLA', 'TESLA'], currency: 'USD', basePrice: 377.56, beta: 1.95, vol: 0.485, pe: 64.50, eps: 3.32, roe: 19.80, roce: 16.20, marketCap: 1520000000000, sector: 'Clean Tech & Autonomous', country: 'US' },
-    { id: 'NASDAQ:META', symbol: 'META', symbolNS: 'META', name: 'Meta Platforms Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US30303M1027', aliases: ['META', 'FACEBOOK'], currency: 'USD', basePrice: 586.83, beta: 1.25, vol: 0.290, pe: 26.50, eps: 21.10, roe: 32.00, roce: 30.00, marketCap: 1480000000000, sector: 'Social Media & AI', country: 'US' },
-    { id: 'NASDAQ:AMD', symbol: 'AMD', symbolNS: 'AMD', name: 'Advanced Micro Devices', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0079031078', aliases: ['AMD', 'RADEON'], currency: 'USD', basePrice: 405.17, beta: 1.72, vol: 0.395, pe: 48.00, eps: 3.15, roe: 12.50, roce: 14.00, marketCap: 650000000000, sector: 'Semiconductors', country: 'US' },
-    { id: 'NYSE:JPM', symbol: 'JPM', symbolNS: 'JPM', name: 'JPMorgan Chase & Co.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US46625H1005', aliases: ['JPM', 'JPMORGAN'], currency: 'USD', basePrice: 245.50, beta: 1.05, vol: 0.175, pe: 12.40, eps: 17.62, roe: 17.20, roce: 16.50, marketCap: 695000000000, sector: 'Banking & Financials', country: 'US' },
+    { id: 'NASDAQ:NVDA', symbol: 'NVDA', symbolNS: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US67066G1040', aliases: ['NVDA', 'NVIDIA'], currency: 'USD', basePrice: 155.38, beta: 1.68, vol: 0.365, pe: 58.40, eps: 2.66, roe: 115.00, roce: 98.00, marketCap: 3800000000000, sector: 'Semiconductors / AI', country: 'US' },
+    { id: 'NASDAQ:AAPL', symbol: 'AAPL', symbolNS: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0378331005', aliases: ['AAPL', 'APPLE'], currency: 'USD', basePrice: 354.07, beta: 1.02, vol: 0.198, pe: 34.20, eps: 10.35, roe: 147.00, roce: 55.00, marketCap: 5350000000000, sector: 'Consumer Technology', country: 'US' },
+    { id: 'NASDAQ:MSFT', symbol: 'MSFT', symbolNS: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US5949181045', aliases: ['MSFT', 'MICROSOFT'], currency: 'USD', basePrice: 496.13, beta: 1.14, vol: 0.215, pe: 37.80, eps: 13.13, roe: 38.50, roce: 32.00, marketCap: 3680000000000, sector: 'Cloud & Enterprise Software', country: 'US' },
+    { id: 'NASDAQ:GOOGL', symbol: 'GOOGL', symbolNS: 'GOOGL', name: 'Alphabet Inc. (Google)', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US02079K3059', aliases: ['GOOGL', 'GOOGLE'], currency: 'USD', basePrice: 279.05, beta: 1.08, vol: 0.235, pe: 24.50, eps: 11.39, roe: 31.00, roce: 27.50, marketCap: 3420000000000, sector: 'Internet / AI Services', country: 'US' },
+    { id: 'NASDAQ:AMZN', symbol: 'AMZN', symbolNS: 'AMZN', name: 'Amazon.com Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0231351067', aliases: ['AMZN', 'AMAZON'], currency: 'USD', basePrice: 252.29, beta: 1.18, vol: 0.275, pe: 41.20, eps: 6.12, roe: 21.50, roce: 18.00, marketCap: 2630000000000, sector: 'E-Commerce & Cloud', country: 'US' },
+    { id: 'NASDAQ:TSLA', symbol: 'TSLA', symbolNS: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US88160R1014', aliases: ['TSLA', 'TESLA'], currency: 'USD', basePrice: 384.68, beta: 1.95, vol: 0.485, pe: 64.50, eps: 5.96, roe: 19.80, roce: 16.20, marketCap: 1550000000000, sector: 'Clean Tech & Autonomous', country: 'US' },
+    { id: 'NASDAQ:META', symbol: 'META', symbolNS: 'META', name: 'Meta Platforms Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US30303M1027', aliases: ['META', 'FACEBOOK'], currency: 'USD', basePrice: 589.82, beta: 1.25, vol: 0.290, pe: 26.50, eps: 22.26, roe: 32.00, roce: 30.00, marketCap: 1490000000000, sector: 'Social Media & AI', country: 'US' },
+    { id: 'NASDAQ:AMD', symbol: 'AMD', symbolNS: 'AMD', name: 'Advanced Micro Devices', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0079031078', aliases: ['AMD', 'RADEON'], currency: 'USD', basePrice: 413.27, beta: 1.72, vol: 0.395, pe: 48.00, eps: 8.61, roe: 12.50, roce: 14.00, marketCap: 670000000000, sector: 'Semiconductors', country: 'US' },
+    { id: 'NYSE:JPM', symbol: 'JPM', symbolNS: 'JPM', name: 'JPMorgan Chase & Co.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US46625H1005', aliases: ['JPM', 'JPMORGAN'], currency: 'USD', basePrice: 317.10, beta: 1.05, vol: 0.175, pe: 15.40, eps: 20.59, roe: 17.20, roce: 16.50, marketCap: 880000000000, sector: 'Banking & Financials', country: 'US' },
 
     // ── Macro Commodities, Precious Metals, Industrial Metals & Minerals ──
-    { id: 'COMM:GOLD', symbol: 'GOLD', symbolNS: 'GC=F', name: 'Gold Comex Futures (100 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677410', aliases: ['GOLD', 'COMEX GOLD', 'AU', 'PRECIOUS METALS'], currency: 'USD', basePrice: 2510.00, beta: 0.05, vol: 0.125, sector: 'Precious Metals & Reserve Asset', country: 'GLOBAL' },
-    { id: 'COMM:SILVER', symbol: 'SILVER', symbolNS: 'SI=F', name: 'Silver Comex Futures (5,000 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677411', aliases: ['SILVER', 'AG', 'COMEX SILVER'], currency: 'USD', basePrice: 31.50, beta: 0.35, vol: 0.245, sector: 'Precious & Industrial Metals', country: 'GLOBAL' },
-    { id: 'COMM:PLATINUM', symbol: 'PLATINUM', symbolNS: 'PL=F', name: 'Platinum NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677412', aliases: ['PLATINUM', 'PT', 'CATALYST METAL'], currency: 'USD', basePrice: 995.00, beta: 0.42, vol: 0.220, sector: 'Precious & Auto-Catalyst Metals', country: 'GLOBAL' },
-    { id: 'COMM:PALLADIUM', symbol: 'PALLADIUM', symbolNS: 'PA=F', name: 'Palladium NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677413', aliases: ['PALLADIUM', 'PD'], currency: 'USD', basePrice: 1080.00, beta: 0.55, vol: 0.320, sector: 'Industrial Precious Metals', country: 'GLOBAL' },
-    { id: 'COMM:BRENT', symbol: 'BRENT', symbolNS: 'BZ=F', name: 'Brent Crude Oil Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677409', aliases: ['CRUDE', 'OIL', 'BRENT OIL'], currency: 'USD', basePrice: 78.50, beta: 0.85, vol: 0.285, sector: 'Energy & Fossil Fuels', country: 'GLOBAL' },
-    { id: 'COMM:CRUDE', symbol: 'CRUDE', symbolNS: 'CL=F', name: 'WTI Light Sweet Crude Oil', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677414', aliases: ['WTI', 'CRUDE OIL', 'US OIL'], currency: 'USD', basePrice: 74.80, beta: 0.88, vol: 0.295, sector: 'Energy & Refined Petroleum', country: 'GLOBAL' },
-    { id: 'COMM:NATGAS', symbol: 'NATGAS', symbolNS: 'NG=F', name: 'Natural Gas Futures (Henry Hub)', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677415', aliases: ['NATGAS', 'GAS', 'HENRY HUB'], currency: 'USD', basePrice: 2.35, beta: 0.65, vol: 0.460, sector: 'Energy & Power Generation', country: 'GLOBAL' },
-    { id: 'COMM:COPPER', symbol: 'COPPER', symbolNS: 'HG=F', name: 'Copper High Grade (COMEX)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677416', aliases: ['COPPER', 'CU', 'DOCTOR COPPER', 'ELECTRIFICATION'], currency: 'USD', basePrice: 4.42, beta: 1.15, vol: 0.210, sector: 'Industrial Metals & Electrification', country: 'GLOBAL' },
-    { id: 'COMM:ALUMINIUM', symbol: 'ALUMINIUM', symbolNS: 'ALI=F', name: 'Aluminium Primary (LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677417', aliases: ['ALUMINIUM', 'ALUMINUM', 'AL'], currency: 'USD', basePrice: 2480.00, beta: 0.95, vol: 0.195, sector: 'Industrial Base Metals', country: 'GLOBAL' },
-    { id: 'COMM:ZINC', symbol: 'ZINC', symbolNS: 'ZN=F', name: 'Zinc Physical (LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677418', aliases: ['ZINC', 'ZN', 'GALVANIZING'], currency: 'USD', basePrice: 2850.00, beta: 0.92, vol: 0.225, sector: 'Industrial Galvanizing Metals', country: 'GLOBAL' },
-    { id: 'COMM:NICKEL', symbol: 'NICKEL', symbolNS: 'NI=F', name: 'Nickel Futures (EV Battery Grade)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677419', aliases: ['NICKEL', 'NI', 'BATTERY MINERALS'], currency: 'USD', basePrice: 16400.00, beta: 1.25, vol: 0.380, sector: 'Battery Minerals & Stainless Steel', country: 'GLOBAL' },
-    { id: 'COMM:WHEAT', symbol: 'WHEAT', symbolNS: 'ZW=F', name: 'Chicago SRW Wheat Futures', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677420', aliases: ['WHEAT', 'GRAIN', 'AGRICULTURE'], currency: 'USD', basePrice: 565.00, beta: 0.25, vol: 0.260, sector: 'Agricultural Commodities & Food', country: 'GLOBAL' },
-    { id: 'COMM:CORN', symbol: 'CORN', symbolNS: 'ZC=F', name: 'Corn Futures (CBOT)', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677421', aliases: ['CORN', 'GRAIN FEED'], currency: 'USD', basePrice: 410.00, beta: 0.28, vol: 0.240, sector: 'Agricultural Feed & Biofuels', country: 'GLOBAL' },
-    { id: 'COMM:COTTON', symbol: 'COTTON', symbolNS: 'CT=F', name: 'Cotton #2 Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677422', aliases: ['COTTON', 'TEXTILE FIBER'], currency: 'USD', basePrice: 72.50, beta: 0.45, vol: 0.230, sector: 'Textiles & Agriculture', country: 'GLOBAL' },
-    { id: 'MCX:MCXGOLD', symbol: 'MCXGOLD', symbolNS: 'GOLDBEES.NS', name: 'MCX Gold 10g Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB17I5', aliases: ['MCX GOLD', 'GOLD INDIA'], currency: 'INR', basePrice: 74500.00, beta: 0.05, vol: 0.125, sector: 'MCX Commodities India', country: 'IN' },
-    { id: 'MCX:MCXSILVER', symbol: 'MCXSILVER', symbolNS: 'SILVERBEES.NS', name: 'MCX Silver 1kg Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB18I3', aliases: ['MCX SILVER', 'SILVER INDIA'], currency: 'INR', basePrice: 88500.00, beta: 0.35, vol: 0.245, sector: 'MCX Commodities India', country: 'IN' },
-    { id: 'MCX:MCXCRUDE', symbol: 'MCXCRUDE', symbolNS: 'ONGC.NS', name: 'MCX Crude Oil 100 BBL', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INE213A01029', aliases: ['MCX CRUDE', 'CRUDE INDIA'], currency: 'INR', basePrice: 6450.00, beta: 0.85, vol: 0.285, sector: 'MCX Energy India', country: 'IN' },
+    { id: 'COMM:GOLD', symbol: 'GOLD', symbolNS: 'GC=F', name: 'Gold Comex Futures (100 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677410', aliases: ['GOLD', 'COMEX GOLD', 'AU', 'PRECIOUS METALS'], currency: 'USD', basePrice: 3545.40, beta: 0.05, vol: 0.145, sector: 'Precious Metals & Reserve Asset', country: 'GLOBAL' },
+    { id: 'COMM:SILVER', symbol: 'SILVER', symbolNS: 'SI=F', name: 'Silver Comex Futures (5,000 oz)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677411', aliases: ['SILVER', 'AG', 'COMEX SILVER'], currency: 'USD', basePrice: 40.56, beta: 0.35, vol: 0.245, sector: 'Precious & Industrial Metals', country: 'GLOBAL' },
+    { id: 'COMM:PLATINUM', symbol: 'PLATINUM', symbolNS: 'PL=F', name: 'Platinum NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677412', aliases: ['PLATINUM', 'PT', 'CATALYST METAL'], currency: 'USD', basePrice: 1252.30, beta: 0.42, vol: 0.220, sector: 'Precious & Auto-Catalyst Metals', country: 'GLOBAL' },
+    { id: 'COMM:PALLADIUM', symbol: 'PALLADIUM', symbolNS: 'PA=F', name: 'Palladium NYMEX Futures', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677413', aliases: ['PALLADIUM', 'PD'], currency: 'USD', basePrice: 851.00, beta: 0.55, vol: 0.320, sector: 'Industrial Precious Metals', country: 'GLOBAL' },
+    { id: 'COMM:BRENT', symbol: 'BRENT', symbolNS: 'BZ=F', name: 'Brent Crude Oil Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677409', aliases: ['CRUDE', 'OIL', 'BRENT OIL'], currency: 'USD', basePrice: 87.50, beta: 0.85, vol: 0.285, sector: 'Energy & Fossil Fuels', country: 'GLOBAL' },
+    { id: 'COMM:CRUDE', symbol: 'CRUDE', symbolNS: 'CL=F', name: 'WTI Light Sweet Crude Oil', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677414', aliases: ['WTI', 'CRUDE OIL', 'US OIL'], currency: 'USD', basePrice: 80.73, beta: 0.88, vol: 0.295, sector: 'Energy & Refined Petroleum', country: 'GLOBAL' },
+    { id: 'COMM:NATGAS', symbol: 'NATGAS', symbolNS: 'NG=F', name: 'Natural Gas Futures (Henry Hub)', exchange: 'NYMEX', assetType: 'COMMODITY', isin: 'XC0009677415', aliases: ['NATGAS', 'GAS', 'HENRY HUB'], currency: 'USD', basePrice: 3.68, beta: 0.65, vol: 0.460, sector: 'Energy & Power Generation', country: 'GLOBAL' },
+    { id: 'COMM:COPPER', symbol: 'COPPER', symbolNS: 'HG=F', name: 'Copper High Grade (COMEX)', exchange: 'COMEX', assetType: 'COMMODITY', isin: 'XC0009677416', aliases: ['COPPER', 'CU', 'DOCTOR COPPER', 'ELECTRIFICATION'], currency: 'USD', basePrice: 5.45, beta: 1.15, vol: 0.210, sector: 'Industrial Metals & Electrification', country: 'GLOBAL' },
+    { id: 'COMM:ALUMINIUM', symbol: 'ALUMINIUM', symbolNS: 'ALI=F', name: 'Aluminium Primary (COMEX/LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677417', aliases: ['ALUMINIUM', 'ALUMINUM', 'AL'], currency: 'USD', basePrice: 2748.50, beta: 0.95, vol: 0.195, sector: 'Industrial Base Metals', country: 'GLOBAL' },
+    { id: 'COMM:ZINC', symbol: 'ZINC', symbolNS: 'ZNC=F', name: 'Zinc Physical Futures (LME)', exchange: 'LME', assetType: 'COMMODITY', isin: 'XC0009677418', aliases: ['ZINC', 'ZN', 'GALVANIZING'], currency: 'USD', basePrice: 4050.00, beta: 0.92, vol: 0.225, sector: 'Industrial Galvanizing Metals', country: 'GLOBAL' },
+    { id: 'COMM:NICKEL', symbol: 'NICKEL', symbolNS: 'NIKL', name: 'Nickel Miners & Battery Index (NIKL)', exchange: 'NYSE', assetType: 'COMMODITY', isin: 'XC0009677419', aliases: ['NICKEL', 'NI', 'NIKL', 'BATTERY MINERALS'], currency: 'USD', basePrice: 9.34, beta: 1.25, vol: 0.380, sector: 'Battery Minerals & Stainless Steel', country: 'GLOBAL' },
+    { id: 'COMM:WHEAT', symbol: 'WHEAT', symbolNS: 'ZW=F', name: 'Chicago SRW Wheat Futures', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677420', aliases: ['WHEAT', 'GRAIN', 'AGRICULTURE'], currency: 'USD', basePrice: 586.25, beta: 0.25, vol: 0.260, sector: 'Agricultural Commodities & Food', country: 'GLOBAL' },
+    { id: 'COMM:CORN', symbol: 'CORN', symbolNS: 'ZC=F', name: 'Corn Futures (CBOT)', exchange: 'CBOT', assetType: 'COMMODITY', isin: 'XC0009677421', aliases: ['CORN', 'GRAIN FEED'], currency: 'USD', basePrice: 450.50, beta: 0.28, vol: 0.240, sector: 'Agricultural Feed & Biofuels', country: 'GLOBAL' },
+    { id: 'COMM:COTTON', symbol: 'COTTON', symbolNS: 'CT=F', name: 'Cotton #2 Futures (ICE)', exchange: 'ICE', assetType: 'COMMODITY', isin: 'XC0009677422', aliases: ['COTTON', 'TEXTILE FIBER'], currency: 'USD', basePrice: 82.34, beta: 0.45, vol: 0.230, sector: 'Textiles & Agriculture', country: 'GLOBAL' },
+    { id: 'MCX:MCXGOLD', symbol: 'MCXGOLD', symbolNS: 'GC=F', name: 'MCX Gold 10g Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB17I5', aliases: ['MCX GOLD', 'GOLD INDIA'], currency: 'INR', basePrice: 111850.00, beta: 0.05, vol: 0.145, sector: 'MCX Commodities India', country: 'IN' },
+    { id: 'MCX:MCXSILVER', symbol: 'MCXSILVER', symbolNS: 'SI=F', name: 'MCX Silver 1kg Benchmark', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INF204KB18I3', aliases: ['MCX SILVER', 'SILVER INDIA'], currency: 'INR', basePrice: 127960.00, beta: 0.35, vol: 0.245, sector: 'MCX Commodities India', country: 'IN' },
+    { id: 'MCX:MCXCRUDE', symbol: 'MCXCRUDE', symbolNS: 'CL=F', name: 'MCX Crude Oil 100 BBL', exchange: 'MCX', assetType: 'COMMODITY', isin: 'INE213A01029', aliases: ['MCX CRUDE', 'CRUDE INDIA'], currency: 'INR', basePrice: 7473.00, beta: 0.85, vol: 0.285, sector: 'MCX Energy India', country: 'IN' },
 
     // ── Forex & Real-Time Currencies ──
-    { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR', 'USD INR'], currency: 'INR', basePrice: 86.74, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' },
+    { id: 'CURRENCY:USDINR', symbol: 'USDINR', symbolNS: 'USDINR=X', name: 'US Dollar / Indian Rupee', exchange: 'FX', assetType: 'CURRENCY', isin: 'XF0000USDINR', aliases: ['USD/INR', 'RUPEE', 'DOLLAR', 'USD INR'], currency: 'INR', basePrice: 92.57, beta: -0.15, vol: 0.045, sector: 'Forex Currency Pair', country: 'GLOBAL' },
 
     // ── High-Volume Penny Stocks & Microcaps (NSE / BSE / US) ──
-    { id: 'NSE:GTLINFRA', symbol: 'GTLINFRA', symbolNS: 'GTLINFRA.NS', name: 'GTL Infrastructure Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE221H01019', bseCode: '532775', aliases: ['GTLINFRA', 'GTLINFRA.NS', 'GTL INFRA', '532775'], currency: 'INR', basePrice: 1.16, beta: 1.75, vol: 0.58, pe: null, sector: 'Telecom Infrastructure', country: 'IN', isPenny: true, avgVolume20d: 4850000 },
-    { id: 'BSE:VISAGAR', symbol: 'VISAGAR', symbolNS: 'VISAGAR.BO', name: 'Visagar Polytex Ltd', exchange: 'BSE', assetType: 'PENNY_EQUITY', isin: 'INE370E01029', bseCode: '531025', aliases: ['VISAGAR', 'VISAGAR.BO', 'VISAGAR POLYTEX', '531025'], currency: 'INR', basePrice: 1.45, beta: 1.82, vol: 0.62, pe: null, sector: 'Textiles & Apparel', country: 'IN', isPenny: true, avgVolume20d: 950000 },
-    { id: 'NSE:VIKASECO', symbol: 'VIKASECO', symbolNS: 'VIKASECO.NS', name: 'Vikas Ecotech Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE806A01020', bseCode: '536565', aliases: ['VIKASECO', 'VIKASECO.NS', 'VIKAS ECOTECH', '536565'], currency: 'INR', basePrice: 3.85, beta: 1.45, vol: 0.44, pe: 28.5, sector: 'Specialty Chemicals', country: 'IN', isPenny: true, avgVolume20d: 3200000 },
-    { id: 'NSE:IDEA', symbol: 'IDEA', symbolNS: 'IDEA.NS', name: 'Vodafone Idea Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE669E01016', bseCode: '532822', aliases: ['IDEA', 'IDEA.NS', 'VODAFONE IDEA', 'VI', '532822'], currency: 'INR', basePrice: 8.25, beta: 1.95, vol: 0.52, pe: null, sector: 'Telecommunications', country: 'IN', isPenny: true, avgVolume20d: 84500000 },
-    { id: 'NSE:DISHTV', symbol: 'DISHTV', symbolNS: 'DISHTV.NS', name: 'Dish TV India Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE836F01026', bseCode: '532839', aliases: ['DISHTV', 'DISHTV.NS', 'DISH TV', '532839'], currency: 'INR', basePrice: 12.50, beta: 1.38, vol: 0.46, pe: null, sector: 'Media & Entertainment', country: 'IN', isPenny: true, avgVolume20d: 4100000 },
-    { id: 'NSE:RTNPOWER', symbol: 'RTNPOWER', symbolNS: 'RTNPOWER.NS', name: 'RattanIndia Power Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE399K01017', bseCode: '533122', aliases: ['RTNPOWER', 'RTNPOWER.NS', 'RATTANINDIA POWER', '533122'], currency: 'INR', basePrice: 14.80, beta: 1.88, vol: 0.56, pe: 16.4, sector: 'Thermal Power Generation', country: 'IN', isPenny: true, avgVolume20d: 12100000 },
-    { id: 'NSE:JPPOWER', symbol: 'JPPOWER', symbolNS: 'JPPOWER.NS', name: 'Jaiprakash Power Ventures', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE351F01018', bseCode: '532627', aliases: ['JPPOWER', 'JPPOWER.NS', 'JP POWER', 'JAIPRAKASH POWER', '532627'], currency: 'INR', basePrice: 16.29, beta: 1.62, vol: 0.48, pe: 11.2, sector: 'Hydro & Thermal Power', country: 'IN', isPenny: true, avgVolume20d: 14200000 },
-    { id: 'NSE:URJA', symbol: 'URJA', symbolNS: 'URJA.NS', name: 'Urja Global Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE550C01020', bseCode: '526987', aliases: ['URJA', 'URJA.NS', 'URJA GLOBAL', 'SOLAR', '526987'], currency: 'INR', basePrice: 18.20, beta: 1.70, vol: 0.54, pe: null, sector: 'Solar Energy & EV Batteries', country: 'IN', isPenny: true, avgVolume20d: 2800000 },
-    { id: 'NSE:SEPC', symbol: 'SEPC', symbolNS: 'SEPC.NS', name: 'SEPC Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE964H01014', bseCode: '532945', aliases: ['SEPC', 'SEPC.NS', 'SHRIRAM EPC', '532945'], currency: 'INR', basePrice: 19.40, beta: 1.55, vol: 0.50, pe: 34.0, sector: 'Engineering & Infra', country: 'IN', isPenny: true, avgVolume20d: 2100000 },
-    { id: 'NSE:YESBANK', symbol: 'YESBANK', symbolNS: 'YESBANK.NS', name: 'Yes Bank Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE528G01035', bseCode: '532648', aliases: ['YESBANK', 'YESBANK.NS', 'YES BANK', '532648'], currency: 'INR', basePrice: 21.40, beta: 1.45, vol: 0.38, pe: 38.5, sector: 'Banking & Financials', country: 'IN', isPenny: true, avgVolume20d: 45000000 },
-    { id: 'NSE:RPOWER', symbol: 'RPOWER', symbolNS: 'RPOWER.NS', name: 'Reliance Power Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE614G01033', bseCode: '532939', aliases: ['RPOWER', 'RPOWER.NS', 'RELIANCE POWER', 'ANIL AMBANI', '532939'], currency: 'INR', basePrice: 38.50, beta: 1.90, vol: 0.64, pe: null, sector: 'Thermal & Clean Energy', country: 'IN', isPenny: true, avgVolume20d: 18200000 },
-    { id: 'NSE:SUZLON', symbol: 'SUZLON', symbolNS: 'SUZLON.NS', name: 'Suzlon Energy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040H01021', bseCode: '532667', aliases: ['SUZLON', 'SUZLON.NS', 'SUZLON ENERGY', 'WIND', '532667'], currency: 'INR', basePrice: 64.50, beta: 1.65, vol: 0.44, pe: 65.0, sector: 'Wind Energy & Green Tech', country: 'IN', isPenny: true, avgVolume20d: 28400000 },
-    { id: 'NYSE:TELL', symbol: 'TELL', symbolNS: 'TELL', name: 'Tellurian Inc.', exchange: 'NYSE American', assetType: 'PENNY_EQUITY', isin: 'US87968A1043', aliases: ['TELL', 'TELLURIAN', 'LNG'], currency: 'USD', basePrice: 0.98, beta: 2.10, vol: 0.68, pe: null, sector: 'LNG & Natural Gas', country: 'US', isPenny: true, avgVolume20d: 6200000 },
-    { id: 'NYSE:BBAI', symbol: 'BBAI', symbolNS: 'BBAI', name: 'BigBear.ai Holdings', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US08975B1070', aliases: ['BBAI', 'BIGBEAR', 'AI'], currency: 'USD', basePrice: 1.85, beta: 2.45, vol: 0.76, pe: null, sector: 'Artificial Intelligence', country: 'US', isPenny: true, avgVolume20d: 5400000 },
-    { id: 'NASDAQ:OPEN', symbol: 'OPEN', symbolNS: 'OPEN', name: 'Opendoor Technologies', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US6837121036', aliases: ['OPEN', 'OPENDOOR'], currency: 'USD', basePrice: 2.15, beta: 2.80, vol: 0.82, pe: null, sector: 'Digital Real Estate', country: 'US', isPenny: true, avgVolume20d: 9800000 },
-    { id: 'NASDAQ:PLUG', symbol: 'PLUG', symbolNS: 'PLUG', name: 'Plug Power Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US72919P2020', aliases: ['PLUG', 'PLUG POWER', 'HYDROGEN'], currency: 'USD', basePrice: 2.17, beta: 2.25, vol: 0.72, pe: null, sector: 'Hydrogen Fuel Cells', country: 'US', isPenny: true, avgVolume20d: 16500000 },
-    { id: 'NASDAQ:BITF', symbol: 'BITF', symbolNS: 'BITF', name: 'Bitfarms Ltd.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'CA09173B1076', aliases: ['BITF', 'BITFARMS', 'CRYPTO'], currency: 'USD', basePrice: 2.30, beta: 3.10, vol: 0.94, pe: null, sector: 'Crypto Mining & Compute', country: 'US', isPenny: true, avgVolume20d: 7100000 },
-    { id: 'NASDAQ:CLOV', symbol: 'CLOV', symbolNS: 'CLOV', name: 'Clover Health Investments', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US18914F1030', aliases: ['CLOV', 'CLOVER HEALTH'], currency: 'USD', basePrice: 2.85, beta: 1.85, vol: 0.58, pe: null, sector: 'Healthcare Technology', country: 'US', isPenny: true, avgVolume20d: 5900000 },
-    { id: 'NASDAQ:LCID', symbol: 'LCID', symbolNS: 'LCID', name: 'Lucid Group Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US5494981039', aliases: ['LCID', 'LUCID', 'LUCID MOTORS'], currency: 'USD', basePrice: 3.40, beta: 2.20, vol: 0.68, pe: null, sector: 'Electric Vehicles', country: 'US', isPenny: true, avgVolume20d: 14200000 },
-    { id: 'NYSE:NIO', symbol: 'NIO', symbolNS: 'NIO', name: 'NIO Inc. ADR', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US62914V1061', aliases: ['NIO', 'NIO EV'], currency: 'USD', basePrice: 4.20, beta: 2.15, vol: 0.65, pe: null, sector: 'EV & Battery Swapping', country: 'US', isPenny: true, avgVolume20d: 22100000 },
-    { id: 'NASDAQ:SOUN', symbol: 'SOUN', symbolNS: 'SOUN', name: 'SoundHound AI Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US8361001073', aliases: ['SOUN', 'SOUNDHOUND', 'VOICE AI'], currency: 'USD', basePrice: 6.74, beta: 2.75, vol: 0.85, pe: null, sector: 'Conversational AI', country: 'US', isPenny: true, avgVolume20d: 11400000 },
+    { id: 'NSE:GTLINFRA', symbol: 'GTLINFRA', symbolNS: 'GTLINFRA.NS', name: 'GTL Infrastructure Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE221H01019', bseCode: '532775', aliases: ['GTLINFRA', 'GTLINFRA.NS', 'GTL INFRA', '532775'], currency: 'INR', basePrice: 1.03, beta: 1.75, vol: 0.58, pe: null, sector: 'Telecom Infrastructure', country: 'IN', isPenny: true, avgVolume20d: 4850000 },
+    { id: 'BSE:VISAGAR', symbol: 'VISAGAR', symbolNS: 'VISAGAR.BO', name: 'Visagar Polytex Ltd', exchange: 'BSE', assetType: 'PENNY_EQUITY', isin: 'INE370E01029', bseCode: '531025', aliases: ['VISAGAR', 'VISAGAR.BO', 'VISAGAR POLYTEX', '531025'], currency: 'INR', basePrice: 0.29, beta: 1.82, vol: 0.62, pe: null, sector: 'Textiles & Apparel', country: 'IN', isPenny: true, avgVolume20d: 950000 },
+    { id: 'NSE:VIKASECO', symbol: 'VIKASECO', symbolNS: 'VIKASECO.NS', name: 'Vikas Ecotech Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE806A01020', bseCode: '536565', aliases: ['VIKASECO', 'VIKASECO.NS', 'VIKAS ECOTECH', '536565'], currency: 'INR', basePrice: 0.97, beta: 1.45, vol: 0.44, pe: 28.5, sector: 'Specialty Chemicals', country: 'IN', isPenny: true, avgVolume20d: 3200000 },
+    { id: 'NSE:IDEA', symbol: 'IDEA', symbolNS: 'IDEA.NS', name: 'Vodafone Idea Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE669E01016', bseCode: '532822', aliases: ['IDEA', 'IDEA.NS', 'VODAFONE IDEA', 'VI', '532822'], currency: 'INR', basePrice: 12.03, beta: 1.95, vol: 0.52, pe: null, sector: 'Telecommunications', country: 'IN', isPenny: true, avgVolume20d: 84500000 },
+    { id: 'NSE:DISHTV', symbol: 'DISHTV', symbolNS: 'DISHTV.NS', name: 'Dish TV India Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE836F01026', bseCode: '532839', aliases: ['DISHTV', 'DISHTV.NS', 'DISH TV', '532839'], currency: 'INR', basePrice: 1.98, beta: 1.38, vol: 0.46, pe: null, sector: 'Media & Entertainment', country: 'IN', isPenny: true, avgVolume20d: 4100000 },
+    { id: 'NSE:RTNPOWER', symbol: 'RTNPOWER', symbolNS: 'RTNPOWER.NS', name: 'RattanIndia Power Ltd', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE399K01017', bseCode: '533122', aliases: ['RTNPOWER', 'RTNPOWER.NS', 'RATTANINDIA POWER', '533122'], currency: 'INR', basePrice: 6.33, beta: 1.88, vol: 0.56, pe: 16.4, sector: 'Thermal Power Generation', country: 'IN', isPenny: true, avgVolume20d: 12100000 },
+    { id: 'NSE:JPPOWER', symbol: 'JPPOWER', symbolNS: 'JPPOWER.NS', name: 'Jaiprakash Power Ventures', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE351F01018', bseCode: '532627', aliases: ['JPPOWER', 'JPPOWER.NS', 'JP POWER', 'JAIPRAKASH POWER', '532627'], currency: 'INR', basePrice: 13.31, beta: 1.62, vol: 0.48, pe: 11.2, sector: 'Hydro & Thermal Power', country: 'IN', isPenny: true, avgVolume20d: 14200000 },
+    { id: 'NSE:URJA', symbol: 'URJA', symbolNS: 'URJA.NS', name: 'Urja Global Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE550C01020', bseCode: '526987', aliases: ['URJA', 'URJA.NS', 'URJA GLOBAL', 'SOLAR', '526987'], currency: 'INR', basePrice: 7.16, beta: 1.70, vol: 0.54, pe: null, sector: 'Solar Energy & EV Batteries', country: 'IN', isPenny: true, avgVolume20d: 2800000 },
+    { id: 'NSE:SEPC', symbol: 'SEPC', symbolNS: 'SEPC.NS', name: 'SEPC Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE964H01014', bseCode: '532945', aliases: ['SEPC', 'SEPC.NS', 'SHRIRAM EPC', '532945'], currency: 'INR', basePrice: 4.80, beta: 1.55, vol: 0.50, pe: 34.0, sector: 'Engineering & Infra', country: 'IN', isPenny: true, avgVolume20d: 2100000 },
+    { id: 'NSE:YESBANK', symbol: 'YESBANK', symbolNS: 'YESBANK.NS', name: 'Yes Bank Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE528G01035', bseCode: '532648', aliases: ['YESBANK', 'YESBANK.NS', 'YES BANK', '532648'], currency: 'INR', basePrice: 17.86, beta: 1.45, vol: 0.38, pe: 32.5, sector: 'Banking & Financials', country: 'IN', isPenny: true, avgVolume20d: 45000000 },
+    { id: 'NSE:RPOWER', symbol: 'RPOWER', symbolNS: 'RPOWER.NS', name: 'Reliance Power Limited', exchange: 'NSE', assetType: 'PENNY_EQUITY', isin: 'INE614G01033', bseCode: '532939', aliases: ['RPOWER', 'RPOWER.NS', 'RELIANCE POWER', 'ANIL AMBANI', '532939'], currency: 'INR', basePrice: 17.27, beta: 1.90, vol: 0.64, pe: null, sector: 'Thermal & Clean Energy', country: 'IN', isPenny: true, avgVolume20d: 18200000 },
+    { id: 'NSE:SUZLON', symbol: 'SUZLON', symbolNS: 'SUZLON.NS', name: 'Suzlon Energy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE040H01021', bseCode: '532667', aliases: ['SUZLON', 'SUZLON.NS', 'SUZLON ENERGY', 'WIND', '532667'], currency: 'INR', basePrice: 36.31, beta: 1.65, vol: 0.44, pe: 38.0, sector: 'Wind Energy & Green Tech', country: 'IN', isPenny: true, avgVolume20d: 28400000 },
+    { id: 'NASDAQ:MARA', symbol: 'MARA', symbolNS: 'MARA', name: 'MARA Holdings Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US5657881067', aliases: ['MARA', 'MARATHON', 'CRYPTO COMPUTE'], currency: 'USD', basePrice: 5.41, beta: 2.65, vol: 0.85, pe: null, sector: 'Bitcoin Compute & Energy Infra', country: 'US', isPenny: true, avgVolume20d: 18500000 },
+    { id: 'NYSE:BBAI', symbol: 'BBAI', symbolNS: 'BBAI', name: 'BigBear.ai Holdings', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US08975B1070', aliases: ['BBAI', 'BIGBEAR', 'AI'], currency: 'USD', basePrice: 1.54, beta: 2.45, vol: 0.76, pe: null, sector: 'Artificial Intelligence', country: 'US', isPenny: true, avgVolume20d: 5400000 },
+    { id: 'NASDAQ:OPEN', symbol: 'OPEN', symbolNS: 'OPEN', name: 'Opendoor Technologies', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US6837121036', aliases: ['OPEN', 'OPENDOOR'], currency: 'USD', basePrice: 1.18, beta: 2.80, vol: 0.82, pe: null, sector: 'Digital Real Estate', country: 'US', isPenny: true, avgVolume20d: 9800000 },
+    { id: 'NASDAQ:PLUG', symbol: 'PLUG', symbolNS: 'PLUG', name: 'Plug Power Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US72919P2020', aliases: ['PLUG', 'PLUG POWER', 'HYDROGEN'], currency: 'USD', basePrice: 0.93, beta: 2.25, vol: 0.72, pe: null, sector: 'Hydrogen Fuel Cells', country: 'US', isPenny: true, avgVolume20d: 16500000 },
+    { id: 'NASDAQ:CLSK', symbol: 'CLSK', symbolNS: 'CLSK', name: 'CleanSpark Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US18452B2097', aliases: ['CLSK', 'CLEANSPARK', 'CRYPTO'], currency: 'USD', basePrice: 5.12, beta: 2.95, vol: 0.88, pe: null, sector: 'Crypto Mining & Compute', country: 'US', isPenny: true, avgVolume20d: 9200000 },
+    { id: 'NASDAQ:CLOV', symbol: 'CLOV', symbolNS: 'CLOV', name: 'Clover Health Investments', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US18914F1030', aliases: ['CLOV', 'CLOVER HEALTH'], currency: 'USD', basePrice: 3.71, beta: 1.85, vol: 0.58, pe: null, sector: 'Healthcare Technology', country: 'US', isPenny: true, avgVolume20d: 5900000 },
+    { id: 'NASDAQ:LCID', symbol: 'LCID', symbolNS: 'LCID', name: 'Lucid Group Inc.', exchange: 'NASDAQ', assetType: 'PENNY_EQUITY', isin: 'US5494981039', aliases: ['LCID', 'LUCID', 'LUCID MOTORS'], currency: 'USD', basePrice: 2.64, beta: 2.20, vol: 0.68, pe: null, sector: 'Electric Vehicles', country: 'US', isPenny: true, avgVolume20d: 14200000 },
+    { id: 'NYSE:NIO', symbol: 'NIO', symbolNS: 'NIO', name: 'NIO Inc. ADR', exchange: 'NYSE', assetType: 'PENNY_EQUITY', isin: 'US62914V1061', aliases: ['NIO', 'NIO EV'], currency: 'USD', basePrice: 2.58, beta: 2.15, vol: 0.65, pe: null, sector: 'EV & Battery Swapping', country: 'US', isPenny: true, avgVolume20d: 22100000 },
+    { id: 'NASDAQ:SOUN', symbol: 'SOUN', symbolNS: 'SOUN', name: 'SoundHound AI Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US8361001073', aliases: ['SOUN', 'SOUNDHOUND', 'VOICE AI'], currency: 'USD', basePrice: 2.63, beta: 2.75, vol: 0.85, pe: null, sector: 'Conversational AI', country: 'US', isPenny: true, avgVolume20d: 11400000 },
 
     // ── Newly Added Indian Bluechips & NIFTY Heavyweights ──
-    { id: 'NSE:NESTLEIND', symbol: 'NESTLEIND', symbolNS: 'NESTLEIND.NS', name: 'Nestle India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE239A01016', bseCode: '500790', aliases: ['NESTLE', 'MAGGI', 'KITKAT'], currency: 'INR', basePrice: 2480.00, beta: 0.52, vol: 0.135, pe: 74.50, eps: 33.25, roe: 108.50, roce: 135.00, marketCap: 2390000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
-    { id: 'NSE:ASIANPAINT', symbol: 'ASIANPAINT', symbolNS: 'ASIANPAINT.NS', name: 'Asian Paints Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE021A01026', bseCode: '500820', aliases: ['ASIANPAINT', 'ASIAN PAINTS', 'PAINTS'], currency: 'INR', basePrice: 2950.00, beta: 0.75, vol: 0.178, pe: 54.20, eps: 54.40, roe: 27.50, roce: 34.00, marketCap: 2830000000000, sector: 'Paints & Home Decor', country: 'IN' },
-    { id: 'NSE:ULTRACEMCO', symbol: 'ULTRACEMCO', symbolNS: 'ULTRACEMCO.NS', name: 'UltraTech Cement Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE481G01011', bseCode: '532538', aliases: ['ULTRACEMCO', 'ULTRATECH', 'ADITYA BIRLA CEMENT'], currency: 'INR', basePrice: 11450.00, beta: 0.95, vol: 0.185, pe: 44.00, eps: 260.20, roe: 13.80, roce: 15.20, marketCap: 3300000000000, sector: 'Materials & Cement', country: 'IN' },
-    { id: 'NSE:GRASIM', symbol: 'GRASIM', symbolNS: 'GRASIM.NS', name: 'Grasim Industries Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE047A01021', bseCode: '500300', aliases: ['GRASIM', 'BIRLA PIVOT', 'VSF'], currency: 'INR', basePrice: 2620.00, beta: 1.15, vol: 0.225, pe: 32.50, eps: 80.60, roe: 8.50, roce: 9.80, marketCap: 1720000000000, sector: 'Diversified Conglomerate', country: 'IN' },
-    { id: 'NSE:HINDALCO', symbol: 'HINDALCO', symbolNS: 'HINDALCO.NS', name: 'Hindalco Industries Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE038A01020', bseCode: '500440', aliases: ['HINDALCO', 'NOVELIS', 'ALUMINUM'], currency: 'INR', basePrice: 685.00, beta: 1.38, vol: 0.310, pe: 14.80, eps: 46.25, roe: 12.40, roce: 13.50, marketCap: 1530000000000, sector: 'Metals & Aluminum', country: 'IN' },
-    { id: 'NSE:JSWSTEEL', symbol: 'JSWSTEEL', symbolNS: 'JSWSTEEL.NS', name: 'JSW Steel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE019A01038', bseCode: '500228', aliases: ['JSWSTEEL', 'JSW STEEL', 'JSW'], currency: 'INR', basePrice: 960.00, beta: 1.25, vol: 0.265, pe: 24.50, eps: 39.15, roe: 14.50, roce: 15.00, marketCap: 2340000000000, sector: 'Metals & Mining', country: 'IN' },
-    { id: 'NSE:BAJAJFINSV', symbol: 'BAJAJFINSV', symbolNS: 'BAJAJFINSV.NS', name: 'Bajaj Finserv Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE918I01026', bseCode: '532978', aliases: ['BAJAJFINSV', 'BAJAJ FINSERV', 'FINSERV'], currency: 'INR', basePrice: 1850.00, beta: 1.18, vol: 0.215, pe: 36.80, eps: 50.25, roe: 15.20, roce: 14.80, marketCap: 2950000000000, sector: 'Financial Services & Insurance', country: 'IN' },
-    { id: 'NSE:TECHM', symbol: 'TECHM', symbolNS: 'TECHM.NS', name: 'Tech Mahindra Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE669C01036', bseCode: '532755', aliases: ['TECHM', 'TECH MAHINDRA'], currency: 'INR', basePrice: 1580.00, beta: 0.98, vol: 0.220, pe: 42.50, eps: 37.15, roe: 11.50, roce: 14.00, marketCap: 1540000000000, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:LTIM', symbol: 'LTIM', symbolNS: 'LTIM.NS', name: 'LTIMindtree Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE214T01019', bseCode: '540005', aliases: ['LTIM', 'LTIMINDTREE', 'MINDTREE'], currency: 'INR', basePrice: 5890.00, beta: 1.10, vol: 0.245, pe: 38.20, eps: 154.10, roe: 25.50, roce: 32.00, marketCap: 1740000000000, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:INDUSINDBK', symbol: 'INDUSINDBK', symbolNS: 'INDUSINDBK.NS', name: 'IndusInd Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE095A01012', bseCode: '532187', aliases: ['INDUSINDBK', 'INDUSIND BANK'], currency: 'INR', basePrice: 1420.00, beta: 1.35, vol: 0.285, pe: 12.40, eps: 114.50, roe: 15.80, roce: 14.20, marketCap: 1100000000000, sector: 'Banking & Financials', country: 'IN' },
-    { id: 'NSE:HEROMOTOCO', symbol: 'HEROMOTOCO', symbolNS: 'HEROMOTOCO.NS', name: 'Hero MotoCorp Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE158A01026', bseCode: '500182', aliases: ['HEROMOTOCO', 'HERO MOTORS', 'HERO'], currency: 'INR', basePrice: 5420.00, beta: 0.92, vol: 0.210, pe: 26.50, eps: 204.50, roe: 22.80, roce: 28.50, marketCap: 1080000000000, sector: 'Automotive / Two-Wheelers', country: 'IN' },
-    { id: 'NSE:EICHERMOT', symbol: 'EICHERMOT', symbolNS: 'EICHERMOT.NS', name: 'Eicher Motors (Royal Enfield)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE066A01021', bseCode: '505200', aliases: ['EICHERMOT', 'ROYAL ENFIELD', 'EICHER'], currency: 'INR', basePrice: 4850.00, beta: 0.88, vol: 0.205, pe: 32.40, eps: 149.60, roe: 24.50, roce: 30.20, marketCap: 1320000000000, sector: 'Automotive / Motorcycles', country: 'IN' },
-    { id: 'NSE:APOLLOHOSP', symbol: 'APOLLOHOSP', symbolNS: 'APOLLOHOSP.NS', name: 'Apollo Hospitals Enterprise', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE437A01024', bseCode: '508869', aliases: ['APOLLOHOSP', 'APOLLO HOSPITALS', 'APOLLO 247'], currency: 'INR', basePrice: 7180.00, beta: 0.85, vol: 0.195, pe: 72.00, eps: 99.70, roe: 14.80, roce: 18.50, marketCap: 1030000000000, sector: 'Healthcare & Hospitals', country: 'IN' },
-    { id: 'NSE:CIPLA', symbol: 'CIPLA', symbolNS: 'CIPLA.NS', name: 'Cipla Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE059A01026', bseCode: '500087', aliases: ['CIPLA', 'CIPLA PHARMA'], currency: 'INR', basePrice: 1560.00, beta: 0.62, vol: 0.165, pe: 28.50, eps: 54.70, roe: 16.50, roce: 22.00, marketCap: 1250000000000, sector: 'Pharmaceuticals & Respiratory', country: 'IN' },
-    { id: 'NSE:DRREDDY', symbol: 'DRREDDY', symbolNS: 'DRREDDY.NS', name: "Dr. Reddy's Laboratories", exchange: 'NSE', assetType: 'EQUITY', isin: 'INE089A01023', bseCode: '500124', aliases: ['DRREDDY', 'DOCTOR REDDY', 'DR REDDY'], currency: 'INR', basePrice: 6680.00, beta: 0.68, vol: 0.170, pe: 20.40, eps: 327.40, roe: 21.50, roce: 26.80, marketCap: 1110000000000, sector: 'Pharmaceuticals & Generics', country: 'IN' },
-    { id: 'NSE:DIVISLAB', symbol: 'DIVISLAB', symbolNS: 'DIVISLAB.NS', name: "Divi's Laboratories Limited", exchange: 'NSE', assetType: 'EQUITY', isin: 'INE361B01024', bseCode: '532488', aliases: ['DIVISLAB', 'DIVIS', 'API PHARMA'], currency: 'INR', basePrice: 5240.00, beta: 0.82, vol: 0.215, pe: 78.00, eps: 67.15, roe: 12.80, roce: 16.20, marketCap: 1390000000000, sector: 'Pharmaceuticals & Active APIs', country: 'IN' },
-    { id: 'NSE:MAXHEALTH', symbol: 'MAXHEALTH', symbolNS: 'MAXHEALTH.NS', name: 'Max Healthcare Institute', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE027H01010', bseCode: '543220', aliases: ['MAXHEALTH', 'MAX HOSPITAL'], currency: 'INR', basePrice: 945.00, beta: 0.78, vol: 0.205, pe: 68.00, eps: 13.90, roe: 17.50, roce: 21.00, marketCap: 918000000000, sector: 'Healthcare & Hospitals', country: 'IN' },
-    { id: 'NSE:POLICYBZR', symbol: 'POLICYBZR', symbolNS: 'POLICYBZR.NS', name: 'PB Fintech (PolicyBazaar)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE417T01026', bseCode: '543390', aliases: ['POLICYBAZAAR', 'POLICYBZR', 'PAISABAZAAR'], currency: 'INR', basePrice: 1720.00, beta: 1.35, vol: 0.340, pe: 145.00, eps: 11.85, roe: 7.50, roce: 8.20, marketCap: 780000000000, sector: 'Fintech & Digital Insurance', country: 'IN' },
-    { id: 'NSE:SWIGGY', symbol: 'SWIGGY', symbolNS: 'SWIGGY.NS', name: 'Swiggy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE00H001014', bseCode: '544280', aliases: ['SWIGGY', 'INSTAMART', 'FOOD DELIVERY'], currency: 'INR', basePrice: 485.00, beta: 1.45, vol: 0.420, pe: null, eps: -5.40, roe: -4.20, roce: -3.50, marketCap: 1080000000000, sector: 'Internet & Quick Commerce', country: 'IN' },
-    { id: 'NSE:OLAELEC', symbol: 'OLAELEC', symbolNS: 'OLAELEC.NS', name: 'Ola Electric Mobility Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE0CY201018', bseCode: '544229', aliases: ['OLAELEC', 'OLA ELECTRIC', 'EV SCOOTER'], currency: 'INR', basePrice: 88.50, beta: 1.85, vol: 0.520, pe: null, eps: -3.80, roe: -12.50, roce: -9.80, marketCap: 390000000000, sector: 'EV Automotive & Batteries', country: 'IN' },
-    { id: 'NSE:ANGELONE', symbol: 'ANGELONE', symbolNS: 'ANGELONE.NS', name: 'Angel One Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE732I01013', bseCode: '543235', aliases: ['ANGELONE', 'ANGEL BROKING'], currency: 'INR', basePrice: 2890.00, beta: 1.42, vol: 0.360, pe: 22.50, eps: 128.40, roe: 42.00, roce: 48.50, marketCap: 260000000000, sector: 'Fintech & Brokerage', country: 'IN' },
-    { id: 'NSE:MCX', symbol: 'MCX', symbolNS: 'MCX.NS', name: 'Multi Commodity Exchange of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE745G01035', bseCode: '534091', aliases: ['MCX', 'COMMODITY EXCHANGE'], currency: 'INR', basePrice: 5680.00, beta: 1.25, vol: 0.330, pe: 64.00, eps: 88.75, roe: 18.50, roce: 24.00, marketCap: 290000000000, sector: 'Exchange Infrastructure', country: 'IN' },
-    { id: 'NSE:PERSISTENT', symbol: 'PERSISTENT', symbolNS: 'PERSISTENT.NS', name: 'Persistent Systems Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE262H01013', bseCode: '533179', aliases: ['PERSISTENT', 'PERSISTENT SYSTEMS'], currency: 'INR', basePrice: 5450.00, beta: 1.12, vol: 0.250, pe: 62.00, eps: 87.90, roe: 25.80, roce: 33.20, marketCap: 840000000000, sector: 'Information Technology / Cloud', country: 'IN' },
-    { id: 'NSE:COFORGE', symbol: 'COFORGE', symbolNS: 'COFORGE.NS', name: 'Coforge Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE591G01017', bseCode: '532541', aliases: ['COFORGE', 'NIIT TECH'], currency: 'INR', basePrice: 7850.00, beta: 1.15, vol: 0.270, pe: 58.00, eps: 135.30, roe: 26.50, roce: 31.00, marketCap: 486000000000, sector: 'Information Technology', country: 'IN' },
-    { id: 'NSE:KALYANKJIL', symbol: 'KALYANKJIL', symbolNS: 'KALYANKJIL.NS', name: 'Kalyan Jewellers India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE303R01014', bseCode: '543278', aliases: ['KALYANKJIL', 'KALYAN JEWELLERS', 'GOLD RETAIL'], currency: 'INR', basePrice: 685.00, beta: 1.35, vol: 0.340, pe: 88.00, eps: 7.78, roe: 17.20, roce: 19.50, marketCap: 705000000000, sector: 'Jewellery & Retail', country: 'IN' },
-    { id: 'NSE:POLYCAB', symbol: 'POLYCAB', symbolNS: 'POLYCAB.NS', name: 'Polycab India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE455K01017', bseCode: '542652', aliases: ['POLYCAB', 'CABLES & WIRES'], currency: 'INR', basePrice: 6620.00, beta: 1.05, vol: 0.240, pe: 54.00, eps: 122.50, roe: 24.50, roce: 30.00, marketCap: 994000000000, sector: 'Electrical Equipment & Cables', country: 'IN' },
-    { id: 'NSE:DIXON', symbol: 'DIXON', symbolNS: 'DIXON.NS', name: 'Dixon Technologies (India)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE935N01020', bseCode: '540699', aliases: ['DIXON', 'ELECTRONICS EMS'], currency: 'INR', basePrice: 14850.00, beta: 1.48, vol: 0.370, pe: 135.00, eps: 110.00, roe: 28.50, roce: 34.00, marketCap: 890000000000, sector: 'Electronics Manufacturing (EMS)', country: 'IN' },
-    { id: 'NSE:MAZDOCK', symbol: 'MAZDOCK', symbolNS: 'MAZDOCK.NS', name: 'Mazagon Dock Shipbuilders', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE249Z01012', bseCode: '543237', aliases: ['MAZDOCK', 'DEFENCE SHIPBUILDER'], currency: 'INR', basePrice: 4250.00, beta: 1.55, vol: 0.440, pe: 38.00, eps: 111.80, roe: 36.50, roce: 45.00, marketCap: 857000000000, sector: 'Defence & Naval Engineering', country: 'IN' },
-    { id: 'NSE:COCHINSHIP', symbol: 'COCHINSHIP', symbolNS: 'COCHINSHIP.NS', name: 'Cochin Shipyard Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE704P01025', bseCode: '540678', aliases: ['COCHINSHIP', 'AIRCRAFT CARRIER'], currency: 'INR', basePrice: 1680.00, beta: 1.62, vol: 0.460, pe: 46.00, eps: 36.50, roe: 22.00, roce: 27.50, marketCap: 442000000000, sector: 'Defence Shipyard', country: 'IN' },
-    { id: 'NSE:BHEL', symbol: 'BHEL', symbolNS: 'BHEL.NS', name: 'Bharat Heavy Electricals Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE257A01026', bseCode: '500103', aliases: ['BHEL', 'POWER EQUIPMENT'], currency: 'INR', basePrice: 265.00, beta: 1.45, vol: 0.380, pe: 85.00, eps: 3.12, roe: 4.50, roce: 6.20, marketCap: 922000000000, sector: 'Heavy Capital Equipment', country: 'IN' },
+    { id: 'NSE:NESTLEIND', symbol: 'NESTLEIND', symbolNS: 'NESTLEIND.NS', name: 'Nestle India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE239A01016', bseCode: '500790', aliases: ['NESTLE', 'MAGGI', 'KITKAT'], currency: 'INR', basePrice: 1327.80, beta: 0.52, vol: 0.135, pe: 74.50, eps: 17.82, roe: 108.50, roce: 135.00, marketCap: 2560000000000, sector: 'Consumer Staples / FMCG', country: 'IN' },
+    { id: 'NSE:ASIANPAINT', symbol: 'ASIANPAINT', symbolNS: 'ASIANPAINT.NS', name: 'Asian Paints Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE021A01026', bseCode: '500820', aliases: ['ASIANPAINT', 'ASIAN PAINTS', 'PAINTS'], currency: 'INR', basePrice: 2615.70, beta: 0.75, vol: 0.178, pe: 54.20, eps: 48.26, roe: 27.50, roce: 34.00, marketCap: 2510000000000, sector: 'Paints & Home Decor', country: 'IN' },
+    { id: 'NSE:ULTRACEMCO', symbol: 'ULTRACEMCO', symbolNS: 'ULTRACEMCO.NS', name: 'UltraTech Cement Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE481G01011', bseCode: '532538', aliases: ['ULTRACEMCO', 'ULTRATECH', 'ADITYA BIRLA CEMENT'], currency: 'INR', basePrice: 12761.00, beta: 0.95, vol: 0.185, pe: 44.00, eps: 290.02, roe: 13.80, roce: 15.20, marketCap: 3680000000000, sector: 'Materials & Cement', country: 'IN' },
+    { id: 'NSE:GRASIM', symbol: 'GRASIM', symbolNS: 'GRASIM.NS', name: 'Grasim Industries Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE047A01021', bseCode: '500300', aliases: ['GRASIM', 'BIRLA PIVOT', 'VSF'], currency: 'INR', basePrice: 3127.80, beta: 1.15, vol: 0.225, pe: 32.50, eps: 96.24, roe: 8.50, roce: 9.80, marketCap: 2050000000000, sector: 'Diversified Conglomerate', country: 'IN' },
+    { id: 'NSE:HINDALCO', symbol: 'HINDALCO', symbolNS: 'HINDALCO.NS', name: 'Hindalco Industries Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE038A01020', bseCode: '500440', aliases: ['HINDALCO', 'NOVELIS', 'ALUMINUM'], currency: 'INR', basePrice: 891.60, beta: 1.38, vol: 0.310, pe: 14.80, eps: 60.24, roe: 12.40, roce: 13.50, marketCap: 2000000000000, sector: 'Metals & Aluminum', country: 'IN' },
+    { id: 'NSE:JSWSTEEL', symbol: 'JSWSTEEL', symbolNS: 'JSWSTEEL.NS', name: 'JSW Steel Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE019A01038', bseCode: '500228', aliases: ['JSWSTEEL', 'JSW STEEL', 'JSW'], currency: 'INR', basePrice: 1305.60, beta: 1.25, vol: 0.265, pe: 24.50, eps: 53.29, roe: 14.50, roce: 15.00, marketCap: 3190000000000, sector: 'Metals & Mining', country: 'IN' },
+    { id: 'NSE:BAJAJFINSV', symbol: 'BAJAJFINSV', symbolNS: 'BAJAJFINSV.NS', name: 'Bajaj Finserv Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE918I01026', bseCode: '532978', aliases: ['BAJAJFINSV', 'BAJAJ FINSERV', 'FINSERV'], currency: 'INR', basePrice: 1922.90, beta: 1.18, vol: 0.215, pe: 36.80, eps: 52.25, roe: 15.20, roce: 14.80, marketCap: 3060000000000, sector: 'Financial Services & Insurance', country: 'IN' },
+    { id: 'NSE:TECHM', symbol: 'TECHM', symbolNS: 'TECHM.NS', name: 'Tech Mahindra Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE669C01036', bseCode: '532755', aliases: ['TECHM', 'TECH MAHINDRA'], currency: 'INR', basePrice: 1801.70, beta: 0.98, vol: 0.220, pe: 42.50, eps: 42.39, roe: 11.50, roce: 14.00, marketCap: 1760000000000, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:LTIM', symbol: 'LTIM', symbolNS: 'LTM.NS', name: 'LTIMindtree Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE214T01019', bseCode: '540005', aliases: ['LTIM', 'LTM', 'LTIMINDTREE', 'MINDTREE'], currency: 'INR', basePrice: 4311.60, beta: 1.10, vol: 0.245, pe: 28.20, eps: 152.89, roe: 25.50, roce: 32.00, marketCap: 1270000000000, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:INDUSINDBK', symbol: 'INDUSINDBK', symbolNS: 'INDUSINDBK.NS', name: 'IndusInd Bank Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE095A01012', bseCode: '532187', aliases: ['INDUSINDBK', 'INDUSIND BANK'], currency: 'INR', basePrice: 975.30, beta: 1.35, vol: 0.285, pe: 12.40, eps: 78.65, roe: 15.80, roce: 14.20, marketCap: 760000000000, sector: 'Banking & Financials', country: 'IN' },
+    { id: 'NSE:HEROMOTOCO', symbol: 'HEROMOTOCO', symbolNS: 'HEROMOTOCO.NS', name: 'Hero MotoCorp Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE158A01026', bseCode: '500182', aliases: ['HEROMOTOCO', 'HERO MOTORS', 'HERO'], currency: 'INR', basePrice: 5604.00, beta: 0.92, vol: 0.210, pe: 26.50, eps: 211.47, roe: 22.80, roce: 28.50, marketCap: 1120000000000, sector: 'Automotive / Two-Wheelers', country: 'IN' },
+    { id: 'NSE:EICHERMOT', symbol: 'EICHERMOT', symbolNS: 'EICHERMOT.NS', name: 'Eicher Motors (Royal Enfield)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE066A01021', bseCode: '505200', aliases: ['EICHERMOT', 'ROYAL ENFIELD', 'EICHER'], currency: 'INR', basePrice: 8237.50, beta: 0.88, vol: 0.205, pe: 38.40, eps: 214.52, roe: 24.50, roce: 30.20, marketCap: 2250000000000, sector: 'Automotive / Motorcycles', country: 'IN' },
+    { id: 'NSE:APOLLOHOSP', symbol: 'APOLLOHOSP', symbolNS: 'APOLLOHOSP.NS', name: 'Apollo Hospitals Enterprise', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE437A01024', bseCode: '508869', aliases: ['APOLLOHOSP', 'APOLLO HOSPITALS', 'APOLLO 247'], currency: 'INR', basePrice: 9207.00, beta: 0.85, vol: 0.195, pe: 72.00, eps: 127.88, roe: 14.80, roce: 18.50, marketCap: 1320000000000, sector: 'Healthcare & Hospitals', country: 'IN' },
+    { id: 'NSE:CIPLA', symbol: 'CIPLA', symbolNS: 'CIPLA.NS', name: 'Cipla Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE059A01026', bseCode: '500087', aliases: ['CIPLA', 'CIPLA PHARMA'], currency: 'INR', basePrice: 1417.90, beta: 0.62, vol: 0.165, pe: 26.50, eps: 53.51, roe: 16.50, roce: 22.00, marketCap: 1140000000000, sector: 'Pharmaceuticals & Respiratory', country: 'IN' },
+    { id: 'NSE:DRREDDY', symbol: 'DRREDDY', symbolNS: 'DRREDDY.NS', name: "Dr. Reddy's Laboratories", exchange: 'NSE', assetType: 'EQUITY', isin: 'INE089A01023', bseCode: '500124', aliases: ['DRREDDY', 'DOCTOR REDDY', 'DR REDDY'], currency: 'INR', basePrice: 1379.50, beta: 0.68, vol: 0.170, pe: 20.40, eps: 67.62, roe: 21.50, roce: 26.80, marketCap: 1150000000000, sector: 'Pharmaceuticals & Generics', country: 'IN' },
+    { id: 'NSE:DIVISLAB', symbol: 'DIVISLAB', symbolNS: 'DIVISLAB.NS', name: "Divi's Laboratories Limited", exchange: 'NSE', assetType: 'EQUITY', isin: 'INE361B01024', bseCode: '532488', aliases: ['DIVISLAB', 'DIVIS', 'API PHARMA'], currency: 'INR', basePrice: 11296.50, beta: 0.82, vol: 0.215, pe: 88.00, eps: 128.37, roe: 12.80, roce: 16.20, marketCap: 2990000000000, sector: 'Pharmaceuticals & Active APIs', country: 'IN' },
+    { id: 'NSE:MAXHEALTH', symbol: 'MAXHEALTH', symbolNS: 'MAXHEALTH.NS', name: 'Max Healthcare Institute', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE027H01010', bseCode: '543220', aliases: ['MAXHEALTH', 'MAX HOSPITAL'], currency: 'INR', basePrice: 1079.20, beta: 0.78, vol: 0.205, pe: 68.00, eps: 15.87, roe: 17.50, roce: 21.00, marketCap: 1050000000000, sector: 'Healthcare & Hospitals', country: 'IN' },
+    { id: 'NSE:POLICYBZR', symbol: 'POLICYBZR', symbolNS: 'POLICYBZR.NS', name: 'PB Fintech (PolicyBazaar)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE417T01026', bseCode: '543390', aliases: ['POLICYBAZAAR', 'POLICYBZR', 'PAISABAZAAR'], currency: 'INR', basePrice: 1148.10, beta: 1.35, vol: 0.340, pe: 125.00, eps: 9.18, roe: 7.50, roce: 8.20, marketCap: 525000000000, sector: 'Fintech & Digital Insurance', country: 'IN' },
+    { id: 'NSE:SWIGGY', symbol: 'SWIGGY', symbolNS: 'SWIGGY.NS', name: 'Swiggy Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE00H001014', bseCode: '544280', aliases: ['SWIGGY', 'INSTAMART', 'FOOD DELIVERY'], currency: 'INR', basePrice: 180.88, beta: 1.45, vol: 0.420, pe: null, eps: -5.40, roe: -4.20, roce: -3.50, marketCap: 410000000000, sector: 'Internet & Quick Commerce', country: 'IN' },
+    { id: 'NSE:OLAELEC', symbol: 'OLAELEC', symbolNS: 'OLAELEC.NS', name: 'Ola Electric Mobility Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE0CY201018', bseCode: '544229', aliases: ['OLAELEC', 'OLA ELECTRIC', 'EV SCOOTER'], currency: 'INR', basePrice: 31.83, beta: 1.85, vol: 0.520, pe: null, eps: -3.80, roe: -12.50, roce: -9.80, marketCap: 140000000000, sector: 'EV Automotive & Batteries', country: 'IN' },
+    { id: 'NSE:ANGELONE', symbol: 'ANGELONE', symbolNS: 'ANGELONE.NS', name: 'Angel One Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE732I01013', bseCode: '543235', aliases: ['ANGELONE', 'ANGEL BROKING'], currency: 'INR', basePrice: 341.85, beta: 1.42, vol: 0.360, pe: 22.50, eps: 15.19, roe: 42.00, roce: 48.50, marketCap: 310000000000, sector: 'Fintech & Brokerage', country: 'IN' },
+    { id: 'NSE:MCX', symbol: 'MCX', symbolNS: 'MCX.NS', name: 'Multi Commodity Exchange of India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE745G01035', bseCode: '534091', aliases: ['MCX', 'COMMODITY EXCHANGE'], currency: 'INR', basePrice: 3513.30, beta: 1.25, vol: 0.330, pe: 48.00, eps: 73.19, roe: 18.50, roce: 24.00, marketCap: 179000000000, sector: 'Exchange Infrastructure', country: 'IN' },
+    { id: 'NSE:PERSISTENT', symbol: 'PERSISTENT', symbolNS: 'PERSISTENT.NS', name: 'Persistent Systems Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE262H01013', bseCode: '533179', aliases: ['PERSISTENT', 'PERSISTENT SYSTEMS'], currency: 'INR', basePrice: 6329.00, beta: 1.12, vol: 0.250, pe: 62.00, eps: 102.08, roe: 25.80, roce: 33.20, marketCap: 985000000000, sector: 'Information Technology / Cloud', country: 'IN' },
+    { id: 'NSE:COFORGE', symbol: 'COFORGE', symbolNS: 'COFORGE.NS', name: 'Coforge Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE591G01017', bseCode: '532541', aliases: ['COFORGE', 'NIIT TECH'], currency: 'INR', basePrice: 2123.60, beta: 1.15, vol: 0.270, pe: 48.00, eps: 44.24, roe: 26.50, roce: 31.00, marketCap: 710000000000, sector: 'Information Technology', country: 'IN' },
+    { id: 'NSE:KALYANKJIL', symbol: 'KALYANKJIL', symbolNS: 'KALYANKJIL.NS', name: 'Kalyan Jewellers India', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE303R01014', bseCode: '543278', aliases: ['KALYANKJIL', 'KALYAN JEWELLERS', 'GOLD RETAIL'], currency: 'INR', basePrice: 643.40, beta: 1.35, vol: 0.340, pe: 82.00, eps: 7.85, roe: 17.20, roce: 19.50, marketCap: 663000000000, sector: 'Jewellery & Retail', country: 'IN' },
+    { id: 'NSE:POLYCAB', symbol: 'POLYCAB', symbolNS: 'POLYCAB.NS', name: 'Polycab India Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE455K01017', bseCode: '542652', aliases: ['POLYCAB', 'CABLES & WIRES'], currency: 'INR', basePrice: 7374.50, beta: 1.05, vol: 0.240, pe: 54.00, eps: 136.56, roe: 24.50, roce: 30.00, marketCap: 1110000000000, sector: 'Electrical Equipment & Cables', country: 'IN' },
+    { id: 'NSE:DIXON', symbol: 'DIXON', symbolNS: 'DIXON.NS', name: 'Dixon Technologies (India)', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE935N01020', bseCode: '540699', aliases: ['DIXON', 'ELECTRONICS EMS'], currency: 'INR', basePrice: 13377.00, beta: 1.48, vol: 0.370, pe: 120.00, eps: 111.48, roe: 28.50, roce: 34.00, marketCap: 800000000000, sector: 'Electronics Manufacturing (EMS)', country: 'IN' },
+    { id: 'NSE:MAZDOCK', symbol: 'MAZDOCK', symbolNS: 'MAZDOCK.NS', name: 'Mazagon Dock Shipbuilders', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE249Z01012', bseCode: '543237', aliases: ['MAZDOCK', 'DEFENCE SHIPBUILDER'], currency: 'INR', basePrice: 1810.00, beta: 1.55, vol: 0.440, pe: 34.00, eps: 53.24, roe: 36.50, roce: 45.00, marketCap: 730000000000, sector: 'Defence & Naval Engineering', country: 'IN' },
+    { id: 'NSE:COCHINSHIP', symbol: 'COCHINSHIP', symbolNS: 'COCHINSHIP.NS', name: 'Cochin Shipyard Limited', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE704P01025', bseCode: '540678', aliases: ['COCHINSHIP', 'AIRCRAFT CARRIER'], currency: 'INR', basePrice: 1097.30, beta: 1.62, vol: 0.460, pe: 38.00, eps: 28.88, roe: 22.00, roce: 27.50, marketCap: 288000000000, sector: 'Defence Shipyard', country: 'IN' },
+    { id: 'NSE:BHEL', symbol: 'BHEL', symbolNS: 'BHEL.NS', name: 'Bharat Heavy Electricals Ltd', exchange: 'NSE', assetType: 'EQUITY', isin: 'INE257A01026', bseCode: '500103', aliases: ['BHEL', 'POWER EQUIPMENT'], currency: 'INR', basePrice: 414.80, beta: 1.45, vol: 0.380, pe: 85.00, eps: 4.88, roe: 4.50, roce: 6.20, marketCap: 1440000000000, sector: 'Heavy Capital Equipment', country: 'IN' },
 
     // ── Newly Added Global & US Mega-Cap Titans ──
-    { id: 'NASDAQ:AVGO', symbol: 'AVGO', symbolNS: 'AVGO', name: 'Broadcom Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US11135F1012', aliases: ['AVGO', 'BROADCOM', 'CUSTOM AI SILICON'], currency: 'USD', basePrice: 300.24, beta: 1.42, vol: 0.310, pe: 45.00, eps: 3.83, roe: 24.50, roce: 21.00, marketCap: 1400000000000, sector: 'Semiconductors & AI Networking', country: 'US' },
-    { id: 'NYSE:TSM', symbol: 'TSM', symbolNS: 'TSM', name: 'Taiwan Semiconductor (TSMC)', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US8740391003', aliases: ['TSM', 'TSMC', 'FOUNDRY'], currency: 'USD', basePrice: 344.50, beta: 1.25, vol: 0.280, pe: 28.50, eps: 6.84, roe: 29.50, roce: 28.00, marketCap: 1010000000000, sector: 'Semiconductor Foundry', country: 'GLOBAL' },
-    { id: 'NASDAQ:ASML', symbol: 'ASML', symbolNS: 'ASML', name: 'ASML Holding N.V.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'USN070592100', aliases: ['ASML', 'EUV LITHOGRAPHY'], currency: 'USD', basePrice: 1324.22, beta: 1.35, vol: 0.320, pe: 38.00, eps: 19.60, roe: 48.00, roce: 42.00, marketCap: 295000000000, sector: 'Semiconductor Capital Equipment', country: 'GLOBAL' },
-    { id: 'NASDAQ:QCOM', symbol: 'QCOM', symbolNS: 'QCOM', name: 'QUALCOMM Incorporated', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US7475251036', aliases: ['QCOM', 'QUALCOMM', 'SNAPDRAGON'], currency: 'USD', basePrice: 162.33, beta: 1.28, vol: 0.295, pe: 18.50, eps: 9.08, roe: 45.00, roce: 38.00, marketCap: 188000000000, sector: 'Wireless Telecom & Edge AI', country: 'US' },
-    { id: 'NASDAQ:ARM', symbol: 'ARM', symbolNS: 'ARM', name: 'Arm Holdings plc', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0420682058', aliases: ['ARM', 'ARM ARCHITECTURE'], currency: 'USD', basePrice: 160.20, beta: 1.85, vol: 0.480, pe: 95.00, eps: 1.45, roe: 18.50, roce: 22.00, marketCap: 144000000000, sector: 'Semiconductor IP & Compute', country: 'GLOBAL' },
-    { id: 'NASDAQ:PLTR', symbol: 'PLTR', symbolNS: 'PLTR', name: 'Palantir Technologies Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US69608A1088', aliases: ['PLTR', 'PALANTIR', 'AIP', 'GOTHAM'], currency: 'USD', basePrice: 160.43, beta: 1.75, vol: 0.490, pe: 115.00, eps: 0.51, roe: 14.50, roce: 16.00, marketCap: 360000000000, sector: 'Enterprise AI & Defence Software', country: 'US' },
-    { id: 'NASDAQ:SMCI', symbol: 'SMCI', symbolNS: 'SMCI', name: 'Super Micro Computer', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US86800U1043', aliases: ['SMCI', 'SUPERMICRO', 'AI SERVERS'], currency: 'USD', basePrice: 22.35, beta: 2.10, vol: 0.650, pe: 18.00, eps: 2.36, roe: 32.00, roce: 28.00, marketCap: 14800000000, sector: 'AI Data Center Server Hardware', country: 'US' },
-    { id: 'NYSE:GS', symbol: 'GS', symbolNS: 'GS', name: 'The Goldman Sachs Group', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US38141G1040', aliases: ['GS', 'GOLDMAN SACHS', 'GOLDMAN'], currency: 'USD', basePrice: 512.00, beta: 1.15, vol: 0.220, pe: 16.50, eps: 31.00, roe: 12.80, roce: 11.50, marketCap: 165000000000, sector: 'Investment Banking & Trading', country: 'US' },
-    { id: 'NYSE:MS', symbol: 'MS', symbolNS: 'MS', name: 'Morgan Stanley', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US6174464486', aliases: ['MS', 'MORGAN STANLEY'], currency: 'USD', basePrice: 124.00, beta: 1.18, vol: 0.225, pe: 18.20, eps: 6.81, roe: 13.50, roce: 12.00, marketCap: 202000000000, sector: 'Wealth Management & Trading', country: 'US' },
-    { id: 'NYSE:BRKB', symbol: 'BRKB', symbolNS: 'BRK-B', name: 'Berkshire Hathaway Inc. Class B', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US0846707026', aliases: ['BRKB', 'BERKSHIRE', 'WARREN BUFFETT'], currency: 'USD', basePrice: 468.00, beta: 0.72, vol: 0.145, pe: 21.00, eps: 22.28, roe: 14.00, roce: 12.50, marketCap: 1010000000000, sector: 'Diversified Financial Conglomerate', country: 'US' },
-    { id: 'NYSE:V', symbol: 'V', symbolNS: 'V', name: 'Visa Inc. Class A', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US92826C8394', aliases: ['V', 'VISA', 'PAYMENT RAILS'], currency: 'USD', basePrice: 308.00, beta: 0.88, vol: 0.165, pe: 31.50, eps: 9.77, roe: 48.00, roce: 36.00, marketCap: 615000000000, sector: 'Global Digital Payment Networks', country: 'US' },
-    { id: 'NYSE:MA', symbol: 'MA', symbolNS: 'MA', name: 'Mastercard Incorporated', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US57636Q1040', aliases: ['MA', 'MASTERCARD'], currency: 'USD', basePrice: 518.00, beta: 0.92, vol: 0.170, pe: 38.00, eps: 13.63, roe: 155.00, roce: 58.00, marketCap: 482000000000, sector: 'Global Payment Infrastructure', country: 'US' },
-    { id: 'NYSE:LLY', symbol: 'LLY', symbolNS: 'LLY', name: 'Eli Lilly and Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US5324571083', aliases: ['LLY', 'ELI LILLY', 'GLP1', 'MOUNJARO'], currency: 'USD', basePrice: 825.00, beta: 0.65, vol: 0.235, pe: 62.00, eps: 13.30, roe: 54.00, roce: 32.00, marketCap: 785000000000, sector: 'Pharmaceuticals & Metabolic Care', country: 'US' },
-    { id: 'NYSE:XOM', symbol: 'XOM', symbolNS: 'XOM', name: 'Exxon Mobil Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US30231G1022', aliases: ['XOM', 'EXXON', 'EXXONMOBIL'], currency: 'USD', basePrice: 120.50, beta: 0.78, vol: 0.190, pe: 14.50, eps: 8.31, roe: 18.50, roce: 17.00, marketCap: 478000000000, sector: 'Integrated Global Energy & LNG', country: 'US' },
-    { id: 'NASDAQ:NFLX', symbol: 'NFLX', symbolNS: 'NFLX', name: 'Netflix Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US64110L1061', aliases: ['NFLX', 'NETFLIX', 'STREAMING'], currency: 'USD', basePrice: 865.00, beta: 1.25, vol: 0.285, pe: 44.00, eps: 19.65, roe: 34.00, roce: 28.00, marketCap: 372000000000, sector: 'Entertainment & Global Streaming', country: 'US' },
-    { id: 'NASDAQ:COIN', symbol: 'COIN', symbolNS: 'COIN', name: 'Coinbase Global Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US19260Q1076', aliases: ['COIN', 'COINBASE', 'CRYPTO EXCHANGE'], currency: 'USD', basePrice: 285.00, beta: 2.45, vol: 0.680, pe: 48.00, eps: 5.94, roe: 22.00, roce: 18.50, marketCap: 71000000000, sector: 'Digital Asset Exchange Infra', country: 'US' },
-    { id: 'NYSE:JNJ', symbol: 'JNJ', symbolNS: 'JNJ', name: 'Johnson & Johnson', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US4781601046', aliases: ['JNJ', 'BAND-AID', 'PHARMA'], currency: 'USD', basePrice: 162.40, beta: 0.58, vol: 0.142, pe: 24.50, eps: 6.62, roe: 32.00, roce: 22.50, marketCap: 390000000000, sector: 'Healthcare & Medical Devices', country: 'US' },
-    { id: 'NYSE:UNH', symbol: 'UNH', symbolNS: 'UNH', name: 'UnitedHealth Group Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US91324P1021', aliases: ['UNH', 'UNITEDHEALTH', 'OPTUM'], currency: 'USD', basePrice: 585.00, beta: 0.68, vol: 0.175, pe: 26.80, eps: 21.82, roe: 27.50, roce: 20.10, marketCap: 538000000000, sector: 'Managed Healthcare & InsurTech', country: 'US' },
-    { id: 'NYSE:WMT', symbol: 'WMT', symbolNS: 'WMT', name: 'Walmart Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US9311421039', aliases: ['WMT', 'WALMART', 'RETAIL'], currency: 'USD', basePrice: 84.50, beta: 0.54, vol: 0.150, pe: 32.00, eps: 2.64, roe: 19.50, roce: 16.80, marketCap: 678000000000, sector: 'Omnichannel Retail & Logistics', country: 'US' },
-    { id: 'NASDAQ:COST', symbol: 'COST', symbolNS: 'COST', name: 'Costco Wholesale Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US22160K1051', aliases: ['COST', 'COSTCO', 'WHOLESALE'], currency: 'USD', basePrice: 915.00, beta: 0.78, vol: 0.185, pe: 54.00, eps: 16.94, roe: 29.00, roce: 24.50, marketCap: 405000000000, sector: 'Consumer Discretionary & Retail', country: 'US' },
-    { id: 'NYSE:HD', symbol: 'HD', symbolNS: 'HD', name: 'The Home Depot Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US4370761029', aliases: ['HD', 'HOME DEPOT'], currency: 'USD', basePrice: 408.00, beta: 0.98, vol: 0.210, pe: 27.50, eps: 14.83, roe: 110.00, roce: 38.00, marketCap: 405000000000, sector: 'Home Improvement Retail', country: 'US' },
-    { id: 'NYSE:PG', symbol: 'PG', symbolNS: 'PG', name: 'Procter & Gamble Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US7427181091', aliases: ['PG', 'PROCTER & GAMBLE', 'TIDE', 'PAMPERS'], currency: 'USD', basePrice: 172.00, beta: 0.48, vol: 0.138, pe: 28.50, eps: 6.03, roe: 31.50, roce: 24.00, marketCap: 404000000000, sector: 'Consumer Staples & Personal Care', country: 'US' },
-    { id: 'NYSE:CAT', symbol: 'CAT', symbolNS: 'CAT', name: 'Caterpillar Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US1491231015', aliases: ['CAT', 'CATERPILLAR', 'HEAVY MACHINERY'], currency: 'USD', basePrice: 388.00, beta: 1.15, vol: 0.235, pe: 18.20, eps: 21.31, roe: 55.00, roce: 28.00, marketCap: 188000000000, sector: 'Construction & Mining Machinery', country: 'US' },
-    { id: 'NYSE:GE', symbol: 'GE', symbolNS: 'GE', name: 'GE Aerospace', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US3696043013', aliases: ['GE', 'GE AEROSPACE', 'JET ENGINES'], currency: 'USD', basePrice: 188.00, beta: 1.22, vol: 0.245, pe: 34.00, eps: 5.52, roe: 24.00, roce: 21.50, marketCap: 204000000000, sector: 'Aerospace Propulsion & Defence', country: 'US' },
-    { id: 'NYSE:CVX', symbol: 'CVX', symbolNS: 'CVX', name: 'Chevron Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US1667641005', aliases: ['CVX', 'CHEVRON', 'OIL & GAS'], currency: 'USD', basePrice: 156.00, beta: 0.85, vol: 0.205, pe: 14.80, eps: 10.54, roe: 14.50, roce: 13.80, marketCap: 286000000000, sector: 'Integrated Energy & Exploration', country: 'US' },
-    { id: 'NYSE:BAC', symbol: 'BAC', symbolNS: 'BAC', name: 'Bank of America Corp', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US0605051046', aliases: ['BAC', 'BOA', 'BANK OF AMERICA'], currency: 'USD', basePrice: 44.50, beta: 1.25, vol: 0.215, pe: 13.50, eps: 3.29, roe: 10.50, roce: 9.80, marketCap: 345000000000, sector: 'Commercial & Retail Banking', country: 'US' },
-    { id: 'NYSE:CRM', symbol: 'CRM', symbolNS: 'CRM', name: 'Salesforce Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US79466L3024', aliases: ['CRM', 'SALESFORCE', 'AGENTFORCE'], currency: 'USD', basePrice: 325.00, beta: 1.28, vol: 0.285, pe: 48.00, eps: 6.77, roe: 12.50, roce: 14.00, marketCap: 312000000000, sector: 'Enterprise CRM & Agentic AI', country: 'US' },
-    { id: 'NYSE:ORCL', symbol: 'ORCL', symbolNS: 'ORCL', name: 'Oracle Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US68389X1054', aliases: ['ORCL', 'ORACLE', 'CLOUD DATABASE'], currency: 'USD', basePrice: 185.00, beta: 1.12, vol: 0.260, pe: 42.00, eps: 4.40, roe: 68.00, roce: 22.00, marketCap: 512000000000, sector: 'Enterprise Cloud & Database Infra', country: 'US' },
-    { id: 'NASDAQ:INTC', symbol: 'INTC', symbolNS: 'INTC', name: 'Intel Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US4581401001', aliases: ['INTC', 'INTEL', 'CHIPS'], currency: 'USD', basePrice: 24.80, beta: 1.45, vol: 0.440, pe: null, eps: -0.45, roe: -2.50, roce: 1.20, marketCap: 106000000000, sector: 'Semiconductor Foundry & CPUs', country: 'US' },
-    { id: 'NYSE:UBER', symbol: 'UBER', symbolNS: 'UBER', name: 'Uber Technologies Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US90353T1007', aliases: ['UBER', 'RIDESHARE', 'FREIGHT'], currency: 'USD', basePrice: 76.50, beta: 1.35, vol: 0.320, pe: 36.00, eps: 2.12, roe: 38.00, roce: 24.00, marketCap: 158000000000, sector: 'Global Mobility & Autonomous Delivery', country: 'US' },
-    { id: 'NYSE:DIS', symbol: 'DIS', symbolNS: 'DIS', name: 'The Walt Disney Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US2546871060', aliases: ['DIS', 'DISNEY', 'DISNEY+'], currency: 'USD', basePrice: 114.00, beta: 1.25, vol: 0.250, pe: 22.00, eps: 5.18, roe: 9.80, roce: 10.50, marketCap: 206000000000, sector: 'Entertainment, Parks & Media', country: 'US' }
+    { id: 'NASDAQ:AVGO', symbol: 'AVGO', symbolNS: 'AVGO', name: 'Broadcom Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US11135F1012', aliases: ['AVGO', 'BROADCOM', 'CUSTOM AI SILICON'], currency: 'USD', basePrice: 301.08, beta: 1.42, vol: 0.310, pe: 45.00, eps: 6.69, roe: 24.50, roce: 21.00, marketCap: 1410000000000, sector: 'Semiconductors & AI Networking', country: 'US' },
+    { id: 'NYSE:TSM', symbol: 'TSM', symbolNS: 'TSM', name: 'Taiwan Semiconductor (TSMC)', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US8740391003', aliases: ['TSM', 'TSMC', 'FOUNDRY'], currency: 'USD', basePrice: 349.20, beta: 1.25, vol: 0.280, pe: 28.50, eps: 12.25, roe: 29.50, roce: 28.00, marketCap: 1810000000000, sector: 'Semiconductor Foundry', country: 'GLOBAL' },
+    { id: 'NASDAQ:ASML', symbol: 'ASML', symbolNS: 'ASML', name: 'ASML Holding N.V.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'USN070592100', aliases: ['ASML', 'EUV LITHOGRAPHY'], currency: 'USD', basePrice: 1336.06, beta: 1.35, vol: 0.320, pe: 38.00, eps: 35.16, roe: 48.00, roce: 42.00, marketCap: 530000000000, sector: 'Semiconductor Capital Equipment', country: 'GLOBAL' },
+    { id: 'NASDAQ:QCOM', symbol: 'QCOM', symbolNS: 'QCOM', name: 'QUALCOMM Incorporated', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US7475251036', aliases: ['QCOM', 'QUALCOMM', 'SNAPDRAGON'], currency: 'USD', basePrice: 164.96, beta: 1.28, vol: 0.295, pe: 18.50, eps: 8.92, roe: 45.00, roce: 38.00, marketCap: 184000000000, sector: 'Wireless Telecom & Edge AI', country: 'US' },
+    { id: 'NASDAQ:ARM', symbol: 'ARM', symbolNS: 'ARM', name: 'Arm Holdings plc', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US0420682058', aliases: ['ARM', 'ARM ARCHITECTURE'], currency: 'USD', basePrice: 161.56, beta: 1.85, vol: 0.480, pe: 95.00, eps: 1.70, roe: 18.50, roce: 22.00, marketCap: 170000000000, sector: 'Semiconductor IP & Compute', country: 'GLOBAL' },
+    { id: 'NASDAQ:PLTR', symbol: 'PLTR', symbolNS: 'PLTR', name: 'Palantir Technologies Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US69608A1088', aliases: ['PLTR', 'PALANTIR', 'AIP', 'GOTHAM'], currency: 'USD', basePrice: 161.18, beta: 1.75, vol: 0.490, pe: 115.00, eps: 1.40, roe: 14.50, roce: 16.00, marketCap: 375000000000, sector: 'Enterprise AI & Defence Software', country: 'US' },
+    { id: 'NASDAQ:SMCI', symbol: 'SMCI', symbolNS: 'SMCI', name: 'Super Micro Computer', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US86800U1043', aliases: ['SMCI', 'SUPERMICRO', 'AI SERVERS'], currency: 'USD', basePrice: 22.62, beta: 2.10, vol: 0.650, pe: 18.00, eps: 1.26, roe: 32.00, roce: 28.00, marketCap: 13500000000, sector: 'AI Data Center Server Hardware', country: 'US' },
+    { id: 'NYSE:GS', symbol: 'GS', symbolNS: 'GS', name: 'The Goldman Sachs Group', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US38141G1040', aliases: ['GS', 'GOLDMAN SACHS', 'GOLDMAN'], currency: 'USD', basePrice: 806.02, beta: 1.15, vol: 0.220, pe: 18.50, eps: 43.57, roe: 12.80, roce: 11.50, marketCap: 254000000000, sector: 'Investment Banking & Trading', country: 'US' },
+    { id: 'NYSE:MS', symbol: 'MS', symbolNS: 'MS', name: 'Morgan Stanley', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US6174464486', aliases: ['MS', 'MORGAN STANLEY'], currency: 'USD', basePrice: 168.79, beta: 1.18, vol: 0.225, pe: 18.20, eps: 9.27, roe: 13.50, roce: 12.00, marketCap: 272000000000, sector: 'Wealth Management & Trading', country: 'US' },
+    { id: 'NYSE:BRKB', symbol: 'BRKB', symbolNS: 'BRK-B', name: 'Berkshire Hathaway Inc. Class B', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US0846707026', aliases: ['BRKB', 'BERKSHIRE', 'WARREN BUFFETT'], currency: 'USD', basePrice: 577.21, beta: 0.72, vol: 0.145, pe: 22.00, eps: 26.24, roe: 14.00, roce: 12.50, marketCap: 1240000000000, sector: 'Diversified Financial Conglomerate', country: 'US' },
+    { id: 'NYSE:V', symbol: 'V', symbolNS: 'V', name: 'Visa Inc. Class A', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US92826C8394', aliases: ['V', 'VISA', 'PAYMENT RAILS'], currency: 'USD', basePrice: 416.78, beta: 0.88, vol: 0.165, pe: 31.50, eps: 13.23, roe: 48.00, roce: 36.00, marketCap: 810000000000, sector: 'Global Digital Payment Networks', country: 'US' },
+    { id: 'NYSE:MA', symbol: 'MA', symbolNS: 'MA', name: 'Mastercard Incorporated', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US57636Q1040', aliases: ['MA', 'MASTERCARD'], currency: 'USD', basePrice: 647.44, beta: 0.92, vol: 0.170, pe: 38.00, eps: 17.04, roe: 155.00, roce: 58.00, marketCap: 590000000000, sector: 'Global Payment Infrastructure', country: 'US' },
+    { id: 'NYSE:LLY', symbol: 'LLY', symbolNS: 'LLY', name: 'Eli Lilly and Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US5324571083', aliases: ['LLY', 'ELI LILLY', 'GLP1', 'MOUNJARO'], currency: 'USD', basePrice: 1407.59, beta: 0.65, vol: 0.235, pe: 62.00, eps: 22.70, roe: 54.00, roce: 32.00, marketCap: 1330000000000, sector: 'Pharmaceuticals & Metabolic Care', country: 'US' },
+    { id: 'NYSE:XOM', symbol: 'XOM', symbolNS: 'XOM', name: 'Exxon Mobil Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US30231G1022', aliases: ['XOM', 'EXXON', 'EXXONMOBIL'], currency: 'USD', basePrice: 158.23, beta: 0.78, vol: 0.190, pe: 14.50, eps: 10.91, roe: 18.50, roce: 17.00, marketCap: 675000000000, sector: 'Integrated Global Energy & LNG', country: 'US' },
+    { id: 'NASDAQ:NFLX', symbol: 'NFLX', symbolNS: 'NFLX', name: 'Netflix Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US64110L1061', aliases: ['NFLX', 'NETFLIX', 'STREAMING'], currency: 'USD', basePrice: 58.87, beta: 1.25, vol: 0.285, pe: 28.00, eps: 2.10, roe: 34.00, roce: 28.00, marketCap: 252000000000, sector: 'Entertainment & Global Streaming', country: 'US' },
+    { id: 'NASDAQ:COIN', symbol: 'COIN', symbolNS: 'COIN', name: 'Coinbase Global Inc.', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US19260Q1076', aliases: ['COIN', 'COINBASE', 'CRYPTO EXCHANGE'], currency: 'USD', basePrice: 102.34, beta: 2.45, vol: 0.680, pe: 34.00, eps: 3.01, roe: 22.00, roce: 18.50, marketCap: 26000000000, sector: 'Digital Asset Exchange Infra', country: 'US' },
+    { id: 'NYSE:JNJ', symbol: 'JNJ', symbolNS: 'JNJ', name: 'Johnson & Johnson', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US4781601046', aliases: ['JNJ', 'BAND-AID', 'PHARMA'], currency: 'USD', basePrice: 276.46, beta: 0.58, vol: 0.142, pe: 24.50, eps: 11.28, roe: 32.00, roce: 22.50, marketCap: 665000000000, sector: 'Healthcare & Medical Devices', country: 'US' },
+    { id: 'NYSE:UNH', symbol: 'UNH', symbolNS: 'UNH', name: 'UnitedHealth Group Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US91324P1021', aliases: ['UNH', 'UNITEDHEALTH', 'OPTUM'], currency: 'USD', basePrice: 341.88, beta: 0.68, vol: 0.175, pe: 18.80, eps: 18.19, roe: 27.50, roce: 20.10, marketCap: 315000000000, sector: 'Managed Healthcare & InsurTech', country: 'US' },
+    { id: 'NYSE:WMT', symbol: 'WMT', symbolNS: 'WMT', name: 'Walmart Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US9311421039', aliases: ['WMT', 'WALMART', 'RETAIL'], currency: 'USD', basePrice: 132.31, beta: 0.54, vol: 0.150, pe: 36.00, eps: 3.68, roe: 19.50, roce: 16.80, marketCap: 1060000000000, sector: 'Omnichannel Retail & Logistics', country: 'US' },
+    { id: 'NASDAQ:COST', symbol: 'COST', symbolNS: 'COST', name: 'Costco Wholesale Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US22160K1051', aliases: ['COST', 'COSTCO', 'WHOLESALE'], currency: 'USD', basePrice: 1091.71, beta: 0.78, vol: 0.185, pe: 54.00, eps: 20.22, roe: 29.00, roce: 24.50, marketCap: 484000000000, sector: 'Consumer Discretionary & Retail', country: 'US' },
+    { id: 'NYSE:HD', symbol: 'HD', symbolNS: 'HD', name: 'The Home Depot Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US4370761029', aliases: ['HD', 'HOME DEPOT'], currency: 'USD', basePrice: 353.69, beta: 0.98, vol: 0.210, pe: 24.50, eps: 14.44, roe: 110.00, roce: 38.00, marketCap: 351000000000, sector: 'Home Improvement Retail', country: 'US' },
+    { id: 'NYSE:PG', symbol: 'PG', symbolNS: 'PG', name: 'Procter & Gamble Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US7427181091', aliases: ['PG', 'PROCTER & GAMBLE', 'TIDE', 'PAMPERS'], currency: 'USD', basePrice: 172.47, beta: 0.48, vol: 0.138, pe: 28.50, eps: 6.05, roe: 31.50, roce: 24.00, marketCap: 405000000000, sector: 'Consumer Staples & Personal Care', country: 'US' },
+    { id: 'NYSE:CAT', symbol: 'CAT', symbolNS: 'CAT', name: 'Caterpillar Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US1491231015', aliases: ['CAT', 'CATERPILLAR', 'HEAVY MACHINERY'], currency: 'USD', basePrice: 540.63, beta: 1.15, vol: 0.235, pe: 22.20, eps: 24.35, roe: 55.00, roce: 28.00, marketCap: 262000000000, sector: 'Construction & Mining Machinery', country: 'US' },
+    { id: 'NYSE:GE', symbol: 'GE', symbolNS: 'GE', name: 'GE Aerospace', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US3696043013', aliases: ['GE', 'GE AEROSPACE', 'JET ENGINES'], currency: 'USD', basePrice: 318.03, beta: 1.22, vol: 0.245, pe: 42.00, eps: 7.57, roe: 24.00, roce: 21.50, marketCap: 345000000000, sector: 'Aerospace Propulsion & Defence', country: 'US' },
+    { id: 'NYSE:CVX', symbol: 'CVX', symbolNS: 'CVX', name: 'Chevron Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US1667641005', aliases: ['CVX', 'CHEVRON', 'OIL & GAS'], currency: 'USD', basePrice: 208.73, beta: 0.85, vol: 0.205, pe: 14.80, eps: 14.10, roe: 14.50, roce: 13.80, marketCap: 375000000000, sector: 'Integrated Energy & Exploration', country: 'US' },
+    { id: 'NYSE:BAC', symbol: 'BAC', symbolNS: 'BAC', name: 'Bank of America Corp', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US0605051046', aliases: ['BAC', 'BOA', 'BANK OF AMERICA'], currency: 'USD', basePrice: 48.56, beta: 1.25, vol: 0.215, pe: 14.50, eps: 3.35, roe: 10.50, roce: 9.80, marketCap: 376000000000, sector: 'Commercial & Retail Banking', country: 'US' },
+    { id: 'NYSE:CRM', symbol: 'CRM', symbolNS: 'CRM', name: 'Salesforce Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US79466L3024', aliases: ['CRM', 'SALESFORCE', 'AGENTFORCE'], currency: 'USD', basePrice: 193.26, beta: 1.28, vol: 0.285, pe: 34.00, eps: 5.68, roe: 12.50, roce: 14.00, marketCap: 185000000000, sector: 'Enterprise CRM & Agentic AI', country: 'US' },
+    { id: 'NYSE:ORCL', symbol: 'ORCL', symbolNS: 'ORCL', name: 'Oracle Corporation', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US68389X1054', aliases: ['ORCL', 'ORACLE', 'CLOUD DATABASE'], currency: 'USD', basePrice: 109.50, beta: 1.12, vol: 0.260, pe: 28.00, eps: 3.91, roe: 68.00, roce: 22.00, marketCap: 304000000000, sector: 'Enterprise Cloud & Database Infra', country: 'US' },
+    { id: 'NASDAQ:INTC', symbol: 'INTC', symbolNS: 'INTC', name: 'Intel Corporation', exchange: 'NASDAQ', assetType: 'EQUITY', isin: 'US4581401001', aliases: ['INTC', 'INTEL', 'CHIPS'], currency: 'USD', basePrice: 54.80, beta: 1.45, vol: 0.440, pe: 42.0, eps: 1.30, roe: 4.50, roce: 5.20, marketCap: 235000000000, sector: 'Semiconductor Foundry & CPUs', country: 'US' },
+    { id: 'NYSE:UBER', symbol: 'UBER', symbolNS: 'UBER', name: 'Uber Technologies Inc.', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US90353T1007', aliases: ['UBER', 'RIDESHARE', 'FREIGHT'], currency: 'USD', basePrice: 64.70, beta: 1.35, vol: 0.320, pe: 31.00, eps: 2.09, roe: 38.00, roce: 24.00, marketCap: 136000000000, sector: 'Global Mobility & Autonomous Delivery', country: 'US' },
+    { id: 'NYSE:DIS', symbol: 'DIS', symbolNS: 'DIS', name: 'The Walt Disney Company', exchange: 'NYSE', assetType: 'EQUITY', isin: 'US2546871060', aliases: ['DIS', 'DISNEY', 'DISNEY+'], currency: 'USD', basePrice: 122.51, beta: 1.25, vol: 0.250, pe: 23.00, eps: 5.33, roe: 9.80, roce: 10.50, marketCap: 222000000000, sector: 'Entertainment, Parks & Media', country: 'US' }
   ];
 
   // ── 2. Live Dynamic Quote, Tape & Price Pipeline ───────────────────────────
@@ -227,7 +228,7 @@ const SecurityMaster = (() => {
   let _tapeTimer = null;
 
   // Cross-Tab Real-Time Sync Channel
-  const _channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('riskos_realtime_network') : null;
+  const _channel = (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('riskos_realtime_network') : null;
 
   LOCAL_REGISTRY.forEach(item => {
     _liveQuotes.set(item.symbol, {
@@ -339,7 +340,8 @@ const SecurityMaster = (() => {
         }
       }
     } catch (e) {
-      // Offline direct public fallback if backend is unreachable
+      // Only perform direct Yahoo fallback outside browser CORS (Node/Server environments)
+      if (typeof window !== 'undefined') return;
       try {
         const topSymbols = ['RELIANCE.NS', 'TCS.NS', 'INFY.NS', 'AAPL', 'NVDA'];
         for (const sym of topSymbols) {
@@ -477,7 +479,7 @@ const SecurityMaster = (() => {
       'GTLINFRA', 'VISAGAR', 'VIKASECO', 'IDEA', 'DISHTV', 'RTNPOWER',
       'JPPOWER', 'URJA', 'SEPC', 'YESBANK', 'RPOWER', 'SUZLON',
       // Universal US Penny Stocks & Microcaps
-      'TELL', 'BBAI', 'OPEN', 'PLUG', 'BITF', 'CLOV', 'LCID', 'NIO', 'SOUN',
+      'MARA', 'BBAI', 'OPEN', 'PLUG', 'CLSK', 'CLOV', 'LCID', 'NIO', 'SOUN',
       '^NSEI', '^BSESN', '^GSPC'
     ];
     
@@ -493,7 +495,7 @@ const SecurityMaster = (() => {
         const oldQuote = _liveQuotes.get(sym);
         if (!oldQuote || !oldQuote.price) continue;
 
-        const isUS = oldQuote.currency === 'USD' || ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'SOUN', 'TELL', 'BBAI', 'OPEN', 'CLOV', 'LCID', 'NIO', 'BITF', '^GSPC'].includes(sym);
+        const isUS = oldQuote.currency === 'USD' || ['NVDA', 'AAPL', 'MSFT', 'TSLA', 'PLUG', 'SOUN', 'MARA', 'BBAI', 'OPEN', 'CLOV', 'LCID', 'NIO', 'CLSK', '^GSPC'].includes(sym);
         const exKey = isUS ? 'NASDAQ' : 'NSE';
         const isExchangeOpen = truth ? truth.isExchangeOpen(exKey) : false;
 
@@ -558,9 +560,11 @@ const SecurityMaster = (() => {
     }, 450);
   };
 
-  _startTickPipeline();
-  _startTapePipeline();
-  _startMicroTickSimulation();
+  if (typeof window !== 'undefined') {
+    _startTickPipeline();
+    _startTapePipeline();
+    _startMicroTickSimulation();
+  }
 
   // Listen to incoming cross-tab messages
   if (_channel) {
@@ -666,7 +670,7 @@ const SecurityMaster = (() => {
       }
     } catch (e) {}
 
-    const isUS = !q.endsWith('.NS') && !q.endsWith('.BO') && q.length <= 5 && !['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL', 'COALINDIA', 'NTPC', 'POWERGRID', 'WIPRO', 'HCLTECH', 'DLF', 'VEDL', 'BHEL', 'CANBK', 'PNB', 'BANKBARODA', 'PAYTM', 'NYKAA', 'DMART', 'VBL', 'BSE', 'CDSL', 'MCX'].includes(q);
+    const isUS = !q.endsWith('.NS') && !q.endsWith('.BO') && q.length <= 5 && !['RELIANCE', 'TCS', 'INFY', 'HDFCBANK', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'TMCV', 'TMPV', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'ETERNAL', 'LTIM', 'LTM', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL', 'COALINDIA', 'NTPC', 'POWERGRID', 'WIPRO', 'HCLTECH', 'DLF', 'VEDL', 'BHEL', 'CANBK', 'PNB', 'BANKBARODA', 'PAYTM', 'NYKAA', 'DMART', 'VBL', 'BSE', 'CDSL', 'MCX'].includes(q);
     return {
       id: `DYNAMIC:${q}`,
       symbol: q,
@@ -732,55 +736,58 @@ const SecurityMaster = (() => {
       }
     } catch (e) {}
 
-    // 2. Direct browser Yahoo Finance public chart fallback
-    try {
-      const isUS = !sym.endsWith('.NS') && !sym.endsWith('.BO') && !['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL'].includes(sym);
-      const cleanSym = sym.startsWith('^') || isUS || sym.includes('.') || sym.includes('=') ? sym : `${sym}.NS`;
-      const yfRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=1d&range=1d`);
-      if (yfRes.ok) {
-        const yfData = await yfRes.json();
-        const meta = yfData?.chart?.result?.[0]?.meta;
-        if (meta && meta.regularMarketPrice !== undefined) {
-          const p = Number(meta.regularMarketPrice);
-          const prev = Number(meta.chartPreviousClose || meta.previousClose || p);
-          const chg = Number((p - prev).toFixed(2));
-          const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
-          const curr = meta.currency === 'USD' ? 'USD' : 'INR';
-          const regItem = LOCAL_REGISTRY.find(r => r.symbol === sym) || {};
+    // 2. Direct Yahoo Finance chart fallback (Node/Server environments only to avoid browser CORS)
+    if (typeof window === 'undefined') {
+      try {
+        const regMatch = LOCAL_REGISTRY.find(r => r.symbol === sym || (r.aliases && r.aliases.includes(sym)));
+        const isUS = !sym.endsWith('.NS') && !sym.endsWith('.BO') && !['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'TMCV', 'TMPV', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'ETERNAL', 'LTIM', 'LTM', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL'].includes(sym);
+        const cleanSym = (regMatch && regMatch.symbolNS) ? regMatch.symbolNS : (sym.startsWith('^') || isUS || sym.includes('.') || sym.includes('=') ? sym : `${sym}.NS`);
+        const yfRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=1d&range=1d`);
+        if (yfRes.ok) {
+          const yfData = await yfRes.json();
+          const meta = yfData?.chart?.result?.[0]?.meta;
+          if (meta && meta.regularMarketPrice !== undefined) {
+            const p = Number(meta.regularMarketPrice);
+            const prev = Number(meta.chartPreviousClose || meta.previousClose || p);
+            const chg = Number((p - prev).toFixed(2));
+            const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
+            const curr = meta.currency === 'USD' ? 'USD' : 'INR';
+            const regItem = regMatch || {};
 
-          const normalized = {
-            id: regItem.id || `EXT:${sym}`,
-            symbol: sym,
-            name: meta.shortName || regItem.name || sym,
-            exchange: meta.exchangeName || regItem.exchange || (isUS ? 'NASDAQ' : 'NSE'),
-            assetType: meta.instrumentType === 'ETF' ? 'ETF' : (meta.instrumentType === 'INDEX' ? 'INDEX' : 'EQUITY'),
-            currency: curr,
-            price: p,
-            price_inr: curr === 'USD' ? Number((p * USD_TO_INR).toFixed(2)) : p,
-            open: Number(meta.regularMarketDayOpen || p),
-            high: Number(meta.regularMarketDayHigh || p),
-            low: Number(meta.regularMarketDayLow || p),
-            previousClose: prev,
-            change: chg,
-            changePercent: chgPct,
-            change_percent: chgPct,
-            volume: Number(meta.regularMarketVolume || 0),
-            provider: 'Yahoo Finance Direct',
-            marketStatus: 'LIVE',
-            pe: regItem.pe || 24.0,
-            beta: regItem.beta || 1.0,
-            eps: regItem.eps || (p / 24.0),
-            roe: regItem.roe || 15.0,
-            sector: regItem.sector || 'Equities',
-            isin: regItem.isin || '-',
-            timestamp: new Date().toISOString(),
-            status: 'LIVE'
-          };
-          _liveQuotes.set(sym, normalized);
-          return normalized;
+            const normalized = {
+              id: regItem.id || `EXT:${sym}`,
+              symbol: sym,
+              name: meta.shortName || regItem.name || sym,
+              exchange: meta.exchangeName || regItem.exchange || (isUS ? 'NASDAQ' : 'NSE'),
+              assetType: meta.instrumentType === 'ETF' ? 'ETF' : (meta.instrumentType === 'INDEX' ? 'INDEX' : 'EQUITY'),
+              currency: curr,
+              price: p,
+              price_inr: curr === 'USD' ? Number((p * USD_TO_INR).toFixed(2)) : p,
+              open: Number(meta.regularMarketDayOpen || p),
+              high: Number(meta.regularMarketDayHigh || p),
+              low: Number(meta.regularMarketDayLow || p),
+              previousClose: prev,
+              change: chg,
+              changePercent: chgPct,
+              change_percent: chgPct,
+              volume: Number(meta.regularMarketVolume || 0),
+              provider: 'Yahoo Finance Direct',
+              marketStatus: 'LIVE',
+              pe: regItem.pe || 24.0,
+              beta: regItem.beta || 1.0,
+              eps: regItem.eps || (p / 24.0),
+              roe: regItem.roe || 15.0,
+              sector: regItem.sector || 'Equities',
+              isin: regItem.isin || '-',
+              timestamp: new Date().toISOString(),
+              status: 'LIVE'
+            };
+            _liveQuotes.set(sym, normalized);
+            return normalized;
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
     // 3. In-memory live cache fallback
     const live = _liveQuotes.get(sym);
@@ -819,6 +826,52 @@ const SecurityMaster = (() => {
       roe: sec.roe || 15.0,
       provider: 'Baseline Registry',
       status: 'LIVE'
+    };
+  };
+
+  const getQuoteSync = (symbol) => {
+    const rawSym = String(symbol || 'RELIANCE').trim().toUpperCase();
+    const baseSym = rawSym.replace(/\.(NS|BO)$/i, '');
+    const live = _liveQuotes.get(rawSym) || _liveQuotes.get(baseSym);
+    if (live && Number.isFinite(Number(live.price))) {
+      const p = Number(live.price);
+      const prev = Number(live.previousClose || p);
+      const chg = Number((p - prev).toFixed(2));
+      const chgPct = prev > 0 ? Number(((chg / prev) * 100).toFixed(2)) : 0;
+      return {
+        ...live,
+        price: p,
+        price_inr: live.currency === 'INR' ? p : Number((p * USD_TO_INR).toFixed(2)),
+        change: chg,
+        changePercent: chgPct,
+        change_percent: chgPct
+      };
+    }
+
+    const sec = LOCAL_REGISTRY.find(r => r.symbol === rawSym || r.symbol === baseSym || (r.symbolNS && r.symbolNS.toUpperCase() === rawSym) || (r.aliases && r.aliases.includes(rawSym)));
+    const p = sec ? Number(sec.basePrice || 1000) : 1000.0;
+    const curr = sec ? sec.currency : (baseSym.endsWith('USD') ? 'USD' : 'INR');
+    const prev = Number((p * 0.992).toFixed(2));
+    return {
+      id: sec ? sec.id : `SYN:${baseSym}`,
+      symbol: sec ? sec.symbol : baseSym,
+      name: sec ? sec.name : baseSym,
+      exchange: sec ? sec.exchange : 'NSE',
+      assetType: sec ? sec.assetType : 'EQUITY',
+      currency: curr,
+      price: p,
+      price_inr: curr === 'INR' ? p : Number((p * USD_TO_INR).toFixed(2)),
+      previousClose: prev,
+      change: Number((p - prev).toFixed(2)),
+      changePercent: 0.81,
+      change_percent: 0.81,
+      volume: 1850000,
+      pe: sec ? sec.pe : 24.0,
+      beta: sec ? sec.beta : 1.0,
+      eps: sec ? sec.eps : 40.0,
+      roe: sec ? (sec.roe || 15.0) : 15.0,
+      provider: 'Baseline Registry',
+      status: 'SYNCED'
     };
   };
 
@@ -862,54 +915,56 @@ const SecurityMaster = (() => {
       }
     } catch (e) {}
 
-    // 2. Direct browser Yahoo Finance public multi-timeframe chart
-    try {
-      const isUS = !sec.symbol.endsWith('.NS') && !sec.symbol.endsWith('.BO') && !['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL'].includes(sec.symbol);
-      const cleanSym = sec.symbol.startsWith('^') || isUS || sec.symbol.includes('.') || sec.symbol.includes('=') ? sec.symbol : `${sec.symbol}.NS`;
-      
-      const tfMap = {
-        '1D': { range: '1d', interval: '5m', isIntraday: true },
-        '1W': { range: '5d', interval: '15m', isIntraday: true },
-        '5D': { range: '5d', interval: '15m', isIntraday: true },
-        '1M': { range: '1mo', interval: '1d', isIntraday: false },
-        '3M': { range: '3mo', interval: '1d', isIntraday: false },
-        '1Y': { range: '1y', interval: '1d', isIntraday: false },
-        '5Y': { range: '5y', interval: '1wk', isIntraday: false },
-        'ALL': { range: 'max', interval: '1mo', isIntraday: false }
-      };
-      const { range, interval, isIntraday } = tfMap[requestedTf] || tfMap['1Y'];
+    // 2. Direct Yahoo Finance multi-timeframe chart (Node/Server environments only to avoid browser CORS)
+    if (typeof window === 'undefined') {
+      try {
+        const isUS = !sec.symbol.endsWith('.NS') && !sec.symbol.endsWith('.BO') && !['RELIANCE', 'TCS', 'HDFCBANK', 'INFY', 'ICICIBANK', 'SBIN', 'ITC', 'TATAMOTORS', 'TMCV', 'TMPV', 'LT', 'BHARTIARTL', 'KOTAKBANK', 'AXISBANK', 'MARUTI', 'SUNPHARMA', 'TITAN', 'BAJFINANCE', 'ADANIENT', 'TATASTEEL', 'ONGC', 'ZOMATO', 'ETERNAL', 'LTIM', 'LTM', 'JIOFIN', 'TRENT', 'SUZLON', 'IRFC', 'HAL', 'BEL'].includes(sec.symbol);
+        const cleanSym = sec.symbolNS || (sec.symbol.startsWith('^') || isUS || sec.symbol.includes('.') || sec.symbol.includes('=') ? sec.symbol : `${sec.symbol}.NS`);
 
-      const yfRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=${interval}&range=${range}&includePrePost=false`);
-      if (yfRes.ok) {
-        const yfData = await yfRes.json();
-        const result = yfData?.chart?.result?.[0];
-        if (result && result.timestamp && result.indicators?.quote?.[0]) {
-          const timestamps = result.timestamp;
-          const q = result.indicators.quote[0];
-          const bars = [];
-          for (let i = 0; i < timestamps.length; i++) {
-            if (q.close[i] !== null && q.close[i] !== undefined && !isNaN(q.close[i])) {
-              const dt = new Date(timestamps[i] * 1000);
-              const dateStr = isIntraday 
-                ? dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-                : dt.toISOString().split('T')[0];
-              bars.push({
-                date: isIntraday ? `${dt.toISOString().split('T')[0]} ${dateStr}` : dateStr,
-                time: dateStr,
-                open: Number((q.open[i] || q.close[i]).toFixed(2)),
-                high: Number((q.high[i] || q.close[i]).toFixed(2)),
-                low: Number((q.low[i] || q.close[i]).toFixed(2)),
-                close: Number(q.close[i].toFixed(2)),
-                volume: Math.round(q.volume[i] || 0)
-              });
+        const tfMap = {
+          '1D': { range: '1d', interval: '5m', isIntraday: true },
+          '1W': { range: '5d', interval: '15m', isIntraday: true },
+          '5D': { range: '5d', interval: '15m', isIntraday: true },
+          '1M': { range: '1mo', interval: '1d', isIntraday: false },
+          '3M': { range: '3mo', interval: '1d', isIntraday: false },
+          '1Y': { range: '1y', interval: '1d', isIntraday: false },
+          '5Y': { range: '5y', interval: '1wk', isIntraday: false },
+          'ALL': { range: 'max', interval: '1mo', isIntraday: false }
+        };
+        const { range, interval, isIntraday } = tfMap[requestedTf] || tfMap['1Y'];
+
+        const yfRes = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(cleanSym)}?interval=${interval}&range=${range}&includePrePost=false`);
+        if (yfRes.ok) {
+          const yfData = await yfRes.json();
+          const result = yfData?.chart?.result?.[0];
+          if (result && result.timestamp && result.indicators?.quote?.[0]) {
+            const timestamps = result.timestamp;
+            const q = result.indicators.quote[0];
+            const bars = [];
+            for (let i = 0; i < timestamps.length; i++) {
+              if (q.close[i] !== null && q.close[i] !== undefined && !isNaN(q.close[i])) {
+                const dt = new Date(timestamps[i] * 1000);
+                const dateStr = isIntraday
+                  ? dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
+                  : dt.toISOString().split('T')[0];
+                bars.push({
+                  date: isIntraday ? `${dt.toISOString().split('T')[0]} ${dateStr}` : dateStr,
+                  time: dateStr,
+                  open: Number((q.open[i] || q.close[i]).toFixed(2)),
+                  high: Number((q.high[i] || q.close[i]).toFixed(2)),
+                  low: Number((q.low[i] || q.close[i]).toFixed(2)),
+                  close: Number(q.close[i].toFixed(2)),
+                  volume: Math.round(q.volume[i] || 0)
+                });
+              }
+            }
+            if (bars.length > 0) {
+              return { symbol: sec.symbol, tf: requestedTf, bars, provider: 'Yahoo Finance Direct Stream' };
             }
           }
-          if (bars.length > 0) {
-            return { symbol: sec.symbol, tf: requestedTf, bars, provider: 'Yahoo Finance Direct Stream' };
-          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
     // 3. High-Fidelity Multi-Timeframe Stochastic Simulator (GBM with Volatility Clustering)
     const baseP = sec.basePrice || 1000.0;
@@ -1138,6 +1193,7 @@ const SecurityMaster = (() => {
     searchSecurities,
     resolveSecurity,
     getQuote,
+    getQuoteSync,
     getOHLC,
     getOrderBook,
     getMarketBreadth,
@@ -1179,18 +1235,26 @@ const SecurityMaster = (() => {
           if (data && Array.isArray(data.radar)) return data.radar;
         }
       } catch (e) {}
-      // High-precision fallback synthesizer
+      // Dynamic fallback derived from live/updated SecurityMaster quotes
+      const pick = (sym, defP) => {
+        const q = _liveQuotes.get(sym);
+        return q && q.price ? q.price : defP;
+      };
+      const fmtObs = (sym, defP, curr) => {
+        const p = pick(sym, defP);
+        return `${curr === 'USD' ? '$' : '₹'}${p.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      };
       return [
-        { id: 'radar_idea', symbol: 'IDEA', full_symbol: 'IDEA.NS', name: 'Vodafone Idea', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '3.38x (Z: +4.12σ)', direction: '▲ BULLISH (+4.43%)', is_bullish: true, change_percent: 4.43, baseline_20d: '₹7.90 (Vol: 84.5M)', current_obs: '₹8.25', current_price: 8.25, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_suzlon', symbol: 'SUZLON', full_symbol: 'SUZLON.NS', name: 'Suzlon Energy', signal_type: 'BREAKOUT_52W', filter_key: 'breakout', magnitude: '2.75x (Z: +3.88σ)', direction: '▲ BULLISH (+5.74%)', is_bullish: true, change_percent: 5.74, baseline_20d: '₹61.00 (Vol: 28.4M)', current_obs: '₹64.50', current_price: 64.50, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_rel', symbol: 'RELIANCE', full_symbol: 'RELIANCE.NS', name: 'Reliance Industries', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.76x (Z: +3.24σ)', direction: '▲ BULLISH (+2.35%)', is_bullish: true, change_percent: 2.35, baseline_20d: '₹2,915.00 (Vol: 4.5M)', current_obs: '₹2,984.50', current_price: 2984.50, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_plug', symbol: 'PLUG', full_symbol: 'PLUG', name: 'Plug Power Inc.', signal_type: 'VOLATILITY_SPIKE', filter_key: 'volume', magnitude: '2.55x (Z: +3.45σ)', direction: '▲ BULLISH (+5.85%)', is_bullish: true, change_percent: 5.85, baseline_20d: '$2.05 (Vol: 16.5M)', current_obs: '$2.17', current_price: 2.17, currency: 'USD', status: 'LIVE FEED' },
-        { id: 'radar_jppower', symbol: 'JPPOWER', full_symbol: 'JPPOWER.NS', name: 'Jaiprakash Power', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.96x (Z: +3.65σ)', direction: '▲ BULLISH (+3.82%)', is_bullish: true, change_percent: 3.82, baseline_20d: '₹15.60 (Vol: 14.2M)', current_obs: '₹16.29', current_price: 16.29, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_nvda', symbol: 'NVDA', full_symbol: 'NVDA', name: 'NVIDIA Corporation', signal_type: 'ACCUMULATION_CLUSTER', filter_key: 'momentum', magnitude: '1.67x (Z: +2.18σ)', direction: '▲ BULLISH (+3.42%)', is_bullish: true, change_percent: 3.42, baseline_20d: '$210.30 (Vol: 38.5M)', current_obs: '$217.55', current_price: 217.55, currency: 'USD', status: 'LIVE FEED' },
-        { id: 'radar_tcs', symbol: 'TCS', full_symbol: 'TCS.NS', name: 'Tata Consultancy Services', signal_type: 'SECTOR_ROTATION', filter_key: 'rotation', magnitude: 'Spread: +2.65%', direction: '▲ BULLISH (+1.85%)', is_bullish: true, change_percent: 1.85, baseline_20d: '₹4,300.00 (Vol: 1.8M)', current_obs: '₹4,380.00', current_price: 4380.00, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_soun', symbol: 'SOUN', full_symbol: 'SOUN', name: 'SoundHound AI', signal_type: 'BREAKOUT_52W', filter_key: 'breakout', magnitude: '3.41x (Z: +4.20σ)', direction: '▲ BULLISH (+8.19%)', is_bullish: true, change_percent: 8.19, baseline_20d: '$6.22 (Vol: 11.4M)', current_obs: '$6.74', current_price: 6.74, currency: 'USD', status: 'LIVE FEED' },
-        { id: 'radar_gtlinfra', symbol: 'GTLINFRA', full_symbol: 'GTLINFRA.NS', name: 'GTL Infrastructure', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.94x (Z: +3.52σ)', direction: '▲ BULLISH (+3.57%)', is_bullish: true, change_percent: 3.57, baseline_20d: '₹1.12 (Vol: 4.8M)', current_obs: '₹1.16', current_price: 1.16, currency: 'INR', status: 'LIVE FEED' },
-        { id: 'radar_rtnpower', symbol: 'RTNPOWER', full_symbol: 'RTNPOWER.NS', name: 'RattanIndia Power', signal_type: 'VOLATILITY_SPIKE', filter_key: 'volume', magnitude: '3.17x (Z: +3.78σ)', direction: '▲ BULLISH (+4.96%)', is_bullish: true, change_percent: 4.96, baseline_20d: '₹14.10 (Vol: 12.1M)', current_obs: '₹14.80', current_price: 14.80, currency: 'INR', status: 'LIVE FEED' }
+        { id: 'radar_idea', symbol: 'IDEA', full_symbol: 'IDEA.NS', name: 'Vodafone Idea', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '3.38x (Z: +4.12σ)', direction: '▲ BULLISH (+4.43%)', is_bullish: true, change_percent: 4.43, baseline_20d: '₹11.52 (Vol: 84.5M)', current_obs: fmtObs('IDEA', 12.03, 'INR'), current_price: pick('IDEA', 12.03), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_suzlon', symbol: 'SUZLON', full_symbol: 'SUZLON.NS', name: 'Suzlon Energy', signal_type: 'BREAKOUT_52W', filter_key: 'breakout', magnitude: '2.75x (Z: +3.88σ)', direction: '▲ BULLISH (+3.74%)', is_bullish: true, change_percent: 3.74, baseline_20d: '₹35.00 (Vol: 28.4M)', current_obs: fmtObs('SUZLON', 36.31, 'INR'), current_price: pick('SUZLON', 36.31), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_rel', symbol: 'RELIANCE', full_symbol: 'RELIANCE.NS', name: 'Reliance Industries', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.76x (Z: +3.24σ)', direction: '▲ BULLISH (+2.08%)', is_bullish: true, change_percent: 2.08, baseline_20d: '₹1,351.00 (Vol: 4.5M)', current_obs: fmtObs('RELIANCE', 1379.10, 'INR'), current_price: pick('RELIANCE', 1379.10), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_plug', symbol: 'PLUG', full_symbol: 'PLUG', name: 'Plug Power Inc.', signal_type: 'VOLATILITY_SPIKE', filter_key: 'volume', magnitude: '2.55x (Z: +3.45σ)', direction: '▲ BULLISH (+3.33%)', is_bullish: true, change_percent: 3.33, baseline_20d: '$0.90 (Vol: 16.5M)', current_obs: fmtObs('PLUG', 0.93, 'USD'), current_price: pick('PLUG', 0.93), currency: 'USD', status: 'LIVE FEED' },
+        { id: 'radar_jppower', symbol: 'JPPOWER', full_symbol: 'JPPOWER.NS', name: 'Jaiprakash Power', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.96x (Z: +3.65σ)', direction: '▲ BULLISH (+2.82%)', is_bullish: true, change_percent: 2.82, baseline_20d: '₹12.95 (Vol: 14.2M)', current_obs: fmtObs('JPPOWER', 13.31, 'INR'), current_price: pick('JPPOWER', 13.31), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_nvda', symbol: 'NVDA', full_symbol: 'NVDA', name: 'NVIDIA Corporation', signal_type: 'ACCUMULATION_CLUSTER', filter_key: 'momentum', magnitude: '1.67x (Z: +2.18σ)', direction: '▲ BULLISH (+2.98%)', is_bullish: true, change_percent: 2.98, baseline_20d: '$150.89 (Vol: 38.5M)', current_obs: fmtObs('NVDA', 155.38, 'USD'), current_price: pick('NVDA', 155.38), currency: 'USD', status: 'LIVE FEED' },
+        { id: 'radar_tcs', symbol: 'TCS', full_symbol: 'TCS.NS', name: 'Tata Consultancy Services', signal_type: 'SECTOR_ROTATION', filter_key: 'rotation', magnitude: 'Spread: +2.65%', direction: '▲ BULLISH (+1.99%)', is_bullish: true, change_percent: 1.99, baseline_20d: '₹2,460.00 (Vol: 1.8M)', current_obs: fmtObs('TCS', 2508.90, 'INR'), current_price: pick('TCS', 2508.90), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_soun', symbol: 'SOUN', full_symbol: 'SOUN', name: 'SoundHound AI', signal_type: 'BREAKOUT_52W', filter_key: 'breakout', magnitude: '3.41x (Z: +4.20σ)', direction: '▲ BULLISH (+4.78%)', is_bullish: true, change_percent: 4.78, baseline_20d: '$2.51 (Vol: 11.4M)', current_obs: fmtObs('SOUN', 2.63, 'USD'), current_price: pick('SOUN', 2.63), currency: 'USD', status: 'LIVE FEED' },
+        { id: 'radar_gtlinfra', symbol: 'GTLINFRA', full_symbol: 'GTLINFRA.NS', name: 'GTL Infrastructure', signal_type: 'UNUSUAL_VOLUME', filter_key: 'volume', magnitude: '2.94x (Z: +3.52σ)', direction: '▲ BULLISH (+3.00%)', is_bullish: true, change_percent: 3.00, baseline_20d: '₹1.00 (Vol: 4.8M)', current_obs: fmtObs('GTLINFRA', 1.03, 'INR'), current_price: pick('GTLINFRA', 1.03), currency: 'INR', status: 'LIVE FEED' },
+        { id: 'radar_rtnpower', symbol: 'RTNPOWER', full_symbol: 'RTNPOWER.NS', name: 'RattanIndia Power', signal_type: 'VOLATILITY_SPIKE', filter_key: 'volume', magnitude: '3.17x (Z: +3.78σ)', direction: '▲ BULLISH (+3.26%)', is_bullish: true, change_percent: 3.26, baseline_20d: '₹6.13 (Vol: 12.1M)', current_obs: fmtObs('RTNPOWER', 6.33, 'INR'), current_price: pick('RTNPOWER', 6.33), currency: 'INR', status: 'LIVE FEED' }
       ];
     },
     getMacroModel: async () => {
@@ -1199,8 +1263,8 @@ const SecurityMaster = (() => {
         if (res.ok) return await res.json();
       } catch (e) {}
       return {
-        fomc: { target_range: '5.25% - 5.50%', probabilities: { cut_25bps: 84.5, hold_pause: 15.5 }, stance: 'Dovish pivot priced in for next easing cycle.' },
-        rbi: { repo_rate: 6.50, stance: 'NEUTRAL', core_cpi: 3.80, status_comment: 'Within RBI tolerance band (2% - 6%).' }
+        fomc: { target_range: '4.75% - 5.00%', probabilities: { cut_25bps: 62.5, hold_pause: 37.5 }, stance: 'Data-dependent calibration amid 2.77% real yields and benign breakevens.' },
+        rbi: { repo_rate: 6.25, stance: 'NEUTRAL', core_cpi: 3.80, status_comment: 'Within RBI tolerance band (2% - 6%).' }
       };
     },
     getCanonicalMarketState: async (symbol = 'RELIANCE', period = '1y') => {

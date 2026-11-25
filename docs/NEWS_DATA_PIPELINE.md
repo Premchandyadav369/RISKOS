@@ -26,7 +26,7 @@ The API key is strictly maintained server-side and never broadcast to browser ne
 
 ```bash
 # In .env (Root) and backend/.env:
-ALPHA_VANTAGE_API_KEY=EI9HFIWHX72XUAXZ
+ALPHA_VANTAGE_API_KEY=your_alpha_vantage_api_key
 ```
 
 `.env` and `.env.*` are excluded in `.gitignore` to guarantee zero credential exposure to source version control.

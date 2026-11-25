@@ -21,151 +21,151 @@ PENNY_STOCKS_REGISTRY: List[Dict[str, Any]] = [
     {
         "symbol": "GTLINFRA.NS", "base_symbol": "GTLINFRA", "name": "GTL Infrastructure Limited",
         "exchange": "NSE", "bse_code": "532775", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 1.16, "change_percent": 3.57, "volume": 14250000,
-        "avg_volume_20d": 4850000, "market_cap": 14800000000, "sector": "Telecom Infrastructure",
+        "currency": "INR", "price": 1.03, "change_percent": 3.00, "volume": 14250000,
+        "avg_volume_20d": 4850000, "market_cap": 13200000000, "sector": "Telecom Infrastructure",
         "beta": 1.75, "vol_20d": 0.58, "pe": None, "high_52w": 2.65, "low_52w": 0.85
     },
     {
         "symbol": "VISAGAR.BO", "base_symbol": "VISAGAR", "name": "Visagar Polytex Limited",
         "exchange": "BSE", "bse_code": "531025", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 1.45, "change_percent": 4.96, "volume": 3200000,
-        "avg_volume_20d": 950000, "market_cap": 420000000, "sector": "Textiles & Apparel",
-        "beta": 1.82, "vol_20d": 0.62, "pe": None, "high_52w": 2.10, "low_52w": 0.95
+        "currency": "INR", "price": 0.29, "change_percent": 3.57, "volume": 3200000,
+        "avg_volume_20d": 950000, "market_cap": 85000000, "sector": "Textiles & Apparel",
+        "beta": 1.82, "vol_20d": 0.62, "pe": None, "high_52w": 1.45, "low_52w": 0.24
     },
     {
         "symbol": "VIKASECO.NS", "base_symbol": "VIKASECO", "name": "Vikas Ecotech Limited",
         "exchange": "NSE", "bse_code": "536565", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 3.85, "change_percent": 2.67, "volume": 8500000,
-        "avg_volume_20d": 3200000, "market_cap": 5200000000, "sector": "Specialty Chemicals",
-        "beta": 1.45, "vol_20d": 0.44, "pe": 28.5, "high_52w": 5.45, "low_52w": 2.80
+        "currency": "INR", "price": 0.97, "change_percent": 2.11, "volume": 8500000,
+        "avg_volume_20d": 3200000, "market_cap": 1320000000, "sector": "Specialty Chemicals",
+        "beta": 1.45, "vol_20d": 0.44, "pe": 28.5, "high_52w": 3.85, "low_52w": 0.82
     },
     {
         "symbol": "IDEA.NS", "base_symbol": "IDEA", "name": "Vodafone Idea Limited",
         "exchange": "NSE", "bse_code": "532822", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 8.25, "change_percent": 4.43, "volume": 285400000,
-        "avg_volume_20d": 84500000, "market_cap": 560000000000, "sector": "Telecommunications",
+        "currency": "INR", "price": 12.03, "change_percent": 4.43, "volume": 285400000,
+        "avg_volume_20d": 84500000, "market_cap": 815000000000, "sector": "Telecommunications",
         "beta": 1.95, "vol_20d": 0.52, "pe": None, "high_52w": 18.42, "low_52w": 6.85
     },
     {
         "symbol": "DISHTV.NS", "base_symbol": "DISHTV", "name": "Dish TV India Limited",
         "exchange": "NSE", "bse_code": "532839", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 12.50, "change_percent": -1.18, "volume": 6400000,
-        "avg_volume_20d": 4100000, "market_cap": 23000000000, "sector": "Media & Entertainment",
-        "beta": 1.38, "vol_20d": 0.46, "pe": None, "high_52w": 22.80, "low_52w": 10.50
+        "currency": "INR", "price": 1.98, "change_percent": -1.00, "volume": 6400000,
+        "avg_volume_20d": 4100000, "market_cap": 3650000000, "sector": "Media & Entertainment",
+        "beta": 1.38, "vol_20d": 0.46, "pe": None, "high_52w": 12.50, "low_52w": 1.75
     },
     {
         "symbol": "RTNPOWER.NS", "base_symbol": "RTNPOWER", "name": "RattanIndia Power Limited",
         "exchange": "NSE", "bse_code": "533122", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 14.80, "change_percent": 4.96, "volume": 38400000,
-        "avg_volume_20d": 12100000, "market_cap": 79500000000, "sector": "Thermal Power Generation",
-        "beta": 1.88, "vol_20d": 0.56, "pe": 16.4, "high_52w": 21.10, "low_52w": 8.40
+        "currency": "INR", "price": 6.33, "change_percent": 3.26, "volume": 38400000,
+        "avg_volume_20d": 12100000, "market_cap": 34000000000, "sector": "Thermal Power Generation",
+        "beta": 1.88, "vol_20d": 0.56, "pe": 16.4, "high_52w": 14.80, "low_52w": 5.40
     },
     {
         "symbol": "JPPOWER.NS", "base_symbol": "JPPOWER", "name": "Jaiprakash Power Ventures",
         "exchange": "NSE", "bse_code": "532627", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 16.29, "change_percent": 3.82, "volume": 42100000,
-        "avg_volume_20d": 14200000, "market_cap": 111500000000, "sector": "Hydro & Thermal Power",
+        "currency": "INR", "price": 13.31, "change_percent": 2.82, "volume": 42100000,
+        "avg_volume_20d": 14200000, "market_cap": 91200000000, "sector": "Hydro & Thermal Power",
         "beta": 1.62, "vol_20d": 0.48, "pe": 11.2, "high_52w": 24.00, "low_52w": 10.20
     },
     {
         "symbol": "URJA.NS", "base_symbol": "URJA", "name": "Urja Global Limited",
         "exchange": "NSE", "bse_code": "526987", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 18.20, "change_percent": 4.90, "volume": 9400000,
-        "avg_volume_20d": 2800000, "market_cap": 9800000000, "sector": "Solar Energy & EV Batteries",
-        "beta": 1.70, "vol_20d": 0.54, "pe": None, "high_52w": 34.50, "low_52w": 11.80
+        "currency": "INR", "price": 7.16, "change_percent": 2.90, "volume": 9400000,
+        "avg_volume_20d": 2800000, "market_cap": 3850000000, "sector": "Solar Energy & EV Batteries",
+        "beta": 1.70, "vol_20d": 0.54, "pe": None, "high_52w": 18.20, "low_52w": 6.20
     },
     {
         "symbol": "SEPC.NS", "base_symbol": "SEPC", "name": "SEPC Limited",
         "exchange": "NSE", "bse_code": "532945", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 19.40, "change_percent": 2.11, "volume": 5200000,
-        "avg_volume_20d": 2100000, "market_cap": 27500000000, "sector": "Engineering & Infra",
-        "beta": 1.55, "vol_20d": 0.50, "pe": 34.0, "high_52w": 27.80, "low_52w": 12.40
+        "currency": "INR", "price": 4.80, "change_percent": 2.13, "volume": 5200000,
+        "avg_volume_20d": 2100000, "market_cap": 6800000000, "sector": "Engineering & Infra",
+        "beta": 1.55, "vol_20d": 0.50, "pe": 34.0, "high_52w": 19.40, "low_52w": 4.10
     },
     {
         "symbol": "YESBANK.NS", "base_symbol": "YESBANK", "name": "Yes Bank Limited",
         "exchange": "NSE", "bse_code": "532648", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 21.40, "change_percent": 1.90, "volume": 98500000,
-        "avg_volume_20d": 45000000, "market_cap": 670000000000, "sector": "Banking & Financials",
-        "beta": 1.45, "vol_20d": 0.38, "pe": 38.5, "high_52w": 32.85, "low_52w": 19.20
+        "currency": "INR", "price": 17.86, "change_percent": 1.90, "volume": 98500000,
+        "avg_volume_20d": 45000000, "market_cap": 560000000000, "sector": "Banking & Financials",
+        "beta": 1.45, "vol_20d": 0.38, "pe": 32.5, "high_52w": 24.85, "low_52w": 15.20
     },
     {
         "symbol": "RPOWER.NS", "base_symbol": "RPOWER", "name": "Reliance Power Limited",
         "exchange": "NSE", "bse_code": "532939", "asset_type": "PENNY_EQUITY",
-        "currency": "INR", "price": 38.50, "change_percent": 4.90, "volume": 64500000,
-        "avg_volume_20d": 18200000, "market_cap": 154000000000, "sector": "Thermal & Clean Energy",
-        "beta": 1.90, "vol_20d": 0.64, "pe": None, "high_52w": 53.65, "low_52w": 19.40
+        "currency": "INR", "price": 17.27, "change_percent": 3.90, "volume": 64500000,
+        "avg_volume_20d": 18200000, "market_cap": 69000000000, "sector": "Thermal & Clean Energy",
+        "beta": 1.90, "vol_20d": 0.64, "pe": None, "high_52w": 38.50, "low_52w": 14.40
     },
     {
         "symbol": "SUZLON.NS", "base_symbol": "SUZLON", "name": "Suzlon Energy Limited",
         "exchange": "NSE", "bse_code": "532667", "asset_type": "EQUITY",
-        "currency": "INR", "price": 64.50, "change_percent": 5.74, "volume": 78200000,
-        "avg_volume_20d": 28400000, "market_cap": 875000000000, "sector": "Wind Energy & Green Tech",
-        "beta": 1.65, "vol_20d": 0.44, "pe": 65.0, "high_52w": 86.04, "low_52w": 28.50
+        "currency": "INR", "price": 36.31, "change_percent": 3.74, "volume": 78200000,
+        "avg_volume_20d": 28400000, "market_cap": 495000000000, "sector": "Wind Energy & Green Tech",
+        "beta": 1.65, "vol_20d": 0.44, "pe": 38.0, "high_52w": 64.50, "low_52w": 28.50
     },
 
-    # ── US Penny & Microcap Stocks (< $5.00) ──
+    # ── US Penny & Microcap Stocks (< $10.00) ──
     {
-        "symbol": "TELL", "base_symbol": "TELL", "name": "Tellurian Inc.",
-        "exchange": "NYSE American", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 0.98, "change_percent": 1.03, "volume": 12400000,
-        "avg_volume_20d": 6200000, "market_cap": 780000000, "sector": "LNG & Natural Gas",
-        "beta": 2.10, "vol_20d": 0.68, "pe": None, "high_52w": 1.85, "low_52w": 0.38
+        "symbol": "MARA", "base_symbol": "MARA", "name": "MARA Holdings Inc.",
+        "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
+        "currency": "USD", "price": 5.41, "change_percent": 2.08, "volume": 18500000,
+        "avg_volume_20d": 12400000, "market_cap": 1850000000, "sector": "Bitcoin Compute & Energy Infra",
+        "beta": 2.65, "vol_20d": 0.85, "pe": None, "high_52w": 12.85, "low_52w": 4.20
     },
     {
         "symbol": "BBAI", "base_symbol": "BBAI", "name": "BigBear.ai Holdings",
         "exchange": "NYSE", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 1.85, "change_percent": 6.32, "volume": 18500000,
-        "avg_volume_20d": 5400000, "market_cap": 420000000, "sector": "Artificial Intelligence",
+        "currency": "USD", "price": 1.54, "change_percent": 4.32, "volume": 18500000,
+        "avg_volume_20d": 5400000, "market_cap": 390000000, "sector": "Artificial Intelligence",
         "beta": 2.45, "vol_20d": 0.76, "pe": None, "high_52w": 4.80, "low_52w": 1.15
     },
     {
         "symbol": "OPEN", "base_symbol": "OPEN", "name": "Opendoor Technologies",
         "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 2.15, "change_percent": 3.86, "volume": 24000000,
-        "avg_volume_20d": 9800000, "market_cap": 1450000000, "sector": "Digital Real Estate",
-        "beta": 2.80, "vol_20d": 0.82, "pe": None, "high_52w": 5.40, "low_52w": 1.45
+        "currency": "USD", "price": 1.18, "change_percent": 3.51, "volume": 24000000,
+        "avg_volume_20d": 9800000, "market_cap": 850000000, "sector": "Digital Real Estate",
+        "beta": 2.80, "vol_20d": 0.82, "pe": None, "high_52w": 3.40, "low_52w": 0.95
     },
     {
         "symbol": "PLUG", "base_symbol": "PLUG", "name": "Plug Power Inc.",
         "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 2.17, "change_percent": 5.85, "volume": 42000000,
-        "avg_volume_20d": 16500000, "market_cap": 1820000000, "sector": "Hydrogen Fuel Cells",
-        "beta": 2.25, "vol_20d": 0.72, "pe": None, "high_52w": 8.90, "low_52w": 1.60
+        "currency": "USD", "price": 0.93, "change_percent": 3.33, "volume": 42000000,
+        "avg_volume_20d": 16500000, "market_cap": 820000000, "sector": "Hydrogen Fuel Cells",
+        "beta": 2.25, "vol_20d": 0.72, "pe": None, "high_52w": 3.90, "low_52w": 0.75
     },
     {
-        "symbol": "BITF", "base_symbol": "BITF", "name": "Bitfarms Ltd.",
+        "symbol": "CLSK", "base_symbol": "CLSK", "name": "CleanSpark Inc.",
         "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 2.30, "change_percent": 7.48, "volume": 19500000,
-        "avg_volume_20d": 7100000, "market_cap": 950000000, "sector": "Crypto Mining & Compute",
-        "beta": 3.10, "vol_20d": 0.94, "pe": None, "high_52w": 4.25, "low_52w": 0.95
+        "currency": "USD", "price": 5.12, "change_percent": 2.81, "volume": 19500000,
+        "avg_volume_20d": 9200000, "market_cap": 1450000000, "sector": "Crypto Mining & Compute",
+        "beta": 2.95, "vol_20d": 0.88, "pe": None, "high_52w": 10.25, "low_52w": 3.95
     },
     {
         "symbol": "CLOV", "base_symbol": "CLOV", "name": "Clover Health Investments",
         "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 2.85, "change_percent": 4.01, "volume": 15200000,
-        "avg_volume_20d": 5900000, "market_cap": 1400000000, "sector": "Healthcare Technology",
-        "beta": 1.85, "vol_20d": 0.58, "pe": None, "high_52w": 3.65, "low_52w": 0.65
+        "currency": "USD", "price": 3.71, "change_percent": 4.01, "volume": 15200000,
+        "avg_volume_20d": 5900000, "market_cap": 1840000000, "sector": "Healthcare Technology",
+        "beta": 1.85, "vol_20d": 0.58, "pe": None, "high_52w": 4.65, "low_52w": 1.65
     },
     {
         "symbol": "LCID", "base_symbol": "LCID", "name": "Lucid Group Inc.",
         "exchange": "NASDAQ", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 3.40, "change_percent": 3.66, "volume": 31000000,
-        "avg_volume_20d": 14200000, "market_cap": 7900000000, "sector": "Electric Vehicles",
-        "beta": 2.20, "vol_20d": 0.68, "pe": None, "high_52w": 6.80, "low_52w": 2.30
+        "currency": "USD", "price": 2.64, "change_percent": 3.12, "volume": 31000000,
+        "avg_volume_20d": 14200000, "market_cap": 6200000000, "sector": "Electric Vehicles",
+        "beta": 2.20, "vol_20d": 0.68, "pe": None, "high_52w": 4.80, "low_52w": 1.95
     },
     {
         "symbol": "NIO", "base_symbol": "NIO", "name": "NIO Inc. ADR",
         "exchange": "NYSE", "asset_type": "PENNY_EQUITY",
-        "currency": "USD", "price": 4.20, "change_percent": 5.26, "volume": 48500000,
-        "avg_volume_20d": 22100000, "market_cap": 8800000000, "sector": "EV & Battery Swapping",
-        "beta": 2.15, "vol_20d": 0.65, "pe": None, "high_52w": 9.50, "low_52w": 3.60
+        "currency": "USD", "price": 2.58, "change_percent": 3.20, "volume": 48500000,
+        "avg_volume_20d": 22100000, "market_cap": 5400000000, "sector": "EV & Battery Swapping",
+        "beta": 2.15, "vol_20d": 0.65, "pe": None, "high_52w": 6.50, "low_52w": 2.10
     },
     {
         "symbol": "SOUN", "base_symbol": "SOUN", "name": "SoundHound AI Inc.",
         "exchange": "NASDAQ", "asset_type": "EQUITY",
-        "currency": "USD", "price": 6.74, "change_percent": 8.19, "volume": 38900000,
-        "avg_volume_20d": 11400000, "market_cap": 2350000000, "sector": "Conversational AI",
-        "beta": 2.75, "vol_20d": 0.85, "pe": None, "high_52w": 10.25, "low_52w": 1.50
+        "currency": "USD", "price": 2.63, "change_percent": 4.78, "volume": 38900000,
+        "avg_volume_20d": 11400000, "market_cap": 980000000, "sector": "Conversational AI",
+        "beta": 2.75, "vol_20d": 0.85, "pe": None, "high_52w": 8.25, "low_52w": 1.50
     }
 ]
 

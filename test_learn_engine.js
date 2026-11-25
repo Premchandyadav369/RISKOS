@@ -1,6 +1,6 @@
 /**
  * Automated test suite for RISKOS Learn & Simulate Calculation Engine
- * Verifies all 18 simulation modules produce deterministic, mathematically accurate outputs.
+ * Verifies all 81 simulation modules produce deterministic, mathematically accurate outputs.
  */
 
 const LearnMathEngine = require('./learnMathEngine.js');

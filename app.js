@@ -1,15 +1,15 @@
 // Dynamic API URL for Vercel + Render or Localhost
 const getApiBase = () => {
-    const customBackend = localStorage.getItem('RISKOS_RENDER_URL');
+    const customBackend = localStorage.getItem('RISKOS_BACKEND_URL') || localStorage.getItem('RISKOS_RENDER_URL');
     if (customBackend) return customBackend.replace(/\/$/, '') + '/api';
     
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
         if (window.location.port === '5500' || window.location.port === '3000' || window.location.port === '5173') {
-            return 'http://127.0.0.1:8000/api';
+            return 'http://127.0.0.1:8080/api';
         }
         return window.location.origin + '/api';
     }
-    return 'http://127.0.0.1:8000/api';
+    return 'http://127.0.0.1:8080/api';
 };
 
 const API = getApiBase();
@@ -77,6 +77,12 @@ const formatMoney = (val, currency = 'INR') => {
 };
 const formatPercent = (val) => ((val || 0) * 100).toFixed(2) + '%';
 const getWeights = (tickers) => tickers.map(() => 1 / tickers.length).join(',');
+const getSelectedTickers = () => {
+    const inputEl = document.getElementById('ticker-input') || document.getElementById('tickers');
+    const raw = (inputEl && inputEl.value) ? inputEl.value : 'RELIANCE.NS,TCS.NS,HDFCBANK.NS,NVDA,AAPL';
+    const parsed = raw.toUpperCase().split(',').map(s => s.trim()).filter(Boolean);
+    return parsed.length ? parsed : ['RELIANCE.NS', 'TCS.NS', 'HDFCBANK.NS', 'NVDA'];
+};
 
 // Global Tab & Desk Switching Engine
 function switchTab(tabId) {
@@ -207,7 +213,7 @@ const HISTORICAL_CRISIS_DATA = {
     yen_2024: { name: '2024 Yen Carry Unwind', drawdown: -12.4, vix: 65.7, margin: 48.0, recoveryDays: 14, desc: 'Bank of Japan +25 bps hike forces automated margin liquidations; Nikkei drops -12.4% in 1 day.' }
 };
 
-function initCrisisReplaySuite() {
+function init8CrisisReplayDesk2() {
     const btns = document.querySelectorAll('.btn-crisis-replay');
     const ddVal = document.getElementById('crisisDrawdownVal');
     const lossAbs = document.getElementById('crisisLossAbs');
@@ -1548,7 +1554,7 @@ function getMockFallback(endpoint) {
         return { avg_fill_price: 185.25, vwap_benchmark: 185.00, implementation_shortfall_bps: 1.65, status: 'FILLED' };
     }
     if (endpoint.includes('/quant/speculations')) {
-        const s0 = 2984.5;
+        const s0 = 1379.10;
         const horizon = 90;
         const p05 = [], p25 = [], median = [], p75 = [], p95 = [], dates = [];
         const dStart = new Date();
@@ -1674,7 +1680,7 @@ async function renderAppSpeculations() {
     } catch(e) {}
 
     // Dynamic High-Fidelity Client-Side Generator Fallback (10,000 Path Merton Jump Diffusion)
-    const quote = (typeof SecurityMaster !== 'undefined' && SecurityMaster.getQuote) ? SecurityMaster.getQuote(ticker) : null;
+    const quote = (typeof SecurityMaster !== 'undefined' && SecurityMaster.getQuote) ? await SecurityMaster.getQuote(ticker) : null;
     const isINR = ticker === 'RELIANCE' || ticker === 'TCS' || ticker === 'HDFCBANK' || ticker === 'INFY' || ticker === 'TATAMOTORS' || ticker === 'ZOMATO';
     const currSym = isINR ? '₹' : '$';
     const s0 = (quote && quote.price) ? quote.price : (data && data.current_price ? data.current_price : (isINR ? 2950 : 185.50));
@@ -3846,12 +3852,12 @@ function initFuturesBasisDesk() {
 
     if (!spotEl) return;
 
-    const S = 24500.00;
+    const S = 25766.15;
     const r = 0.065;
     const q = 0.012;
     const T = 30 / 365;
     const fairF = Number((S * Math.exp((r - q) * T)).toFixed(2));
-    const marketF = 24680.00;
+    const marketF = 25895.00;
     const mispricing = Number((marketF - fairF).toFixed(2));
     const basisYield = (((marketF - S) / S) * (365 / 30) * 100).toFixed(2);
 

@@ -32,6 +32,7 @@ const { WebSeerEngine } = require('../webSeerEngine.js');
 const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
 const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
 const { LiveMarketDataFeedClient, defaultMarketFeed } = require('../liveMarketDataFeed.js');
+const { handleUnifiedApi } = require('./unifiedApiHandlers.js');
 let SecurityMaster;
 try {
   SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
@@ -314,8 +315,8 @@ class RiskosDaemon {
 
       if (newsItems && newsItems.length > 0) {
         for (const alert of newsItems) {
-          // Check for high impact
-          if (Math.abs(alert.jumpPct) >= 5.0 || alert.catalystType !== 'MARKET_RUMOR') {
+          // Check for high impact or genuine non-neutral catalyst
+          if (Math.abs(alert.jumpPct) >= 2.5 || (Math.abs(alert.jumpPct) >= 0.5 && alert.catalystType && alert.catalystType !== 'MARKET_RUMOR' && alert.catalystType !== 'NEUTRAL_NEWS_ITEM')) {
             this.stats.totalAlertsGenerated++;
             this.stats.recentAlerts.unshift(alert);
             if (this.stats.recentAlerts.length > 50) this.stats.recentAlerts.pop();
@@ -460,181 +461,185 @@ class RiskosDaemon {
   // --------------------------------------------------------------------------
   // HTTP Request & REST API Handler
   // --------------------------------------------------------------------------
-  handleHttpRequest(req, res) {
-    const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-    const pathname = parsedUrl.pathname;
+  async handleHttpRequest(req, res) {
+    try {
+      const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+      const pathname = parsedUrl.pathname;
 
-    // CORS & Security Headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+      // CORS & Security Headers
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
-    if (req.method === 'OPTIONS') {
-      res.writeHead(204);
-      res.end();
-      return;
-    }
-
-    // 1. Health Endpoint
-    if (pathname === '/health' || pathname === '/api/health') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        status: 'UP',
-        uptimeSeconds: Math.floor(process.uptime()),
-        timestamp: new Date().toISOString(),
-        memoryRssMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
-        activeConnections: this.connectedSockets.size + this.sseClients.size,
-        sessions: this.getMarketSessions()
-      }));
-      return;
-    }
-
-    // 2. Status Endpoint
-    if (pathname === '/api/status') {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({
-        daemon: 'RISKOS-24/7-DAEMON',
-        version: '5.0.0-SOVEREIGN',
-        stats: this.stats,
-        sessions: this.getMarketSessions(),
-        intervals: this.config.intervals
-      }));
-      return;
-    }
-
-    // 3. Universe Pricing Endpoint
-    if (pathname === '/api/pricing/12factor') {
-      const jsonPath = path.join(this.config.rootDir, 'institutional_12factor_predictions.json');
-      if (fs.existsSync(jsonPath)) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        fs.createReadStream(jsonPath).pipe(res);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Predictions not yet generated' }));
-      }
-      return;
-    }
-
-    // 4. Catalysts Endpoint
-    if (pathname === '/api/catalysts') {
-      const jsonPath = path.join(this.config.rootDir, 'upcoming_catalyst_shock_predictions.json');
-      if (fs.existsSync(jsonPath)) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        fs.createReadStream(jsonPath).pipe(res);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Catalysts dataset not found' }));
-      }
-      return;
-    }
-
-    // 5. Macroeconomic, EIA Energy & Digital Asset Telemetry Endpoint
-    if (pathname === '/api/macro' || pathname === '/api/telemetry/macro') {
-      const livePath = path.join(this.config.rootDir, 'data', 'live_macro_telemetry.json');
-      if (fs.existsSync(livePath)) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        fs.createReadStream(livePath).pipe(res);
-      } else {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(this.macroFeed.cachedTelemetry || {}));
-      }
-      return;
-    }
-
-    // 6. Live Market Real-Time Equity & Crypto Quotes Endpoint
-    if (pathname === '/api/market/quotes') {
-      const livePath = path.join(this.config.rootDir, 'data', 'live_market_quotes.json');
-      if (fs.existsSync(livePath)) {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        fs.createReadStream(livePath).pipe(res);
-      } else {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(this.marketFeed.getAllQuotesObject()));
-      }
-      return;
-    }
-
-    // 7. Force Trigger Endpoints (Manual Re-run on Demand)
-    if (req.method === 'POST' && pathname === '/api/trigger/crawl') {
-      this.runWebSeerCycle();
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ success: true, message: 'WebSeer crawl cycle triggered' }));
-      return;
-    }
-
-    if (req.method === 'POST' && pathname === '/api/trigger/market') {
-      this.runMarketQuotesCycle().then(quotes => {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, message: 'Market quotes cycle triggered', count: Object.keys(quotes || {}).length }));
-      }).catch(err => {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: err.message }));
-      });
-      return;
-    }
-
-    if (req.method === 'POST' && pathname === '/api/trigger/pricing') {
-      this.runPricingCycle();
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ success: true, message: '12-factor pricing cycle triggered' }));
-      return;
-    }
-
-    if (req.method === 'POST' && pathname === '/api/trigger/macro') {
-      this.runMacroCycle().then(telemetry => {
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: true, message: 'Macro telemetry cycle triggered', telemetry }));
-      }).catch(err => {
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ success: false, error: err.message }));
-      });
-      return;
-    }
-
-    // 7. Server-Sent Events (SSE) Stream
-    if (pathname === '/events') {
-      res.writeHead(200, {
-        'Content-Type': 'text/event-stream',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive'
-      });
-      res.write(': connected\n\n');
-      this.sseClients.add(res);
-
-      req.on('close', () => {
-        this.sseClients.delete(res);
-      });
-      return;
-    }
-
-    // 7. Static File Serving
-    let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
-    if (safePath === '/' || safePath === '\\' || safePath === '') {
-      safePath = 'app.html';
-    } else {
-      safePath = safePath.replace(/^[\/\\]+/, '');
-    }
-
-    const filePath = path.join(this.config.rootDir, safePath);
-
-    fs.stat(filePath, (err, stats) => {
-      if (err || !stats.isFile()) {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end(`404 Not Found: ${pathname}`);
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
         return;
       }
 
-      const ext = path.extname(filePath).toLowerCase();
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      // 1. Health Endpoint
+      if (pathname === '/health' || pathname === '/api/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          status: 'UP',
+          uptimeSeconds: Math.floor(process.uptime()),
+          timestamp: new Date().toISOString(),
+          memoryRssMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+          activeConnections: this.connectedSockets.size + this.sseClients.size,
+          sessions: this.getMarketSessions()
+        }));
+        return;
+      }
 
-      res.writeHead(200, {
-        'Content-Type': contentType,
-        'Content-Length': stats.size,
-        'Cache-Control': 'no-cache'
+      // 2. Status Endpoint
+      if (pathname === '/api/status') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          daemon: 'RISKOS-24/7-DAEMON',
+          version: '5.0.0-SOVEREIGN',
+          stats: this.stats,
+          sessions: this.getMarketSessions(),
+          intervals: this.config.intervals
+        }));
+        return;
+      }
+
+      // 3. Universe Pricing Endpoint
+      if (pathname === '/api/pricing/12factor') {
+        const jsonPath = path.join(this.config.rootDir, 'institutional_12factor_predictions.json');
+        if (fs.existsSync(jsonPath)) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          fs.createReadStream(jsonPath).pipe(res);
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Predictions not yet generated' }));
+        }
+        return;
+      }
+
+      // 4. Catalysts Endpoint
+      if (pathname === '/api/catalysts') {
+        const jsonPath = path.join(this.config.rootDir, 'upcoming_catalyst_shock_predictions.json');
+        if (fs.existsSync(jsonPath)) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          fs.createReadStream(jsonPath).pipe(res);
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Catalysts dataset not found' }));
+        }
+        return;
+      }
+
+      // 5. Macroeconomic, EIA Energy & Digital Asset Telemetry Endpoint
+      if (pathname === '/api/macro' || pathname === '/api/telemetry/macro') {
+        const livePath = path.join(this.config.rootDir, 'data', 'live_macro_telemetry.json');
+        if (fs.existsSync(livePath)) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          fs.createReadStream(livePath).pipe(res);
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify(this.macroFeed.cachedTelemetry || {}));
+        }
+        return;
+      }
+
+      // 6. Unified API Gateway & Live Market Quotes / Quant / Risk / Observatory / News Endpoints
+      if (await handleUnifiedApi(req, res, parsedUrl, this, SecurityMaster)) {
+        return;
+      }
+
+      // 7. Force Trigger Endpoints (Manual Re-run on Demand)
+      if (req.method === 'POST' && pathname === '/api/trigger/crawl') {
+        this.runWebSeerCycle();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: 'WebSeer crawl cycle triggered' }));
+        return;
+      }
+
+      if (req.method === 'POST' && pathname === '/api/trigger/market') {
+        this.runMarketQuotesCycle().then(quotes => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'Market quotes cycle triggered', count: Object.keys(quotes || {}).length }));
+        }).catch(err => {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        });
+        return;
+      }
+
+      if (req.method === 'POST' && pathname === '/api/trigger/pricing') {
+        this.runPricingCycle();
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, message: '12-factor pricing cycle triggered' }));
+        return;
+      }
+
+      if (req.method === 'POST' && pathname === '/api/trigger/macro') {
+        this.runMacroCycle().then(telemetry => {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: true, message: 'Macro telemetry cycle triggered', telemetry }));
+        }).catch(err => {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        });
+        return;
+      }
+
+      // 8. Server-Sent Events (SSE) Stream
+      if (pathname === '/events') {
+        res.writeHead(200, {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive'
+        });
+        res.write(': connected\n\n');
+        this.sseClients.add(res);
+
+        req.on('close', () => {
+          this.sseClients.delete(res);
+        });
+        return;
+      }
+
+      // 9. Static File Serving with Vercel-compatible Clean URLs
+      let safePath = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+      if (safePath === '/' || safePath === '\\' || safePath === '') {
+        safePath = 'index.html';
+      } else if (safePath === '\\terminal' || safePath === '/terminal') {
+        safePath = 'app.html';
+      } else {
+        safePath = safePath.replace(/^[\/\\]+/, '');
+      }
+
+      let filePath = path.join(this.config.rootDir, safePath);
+      if (!fs.existsSync(filePath) && !path.extname(filePath) && fs.existsSync(filePath + '.html')) {
+        filePath = filePath + '.html';
+      }
+
+      fs.stat(filePath, (err, stats) => {
+        if (err || !stats.isFile()) {
+          res.writeHead(404, { 'Content-Type': 'text/plain' });
+          res.end(`404 Not Found: ${pathname}`);
+          return;
+        }
+
+        const ext = path.extname(filePath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+
+        res.writeHead(200, {
+          'Content-Type': contentType,
+          'Content-Length': stats.size,
+          'Cache-Control': 'no-cache'
+        });
+
+        fs.createReadStream(filePath).pipe(res);
       });
-
-      fs.createReadStream(filePath).pipe(res);
-    });
+    } catch (err) {
+      if (!res.headersSent) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message || 'Internal Server Error' }));
+      }
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -707,10 +712,12 @@ class RiskosDaemon {
 
       // Run initial boot passes
       this.runHeartbeatCycle();
-      setTimeout(() => this.runMarketQuotesCycle(), 500);
-      setTimeout(() => this.runMacroCycle(), 1000);
-      setTimeout(() => this.runWebSeerCycle(), 2000);
-      setTimeout(() => this.runPricingCycle(), 5000);
+      this.bootTimeouts = [
+        setTimeout(() => this.runMarketQuotesCycle(), 500),
+        setTimeout(() => this.runMacroCycle(), 1000),
+        setTimeout(() => this.runWebSeerCycle(), 2000),
+        setTimeout(() => this.runPricingCycle(), 5000)
+      ];
     });
 
     this.server.on('error', (err) => {
@@ -729,6 +736,10 @@ class RiskosDaemon {
     return new Promise((resolve) => {
       this.isRunning = false;
       Object.values(this.timers).forEach(clearInterval);
+      if (Array.isArray(this.bootTimeouts)) {
+        this.bootTimeouts.forEach(clearTimeout);
+        this.bootTimeouts = [];
+      }
 
       if (this.server) {
         this.server.close(() => {

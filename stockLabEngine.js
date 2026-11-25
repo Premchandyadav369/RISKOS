@@ -136,6 +136,7 @@ const StockLabEngine = (() => {
       takeaway: hurst > 0.55 
         ? `Autocorrelation of returns is strictly positive. Optimal setup: Antonacci Dual Momentum & volatility breakout followers.`
         : `Autocorrelation of returns is zero or negative. Optimal setup: Bollinger Band mean-reversion & statistical arbitrage spreads.`,
+      metrics: { h: hurst },
       moduleId: 'dual_momentum_antonacci'
     };
 
@@ -243,6 +244,7 @@ const StockLabEngine = (() => {
       verdictClass: 'text-amber',
       agency: 'Goldman Sachs Risk Management Committee',
       takeaway: `There is only a 1% probability that an institutional portfolio holding ${sec.symbol} will lose more than ${fmtCurr(var99Amt, curr)} (${var99Pct}%) over a single trading session under normal distributions.`,
+      metrics: { var99: var99Amt, var99Pct },
       moduleId: 'cvar_expected_shortfall'
     };
 
@@ -353,6 +355,7 @@ const StockLabEngine = (() => {
       verdictClass: 'text-emerald',
       agency: 'Jump Trading & Jane Street HFT Group',
       takeaway: `Branching ratio η is ${branchingRatio} (< 0.85). Subcritical order clustering indicates that aggressive market order sweeps are absorbed cleanly by resting book queues without triggering runaway avalanche cascades.`,
+      metrics: { branchingRatio },
       moduleId: 'hawkes_liquidity_cascades'
     };
 
@@ -570,13 +573,19 @@ const StockLabEngine = (() => {
       agencyClass = 'text-cyan';
     }
 
+    const strat = hurst > 0.55 ? 'Dual Momentum & Breakout Execution' : 'Statistical Arbitrage & Pairs Mean-Reversion';
+    const agencyBadge = compositeScore >= 75 ? 'AQR / Two Sigma Tier-1 Institutional' : (compositeScore >= 55 ? 'Systematic Core Allocation' : 'Capital Preservation / Hedged');
+    const rationale = `${sec.symbol} registers composite score ${compositeScore}/100 (H = ${hurst}, 1D 99% VaR = ${var99Pct}%, Hawkes \u03b7 = ${branchingRatio}), aligning with ${strat}.`;
     return {
       security: sec,
       timestamp: Date.now(),
       compositeScore,
       agencyRating,
       agencyClass,
-      recommendedStrategy: hurst > 0.55 ? 'Dual Momentum & Breakout Execution' : 'Statistical Arbitrage & Pairs Mean-Reversion',
+      rating: agencyRating,
+      agencyBadge,
+      recommendedStrategy: strat,
+      recommendation: { strategy: strat, rationale },
       tests: [
         testAdf, testHurst, testOU, testJB,
         testGARCH, testEWMA, testVaR, testCVaR,

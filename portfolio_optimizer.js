@@ -14,7 +14,9 @@
   'use strict';
 
   // --- Baseline Currency Exchange Rate ---
-  const USD_INR_RATE = 86.72; // Baseline live exchange rate
+  let USD_INR_RATE = (typeof SecurityMaster !== 'undefined' && typeof SecurityMaster.getUsdToInr === 'function')
+    ? SecurityMaster.getUsdToInr()
+    : 92.57;
 
   // --- Dynamic Backend API URL Resolution ---
   const getApiBase = () => {
@@ -23,33 +25,33 @@
       if (custom) return custom.replace(/\/$/, '') + '/api';
 
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
-          return 'http://127.0.0.1:8000/api';
+        if (['5500', '3000', '5173'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8080/api';
         }
         return window.location.origin + '/api';
       }
     }
-    return 'http://127.0.0.1:8000/api';
+    return 'http://127.0.0.1:8080/api';
   };
 
   // --- Initial Institutional Holdings ---
   const INITIAL_HOLDINGS = {
-    'RELIANCE.NS': { quantity: 100, avg_cost: 2950.0, current_price: 3020.0, beta: 1.12, name: 'Reliance Industries Limited', sector: 'Energy / Digital', exchange: 'NSE' },
-    'HDFCBANK.NS': { quantity: 150, avg_cost: 1620.0, current_price: 1680.0, beta: 0.98, name: 'HDFC Bank Limited', sector: 'Banking & Financials', exchange: 'NSE' },
-    'INFY.NS': { quantity: 120, avg_cost: 1780.0, current_price: 1840.0, beta: 1.05, name: 'Infosys Limited', sector: 'IT & Software', exchange: 'NSE' },
-    'SUZLON.NS': { quantity: 5000, avg_cost: 58.0, current_price: 64.50, beta: 1.45, name: 'Suzlon Energy Limited', sector: 'Renewable Power', exchange: 'NSE' },
-    'AAPL': { quantity: 80, avg_cost: 210.0, current_price: 224.50, beta: 1.20, name: 'Apple Inc.', sector: 'Consumer Technology', exchange: 'NASDAQ' },
-    'MSFT': { quantity: 50, avg_cost: 415.0, current_price: 448.20, beta: 1.15, name: 'Microsoft Corporation', sector: 'Cloud & Enterprise AI', exchange: 'NASDAQ' }
+    'RELIANCE.NS': { quantity: 100, avg_cost: 1320.0, current_price: 1379.10, beta: 1.08, name: 'Reliance Industries Limited', sector: 'Energy / Digital', exchange: 'NSE' },
+    'HDFCBANK.NS': { quantity: 150, avg_cost: 815.0, current_price: 845.60, beta: 1.12, name: 'HDFC Bank Limited', sector: 'Banking & Financials', exchange: 'NSE' },
+    'INFY.NS': { quantity: 120, avg_cost: 1105.0, current_price: 1149.70, beta: 0.85, name: 'Infosys Limited', sector: 'IT & Software', exchange: 'NSE' },
+    'SUZLON.NS': { quantity: 5000, avg_cost: 34.0, current_price: 36.31, beta: 1.65, name: 'Suzlon Energy Limited', sector: 'Renewable Power', exchange: 'NSE' },
+    'AAPL': { quantity: 80, avg_cost: 340.0, current_price: 354.07, beta: 1.02, name: 'Apple Inc.', sector: 'Consumer Technology', exchange: 'NASDAQ' },
+    'MSFT': { quantity: 50, avg_cost: 482.0, current_price: 496.13, beta: 1.14, name: 'Microsoft Corporation', sector: 'Cloud & Enterprise AI', exchange: 'NASDAQ' }
   };
 
   // Benchmark quotes for continuous gliding ribbon tape
   const BENCHMARKS = [
-    { symbol: 'NIFTY 50', price: 24820.40, change: 112.50, changePct: 0.45, isIndex: true, unit: '₹' },
-    { symbol: 'S&P 500', price: 5648.20, change: 24.10, changePct: 0.43, isIndex: true, unit: '$' },
-    { symbol: 'USD/INR', price: 86.72, change: -0.05, changePct: -0.06, isIndex: true, unit: '₹' },
-    { symbol: 'INDIA 10Y', price: 6.88, change: -0.02, changePct: -0.29, isIndex: true, unit: '%', unitSuffix: true },
-    { symbol: 'BRENT CRUDE', price: 78.45, change: 1.40, changePct: 1.82, isIndex: true, unit: '$' },
-    { symbol: 'GOLD (MCX)', price: 72450, change: 320, changePct: 0.44, isIndex: true, unit: '₹' }
+    { symbol: 'NIFTY 50', price: 25766.15, change: 142.50, changePct: 0.56, isIndex: true, unit: '₹' },
+    { symbol: 'S&P 500', price: 7201.09, change: 34.10, changePct: 0.48, isIndex: true, unit: '$' },
+    { symbol: 'USD/INR', price: 92.57, change: -0.08, changePct: -0.09, isIndex: true, unit: '₹' },
+    { symbol: 'INDIA 10Y', price: 6.72, change: -0.02, changePct: -0.30, isIndex: true, unit: '%', unitSuffix: true },
+    { symbol: 'BRENT CRUDE', price: 87.50, change: 1.40, changePct: 1.63, isIndex: true, unit: '$' },
+    { symbol: 'GOLD (MCX)', price: 111850, change: 420, changePct: 0.38, isIndex: true, unit: '₹' }
   ];
 
   // Platform Application State
@@ -638,7 +640,7 @@
       if (alt.symbol === 'PORTFOLIO_DD') {
         currentVal = 0.85; // 0.85% current drawdown
       } else if (alt.symbol === 'USD/INR') {
-        currentVal = 86.72;
+        currentVal = USD_INR_RATE;
       } else {
         currentVal = state.holdings[alt.symbol]?.current_price || 0;
       }
@@ -1317,13 +1319,13 @@
     if (!canvas) return;
 
     const underlyings = {
-      NIFTY: { spot: 24820, vol: 0.14, r: 0.068 },
-      BANKNIFTY: { spot: 51400, vol: 0.17, r: 0.068 },
-      RELIANCE: { spot: 2984, vol: 0.22, r: 0.068 },
-      TCS: { spot: 4250, vol: 0.18, r: 0.068 },
-      AAPL: { spot: 224.5, vol: 0.24, r: 0.045 },
-      NVDA: { spot: 118.2, vol: 0.46, r: 0.045 },
-      SPY: { spot: 564.1, vol: 0.13, r: 0.045 }
+      NIFTY: { spot: 25766, vol: 0.14, r: 0.068 },
+      BANKNIFTY: { spot: 63755, vol: 0.17, r: 0.068 },
+      RELIANCE: { spot: 1379, vol: 0.22, r: 0.068 },
+      TCS: { spot: 2509, vol: 0.18, r: 0.068 },
+      AAPL: { spot: 354.1, vol: 0.20, r: 0.045 },
+      NVDA: { spot: 155.4, vol: 0.37, r: 0.045 },
+      SPY: { spot: 720.1, vol: 0.15, r: 0.045 }
     };
 
     const undKey = selectUnderlying ? selectUnderlying.value : 'NIFTY';
@@ -1652,7 +1654,7 @@
     if (btnAll && modal) {
       btnAll.addEventListener('click', () => {
         modal.classList.add('active');
-        calculateSorExecution(1250, 2984.50);
+        calculateSorExecution(1250, 1379.10);
       });
     }
 
@@ -1672,7 +1674,7 @@
     };
   }
 
-  function calculateSorExecution(totalShares = 1250, currentPrice = 2984.50) {
+  function calculateSorExecution(totalShares = 1250, currentPrice = 1379.10) {
     const canvas = document.getElementById('sorWaterfallCanvas');
     const tbody = document.getElementById('sorVenuesTableBody');
     const elParent = document.getElementById('sorParentOrderVal');

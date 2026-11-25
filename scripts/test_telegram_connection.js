@@ -11,16 +11,21 @@ const path = require('path');
 
 // Read .env
 const envPath = path.resolve(__dirname, '..', '.env');
-let token = '9084753837:AAEkaXnQqFu0On_sa8DeHjYYkuPkM7-K3Ck';
-let chatId = '74646806981';
+let token = process.env.TELEGRAM_BOT_TOKEN || '';
+let chatId = process.env.TELEGRAM_CHAT_ID || '';
 
 if (fs.existsSync(envPath)) {
   const content = fs.readFileSync(envPath, 'utf8');
   content.split(/\r?\n/).forEach(line => {
     const trimmed = line.trim();
-    if (trimmed.startsWith('TELEGRAM_BOT_TOKEN=')) token = trimmed.split('=')[1].replace(/["']/g, '');
-    if (trimmed.startsWith('TELEGRAM_CHAT_ID=')) chatId = trimmed.split('=')[1].replace(/["']/g, '');
+    if (!token && trimmed.startsWith('TELEGRAM_BOT_TOKEN=')) token = trimmed.split('=')[1].replace(/["']/g, '');
+    if (!chatId && trimmed.startsWith('TELEGRAM_CHAT_ID=')) chatId = trimmed.split('=')[1].replace(/["']/g, '');
   });
+}
+
+if (!token || !chatId) {
+  console.error('❌ Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in environment or .env file.');
+  process.exit(1);
 }
 
 console.log('Testing Telegram Bot Connection:');

@@ -73,10 +73,10 @@
       greekIcon: '💀',
       greekTitle: 'God of Peaceful Expiration & 0DTE Theta Decay',
       primarySymbol: 'NIFTY',
-      displayAsset: 'NIFTY 24600 CE/PE',
+      displayAsset: 'NIFTY 25750 CE/PE',
       venue: 'NSE PRISM',
-      basePrice: 24680.0,
-      currentPrice: 24680.0,
+      basePrice: 25766.15,
+      currentPrice: 25766.15,
       dailyVolume: '₹42,800 Cr',
       minuteVolume: '18,450 Lots',
       evalSpeedSec: 6,
@@ -159,8 +159,8 @@
       primarySymbol: 'TCS.NS',
       displayAsset: 'TCS / INFY (NSE)',
       venue: 'NSE PRISM',
-      basePrice: 4480.0,
-      currentPrice: 4480.0,
+      basePrice: 2508.90,
+      currentPrice: 2508.90,
       dailyVolume: '₹1,420 Cr',
       minuteVolume: '14,800 Shares',
       evalSpeedSec: 9,
@@ -201,8 +201,8 @@
       primarySymbol: 'RELIANCE.NS',
       displayAsset: 'RELIANCE Spot / Fut',
       venue: 'NSE PRISM',
-      basePrice: 3010.5,
-      currentPrice: 3010.5,
+      basePrice: 1379.10,
+      currentPrice: 1379.10,
       dailyVolume: '₹2,850 Cr',
       minuteVolume: '45,200 Shares',
       evalSpeedSec: 10,
@@ -961,7 +961,7 @@
       mythIcon: '☀️',
       mythTitle: 'Supreme Sun God of Radiant Alpha & Solar Momentum',
       primarySymbol: 'NIFTY',
-      displayAsset: 'NIFTY 24680 CE/PE',
+      displayAsset: 'NIFTY 25750 CE/PE',
       venue: 'NSE PRISM',
       basePrice: 24687.5,
       currentPrice: 24687.5,
@@ -1042,8 +1042,8 @@
       primarySymbol: 'TCS.NS',
       displayAsset: 'TCS / INFY / HCLTECH',
       venue: 'NSE PRISM',
-      basePrice: 4480.0,
-      currentPrice: 4480.0,
+      basePrice: 2508.90,
+      currentPrice: 2508.90,
       dailyVolume: '₹1,850 Cr',
       minuteVolume: '19,200 Shares',
       evalSpeedSec: 5,
@@ -1081,8 +1081,8 @@
       primarySymbol: 'RELIANCE.NS',
       displayAsset: 'RELIANCE / ONGC Spot & Futures',
       venue: 'NSE PRISM',
-      basePrice: 3010.5,
-      currentPrice: 3010.5,
+      basePrice: 1379.10,
+      currentPrice: 1379.10,
       dailyVolume: '₹3,200 Cr',
       minuteVolume: '52,000 Shares',
       evalSpeedSec: 8,
@@ -2241,22 +2241,22 @@
   // REAL-TIME STREAMING MARKET DATA FEED (100% LIVE TICKING ASSETS)
   // ══════════════════════════════════════════════════════════════════════════
   const LIVE_TICKER_FEED = [
-    { id: 'NIFTY', name: 'NIFTY 50', price: 24680.40, base: 24680.40, pct: 0.42, curr: '₹' },
-    { id: 'BANKNIFTY', name: 'BANKNIFTY', price: 52140.80, base: 52140.80, pct: 0.68, curr: '₹' },
-    { id: 'SPX', name: 'S&P 500', price: 5648.40, base: 5648.40, pct: 0.35, curr: '$' },
-    { id: 'NDX', name: 'NASDAQ', price: 17890.20, base: 17890.20, pct: 0.82, curr: '$' },
-    { id: 'BTC', name: 'BTC-USD', price: 64280.00, base: 64280.00, pct: 1.45, curr: '$' },
-    { id: 'ETH', name: 'ETH-USD', price: 3450.20, base: 3450.20, pct: 2.10, curr: '$' },
-    { id: 'SOL', name: 'SOL-USD', price: 154.60, base: 154.60, pct: 3.20, curr: '$' },
-    { id: 'BRENT', name: 'BRENT CRUDE', price: 78.40, base: 78.40, pct: -0.24, curr: '$' },
-    { id: 'GOLD', name: 'MCX GOLD', price: 78420.00, base: 78420.00, pct: 0.38, curr: '₹' },
-    { id: 'USDINR', name: 'USD/INR', price: 83.92, base: 83.92, pct: -0.05, curr: '₹' },
-    { id: 'RELIANCE', name: 'RELIANCE', price: 3010.50, base: 3010.50, pct: 0.55, curr: '₹' },
-    { id: 'HDFCBANK', name: 'HDFCBANK', price: 1642.00, base: 1642.00, pct: 0.40, curr: '₹' },
-    { id: 'TCS', name: 'TCS', price: 4480.00, base: 4480.00, pct: 1.10, curr: '₹' },
-    { id: 'NVDA', name: 'NVDA', price: 128.50, base: 128.50, pct: 2.40, curr: '$' },
-    { id: 'HAL', name: 'HAL', price: 4320.00, base: 4320.00, pct: 1.85, curr: '₹' },
-    { id: 'TATAMOTORS', name: 'TATA MOTORS', price: 985.20, base: 985.20, pct: 0.90, curr: '₹' }
+    { id: 'NIFTY', name: 'NIFTY 50', price: 25766.15, base: 25766.15, pct: 0.56, curr: '₹' },
+    { id: 'BANKNIFTY', name: 'BANKNIFTY', price: 63754.70, base: 63754.70, pct: 0.84, curr: '₹' },
+    { id: 'SPX', name: 'S&P 500', price: 7201.09, base: 7201.09, pct: 0.48, curr: '$' },
+    { id: 'NDX', name: 'NASDAQ', price: 23733.53, base: 23733.53, pct: 0.82, curr: '$' },
+    { id: 'BTC', name: 'BTC-USD', price: 62400.00, base: 62400.00, pct: 1.45, curr: '$' },
+    { id: 'ETH', name: 'ETH-USD', price: 1850.00, base: 1850.00, pct: 2.10, curr: '$' },
+    { id: 'SOL', name: 'SOL-USD', price: 72.00, base: 72.00, pct: 3.20, curr: '$' },
+    { id: 'BRENT', name: 'BRENT CRUDE', price: 87.50, base: 87.50, pct: 0.44, curr: '$' },
+    { id: 'GOLD', name: 'MCX GOLD', price: 111850.00, base: 111850.00, pct: 0.38, curr: '₹' },
+    { id: 'USDINR', name: 'USD/INR', price: 92.57, base: 92.57, pct: -0.09, curr: '₹' },
+    { id: 'RELIANCE', name: 'RELIANCE', price: 1379.10, base: 1379.10, pct: 0.55, curr: '₹' },
+    { id: 'HDFCBANK', name: 'HDFCBANK', price: 845.60, base: 845.60, pct: 0.40, curr: '₹' },
+    { id: 'TCS', name: 'TCS', price: 2508.90, base: 2508.90, pct: 1.10, curr: '₹' },
+    { id: 'NVDA', name: 'NVDA', price: 155.38, base: 155.38, pct: 2.40, curr: '$' },
+    { id: 'HAL', name: 'HAL', price: 4838.50, base: 4838.50, pct: 1.85, curr: '₹' },
+    { id: 'TATAMOTORS', name: 'TATA MOTORS', price: 455.25, base: 455.25, pct: 0.90, curr: '₹' }
   ];
 
   const renderTickerStrip = () => {
@@ -3058,9 +3058,12 @@
 
   const fetchMarketQuotes = async (symbols) => {
     const symStr = symbols.join(',');
-    // 1. Try local Vercel /api/market/quotes endpoint
+    const baseApi = (typeof SecurityMaster !== 'undefined' && typeof SecurityMaster.getApiBase === 'function')
+      ? SecurityMaster.getApiBase()
+      : ((window.location.protocol === 'http:' || window.location.protocol === 'https:') ? window.location.origin + '/api' : 'http://127.0.0.1:8080/api');
+    // 1. Try unified RISKOS /api/market/quotes endpoint
     try {
-      const res = await fetch(`/api/market/quotes?symbols=${encodeURIComponent(symStr)}`);
+      const res = await fetch(`${baseApi}/market/quotes?symbols=${encodeURIComponent(symStr)}`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.quotes) return data.quotes;
@@ -3068,9 +3071,9 @@
       }
     } catch (e) {}
 
-    // 2. Try FastAPI backend at port 8000
+    // 2. Fallback to same-origin relative /api if baseApi was custom
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/market/quotes?symbols=${encodeURIComponent(symStr)}`);
+      const res = await fetch(`/api/market/quotes?symbols=${encodeURIComponent(symStr)}`);
       if (res.ok) {
         const data = await res.json();
         if (data && data.quotes) return data.quotes;
@@ -3134,7 +3137,7 @@
             pos.currentPrice = safeCurPrice;
             const pnlDelta = isBuy ? (safeCurPrice - safeEntryPrice) : (safeEntryPrice - safeCurPrice);
             const rawQty = typeof pos.rawQty === 'number' && !isNaN(pos.rawQty) ? pos.rawQty : (parseFloat(pos.qty) || 100);
-            const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || 83.92);
+            const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || (typeof SecurityMaster !== 'undefined' ? SecurityMaster.getUsdToInr() : 92.57));
             pos.unrealizedPnlINR = Math.round(pnlDelta * rawQty * fxRate);
             pos.unrealizedPnlPct = safeEntryPrice > 0 ? Number(((pnlDelta / safeEntryPrice) * 100).toFixed(2)) : 0.0;
             if (isNaN(pos.unrealizedPnlPct) || !isFinite(pos.unrealizedPnlPct)) pos.unrealizedPnlPct = 0.0;
@@ -3173,7 +3176,7 @@
           pos.currentPrice = safeCurPrice;
           const pnlDelta = isBuy ? (safeCurPrice - safeEntryPrice) : (safeEntryPrice - safeCurPrice);
           const rawQty = typeof pos.rawQty === 'number' && !isNaN(pos.rawQty) ? pos.rawQty : (parseFloat(pos.qty) || 100);
-          const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || 83.92);
+          const fxRate = bot.market === 'india' ? 1.0 : (window.USD_INR_RATE || (typeof SecurityMaster !== 'undefined' ? SecurityMaster.getUsdToInr() : 92.57));
           const maxUnrDrop = -Math.round((bot.allocatedCapINR || 1000000) * 0.002);
           pos.unrealizedPnlINR = Math.max(maxUnrDrop, Math.round(pnlDelta * rawQty * fxRate));
           pos.unrealizedPnlPct = safeEntryPrice > 0 ? Number(((pnlDelta / safeEntryPrice) * 100).toFixed(2)) : 0.0;
@@ -4193,22 +4196,23 @@
     const eWinEl = document.getElementById('egyptianWinRate');
     const gWinEl = document.getElementById('grandWinRate');
 
+    const fxDiv = window.USD_INR_RATE || (typeof SecurityMaster !== 'undefined' ? SecurityMaster.getUsdToInr() : 92.57);
     if (oEl) {
       oEl.textContent = `${olympusPnl >= 0 ? '+' : ''}₹${olympusPnl.toLocaleString('en-IN')}`;
       oEl.style.color = olympusPnl >= 0 ? '#ffb000' : '#f43f5e';
     }
     if (vEl) {
-      const usd = (valhallaPnl / 83.5).toFixed(0);
+      const usd = (valhallaPnl / fxDiv).toFixed(0);
       vEl.textContent = `${valhallaPnl >= 0 ? '+' : ''}₹${valhallaPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
       vEl.style.color = valhallaPnl >= 0 ? '#60a5fa' : '#f43f5e';
     }
     if (eEl) {
-      const usd = (egyptianPnl / 83.5).toFixed(0);
+      const usd = (egyptianPnl / fxDiv).toFixed(0);
       eEl.textContent = `${egyptianPnl >= 0 ? '+' : ''}₹${egyptianPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
       eEl.style.color = egyptianPnl >= 0 ? '#fbbf24' : '#f43f5e';
     }
     if (gEl) {
-      const usd = (grandTotalPnl / 83.5).toFixed(0);
+      const usd = (grandTotalPnl / fxDiv).toFixed(0);
       gEl.textContent = `${grandTotalPnl >= 0 ? '+' : ''}₹${grandTotalPnl.toLocaleString('en-IN')} ($${Number(usd).toLocaleString('en-US')})`;
       gEl.style.color = grandTotalPnl >= 0 ? '#10b981' : '#f43f5e';
     }
@@ -4271,7 +4275,7 @@
       }
     }
 
-    const usdVal = (totalLivePnl / 83.5).toFixed(0);
+    const usdVal = (totalLivePnl / (window.USD_INR_RATE || (typeof SecurityMaster !== 'undefined' ? SecurityMaster.getUsdToInr() : 92.57))).toFixed(0);
     const formattedPnl = `+₹${totalLivePnl.toLocaleString('en-IN')} ($${Number(usdVal).toLocaleString('en-US')})`;
 
     if (bannerProfitEl) {

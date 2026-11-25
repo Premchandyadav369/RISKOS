@@ -202,11 +202,11 @@ const OpenBBBridge = (() => {
     // 4. Economy Namespace: obb.economy.indicators
     economy: {
       indicators: async (category = 'macro', options = {}) => {
-        let brentPrice = 78.45;
-        let brentChg = '+1.82%';
+        let brentPrice = 87.50;
+        let brentChg = '+1.63%';
         let us10Price = 4.18;
         let us10Chg = '+2.1 bps';
-        let usdInrVal = 86.72;
+        let usdInrVal = 92.57;
         let usdInrChg = '+0.14%';
         let vixVal = 14.80;
 

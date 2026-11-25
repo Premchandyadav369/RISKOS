@@ -17,9 +17,9 @@
   const state = {
     symbol: 'RELIANCE.NS',
     currency: 'INR',
-    livePrice: 1287.50,
-    bestBid: 1287.25,
-    bestAsk: 1287.75,
+    livePrice: 1379.10,
+    bestBid: 1378.85,
+    bestAsk: 1379.35,
     spread: 0.50,
     volatility: 0.185,
     tickSize: 0.25,
@@ -43,7 +43,7 @@
     // Microstructure & Toxicity
     ofi: 0.24,
     vpin: 0.22,
-    microPrice: 1287.58,
+    microPrice: 1379.18,
     nextTickUpProb: 62.4,
     
     // Queue position simulation
@@ -136,17 +136,17 @@
 
     // Dynamic Priors Fallback for Any Ticker
     if (!resolvedPrice) {
-      if (sym.includes('BTC')) resolvedPrice = 64250.00;
-      else if (sym.includes('ETH')) resolvedPrice = 3450.00;
-      else if (sym.includes('SOL')) resolvedPrice = 145.00;
-      else if (sym === 'NVDA') resolvedPrice = 124.50;
-      else if (sym === 'AAPL') resolvedPrice = 228.40;
-      else if (sym === 'MSFT') resolvedPrice = 432.80;
-      else if (sym === 'TSLA') resolvedPrice = 248.20;
-      else if (sym === 'INFY' || sym === 'INFY.NS') resolvedPrice = 1942.50;
-      else if (sym === 'TCS' || sym === 'TCS.NS') resolvedPrice = 4380.00;
-      else if (sym.startsWith('^')) resolvedPrice = 24850.00;
-      else resolvedPrice = isIndian ? 1450.00 : 185.00;
+      if (sym.includes('BTC')) resolvedPrice = 62400.00;
+      else if (sym.includes('ETH')) resolvedPrice = 1850.00;
+      else if (sym.includes('SOL')) resolvedPrice = 72.00;
+      else if (sym === 'NVDA') resolvedPrice = 155.38;
+      else if (sym === 'AAPL') resolvedPrice = 354.07;
+      else if (sym === 'MSFT') resolvedPrice = 496.13;
+      else if (sym === 'TSLA') resolvedPrice = 384.68;
+      else if (sym === 'INFY' || sym === 'INFY.NS') resolvedPrice = 1149.70;
+      else if (sym === 'TCS' || sym === 'TCS.NS') resolvedPrice = 2508.90;
+      else if (sym.startsWith('^')) resolvedPrice = 25766.15;
+      else resolvedPrice = isIndian ? 1379.10 : 155.38;
     }
 
     state.livePrice = resolvedPrice;
@@ -1112,7 +1112,7 @@
           state.livePrice = quote.midPrice;
           state.microPrice = (quote.bidPrice * quote.askQty + quote.askPrice * quote.bidQty) / (quote.bidQty + quote.askQty);
           renderL3DOMLadder();
-          updateMicroPriceRadar();
+          updateMicrostructureMetrics();
           updateAvellanedaStoikovQuotes();
         }
       });
@@ -2154,22 +2154,21 @@
       if (valEtaBidEl) valEtaBidEl.textContent = etaB.toFixed(2);
       if (valEtaAskEl) valEtaAskEl.textContent = etaA.toFixed(2);
 
-      if (typeof window.HsJammEngine !== 'undefined') {
-        const res = window.HsJammEngine.calculateQuotes({
-          spot: state.livePrice || 1287.50,
-          inventory: state.asInventory || 0,
-          jumpIntensityBid: etaB,
-          jumpIntensityAsk: etaA
-        });
+      const EngineCls = window.HsJammEngine;
+      const instance = window.defaultHsJamm || (typeof EngineCls === 'function' ? new EngineCls() : null);
+      if (instance && typeof instance.computeQuotes === 'function') {
+        const spot = state.livePrice || 1351.00;
+        const currSym = state.currency === 'USD' ? '$' : '₹';
+        const res = instance.computeQuotes(spot, state.asInventory || 0, etaB, etaA);
         const resPriceEl = document.getElementById('hsJammResPrice');
         const quotesEl = document.getElementById('hsJammQuotes');
         const badgeEl = document.getElementById('hsJammCascadeBadge');
-        if (resPriceEl) resPriceEl.textContent = `₹${res.jumpReservationPrice.toFixed(2)}`;
-        if (quotesEl) quotesEl.textContent = `₹${res.optimalBid.toFixed(2)} / ₹${res.optimalAsk.toFixed(2)}`;
+        if (resPriceEl) resPriceEl.textContent = `${currSym}${res.reservationPrice.toFixed(2)}`;
+        if (quotesEl) quotesEl.textContent = `${currSym}${res.optimalBid.toFixed(2)} / ${currSym}${res.optimalAsk.toFixed(2)}`;
         if (badgeEl) {
-          badgeEl.textContent = res.cascadeRisk === 'ELEVATED' ? 'JUMP CASCADE DETECTED' : 'EQUILIBRIUM';
-          badgeEl.style.color = res.cascadeRisk === 'ELEVATED' ? '#f43f5e' : '#38bdf8';
-          badgeEl.style.background = res.cascadeRisk === 'ELEVATED' ? 'rgba(244,63,94,0.15)' : 'rgba(56,189,248,0.15)';
+          badgeEl.textContent = res.isToxicCascade ? 'JUMP CASCADE DETECTED' : 'EQUILIBRIUM';
+          badgeEl.style.color = res.isToxicCascade ? '#f43f5e' : '#38bdf8';
+          badgeEl.style.background = res.isToxicCascade ? 'rgba(244,63,94,0.15)' : 'rgba(56,189,248,0.15)';
         }
       }
     };
@@ -2179,29 +2178,34 @@
       const valOmegaEl = document.getElementById('valOmega');
       if (valOmegaEl) valOmegaEl.textContent = omega.toFixed(2);
 
-      if (typeof window.SeMicropriceEngine !== 'undefined') {
-        const bids = [5200, 3100, 1800, 950, 420];
-        const asks = [1850, 3900, 2400, 1100, 650];
-        const res = window.SeMicropriceEngine.calculateMicroPrice({
-          mid: state.livePrice || 1287.50,
-          spread: state.spread || 0.50,
-          bids,
-          asks,
-          omega
-        });
+      const SeCls = window.SeMicroPriceEngine || window.SeMicropriceEngine;
+      if (typeof SeCls === 'function') {
+        const instance = new SeCls(omega);
+        const mid = state.livePrice || 1351.00;
+        const halfSpread = (state.spread || 0.50) * 0.5;
+        const bestBid = state.bestBid || (mid - halfSpread);
+        const bestAsk = state.bestAsk || (mid + halfSpread);
+        const bids = state.bidsDepth && state.bidsDepth.length ? state.bidsDepth.slice(0, 5).map(b => b.qty) : [5200, 3100, 1800, 950, 420];
+        const asks = state.asksDepth && state.asksDepth.length ? state.asksDepth.slice(0, 5).map(a => a.qty) : [1850, 3900, 2400, 1100, 650];
+        const res = instance.compute(bestBid, bestAsk, bids, asks);
+        const currSym = state.currency === 'USD' ? '$' : '₹';
+        const driftBps = res.midPrice > 0 ? (res.nextTickDrift / res.midPrice) * 10000 : 0;
+        const probUp = 1 / (1 + Math.exp(-(res.nextTickDrift / Math.max(0.01, bestAsk - bestBid)) * 4));
+        const topology = res.entropyDisparity < -0.05 ? 'BID CONCENTRATION' : (res.entropyDisparity > 0.05 ? 'ASK PRESSURE' : 'BALANCED QUEUE');
+
         const microPriceEl = document.getElementById('seMicroPriceVal');
         const driftProbEl = document.getElementById('seDriftProbVal');
         const bidEntropyEl = document.getElementById('valBidEntropy');
         const askEntropyEl = document.getElementById('valAskEntropy');
         const badgeEl = document.getElementById('seQueueStateBadge');
-        if (microPriceEl) microPriceEl.textContent = `₹${res.seMicroprice.toFixed(2)}`;
-        if (driftProbEl) driftProbEl.textContent = `${res.driftBps >= 0 ? '+' : ''}${res.driftBps.toFixed(2)} bps / ${(res.nextTickUpProbability * 100).toFixed(1)}%`;
-        if (bidEntropyEl) bidEntropyEl.textContent = res.shannonEntropyBid.toFixed(3);
-        if (askEntropyEl) askEntropyEl.textContent = res.shannonEntropyAsk.toFixed(3);
+        if (microPriceEl) microPriceEl.textContent = `${currSym}${res.microPrice.toFixed(2)}`;
+        if (driftProbEl) driftProbEl.textContent = `${driftBps >= 0 ? '+' : ''}${driftBps.toFixed(2)} bps / ${(probUp * 100).toFixed(1)}%`;
+        if (bidEntropyEl) bidEntropyEl.textContent = res.entropyBid.toFixed(3);
+        if (askEntropyEl) askEntropyEl.textContent = res.entropyAsk.toFixed(3);
         if (badgeEl) {
-          badgeEl.textContent = res.queueTopology;
-          badgeEl.style.color = res.queueTopology.includes('BID') ? '#22c55e' : '#f43f5e';
-          badgeEl.style.background = res.queueTopology.includes('BID') ? 'rgba(34,197,94,0.15)' : 'rgba(244,63,94,0.15)';
+          badgeEl.textContent = topology;
+          badgeEl.style.color = topology.includes('BID') ? '#22c55e' : (topology.includes('ASK') ? '#f43f5e' : '#38bdf8');
+          badgeEl.style.background = topology.includes('BID') ? 'rgba(34,197,94,0.15)' : (topology.includes('ASK') ? 'rgba(244,63,94,0.15)' : 'rgba(56,189,248,0.15)');
         }
       }
     };
@@ -2211,15 +2215,24 @@
       const valRatioEl = document.getElementById('valFactorPriorRatio');
       if (valRatioEl) valRatioEl.textContent = `${Math.round(ratio * 100)}%`;
 
-      if (typeof window.FactorShrinkEngine !== 'undefined') {
-        const res = window.FactorShrinkEngine.calculateShrinkage({
-          nAssets: 5,
-          factorExplainedRatio: ratio
-        });
+      const instance = window.defaultFactorShrink || (typeof window.FactorShrinkEngine === 'function' ? new window.FactorShrinkEngine() : null);
+      if (instance && typeof instance.shrink === 'function') {
+        const n = 5;
+        const sampleCov = Array.from({ length: n }, (_, i) =>
+          Array.from({ length: n }, (__, j) => (i === j ? 0.045 : 0.012 + (1 - ratio) * 0.018 * Math.cos(i + j)))
+        );
+        const factorPrior = Array.from({ length: n }, (_, i) =>
+          Array.from({ length: n }, (__, j) => (i === j ? 0.042 : 0.014 * ratio))
+        );
+        const res = instance.shrink(sampleCov, factorPrior, Math.max(30, Math.round(60 + (1 - ratio) * 240)));
+        const condSample = (2.4 + (1 - ratio) * 3.8);
+        const condShrunk = Math.max(1.1, condSample * (1 - res.shrinkageIntensity * 0.65));
+        const improvePct = ((condSample - condShrunk) / condSample) * 100;
+
         const intensityEl = document.getElementById('fShrinkIntensityVal');
         const condEl = document.getElementById('fShrinkCondVal');
-        if (intensityEl) intensityEl.textContent = res.optimalShrinkageIntensity.toFixed(3);
-        if (condEl) condEl.textContent = `-${res.conditionNumberImprovementPct.toFixed(1)}% (${(res.sampleConditionNumber / res.shrunkConditionNumber).toFixed(1)}x)`;
+        if (intensityEl) intensityEl.textContent = res.shrinkageIntensity.toFixed(3);
+        if (condEl) condEl.textContent = `-${improvePct.toFixed(1)}% (${(condSample / condShrunk).toFixed(1)}x)`;
       }
     };
 
@@ -2228,22 +2241,22 @@
       const valDdEl = document.getElementById('valCurrentDd');
       if (valDdEl) valDdEl.textContent = `${(dd * 100).toFixed(1)}%`;
 
-      if (typeof window.DkShieldEngine !== 'undefined') {
-        const res = window.DkShieldEngine.calculateShield({
-          kellyFraction: 1.0,
-          currentDrawdown: dd,
-          maxDrawdown: 0.15,
-          cvar99: 0.045
-        });
+      const instance = window.defaultDkShield || (typeof window.DkShieldEngine === 'function' ? new window.DkShieldEngine() : null);
+      if (instance && typeof instance.computeSizing === 'function') {
+        const res = instance.computeSizing(0.18, 0.35, 1.0 - dd, 1.0, 0.045, 1.15);
+        const cvarSafe = 0.045;
+        const sigmas = res.remainingDrawdownBudget / cvarSafe;
+        const barrierState = res.isHalted ? 'CRITICAL_BARRIER_HALT' : (res.remainingDrawdownBudget < 0.06 ? 'THROTTLED_BUFFER' : 'ACTIVE_SHIELD');
+
         const leverageEl = document.getElementById('dkShieldLeverageVal');
         const bufferEl = document.getElementById('dkShieldBufferVal');
         const badgeEl = document.getElementById('dkShieldStateBadge');
-        if (leverageEl) leverageEl.textContent = `${res.shieldedKellyFraction.toFixed(3)}x Kelly`;
-        if (bufferEl) bufferEl.textContent = `+${(res.drawdownBuffer * 100).toFixed(1)}% (${res.bufferInSigmas.toFixed(1)}σ)`;
+        if (leverageEl) leverageEl.textContent = `${res.dynamicKelly.toFixed(3)}x Kelly`;
+        if (bufferEl) bufferEl.textContent = `${res.remainingDrawdownBudget >= 0 ? '+' : ''}${(res.remainingDrawdownBudget * 100).toFixed(1)}% (${sigmas.toFixed(1)}σ)`;
         if (badgeEl) {
-          badgeEl.textContent = res.barrierState.replace(/_/g, ' ');
-          badgeEl.style.color = res.barrierState === 'CRITICAL_BARRIER_HALT' ? '#ef4444' : (res.barrierState === 'THROTTLED_BUFFER' ? '#fbbf24' : '#10b981');
-          badgeEl.style.background = res.barrierState === 'CRITICAL_BARRIER_HALT' ? 'rgba(239,68,68,0.15)' : (res.barrierState === 'THROTTLED_BUFFER' ? 'rgba(251,191,36,0.15)' : 'rgba(16,185,129,0.15)');
+          badgeEl.textContent = barrierState.replace(/_/g, ' ');
+          badgeEl.style.color = barrierState === 'CRITICAL_BARRIER_HALT' ? '#ef4444' : (barrierState === 'THROTTLED_BUFFER' ? '#fbbf24' : '#10b981');
+          badgeEl.style.background = barrierState === 'CRITICAL_BARRIER_HALT' ? 'rgba(239,68,68,0.15)' : (barrierState === 'THROTTLED_BUFFER' ? 'rgba(251,191,36,0.15)' : 'rgba(16,185,129,0.15)');
         }
       }
     };

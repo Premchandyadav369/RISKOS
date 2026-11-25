@@ -95,7 +95,7 @@
           <a href="learn.html" class="more-sheet-card ${isLearn ? 'active' : ''}">
             <i class="fa-solid fa-graduation-cap" style="color:#a855f7;"></i>
             <div>
-              <div>80 Quant Laboratories</div>
+              <div>81 Quant Laboratories</div>
               <div style="font-size:0.68rem;color:#71717a;font-weight:400;">Interactive Math &amp; Models</div>
             </div>
           </a>

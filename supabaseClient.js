@@ -127,7 +127,7 @@
     // ── 4. Realtime Broadcast & Channel Mesh ─────────────────────────────────
     _initRealtimeBus() {
       // Browser BroadcastChannel fallback for multi-tab zero-latency sync
-      if (typeof BroadcastChannel !== 'undefined') {
+      if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
         this.broadcastChannel = new BroadcastChannel(this.config.realtimeChannel || 'riskos_enterprise_channel');
         this.broadcastChannel.onmessage = (event) => {
           if (event.data && event.data.type) {

@@ -53,7 +53,7 @@
   const generateRealTimeObservations = async () => {
     // Attempt to fetch from backend first
     try {
-      const apiBase = typeof SecurityMaster !== 'undefined' ? SecurityMaster.getApiBase() : 'http://127.0.0.1:8000/api';
+      const apiBase = typeof SecurityMaster !== 'undefined' ? SecurityMaster.getApiBase() : 'http://127.0.0.1:8080/api';
       const res = await fetch(`${apiBase}/observatory/feed`);
       if (res.ok) {
         const data = await res.json();
@@ -77,13 +77,13 @@
           symbol: 'RELIANCE',
           name: 'Reliance Industries',
           exchange: 'NSE',
-          price: 2984.50,
-          changePercent: 2.35
+          price: 1379.10,
+          changePercent: 2.08
         },
         magnitude: '2.76x (Z: +3.24σ)',
         title: 'Abnormal Institutional Volume Surge in RELIANCE',
         what_happened: 'Trading volume reached 12.42M shares compared to the 20-day historical baseline of 4.50M shares (+176% surge).',
-        evidence: 'Volume Ratio = 2.76x baseline. Intraday price expansion of +2.35% with 74% buyer-initiated block volume on NSE order books.',
+        evidence: 'Volume Ratio = 2.76x baseline. Intraday price expansion of +2.08% with 74% buyer-initiated block volume on NSE order books.',
         why_it_matters: 'Substantial volume expansion without broad market weakness indicates concentrated institutional accumulation prior to quarterly financial disclosures.',
         mathematics: {
           formula: '\\text{Volume Ratio} = \\frac{V_{\\text{current}}}{\\bar{V}_{20\\text{D}}} = \\frac{12.42\\text{M}}{4.50\\text{M}} = 2.76\\times',
@@ -104,16 +104,16 @@
           symbol: 'TCS',
           name: 'Tata Consultancy Services',
           exchange: 'NSE',
-          price: 4380.00,
-          changePercent: 1.85
+          price: 2508.90,
+          changePercent: 1.99
         },
         magnitude: 'Spread: +2.65%',
         title: 'Macro Sector Rotation: Outperformance in Technology vs Financials',
-        what_happened: 'NIFTY IT gained +1.85% while NIFTY Financial Services shed -0.80%, creating a 2.65% sectoral alpha spread.',
+        what_happened: 'NIFTY IT gained +1.99% while NIFTY Financial Services shed -0.66%, creating a 2.65% sectoral alpha spread.',
         evidence: 'IT index relative strength index (RSI-14) crossed 68.4 with simultaneous multi-month volume breakouts in TCS and Infosys.',
         why_it_matters: 'Capital rotation toward defensive export-oriented technology compounders often reflects currency hedging and anticipation of global rate cuts.',
         mathematics: {
-          formula: '\\text{Sector Spread} = R_{\\text{IT}} - R_{\\text{FIN}} = (+1.85\\%) - (-0.80\\%) = +2.65\\%',
+          formula: '\\text{Sector Spread} = R_{\\text{IT}} - R_{\\text{FIN}} = (+1.99\\%) - (-0.66\\%) = +2.65\\%',
           zScore: '\\text{Relative Momentum} = \\frac{\\mu_{\\text{IT}} - \\mu_{\\text{NIFTY}}}{\\sigma_{\\text{Spread}}} = +2.18\\sigma'
         },
         related_news: [
@@ -130,13 +130,13 @@
           symbol: 'INFY',
           name: 'Infosys Limited',
           exchange: 'NSE',
-          price: 1942.80,
+          price: 1149.70,
           changePercent: 3.12
         },
         magnitude: '+41% IV Expansion',
         title: 'Implied Volatility Regime Breakout on INFY Options',
         what_happened: 'At-the-money 30-day implied volatility surged from 16.2% to 22.8% (+41% annualized increase).',
-        evidence: 'Option straddle pricing indicates market makers are pricing an expected move of ±₹125 into next week’s corporate announcement.',
+        evidence: 'Option straddle pricing indicates market makers are pricing an expected move of ±₹75 into next week’s corporate announcement.',
         why_it_matters: 'Sudden volatility expansion indicates market participants are aggressively bidding option premiums for tail-risk protection.',
         mathematics: {
           formula: '\\Delta \\text{IV} = \\frac{\\sigma_{\\text{new}} - \\sigma_{\\text{base}}}{\\sigma_{\\text{base}}} = \\frac{22.8\\% - 16.2\\%}{16.2\\%} = +40.74\\%',
@@ -156,17 +156,17 @@
           symbol: 'TCS',
           name: 'Tata Consultancy Services',
           exchange: 'NSE',
-          price: 4380.00,
-          changePercent: 1.85
+          price: 2508.90,
+          changePercent: 1.99
         },
-        magnitude: '52-Week All-Time High',
-        title: 'TCS Breaches 52-Week High on Heavy Institutional Turnover',
-        what_happened: 'TCS crossed its previous 52-week peak of ₹4,250.00, printing a new all-time high of ₹4,380.00.',
+        magnitude: 'Trend Breakout Signal',
+        title: 'TCS Clears Key Resistance on Heavy Institutional Turnover',
+        what_happened: 'TCS crossed its 20-day resistance band of ₹2,460.00, printing ₹2,508.90 on heavy block accumulation.',
         evidence: 'Stock cleared its upper Bollinger Band (20, 2) with 10-day volume moving average up +48% over the monthly mean.',
-        why_it_matters: 'New 52-week highs with heavy volume support typically carry positive continuation momentum with negligible immediate overhead resistance.',
+        why_it_matters: 'Sustained breakouts with heavy volume support typically carry positive continuation momentum with negligible immediate overhead resistance.',
         mathematics: {
-          formula: '\\text{Breakout Distance} = \\frac{P_{\\text{current}} - P_{52\\text{W High}}}{P_{52\\text{W High}}} = \\frac{4380 - 4250}{4250} = +3.06\\%',
-          zScore: 'Z_{\\text{Price}} = \\frac{4380 - 3920}{185} = +2.48\\sigma'
+          formula: '\\text{Breakout Distance} = \\frac{P_{\\text{current}} - P_{\\text{Res}}}{P_{\\text{Res}}} = \\frac{2508.90 - 2460}{2460} = +1.99\\%',
+          zScore: 'Z_{\\text{Price}} = \\frac{2508.90 - 2380}{52} = +2.48\\sigma'
         },
         related_news: [
           { title: 'TCS Signs \$1.2B Digital Transformation Agreement in UK', source: 'Economic Times', url: 'https://economictimes.indiatimes.com' }
@@ -182,7 +182,7 @@
           symbol: 'HDFCBANK',
           name: 'HDFC Bank Limited',
           exchange: 'NSE',
-          price: 1768.40,
+          price: 845.60,
           changePercent: 2.10
         },
         magnitude: '+2.40σ Velocity',
@@ -1547,9 +1547,9 @@
           const indicators = await OpenBBBridge.obb.economy.indicators();
           const yieldCurve = await OpenBBBridge.obb.fixedincome.government.yield_curve();
 
-          const brent = (Array.isArray(indicators) ? indicators.find(i => i.indicator && i.indicator.includes('Brent')) : null) || { value: 78.45, change: '+1.82%' };
+          const brent = (Array.isArray(indicators) ? indicators.find(i => i.indicator && i.indicator.includes('Brent')) : null) || { value: 87.50, change: '+1.82%' };
           const us10 = (Array.isArray(indicators) ? indicators.find(i => i.indicator && i.indicator.includes('10Y')) : null) || { value: 4.18, change: '+2.1 bps' };
-          const usdinr = (Array.isArray(indicators) ? indicators.find(i => i.indicator && i.indicator.includes('USD/INR')) : null) || { value: 86.72, change: '+0.14%' };
+          const usdinr = (Array.isArray(indicators) ? indicators.find(i => i.indicator && i.indicator.includes('USD/INR')) : null) || { value: 92.57, change: '+0.14%' };
           const vixObj = (Array.isArray(indicators) ? indicators.find(i => i.indicator && (i.indicator.includes('VIX') || i.indicator.includes('Volatility'))) : null) || { value: 14.80 };
 
           // India 10Y Sovereign Yield (Real or from Yield Curve)
@@ -1606,6 +1606,42 @@
             const isPos = String(usdinr.change).startsWith('+');
             usdInrChg.textContent = `${usdinr.change} Vol`;
             usdInrChg.style.color = isPos ? '#FF6B6B' : '#51CF66';
+          }
+
+          // Live-hydrate Sovereign Macro & Benchmark Tape Strip via MacroDataFeedEngine + SecurityMaster
+          if (window.macroDataFeed && typeof window.macroDataFeed.fetchAllTelemetry === 'function') {
+            try {
+              const t = await window.macroDataFeed.fetchAllTelemetry();
+              if (t?.eia?.brentCrudeUsd && brentVal) brentVal.textContent = `$${Number(t.eia.brentCrudeUsd).toFixed(2)}/bbl`;
+              if (t?.fred?.realYield10Y && sentSub) sentSub.title = `FRED 10Y Real Yield: ${t.fred.realYield10Y}%`;
+            } catch (err) {}
+          }
+          if (typeof SecurityMaster !== 'undefined') {
+            Promise.allSettled([
+              SecurityMaster.getQuote('^NSEI'),
+              SecurityMaster.getQuote('^NSEBANK'),
+              SecurityMaster.getQuote('^GSPC'),
+              SecurityMaster.getQuote('USDINR'),
+              SecurityMaster.getQuote('BRENT')
+            ]).then(([qNifty, qBank, qSp, qFx, qBrent]) => {
+              const setPair = (pElId, cElId, res, prefix = '', suffix = '') => {
+                if (res.status !== 'fulfilled' || !res.value || !res.value.price) return;
+                const val = Number(res.value.price);
+                const pct = Number(res.value.changePercent ?? res.value.change_percent ?? 0);
+                const pEl = document.getElementById(pElId);
+                const cEl = document.getElementById(cElId);
+                if (pEl) pEl.textContent = `${prefix}${val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`;
+                if (cEl) {
+                  cEl.textContent = `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`;
+                  cEl.className = `asset-chg ${pct >= 0 ? 'text-emerald' : 'text-red'}`;
+                }
+              };
+              setPair('macroNiftyPrice', 'macroNiftyChg', qNifty);
+              setPair('macroBankPrice', 'macroBankChg', qBank);
+              setPair('macroSpPrice', 'macroSpChg', qSp);
+              setPair('macroUsdInrPrice', 'macroUsdInrChg', qFx, '₹');
+              setPair('macroCrudePrice', 'macroCrudeChg', qBrent, '$');
+            });
           }
 
           // 5. Global Sentiment Gauge (Deterministic VIX & Term Structure Engine - Zero Math.random)

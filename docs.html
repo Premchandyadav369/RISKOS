@@ -4,10 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RISKOS &bull; Interactive System Architecture &amp; Quant Model Documentation</title>
+  <meta name="description" content="RISKOS Documentation, Trust Center & Interactive API Console: Quantitative derivations, security master specifications, and live REST/SSE execution console." />
   
   <!-- Favicon & App Icons -->
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- CDNs: Fonts, FontAwesome 6.5.2, Chart.js 4 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1439,7 +1441,7 @@ u)$.
           <div>
             <h2 class="doc-title"><i class="fa-solid fa-terminal text-green"></i> Live Institutional API Console &amp; Quant Playground</h2>
             <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
-              Connected to live RISKOS backend (<code style="color:#22d3ee;">http://127.0.0.1:8000</code>) with automatic failover to local high-fidelity WASM/JAX quant computations.
+              Connected to live RISKOS backend (<code style="color:#22d3ee;">http://127.0.0.1:8080</code>) with automatic failover to local high-fidelity WASM/JAX quant computations.
             </div>
           </div>
           <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-family:'JetBrains Mono'; font-weight:800;">REAL EXECUTION &bull; NO STATIC MOCKS</span>
@@ -1509,7 +1511,7 @@ u)$.
             </div>
             <div class="api-url-preview-bar">
               <span class="api-preview-method" id="apiPreviewMethod">GET</span>
-              <span class="api-preview-url" id="apiUrlPreview">http://127.0.0.1:8000/api/forecast/timesfm?symbol=AAPL&amp;horizon=64</span>
+              <span class="api-preview-url" id="apiUrlPreview">http://127.0.0.1:8080/api/forecast/timesfm?symbol=AAPL&amp;horizon=64</span>
             </div>
           </div>
 
@@ -1549,7 +1551,7 @@ Server: RISKOS-QuantEngine/3.4 (uvicorn-fastapi)
 X-Compute-Engine: RISKOS-JAX-V4-ACCELERATED
 X-Latency-Ms: 1.4ms
 Access-Control-Allow-Origin: *</pre>
-          <pre id="apiCurlPre" class="api-response-pre" style="display:none; color:#fab005;">curl -X GET "http://127.0.0.1:8000/api/forecast/timesfm?symbol=AAPL&amp;horizon=64" \
+          <pre id="apiCurlPre" class="api-response-pre" style="display:none; color:#fab005;">curl -X GET "http://127.0.0.1:8080/api/forecast/timesfm?symbol=AAPL&amp;horizon=64" \
   -H "Accept: application/json" \
   -H "X-Client: RISKOS-InteractiveDocs/3.4"</pre>
         </div>

@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RISKOS News Corner & Event-Driven Intelligence: Real-time institutional news radar, FinBERT/Loughran-McDonald sentiment, and discontinuous shock alerts.">
   <title>RISKOS — News Corner & Event-Driven Intelligence</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="manifest" href="manifest.json">
   
   <!-- CDNs -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,7 +34,7 @@
       <!-- Brand Logo & Market Clock -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home" title="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" onerror="this.src='assets/logo.png'" / style="width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" onerror="this.src='assets/logo.png'" style="width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         <span class="brand-name-text">RISKOS</span>
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
@@ -485,6 +488,8 @@
   <script src="sessionSync.js"></script>
   <script src="themeEngine.js"></script>
   <script src="marketDataTruth.js"></script>
+  <script src="liveMarketDataFeed.js"></script>
+  <script src="macroDataFeedEngine.js"></script>
   <script src="securityMaster.js"></script>
   <script src="universalAlerts.js"></script>
   <script src="universalPalette.js"></script>

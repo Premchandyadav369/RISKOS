@@ -52,7 +52,7 @@
       <!-- Left: Logo & Market Clock Badge -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" / style="width:34px !important; height:34px !important; max-width:34px !important; max-height:34px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" style="width:34px !important; height:34px !important; max-width:34px !important; max-height:34px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle Indian (NSE) / US (NYSE) market hours">
           <span class="market-status-dot dot--open" id="marketStatusDot"></span>
@@ -689,7 +689,7 @@
             </div>
             <div>
               <label for="queueOrderPrice" style="font-size:0.68rem; color:var(--hft-text-muted);">Limit Price</label>
-              <input type="number" id="queueOrderPrice" class="hft-ticker-selector" value="1287.25" step="0.25" style="width:100%; padding:6px 10px;" />
+              <input type="number" id="queueOrderPrice" class="hft-ticker-selector" value="1378.85" step="0.25" style="width:100%; padding:6px 10px;" />
             </div>
           </div>
 
@@ -1726,6 +1726,8 @@
   <!-- React Bits LetterGlitch Component -->
   <script src="letterGlitch.js"></script>
   <!-- Script Dependencies -->
+  <script src="liveMarketDataFeed.js"></script>
+  <script src="macroDataFeedEngine.js"></script>
   <script src="securityMaster.js"></script>
   <script src="marketDataTruth.js"></script>
   <script src="paperBroker.js"></script>

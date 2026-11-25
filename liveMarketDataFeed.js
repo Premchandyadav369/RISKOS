@@ -31,6 +31,18 @@
 
   // Canonical mapping from RISKOS internal symbol to real-time market gateway ticker
   const TICKER_MAP = {
+    // Benchmark Indices
+    '^NSEI': '^NSEI',
+    'NIFTY': '^NSEI',
+    '^BSESN': '^BSESN',
+    'SENSEX': '^BSESN',
+    '^NSEBANK': '^NSEBANK',
+    'BANKNIFTY': '^NSEBANK',
+    '^CNXIT': '^CNXIT',
+    '^GSPC': '^GSPC',
+    '^IXIC': '^IXIC',
+    '^DJI': '^DJI',
+
     // US Equities
     'NVDA': 'NVDA',
     'AAPL': 'AAPL',
@@ -48,7 +60,10 @@
     'AVGO': 'AVGO',
     'COIN': 'COIN',
     'JPM': 'JPM',
-    'BITF': 'BITF',
+    'BRKB': 'BRK-B',
+    'MARA': 'MARA',
+    'CLSK': 'CLSK',
+    'BITF': 'CLSK',
     'SOUN': 'SOUN',
     'PLUG': 'PLUG',
     'OPEN': 'OPEN',
@@ -66,6 +81,7 @@
     'ADANIPORTS': 'ADANIPORTS.NS',
     'TATAMOTORS': 'TMCV.NS',
     'TMCV': 'TMCV.NS',
+    'TMPV': 'TMPV.NS',
     'LT': 'LT.NS',
     'ITC': 'ITC.NS',
     'BAJFINANCE': 'BAJFINANCE.NS',
@@ -80,9 +96,14 @@
     'NTPC': 'NTPC.NS',
     'COALINDIA': 'COALINDIA.NS',
     'POWERGRID': 'POWERGRID.NS',
-    'ZOMATO': 'ZOMATO.NS',
+    'ZOMATO': 'ETERNAL.NS',
+    'ETERNAL': 'ETERNAL.NS',
+    'LTIM': 'LTM.NS',
+    'LTM': 'LTM.NS',
     'JIOFIN': 'JIOFIN.NS',
+    'TRENT': 'TRENT.NS',
     'SUZLON': 'SUZLON.NS',
+    'IRFC': 'IRFC.NS',
     'HAL': 'HAL.NS',
     'BEL': 'BEL.NS',
     'TATAPOWER': 'TATAPOWER.NS',
@@ -98,62 +119,71 @@
     'USDINR': 'USDINR=X',
     'GOLD': 'GC=F',
     'SILVER': 'SI=F',
+    'PLATINUM': 'PL=F',
+    'PALLADIUM': 'PA=F',
     'BRENT': 'BZ=F',
-    'CRUDE': 'CL=F'
+    'CRUDE': 'CL=F',
+    'NATGAS': 'NG=F',
+    'COPPER': 'HG=F',
+    'ALUMINIUM': 'ALI=F',
+    'ZINC': 'ZNC=F',
+    'NICKEL': 'NIKL'
   };
 
   // Verified empirical real-market baselines (post-splits & post-corporate actions)
   // Used only when external network access is blocked or gateway returns errors.
   const VERIFIED_MARKET_BASELINES = {
-    'NVDA': { price: 150.89, prevClose: 165.05, currency: 'USD', name: 'NVIDIA Corporation' },
-    'AAPL': { price: 351.52, prevClose: 349.08, currency: 'USD', name: 'Apple Inc.' },
-    'MSFT': { price: 496.55, prevClose: 492.50, currency: 'USD', name: 'Microsoft Corporation' },
-    'GOOGL': { price: 276.77, prevClose: 282.10, currency: 'USD', name: 'Alphabet Inc.' },
-    'AMZN': { price: 251.25, prevClose: 255.39, currency: 'USD', name: 'Amazon.com Inc.' },
-    'TSLA': { price: 377.56, prevClose: 385.46, currency: 'USD', name: 'Tesla Inc.' },
-    'META': { price: 586.83, prevClose: 597.60, currency: 'USD', name: 'Meta Platforms Inc.' },
-    'AMD': { price: 405.17, prevClose: 453.46, currency: 'USD', name: 'Advanced Micro Devices' },
-    'SMCI': { price: 22.35, prevClose: 24.53, currency: 'USD', name: 'Super Micro Computer' },
-    'TSM': { price: 344.50, prevClose: 363.60, currency: 'USD', name: 'Taiwan Semiconductor' },
-    'ASML': { price: 1324.22, prevClose: 1383.78, currency: 'USD', name: 'ASML Holding N.V.' },
-    'PLTR': { price: 160.43, prevClose: 165.00, currency: 'USD', name: 'Palantir Technologies' },
-    'ARM': { price: 160.20, prevClose: 168.50, currency: 'USD', name: 'Arm Holdings plc' },
-    'AVGO': { price: 300.24, prevClose: 310.00, currency: 'USD', name: 'Broadcom Inc.' },
-    'COIN': { price: 102.80, prevClose: 110.50, currency: 'USD', name: 'Coinbase Global' },
-    'BITF': { price: 2.30, prevClose: 2.45, currency: 'USD', name: 'Bitfarms Ltd.' },
+    'NVDA': { price: 155.38, prevClose: 150.89, currency: 'USD', name: 'NVIDIA Corporation' },
+    'AAPL': { price: 354.07, prevClose: 351.52, currency: 'USD', name: 'Apple Inc.' },
+    'MSFT': { price: 496.13, prevClose: 496.55, currency: 'USD', name: 'Microsoft Corporation' },
+    'GOOGL': { price: 279.05, prevClose: 276.77, currency: 'USD', name: 'Alphabet Inc.' },
+    'AMZN': { price: 252.29, prevClose: 251.25, currency: 'USD', name: 'Amazon.com Inc.' },
+    'TSLA': { price: 384.68, prevClose: 377.56, currency: 'USD', name: 'Tesla Inc.' },
+    'META': { price: 589.82, prevClose: 586.83, currency: 'USD', name: 'Meta Platforms Inc.' },
+    'AMD': { price: 413.27, prevClose: 405.17, currency: 'USD', name: 'Advanced Micro Devices' },
+    'SMCI': { price: 22.62, prevClose: 22.35, currency: 'USD', name: 'Super Micro Computer' },
+    'TSM': { price: 349.20, prevClose: 344.50, currency: 'USD', name: 'Taiwan Semiconductor' },
+    'ASML': { price: 1336.06, prevClose: 1324.22, currency: 'USD', name: 'ASML Holding N.V.' },
+    'PLTR': { price: 161.18, prevClose: 160.43, currency: 'USD', name: 'Palantir Technologies' },
+    'ARM': { price: 161.56, prevClose: 160.20, currency: 'USD', name: 'Arm Holdings plc' },
+    'AVGO': { price: 301.08, prevClose: 300.24, currency: 'USD', name: 'Broadcom Inc.' },
+    'COIN': { price: 102.34, prevClose: 100.80, currency: 'USD', name: 'Coinbase Global' },
+    'MARA': { price: 5.41, prevClose: 5.30, currency: 'USD', name: 'MARA Holdings Inc.' },
+    'CLSK': { price: 5.12, prevClose: 4.98, currency: 'USD', name: 'CleanSpark Inc.' },
 
     // Indian Equities (NSE True Live Ticks)
-    'RELIANCE': { price: 1351.00, prevClose: 1377.50, currency: 'INR', name: 'Reliance Industries Ltd' },
-    'HDFCBANK': { price: 817.80, prevClose: 846.00, currency: 'INR', name: 'HDFC Bank Limited' },
-    'TCS': { price: 2460.00, prevClose: 2376.20, currency: 'INR', name: 'Tata Consultancy Services' },
-    'INFY': { price: 1103.40, prevClose: 1098.00, currency: 'INR', name: 'Infosys Limited' },
-    'ICICIBANK': { price: 1585.50, prevClose: 1640.00, currency: 'INR', name: 'ICICI Bank Limited' },
-    'SBIN': { price: 1132.65, prevClose: 1165.10, currency: 'INR', name: 'State Bank of India' },
-    'BHARTIARTL': { price: 2128.50, prevClose: 2161.70, currency: 'INR', name: 'Bharti Airtel Limited' },
-    'ADANIENT': { price: 2677.90, prevClose: 2709.00, currency: 'INR', name: 'Adani Enterprises Ltd' },
-    'TATAMOTORS': { price: 453.80, prevClose: 456.75, currency: 'INR', name: 'Tata Motors Limited' },
-    'TMCV': { price: 453.80, prevClose: 456.75, currency: 'INR', name: 'Tata Motors Limited' },
-    'LT': { price: 4099.90, prevClose: 4120.00, currency: 'INR', name: 'Larsen & Toubro Ltd' },
-    'ITC': { price: 301.00, prevClose: 305.50, currency: 'INR', name: 'ITC Limited' },
-    'BAJFINANCE': { price: 1095.50, prevClose: 1110.00, currency: 'INR', name: 'Bajaj Finance Limited' },
-    'MARUTI': { price: 14010.00, prevClose: 13850.00, currency: 'INR', name: 'Maruti Suzuki India' },
-    'SUNPHARMA': { price: 1860.00, prevClose: 1845.00, currency: 'INR', name: 'Sun Pharmaceutical' },
-    'TITAN': { price: 4680.00, prevClose: 4620.00, currency: 'INR', name: 'Titan Company Limited' },
-    'KOTAKBANK': { price: 502.85, prevClose: 512.00, currency: 'INR', name: 'Kotak Mahindra Bank' },
-    'AXISBANK': { price: 1388.60, prevClose: 1370.00, currency: 'INR', name: 'Axis Bank Limited' },
-    'HINDUNILVR': { price: 2019.10, prevClose: 2040.00, currency: 'INR', name: 'Hindustan Unilever' },
-    'TATASTEEL': { price: 163.00, prevClose: 161.50, currency: 'INR', name: 'Tata Steel Limited' },
-    'ONGC': { price: 222.85, prevClose: 225.00, currency: 'INR', name: 'Oil & Natural Gas Corp' },
-    'NTPC': { price: 315.45, prevClose: 318.00, currency: 'INR', name: 'NTPC Limited' },
-    'COALINDIA': { price: 382.00, prevClose: 380.00, currency: 'INR', name: 'Coal India Limited' },
-    'POWERGRID': { price: 264.85, prevClose: 268.00, currency: 'INR', name: 'Power Grid Corp' },
-    'ZOMATO': { price: 270.50, prevClose: 268.00, currency: 'INR', name: 'Zomato Limited' },
+    'RELIANCE': { price: 1379.10, prevClose: 1351.00, currency: 'INR', name: 'Reliance Industries Ltd' },
+    'HDFCBANK': { price: 845.60, prevClose: 817.80, currency: 'INR', name: 'HDFC Bank Limited' },
+    'TCS': { price: 2508.90, prevClose: 2460.00, currency: 'INR', name: 'Tata Consultancy Services' },
+    'INFY': { price: 1149.70, prevClose: 1103.40, currency: 'INR', name: 'Infosys Limited' },
+    'ICICIBANK': { price: 1637.40, prevClose: 1585.50, currency: 'INR', name: 'ICICI Bank Limited' },
+    'SBIN': { price: 1139.60, prevClose: 1132.65, currency: 'INR', name: 'State Bank of India' },
+    'BHARTIARTL': { price: 2130.40, prevClose: 2128.50, currency: 'INR', name: 'Bharti Airtel Limited' },
+    'ADANIENT': { price: 2711.40, prevClose: 2677.90, currency: 'INR', name: 'Adani Enterprises Ltd' },
+    'TATAMOTORS': { price: 455.25, prevClose: 453.80, currency: 'INR', name: 'Tata Motors Limited' },
+    'TMCV': { price: 455.25, prevClose: 453.80, currency: 'INR', name: 'Tata Motors Limited' },
+    'LT': { price: 4143.70, prevClose: 4099.90, currency: 'INR', name: 'Larsen & Toubro Ltd' },
+    'ITC': { price: 304.85, prevClose: 301.00, currency: 'INR', name: 'ITC Limited' },
+    'BAJFINANCE': { price: 1125.70, prevClose: 1095.50, currency: 'INR', name: 'Bajaj Finance Limited' },
+    'MARUTI': { price: 14166.00, prevClose: 14010.00, currency: 'INR', name: 'Maruti Suzuki India' },
+    'SUNPHARMA': { price: 1864.80, prevClose: 1860.00, currency: 'INR', name: 'Sun Pharmaceutical' },
+    'TITAN': { price: 4652.50, prevClose: 4680.00, currency: 'INR', name: 'Titan Company Limited' },
+    'KOTAKBANK': { price: 510.75, prevClose: 502.85, currency: 'INR', name: 'Kotak Mahindra Bank' },
+    'AXISBANK': { price: 1417.20, prevClose: 1388.60, currency: 'INR', name: 'Axis Bank Limited' },
+    'HINDUNILVR': { price: 2048.70, prevClose: 2019.10, currency: 'INR', name: 'Hindustan Unilever' },
+    'TATASTEEL': { price: 161.79, prevClose: 163.00, currency: 'INR', name: 'Tata Steel Limited' },
+    'ONGC': { price: 223.92, prevClose: 222.85, currency: 'INR', name: 'Oil & Natural Gas Corp' },
+    'NTPC': { price: 316.65, prevClose: 315.45, currency: 'INR', name: 'NTPC Limited' },
+    'COALINDIA': { price: 384.40, prevClose: 382.00, currency: 'INR', name: 'Coal India Limited' },
+    'POWERGRID': { price: 264.70, prevClose: 264.85, currency: 'INR', name: 'Power Grid Corp' },
+    'ZOMATO': { price: 369.75, prevClose: 365.00, currency: 'INR', name: 'Eternal Ltd (Zomato)' },
+    'ETERNAL': { price: 369.75, prevClose: 365.00, currency: 'INR', name: 'Eternal Ltd (Zomato)' },
 
     // Macro Benchmarks
-    'USDINR': { price: 86.74, prevClose: 86.60, currency: 'INR', name: 'USD/INR' },
-    'GOLD': { price: 2715.00, prevClose: 2700.00, currency: 'USD', name: 'Gold Comex' },
-    'SILVER': { price: 31.80, prevClose: 31.20, currency: 'USD', name: 'Silver Comex' },
-    'BRENT': { price: 92.94, prevClose: 91.50, currency: 'USD', name: 'Brent Crude Oil' }
+    'USDINR': { price: 92.57, prevClose: 92.40, currency: 'INR', name: 'USD/INR' },
+    'GOLD': { price: 3545.40, prevClose: 3520.00, currency: 'USD', name: 'Gold Comex' },
+    'SILVER': { price: 40.56, prevClose: 40.10, currency: 'USD', name: 'Silver Comex' },
+    'BRENT': { price: 87.50, prevClose: 86.20, currency: 'USD', name: 'Brent Crude Oil' }
   };
 
   class LiveMarketDataFeedClient {
@@ -200,6 +230,38 @@
       const cleanSym = (symbol || '').trim().toUpperCase().replace('.NS', '');
       const ticker = this.resolveGatewayTicker(symbol);
       if (!ticker) return null;
+
+      // In browser contexts, route via RISKOS API gateway to prevent Yahoo CORS errors
+      if (typeof window !== 'undefined') {
+        try {
+          const apiBase = (window.SecurityMaster && typeof window.SecurityMaster.getApiBase === 'function')
+            ? window.SecurityMaster.getApiBase()
+            : (window.location.origin + '/api');
+          const res = await fetch(`${apiBase}/market/quote?symbol=${encodeURIComponent(cleanSym)}`, {
+            signal: AbortSignal.timeout(this.timeoutMs)
+          });
+          if (res.ok) {
+            const q = await res.json();
+            if (q && typeof q.price === 'number') {
+              const quote = {
+                symbol: cleanSym,
+                gatewayTicker: ticker,
+                price: Number(q.price),
+                prevClose: Number(q.previous_close || q.previousClose || q.price),
+                change: Number(q.change || 0),
+                changePercent: Number(q.change_percent || q.changePercent || 0),
+                currency: q.currency || (ticker.endsWith('.NS') ? 'INR' : 'USD'),
+                name: q.name || cleanSym,
+                source: q.provider || 'RISKOS_GATEWAY',
+                timestamp: q.timestamp || new Date().toISOString()
+              };
+              this.cachedQuotes.set(cleanSym, quote);
+              return quote;
+            }
+          }
+        } catch (err) {}
+        return this.cachedQuotes.get(cleanSym) || null;
+      }
 
       const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(ticker)}?interval=1d&range=1d`;
       try {

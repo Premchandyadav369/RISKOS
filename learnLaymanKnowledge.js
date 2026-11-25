@@ -1,5 +1,5 @@
 /**
- * RISKOS — Complete 80 Quantitative Laboratories Layman Knowledge Map
+ * RISKOS — Complete 81 Quantitative Laboratories Layman Knowledge Map
  * Provides distinct, beginner-friendly, zero-jargon definitions, everyday real-world analogies,
  * practical trading/investing significance, and step-by-step numerical examples for all 81 labs.
  */

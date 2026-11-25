@@ -101,9 +101,8 @@ async function main() {
     assert.strictEqual(statusData.daemon, 'RISKOS-24/7-DAEMON');
     assert.ok(statusData.stats);
 
-    // Stop daemon
-    daemon.stop();
-    await new Promise(r => setTimeout(r, 100));
+    // Stop daemon cleanly
+    await daemon.stop();
   });
 
   // 4. Static Asset Delivery
@@ -125,8 +124,7 @@ async function main() {
     });
 
     assert.ok(htmlHeaders);
-    daemon.stop();
-    await new Promise(r => setTimeout(r, 100));
+    await daemon.stop();
   });
 
   // 5. WebSocket Framing & RFC 6455 Identity

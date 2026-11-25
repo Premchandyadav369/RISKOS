@@ -1788,16 +1788,6 @@
   };
 
   // ── 8. Initializer ────────────────────────────────────────────────────────
-  const init = () => {
-    renderMarketRibbon();
-    initDailyRecommender();
-    initSectorIndicatorsDesk();
-    renderPennyStockMatrix('ALL');
-    renderTable();
-    initOpenStockSuites();
-    setupRealtimeQuoteSubscription();
-    setupCommandPalette();
-
   const initOpenStockSuites = () => {
     // 1. Alert count badge subscription
     if (typeof UniversalAlerts !== 'undefined') {
@@ -1858,6 +1848,16 @@
       PeerComparisonEngine.renderComparisonDock();
     }
   };
+
+  const init = () => {
+    renderMarketRibbon();
+    initDailyRecommender();
+    initSectorIndicatorsDesk();
+    renderPennyStockMatrix('ALL');
+    renderTable();
+    initOpenStockSuites();
+    setupRealtimeQuoteSubscription();
+    setupCommandPalette();
 
     // 0. Wire Universal Penny Stock Radar Desk Controls
     document.querySelectorAll('#pennyMatrixFilter .seg-btn').forEach(btn => {

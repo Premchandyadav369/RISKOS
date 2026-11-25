@@ -4,8 +4,6 @@
    ========================================================================== */
 
 /* ── Typography & Webfonts ────────────────────────────────────────────────── */
-@import url("https://db.onlinewebfonts.com/c/8cb707a9b8a73f8a7403336b861c3074?family=BubbledotICG-FinePos");
-
 @font-face {
   font-family: "Geist Pixel Circle";
   src: url("fonts/GeistPixel-Circle.woff2") format("woff2");

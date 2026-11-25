@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { execSync } = require('child_process');
+const { execSync, execFileSync } = require('child_process');
 
 console.log('================================================================');
 console.log('  RISKOS ULTRA-FAST IN-PROCESS PLATFORM AUDIT & BUG HUNTER');
@@ -92,13 +92,13 @@ jsFiles.forEach(f => {
   const code = fs.readFileSync(f, 'utf8');
   if (f.startsWith('api' + path.sep) || f.startsWith('api/')) {
     try {
-      new vm.SourceTextModule(code, { initializeImportMeta: () => {} });
+      execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' });
     } catch (err) {
       findings.push({
         category: 'ESM Syntax Error',
         severity: 'CRITICAL',
         file: f,
-        detail: err.message
+        detail: (err.stderr ? err.stderr.toString() : err.message).trim()
       });
     }
     return;

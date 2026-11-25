@@ -50,12 +50,12 @@
       lastUpdated: '2026-11-23'
     },
     eia: {
-      brentCrudeUsd: 92.94, // $/bbl (DCOILBRENTEU)
-      wtiCrudeUsd: 88.50, // $/bbl (DCOILWTICO)
-      naturalGasUsd: 2.85, // $/MMBtu (DHHNGSP)
+      brentCrudeUsd: 87.50, // $/bbl (DCOILBRENTEU / BZ=F)
+      wtiCrudeUsd: 80.73, // $/bbl (DCOILWTICO / CL=F)
+      naturalGasUsd: 3.68, // $/MMBtu (DHHNGSP / NG=F)
       brentBaselineUsd: 85.00,
-      brentDeltaPct: 9.34, // +9.34% vs baseline
-      lastUpdated: '2026-11-20'
+      brentDeltaPct: 2.94, // +2.94% vs baseline
+      lastUpdated: '2026-11-24'
     },
     coingecko: {
       bitcoin: { usd: 59515.00, usd_24h_change: -4.90, market_cap: 1172850000000 },
@@ -202,6 +202,32 @@
     async fetchAllTelemetry(forceRefresh = false) {
       const now = Date.now();
       if (!forceRefresh && (now - this.lastFetchTime) < this.cacheTtlMs) {
+        return this.cachedTelemetry;
+      }
+
+      // In browser contexts, route via unified RISKOS /api/macro gateway to avoid CORS blocks
+      if (typeof window !== 'undefined') {
+        try {
+          const apiBase = (window.SecurityMaster && typeof window.SecurityMaster.getApiBase === 'function')
+            ? window.SecurityMaster.getApiBase()
+            : (window.location.origin + '/api');
+          const res = await fetch(`${apiBase}/macro`, { signal: AbortSignal.timeout(this.timeoutMs) });
+          if (res.ok) {
+            const data = await res.json();
+            const telemetry = data?.telemetry || (data?.fred ? data : null);
+            if (telemetry) {
+              const consolidated = {
+                timestamp: telemetry.timestamp || new Date().toISOString(),
+                fred: telemetry.fred || this.cachedTelemetry.fred,
+                eia: telemetry.eia || this.cachedTelemetry.eia,
+                coingecko: telemetry.coingecko || this.cachedTelemetry.coingecko
+              };
+              this.cachedTelemetry = consolidated;
+              this.lastFetchTime = now;
+              return consolidated;
+            }
+          }
+        } catch (err) {}
         return this.cachedTelemetry;
       }
 

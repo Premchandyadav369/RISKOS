@@ -1799,9 +1799,10 @@
         }
       });
       const qs = queryParts.length ? `?${queryParts.join('&')}` : '';
+      const origin = (typeof window !== 'undefined' && window.location.protocol.startsWith('http')) ? window.location.origin : 'http://127.0.0.1:8080';
       return {
         pathOnly: `${baseEp}${qs}`,
-        fullHttpUrl: `http://127.0.0.1:8000${baseEp}${qs}`
+        fullHttpUrl: `${origin}${baseEp}${qs}`
       };
     };
 

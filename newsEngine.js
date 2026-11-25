@@ -14,17 +14,17 @@
       if (custom) return custom.replace(/\/$/, '') + '/api';
 
       if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-        if (['5500', '3000', '5173', '8080', '8000'].includes(window.location.port)) {
-          return 'http://127.0.0.1:8000/api';
+        if (['5500', '3000', '5173'].includes(window.location.port)) {
+          return 'http://127.0.0.1:8080/api';
         }
         return window.location.origin + '/api';
       }
     }
-    return 'http://127.0.0.1:8000/api';
+    return 'http://127.0.0.1:8080/api';
   };
 
   const NEWS_CHANNEL = 'riskos_news_stream';
-  const broadcastChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel(NEWS_CHANNEL) : null;
+  const broadcastChannel = (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel(NEWS_CHANNEL) : null;
 
   const OFFLINE_NEWS_FEED = [
     {
@@ -312,7 +312,7 @@
       // Tier 2: Direct Alpha Vantage fetch fallback if backend is offline/unreachable
       if (!rawArticles || rawArticles.length === 0) {
         try {
-          const apiKey = (typeof window !== 'undefined' && (localStorage.getItem('ALPHA_VANTAGE_API_KEY') || localStorage.getItem('ALPHA_VANTAGE_KEY'))) || 'EI9HFIWHX72XUAXZ';
+          const apiKey = (typeof window !== 'undefined' && (localStorage.getItem('ALPHA_VANTAGE_API_KEY') || localStorage.getItem('ALPHA_VANTAGE_KEY'))) || '';
           if (apiKey && typeof fetch !== 'undefined') {
             let avUrl = `https://www.alphavantage.co/query?function=NEWS_SENTIMENT&limit=${limit}&sort=${sort}&apikey=${apiKey}`;
             if (tickers) avUrl += `&tickers=${encodeURIComponent(tickers)}`;
