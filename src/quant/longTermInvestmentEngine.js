@@ -45,7 +45,7 @@
     define(['./securityMaster.js'], factory);
   } else if (typeof module === 'object' && module.exports) {
     let SecurityMaster;
-    try { SecurityMaster = require('./securityMaster.js').SecurityMaster || require('./securityMaster.js'); } catch (e) {}
+    try { SecurityMaster = require('../core/securityMaster.js').SecurityMaster || require('../core/securityMaster.js'); } catch (e) {}
     module.exports = factory(SecurityMaster);
   } else {
     root.LongTermInvestmentEngine = factory(root.SecurityMaster);

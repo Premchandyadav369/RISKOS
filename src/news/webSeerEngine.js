@@ -47,9 +47,9 @@
     let SecurityMaster;
     let PremEventShockEngine;
     let EventSurveillanceEngine;
-    try { SecurityMaster = require('./securityMaster.js').SecurityMaster || require('./securityMaster.js'); } catch (e) {}
-    try { PremEventShockEngine = require('./premEventShockEngine.js'); } catch (e) {}
-    try { EventSurveillanceEngine = require('./eventSurveillanceEngine.js'); } catch (e) {}
+    try { SecurityMaster = require('../core/securityMaster.js').SecurityMaster || require('../core/securityMaster.js'); } catch (e) {}
+    try { PremEventShockEngine = require('../quant/premEventShockEngine.js'); } catch (e) {}
+    try { EventSurveillanceEngine = require('../quant/eventSurveillanceEngine.js'); } catch (e) {}
     module.exports = factory(SecurityMaster, PremEventShockEngine, EventSurveillanceEngine);
   } else {
     root.WebSeerEngine = factory(root.SecurityMaster, root.PremEventShockEngine, root.EventSurveillanceEngine);

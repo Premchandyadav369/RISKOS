@@ -58,9 +58,9 @@
     define(['./securityMaster.js', './liveMarketDataFeed.js'], factory);
   } else if (typeof module === 'object' && module.exports) {
     let SecurityMaster;
-    try { SecurityMaster = require('./securityMaster.js').SecurityMaster || require('./securityMaster.js'); } catch (e) {}
+    try { SecurityMaster = require('../core/securityMaster.js').SecurityMaster || require('../core/securityMaster.js'); } catch (e) {}
     let LiveMarketDataFeed;
-    try { LiveMarketDataFeed = require('./liveMarketDataFeed.js'); } catch (e) {}
+    try { LiveMarketDataFeed = require('../core/liveMarketDataFeed.js'); } catch (e) {}
     module.exports = factory(SecurityMaster, LiveMarketDataFeed);
   } else {
     root.InstitutionalPricingEngine = factory(root.SecurityMaster, root.LiveMarketDataFeed);

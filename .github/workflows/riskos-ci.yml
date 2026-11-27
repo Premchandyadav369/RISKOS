@@ -71,5 +71,8 @@ jobs:
     - name: Run 24/7 Autonomous Daemon Test Suite
       run: node tests/test_riskos_daemon.js
 
+    - name: Run Platform Bug & Root Hygiene Audit (0 Findings Enforced)
+      run: node scripts/audit_platform_bugs.js
+
     - name: Run Deep Platform Audit (0 Issues Enforced)
       run: node scripts/audit_deep_platform.js

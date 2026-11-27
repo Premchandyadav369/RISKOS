@@ -39,10 +39,10 @@ function it(desc, fn) {
 
 const ROOT = path.join(__dirname, '..');
 const hftHtml = fs.readFileSync(path.join(ROOT, 'hft.html'), 'utf8');
-const hftCss = fs.readFileSync(path.join(ROOT, 'hft.css'), 'utf8');
-const hftJs = fs.readFileSync(path.join(ROOT, 'hft.js'), 'utf8');
-const letterGlitchJs = fs.readFileSync(path.join(ROOT, 'letterGlitch.js'), 'utf8');
-const paletteJs = fs.readFileSync(path.join(ROOT, 'universalPalette.js'), 'utf8');
+const hftCss = fs.readFileSync(path.join(ROOT, 'styles/pages/hft.css'), 'utf8');
+const hftJs = fs.readFileSync(path.join(ROOT, 'src/pages/hft.js'), 'utf8');
+const letterGlitchJs = fs.readFileSync(path.join(ROOT, 'src/components/letterGlitch.js'), 'utf8');
+const paletteJs = fs.readFileSync(path.join(ROOT, 'src/components/universalPalette.js'), 'utf8');
 const learnHtml = fs.readFileSync(path.join(ROOT, 'learn.html'), 'utf8');
 const readmeMd = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
 
@@ -50,7 +50,7 @@ const readmeMd = fs.readFileSync(path.join(ROOT, 'README.md'), 'utf8');
 console.log('── Section 1: LetterGlitch Background & Visual Fallback ──');
 
 it('letterGlitch.js exports LetterGlitch class with color mixing and grid calculations', () => {
-  const LetterGlitch = require(path.join(ROOT, 'letterGlitch.js'));
+  const LetterGlitch = require(path.join(ROOT, 'src/components/letterGlitch.js'));
   assert(typeof LetterGlitch === 'function', 'LetterGlitch must be exported as a class/function');
 
   const proto = LetterGlitch.prototype;
@@ -70,7 +70,7 @@ it('hft.html includes LetterGlitch canvas, vignettes, and script tag', () => {
   assert(hftHtml.includes('id="letterGlitchCanvas"'), 'Missing #letterGlitchCanvas in hft.html');
   assert(hftHtml.includes('hft-outer-vignette'), 'Missing .hft-outer-vignette in hft.html');
   assert(hftHtml.includes('hft-center-vignette'), 'Missing .hft-center-vignette in hft.html');
-  assert(hftHtml.includes('<script src="letterGlitch.js"></script>'), 'Missing letterGlitch.js script tag');
+  assert(hftHtml.includes('letterGlitch.js'), 'Missing letterGlitch.js script tag');
 });
 
 // ── 2. Sticky Header Architecture & Universal Invariants ──
@@ -317,7 +317,7 @@ it('C++ matching engine core file exists with cache-aligned limit order book and
 });
 
 it('matchingEngine.wasm is a valid compiled WebAssembly binary', () => {
-  const wasmPath = path.join(__dirname, '..', 'matchingEngine.wasm');
+  const wasmPath = path.join(__dirname, '..', 'src/quant/matchingEngine.wasm');
   assert(fs.existsSync(wasmPath), 'matchingEngine.wasm must exist');
   const buffer = fs.readFileSync(wasmPath);
   assert(buffer.length > 50, 'WASM binary must be non-empty');
@@ -326,7 +326,7 @@ it('matchingEngine.wasm is a valid compiled WebAssembly binary', () => {
 });
 
 it('matchingEngineWasm.js executes limit orders, aggressive market sweeps, and sub-microsecond benchmarks', async () => {
-  const wasmJsPath = path.join(__dirname, '..', 'matchingEngineWasm.js');
+  const wasmJsPath = path.join(__dirname, '..', 'src/quant/matchingEngineWasm.js');
   assert(fs.existsSync(wasmJsPath), 'matchingEngineWasm.js must exist');
   const { MatchingEngineWasm } = require(wasmJsPath);
   await MatchingEngineWasm.ready();
@@ -361,7 +361,7 @@ it('matchingEngineWasm.js executes limit orders, aggressive market sweeps, and s
 console.log('\n── Section 14: Workstation 9 — Cross-Exchange Basis & Perpetual Funding Radar ──');
 
 it('basisArbitrageEngine.js accurately computes Cost-of-Carry, Basis APR, and Compounded APY', () => {
-  const basisPath = path.join(__dirname, '..', 'basisArbitrageEngine.js');
+  const basisPath = path.join(__dirname, '..', 'src/quant/basisArbitrageEngine.js');
   assert(fs.existsSync(basisPath), 'basisArbitrageEngine.js must exist');
   const { BasisArbitrageEngine } = require(basisPath);
 
@@ -410,7 +410,7 @@ it('hft.html contains Workstations 8 & 9 and Fast Jump Navigation bar', () => {
 console.log('\n── Section 16: Workstation 10 — Hawkes Self-Exciting Process & Liquidation Radar ──');
 
 it('hawkesProcessEngine.js accurately models branching ratio, recursive decay, and shock cascades', () => {
-  const hawkesPath = path.join(__dirname, '..', 'hawkesProcessEngine.js');
+  const hawkesPath = path.join(__dirname, '..', 'src/quant/hawkesProcessEngine.js');
   assert(fs.existsSync(hawkesPath), 'hawkesProcessEngine.js must exist');
   const { HawkesProcessEngine, HawkesProcessEngineCore } = require(hawkesPath);
   assert(HawkesProcessEngine, 'HawkesProcessEngine singleton must be exported');
@@ -452,7 +452,7 @@ it('hawkesProcessEngine.js accurately models branching ratio, recursive decay, a
 console.log('\n── Section 17: Workstation 11 — Order Flow Footprint & Stacked Imbalances ──');
 
 it('orderFlowFootprint.js aggregates bid/ask rungs, computes POC, and flags stacked imbalances', () => {
-  const fpPath = path.join(__dirname, '..', 'orderFlowFootprint.js');
+  const fpPath = path.join(__dirname, '..', 'src/trading/orderFlowFootprint.js');
   assert(fs.existsSync(fpPath), 'orderFlowFootprint.js must exist');
   const { OrderFlowFootprint, OrderFlowFootprintCore } = require(fpPath);
   assert(OrderFlowFootprint, 'OrderFlowFootprint singleton must be exported');

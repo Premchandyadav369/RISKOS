@@ -191,7 +191,7 @@ runTest('cpp/CMakeLists.txt configures C++20, vectorization flags, and builds pr
 // ----------------------------------------------------------------------------
 console.log('\n--- 3. WASM Driver Mathematical Verification ---');
 
-const WasmEngine = require('../wasmQuantEngine.js');
+const WasmEngine = require('../src/quant/wasmQuantEngine.js');
 
 runTest('WasmQuantEngine initializes with version 2.0.0', () => {
   assert.strictEqual(WasmEngine.version, '2.0.0');

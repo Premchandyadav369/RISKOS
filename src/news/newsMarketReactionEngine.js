@@ -26,7 +26,7 @@
       }
       try {
         if (typeof require === 'function') {
-          const mod = require('./securityMaster.js');
+          const mod = require('../core/securityMaster.js');
           return mod.SecurityMaster || mod;
         }
       } catch (e) {}

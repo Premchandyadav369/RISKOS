@@ -12,7 +12,7 @@
   } else if (typeof module === 'object' && module.exports) {
     const InstitutionalPricingEngine = require('./institutionalPricingEngine.js');
     let SecurityMaster;
-    try { SecurityMaster = require('./securityMaster.js').SecurityMaster || require('./securityMaster.js'); } catch (e) {}
+    try { SecurityMaster = require('../core/securityMaster.js').SecurityMaster || require('../core/securityMaster.js'); } catch (e) {}
     module.exports = factory(InstitutionalPricingEngine, SecurityMaster);
   } else {
     root.InstitutionalPricingLab = factory(root.InstitutionalPricingEngine, root.SecurityMaster);

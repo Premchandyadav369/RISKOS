@@ -46,9 +46,9 @@ async function runAsyncTest(name, fn) {
 }
 
 const rootDir = path.resolve(__dirname, '..');
-const fleetJsPath = path.join(rootDir, 'fleet.js');
+const fleetJsPath = path.join(rootDir, 'src/pages/fleet.js');
 const fleetHtmlPath = path.join(rootDir, 'fleet.html');
-const fleetCssPath = path.join(rootDir, 'fleet.css');
+const fleetCssPath = path.join(rootDir, 'styles/pages/fleet.css');
 const apiFleetJsPath = path.join(rootDir, 'api', 'market', 'fleet.js');
 const backendFleetPyPath = path.join(rootDir, 'backend', 'engine', 'bot_fleet.py');
 

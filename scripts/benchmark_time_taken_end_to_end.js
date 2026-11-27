@@ -13,9 +13,9 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-const WasmEngine = require('../wasmQuantEngine.js');
-const PremAlphaEngine = require('../premAlphaEngine.js');
-const LearnMathEngine = require('../learnMathEngine.js');
+const WasmEngine = require('../src/quant/wasmQuantEngine.js');
+const PremAlphaEngine = require('../src/quant/premAlphaEngine.js');
+const LearnMathEngine = require('../src/learn/learnMathEngine.js');
 
 console.log('================================================================================');
 console.log('  RISKOS COMPREHENSIVE END-TO-END EXECUTION TIME & LATENCY TELEMETRY');
@@ -300,7 +300,7 @@ console.log(`  8. Test Fleet Pass Rate                          : ${telemetry.te
 console.log('================================================================================\n');
 
 // Write JSON artifact for persistent tracking
-const outPath = path.join(__dirname, '..', 'time_taken_benchmark_summary.json');
+const outPath = path.join(__dirname, '..', 'data/audits/time_taken_benchmark_summary.json');
 fs.writeFileSync(outPath, JSON.stringify({
   timestamp: new Date().toISOString(),
   totalPipelineMs,

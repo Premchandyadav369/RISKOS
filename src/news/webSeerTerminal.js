@@ -13,7 +13,7 @@
     let WebSeerEngine;
     let EventShockLab;
     try { WebSeerEngine = require('./webSeerEngine.js').WebSeerEngine || require('./webSeerEngine.js'); } catch (e) {}
-    try { EventShockLab = require('./eventShockLab.js'); } catch (e) {}
+    try { EventShockLab = require('../quant/eventShockLab.js'); } catch (e) {}
     module.exports = factory(WebSeerEngine, EventShockLab);
   } else {
     root.WebSeerTerminal = factory(root.WebSeerEngine, root.EventShockLab);

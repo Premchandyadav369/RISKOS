@@ -33,9 +33,9 @@ function it(desc, fn) {
 // ── 1. CANDLESTICK CHART ZOOM, PAN & FULLSCREEN ──────────────────────────────
 console.log('── Section 1: Candlestick Chart Zoom, Pan & Fullscreen ──');
 
-const indexHtml = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8');
-const stylesCss = fs.readFileSync(path.join(__dirname, 'styles.css'), 'utf8');
-const mainJs = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf8');
+const indexHtml = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+const stylesCss = fs.readFileSync(path.join(__dirname, '..', 'styles/base/styles.css'), 'utf8');
+const mainJs = fs.readFileSync(path.join(__dirname, '..', 'src/pages/main.js'), 'utf8');
 
 it('index.html contains dedicated Zoom In, Zoom Out, Reset, and Maximize buttons', () => {
   assert(indexHtml.includes('id="btnCandleZoomIn"'), 'Missing #btnCandleZoomIn');
@@ -67,8 +67,8 @@ it('main.js dynamically auto-ranges Y-axis on the visible slice of bars', () => 
 // ── 2. OPENBB ODP MACRO HUB REAL-TIME INGESTION ─────────────────────────────
 console.log('\n── Section 2: OpenBB ODP Macro Hub Real-Time Ingestion ──');
 
-const openbbBridgeJs = fs.readFileSync(path.join(__dirname, 'openbbBridge.js'), 'utf8');
-const observatoryJs = fs.readFileSync(path.join(__dirname, 'observatory.js'), 'utf8');
+const openbbBridgeJs = fs.readFileSync(path.join(__dirname, '..', 'src/core/openbbBridge.js'), 'utf8');
+const observatoryJs = fs.readFileSync(path.join(__dirname, '..', 'src/pages/observatory.js'), 'utf8');
 
 it('openbbBridge.js economy indicators returns array supporting .find() and properties', () => {
   assert(openbbBridgeJs.includes("indicator: 'Brent Crude (Spot)'"), 'Missing Brent Crude indicator in openbbBridge.js');
@@ -93,7 +93,7 @@ it('observatory.js eliminates Math.random() and binds deterministic VIX sentimen
 // ── 3. PORTFOLIO OPTIMIZER SCREEN BOUNDARIES & RESPONSIVE CSS ────────────────
 console.log('\n── Section 3: Portfolio Optimizer Screen Boundaries & CSS ──');
 
-const optCss = fs.readFileSync(path.join(__dirname, 'portfolio_optimizer.css'), 'utf8');
+const optCss = fs.readFileSync(path.join(__dirname, '..', 'styles/pages/portfolio_optimizer.css'), 'utf8');
 
 it('portfolio_optimizer.css clamps .obs-layout-grid > * with min-width: 0 to prevent blowout', () => {
   assert(optCss.includes('.obs-layout-grid > * {'), 'Missing .obs-layout-grid > * rule');
@@ -113,8 +113,8 @@ it('portfolio_optimizer.css clamps .modal-panel with max-height and overflow-y',
 // ── 4. UNIVERSAL 81 LABS REAL TICKER BINDING ────────────────────────────────
 console.log('\n── Section 4: Universal Real Ticker Binding Across Quantitative Labs ──');
 
-const learnHtml = fs.readFileSync(path.join(__dirname, 'learn.html'), 'utf8');
-const learnJs = fs.readFileSync(path.join(__dirname, 'learn.js'), 'utf8');
+const learnHtml = fs.readFileSync(path.join(__dirname, '..', 'learn.html'), 'utf8');
+const learnJs = fs.readFileSync(path.join(__dirname, '..', 'src/pages/learn.js'), 'utf8');
 
 it('learn.html contains real-time security data binding telemetry strip', () => {
   assert(learnHtml.includes('id="simLiveSecurityStrip"'), 'Missing #simLiveSecurityStrip in learn.html');
@@ -132,7 +132,7 @@ it('learn.js implements extractSecurityParameters and bindSecurityToActiveLab', 
 
 // Verify quantitative lab evaluation with simulated security binding
 // Require LearnMathEngine
-const LearnMathEngine = require('./learnMathEngine.js');
+const LearnMathEngine = require('../src/learn/learnMathEngine.js');
 
 it('LearnMathEngine successfully evaluates sample modules from all quantitative disciplines', () => {
   const testSec = {

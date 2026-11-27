@@ -28,7 +28,7 @@ const it = (name, testFn) => {
 };
 
 // ── Test 1: Microstructure & L3 Limit Order Book ──────────────────────────
-const MicrostructureEngine = require('../microstructureEngine.js');
+const MicrostructureEngine = require('../src/quant/microstructureEngine.js');
 it('MicrostructureEngine: Seeds depth and calculates inside touch', () => {
   const book = MicrostructureEngine.getBook('TEST-STOCK', 1000.0);
   assert(book.getBestBid() !== null, 'Best bid should not be null');
@@ -62,7 +62,7 @@ it('MicrostructureEngine: Calculates OFI and VPIN toxicity', () => {
 });
 
 // ── Test 2: Aladdin Pre-Trade Risk Guardrails ─────────────────────────────
-const RiskGuardrails = require('../riskGuardrails.js');
+const RiskGuardrails = require('../src/quant/riskGuardrails.js');
 it('RiskGuardrails: Approves standard compliant order', () => {
   const order = { botId: 'BOT-IN-01', symbol: 'NIFTY', side: 'BUY', price: 24680, qty: 50 };
   const touch = { bestBid: 24675, bestAsk: 24685, midPrice: 24680 };
@@ -96,7 +96,7 @@ it('RiskGuardrails: Trips autonomous circuit breaker on drawdown (> 2.5%)', () =
 });
 
 // ── Test 3: Autonomous Genetic Strategy Optimizer ────────────────────────
-const GeneticOptimizer = require('../geneticOptimizer.js');
+const GeneticOptimizer = require('../src/quant/geneticOptimizer.js');
 it('GeneticOptimizer: Runs 10 generations of parameter evolution', () => {
   const res = GeneticOptimizer.runEvolution(10, 12);
   assert(res.optimalChromosome !== null, 'Must return optimal chromosome');
@@ -112,7 +112,7 @@ it('GeneticOptimizer: Runs 100-sim Monte Carlo resampling', () => {
 });
 
 // ── Test 4: Multi-Session World Clock Gateway ────────────────────────────
-const MarketSessionGateway = require('../marketSessionGateway.js');
+const MarketSessionGateway = require('../src/core/marketSessionGateway.js');
 it('MarketSessionGateway: Evaluates global sessions status', () => {
   const sessions = MarketSessionGateway.getSessionStatus();
   assert(sessions.length >= 5, 'Must evaluate at least 5 global sessions');
@@ -127,7 +127,7 @@ it('MarketSessionGateway: Generates Brownian bridge tick', () => {
 });
 
 // ── Test 5: Audit Ledger ─────────────────────────────────────────────────
-const AuditLedger = require('../auditLedger.js');
+const AuditLedger = require('../src/trading/auditLedger.js');
 it('AuditLedger: Records and retrieves trade fills in memory fallback', async () => {
   await AuditLedger.recordFill({
     tradeId: 'TEST-TRD-01',
@@ -147,7 +147,7 @@ it('AuditLedger: Records and retrieves trade fills in memory fallback', async ()
 });
 
 // ── Test 6: Cross-Hedging Synapse & Clash of the Pantheons ───────────────
-const CrossHedgingSynapse = require('../crossHedgingSynapse.js');
+const CrossHedgingSynapse = require('../src/quant/crossHedgingSynapse.js');
 it('CrossHedgingSynapse: Calculates minimum-variance cross-hedge ratio', () => {
   const metrics = CrossHedgingSynapse.calculateHedgeRatio('BOT-IN-01', 'BOT-US-01', 10.0);
   assert(metrics.correlation !== 0, 'Correlation must be non-zero');
@@ -168,7 +168,7 @@ it('CrossHedgingSynapse: Executes cross-hedge and records FIX 4.4 tag', () => {
 });
 
 // ── Test 7: AI Risk Copilot & Quant Whisperer ─────────────────────────────
-const QuantWhisperer = require('../quantWhisperer.js');
+const QuantWhisperer = require('../src/components/quantWhisperer.js');
 it('QuantWhisperer: Resolves natural language quant queries', () => {
   const mockBots = [
     { id: 'BOT-IN-01', mythName: 'THANATOS', sentimentScore: -0.4, sentimentRegime: 'BEARISH_HEDGE', sharpeRatio: 3.8, winRate: 78 },
@@ -185,7 +185,7 @@ it('QuantWhisperer: Resolves natural language quant queries', () => {
 });
 
 // ── Test 8: Time-Travel Crisis Replay Simulator ───────────────────────────
-const CrisisReplayEngine = require('../crisisReplayEngine.js');
+const CrisisReplayEngine = require('../src/quant/crisisReplayEngine.js');
 it('CrisisReplayEngine: Simulates historical Black Swan stress tests', () => {
   const mockBots = [
     { id: 'BOT-IN-01', mythName: 'THANATOS', market: 'india', strategyType: '0DTE Theta' },
@@ -199,7 +199,7 @@ it('CrisisReplayEngine: Simulates historical Black Swan stress tests', () => {
 });
 
 // ── Test 9: 3D Volatility Surface Engine ──────────────────────────────────
-const VolatilitySurface3D = require('../volatilitySurface3D.js');
+const VolatilitySurface3D = require('../src/quant/volatilitySurface3D.js');
 it('VolatilitySurface3D: Generates SVI surface mesh and order book waterfall', () => {
   assert(VolatilitySurface3D.surfaceData.length > 0, 'Surface grid rows must exist');
   assert(VolatilitySurface3D.surfaceData[0].length > 0, 'Surface grid columns must exist');
@@ -207,7 +207,7 @@ it('VolatilitySurface3D: Generates SVI surface mesh and order book waterfall', (
 });
 
 // ── Test 10: Dark Pool Hunter & Iceberg Detector ──────────────────────────
-const DarkPoolHunter = require('../darkPoolHunter.js');
+const DarkPoolHunter = require('../src/trading/darkPoolHunter.js');
 it('DarkPoolHunter: Detects iceberg order on hidden volume replenishment', () => {
   const iceberg = DarkPoolHunter.detectIceberg('RELIANCE.NS', 15000, 3000, 2940.0, 'BUY');
   assert(iceberg !== null, 'Must detect iceberg when executed > visible');
@@ -219,7 +219,7 @@ it('DarkPoolHunter: Detects iceberg order on hidden volume replenishment', () =>
 });
 
 // ── Test 11: DEFCON Risk Matrix & Dead Man Switch ─────────────────────────
-const DefconRiskMatrix = require('../defconRiskMatrix.js');
+const DefconRiskMatrix = require('../src/quant/defconRiskMatrix.js');
 it('DefconRiskMatrix: Transitions defense postures and generates SHA-256 seal', () => {
   const transition = DefconRiskMatrix.setDefconLevel(3, 'VOLATILITY_EXPANSION_ALERT');
   assert.strictEqual(transition.newLevel, 3);
@@ -236,7 +236,7 @@ it('DefconRiskMatrix: Transitions defense postures and generates SHA-256 seal', 
 });
 
 // ── Test 12: Executive Risk Memorandum Generator ──────────────────────────
-const ExecutiveReportGenerator = require('../executiveReportGenerator.js');
+const ExecutiveReportGenerator = require('../src/components/executiveReportGenerator.js');
 it('ExecutiveReportGenerator: Compiles Goldman Sachs / Bridgewater memorandum', () => {
   const mockBots = [
     { id: 'BOT-IN-01', mythName: 'THANATOS', market: 'india', realizedPnlINR: 150000, totalTrades: 1200, sharpeRatio: 3.8, winRate: 75, mathFormula: 'Yield > 12%' }

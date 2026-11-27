@@ -20,9 +20,9 @@ const {
   LiveMarketDataFeedClient, 
   VERIFIED_MARKET_BASELINES, 
   TICKER_MAP 
-} = require('../liveMarketDataFeed.js');
-const { SecurityMaster } = require('../securityMaster.js');
-const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
+} = require('../src/core/liveMarketDataFeed.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
+const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
 
 console.log('================================================================');
 console.log('  RUNNING RISKOS LIVE MARKET DATA FEED VERIFICATION SUITE');

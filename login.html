@@ -23,12 +23,12 @@
   <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="themeEngine.css">
-  <link rel="stylesheet" href="terminalBus.css">
-  <link rel="stylesheet" href="universalPalette.css">
-  <link rel="stylesheet" href="login.css">
-  <link rel="stylesheet" href="mobileResponsive.css" />
-  <link rel="stylesheet" href="quantCopilot.css" />
+  <link rel="stylesheet" href="styles/base/themeEngine.css">
+  <link rel="stylesheet" href="styles/components/terminalBus.css">
+  <link rel="stylesheet" href="styles/components/universalPalette.css">
+  <link rel="stylesheet" href="styles/pages/login.css">
+  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
+  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
 </head>
 <body class="login-page">
 
@@ -227,13 +227,13 @@
   </div>
 
   <!-- Scripts -->
-  <script src="sessionSync.js"></script>
-  <script src="themeEngine.js"></script>
+  <script src="src/core/sessionSync.js"></script>
+  <script src="src/components/themeEngine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseConfig.js"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="katexHelper.js"></script>
-  <script src="login.js"></script>
-  <script src="quantCopilot.js"></script>
+  <script src="src/core/supabaseConfig.js"></script>
+  <script src="src/core/supabaseClient.js"></script>
+  <script src="src/core/katexHelper.js"></script>
+  <script src="src/pages/login.js"></script>
+  <script src="src/components/quantCopilot.js"></script>
 </body>
 </html>

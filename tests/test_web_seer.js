@@ -12,7 +12,7 @@ const {
   SOURCE_CREDIBILITY, 
   CATALYST_LEXICON, 
   HISTORIC_REPLAY_SCENARIOS 
-} = require('../webSeerEngine.js');
+} = require('../src/news/webSeerEngine.js');
 
 console.log('================================================================');
 console.log('  RUNNING RISKOS P.R.E.M.-WEBSEER VERIFICATION TEST SUITE');

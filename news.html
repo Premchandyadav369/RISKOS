@@ -15,15 +15,15 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
   
   <!-- RISKOS Stylesheets -->
-  <link rel="stylesheet" href="themeEngine.css">
-  <link rel="stylesheet" href="terminalBus.css">
-  <link rel="stylesheet" href="universalPalette.css">
-  <link rel="stylesheet" href="universalExplainer.css">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="news.css">
-  <link rel="stylesheet" href="authModal.css">
-  <link rel="stylesheet" href="mobileResponsive.css" />
-  <link rel="stylesheet" href="quantCopilot.css" />
+  <link rel="stylesheet" href="styles/base/themeEngine.css">
+  <link rel="stylesheet" href="styles/components/terminalBus.css">
+  <link rel="stylesheet" href="styles/components/universalPalette.css">
+  <link rel="stylesheet" href="styles/components/universalExplainer.css">
+  <link rel="stylesheet" href="styles/base/styles.css">
+  <link rel="stylesheet" href="styles/pages/news.css">
+  <link rel="stylesheet" href="styles/components/authModal.css">
+  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
+  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
 </head>
 <body class="news-terminal-body">
 
@@ -485,35 +485,35 @@
   </footer>
 
   <!-- ═══════════════════════ 4. SCRIPTS & PIPELINE LINKAGES ═══════════════════════ -->
-  <script src="sessionSync.js"></script>
-  <script src="themeEngine.js"></script>
-  <script src="marketDataTruth.js"></script>
-  <script src="liveMarketDataFeed.js"></script>
-  <script src="macroDataFeedEngine.js"></script>
-  <script src="securityMaster.js"></script>
-  <script src="universalAlerts.js"></script>
-  <script src="universalPalette.js"></script>
-  <script src="terminalBus.js"></script>
+  <script src="src/core/sessionSync.js"></script>
+  <script src="src/components/themeEngine.js"></script>
+  <script src="src/core/marketDataTruth.js"></script>
+  <script src="src/core/liveMarketDataFeed.js"></script>
+  <script src="src/core/macroDataFeedEngine.js"></script>
+  <script src="src/core/securityMaster.js"></script>
+  <script src="src/components/universalAlerts.js"></script>
+  <script src="src/components/universalPalette.js"></script>
+  <script src="src/core/terminalBus.js"></script>
 
   <!-- News Intelligence Pipeline Scripts -->
-  <script src="newsNormalizationEngine.js"></script>
-  <script src="newsEntityResolver.js"></script>
-  <script src="newsEventClassifier.js"></script>
-  <script src="newsMaterialityEngine.js"></script>
-  <script src="newsNoveltyEngine.js"></script>
-  <script src="historicalEventImpactEngine.js"></script>
-  <script src="newsMarketReactionEngine.js"></script>
-  <script src="newsPriceAttribution.js"></script>
-  <script src="newsSignalEngine.js"></script>
-  <script src="newsPortfolioRisk.js"></script>
-  <script src="newsEngine.js"></script>
-  <script src="news.js"></script>
+  <script src="src/news/newsNormalizationEngine.js"></script>
+  <script src="src/news/newsEntityResolver.js"></script>
+  <script src="src/news/newsEventClassifier.js"></script>
+  <script src="src/news/newsMaterialityEngine.js"></script>
+  <script src="src/news/newsNoveltyEngine.js"></script>
+  <script src="src/news/historicalEventImpactEngine.js"></script>
+  <script src="src/news/newsMarketReactionEngine.js"></script>
+  <script src="src/news/newsPriceAttribution.js"></script>
+  <script src="src/news/newsSignalEngine.js"></script>
+  <script src="src/news/newsPortfolioRisk.js"></script>
+  <script src="src/news/newsEngine.js"></script>
+  <script src="src/pages/news.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseConfig.js"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="authModal.js"></script>
-  <script src="mobileNav.js"></script>
-  <script src="quantCopilot.js"></script>
+  <script src="src/core/supabaseConfig.js"></script>
+  <script src="src/core/supabaseClient.js"></script>
+  <script src="src/components/authModal.js"></script>
+  <script src="src/components/mobileNav.js"></script>
+  <script src="src/components/quantCopilot.js"></script>
 </body>
 </html>

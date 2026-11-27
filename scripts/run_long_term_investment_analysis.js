@@ -18,7 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { LongTermInvestmentEngine } = require('../longTermInvestmentEngine.js');
+const { LongTermInvestmentEngine } = require('../src/quant/longTermInvestmentEngine.js');
 
 const engine = new LongTermInvestmentEngine();
 
@@ -76,8 +76,8 @@ function main() {
   });
 
   // Export JSON & CSV
-  const jsonPath = path.join(__dirname, '../long_term_best_investments.json');
-  const csvPath = path.join(__dirname, '../long_term_best_investments.csv');
+  const jsonPath = path.join(__dirname, '../data/predictions/long_term_best_investments.json');
+  const csvPath = path.join(__dirname, '../data/predictions/long_term_best_investments.csv');
 
   fs.writeFileSync(jsonPath, JSON.stringify(screenResults, null, 2), 'utf8');
 

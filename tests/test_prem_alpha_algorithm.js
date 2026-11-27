@@ -10,8 +10,8 @@ const fs = require('fs');
 const path = require('path');
 const katex = require('katex');
 
-const PremAlphaEngine = require('../premAlphaEngine.js');
-const LearnMathEngine = require('../learnMathEngine.js');
+const PremAlphaEngine = require('../src/quant/premAlphaEngine.js');
+const LearnMathEngine = require('../src/learn/learnMathEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS PREM-ALPHA PROPRIETARY ALGORITHM & LAB TEST SUITE');
@@ -180,7 +180,7 @@ it('learnMathEngine.js includes prem_alpha as Flagship Lab 81 and executes with 
 });
 
 it('learn.js contains prem_flagship_alpha in STRUCTURED_TRACKS and COURSE_LIVE_CONFIGS', () => {
-  const learnCode = fs.readFileSync(path.join(__dirname, '..', 'learn.js'), 'utf8');
+  const learnCode = fs.readFileSync(path.join(__dirname, '..', 'src/pages/learn.js'), 'utf8');
   assert.ok(learnCode.includes("id: 'prem_flagship_alpha'"), 'Missing prem_flagship_alpha in STRUCTURED_TRACKS');
   assert.ok(learnCode.includes("prem_flagship_alpha: {"), 'Missing prem_flagship_alpha in COURSE_LIVE_CONFIGS');
 });
@@ -189,19 +189,19 @@ it('learn.js contains prem_flagship_alpha in STRUCTURED_TRACKS and COURSE_LIVE_C
 console.log('\n--- 5. Universal Palette & UI Workbench Integration ---');
 
 it('universalPalette.js registers act_prem and matches /prem slash command', () => {
-  const palCode = fs.readFileSync(path.join(__dirname, '..', 'universalPalette.js'), 'utf8');
+  const palCode = fs.readFileSync(path.join(__dirname, '..', 'src/components/universalPalette.js'), 'utf8');
   assert.ok(palCode.includes("id: 'act_prem'"), 'Missing act_prem in universalPalette catalog');
   assert.ok(palCode.includes("slashQuery.includes('prem')"), 'Missing /prem slash command handler');
 });
 
 it('premAlphaLab.js defines PremAlphaLab with openModal and tab rendering (including tab_showdown)', () => {
-  const lab = require('../premAlphaLab.js');
+  const lab = require('../src/quant/premAlphaLab.js');
   assert.ok(lab, 'premAlphaLab should export instance');
   assert.strictEqual(typeof lab.openModal, 'function');
   assert.strictEqual(typeof lab.renderTab, 'function');
   assert.strictEqual(typeof lab.renderShowdownTab, 'function');
 
-  const content = fs.readFileSync(path.join(__dirname, '..', 'premAlphaLab.js'), 'utf8');
+  const content = fs.readFileSync(path.join(__dirname, '..', 'src/quant/premAlphaLab.js'), 'utf8');
   assert.ok(content.includes('data-tab="tab_showdown"'), 'Must define tab_showdown button');
   assert.ok(content.includes('Speed &amp; Showdown Benchmark'), 'Must display Speed & Showdown Benchmark tab title');
 });
@@ -238,7 +238,7 @@ it('cpp/prem_alpha_engine.hpp and rust/src/prem_alpha.rs provide native C++20 an
 });
 
 it('wasmQuantEngine.js PremAlphaWasmEngine evaluates high-throughput TypedArray batches', () => {
-  const WasmEngine = require('../wasmQuantEngine.js');
+  const WasmEngine = require('../src/quant/wasmQuantEngine.js');
   assert.ok(WasmEngine.PremAlpha, 'PremAlpha engine must be exposed');
 
   const ticks = 10000;
@@ -261,7 +261,7 @@ it('wasmQuantEngine.js PremAlphaWasmEngine evaluates high-throughput TypedArray 
 });
 
 it('Empirical Showdown proves P.R.E.M.-Alpha decisively outperforms Avellaneda-Stoikov and Linear OFI', () => {
-  const WasmEngine = require('../wasmQuantEngine.js');
+  const WasmEngine = require('../src/quant/wasmQuantEngine.js');
   const showdown = WasmEngine.runComparativeAlgorithmShowdown(10000);
   const prem = showdown.models.premAlpha;
   const as = showdown.models.avellanedaStoikov;

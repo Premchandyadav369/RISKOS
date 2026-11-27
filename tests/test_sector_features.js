@@ -13,7 +13,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { SecurityMaster } = require('../securityMaster.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
 
 async function runTests() {
   console.log('\n===============================================================');
@@ -64,7 +64,7 @@ async function runTests() {
 
   // Test 4: Verify fleet.js INITIAL_BOTS has 41 total bots (21 Greek/Norse + 20 Egyptian)
   console.log('\n[Test 4] Testing fleet.js Egyptian Pantheon Bot Registration...');
-  const fleetJs = fs.readFileSync(path.join(__dirname, '../fleet.js'), 'utf8');
+  const fleetJs = fs.readFileSync(path.join(__dirname, '../src/pages/fleet.js'), 'utf8');
   assert(fleetJs.includes('BOT-EG-IN-01'), 'Must have BOT-EG-IN-01');
   assert(fleetJs.includes('BOT-EG-IN-10'), 'Must have BOT-EG-IN-10');
   assert(fleetJs.includes('BOT-EG-US-01'), 'Must have BOT-EG-US-01');
@@ -99,7 +99,7 @@ async function runTests() {
 
   // Test 7: Verify ticker.js initialization
   console.log('\n[Test 7] Testing ticker.js initSectorIndicatorsDesk...');
-  const tickerJs = fs.readFileSync(path.join(__dirname, '../ticker.js'), 'utf8');
+  const tickerJs = fs.readFileSync(path.join(__dirname, '../src/pages/ticker.js'), 'utf8');
   assert(tickerJs.includes('initSectorIndicatorsDesk'), 'Must define initSectorIndicatorsDesk');
   assert(tickerJs.includes('initSectorIndicatorsDesk();'), 'init() must call initSectorIndicatorsDesk()');
   assert(tickerJs.includes('filterScreenerBySector'), 'Must define filterScreenerBySector');
@@ -107,7 +107,7 @@ async function runTests() {
 
   // Test 8: Verify ticker.css styling
   console.log('\n[Test 8] Testing ticker.css sector desk styling...');
-  const tickerCss = fs.readFileSync(path.join(__dirname, '../ticker.css'), 'utf8');
+  const tickerCss = fs.readFileSync(path.join(__dirname, '../styles/pages/ticker.css'), 'utf8');
   assert(tickerCss.includes('.sector-indicators-desk'), 'Must style .sector-indicators-desk');
   assert(tickerCss.includes('.sector-cards-grid'), 'Must style .sector-cards-grid');
   assert(tickerCss.includes('.sector-card'), 'Must style .sector-card');

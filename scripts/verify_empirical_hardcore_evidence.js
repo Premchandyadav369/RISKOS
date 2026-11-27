@@ -16,8 +16,8 @@ const path = require('path');
 const { execSync } = require('child_process');
 const { performance } = require('perf_hooks');
 
-const WasmEngine = require('../wasmQuantEngine.js');
-const AlgoTournamentEngine = require('../algoTournamentEngine.js');
+const WasmEngine = require('../src/quant/wasmQuantEngine.js');
+const AlgoTournamentEngine = require('../src/quant/algoTournamentEngine.js');
 
 console.log('================================================================================');
 console.log('  RISKOS EMPIRICAL HARDCORE EVIDENCE & VALIDATION AUDIT');
@@ -127,12 +127,12 @@ for (let p = 0; p < numPeriods; p++) {
   );
 }
 
-const csvPath = path.join(__dirname, '..', 'empirical_trade_log.csv');
+const csvPath = path.join(__dirname, '..', 'data/audits/empirical_trade_log.csv');
 fs.writeFileSync(csvPath, csvRows.join('\n'), 'utf8');
 console.log(`[+] Raw trade logs exported (${numPeriods} trading periods) to ${csvPath}.`);
 
 // Export tear-sheet
-const tearSheetPath = path.join(__dirname, '..', 'empirical_tear_sheet.csv');
+const tearSheetPath = path.join(__dirname, '..', 'data/audits/empirical_tear_sheet.csv');
 const tearSheetCsv = AlgoTournamentEngine.generateCsvTearSheet(tournamentResult);
 fs.writeFileSync(tearSheetPath, tearSheetCsv, 'utf8');
 console.log(`[+] Tournament tear-sheet exported to ${tearSheetPath}.`);
@@ -142,7 +142,7 @@ console.log(`[+] Tournament tear-sheet exported to ${tearSheetPath}.`);
 // -----------------------------------------------------------------------------
 console.log('[*] Step 3/4: Executing independent Python statistical significance audit...');
 try {
-  const pyOutput = execSync('python scripts/verify_empirical_significance.py empirical_trade_log.csv', {
+  const pyOutput = execSync('python scripts/verify_empirical_significance.py data/audits/empirical_trade_log.csv', {
     cwd: path.join(__dirname, '..'),
     encoding: 'utf8'
   });
@@ -186,7 +186,7 @@ const summaryEvidence = {
   auditStatus: 'VERIFIED_100_PERCENT_EMPIRICAL'
 };
 
-const jsonEvidencePath = path.join(__dirname, '..', 'empirical_evidence_summary.json');
+const jsonEvidencePath = path.join(__dirname, '..', 'data/audits/empirical_evidence_summary.json');
 fs.writeFileSync(jsonEvidencePath, JSON.stringify(summaryEvidence, null, 2), 'utf8');
 console.log(`[+] Master evidence summary written to ${jsonEvidencePath}.`);
 

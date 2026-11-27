@@ -38,7 +38,7 @@ const rootDir = path.resolve(__dirname, '..');
 console.log('── Section 1: 41-Bot Swarm Higher Profit & DPEA Positive Invariants ──');
 
 test('Fleet Registry in fleet.js has total cumulative realized profit > ₹6.0 Crores', () => {
-  const fleetJsCode = fs.readFileSync(path.join(rootDir, 'fleet.js'), 'utf8');
+  const fleetJsCode = fs.readFileSync(path.join(rootDir, 'src/pages/fleet.js'), 'utf8');
   const match = fleetJsCode.match(/const INITIAL_BOTS = (\[[\s\S]*?\n  \];)/);
   assert(match, 'INITIAL_BOTS not found in fleet.js');
   const bots = eval(match[1]);
@@ -69,14 +69,14 @@ test('api/market/fleet.js aligns with scaled higher profit figures', () => {
 console.log('\n── Section 2: Feature 1 - Live Public WebSocket Stream Engine ──');
 
 test('liveWebSocketStream.js exports LiveWebSocketStreamClient and defaults', () => {
-  const liveWs = require(path.join(rootDir, 'liveWebSocketStream.js'));
+  const liveWs = require(path.join(rootDir, 'src/core/liveWebSocketStream.js'));
   assert(liveWs.LiveWebSocketStreamClient, 'LiveWebSocketStreamClient not exported');
   assert(Array.isArray(liveWs.DEFAULT_SYMBOLS), 'DEFAULT_SYMBOLS should be an array');
   assert(liveWs.BINANCE_WS_BASE.includes('stream.binance.com'), 'BINANCE_WS_BASE should point to Binance');
 });
 
 test('LiveWebSocketStreamClient emits ticks via fallback when offline and supports event listening', (done) => {
-  const { LiveWebSocketStreamClient } = require(path.join(rootDir, 'liveWebSocketStream.js'));
+  const { LiveWebSocketStreamClient } = require(path.join(rootDir, 'src/core/liveWebSocketStream.js'));
   const client = new LiveWebSocketStreamClient({ autoConnect: false });
 
   let tickReceived = false;
@@ -99,7 +99,7 @@ test('LiveWebSocketStreamClient emits ticks via fallback when offline and suppor
 console.log('\n── Section 3: Feature 2 - Bloomberg Amber CRT Bottom Telemetry Bar ──');
 
 test('terminalBottomBar.js exports BarManager and FUNCTION_KEYS', () => {
-  const barMod = require(path.join(rootDir, 'terminalBottomBar.js'));
+  const barMod = require(path.join(rootDir, 'src/components/terminalBottomBar.js'));
   assert(barMod.BarManager, 'BarManager not exported');
   assert(Array.isArray(barMod.FUNCTION_KEYS), 'FUNCTION_KEYS not exported');
   assert.strictEqual(barMod.FUNCTION_KEYS.length, 8, 'Expected 8 function keys (F1 to F8)');
@@ -109,7 +109,7 @@ test('terminalBottomBar.js exports BarManager and FUNCTION_KEYS', () => {
 });
 
 test('terminalBottomBar.css exists and defines CRT scanline & glow rules', () => {
-  const css = fs.readFileSync(path.join(rootDir, 'terminalBottomBar.css'), 'utf8');
+  const css = fs.readFileSync(path.join(rootDir, 'styles/components/terminalBottomBar.css'), 'utf8');
   assert(css.includes('.riskos-bottom-telemetry-bar'), 'Missing .riskos-bottom-telemetry-bar');
   assert(css.includes('.fkey-btn'), 'Missing .fkey-btn');
   assert(css.includes('#ffb000'), 'Missing Bloomberg Amber CRT color #ffb000');
@@ -120,7 +120,7 @@ test('terminalBottomBar.css exists and defines CRT scanline & glow rules', () =>
 console.log('\n── Section 4: Feature 3 - Interactive Backtest & Kelly Sizing Sandbox ──');
 
 test('interactiveBacktestSandbox.js computes dynamic Kelly sizing in <5ms', () => {
-  const { SandboxEngine } = require(path.join(rootDir, 'interactiveBacktestSandbox.js'));
+  const { SandboxEngine } = require(path.join(rootDir, 'src/components/interactiveBacktestSandbox.js'));
   const engine = new SandboxEngine();
 
   // Test Half-Kelly (0.50x)
@@ -140,7 +140,7 @@ test('interactiveBacktestSandbox.js computes dynamic Kelly sizing in <5ms', () =
 console.log('\n── Section 5: Feature 6 - Dynamic Correlation Breakdown Radar ──');
 
 test('correlationContagionRadar.js calculates Fisher Z divergence and flags dislocations', () => {
-  const { ContagionRadarEngine, CROSS_ASSET_PAIRS } = require(path.join(rootDir, 'correlationContagionRadar.js'));
+  const { ContagionRadarEngine, CROSS_ASSET_PAIRS } = require(path.join(rootDir, 'src/quant/correlationContagionRadar.js'));
   assert(Array.isArray(CROSS_ASSET_PAIRS) && CROSS_ASSET_PAIRS.length === 6, 'Expected 6 cross asset pairs');
 
   const radar = new ContagionRadarEngine();

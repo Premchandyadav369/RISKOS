@@ -1,6 +1,6 @@
 const katex = require('katex');
 const fs = require('fs');
-const LearnMathEngine = require('./learnMathEngine.js');
+const LearnMathEngine = require('../src/learn/learnMathEngine.js');
 
 console.log("═══════════════════════════════════════════════════════════════");
 console.log("🔍 COMPREHENSIVE KATEX AUDIT: LABS & DOCUMENTATION");

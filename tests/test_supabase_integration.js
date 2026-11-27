@@ -38,7 +38,7 @@ console.log('══════════════════════�
 
 // ── 1. CONFIGURATION MANAGER VALIDATION ─────────────────────────────────────
 it('SupabaseConfig: Default project credentials and configuration integrity', () => {
-  const configFile = path.join(ROOT, 'supabaseConfig.js');
+  const configFile = path.join(ROOT, 'src/core/supabaseConfig.js');
   assert(fs.existsSync(configFile), 'supabaseConfig.js must exist');
   const Config = require(configFile);
 
@@ -87,7 +87,7 @@ it('PostgreSQL Schema: Validates schema.sql tables, RLS policies, triggers and p
 
 // ── 3. SUPABASE CLIENT SINGLETON & OFFLINE RESILIENCE ───────────────────────
 it('SupabaseClient: Instantiation, methods, offline resilience & session Hydration', async () => {
-  const clientFile = path.join(ROOT, 'supabaseClient.js');
+  const clientFile = path.join(ROOT, 'src/core/supabaseClient.js');
   assert(fs.existsSync(clientFile), 'supabaseClient.js must exist');
   const client = require(clientFile);
 
@@ -114,7 +114,7 @@ it('SupabaseClient: Instantiation, methods, offline resilience & session Hydrati
 
 // ── 4. NOTIFICATION DISPATCHER (EMAIL & PHONE/SMS PAYLOADS) ─────────────────
 it('Notifications: Real-time dispatching, local cache and inbox history', async () => {
-  const client = require(path.join(ROOT, 'supabaseClient.js'));
+  const client = require(path.join(ROOT, 'src/core/supabaseClient.js'));
 
   client.clearNotificationsInbox();
   let inbox = client.getNotificationsInbox();
@@ -146,7 +146,7 @@ it('Notifications: Real-time dispatching, local cache and inbox history', async 
 
 // ── 5. NEWS BOOKMARK & WATCHLIST GUEST/CLOUD PARITY ─────────────────────────
 it('Bookmarks & Watchlist: Toggling and offline localStorage fallback', async () => {
-  const client = require(path.join(ROOT, 'supabaseClient.js'));
+  const client = require(path.join(ROOT, 'src/core/supabaseClient.js'));
 
   const sampleArticle = {
     id: 'test_art_' + Date.now(),
@@ -175,7 +175,7 @@ it('Bookmarks & Watchlist: Toggling and offline localStorage fallback', async ()
 
 // ── 6. REALTIME EVENT BUS (BROADCASTCHANNEL & WEBSOCKET) ────────────────────
 it('Realtime: In-memory/cross-tab broadcast messaging bus', () => {
-  const client = require(path.join(ROOT, 'supabaseClient.js'));
+  const client = require(path.join(ROOT, 'src/core/supabaseClient.js'));
 
   let received = false;
   const unsubscribe = client.onRealtime('TEST_FILL_EVENT', (payload) => {
@@ -191,15 +191,15 @@ it('Realtime: In-memory/cross-tab broadcast messaging bus', () => {
 
 // ── 7. SUBSYSTEM INTEGRATION (news.js, paperBroker.js, main.js) ─────────────
 it('Subsystem Linkages: news.js, paperBroker.js and main.js hook into Supabase', () => {
-  const newsJs = fs.readFileSync(path.join(ROOT, 'news.js'), 'utf8');
+  const newsJs = fs.readFileSync(path.join(ROOT, 'src/pages/news.js'), 'utf8');
   assert(newsJs.includes('RISKOS_Supabase.dispatchNotification'), 'news.js must dispatch high-materiality notifications');
   assert(newsJs.includes('RISKOS_Supabase.toggleNewsBookmark'), 'news.js must offer Supabase cloud bookmarking');
 
-  const brokerJs = fs.readFileSync(path.join(ROOT, 'paperBroker.js'), 'utf8');
+  const brokerJs = fs.readFileSync(path.join(ROOT, 'src/trading/paperBroker.js'), 'utf8');
   assert(brokerJs.includes('RISKOS_Supabase.dispatchNotification'), 'paperBroker.js must dispatch ORDER_FILL notifications');
   assert(brokerJs.includes('RISKOS_Supabase.addPortfolioTransaction'), 'paperBroker.js must log trades to Supabase');
 
-  const mainJs = fs.readFileSync(path.join(ROOT, 'main.js'), 'utf8');
+  const mainJs = fs.readFileSync(path.join(ROOT, 'src/pages/main.js'), 'utf8');
   assert(mainJs.includes('RISKOS_Supabase.saveWatchlist'), 'main.js must sync watchlist to Supabase');
 });
 

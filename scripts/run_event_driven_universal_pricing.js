@@ -15,9 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const { performance } = require('perf_hooks');
 
-const { SecurityMaster } = require('../securityMaster.js');
-const CrossMarketPricingEngine = require('../crossMarketPricingEngine.js');
-const EventSurveillanceEngine = require('../eventSurveillanceEngine.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
+const CrossMarketPricingEngine = require('../src/quant/crossMarketPricingEngine.js');
+const EventSurveillanceEngine = require('../src/quant/eventSurveillanceEngine.js');
 
 const isLiveMode = process.argv.includes('--live');
 
@@ -175,12 +175,12 @@ async function main() {
     ? 'event_driven_universal_predictions_live.csv'
     : 'event_driven_universal_predictions.csv';
 
-  const jsonOutPath = path.join(__dirname, '..', jsonFileName);
+  const jsonOutPath = path.join(__dirname, '..', 'data', 'predictions', jsonFileName);
   fs.writeFileSync(jsonOutPath, JSON.stringify(payload, null, 2), 'utf8');
   console.log(`\n[+] Structured event telemetry exported to: ${jsonOutPath}`);
 
   const csvText = CrossMarketPricingEngine.generateCsvTearSheet({ predictions: unifiedPredictions });
-  const csvOutPath = path.join(__dirname, '..', csvFileName);
+  const csvOutPath = path.join(__dirname, '..', 'data', 'predictions', csvFileName);
   fs.writeFileSync(csvOutPath, csvText, 'utf8');
   console.log(`[+] Comprehensive CSV spreadsheet exported to: ${csvOutPath}`);
 

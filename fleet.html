@@ -37,19 +37,19 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- Core Stylesheets -->
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="observatory.css" />
-  <link rel="stylesheet" href="fleet.css" />
-  <link rel="stylesheet" href="terminalBus.css" />
-  <link rel="stylesheet" href="launchpadWorkspace.css" />
+  <link rel="stylesheet" href="styles/base/styles.css" />
+  <link rel="stylesheet" href="styles/pages/observatory.css" />
+  <link rel="stylesheet" href="styles/pages/fleet.css" />
+  <link rel="stylesheet" href="styles/components/terminalBus.css" />
+  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="mobileResponsive.css" />
-  <link rel="stylesheet" href="universalPalette.css" />
-  <link rel="stylesheet" href="universalExplainer.css" />
-  <link rel="stylesheet" href="themeEngine.css" />
-  <link rel="stylesheet" href="authModal.css" />
-  <link rel="stylesheet" href="terminalBottomBar.css" />
-  <link rel="stylesheet" href="quantCopilot.css" />
+  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
+  <link rel="stylesheet" href="styles/components/universalPalette.css" />
+  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
+  <link rel="stylesheet" href="styles/base/themeEngine.css" />
+  <link rel="stylesheet" href="styles/components/authModal.css" />
+  <link rel="stylesheet" href="styles/components/terminalBottomBar.css" />
+  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
 </head>
 <body class="observatory-page fleet-page">
 
@@ -1026,47 +1026,47 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="liveMarketDataFeed.js"></script>
-  <script src="macroDataFeedEngine.js"></script>
-  <script src="securityMaster.js"></script>
-  <script src="crossHedgingSynapse.js"></script>
-  <script src="quantWhisperer.js"></script>
-  <script src="crisisReplayEngine.js"></script>
-  <script src="volatilitySurface3D.js"></script>
-  <script src="darkPoolHunter.js"></script>
-  <script src="defconRiskMatrix.js"></script>
-  <script src="executiveReportGenerator.js"></script>
-  <script src="paperBroker.js"></script>
-  <script src="quantTearSheet.js"></script>
-  <script src="fleet.js"></script>
-  <script src="microstructureEngine.js"></script>
-  <script src="riskGuardrails.js"></script>
-  <script src="geneticOptimizer.js"></script>
-  <script src="marketSessionGateway.js"></script>
-  <script src="auditLedger.js"></script>
-  <script src="launchpadWorkspace.js"></script>
-  <script src="terminalBus.js"></script>
+  <script src="src/core/liveMarketDataFeed.js"></script>
+  <script src="src/core/macroDataFeedEngine.js"></script>
+  <script src="src/core/securityMaster.js"></script>
+  <script src="src/quant/crossHedgingSynapse.js"></script>
+  <script src="src/components/quantWhisperer.js"></script>
+  <script src="src/quant/crisisReplayEngine.js"></script>
+  <script src="src/quant/volatilitySurface3D.js"></script>
+  <script src="src/trading/darkPoolHunter.js"></script>
+  <script src="src/quant/defconRiskMatrix.js"></script>
+  <script src="src/components/executiveReportGenerator.js"></script>
+  <script src="src/trading/paperBroker.js"></script>
+  <script src="src/components/quantTearSheet.js"></script>
+  <script src="src/pages/fleet.js"></script>
+  <script src="src/quant/microstructureEngine.js"></script>
+  <script src="src/quant/riskGuardrails.js"></script>
+  <script src="src/quant/geneticOptimizer.js"></script>
+  <script src="src/core/marketSessionGateway.js"></script>
+  <script src="src/trading/auditLedger.js"></script>
+  <script src="src/components/launchpadWorkspace.js"></script>
+  <script src="src/core/terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="marketDataTruth.js"></script>
-  <script src="universalExplainer.js"></script>
-  <script src="universalPalette.js"></script>
-  <script src="sessionSync.js"></script>
-  <script src="themeEngine.js"></script>
-  <script src="mobileNav.js"></script>
+  <script src="src/core/marketDataTruth.js"></script>
+  <script src="src/components/universalExplainer.js"></script>
+  <script src="src/components/universalPalette.js"></script>
+  <script src="src/core/sessionSync.js"></script>
+  <script src="src/components/themeEngine.js"></script>
+  <script src="src/components/mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseConfig.js"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="authModal.js"></script>
-  <script src="soundFX.js"></script>
-  <script src="showcaseTour.js"></script>
-  <script src="liveBrokerGateway.js"></script>
-  <script src="swarmInternalCrossing.js"></script>
-  <script src="pitchDeckGenerator.js"></script>
-  <script src="multiWindowManager.js"></script>
-  <script src="liveWebSocketStream.js"></script>
-  <script src="terminalBottomBar.js"></script>
-  <script src="quantCopilot.js"></script>
+  <script src="src/core/supabaseConfig.js"></script>
+  <script src="src/core/supabaseClient.js"></script>
+  <script src="src/components/authModal.js"></script>
+  <script src="src/core/soundFX.js"></script>
+  <script src="src/components/showcaseTour.js"></script>
+  <script src="src/trading/liveBrokerGateway.js"></script>
+  <script src="src/trading/swarmInternalCrossing.js"></script>
+  <script src="src/components/pitchDeckGenerator.js"></script>
+  <script src="src/components/multiWindowManager.js"></script>
+  <script src="src/core/liveWebSocketStream.js"></script>
+  <script src="src/components/terminalBottomBar.js"></script>
+  <script src="src/components/quantCopilot.js"></script>
 </body>
 </html>
 

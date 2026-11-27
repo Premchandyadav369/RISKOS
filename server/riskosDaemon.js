@@ -28,14 +28,14 @@ const crypto = require('crypto');
 const os = require('os');
 
 // Import Core RISKOS Engines
-const { WebSeerEngine } = require('../webSeerEngine.js');
-const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
-const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
-const { LiveMarketDataFeedClient, defaultMarketFeed } = require('../liveMarketDataFeed.js');
+const { WebSeerEngine } = require('../src/news/webSeerEngine.js');
+const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
+const { MacroDataFeedEngine, MacroDataFeedClient } = require('../src/core/macroDataFeedEngine.js');
+const { LiveMarketDataFeedClient, defaultMarketFeed } = require('../src/core/liveMarketDataFeed.js');
 const { handleUnifiedApi } = require('./unifiedApiHandlers.js');
 let SecurityMaster;
 try {
-  SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
+  SecurityMaster = require('../src/core/securityMaster.js').SecurityMaster || require('../src/core/securityMaster.js');
 } catch (e) {
   console.warn('[Daemon] SecurityMaster warning:', e.message);
 }
@@ -384,7 +384,7 @@ class RiskosDaemon {
       const results = this.pricingEngine.evaluateUniverse();
       if (results && results.fullEvaluations) {
         // Save to disk
-        const jsonPath = path.join(this.config.rootDir, 'institutional_12factor_predictions.json');
+        const jsonPath = path.join(this.config.rootDir, 'data/predictions/institutional_12factor_predictions.json');
         fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2), 'utf8');
 
         // Check for top picks
@@ -506,7 +506,7 @@ class RiskosDaemon {
 
       // 3. Universe Pricing Endpoint
       if (pathname === '/api/pricing/12factor') {
-        const jsonPath = path.join(this.config.rootDir, 'institutional_12factor_predictions.json');
+        const jsonPath = path.join(this.config.rootDir, 'data/predictions/institutional_12factor_predictions.json');
         if (fs.existsSync(jsonPath)) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           fs.createReadStream(jsonPath).pipe(res);
@@ -519,7 +519,7 @@ class RiskosDaemon {
 
       // 4. Catalysts Endpoint
       if (pathname === '/api/catalysts') {
-        const jsonPath = path.join(this.config.rootDir, 'upcoming_catalyst_shock_predictions.json');
+        const jsonPath = path.join(this.config.rootDir, 'data/predictions/upcoming_catalyst_shock_predictions.json');
         if (fs.existsSync(jsonPath)) {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           fs.createReadStream(jsonPath).pipe(res);

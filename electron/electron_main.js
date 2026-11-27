@@ -30,7 +30,7 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile(path.join(__dirname, '..', 'index.html'));
 
   // Register Global Bloomberg Shortcuts
   globalShortcut.register('CommandOrControl+K', () => {
@@ -64,13 +64,13 @@ app.whenReady().then(() => {
     {
       label: 'Desks',
       submenu: [
-        { label: 'Executive Dashboard', click: () => mainWindow.loadFile('index.html') },
-        { label: '8 Trading Desks', click: () => mainWindow.loadFile('app.html') },
-        { label: 'HFT Microstructure Desk', click: () => mainWindow.loadFile('hft.html') },
-        { label: 'Goldman Sachs Quant Desk', click: () => mainWindow.loadFile('gs_quant.html') },
-        { label: 'Autonomous Fleet (41 Bots)', click: () => mainWindow.loadFile('fleet.html') },
-        { label: 'Macro Observatory', click: () => mainWindow.loadFile('observatory.html') },
-        { label: '81 Quant Labs & Academy', click: () => mainWindow.loadFile('learn.html') }
+        { label: 'Executive Dashboard', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'index.html')) },
+        { label: '8 Trading Desks', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'app.html')) },
+        { label: 'HFT Microstructure Desk', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'hft.html')) },
+        { label: 'Goldman Sachs Quant Desk', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'gs_quant.html')) },
+        { label: 'Autonomous Fleet (41 Bots)', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'fleet.html')) },
+        { label: 'Macro Observatory', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'observatory.html')) },
+        { label: '81 Quant Labs & Academy', click: () => mainWindow.loadFile(path.join(__dirname, '..', 'learn.html')) }
       ]
     },
     {

@@ -23,10 +23,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
+const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
 let SecurityMaster;
 try {
-  SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
+  SecurityMaster = require('../src/core/securityMaster.js').SecurityMaster || require('../src/core/securityMaster.js');
 } catch (e) {
   console.warn('SecurityMaster warning:', e.message);
 }
@@ -133,12 +133,12 @@ function main() {
   });
 
   // Export JSON
-  const jsonPath = path.resolve(__dirname, '../institutional_12factor_predictions.json');
+  const jsonPath = path.resolve(__dirname, '../data/predictions/institutional_12factor_predictions.json');
   fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2), 'utf8');
   console.log(`\nSuccessfully exported full evaluations to: ${jsonPath}`);
 
   // Export CSV
-  const csvPath = path.resolve(__dirname, '../institutional_12factor_predictions.csv');
+  const csvPath = path.resolve(__dirname, '../data/predictions/institutional_12factor_predictions.csv');
   exportCsv(results.fullEvaluations, csvPath);
   console.log(`Successfully exported CSV dataset to: ${csvPath}`);
 

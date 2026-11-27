@@ -3,7 +3,7 @@
  */
 const assert = require('assert');
 const path = require('path');
-const MarketDataTruth = require('../marketDataTruth.js');
+const MarketDataTruth = require('../src/core/marketDataTruth.js');
 
 console.log('=== Running MarketDataTruth Test Suite ===');
 

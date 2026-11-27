@@ -9,7 +9,7 @@
  */
 
 const assert = require('assert');
-const factorEngine = require('../factorRiskEngine.js');
+const factorEngine = require('../src/quant/factorRiskEngine.js');
 
 let passed = 0;
 let total = 0;

@@ -15,7 +15,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { WebSeerEngine, HISTORIC_REPLAY_SCENARIOS } = require('../webSeerEngine.js');
+const { WebSeerEngine, HISTORIC_REPLAY_SCENARIOS } = require('../src/news/webSeerEngine.js');
 
 const engine = new WebSeerEngine();
 
@@ -114,8 +114,8 @@ async function runLiveUniverseCrawl() {
 }
 
 function exportData(alerts) {
-  const jsonPath = path.join(__dirname, '../web_seer_live_alerts.json');
-  const csvPath = path.join(__dirname, '../web_seer_live_alerts.csv');
+  const jsonPath = path.join(__dirname, '../data/predictions/web_seer_live_alerts.json');
+  const csvPath = path.join(__dirname, '../data/predictions/web_seer_live_alerts.csv');
 
   fs.writeFileSync(jsonPath, JSON.stringify(alerts, null, 2), 'utf8');
 

@@ -1,47 +1,47 @@
 {
-  "timestamp": "2026-11-25T15:21:05.256Z",
+  "timestamp": "2026-11-27T03:48:52.451Z",
   "fred": {
     "realYield10Y": 2.79,
-    "yieldCurveSlope10Y2Y": 0.28,
+    "yieldCurveSlope10Y2Y": 0.24,
     "highYieldOas": 372,
     "fedFundsRate": 3.88,
     "breakevenInflation10Y": 2.12,
-    "lastUpdated": "2026-11-23"
+    "lastUpdated": "2026-11-24"
   },
   "eia": {
-    "brentCrudeUsd": 92.94,
-    "wtiCrudeUsd": 89.53,
-    "naturalGasUsd": 3.1,
+    "brentCrudeUsd": 91.8,
+    "wtiCrudeUsd": 82.24,
+    "naturalGasUsd": 3.3,
     "brentBaselineUsd": 85,
-    "brentDeltaPct": 9.34,
-    "lastUpdated": "2026-11-17"
+    "brentDeltaPct": 8,
+    "lastUpdated": "2026-11-24"
   },
   "coingecko": {
     "bitcoin": {
-      "usd": 57730,
-      "usd_market_cap": 1161366669294.2288,
-      "usd_24h_change": -3.228008445494056
+      "usd": 61426,
+      "usd_market_cap": 1235918365000.178,
+      "usd_24h_change": 1.082542545289318
     },
     "ethereum": {
-      "usd": 1627.93,
-      "usd_market_cap": 199015405058.89578,
-      "usd_24h_change": -2.607289803143639
+      "usd": 1727.33,
+      "usd_market_cap": 211171918634.75192,
+      "usd_24h_change": 1.7800866893358192
     },
     "solana": {
-      "usd": 66.74,
-      "usd_market_cap": 39521019393.40371,
-      "usd_24h_change": -2.9245078671892
+      "usd": 72.8,
+      "usd_market_cap": 43118876626.0007,
+      "usd_24h_change": 2.309388537190709
     },
     "binancecoin": {
-      "usd": 531.92,
-      "usd_market_cap": 69952143564.63321,
-      "usd_24h_change": -2.456923095121676
+      "usd": 562.29,
+      "usd_market_cap": 73952151323.94229,
+      "usd_24h_change": 0.7245055736824937
     },
     "ripple": {
-      "usd": 0.894863,
-      "usd_market_cap": 56786189577.944305,
-      "usd_24h_change": -1.7833524283814013
+      "usd": 0.961965,
+      "usd_market_cap": 61100219831.05374,
+      "usd_24h_change": 0.38557917256914326
     },
-    "lastUpdated": "2026-11-25T15:21:03.074Z"
+    "lastUpdated": "2026-11-27T03:48:52.134Z"
   }
 }

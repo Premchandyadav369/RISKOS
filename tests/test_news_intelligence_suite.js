@@ -44,7 +44,7 @@ console.log('══════════════════════�
 
 // ── 1. ALPHA VANTAGE SCHEMA & TIMESTAMP HYGIENE ─────────────────────────────
 it('Alpha Vantage Parsing & Timestamp Hygiene: Distinct publishedAt, receivedAt, processedAt', () => {
-  const normEngineMod = require(path.join(ROOT, 'newsNormalizationEngine.js'));
+  const normEngineMod = require(path.join(ROOT, 'src/news/newsNormalizationEngine.js'));
   const norm = normEngineMod.newsNormalizationEngine;
 
   const rawSample = {
@@ -73,7 +73,7 @@ it('Alpha Vantage Parsing & Timestamp Hygiene: Distinct publishedAt, receivedAt,
 
 // ── 2. REDUNDANCY & STORY CLUSTERING ─────────────────────────────────────────
 it('Story Clustering: Groups syndicated wire reprints and computes source diversity', () => {
-  const normEngineMod = require(path.join(ROOT, 'newsNormalizationEngine.js'));
+  const normEngineMod = require(path.join(ROOT, 'src/news/newsNormalizationEngine.js'));
   const norm = normEngineMod.newsNormalizationEngine;
 
   const duplicateFeed = [
@@ -109,7 +109,7 @@ it('Story Clustering: Groups syndicated wire reprints and computes source divers
 
 // ── 3. ENTITY RESOLUTION & SECURITY MASTER MAPPING ──────────────────────────
 it('Entity Resolution: Maps to SecurityMaster and flags ENTITY_UNCERTAIN without hallucination', () => {
-  const entityResolverMod = require(path.join(ROOT, 'newsEntityResolver.js'));
+  const entityResolverMod = require(path.join(ROOT, 'src/news/newsEntityResolver.js'));
   const resolver = entityResolverMod.newsEntityResolver;
 
   // Test known asset
@@ -129,7 +129,7 @@ it('Entity Resolution: Maps to SecurityMaster and flags ENTITY_UNCERTAIN without
 
 // ── 4. EVENT TAXONOMY CLASSIFICATION ────────────────────────────────────────
 it('Event Classification: Classifies 28 standardized categories and decouples eventConfidence', () => {
-  const classifierMod = require(path.join(ROOT, 'newsEventClassifier.js'));
+  const classifierMod = require(path.join(ROOT, 'src/news/newsEventClassifier.js'));
   const classifier = classifierMod.newsEventClassifier;
 
   const testCases = [
@@ -150,7 +150,7 @@ it('Event Classification: Classifies 28 standardized categories and decouples ev
 
 // ── 5. ECONOMIC MATERIALITY ENGINE ──────────────────────────────────────────
 it('Materiality Engine: Computes explainable 0-100 score and categorical ratings', () => {
-  const materialityMod = require(path.join(ROOT, 'newsMaterialityEngine.js'));
+  const materialityMod = require(path.join(ROOT, 'src/news/newsMaterialityEngine.js'));
   const engine = materialityMod.newsMaterialityEngine;
 
   const highImpactArticle = {
@@ -182,7 +182,7 @@ it('Materiality Engine: Computes explainable 0-100 score and categorical ratings
 
 // ── 6. NOVELTY & REPEAT DETECTION ───────────────────────────────────────────
 it('Novelty Engine: Evaluates rolling 30-day novelty and penalizes repeats', () => {
-  const noveltyMod = require(path.join(ROOT, 'newsNoveltyEngine.js'));
+  const noveltyMod = require(path.join(ROOT, 'src/news/newsNoveltyEngine.js'));
   const engine = noveltyMod.newsNoveltyEngine;
 
   const histArticles = [
@@ -222,7 +222,7 @@ it('Novelty Engine: Evaluates rolling 30-day novelty and penalizes repeats', () 
 
 // ── 7. HISTORICAL EVENT IMPACT DISTRIBUTIONS ────────────────────────────────
 it('Historical Event Impact: Provides empirical forward horizons (5m to 20d) with MAE/MFE', () => {
-  const impactMod = require(path.join(ROOT, 'historicalEventImpactEngine.js'));
+  const impactMod = require(path.join(ROOT, 'src/news/historicalEventImpactEngine.js'));
   const engine = impactMod.historicalEventImpactEngine;
 
   const profile = engine.getEventImpactProfile('EARNINGS_SURPRISE', 0.85);
@@ -244,8 +244,8 @@ it('Historical Event Impact: Provides empirical forward horizons (5m to 20d) wit
 
 // ── 8. MARKET REACTION & ABNORMAL RETURN ATTRIBUTION ────────────────────────
 it('Market Reaction & Attribution: Corroborates confirmation and computes abnormal return', () => {
-  const reactionMod = require(path.join(ROOT, 'newsMarketReactionEngine.js'));
-  const attrMod = require(path.join(ROOT, 'newsPriceAttribution.js'));
+  const reactionMod = require(path.join(ROOT, 'src/news/newsMarketReactionEngine.js'));
+  const attrMod = require(path.join(ROOT, 'src/news/newsPriceAttribution.js'));
 
   const reactEngine = reactionMod.newsMarketReactionEngine;
   const attrEngine = attrMod.newsPriceAttribution;
@@ -284,7 +284,7 @@ it('Market Reaction & Attribution: Corroborates confirmation and computes abnorm
 
 // ── 9. NEWS ALPHA & NO_TRADE GATING ─────────────────────────────────────────
 it('News Signal Engine: Enforces NO_TRADE gating on divergence and decomposes additive factors', () => {
-  const signalMod = require(path.join(ROOT, 'newsSignalEngine.js'));
+  const signalMod = require(path.join(ROOT, 'src/news/newsSignalEngine.js'));
   const engine = signalMod.newsSignalEngine;
 
   // Eligible trading case
@@ -333,7 +333,7 @@ it('News Signal Engine: Enforces NO_TRADE gating on divergence and decomposes ad
 
 // ── 10. PORTFOLIO RISK AGGREGATION ──────────────────────────────────────────
 it('Portfolio News Risk: Aggregates net score and identifies constituent jump warnings', () => {
-  const portRiskMod = require(path.join(ROOT, 'newsPortfolioRisk.js'));
+  const portRiskMod = require(path.join(ROOT, 'src/news/newsPortfolioRisk.js'));
   const engine = portRiskMod.newsPortfolioRisk;
 
   const holdings = [
@@ -388,15 +388,15 @@ it('Research Backtest: Verifies zero lookahead leakage across comparative strate
 
 // ── 12. END-TO-END PIPELINE TRACEABILITY ────────────────────────────────────
 it('End-to-End Pipeline: Traces raw Alpha Vantage article to terminal-ready intelligence', async () => {
-  const normMod = require(path.join(ROOT, 'newsNormalizationEngine.js')).newsNormalizationEngine;
-  const entityMod = require(path.join(ROOT, 'newsEntityResolver.js')).newsEntityResolver;
-  const classMod = require(path.join(ROOT, 'newsEventClassifier.js')).newsEventClassifier;
-  const matMod = require(path.join(ROOT, 'newsMaterialityEngine.js')).newsMaterialityEngine;
-  const novMod = require(path.join(ROOT, 'newsNoveltyEngine.js')).newsNoveltyEngine;
-  const impMod = require(path.join(ROOT, 'historicalEventImpactEngine.js')).historicalEventImpactEngine;
-  const reactMod = require(path.join(ROOT, 'newsMarketReactionEngine.js')).newsMarketReactionEngine;
-  const attrMod = require(path.join(ROOT, 'newsPriceAttribution.js')).newsPriceAttribution;
-  const sigMod = require(path.join(ROOT, 'newsSignalEngine.js')).newsSignalEngine;
+  const normMod = require(path.join(ROOT, 'src/news/newsNormalizationEngine.js')).newsNormalizationEngine;
+  const entityMod = require(path.join(ROOT, 'src/news/newsEntityResolver.js')).newsEntityResolver;
+  const classMod = require(path.join(ROOT, 'src/news/newsEventClassifier.js')).newsEventClassifier;
+  const matMod = require(path.join(ROOT, 'src/news/newsMaterialityEngine.js')).newsMaterialityEngine;
+  const novMod = require(path.join(ROOT, 'src/news/newsNoveltyEngine.js')).newsNoveltyEngine;
+  const impMod = require(path.join(ROOT, 'src/news/historicalEventImpactEngine.js')).historicalEventImpactEngine;
+  const reactMod = require(path.join(ROOT, 'src/news/newsMarketReactionEngine.js')).newsMarketReactionEngine;
+  const attrMod = require(path.join(ROOT, 'src/news/newsPriceAttribution.js')).newsPriceAttribution;
+  const sigMod = require(path.join(ROOT, 'src/news/newsSignalEngine.js')).newsSignalEngine;
 
   const rawAlphaVantageArticle = {
     title: "Reliance Industries Q3 Net Profit Surges 12% YoY on Robust Jio ARPU and Retail Expansion",

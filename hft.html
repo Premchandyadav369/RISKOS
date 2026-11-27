@@ -22,20 +22,20 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 
   <!-- RISKOS Terminal Core & Suite Styles -->
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="hft.css" />
-  <link rel="stylesheet" href="themeEngine.css" />
-  <link rel="stylesheet" href="universalPalette.css" />
-  <link rel="stylesheet" href="authModal.css" />
-  <link rel="stylesheet" href="terminalBottomBar.css" />
-  <link rel="stylesheet" href="mobileResponsive.css" />
-  <link rel="stylesheet" href="quantCopilot.css" />
-  <link rel="stylesheet" href="premAlphaLab.css" />
-  <link rel="stylesheet" href="bookDepthHeatmap.css" />
-  <link rel="stylesheet" href="quantStrategyStudio.css" />
-  <link rel="stylesheet" href="eventShockLab.css" />
-  <link rel="stylesheet" href="webSeerTerminal.css" />
-  <link rel="stylesheet" href="institutionalPricingLab.css" />
+  <link rel="stylesheet" href="styles/base/styles.css" />
+  <link rel="stylesheet" href="styles/pages/hft.css" />
+  <link rel="stylesheet" href="styles/base/themeEngine.css" />
+  <link rel="stylesheet" href="styles/components/universalPalette.css" />
+  <link rel="stylesheet" href="styles/components/authModal.css" />
+  <link rel="stylesheet" href="styles/components/terminalBottomBar.css" />
+  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
+  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="styles/components/premAlphaLab.css" />
+  <link rel="stylesheet" href="styles/components/bookDepthHeatmap.css" />
+  <link rel="stylesheet" href="styles/components/quantStrategyStudio.css" />
+  <link rel="stylesheet" href="styles/components/eventShockLab.css" />
+  <link rel="stylesheet" href="styles/components/webSeerTerminal.css" />
+  <link rel="stylesheet" href="styles/components/institutionalPricingLab.css" />
 </head>
 <body class="hft-page" data-theme="dark">
 
@@ -1724,49 +1724,49 @@
   </div>
 
   <!-- React Bits LetterGlitch Component -->
-  <script src="letterGlitch.js"></script>
+  <script src="src/components/letterGlitch.js"></script>
   <!-- Script Dependencies -->
-  <script src="liveMarketDataFeed.js"></script>
-  <script src="macroDataFeedEngine.js"></script>
-  <script src="securityMaster.js"></script>
-  <script src="marketDataTruth.js"></script>
-  <script src="paperBroker.js"></script>
-  <script src="microstructureEngine.js"></script>
-  <script src="orderBookDom.js"></script>
-  <script src="matchingEngineWasm.js"></script>
-  <script src="basisArbitrageEngine.js"></script>
-  <script src="hawkesProcessEngine.js"></script>
-  <script src="orderFlowFootprint.js"></script>
-  <script src="hsJammEngine.js"></script>
-  <script src="seMicropriceEngine.js"></script>
-  <script src="factorShrinkEngine.js"></script>
-  <script src="dkShieldEngine.js"></script>
-  <script src="sessionSync.js"></script>
-  <script src="themeEngine.js"></script>
-  <script src="universalPalette.js"></script>
+  <script src="src/core/liveMarketDataFeed.js"></script>
+  <script src="src/core/macroDataFeedEngine.js"></script>
+  <script src="src/core/securityMaster.js"></script>
+  <script src="src/core/marketDataTruth.js"></script>
+  <script src="src/trading/paperBroker.js"></script>
+  <script src="src/quant/microstructureEngine.js"></script>
+  <script src="src/trading/orderBookDom.js"></script>
+  <script src="src/quant/matchingEngineWasm.js"></script>
+  <script src="src/quant/basisArbitrageEngine.js"></script>
+  <script src="src/quant/hawkesProcessEngine.js"></script>
+  <script src="src/trading/orderFlowFootprint.js"></script>
+  <script src="src/quant/hsJammEngine.js"></script>
+  <script src="src/quant/seMicropriceEngine.js"></script>
+  <script src="src/quant/factorShrinkEngine.js"></script>
+  <script src="src/quant/dkShieldEngine.js"></script>
+  <script src="src/core/sessionSync.js"></script>
+  <script src="src/components/themeEngine.js"></script>
+  <script src="src/components/universalPalette.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseConfig.js"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="authModal.js"></script>
+  <script src="src/core/supabaseConfig.js"></script>
+  <script src="src/core/supabaseClient.js"></script>
+  <script src="src/components/authModal.js"></script>
   <!-- Dedicated HFT Controller -->
-  <script src="hft.js"></script>
-  <script src="soundFX.js"></script>
-  <script src="showcaseTour.js"></script>
-  <script src="liveBrokerGateway.js"></script>
-  <script src="volSurfaceStudio.js"></script>
-  <script src="swarmInternalCrossing.js"></script>
-  <script src="pitchDeckGenerator.js"></script>
-  <script src="multiWindowManager.js"></script>
-  <script src="wasmQuantEngine.js"></script>
-  <script src="fixProtocolClient.js"></script>
-  <script src="webgpuQuantPricer.js"></script>
-  <script src="deepAlphaEngine.js"></script>
-  <script src="columnarTickStore.js"></script>
-  <script src="liveWebSocketStream.js"></script>
-  <script src="terminalBottomBar.js"></script>
-  <script src="hardwareColocationSimulator.js"></script>
-  <script src="cloudKeyVault.js"></script>
+  <script src="src/pages/hft.js"></script>
+  <script src="src/core/soundFX.js"></script>
+  <script src="src/components/showcaseTour.js"></script>
+  <script src="src/trading/liveBrokerGateway.js"></script>
+  <script src="src/quant/volSurfaceStudio.js"></script>
+  <script src="src/trading/swarmInternalCrossing.js"></script>
+  <script src="src/components/pitchDeckGenerator.js"></script>
+  <script src="src/components/multiWindowManager.js"></script>
+  <script src="src/quant/wasmQuantEngine.js"></script>
+  <script src="src/trading/fixProtocolClient.js"></script>
+  <script src="src/quant/webgpuQuantPricer.js"></script>
+  <script src="src/quant/deepAlphaEngine.js"></script>
+  <script src="src/core/columnarTickStore.js"></script>
+  <script src="src/core/liveWebSocketStream.js"></script>
+  <script src="src/components/terminalBottomBar.js"></script>
+  <script src="src/trading/hardwareColocationSimulator.js"></script>
+  <script src="src/core/cloudKeyVault.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const allDropdowns = document.querySelectorAll('.topbar-hub-dropdown');
@@ -1796,21 +1796,21 @@
       });
     });
   </script>
-  <script src="mobileNav.js"></script>
-  <script src="quantCopilot.js"></script>
-  <script src="premAlphaEngine.js"></script>
-  <script src="premAlphaLab.js"></script>
-  <script src="liveTradingGateway.js"></script>
-  <script src="bookDepthHeatmap.js"></script>
-  <script src="quantStrategyStudio.js"></script>
-  <script src="enterpriseRiskEngine.js"></script>
-  <script src="algoTournamentEngine.js"></script>
-  <script src="premEventShockEngine.js"></script>
-  <script src="eventSurveillanceEngine.js"></script>
-  <script src="eventShockLab.js"></script>
-  <script src="webSeerEngine.js"></script>
-  <script src="webSeerTerminal.js"></script>
-  <script src="institutionalPricingEngine.js"></script>
-  <script src="institutionalPricingLab.js"></script>
+  <script src="src/components/mobileNav.js"></script>
+  <script src="src/components/quantCopilot.js"></script>
+  <script src="src/quant/premAlphaEngine.js"></script>
+  <script src="src/quant/premAlphaLab.js"></script>
+  <script src="src/trading/liveTradingGateway.js"></script>
+  <script src="src/trading/bookDepthHeatmap.js"></script>
+  <script src="src/components/quantStrategyStudio.js"></script>
+  <script src="src/quant/enterpriseRiskEngine.js"></script>
+  <script src="src/quant/algoTournamentEngine.js"></script>
+  <script src="src/quant/premEventShockEngine.js"></script>
+  <script src="src/quant/eventSurveillanceEngine.js"></script>
+  <script src="src/quant/eventShockLab.js"></script>
+  <script src="src/news/webSeerEngine.js"></script>
+  <script src="src/news/webSeerTerminal.js"></script>
+  <script src="src/quant/institutionalPricingEngine.js"></script>
+  <script src="src/quant/institutionalPricingLab.js"></script>
 </body>
 </html>

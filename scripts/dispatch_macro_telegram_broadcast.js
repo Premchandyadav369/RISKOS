@@ -16,10 +16,10 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
-const { LiveMarketDataFeedClient } = require('../liveMarketDataFeed.js');
-const { SecurityMaster } = require('../securityMaster.js');
-const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
+const { MacroDataFeedEngine, MacroDataFeedClient } = require('../src/core/macroDataFeedEngine.js');
+const { LiveMarketDataFeedClient } = require('../src/core/liveMarketDataFeed.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
+const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
 
 // Read .env credentials
 const envPath = path.resolve(__dirname, '..', '.env');

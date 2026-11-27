@@ -6,10 +6,10 @@
  */
 
 const assert = require('assert');
-const { InstitutionalPricingEngine, INSTITUTIONAL_FACTOR_ARCHETYPES } = require('../institutionalPricingEngine.js');
+const { InstitutionalPricingEngine, INSTITUTIONAL_FACTOR_ARCHETYPES } = require('../src/quant/institutionalPricingEngine.js');
 let SecurityMaster;
 try {
-  SecurityMaster = require('../securityMaster.js').SecurityMaster || require('../securityMaster.js');
+  SecurityMaster = require('../src/core/securityMaster.js').SecurityMaster || require('../src/core/securityMaster.js');
 } catch (e) {
   console.warn('SecurityMaster warning:', e.message);
 }

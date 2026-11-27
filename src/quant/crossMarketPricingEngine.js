@@ -34,7 +34,7 @@
   if (typeof define === 'function' && define.amd) {
     define(['./securityMaster', './premAlphaEngine', './eventSurveillanceEngine'], factory);
   } else if (typeof module === 'object' && module.exports) {
-    const { SecurityMaster } = require('./securityMaster.js');
+    const { SecurityMaster } = require('../core/securityMaster.js');
     const PremAlphaEngine = require('./premAlphaEngine.js');
     let EventSurveillanceEngine = null;
     try {

@@ -25,7 +25,7 @@ const baseDir = path.resolve(__dirname, '..');
 
 // 1. Check mobileResponsive.css rules
 runTest('mobileResponsive.css contains responsive layout rules', () => {
-  const cssPath = path.join(baseDir, 'mobileResponsive.css');
+  const cssPath = path.join(baseDir, 'styles/base/mobileResponsive.css');
   assert(fs.existsSync(cssPath), 'mobileResponsive.css exists');
   const css = fs.readFileSync(cssPath, 'utf8');
 
@@ -37,7 +37,7 @@ runTest('mobileResponsive.css contains responsive layout rules', () => {
 
 // 2. Check mobileNav.js structure
 runTest('mobileNav.js contains initialization and sheet overlay logic', () => {
-  const jsPath = path.join(baseDir, 'mobileNav.js');
+  const jsPath = path.join(baseDir, 'src/components/mobileNav.js');
   assert(fs.existsSync(jsPath), 'mobileNav.js exists');
   const js = fs.readFileSync(jsPath, 'utf8');
 

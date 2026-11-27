@@ -35,29 +35,29 @@ jobs:
 
       - name: Verify JavaScript Syntax & Compilation
         run: |
-          node -c app.js
-          node -c fleet.js
-          node -c learn.js
-          node -c learnMathEngine.js
-          node -c portfolio_optimizer.js
-          node -c docs.js
-          node -c securityMaster.js
-          node -c observatory.js
-          node -c ticker.js
-          node -c orderBookDom.js
-          node -c paperBroker.js
-          node -c liveWebSocketStream.js
-          node -c terminalBottomBar.js
-          node -c interactiveBacktestSandbox.js
-          node -c correlationContagionRadar.js
-          node -c institutionalPricingEngine.js
-          node -c institutionalPricingLab.js
-          node -c webSeerEngine.js
-          node -c webSeerTerminal.js
-          node -c premEventShockEngine.js
-          node -c eventSurveillanceEngine.js
-          node -c eventShockLab.js
-          node -c longTermInvestmentEngine.js
+          node -c src/pages/app.js
+          node -c src/pages/fleet.js
+          node -c src/pages/learn.js
+          node -c src/learn/learnMathEngine.js
+          node -c src/pages/portfolio_optimizer.js
+          node -c src/pages/docs.js
+          node -c src/core/securityMaster.js
+          node -c src/pages/observatory.js
+          node -c src/pages/ticker.js
+          node -c src/trading/orderBookDom.js
+          node -c src/trading/paperBroker.js
+          node -c src/core/liveWebSocketStream.js
+          node -c src/components/terminalBottomBar.js
+          node -c src/components/interactiveBacktestSandbox.js
+          node -c src/quant/correlationContagionRadar.js
+          node -c src/quant/institutionalPricingEngine.js
+          node -c src/quant/institutionalPricingLab.js
+          node -c src/news/webSeerEngine.js
+          node -c src/news/webSeerTerminal.js
+          node -c src/quant/premEventShockEngine.js
+          node -c src/quant/eventSurveillanceEngine.js
+          node -c src/quant/eventShockLab.js
+          node -c src/quant/longTermInvestmentEngine.js
           node -c server/riskosDaemon.js
 
       - name: Run Features 1, 2, 3, 6 & Fleet Profits Test Suite
@@ -70,7 +70,7 @@ jobs:
         run: node tests/test_mathematical_invariants.js
 
       - name: Run Deterministic Math Simulation Engine Tests (50 Tests)
-        run: node test_learn_engine.js
+        run: node tests/test_learn_engine.js
 
       - name: Run Mid-Level Mathematical Engine Tests (6 Tests)
         run: node tests/test_mid_features.js
@@ -84,8 +84,14 @@ jobs:
       - name: Run Sector Quantitative Indicators & Egyptian Bot Fleet Tests
         run: node tests/test_sector_features.js
 
-      - name: Run Python Quantitative Invariants & Validation Test Suite
-        run: python -m pytest tests/quant/ -v
+      - name: Run Python Test & Quantitative Invariants Suite
+        run: python -m pytest tests/ -q
+
+      - name: Run Platform Bug & Hygiene Audit (0 Findings Enforced)
+        run: node scripts/audit_platform_bugs.js
+
+      - name: Run Deep Platform Audit (0 Issues Enforced)
+        run: node scripts/audit_deep_platform.js
 
       - name: Run SLSQP Latency Verification Benchmark Suite (Pytest)
         run: python -m pytest benchmarks/test_slsqp_latency.py -v

@@ -20,8 +20,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Core Theme Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="ticker.css">
+  <link rel="stylesheet" href="styles/base/styles.css">
+  <link rel="stylesheet" href="styles/pages/ticker.css">
 
   <!-- KaTeX CSS & JS for Instant Real-Time Mathematical Typesetting -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
@@ -30,15 +30,15 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="terminalBus.css" />
-  <link rel="stylesheet" href="launchpadWorkspace.css" />
+  <link rel="stylesheet" href="styles/components/terminalBus.css" />
+  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="mobileResponsive.css" />
-  <link rel="stylesheet" href="universalPalette.css" />
-  <link rel="stylesheet" href="universalExplainer.css" />
-  <link rel="stylesheet" href="themeEngine.css" />
-  <link rel="stylesheet" href="authModal.css" />
-  <link rel="stylesheet" href="quantCopilot.css" />
+  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
+  <link rel="stylesheet" href="styles/components/universalPalette.css" />
+  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
+  <link rel="stylesheet" href="styles/base/themeEngine.css" />
+  <link rel="stylesheet" href="styles/components/authModal.css" />
+  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
 </head>
 <body class="ticker-page">
 
@@ -903,39 +903,39 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="liveMarketDataFeed.js"></script>
-  <script src="macroDataFeedEngine.js"></script>
-  <script src="securityMaster.js"></script>
-  <script src="engine.js"></script>
-  <script src="chartSuite.js"></script>
-  <script src="rrgEngine.js"></script>
-  <script src="universalAlerts.js"></script>
-  <script src="fundamentalHealthEngine.js"></script>
-  <script src="peerComparisonEngine.js"></script>
-  <script src="aiAnalystBrief.js"></script>
-  <script src="ticker.js"></script>
-  <script src="microstructureEngine.js"></script>
-  <script src="riskGuardrails.js"></script>
-  <script src="geneticOptimizer.js"></script>
-  <script src="marketSessionGateway.js"></script>
-  <script src="auditLedger.js"></script>
-  <script src="launchpadWorkspace.js"></script>
-  <script src="terminalBus.js"></script>
+  <script src="src/core/liveMarketDataFeed.js"></script>
+  <script src="src/core/macroDataFeedEngine.js"></script>
+  <script src="src/core/securityMaster.js"></script>
+  <script src="src/core/engine.js"></script>
+  <script src="src/components/chartSuite.js"></script>
+  <script src="src/quant/rrgEngine.js"></script>
+  <script src="src/components/universalAlerts.js"></script>
+  <script src="src/quant/fundamentalHealthEngine.js"></script>
+  <script src="src/components/peerComparisonEngine.js"></script>
+  <script src="src/news/aiAnalystBrief.js"></script>
+  <script src="src/pages/ticker.js"></script>
+  <script src="src/quant/microstructureEngine.js"></script>
+  <script src="src/quant/riskGuardrails.js"></script>
+  <script src="src/quant/geneticOptimizer.js"></script>
+  <script src="src/core/marketSessionGateway.js"></script>
+  <script src="src/trading/auditLedger.js"></script>
+  <script src="src/components/launchpadWorkspace.js"></script>
+  <script src="src/core/terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="marketDataTruth.js"></script>
-  <script src="universalExplainer.js"></script>
-  <script src="universalPalette.js"></script>
-  <script src="sessionSync.js"></script>
-  <script src="themeEngine.js"></script>
-  <script src="mobileNav.js"></script>
+  <script src="src/core/marketDataTruth.js"></script>
+  <script src="src/components/universalExplainer.js"></script>
+  <script src="src/components/universalPalette.js"></script>
+  <script src="src/core/sessionSync.js"></script>
+  <script src="src/components/themeEngine.js"></script>
+  <script src="src/components/mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabaseConfig.js"></script>
-  <script src="supabaseClient.js"></script>
-  <script src="authModal.js"></script>
-  <script src="soundFX.js"></script>
-  <script src="showcaseTour.js"></script>
-  <script src="quantCopilot.js"></script>
+  <script src="src/core/supabaseConfig.js"></script>
+  <script src="src/core/supabaseClient.js"></script>
+  <script src="src/components/authModal.js"></script>
+  <script src="src/core/soundFX.js"></script>
+  <script src="src/components/showcaseTour.js"></script>
+  <script src="src/components/quantCopilot.js"></script>
 </body>
 </html>
 

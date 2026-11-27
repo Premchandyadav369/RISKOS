@@ -7,9 +7,9 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { LiveMarketDataFeedClient } = require('../liveMarketDataFeed.js');
-const { SecurityMaster } = require('../securityMaster.js');
-const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
+const { LiveMarketDataFeedClient } = require('../src/core/liveMarketDataFeed.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
+const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
 
 // Read .env for credentials
 const envPath = path.resolve(__dirname, '..', '.env');

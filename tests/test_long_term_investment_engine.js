@@ -6,8 +6,8 @@
  */
 
 const assert = require('assert');
-const { LongTermInvestmentEngine, MOAT_AND_THEME_PROFILES } = require('../longTermInvestmentEngine.js');
-const { SecurityMaster } = require('../securityMaster.js');
+const { LongTermInvestmentEngine, MOAT_AND_THEME_PROFILES } = require('../src/quant/longTermInvestmentEngine.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
 
 console.log('================================================================');
 console.log('  RUNNING RISKOS P.R.E.M.-COMPOUNDER VERIFICATION TEST SUITE');

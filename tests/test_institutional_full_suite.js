@@ -48,14 +48,14 @@ it('Learn: 81 labs categorized with KaTeX and zero MathJax overhead', () => {
   assert(learnHtml.includes('INSTITUTIONAL &amp; IB (10)') || learnHtml.includes('INSTITUTIONAL &amp; IB (9)') || learnHtml.includes('INSTITUTIONAL & IB (10)'), 'Institutional pill must be valid');
   assert(learnHtml.includes('QUANT INTERVIEWS (35)') || learnHtml.includes('QUANT INTERVIEWS (34)'), 'Quant interview pill must be valid');
 
-  const learnJs = fs.readFileSync(path.join(ROOT, 'learn.js'), 'utf8');
+  const learnJs = fs.readFileSync(path.join(ROOT, 'src/pages/learn.js'), 'utf8');
   assert(learnJs.includes('renderMathInElement'), 'learn.js must use renderMathInElement');
   assert(learnJs.includes('renderLatexFormula'), 'learn.js must define renderLatexFormula');
   assert(learnJs.includes('getFilteredModules'), 'learn.js must define dynamic getFilteredModules');
   assert(learnJs.includes('renderSensitivityMatrix'), 'learn.js must define dynamic renderSensitivityMatrix');
 
   // Verify all quantitative labs have valid closed-form LaTeX formulas
-  const LearnMathEngine = require(path.join(ROOT, 'learnMathEngine.js'));
+  const LearnMathEngine = require(path.join(ROOT, 'src/learn/learnMathEngine.js'));
   assert(LearnMathEngine.MODULES_DIRECTORY.length === 81, 'Must have exactly 81 quantitative labs');
   LearnMathEngine.MODULES_DIRECTORY.forEach(mod => {
     const res = mod.calc(mod.defaultInputs || {}, 'INR');
@@ -72,14 +72,14 @@ it('Learn: 81 labs categorized with KaTeX and zero MathJax overhead', () => {
 
 // ── 2. CHART VIEWPORT AUTO-RESET ON TIMEFRAME SWITCH ────────────────────────
 it('Chart: Viewport panOffset resets and visibleBarsCount clamps on timeframe switch', () => {
-  const mainJs = fs.readFileSync(path.join(ROOT, 'main.js'), 'utf8');
+  const mainJs = fs.readFileSync(path.join(ROOT, 'src/pages/main.js'), 'utf8');
   assert(mainJs.includes('visibleBarsCount = Math.max(5'), 'visibleBarsCount must clamp defensively');
   assert(mainJs.includes('panOffset = Math.max(0'), 'panOffset must clamp defensively');
 });
 
 // ── 3. FLEET PANTHEON SYNCHRONIZATION ───────────────────────────────────────
 it('Fleet: Division filter syncs across beginner, pro, and leaderboard modes', () => {
-  const fleetJs = fs.readFileSync(path.join(ROOT, 'fleet.js'), 'utf8');
+  const fleetJs = fs.readFileSync(path.join(ROOT, 'src/pages/fleet.js'), 'utf8');
   assert(fleetJs.includes('.market-pill-btn'), 'Market pill selector must exist');
   assert(fleetJs.includes('filterVal === currentFilter'), 'Must sync pill active state with currentFilter');
   assert(fleetJs.includes('renderActiveView()'), 'Must re-render fleet view');
@@ -87,7 +87,7 @@ it('Fleet: Division filter syncs across beginner, pro, and leaderboard modes', (
 
 // ── 4. SMART ASSET ROUTING IN COMMAND PALETTE ──────────────────────────────
 it('Command Palette: Smart routing routes commodities, yields, equities, and pantheon bots', () => {
-  const palJs = fs.readFileSync(path.join(ROOT, 'universalPalette.js'), 'utf8');
+  const palJs = fs.readFileSync(path.join(ROOT, 'src/components/universalPalette.js'), 'utf8');
   assert(palJs.includes('observatory.html?macro='), 'Macro assets must route to observatory.html');
   assert(palJs.includes('fleet.html?bot='), 'Pantheon bots must route to fleet.html');
   assert(palJs.includes('index.html?ticker='), 'Equities must route to index.html with ticker query');
@@ -111,7 +111,7 @@ it('Navigation: All 8 HTML pages feature unified 8 Desks navigation', () => {
 
 // ── 6. SESSIONSYNC BROADCASTCHANNEL SUITE ───────────────────────────────────
 it('SessionSync: BroadcastChannel multi-tab parity engine', () => {
-  const syncFile = path.join(ROOT, 'sessionSync.js');
+  const syncFile = path.join(ROOT, 'src/core/sessionSync.js');
   assert(fs.existsSync(syncFile), 'sessionSync.js must exist');
   const SessionSync = require(syncFile);
   assert(typeof SessionSync.broadcastSecurity === 'function', 'broadcastSecurity must exist');
@@ -125,13 +125,13 @@ it('SessionSync: BroadcastChannel multi-tab parity engine', () => {
 
 // ── 7. THEME ENGINE: AMBER CRT & HIGH-CONTRAST ──────────────────────────────
 it('ThemeEngine: Bloomberg Amber CRT and Paper-White High-Contrast terminal palettes', () => {
-  const cssFile = path.join(ROOT, 'themeEngine.css');
+  const cssFile = path.join(ROOT, 'styles/base/themeEngine.css');
   assert(fs.existsSync(cssFile), 'themeEngine.css must exist');
   const css = fs.readFileSync(cssFile, 'utf8');
   assert(css.includes('[data-theme="bloomberg-amber"]') && css.includes('#ffaa00'), 'theme-amber must use phosphor amber');
   assert(css.includes('[data-theme="high-contrast-paper"]'), 'theme-light must support paper white');
 
-  const jsFile = path.join(ROOT, 'themeEngine.js');
+  const jsFile = path.join(ROOT, 'src/components/themeEngine.js');
   assert(fs.existsSync(jsFile), 'themeEngine.js must exist');
   const ThemeEngine = require(jsFile);
   assert(typeof ThemeEngine.setTheme === 'function', 'setTheme must exist');
@@ -140,7 +140,7 @@ it('ThemeEngine: Bloomberg Amber CRT and Paper-White High-Contrast terminal pale
 
 // ── 8. INSTITUTIONAL PAPER BROKER & COPY TRADING ────────────────────────────
 it('PaperBroker: ₹10 Lakh virtual sandbox with Almgren-Chriss slippage and margin tracking', () => {
-  const brokerFile = path.join(ROOT, 'paperBroker.js');
+  const brokerFile = path.join(ROOT, 'src/trading/paperBroker.js');
   assert(fs.existsSync(brokerFile), 'paperBroker.js must exist');
   const PaperBroker = require(brokerFile);
 
@@ -179,7 +179,7 @@ it('PaperBroker: ₹10 Lakh virtual sandbox with Almgren-Chriss slippage and mar
 
 // ── 9. RELATIVE ROTATION GRAPH (RRG) ────────────────────────────────────────
 it('RRGEngine: J-Ratio / J-Momentum 4-quadrant momentum matrix for 20 sectors', () => {
-  const rrgFile = path.join(ROOT, 'rrgEngine.js');
+  const rrgFile = path.join(ROOT, 'src/quant/rrgEngine.js');
   assert(fs.existsSync(rrgFile), 'rrgEngine.js must exist');
   const RRGEngine = require(rrgFile);
 
@@ -198,7 +198,7 @@ it('RRGEngine: J-Ratio / J-Momentum 4-quadrant momentum matrix for 20 sectors', 
 
 // ── 10. 3D SABR / SVI VOLATILITY SURFACE ENGINE ─────────────────────────────
 it('VolatilitySurface3D: Calibrates Hagan SABR, Gatheral SVI, Heston FFT and Dupire local vol', () => {
-  const volFile = path.join(ROOT, 'volatilitySurface3D.js');
+  const volFile = path.join(ROOT, 'src/quant/volatilitySurface3D.js');
   assert(fs.existsSync(volFile), 'volatilitySurface3D.js must exist');
   const VolSurface = require(volFile);
 
@@ -231,7 +231,7 @@ it('VolatilitySurface3D: Calibrates Hagan SABR, Gatheral SVI, Heston FFT and Dup
 
 // ── 11. QUANT TEAR SHEET FACTSHEET ENGINE ───────────────────────────────────
 it('QuantTearSheet: Institutional hedge fund factsheet with CAGR, Sharpe, Sortino, VaR & CVaR', () => {
-  const tsFile = path.join(ROOT, 'quantTearSheet.js');
+  const tsFile = path.join(ROOT, 'src/components/quantTearSheet.js');
   assert(fs.existsSync(tsFile), 'quantTearSheet.js must exist');
   const QuantTearSheet = require(tsFile);
 

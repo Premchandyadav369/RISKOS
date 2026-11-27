@@ -109,12 +109,12 @@ function scanMarkdownFile(filePath) {
   });
 }
 
-scanMarkdownFile('README.md');
+scanMarkdownFile(require('path').join(__dirname, '..', 'README.md'));
 if (fs.existsSync('docs/QUANT_LABS.md')) {
-  scanMarkdownFile('docs/QUANT_LABS.md');
+  scanMarkdownFile(require('path').join(__dirname, '..', 'docs/QUANT_LABS.md'));
 }
 if (fs.existsSync('docs/MATHEMATICAL_PROOFS.md')) {
-  scanMarkdownFile('docs/MATHEMATICAL_PROOFS.md');
+  scanMarkdownFile(require('path').join(__dirname, '..', 'docs/MATHEMATICAL_PROOFS.md'));
 }
 
 console.log(`\nScan complete. Total issues detected: ${totalIssues}\n`);

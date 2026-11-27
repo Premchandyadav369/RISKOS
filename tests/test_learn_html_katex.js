@@ -1,6 +1,6 @@
 const fs = require('fs');
 const katex = require('katex');
-const html = fs.readFileSync('learn.html', 'utf-8');
+const html = fs.readFileSync(require('path').join(__dirname, '..', 'learn.html'), 'utf-8');
 
 // match all $$...$$
 const displayMatches = html.match(/\$\$([^\$]+)\$\$/g) || [];

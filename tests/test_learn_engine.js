@@ -3,7 +3,7 @@
  * Verifies all 81 simulation modules produce deterministic, mathematically accurate outputs.
  */
 
-const LearnMathEngine = require('./learnMathEngine.js');
+const LearnMathEngine = require('../src/learn/learnMathEngine.js');
 
 console.log('═══════════════════════════════════════════════════════════════');
 console.log('🧪 TESTING ALL 18 DETERMINISTIC SIMULATION MODULES');

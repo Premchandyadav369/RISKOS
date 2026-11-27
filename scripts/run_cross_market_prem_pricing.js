@@ -14,7 +14,7 @@ const fs = require('fs');
 const path = require('path');
 const { performance } = require('perf_hooks');
 
-const CrossMarketPricingEngine = require('../crossMarketPricingEngine.js');
+const CrossMarketPricingEngine = require('../src/quant/crossMarketPricingEngine.js');
 
 const isLiveMode = process.argv.includes('--live');
 
@@ -130,11 +130,11 @@ async function main() {
   const jsonFileName = isLiveMode ? 'cross_market_prem_pricing_predictions_live.json' : 'cross_market_prem_pricing_predictions.json';
   const csvFileName = isLiveMode ? 'cross_market_prem_predictions_live.csv' : 'cross_market_prem_predictions.csv';
 
-  const jsonOutPath = path.join(__dirname, '..', jsonFileName);
+  const jsonOutPath = path.join(__dirname, '..', 'data', 'predictions', jsonFileName);
   fs.writeFileSync(jsonOutPath, JSON.stringify(universeResult, null, 2), 'utf8');
   console.log(`\n[+] Complete structured telemetry exported to: ${jsonOutPath}`);
 
-  const csvOutPath = path.join(__dirname, '..', csvFileName);
+  const csvOutPath = path.join(__dirname, '..', 'data', 'predictions', csvFileName);
   const csvText = CrossMarketPricingEngine.generateCsvTearSheet(universeResult);
   fs.writeFileSync(csvOutPath, csvText, 'utf8');
   console.log(`[+] Spreadsheet tear-sheet exported to: ${csvOutPath}`);

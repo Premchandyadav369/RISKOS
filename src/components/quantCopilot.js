@@ -361,7 +361,7 @@
       if (typeof document !== 'undefined' && !document.querySelector('link[href*="quantCopilot.css"]')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = 'quantCopilot.css';
+        link.href = 'styles/components/quantCopilot.css';
         document.head.appendChild(link);
       }
 

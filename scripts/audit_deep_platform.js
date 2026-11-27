@@ -72,8 +72,8 @@ htmlFiles.forEach(file => {
 
 // ── 2. All 81 Labs Math & Preset Evaluation ───────────────────────────────────
 console.log('[2/7] Auditing all 81 Labs in learnMathEngine.js...');
-const LME = require(path.join(rootDir, 'learnMathEngine.js'));
-const LLK = require(path.join(rootDir, 'learnLaymanKnowledge.js'));
+const LME = require(path.join(rootDir, 'src/learn/learnMathEngine.js'));
+const LLK = require(path.join(rootDir, 'src/learn/learnLaymanKnowledge.js'));
 
 if (LME.MODULES_DIRECTORY.length !== 81) {
   issues.push({ category: 'Lab Directory', detail: `Expected 81 modules in LME, found ${LME.MODULES_DIRECTORY.length}` });
@@ -163,7 +163,7 @@ LME.MODULES_DIRECTORY.forEach((mod, idx) => {
 
 // ── 3. Curriculum Tracks Mapping Audit (learn.js) ─────────────────────────────
 console.log('[3/7] Auditing curriculum tracks & step mappings in learn.js...');
-const learnJs = fs.readFileSync(path.join(rootDir, 'learn.js'), 'utf8');
+const learnJs = fs.readFileSync(path.join(rootDir, 'src/pages/learn.js'), 'utf8');
 
 // Check window.switchModule export
 if (!learnJs.includes('window.switchModule = switchModule') && !learnJs.includes('window.switchModule=')) {
@@ -172,7 +172,7 @@ if (!learnJs.includes('window.switchModule = switchModule') && !learnJs.includes
 
 // ── 4. Proprietary Algorithms Mathematical Invariants ─────────────────────────
 console.log('[4/7] Auditing proprietary quantitative engines...');
-const PremAlphaEngine = require(path.join(rootDir, 'premAlphaEngine.js'));
+const PremAlphaEngine = require(path.join(rootDir, 'src/quant/premAlphaEngine.js'));
 
 // Test PREM-Alpha edge cases
 try {
@@ -199,7 +199,21 @@ try {
 
 // ── 5. Stale Counts & References (80 vs 81 Labs, 10 vs 11 Tracks) ──────────────
 console.log('[5/7] Auditing stale counts across all platform files...');
-const scanFiles = fs.readdirSync(rootDir).filter(f => f.endsWith('.html') || f.endsWith('.js'));
+const walkDir = (dir, out = []) => {
+  if (!fs.existsSync(dir)) return out;
+  fs.readdirSync(dir).forEach(entry => {
+    if (['node_modules', '.git', 'dist', 'build'].includes(entry)) return;
+    const full = path.join(dir, entry);
+    if (fs.statSync(full).isDirectory()) walkDir(full, out);
+    else if (entry.endsWith('.js') || entry.endsWith('.html')) out.push(path.relative(rootDir, full));
+  });
+  return out;
+};
+const scanFiles = [
+  ...fs.readdirSync(rootDir).filter(f => f.endsWith('.html') || f.endsWith('.js')),
+  ...walkDir(path.join(rootDir, 'src')),
+  ...walkDir(path.join(rootDir, 'server'))
+];
 scanFiles.forEach(file => {
   const content = fs.readFileSync(path.join(rootDir, file), 'utf8');
   const lines = content.split('\n');

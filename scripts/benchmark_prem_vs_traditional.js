@@ -12,7 +12,7 @@
  */
 
 const { performance } = require('perf_hooks');
-const WasmEngine = require('../wasmQuantEngine.js');
+const WasmEngine = require('../src/quant/wasmQuantEngine.js');
 
 console.log('================================================================================');
 console.log('  RISKOS INSTITUTIONAL QUANTITATIVE SHOWDOWN & SPEED BENCHMARK');

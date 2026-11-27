@@ -4,7 +4,7 @@
  */
 
 const assert = require('assert');
-const { LiveTradingGateway, gateway } = require('../liveTradingGateway.js');
+const { LiveTradingGateway, gateway } = require('../src/trading/liveTradingGateway.js');
 
 console.log('================================================================');
 console.log('  RISKOS LIVE TRADING GATEWAY & EXECUTION LEDGER TEST SUITE');

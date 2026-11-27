@@ -15,10 +15,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { WebSeerEngine } = require('../webSeerEngine.js');
-const { SecurityMaster } = require('../securityMaster.js');
-const PremEventShockEngine = require('../premEventShockEngine.js');
-const EventSurveillanceEngine = require('../eventSurveillanceEngine.js');
+const { WebSeerEngine } = require('../src/news/webSeerEngine.js');
+const { SecurityMaster } = require('../src/core/securityMaster.js');
+const PremEventShockEngine = require('../src/quant/premEventShockEngine.js');
+const EventSurveillanceEngine = require('../src/quant/eventSurveillanceEngine.js');
 
 const engine = new WebSeerEngine();
 
@@ -390,8 +390,8 @@ function main() {
   });
 
   // Export JSON & CSV
-  const jsonPath = path.join(__dirname, '../upcoming_catalyst_shock_predictions.json');
-  const csvPath = path.join(__dirname, '../upcoming_catalyst_shock_predictions.csv');
+  const jsonPath = path.join(__dirname, '../data/predictions/upcoming_catalyst_shock_predictions.json');
+  const csvPath = path.join(__dirname, '../data/predictions/upcoming_catalyst_shock_predictions.csv');
 
   fs.writeFileSync(jsonPath, JSON.stringify(results, null, 2), 'utf8');
 

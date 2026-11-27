@@ -4,7 +4,7 @@
  */
 
 const assert = require('assert');
-const AlgoTournamentEngine = require('../algoTournamentEngine.js');
+const AlgoTournamentEngine = require('../src/quant/algoTournamentEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS ALGO SHOWDOWN TOURNAMENT & BACKTEST TEST SUITE');

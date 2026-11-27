@@ -1,4 +1,4 @@
-const StockLabEngine = require('../stockLabEngine.js');
+const StockLabEngine = require('../src/quant/stockLabEngine.js');
 const katex = require('katex');
 
 console.log("==================================================");
