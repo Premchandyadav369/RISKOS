@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>RISKOS — Learn &amp; Lab (Quantitative Simulation Laboratory)</title>
-  <meta name="description" content="RISKOS Learn & Lab: 81 Interactive Quantitative Simulation Laboratories with step-by-step KaTeX derivations and institutional accreditation." />
 
   <!-- Google Fonts Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,7 +16,6 @@
   <!-- Favicon and Brand Icons -->
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.json" />
 
   <!-- KaTeX CSS & JS for Instant Real-Time Mathematical Typesetting -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
@@ -28,28 +26,28 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- RISKOS Core Stylesheet & Learn & Lab Extension -->
-  <link rel="stylesheet" href="styles/base/styles.css" />
-  <link rel="stylesheet" href="styles/pages/learn.css" />
-  <link rel="stylesheet" href="styles/components/terminalBus.css" />
-  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="learn.css" />
+  <link rel="stylesheet" href="terminalBus.css" />
+  <link rel="stylesheet" href="launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/universalPalette.css" />
-  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
-  <link rel="stylesheet" href="styles/base/themeEngine.css" />
-  <link rel="stylesheet" href="styles/components/authModal.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
-  <link rel="stylesheet" href="styles/components/accreditationCert.css" />
-  <link rel="stylesheet" href="styles/components/orderBookDom.css" />
-  <link rel="stylesheet" href="styles/components/premAlphaLab.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
+  <link rel="stylesheet" href="accreditationCert.css" />
+  <link rel="stylesheet" href="orderBookDom.css" />
+  <link rel="stylesheet" href="premAlphaLab.css" />
 </head>
 <body class="learn-page" data-user-mode="beginner">
 
   <!-- Ambient Cinematic Video Background (Fixed Behind Document Flow) -->
   <div class="bg" aria-hidden="true">
-    <img class="bg-video" src="assets/system_architecture_pipeline.jpg" alt="" />
-
-
+    <video class="bg-video" autoplay muted loop playsinline poster="assets/system_architecture_pipeline.jpg">
+      <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260809_012548_ef22562c-c0ae-4816-ad9d-f8922af4e6a7.mp4" type="video/mp4" />
+    </video>
     <div class="bg-overlay"></div>
   </div>
 
@@ -78,7 +76,7 @@
         <!-- Left: Logo & Market Clock Badge -->
         <div class="header-left">
           <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-            <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" style="width:34px !important; height:34px !important; max-width:34px !important; max-height:34px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+            <img src="assets/logo.webp" alt="RISKOS Logo" width="34" height="34" class="logo-img" / style="width:34px !important; height:34px !important; max-width:34px !important; max-height:34px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
           </a>
           
           <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle Indian (NSE) / US (NYSE) market hours">
@@ -647,7 +645,7 @@
                 <span style="font-size: 0.62rem; color: #10b981; font-family: monospace;">60 FPS</span>
               </div>
               <h5 style="font-size: 0.82rem; color: #fff; margin: 0 0 6px 0;">Workstations &amp; Desks</h5>
-              <p style="font-size: 0.7rem; color: #94a3b8; margin: 0 0 8px 0; line-height: 1.4;">11 HFT Workstations, 8 Desks, 41 Autonomous Bots, 81 Simulation Labs, and GS Quant Desks.</p>
+              <p style="font-size: 0.7rem; color: #94a3b8; margin: 0 0 8px 0; line-height: 1.4;">11 HFT Workstations, 8 Desks, 41 Autonomous Bots, 80 Simulation Labs, and GS Quant Desks.</p>
               <div style="font-size: 0.65rem; color: #34d399; font-family: monospace; background: rgba(0,0,0,0.3); padding: 4px; border-radius: 4px;">
                 HFT &bull; 8 Desks &bull; Fleet &bull; Labs
               </div>
@@ -1637,65 +1635,65 @@
   </div>
 
   <!-- Script dependencies -->
-  <script src="src/core/securityMaster.js"></script>
-  <script src="src/core/openbbBridge.js"></script>
-  <script src="src/trading/backtraderEngine.js"></script>
-  <script src="src/components/perspectiveGrid.js"></script>
-  <script src="src/core/engine.js"></script>
-  <script src="src/components/chartSuite.js"></script>
-  <script src="src/learn/learnLaymanKnowledge.js"></script>
-  <script src="src/trading/paperBroker.js"></script>
-  <script src="src/learn/learnMathEngine.js"></script>
-  <script src="src/quant/stockLabEngine.js"></script>
-  <script src="src/pages/learn.js"></script>
-  <script src="src/quant/microstructureEngine.js"></script>
-  <script src="src/quant/riskGuardrails.js"></script>
-  <script src="src/quant/geneticOptimizer.js"></script>
-  <script src="src/core/marketSessionGateway.js"></script>
-  <script src="src/trading/auditLedger.js"></script>
-  <script src="src/components/launchpadWorkspace.js"></script>
-  <script src="src/core/terminalBus.js"></script>
+  <script src="securityMaster.js"></script>
+  <script src="openbbBridge.js"></script>
+  <script src="backtraderEngine.js"></script>
+  <script src="perspectiveGrid.js"></script>
+  <script src="engine.js"></script>
+  <script src="chartSuite.js"></script>
+  <script src="learnLaymanKnowledge.js"></script>
+  <script src="paperBroker.js"></script>
+  <script src="learnMathEngine.js"></script>
+  <script src="stockLabEngine.js"></script>
+  <script src="learn.js"></script>
+  <script src="microstructureEngine.js"></script>
+  <script src="riskGuardrails.js"></script>
+  <script src="geneticOptimizer.js"></script>
+  <script src="marketSessionGateway.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="launchpadWorkspace.js"></script>
+  <script src="terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="src/core/marketDataTruth.js"></script>
-  <script src="src/components/universalExplainer.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/components/mobileNav.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
   <!-- Goldman Sachs GS Quant, Quant Prep Masterclass & Institutional Flagship Systems -->
-  <script src="src/quant/gsQuantEngine.js"></script>
-  <script src="src/learn/quantPrepEngine.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
-  <script src="src/trading/orderBookDom.js"></script>
-  <script src="src/quant/factorAttribution.js"></script>
-  <script src="src/components/hedgeFundTearSheet.js"></script>
-  <script src="src/learn/accreditationCert.js"></script>
-  <script src="src/quant/optionsStrategyBuilder.js"></script>
-  <script src="src/components/quantArena.js"></script>
-  <script src="src/core/soundFX.js"></script>
-  <script src="src/components/showcaseTour.js"></script>
-  <script src="src/trading/liveBrokerGateway.js"></script>
-  <script src="src/quant/volSurfaceStudio.js"></script>
-  <script src="src/trading/swarmInternalCrossing.js"></script>
-  <script src="src/components/pitchDeckGenerator.js"></script>
-  <script src="src/components/multiWindowManager.js"></script>
-  <script src="src/trading/hardwareColocationSimulator.js"></script>
-  <script src="src/core/cloudKeyVault.js"></script>
-  <script src="src/learn/careerAcademy.js"></script>
-  <script src="src/quant/exoticDerivativesEngine.js"></script>
+  <script src="gsQuantEngine.js"></script>
+  <script src="quantPrepEngine.js"></script>
+  <script src="quantCopilot.js"></script>
+  <script src="orderBookDom.js"></script>
+  <script src="factorAttribution.js"></script>
+  <script src="hedgeFundTearSheet.js"></script>
+  <script src="accreditationCert.js"></script>
+  <script src="optionsStrategyBuilder.js"></script>
+  <script src="quantArena.js"></script>
+  <script src="soundFX.js"></script>
+  <script src="showcaseTour.js"></script>
+  <script src="liveBrokerGateway.js"></script>
+  <script src="volSurfaceStudio.js"></script>
+  <script src="swarmInternalCrossing.js"></script>
+  <script src="pitchDeckGenerator.js"></script>
+  <script src="multiWindowManager.js"></script>
+  <script src="hardwareColocationSimulator.js"></script>
+  <script src="cloudKeyVault.js"></script>
+  <script src="careerAcademy.js"></script>
+  <script src="exoticDerivativesEngine.js"></script>
   <!-- Flagship Algorithm: PREM-Alpha Proprietary Execution Matrix & Lab 81 -->
-  <script src="src/quant/premAlphaEngine.js"></script>
-  <script src="src/quant/premAlphaLab.js"></script>
-  <script src="src/trading/liveTradingGateway.js"></script>
-  <script src="src/trading/bookDepthHeatmap.js"></script>
-  <script src="src/components/quantStrategyStudio.js"></script>
-  <script src="src/quant/enterpriseRiskEngine.js"></script>
-  <script src="src/quant/algoTournamentEngine.js"></script>
+  <script src="premAlphaEngine.js"></script>
+  <script src="premAlphaLab.js"></script>
+  <script src="liveTradingGateway.js"></script>
+  <script src="bookDepthHeatmap.js"></script>
+  <script src="quantStrategyStudio.js"></script>
+  <script src="enterpriseRiskEngine.js"></script>
+  <script src="algoTournamentEngine.js"></script>
 </body>
 </html>
 

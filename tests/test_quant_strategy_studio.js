@@ -4,7 +4,7 @@
  */
 
 const assert = require('assert');
-const QuantStrategyStudio = require('../src/components/quantStrategyStudio.js');
+const QuantStrategyStudio = require('../quantStrategyStudio.js');
 
 console.log('================================================================');
 console.log('  RISKOS AI QUANT STRATEGY STUDIO & OPTIMIZER TEST SUITE');

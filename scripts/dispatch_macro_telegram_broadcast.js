@@ -16,28 +16,23 @@
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
-const { MacroDataFeedEngine, MacroDataFeedClient } = require('../src/core/macroDataFeedEngine.js');
-const { LiveMarketDataFeedClient } = require('../src/core/liveMarketDataFeed.js');
-const { SecurityMaster } = require('../src/core/securityMaster.js');
-const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
+const { MacroDataFeedEngine, MacroDataFeedClient } = require('../macroDataFeedEngine.js');
+const { LiveMarketDataFeedClient } = require('../liveMarketDataFeed.js');
+const { SecurityMaster } = require('../securityMaster.js');
+const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
 
 // Read .env credentials
 const envPath = path.resolve(__dirname, '..', '.env');
-let token = process.env.TELEGRAM_BOT_TOKEN || '';
-let chatId = process.env.TELEGRAM_CHAT_ID || '';
+let token = '9084753837:AAEkaXnQqFu0On_sa8DeHjYYkuPkM7-K3Ck';
+let chatId = '7464680691';
 
 if (fs.existsSync(envPath)) {
   const content = fs.readFileSync(envPath, 'utf8');
   content.split(/\r?\n/).forEach(line => {
     const trimmed = line.trim();
-    if (!token && trimmed.startsWith('TELEGRAM_BOT_TOKEN=')) token = trimmed.split('=')[1].replace(/["']/g, '');
-    if (!chatId && trimmed.startsWith('TELEGRAM_CHAT_ID=')) chatId = trimmed.split('=')[1].replace(/["']/g, '');
+    if (trimmed.startsWith('TELEGRAM_BOT_TOKEN=')) token = trimmed.split('=')[1].replace(/["']/g, '');
+    if (trimmed.startsWith('TELEGRAM_CHAT_ID=')) chatId = trimmed.split('=')[1].replace(/["']/g, '');
   });
-}
-
-if (!token || !chatId) {
-  console.error('❌ Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID in environment or .env file.');
-  process.exit(1);
 }
 
 function sendTelegramMessage(htmlText) {

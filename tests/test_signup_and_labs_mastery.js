@@ -56,8 +56,8 @@ test('Signup Page: Markup contains canvas, 4 persona cards, auth tabs, and 8 Des
 
 // ── 2. SIGNUP JS & CSS SYNTAX AND BEAST-MODE FEATURES ─────────────────────────
 test('Signup Assets: signup.js and signup.css are valid and include stochastic canvas & auth', () => {
-  const jsFile = path.join(ROOT, 'src/pages/signup.js');
-  const cssFile = path.join(ROOT, 'styles/pages/signup.css');
+  const jsFile = path.join(ROOT, 'signup.js');
+  const cssFile = path.join(ROOT, 'signup.css');
   assert(fs.existsSync(jsFile), 'signup.js must exist');
   assert(fs.existsSync(cssFile), 'signup.css must exist');
 
@@ -74,7 +74,7 @@ test('Signup Assets: signup.js and signup.css are valid and include stochastic c
 
 // ── 3. AUTH MODAL FULL-PAGE REDIRECT LINKS ────────────────────────────────────
 test('Auth Modal: authModal.js links directly to dedicated flagship signup.html', () => {
-  const file = path.join(ROOT, 'src/components/authModal.js');
+  const file = path.join(ROOT, 'authModal.js');
   assert(fs.existsSync(file), 'authModal.js must exist');
   const js = fs.readFileSync(file, 'utf8');
   assert(js.includes('href="signup.html"'), 'authModal.js must contain links to signup.html');
@@ -104,11 +104,11 @@ test('Course Mastery HUD: learn.html contains progress ring, counters, and actio
 
 // ── 5. STRUCTURED TRACKS 81-LAB COVERAGE IN LEARN.JS ─────────────────────────
 test('Curriculum Tracks: STRUCTURED_TRACKS covers all 81 unique labs with 0 omissions', () => {
-  const mathEngine = require(path.join(ROOT, 'src/learn/learnMathEngine.js'));
+  const mathEngine = require(path.join(ROOT, 'learnMathEngine.js'));
   const allEngineMods = mathEngine.MODULES_DIRECTORY;
   assert.strictEqual(allEngineMods.length, 81, 'LearnMathEngine must have exactly 81 modules');
 
-  const learnJs = fs.readFileSync(path.join(ROOT, 'src/pages/learn.js'), 'utf8');
+  const learnJs = fs.readFileSync(path.join(ROOT, 'learn.js'), 'utf8');
 
   // Extract STRUCTURED_TRACKS from learn.js safely
   const tracksMatch = learnJs.match(/const STRUCTURED_TRACKS = (\[[\s\S]*?\n  \];)/);
@@ -208,7 +208,7 @@ test('Course Progress Engine: Calculates accurate percentage and accreditation r
 
 // ── 7. LEARN CSS PROGRESS HUD STYLING ─────────────────────────────────────────
 test('Learn CSS: Contains styling for mastery HUD, progress ring, rank badges, and next buttons', () => {
-  const css = fs.readFileSync(path.join(ROOT, 'styles/pages/learn.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'learn.css'), 'utf8');
   assert(css.includes('.mastery-progress-hud'), 'learn.css must style .mastery-progress-hud');
   assert(css.includes('.progress-ring-fill'), 'learn.css must style .progress-ring-fill');
   assert(css.includes('.hud-progress-bar-fill'), 'learn.css must style .hud-progress-bar-fill');

@@ -28,7 +28,7 @@ const test = (name, fn) => {
 
 // ── 1. Test UniversalAlerts ──────────────────────────────────────────────────
 test('UniversalAlerts: Alert creation, toggling, and real-time trigger evaluation', () => {
-  const { UniversalAlerts } = require('../src/components/universalAlerts.js');
+  const { UniversalAlerts } = require('../universalAlerts.js');
   assert(UniversalAlerts, 'UniversalAlerts must export');
 
   const alert = UniversalAlerts.addAlert({
@@ -62,7 +62,7 @@ test('UniversalAlerts: Alert creation, toggling, and real-time trigger evaluatio
 
 // ── 2. Test FundamentalHealthEngine (Piotroski & Altman Z) ───────────────────
 test('FundamentalHealthEngine: Piotroski F-Score, Altman Z-Score & 3-Statements', () => {
-  const { FundamentalHealthEngine } = require('../src/quant/fundamentalHealthEngine.js');
+  const { FundamentalHealthEngine } = require('../fundamentalHealthEngine.js');
   assert(FundamentalHealthEngine, 'FundamentalHealthEngine must export');
 
   const mockSecQuality = {
@@ -96,7 +96,7 @@ test('FundamentalHealthEngine: Piotroski F-Score, Altman Z-Score & 3-Statements'
 
 // ── 3. Test PeerComparisonEngine ─────────────────────────────────────────────
 test('PeerComparisonEngine: Multi-asset peer docking and correlation harvesting', () => {
-  const { PeerComparisonEngine } = require('../src/components/peerComparisonEngine.js');
+  const { PeerComparisonEngine } = require('../peerComparisonEngine.js');
   assert(PeerComparisonEngine, 'PeerComparisonEngine must export');
 
   PeerComparisonEngine.clear();
@@ -118,7 +118,7 @@ test('PeerComparisonEngine: Multi-asset peer docking and correlation harvesting'
 
 // ── 4. Test AiAnalystBrief ───────────────────────────────────────────────────
 test('AiAnalystBrief: Automated investment memorandum synthesis across depth modes', () => {
-  const { AiAnalystBrief } = require('../src/news/aiAnalystBrief.js');
+  const { AiAnalystBrief } = require('../aiAnalystBrief.js');
   assert(AiAnalystBrief, 'AiAnalystBrief must export');
 
   const mockSec = {

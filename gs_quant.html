@@ -9,7 +9,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,15 +22,15 @@
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
 
   <!-- Core Stylesheets -->
-  <link rel="stylesheet" href="styles/base/styles.css">
-  <link rel="stylesheet" href="styles/pages/observatory.css">
-  <link rel="stylesheet" href="styles/base/themeEngine.css">
-  <link rel="stylesheet" href="styles/components/terminalBus.css">
-  <link rel="stylesheet" href="styles/components/universalPalette.css">
-  <link rel="stylesheet" href="styles/components/authModal.css">
-  <link rel="stylesheet" href="styles/pages/gs_quant.css">
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="observatory.css">
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="gs_quant.css">
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="gs-quant-page">
 
@@ -270,13 +269,13 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/quant/gsQuantEngine.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="gsQuantEngine.js"></script>
 
   <!-- GS Quant Page Controller -->
   <script>
@@ -788,12 +787,12 @@
       computeAndRender();
     })();
   </script>
-  <script src="src/core/soundFX.js"></script>
-  <script src="src/components/showcaseTour.js"></script>
-  <script src="src/components/mobileNav.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
-  <script src="src/trading/liveBrokerGateway.js"></script>
-  <script src="src/quant/volSurfaceStudio.js"></script>
-  <script src="src/quant/exoticDerivativesEngine.js"></script>
+  <script src="soundFX.js"></script>
+  <script src="showcaseTour.js"></script>
+  <script src="mobileNav.js"></script>
+  <script src="quantCopilot.js"></script>
+  <script src="liveBrokerGateway.js"></script>
+  <script src="volSurfaceStudio.js"></script>
+  <script src="exoticDerivativesEngine.js"></script>
 </body>
 </html>

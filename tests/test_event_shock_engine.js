@@ -9,7 +9,7 @@
  */
 
 const assert = require('assert');
-const PremEventShockEngine = require('../src/quant/premEventShockEngine.js');
+const PremEventShockEngine = require('../premEventShockEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS P.R.E.M.-EVENT SHOCK ENGINE TEST SUITE');

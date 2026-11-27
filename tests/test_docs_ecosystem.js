@@ -38,10 +38,10 @@ assert(docsHtml.includes('id="labs-directory"'), 'docs.html contains #labs-direc
 assert(docsHtml.includes('id="pre-trade-defcon"'), 'docs.html contains #pre-trade-defcon section');
 assert(docsHtml.includes('id="labsDirectoryGrid"'), 'docs.html contains #labsDirectoryGrid container');
 assert(docsHtml.includes('id="commandLibraryGrid"'), 'docs.html contains #commandLibraryGrid container');
-assert(docsHtml.includes('src/learn/learnMathEngine.js'), 'docs.html includes learnMathEngine.js');
+assert(docsHtml.includes('learnMathEngine.js'), 'docs.html includes learnMathEngine.js');
 
 // 3. Interactive Documentation Controller (docs.js)
-const docsJs = fs.readFileSync('src/pages/docs.js', 'utf8');
+const docsJs = fs.readFileSync('docs.js', 'utf8');
 assert(docsJs.includes('initLabsDirectory'), 'docs.js defines initLabsDirectory');
 assert(docsJs.includes('initLabsDirectory();'), 'docs.js calls initLabsDirectory() on DOM ready');
 assert(docsJs.includes('<DESK8>'), 'docs.js includes <DESK8>');
@@ -50,7 +50,7 @@ assert(docsJs.includes('<SYNC>'), 'docs.js includes <SYNC>');
 assert(docsJs.includes('<OPTIMIZE>'), 'docs.js includes <OPTIMIZE>');
 
 // 4. Stylesheet (docs.css)
-const docsCss = fs.readFileSync('styles/pages/docs.css', 'utf8');
+const docsCss = fs.readFileSync('docs.css', 'utf8');
 assert(docsCss.includes('.lab-dir-card'), 'docs.css defines .lab-dir-card');
 assert(docsCss.includes('.lab-dir-launch-btn'), 'docs.css defines .lab-dir-launch-btn');
 

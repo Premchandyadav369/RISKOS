@@ -34,7 +34,7 @@ function it(name, fn) {
 // ── Pillar 1: Almgren-Chriss Endogenous Market Impact ─────────────────────────
 console.log('--- Pillar 1: Almgren-Chriss Endogenous Market Impact Engine ---');
 
-const SandboxModule = require('../src/components/interactiveBacktestSandbox.js');
+const SandboxModule = require('../interactiveBacktestSandbox.js');
 const SandboxEngine = SandboxModule.SandboxEngine;
 
 it('SandboxEngine calculates dynamic Almgren-Chriss square-root market impact', () => {
@@ -70,7 +70,7 @@ it('hft.html contains high-frequency Canvas 2D ladder elements and pipeline swit
 });
 
 it('hft.js exports renderL3CanvasLadder and toggleLadderPipeline', () => {
-  const js = fs.readFileSync('src/pages/hft.js', 'utf8');
+  const js = fs.readFileSync('hft.js', 'utf8');
   assert(js.includes('renderL3CanvasLadder = () =>'), 'hft.js should define renderL3CanvasLadder');
   assert(js.includes('window.toggleLadderPipeline = () =>'), 'hft.js should expose window.toggleLadderPipeline');
   assert(js.includes('ladderPipelineMode === \'CANVAS_2D\''), 'hft.js should support CANVAS_2D mode toggle');
@@ -79,7 +79,7 @@ it('hft.js exports renderL3CanvasLadder and toggleLadderPipeline', () => {
 // ── Pillar 3: Vectorized Columnar SQL Analytical Engine ───────────────────────
 console.log('\n--- Pillar 3: Vectorized Columnar SQL Analytical Engine ---');
 
-const { ColumnarTickTable } = require('../src/core/columnarTickStore.js');
+const { ColumnarTickTable } = require('../columnarTickStore.js');
 
 it('ColumnarTickTable executes vectorized aggregation SQL queries in < 15ms', () => {
   const table = new ColumnarTickTable(1000);
@@ -119,7 +119,7 @@ it('ColumnarTickTable executes filtered projection SQL queries with LIMIT', () =
 });
 
 it('columnarTickStore.js defines openSqlWorkbenchModal interactive GUI', () => {
-  const js = fs.readFileSync('src/core/columnarTickStore.js', 'utf8');
+  const js = fs.readFileSync('columnarTickStore.js', 'utf8');
   assert(js.includes('openSqlWorkbenchModal()'), 'columnarTickStore.js should define openSqlWorkbenchModal');
   assert(js.includes('IN-BROWSER COLUMNAR SQL TICK WORKBENCH'), 'columnarTickStore.js should contain workbench title');
 });
@@ -127,7 +127,7 @@ it('columnarTickStore.js defines openSqlWorkbenchModal interactive GUI', () => {
 // ── Pillar 4: FINRA CAT & MiFID II RTS 25 Compliant Audit Trail ───────────────
 console.log('\n--- Pillar 4: FINRA CAT & MiFID II Regulatory Audit Trail ---');
 
-const LiveBrokerGateway = require('../src/trading/liveBrokerGateway.js');
+const LiveBrokerGateway = require('../liveBrokerGateway.js');
 
 it('LiveBrokerGateway records Rule 613 compliant CAT audit events with sub-100us clock sync metadata', () => {
   const evt = LiveBrokerGateway.recordCatAuditEvent({
@@ -161,7 +161,7 @@ it('LiveBrokerGateway exports structured JSON and CSV regulatory reports', () =>
 });
 
 it('universalPalette.js registers slash commands for all 4 new institutional engines', () => {
-  const js = fs.readFileSync('src/components/universalPalette.js', 'utf8');
+  const js = fs.readFileSync('universalPalette.js', 'utf8');
   assert(js.includes('act_cat'), 'universalPalette.js should register act_cat');
   assert(js.includes('act_sqlticks'), 'universalPalette.js should register act_sqlticks');
   assert(js.includes('act_canvasladder'), 'universalPalette.js should register act_canvasladder');

@@ -15,10 +15,10 @@ const fs = require('fs');
 const path = require('path');
 const { performance } = require('perf_hooks');
 
-const HsJammEngine = require('../src/quant/hsJammEngine.js');
-const SeMicroPriceEngine = require('../src/quant/seMicropriceEngine.js');
-const FactorShrinkEngine = require('../src/quant/factorShrinkEngine.js');
-const DkShieldEngine = require('../src/quant/dkShieldEngine.js');
+const HsJammEngine = require('../hsJammEngine.js');
+const SeMicroPriceEngine = require('../seMicropriceEngine.js');
+const FactorShrinkEngine = require('../factorShrinkEngine.js');
+const DkShieldEngine = require('../dkShieldEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS PROPRIETARY ALGORITHMS LATENCY BENCHMARK SUITE');

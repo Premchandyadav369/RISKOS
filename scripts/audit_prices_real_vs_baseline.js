@@ -3,7 +3,7 @@
  * Comprehensive verification of baseline model prices against real-world live market feeds.
  */
 
-const { SecurityMaster } = require('../src/core/securityMaster.js');
+const { SecurityMaster } = require('../securityMaster.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -19,27 +19,7 @@ async function auditPrices() {
   console.log(`Auditing ${equities.length} equities across India & US registries against live exchange feeds...\n`);
 
   const results = [];
-  const BATCH_SIZE = 5;
-
-  const fetchYahooWithRetry = async (targetTicker, retries = 2) => {
-    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(targetTicker)}?interval=1d&range=5d`;
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      try {
-        const res = await fetch(url, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
-          signal: AbortSignal.timeout(8000)
-        });
-        if (res.status === 429 && attempt < retries) {
-          await new Promise(r => setTimeout(r, 400 * (attempt + 1)));
-          continue;
-        }
-        return res;
-      } catch (err) {
-        if (attempt === retries) throw err;
-        await new Promise(r => setTimeout(r, 350 * (attempt + 1)));
-      }
-    }
-  };
+  const BATCH_SIZE = 10;
   
   for (let i = 0; i < equities.length; i += BATCH_SIZE) {
     const batch = equities.slice(i, i + BATCH_SIZE);
@@ -48,7 +28,8 @@ async function auditPrices() {
       if (sec.symbol === 'TATAMOTORS') targetTicker = 'TMPV.NS';
 
       try {
-        const res = await fetchYahooWithRetry(targetTicker, 2);
+        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(targetTicker)}?interval=1d&range=5d`;
+        const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' } });
         
         if (!res.ok) {
           return {
@@ -160,7 +141,7 @@ async function auditPrices() {
     console.log(r.symbol.padEnd(12) + r.country.padEnd(9) + baseStr + liveStr + diffStr + r.status);
   });
 
-  const outPath = path.join(__dirname, '../data/audits/price_reality_audit_results.json');
+  const outPath = path.join(__dirname, '../price_reality_audit_results.json');
   fs.writeFileSync(outPath, JSON.stringify({
     timestamp: new Date().toISOString(),
     totalAudited: equities.length,

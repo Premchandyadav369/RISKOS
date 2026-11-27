@@ -62,7 +62,7 @@ async function runTestSuite() {
   // ── Section 1: Hardware Co-Location & Sub-100ns FPGA Simulator ─────────────
   console.log('--- Pillar 1: Hardware Co-Location & Sub-100ns FPGA Simulation ---');
 
-  const { HardwareColocationSimulator, DATACENTERS, FPGA_PIPELINE_STAGES } = require('../src/trading/hardwareColocationSimulator.js');
+  const { HardwareColocationSimulator, DATACENTERS, FPGA_PIPELINE_STAGES } = require('../hardwareColocationSimulator.js');
   const sim = new HardwareColocationSimulator();
 
   test('Topology contains 6 global tier-1 exchange data centers', () => {
@@ -124,7 +124,7 @@ async function runTestSuite() {
   // ── Section 2: Zero-Knowledge Cloud Key Vault & Cryptographic Enclave ───────
   console.log('\n--- Pillar 2: Cloud Key Vault & Envelope Encryption ---');
 
-  const { CloudKeyVaultEnclave } = require('../src/core/cloudKeyVault.js');
+  const { CloudKeyVaultEnclave } = require('../cloudKeyVault.js');
   const vault = new CloudKeyVaultEnclave();
 
   await testAsync('Vault derives master key (KEK) using PBKDF2-SHA512 with 100,000 iterations', async () => {
@@ -211,7 +211,7 @@ async function runTestSuite() {
   console.log('\n--- Pillar 3: Platform Integration & DOM Verification ---');
 
   test('universalPalette.js registers /colo-bench and /vault slash commands', () => {
-    const paletteFile = fs.readFileSync(path.join(__dirname, '../src/components/universalPalette.js'), 'utf8');
+    const paletteFile = fs.readFileSync(path.join(__dirname, '../universalPalette.js'), 'utf8');
     assert.ok(paletteFile.includes('/colo-bench'), 'Missing /colo-bench slash command');
     assert.ok(paletteFile.includes('/vault'), 'Missing /vault slash command');
     assert.ok(paletteFile.includes('HardwareColocationSimulator'), 'Missing HardwareColocationSimulator reference in palette');
@@ -219,7 +219,7 @@ async function runTestSuite() {
   });
 
   test('liveBrokerGateway.js connects with CloudKeyVault for envelope encryption', () => {
-    const brokerFile = fs.readFileSync(path.join(__dirname, '../src/trading/liveBrokerGateway.js'), 'utf8');
+    const brokerFile = fs.readFileSync(path.join(__dirname, '../liveBrokerGateway.js'), 'utf8');
     assert.ok(brokerFile.includes('CloudKeyVault.vaultBrokerCredentials'), 'Missing vaultBrokerCredentials in liveBrokerGateway');
     assert.ok(brokerFile.includes('CloudKeyVault.leaseBrokerCredentials'), 'Missing leaseBrokerCredentials in liveBrokerGateway');
     assert.ok(brokerFile.includes('btnOpenEnclaveVault'), 'Missing btnOpenEnclaveVault in liveBrokerGateway');

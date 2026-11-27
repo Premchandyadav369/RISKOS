@@ -20,8 +20,8 @@ const {
   MacroDataFeedEngine, 
   MacroDataFeedClient, 
   BASELINE_SNAPSHOT 
-} = require('../src/core/macroDataFeedEngine.js');
-const { InstitutionalPricingEngine } = require('../src/quant/institutionalPricingEngine.js');
+} = require('../macroDataFeedEngine.js');
+const { InstitutionalPricingEngine } = require('../institutionalPricingEngine.js');
 
 console.log('================================================================');
 console.log('  RUNNING RISKOS MACRO & CROSS-ASSET TELEMETRY TEST SUITE');

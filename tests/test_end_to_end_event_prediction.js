@@ -16,9 +16,9 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-const { SecurityMaster } = require('../src/core/securityMaster.js');
-const CrossMarketPricingEngine = require('../src/quant/crossMarketPricingEngine.js');
-const EventSurveillanceEngine = require('../src/quant/eventSurveillanceEngine.js');
+const { SecurityMaster } = require('../securityMaster.js');
+const CrossMarketPricingEngine = require('../crossMarketPricingEngine.js');
+const EventSurveillanceEngine = require('../eventSurveillanceEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS END-TO-END EVENT PREDICTION TEST SUITE');

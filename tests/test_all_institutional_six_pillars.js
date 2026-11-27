@@ -54,7 +54,7 @@ runTest('C++ fix_protocol_engine.cpp exists and links in CMakeLists.txt', () => 
 });
 
 runTest('fixProtocolClient.js serializes RFC-compliant wire format and tracks seq nums', () => {
-  const { FixMessage, FixProtocolClient } = require('../src/trading/fixProtocolClient.js');
+  const { FixMessage, FixProtocolClient } = require('../fixProtocolClient.js');
   const logon = FixProtocolClient.logon(30);
   assert.strictEqual(logon.msgType(), 'A');
   assert(logon.serialize().includes('35=A'));
@@ -78,7 +78,7 @@ runTest('fixProtocolClient.js serializes RFC-compliant wire format and tracks se
 // ----------------------------------------------------------------------------
 console.log('\n--- Pillar 2: WebGPU & Parallel GPU Monte Carlo Pricer ---');
 
-const WebGpuPricer = require('../src/quant/webgpuQuantPricer.js');
+const WebGpuPricer = require('../webgpuQuantPricer.js');
 
 runTest('webgpuQuantPricer.js provides WGSL shader and executes CPU fallback at > 5M paths/sec', () => {
   const res = WebGpuPricer.simulateCpuMonteCarlo({
@@ -101,7 +101,7 @@ runTest('webgpuQuantPricer.js provides WGSL shader and executes CPU fallback at 
 // ----------------------------------------------------------------------------
 console.log('\n--- Pillar 3: Deep Alpha & Attention Order Flow Engine ---');
 
-const DeepAlpha = require('../src/quant/deepAlphaEngine.js');
+const DeepAlpha = require('../deepAlphaEngine.js');
 
 runTest('deepAlphaEngine.js extracts features, predicts direction, and calculates Avellaneda-Stoikov quotes', () => {
   const out = DeepAlpha.evaluateOrderFlow(2000, 800, 2950, 2950.5, 300, false);
@@ -156,7 +156,7 @@ runTest('.github/workflows/riskos-ci.yml configures automated testing pipeline',
 // ----------------------------------------------------------------------------
 console.log('\n--- Pillar 5: Columnar Tick Store & Crisis Replay Engine ---');
 
-const { CrisisReplayEngine, CRISIS_SCENARIOS } = require('../src/core/columnarTickStore.js');
+const { CrisisReplayEngine, CRISIS_SCENARIOS } = require('../columnarTickStore.js');
 
 runTest('columnarTickStore.js loads 4 historical crises and streams QuestDB line protocol', () => {
   assert(CRISIS_SCENARIOS.COVID_2020, 'Covid 2020 must be present');
@@ -185,7 +185,7 @@ runTest('manifest.json is valid PWA schema and electron_main.js configures WebGP
   assert.strictEqual(manifest.name, 'RISKOS Institutional Quantitative Terminal');
   assert.strictEqual(manifest.display, 'standalone');
 
-  const electronFile = path.join(__dirname, '..', 'electron/electron_main.js');
+  const electronFile = path.join(__dirname, '..', 'electron_main.js');
   assert(fs.existsSync(electronFile), 'electron_main.js must exist');
   const electronContent = fs.readFileSync(electronFile, 'utf8');
   assert(electronContent.includes('BrowserWindow'), 'Must configure BrowserWindow');
@@ -195,7 +195,7 @@ runTest('manifest.json is valid PWA schema and electron_main.js configures WebGP
 runTest('hft.html and app.html include all 4 new engines, manifest link, and DOM trigger buttons', () => {
   const hftContent = fs.readFileSync(path.join(__dirname, '..', 'hft.html'), 'utf8');
   assert(hftContent.includes('manifest.json'), 'hft.html must link manifest.json');
-  assert(hftContent.includes('src/trading/fixProtocolClient.js'), 'hft.html must include fixProtocolClient.js');
+  assert(hftContent.includes('fixProtocolClient.js'), 'hft.html must include fixProtocolClient.js');
   assert(hftContent.includes('webgpuQuantPricer.js'), 'hft.html must include webgpuQuantPricer.js');
   assert(hftContent.includes('deepAlphaEngine.js'), 'hft.html must include deepAlphaEngine.js');
   assert(hftContent.includes('columnarTickStore.js'), 'hft.html must include columnarTickStore.js');
@@ -211,7 +211,7 @@ runTest('hft.html and app.html include all 4 new engines, manifest link, and DOM
 });
 
 runTest('universalPalette.js registers all 4 new slash commands (/fix, /webgpu, /deepalpha, /crisis)', () => {
-  const paletteContent = fs.readFileSync(path.join(__dirname, '..', 'src/components/universalPalette.js'), 'utf8');
+  const paletteContent = fs.readFileSync(path.join(__dirname, '..', 'universalPalette.js'), 'utf8');
   assert(paletteContent.includes('act_fix'), 'universalPalette.js must register act_fix');
   assert(paletteContent.includes('act_webgpu'), 'universalPalette.js must register act_webgpu');
   assert(paletteContent.includes('act_deepalpha'), 'universalPalette.js must register act_deepalpha');

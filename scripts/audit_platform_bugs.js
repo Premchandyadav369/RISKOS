@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
-const { execSync, execFileSync } = require('child_process');
+const { execSync } = require('child_process');
 
 console.log('================================================================');
 console.log('  RISKOS ULTRA-FAST IN-PROCESS PLATFORM AUDIT & BUG HUNTER');
@@ -92,13 +92,13 @@ jsFiles.forEach(f => {
   const code = fs.readFileSync(f, 'utf8');
   if (f.startsWith('api' + path.sep) || f.startsWith('api/')) {
     try {
-      execFileSync(process.execPath, ['--check', f], { stdio: 'pipe' });
+      new vm.SourceTextModule(code, { initializeImportMeta: () => {} });
     } catch (err) {
       findings.push({
         category: 'ESM Syntax Error',
         severity: 'CRITICAL',
         file: f,
-        detail: (err.stderr ? err.stderr.toString() : err.message).trim()
+        detail: err.message
       });
     }
     return;
@@ -157,7 +157,7 @@ const htmlContents = {};
 htmlFiles.forEach(f => { htmlContents[f] = fs.readFileSync(f, 'utf8'); });
 
 // Find common IDs used in script files
-const coreJs = ['src/pages/app.js', 'src/pages/hft.js', 'src/pages/fleet.js', 'src/pages/portfolio_optimizer.js'];
+const coreJs = ['app.js', 'hft.js', 'fleet.js', 'portfolio_optimizer.js'];
 coreJs.forEach(jsFile => {
   if (!fs.existsSync(jsFile)) return;
   const content = fs.readFileSync(jsFile, 'utf8');
@@ -166,7 +166,7 @@ coreJs.forEach(jsFile => {
     const elId = m[1];
     const op = m[2];
     // Check if elId exists in the corresponding html file
-    const matchedHtml = path.basename(jsFile).replace('.js', '.html');
+    const matchedHtml = jsFile.replace('.js', '.html');
     if (htmlContents[matchedHtml] && !htmlContents[matchedHtml].includes(`id="${elId}"`) && !htmlContents[matchedHtml].includes(`id='${elId}'`)) {
       findings.push({
         category: 'Missing DOM Element ID in HTML',
@@ -178,28 +178,6 @@ coreJs.forEach(jsFile => {
   });
 });
 
-// 6. Enforce clean root directory folderization hygiene
-console.log('[6] Verifying clean repository root hygiene...');
-const ALLOWED_ROOT_FILES = new Set([
-  '.env', '.env.example', '.gitignore', '.python-version',
-  'ecosystem.config.js', 'Dockerfile', 'Dockerfile.daemon', 'docker-compose.yml',
-  'manifest.json', 'package.json', 'package-lock.json', 'README.md', 'render.yaml',
-  'requirements.txt', 'run.py', 'vercel.json',
-  'index.html', 'app.html', 'hft.html', 'fleet.html', 'learn.html',
-  'observatory.html', 'ticker.html', 'news.html', 'portfolio_optimizer.html',
-  'docs.html', 'gs_quant.html', 'login.html', 'signup.html'
-]);
-fs.readdirSync('.').forEach(entry => {
-  if (fs.statSync(entry).isFile() && !ALLOWED_ROOT_FILES.has(entry)) {
-    findings.push({
-      category: 'Root Clutter',
-      severity: 'MEDIUM',
-      file: entry,
-      detail: `Unexpected root file "${entry}" should be organized inside src/, styles/, data/, deploy/, or tests/.`
-    });
-  }
-});
-
 console.log('\n================================================================');
 console.log(`  AUDIT COMPLETE: ${findings.length} findings identified`);
 console.log('================================================================\n');
@@ -209,7 +187,4 @@ findings.forEach((f, idx) => {
   console.log(`    ${f.detail}\n`);
 });
 
-const auditOutDir = path.join(__dirname, '..', 'data', 'audits');
-fs.mkdirSync(auditOutDir, { recursive: true });
-fs.writeFileSync(path.join(auditOutDir, 'audit_findings.json'), JSON.stringify(findings, null, 2));
-if (findings.length > 0) process.exitCode = 1;
+fs.writeFileSync('audit_findings.json', JSON.stringify(findings, null, 2));

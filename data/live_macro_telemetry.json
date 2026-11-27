@@ -1,47 +1,47 @@
 {
-  "timestamp": "2026-11-27T03:48:52.451Z",
+  "timestamp": "2026-11-24T16:42:48.193Z",
   "fred": {
-    "realYield10Y": 2.79,
-    "yieldCurveSlope10Y2Y": 0.24,
-    "highYieldOas": 372,
+    "realYield10Y": 2.77,
+    "yieldCurveSlope10Y2Y": 0.29,
+    "highYieldOas": 376,
     "fedFundsRate": 3.88,
-    "breakevenInflation10Y": 2.12,
-    "lastUpdated": "2026-11-24"
+    "breakevenInflation10Y": 2.13,
+    "lastUpdated": "2026-11-20"
   },
   "eia": {
-    "brentCrudeUsd": 91.8,
-    "wtiCrudeUsd": 82.24,
-    "naturalGasUsd": 3.3,
+    "brentCrudeUsd": 92.94,
+    "wtiCrudeUsd": 89.53,
+    "naturalGasUsd": 3.1,
     "brentBaselineUsd": 85,
-    "brentDeltaPct": 8,
-    "lastUpdated": "2026-11-24"
+    "brentDeltaPct": 9.34,
+    "lastUpdated": "2026-11-17"
   },
   "coingecko": {
     "bitcoin": {
-      "usd": 61426,
-      "usd_market_cap": 1235918365000.178,
-      "usd_24h_change": 1.082542545289318
+      "usd": 59363,
+      "usd_market_cap": 1194191183946.411,
+      "usd_24h_change": -4.53315954192945
     },
     "ethereum": {
-      "usd": 1727.33,
-      "usd_market_cap": 211171918634.75192,
-      "usd_24h_change": 1.7800866893358192
+      "usd": 1666.23,
+      "usd_market_cap": 203693326855.0594,
+      "usd_24h_change": -5.405345659586515
     },
     "solana": {
-      "usd": 72.8,
-      "usd_market_cap": 43118876626.0007,
-      "usd_24h_change": 2.309388537190709
+      "usd": 68.7,
+      "usd_market_cap": 40676560087.19553,
+      "usd_24h_change": -7.518079947670871
     },
     "binancecoin": {
-      "usd": 562.29,
-      "usd_market_cap": 73952151323.94229,
-      "usd_24h_change": 0.7245055736824937
+      "usd": 544.17,
+      "usd_market_cap": 71563666833.35956,
+      "usd_24h_change": -3.528929943353058
     },
     "ripple": {
-      "usd": 0.961965,
-      "usd_market_cap": 61100219831.05374,
-      "usd_24h_change": 0.38557917256914326
+      "usd": 0.910406,
+      "usd_market_cap": 57825898858.71972,
+      "usd_24h_change": -6.423423334147242
     },
-    "lastUpdated": "2026-11-27T03:48:52.134Z"
+    "lastUpdated": "2026-11-24T16:42:47.715Z"
   }
 }

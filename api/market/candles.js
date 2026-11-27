@@ -10,8 +10,7 @@ const US_KNOWN = new Set([
   "DIS", "KO", "PEP", "PG", "JNJ", "PFE", "UNH", "LLY", "ABBV", "MRK", "XOM",
   "CVX", "COP", "SLB", "BA", "CAT", "GE", "HON", "UPS", "SPY", "QQQ", "DIA",
   "IWM", "VOO", "IVV", "VTI", "GLD", "SLV", "USO", "TLT", "BND", "BABA", "PDD",
-  "NIO", "PLTR", "UBER", "ABNB", "COIN", "SNOW", "PANW", "CRWD", "NOW", "SHOP",
-  "SMCI", "TSM", "ASML", "MARA", "CLSK", "BBAI", "OPEN", "PLUG", "CLOV", "LCID", "SOUN", "NIKL"
+  "NIO", "PLTR", "UBER", "ABNB", "COIN", "SNOW", "PANW", "CRWD", "NOW", "SHOP"
 ]);
 
 function normalizeSymbol(symbol) {
@@ -23,33 +22,24 @@ function normalizeSymbol(symbol) {
   if (['SP500', 'SPY', 'GSPC', '^GSPC'].includes(sym)) return '^GSPC';
   if (['NASDAQ', 'IXIC', '^IXIC'].includes(sym)) return '^IXIC';
   if (['DOW', 'DJI', '^DJI'].includes(sym)) return '^DJI';
-  if (['BRKB', 'BRK.B'].includes(sym)) return 'BRK-B';
-  if (['ZOMATO', 'ZOMATO.NS', 'ETERNAL', 'ETERNAL.NS'].includes(sym)) return 'ETERNAL.NS';
-  if (['LTIM', 'LTIM.NS', 'LTM', 'LTM.NS'].includes(sym)) return 'LTM.NS';
-  if (['TATAMOTORS', 'TATAMOTORS.NS', 'TMCV', 'TMCV.NS'].includes(sym)) return 'TMCV.NS';
-  if (['TMPV', 'TMPV.NS'].includes(sym)) return 'TMPV.NS';
-  if (['BITF'].includes(sym)) return 'CLSK';
-  if (['TELL'].includes(sym)) return 'MARA';
   if (['USDINR', 'USDINR=X'].includes(sym)) return 'USDINR=X';
   if (['BRENT', 'BZ=F'].includes(sym)) return 'BZ=F';
   if (['CRUDE', 'CL=F', 'WTI'].includes(sym)) return 'CL=F';
-  if (['GOLD', 'GC=F', 'MCXGOLD'].includes(sym)) return 'GC=F';
-  if (['SILVER', 'SI=F', 'MCXSILVER'].includes(sym)) return 'SI=F';
-  if (['MCXCRUDE'].includes(sym)) return 'CL=F';
+  if (['GOLD', 'GC=F'].includes(sym)) return 'GC=F';
+  if (['SILVER', 'SI=F'].includes(sym)) return 'SI=F';
   if (['COPPER', 'HG=F'].includes(sym)) return 'HG=F';
   if (['NATGAS', 'NG=F', 'GAS'].includes(sym)) return 'NG=F';
   if (['PLATINUM', 'PL=F'].includes(sym)) return 'PL=F';
   if (['PALLADIUM', 'PA=F'].includes(sym)) return 'PA=F';
   if (['ALUMINIUM', 'ALI=F'].includes(sym)) return 'ALI=F';
-  if (['ZINC', 'ZNC=F'].includes(sym)) return 'ZNC=F';
-  if (['NICKEL', 'NIKL'].includes(sym)) return 'NIKL';
   if (['WHEAT', 'ZW=F'].includes(sym)) return 'ZW=F';
   if (['CORN', 'ZC=F'].includes(sym)) return 'ZC=F';
   if (['COTTON', 'CT=F'].includes(sym)) return 'CT=F';
-  if (['GOLDBEES'].includes(sym)) return 'GOLDBEES.NS';
-  if (['SILVERBEES'].includes(sym)) return 'SILVERBEES.NS';
+  if (['MCXGOLD', 'GOLDBEES'].includes(sym)) return 'GOLDBEES.NS';
+  if (['MCXSILVER', 'SILVERBEES'].includes(sym)) return 'SILVERBEES.NS';
+  if (['MCXCRUDE'].includes(sym)) return 'ONGC.NS';
 
-  if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^') || sym.includes('=') || sym.includes('-')) return sym;
+  if (sym.endsWith('.NS') || sym.endsWith('.BO') || sym.startsWith('^') || sym.includes('=')) return sym;
   if (US_KNOWN.has(sym)) return sym;
   return `${sym}.NS`;
 }

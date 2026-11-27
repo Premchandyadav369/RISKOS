@@ -20,7 +20,7 @@ def test_black_litterman_news_optimize():
     views = {"RELIANCE.NS": 0.08, "AAPL": -0.02}
     res = black_litterman_news_optimize(returns, news_views=views, max_weight=0.60)
 
-    assert res["model"] == "BLACK_LITTERMAN_TRANSPARENT_OPTIMIZER"
+    assert res["model"] == "BLACK_LITTERMAN_NEWS_OPTIMIZER"
     weights = res["optimal_weights"]
     assert pytest.approx(sum(weights.values()), 0.01) == 1.0
     # Positively viewed asset should get higher allocation than negatively viewed asset

@@ -31,7 +31,7 @@ function it(desc, fn) {
 
 // ── 1. GS QUANT CROSS-ASSET DERIVATIVES ENGINE ──────────────────────────────
 it('GS Quant: Interest Rate Swaps (IRS), DV01, and Key-Rate Durations', () => {
-  const GSQuant = require(path.join(ROOT, 'src/quant/gsQuantEngine.js'));
+  const GSQuant = require(path.join(ROOT, 'gsQuantEngine.js'));
   assert(typeof GSQuant.priceInterestRateSwap === 'function', 'priceInterestRateSwap must exist');
 
   const res = GSQuant.priceInterestRateSwap({
@@ -48,7 +48,7 @@ it('GS Quant: Interest Rate Swaps (IRS), DV01, and Key-Rate Durations', () => {
 });
 
 it('GS Quant: Single-Name CDS, Hazard Rates, CS01, and Jump-To-Default', () => {
-  const GSQuant = require(path.join(ROOT, 'src/quant/gsQuantEngine.js'));
+  const GSQuant = require(path.join(ROOT, 'gsQuantEngine.js'));
   const res = GSQuant.priceCreditDefaultSwap({
     notional: 50000000,
     recoveryRate: 0.40,
@@ -62,7 +62,7 @@ it('GS Quant: Single-Name CDS, Hazard Rates, CS01, and Jump-To-Default', () => {
 });
 
 it('GS Quant: FX CIP Forwards and Risk Reversal / Fly Smile Reconstruction', () => {
-  const GSQuant = require(path.join(ROOT, 'src/quant/gsQuantEngine.js'));
+  const GSQuant = require(path.join(ROOT, 'gsQuantEngine.js'));
   const res = GSQuant.priceFXForward({
     spotUSDINR: 83.50,
     domesticRateINR: 0.065,
@@ -79,7 +79,7 @@ it('GS Quant: FX CIP Forwards and Risk Reversal / Fly Smile Reconstruction', () 
 });
 
 it('GS Quant: Higher-Order Greeks (Vanna, Volga, Charm, Color) & Stress Matrix', () => {
-  const GSQuant = require(path.join(ROOT, 'src/quant/gsQuantEngine.js'));
+  const GSQuant = require(path.join(ROOT, 'gsQuantEngine.js'));
   const greeks = GSQuant.calculateCrossAssetGreeks({
     spot: 24500,
     strike: 24500,
@@ -99,7 +99,7 @@ it('GS Quant: Higher-Order Greeks (Vanna, Volga, Charm, Color) & Stress Matrix',
 });
 
 it('GS Quant: Idiomatic Goldman Sachs gs_quant Python Code Generator', () => {
-  const GSQuant = require(path.join(ROOT, 'src/quant/gsQuantEngine.js'));
+  const GSQuant = require(path.join(ROOT, 'gsQuantEngine.js'));
   const pyCode = GSQuant.generateGSQuantPythonScript({ instrument: 'IRS', notional: 10000000, fixedRate: 0.065, tenor: '5y' });
   assert(pyCode.includes('import gs_quant'), 'Python script must import gs_quant');
   assert(pyCode.includes('IRSwap'), 'Python script must instantiate IRSwap');
@@ -108,7 +108,7 @@ it('GS Quant: Idiomatic Goldman Sachs gs_quant Python Code Generator', () => {
 
 // ── 2. ELITE QUANT INTERVIEW MASTERCLASS & RULES OF THUMB ───────────────────
 it('Quant Prep: Jane Street / Optiver Market Making Game Simulator', () => {
-  const QuantPrep = require(path.join(ROOT, 'src/learn/quantPrepEngine.js'));
+  const QuantPrep = require(path.join(ROOT, 'quantPrepEngine.js'));
   assert(typeof QuantPrep.MarketMakingGame === 'function', 'MarketMakingGame must exist');
 
   const game = new QuantPrep.MarketMakingGame();
@@ -123,7 +123,7 @@ it('Quant Prep: Jane Street / Optiver Market Making Game Simulator', () => {
 });
 
 it('Quant Prep: Fast Mental Math & Rules of Thumb', () => {
-  const QuantPrep = require(path.join(ROOT, 'src/learn/quantPrepEngine.js'));
+  const QuantPrep = require(path.join(ROOT, 'quantPrepEngine.js'));
   assert(Array.isArray(QuantPrep.MENTAL_MATH_RULES), 'MENTAL_MATH_RULES must be an array');
 
   // Rule of 16
@@ -138,7 +138,7 @@ it('Quant Prep: Fast Mental Math & Rules of Thumb', () => {
 });
 
 it('Quant Prep: Green Book Top 50 Problems (Monty Hall & Brownian Quadratic Variation)', () => {
-  const QuantPrep = require(path.join(ROOT, 'src/learn/quantPrepEngine.js'));
+  const QuantPrep = require(path.join(ROOT, 'quantPrepEngine.js'));
   const monty = QuantPrep.GREEN_BOOK_PROBLEMS.find(p => p.id === 'gb_01_monty_hall');
   assert(monty.quantProof.includes('Bayes'), 'Monty Hall must feature Bayesian derivation');
   const simMonty = monty.simulate(2000);
@@ -150,7 +150,7 @@ it('Quant Prep: Green Book Top 50 Problems (Monty Hall & Brownian Quadratic Vari
 });
 
 it('Quant Prep: Ding Ran Local Volatility & PCA Eigen-Portfolios', () => {
-  const QuantPrep = require(path.join(ROOT, 'src/learn/quantPrepEngine.js'));
+  const QuantPrep = require(path.join(ROOT, 'quantPrepEngine.js'));
   const localVol = QuantPrep.computeDupireLocalVol({ spot: 100, strike: 100, timeYears: 0.5, impliedVol: 0.20, skewSlope: -0.05 });
   assert(localVol.localVol > 0, 'Local volatility must be strictly positive');
 
@@ -166,7 +166,7 @@ it('Quant Prep: Ding Ran Local Volatility & PCA Eigen-Portfolios', () => {
 
 // ── 3. THE 7 INSTITUTIONAL FLAGSHIP SYSTEMS ─────────────────────────────────
 it('System 1: Autonomous Quant Copilot with pgvector Crisis Memory', () => {
-  const QuantCopilot = require(path.join(ROOT, 'src/components/quantCopilot.js'));
+  const QuantCopilot = require(path.join(ROOT, 'quantCopilot.js'));
   const copilot = new QuantCopilot();
   assert(copilot.crisesMemory.length >= 4, 'Must contain historical market crises');
   
@@ -178,7 +178,7 @@ it('System 1: Autonomous Quant Copilot with pgvector Crisis Memory', () => {
 });
 
 it('System 2: L2/L3 Order Book DOM Ladder, Micro-Price & Algorithmic Orders', () => {
-  const { OrderBookDOMEngine } = require(path.join(ROOT, 'src/trading/orderBookDom.js'));
+  const { OrderBookDOMEngine } = require(path.join(ROOT, 'orderBookDom.js'));
   const dom = new OrderBookDOMEngine({ midPrice: 24500, depthLevels: 10 });
   const micro = dom.getMicroPrice();
   assert(micro > 24000 && micro < 25000, 'Micro-price must be calculated near mid-price');
@@ -195,7 +195,7 @@ it('System 2: L2/L3 Order Book DOM Ladder, Micro-Price & Algorithmic Orders', ()
 });
 
 it('System 3: Brinson Factor Performance Attribution & Barra 6-Factor Radar', () => {
-  const FactorAttribution = require(path.join(ROOT, 'src/quant/factorAttribution.js'));
+  const FactorAttribution = require(path.join(ROOT, 'factorAttribution.js'));
   const sectors = [
     { sector: 'Technology', weightPort: 0.30, returnPort: 0.15, weightBench: 0.20, returnBench: 0.12 },
     { sector: 'Financials', weightPort: 0.40, returnPort: 0.10, weightBench: 0.50, returnBench: 0.08 },
@@ -219,7 +219,7 @@ it('System 3: Brinson Factor Performance Attribution & Barra 6-Factor Radar', ()
 });
 
 it('System 4: Institutional Hedge Fund Tear Sheet Factsheet & SHA-256 Audit', () => {
-  const HedgeFundTearSheet = require(path.join(ROOT, 'src/components/hedgeFundTearSheet.js'));
+  const HedgeFundTearSheet = require(path.join(ROOT, 'hedgeFundTearSheet.js'));
   const compiler = new HedgeFundTearSheet();
   const analytics = compiler.calculateAnalytics();
 
@@ -233,7 +233,7 @@ it('System 4: Institutional Hedge Fund Tear Sheet Factsheet & SHA-256 Audit', ()
 });
 
 it('System 5: Cryptographic Accreditation Certificates & RPG Skill Tree', () => {
-  const { CertificateGenerator, QUANT_SKILL_TREE } = require(path.join(ROOT, 'src/learn/accreditationCert.js'));
+  const { CertificateGenerator, QUANT_SKILL_TREE } = require(path.join(ROOT, 'accreditationCert.js'));
   const certData = CertificateGenerator.generateCertificateData({
     studentName: 'PRABHAT YADAV',
     completedModulesCount: 80,
@@ -251,7 +251,7 @@ it('System 5: Cryptographic Accreditation Certificates & RPG Skill Tree', () => 
 });
 
 it('System 6: Multi-Leg Options Strategy Visualizer & Greeks Heatmap', () => {
-  const OptionsStrategyBuilder = require(path.join(ROOT, 'src/quant/optionsStrategyBuilder.js'));
+  const OptionsStrategyBuilder = require(path.join(ROOT, 'optionsStrategyBuilder.js'));
   const builder = new OptionsStrategyBuilder(24500, 0.065);
   builder.loadPreset('iron_condor');
 
@@ -266,7 +266,7 @@ it('System 6: Multi-Leg Options Strategy Visualizer & Greeks Heatmap', () => {
 });
 
 it('System 7: Quant Arena Leaderboard & Multi-User Copy-Trading', () => {
-  const { QuantArenaEngine, ARENA_STRATEGIES } = require(path.join(ROOT, 'src/components/quantArena.js'));
+  const { QuantArenaEngine, ARENA_STRATEGIES } = require(path.join(ROOT, 'quantArena.js'));
   const arena = new QuantArenaEngine();
   const sorted = arena.getLeaderboard('sortino');
   assert(sorted[0].sortinoRatio >= sorted[1].sortinoRatio, 'Leaderboard must sort descending by Sortino');

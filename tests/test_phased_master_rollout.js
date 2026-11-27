@@ -37,7 +37,7 @@ console.log('================================================================\n'
 // ── Pillar 1: Production Live Broker Connectors & OMS/EMS Gateways ───────────
 console.log('--- 1. Live Broker OMS/EMS, RFC 6238 TOTP & Blotter ---');
 
-const LiveBrokerGateway = require(path.join(ROOT, 'src/trading/liveBrokerGateway.js'));
+const LiveBrokerGateway = require(path.join(ROOT, 'liveBrokerGateway.js'));
 
 runTest('RFC 6238 TOTP computation matches exact test vector (324550)', () => {
   const secret = 'JBSWY3DPEHPK3PXP';
@@ -85,7 +85,7 @@ runTest('SEC Rule 15c3-5 pre-trade fat-finger firewall guardrails', () => {
 // ── Pillar 2: In-Browser Quant LLM Copilot & AI Models ───────────────────────
 console.log('\n--- 2. In-Browser Quant LLM Copilot & AI Models ---');
 
-const QuantCopilotEngine = require(path.join(ROOT, 'src/components/quantCopilot.js'));
+const QuantCopilotEngine = require(path.join(ROOT, 'quantCopilot.js'));
 const copilot = new QuantCopilotEngine();
 
 runTest('TimesFM 3.0 / Chronos probabilistic multi-quantile forecasting engine', () => {
@@ -116,7 +116,7 @@ runTest('Institutional Python backtest code generator', () => {
 // ── Pillar 3: Exotic Derivatives & Multi-Curve Yield Curve ───────────────────
 console.log('\n--- 3. Exotic Derivatives Desk & Multi-Curve Yield Engine ---');
 
-const ExoticEngine = require(path.join(ROOT, 'src/quant/exoticDerivativesEngine.js'));
+const ExoticEngine = require(path.join(ROOT, 'exoticDerivativesEngine.js'));
 
 runTest('Barrier Options: Down-and-Out + Down-and-In == Vanilla Call (In-and-Out Parity)', () => {
   const S = 100, K = 100, H = 90, T = 1.0, r = 0.05, q = 0.0, vol = 0.20;
@@ -178,7 +178,7 @@ runTest('Multi-Curve SOFR & MIBOR Yield Curve Bootstrapper', () => {
 // ── Pillar 4: Quant Career Academy & Desktop Packaging ──────────────────────
 console.log('\n--- 4. Quant Career Academy, Desktop Packaging & Universal UI ---');
 
-const CareerAcademy = require(path.join(ROOT, 'src/learn/careerAcademy.js'));
+const CareerAcademy = require(path.join(ROOT, 'careerAcademy.js'));
 
 runTest('Jane Street 2-Way Market Making simulator executes quotes and tracks inventory', () => {
   const mm = new CareerAcademy.MarketMakingGameEngine();
@@ -205,7 +205,7 @@ runTest('Quantitative Green Book solver contains top 50 riddles with proofs', ()
 });
 
 runTest('Tauri & Electron standalone desktop configurations are valid', () => {
-  assert.ok(fs.existsSync(path.join(ROOT, 'electron/electron_main.js')), 'electron_main.js must exist');
+  assert.ok(fs.existsSync(path.join(ROOT, 'electron_main.js')), 'electron_main.js must exist');
   assert.ok(fs.existsSync(path.join(ROOT, 'src-tauri', 'tauri.conf.json')), 'tauri.conf.json must exist');
   assert.ok(fs.existsSync(path.join(ROOT, 'src-tauri', 'Cargo.toml')), 'Cargo.toml must exist');
 });
@@ -225,7 +225,7 @@ runTest('All 13 HTML files link quantCopilot.js and quantCopilot.css', () => {
 });
 
 runTest('Universal command palette registers /exotics and /academy slash commands', () => {
-  const palette = fs.readFileSync(path.join(ROOT, 'src/components/universalPalette.js'), 'utf8');
+  const palette = fs.readFileSync(path.join(ROOT, 'universalPalette.js'), 'utf8');
   assert.ok(palette.includes("act_exotics"), 'Palette must register act_exotics');
   assert.ok(palette.includes("act_academy"), 'Palette must register act_academy');
 });

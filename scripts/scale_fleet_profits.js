@@ -49,7 +49,7 @@ const SCALED_STATS = {
 };
 
 // 1. Update fleet.js
-const fleetJsPath = path.resolve(__dirname, '..', 'src/pages/fleet.js');
+const fleetJsPath = path.resolve(__dirname, '..', 'fleet.js');
 let fleetJs = fs.readFileSync(fleetJsPath, 'utf8');
 
 for (const [id, stats] of Object.entries(SCALED_STATS)) {

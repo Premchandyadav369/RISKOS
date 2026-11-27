@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sign Up &bull; RISKOS Institutional Financial Intelligence Platform</title>
-  <meta name="description" content="Create your institutional account on RISKOS. Access 81 quantitative laboratories, 41 algorithmic bots, real-time news intelligence, and cloud PostgreSQL database.">
+  <meta name="description" content="Create your institutional account on RISKOS. Access 80 quantitative laboratories, 41 algorithmic bots, real-time Alpha Vantage news intelligence, and cloud PostgreSQL database.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Typography & Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,14 +17,14 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="styles/base/themeEngine.css">
-  <link rel="stylesheet" href="styles/components/terminalBus.css">
-  <link rel="stylesheet" href="styles/components/universalPalette.css">
-  <link rel="stylesheet" href="styles/base/styles.css">
-  <link rel="stylesheet" href="styles/components/authModal.css">
-  <link rel="stylesheet" href="styles/pages/signup.css">
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="themeEngine.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="universalPalette.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="authModal.css">
+  <link rel="stylesheet" href="signup.css">
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="signup-page">
 
@@ -40,7 +39,7 @@
     <header class="signup-header" id="siteHeader">
       <div class="signup-header-left">
         <a href="index.html" class="signup-logo-link" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="32" height="32" class="signup-logo-img" onerror="this.src='assets/logo.png'" style="width:32px !important; height:32px !important; max-width:32px !important; max-height:32px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="32" height="32" class="signup-logo-img" onerror="this.src='assets/logo.png'" / style="width:32px !important; height:32px !important; max-width:32px !important; max-height:32px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
           <span class="signup-brand-title">RISKOS</span>
         </a>
         <span class="signup-brand-badge">SUPABASE ENTERPRISE</span>
@@ -341,14 +340,14 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/pages/signup.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="signup.js"></script>
+  <script src="quantCopilot.js"></script>
 </body>
 </html>

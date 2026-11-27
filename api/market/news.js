@@ -39,7 +39,7 @@ function resolveApiKey() {
     } catch (e) {}
   }
 
-  return ''; // Configure ALPHA_VANTAGE_API_KEY in environment or .env; falls back cleanly to cached feed when absent
+  return 'EI9HFIWHX72XUAXZ'; // Default fallback recorded key
 }
 
 // Global in-memory cache and request manager

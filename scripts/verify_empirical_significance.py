@@ -14,7 +14,7 @@ import csv
 import numpy as np
 from scipy import stats
 
-def run_significance_audit(csv_path="data/audits/empirical_trade_log.csv"):
+def run_significance_audit(csv_path="empirical_trade_log.csv"):
     periods = []
     prem_rets = []
     as_rets = []
@@ -136,7 +136,7 @@ def run_significance_audit(csv_path="data/audits/empirical_trade_log.csv"):
         }
     }
 
-    output_path = "data/audits/empirical_significance_report.json"
+    output_path = "empirical_significance_report.json"
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=2)
 
@@ -155,8 +155,8 @@ def run_significance_audit(csv_path="data/audits/empirical_trade_log.csv"):
     print(f"  3. PREM vs Naive HMM          : z = {z_hmm:6.2f} | p = {p_hmm:.4e} (p < 0.001 ***)")
     print(f"  4. PREM vs DQN Deep RL        : z = {z_dqn:6.2f} | p = {p_dqn:.4e} (p < 0.001 ***)")
     print("--------------------------------------------------------------------------------")
-    print("Empirical verification complete. Report saved to: data/audits/empirical_significance_report.json\n")
+    print("Empirical verification complete. Report saved to: empirical_significance_report.json\n")
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "data/audits/empirical_trade_log.csv"
+    path = sys.argv[1] if len(sys.argv) > 1 else "empirical_trade_log.csv"
     run_significance_audit(path)

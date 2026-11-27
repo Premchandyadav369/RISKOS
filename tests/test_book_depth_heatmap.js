@@ -4,7 +4,7 @@
  */
 
 const assert = require('assert');
-const BookDepthHeatmap = require('../src/trading/bookDepthHeatmap.js');
+const BookDepthHeatmap = require('../bookDepthHeatmap.js');
 
 console.log('================================================================');
 console.log('  RISKOS BOOK DEPTH HEATMAP TEST SUITE');

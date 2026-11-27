@@ -10,7 +10,6 @@
   <meta name="theme-color" content="#000000" />
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.json" />
 
   <!-- Preconnect & Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -43,17 +42,17 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- App Stylesheets -->
-  <link rel="stylesheet" href="styles/base/styles.css" />
-  <link rel="stylesheet" href="styles/pages/observatory.css" />
-  <link rel="stylesheet" href="styles/components/terminalBus.css" />
-  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="observatory.css" />
+  <link rel="stylesheet" href="terminalBus.css" />
+  <link rel="stylesheet" href="launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/universalPalette.css" />
-  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
-  <link rel="stylesheet" href="styles/base/themeEngine.css" />
-  <link rel="stylesheet" href="styles/components/authModal.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="observatory-page" data-user-mode="investor">
 
@@ -64,7 +63,7 @@
       <!-- Brand Logo -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" / style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
       </div>
 
@@ -312,7 +311,7 @@
         </div>
         <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
           <span style="font-size:0.68rem; color:#71717a; font-weight:700; text-transform:uppercase;">USD/INR Currency</span>
-          <div id="obbUsdInrVal" style="font-size:1.15rem; font-weight:800; color:#a78bfa; margin:2px 0;">₹92.57</div>
+          <div id="obbUsdInrVal" style="font-size:1.15rem; font-weight:800; color:#a78bfa; margin:2px 0;">₹86.72</div>
           <span id="obbUsdInrChg" style="font-size:0.68rem; color:#FF6B6B;">+0.14% Vol</span>
         </div>
         <div style="background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:10px;">
@@ -365,27 +364,27 @@
         <div class="macro-assets-row" id="macroAssetsRow">
           <div class="macro-asset-item">
             <span class="asset-symbol">NIFTY 50</span>
-            <span class="asset-price" id="macroNiftyPrice">25,766.15</span>
+            <span class="asset-price" id="macroNiftyPrice">24,840.50</span>
             <span class="asset-chg text-emerald" id="macroNiftyChg">+0.82%</span>
           </div>
           <div class="macro-asset-item">
             <span class="asset-symbol">BANK NIFTY</span>
-            <span class="asset-price" id="macroBankPrice">63,754.70</span>
+            <span class="asset-price" id="macroBankPrice">51,320.10</span>
             <span class="asset-chg text-emerald" id="macroBankChg">+1.14%</span>
           </div>
           <div class="macro-asset-item">
             <span class="asset-symbol">S&amp;P 500</span>
-            <span class="asset-price" id="macroSpPrice">7,201.09</span>
+            <span class="asset-price" id="macroSpPrice">5,892.40</span>
             <span class="asset-chg text-emerald" id="macroSpChg">+0.42%</span>
           </div>
           <div class="macro-asset-item">
             <span class="asset-symbol">USD / INR</span>
-            <span class="asset-price" id="macroUsdInrPrice">₹92.57</span>
+            <span class="asset-price" id="macroUsdInrPrice">₹86.74</span>
             <span class="asset-chg text-emerald" id="macroUsdInrChg">-0.12%</span>
           </div>
           <div class="macro-asset-item">
             <span class="asset-symbol">BRENT CRUDE</span>
-            <span class="asset-price" id="macroCrudePrice">$87.50</span>
+            <span class="asset-price" id="macroCrudePrice">$76.20</span>
             <span class="asset-chg text-red" id="macroCrudeChg">+1.35%</span>
           </div>
           <div class="macro-asset-item">
@@ -926,37 +925,35 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="src/core/liveMarketDataFeed.js"></script>
-  <script src="src/core/macroDataFeedEngine.js"></script>
-  <script src="src/core/securityMaster.js"></script>
-  <script src="src/core/openbbBridge.js"></script>
-  <script src="src/trading/backtraderEngine.js"></script>
-  <script src="src/components/perspectiveGrid.js"></script>
-  <script src="src/core/engine.js"></script>
-  <script src="src/components/chartSuite.js"></script>
-  <script src="src/pages/observatory.js"></script>
-  <script src="src/quant/microstructureEngine.js"></script>
-  <script src="src/quant/riskGuardrails.js"></script>
-  <script src="src/quant/geneticOptimizer.js"></script>
-  <script src="src/core/marketSessionGateway.js"></script>
-  <script src="src/trading/auditLedger.js"></script>
-  <script src="src/components/launchpadWorkspace.js"></script>
-  <script src="src/core/terminalBus.js"></script>
+  <script src="securityMaster.js"></script>
+  <script src="openbbBridge.js"></script>
+  <script src="backtraderEngine.js"></script>
+  <script src="perspectiveGrid.js"></script>
+  <script src="engine.js"></script>
+  <script src="chartSuite.js"></script>
+  <script src="observatory.js"></script>
+  <script src="microstructureEngine.js"></script>
+  <script src="riskGuardrails.js"></script>
+  <script src="geneticOptimizer.js"></script>
+  <script src="marketSessionGateway.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="launchpadWorkspace.js"></script>
+  <script src="terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="src/core/marketDataTruth.js"></script>
-  <script src="src/components/universalExplainer.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/components/mobileNav.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/core/soundFX.js"></script>
-  <script src="src/components/showcaseTour.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="soundFX.js"></script>
+  <script src="showcaseTour.js"></script>
+  <script src="quantCopilot.js"></script>
 </body>
 </html>
 

@@ -9,7 +9,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Inter UI Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,8 +19,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Core Theme Stylesheet -->
-  <link rel="stylesheet" href="styles/base/styles.css">
-  <link rel="stylesheet" href="styles/pages/ticker.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="ticker.css">
 
   <!-- KaTeX CSS & JS for Instant Real-Time Mathematical Typesetting -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" />
@@ -30,15 +29,15 @@
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="styles/components/terminalBus.css" />
-  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
+  <link rel="stylesheet" href="terminalBus.css" />
+  <link rel="stylesheet" href="launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/universalPalette.css" />
-  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
-  <link rel="stylesheet" href="styles/base/themeEngine.css" />
-  <link rel="stylesheet" href="styles/components/authModal.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="ticker-page">
 
@@ -49,7 +48,7 @@
       <!-- Brand Logo & Market Clock -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="38" height="38" class="logo-img" / style="width:38px !important; height:38px !important; max-width:38px !important; max-height:38px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         
         <div class="market-clock-badge" id="marketClockBadge" title="Click to toggle session time">
@@ -217,15 +216,15 @@
         <button class="ticker-chip" data-query="TCS">TCS</button>
         <button class="ticker-chip" data-query="HDFCBANK">HDFC Bank</button>
         <button class="ticker-chip" data-query="NVDA">NVIDIA</button>
-        <button class="ticker-chip chip-penny" data-query="GTLINFRA"><i class="fa-solid fa-coins text-amber"></i> GTLINFRA (₹1.03)</button>
-        <button class="ticker-chip chip-penny" data-query="VISAGAR"><i class="fa-solid fa-coins text-amber"></i> VISAGAR (₹0.29)</button>
-        <button class="ticker-chip chip-penny" data-query="IDEA"><i class="fa-solid fa-bolt text-cyan"></i> IDEA (₹12.03)</button>
-        <button class="ticker-chip chip-penny" data-query="JPPOWER"><i class="fa-solid fa-coins text-amber"></i> JPPOWER (₹13.31)</button>
-        <button class="ticker-chip chip-penny" data-query="SUZLON"><i class="fa-solid fa-fire text-rose"></i> SUZLON (₹36.31)</button>
-        <button class="ticker-chip chip-penny" data-query="PLUG"><i class="fa-solid fa-bolt text-cyan"></i> PLUG ($0.93)</button>
-        <button class="ticker-chip chip-penny" data-query="BBAI"><i class="fa-solid fa-robot text-purple"></i> BBAI ($1.54)</button>
-        <button class="ticker-chip chip-penny" data-query="SOUN"><i class="fa-solid fa-wave-square text-cyan"></i> SOUN ($2.63)</button>
-        <button class="ticker-chip chip-penny" data-query="CLSK"><i class="fa-brands fa-bitcoin text-amber"></i> CLSK ($5.12)</button>
+        <button class="ticker-chip chip-penny" data-query="GTLINFRA"><i class="fa-solid fa-coins text-amber"></i> GTLINFRA (₹1.16)</button>
+        <button class="ticker-chip chip-penny" data-query="VISAGAR"><i class="fa-solid fa-coins text-amber"></i> VISAGAR (₹1.45)</button>
+        <button class="ticker-chip chip-penny" data-query="IDEA"><i class="fa-solid fa-bolt text-cyan"></i> IDEA (₹8.25)</button>
+        <button class="ticker-chip chip-penny" data-query="JPPOWER"><i class="fa-solid fa-coins text-amber"></i> JPPOWER (₹16.29)</button>
+        <button class="ticker-chip chip-penny" data-query="SUZLON"><i class="fa-solid fa-fire text-rose"></i> SUZLON (₹64.50)</button>
+        <button class="ticker-chip chip-penny" data-query="PLUG"><i class="fa-solid fa-bolt text-cyan"></i> PLUG ($2.17)</button>
+        <button class="ticker-chip chip-penny" data-query="BBAI"><i class="fa-solid fa-robot text-purple"></i> BBAI ($1.85)</button>
+        <button class="ticker-chip chip-penny" data-query="SOUN"><i class="fa-solid fa-wave-square text-cyan"></i> SOUN ($6.74)</button>
+        <button class="ticker-chip chip-penny" data-query="BITF"><i class="fa-brands fa-bitcoin text-amber"></i> BITF ($2.30)</button>
       </div>
     </section>
 
@@ -903,39 +902,37 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="src/core/liveMarketDataFeed.js"></script>
-  <script src="src/core/macroDataFeedEngine.js"></script>
-  <script src="src/core/securityMaster.js"></script>
-  <script src="src/core/engine.js"></script>
-  <script src="src/components/chartSuite.js"></script>
-  <script src="src/quant/rrgEngine.js"></script>
-  <script src="src/components/universalAlerts.js"></script>
-  <script src="src/quant/fundamentalHealthEngine.js"></script>
-  <script src="src/components/peerComparisonEngine.js"></script>
-  <script src="src/news/aiAnalystBrief.js"></script>
-  <script src="src/pages/ticker.js"></script>
-  <script src="src/quant/microstructureEngine.js"></script>
-  <script src="src/quant/riskGuardrails.js"></script>
-  <script src="src/quant/geneticOptimizer.js"></script>
-  <script src="src/core/marketSessionGateway.js"></script>
-  <script src="src/trading/auditLedger.js"></script>
-  <script src="src/components/launchpadWorkspace.js"></script>
-  <script src="src/core/terminalBus.js"></script>
+  <script src="securityMaster.js"></script>
+  <script src="engine.js"></script>
+  <script src="chartSuite.js"></script>
+  <script src="rrgEngine.js"></script>
+  <script src="universalAlerts.js"></script>
+  <script src="fundamentalHealthEngine.js"></script>
+  <script src="peerComparisonEngine.js"></script>
+  <script src="aiAnalystBrief.js"></script>
+  <script src="ticker.js"></script>
+  <script src="microstructureEngine.js"></script>
+  <script src="riskGuardrails.js"></script>
+  <script src="geneticOptimizer.js"></script>
+  <script src="marketSessionGateway.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="launchpadWorkspace.js"></script>
+  <script src="terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="src/core/marketDataTruth.js"></script>
-  <script src="src/components/universalExplainer.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/components/mobileNav.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/core/soundFX.js"></script>
-  <script src="src/components/showcaseTour.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="soundFX.js"></script>
+  <script src="showcaseTour.js"></script>
+  <script src="quantCopilot.js"></script>
 </body>
 </html>
 

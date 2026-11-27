@@ -11,7 +11,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const CrossMarketPricingEngine = require('../src/quant/crossMarketPricingEngine.js');
+const CrossMarketPricingEngine = require('../crossMarketPricingEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS CROSS-MARKET PREDICTIVE PRICING TEST SUITE');
@@ -123,8 +123,8 @@ it('scripts/run_cross_market_prem_pricing.js exists and exports predictions file
   const scriptPath = path.join(__dirname, '..', 'scripts', 'run_cross_market_prem_pricing.js');
   assert.ok(fs.existsSync(scriptPath), 'Runner script must exist');
 
-  const jsonPath = path.join(__dirname, '..', 'data/predictions/cross_market_prem_pricing_predictions.json');
-  const csvPath = path.join(__dirname, '..', 'data/predictions/cross_market_prem_predictions.csv');
+  const jsonPath = path.join(__dirname, '..', 'cross_market_prem_pricing_predictions.json');
+  const csvPath = path.join(__dirname, '..', 'cross_market_prem_predictions.csv');
   assert.ok(fs.existsSync(jsonPath), 'JSON predictions must exist');
   assert.ok(fs.existsSync(csvPath), 'CSV predictions must exist');
 });

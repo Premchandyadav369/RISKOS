@@ -4,7 +4,7 @@
  */
 
 const assert = require('assert');
-const EnterpriseRiskEngine = require('../src/quant/enterpriseRiskEngine.js');
+const EnterpriseRiskEngine = require('../enterpriseRiskEngine.js');
 
 console.log('================================================================');
 console.log('  RISKOS ENTERPRISE RISK & FRTB STRESS TESTING TEST SUITE');

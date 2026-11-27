@@ -32,16 +32,16 @@ function it(desc, fn) {
 }
 
 const learnHtml = fs.readFileSync(path.join(__dirname, '..', 'learn.html'), 'utf8');
-const learnCss = fs.readFileSync(path.join(__dirname, '..', 'styles/pages/learn.css'), 'utf8');
-const learnJs = fs.readFileSync(path.join(__dirname, '..', 'src/pages/learn.js'), 'utf8');
+const learnCss = fs.readFileSync(path.join(__dirname, '..', 'learn.css'), 'utf8');
+const learnJs = fs.readFileSync(path.join(__dirname, '..', 'learn.js'), 'utf8');
 
 // ── 1. HTML & Dependency Architecture ──
 console.log('── Section 1: HTML Architecture & Broker Sandbox Integration ──');
 
 it('learn.html loads paperBroker.js before learnMathEngine.js and learn.js', () => {
-  assert(learnHtml.includes('<script src="src/trading/paperBroker.js"></script>'), 'Missing paperBroker.js script in learn.html');
-  const brokerIdx = learnHtml.indexOf('<script src="src/trading/paperBroker.js"></script>');
-  const learnJsIdx = learnHtml.indexOf('<script src="src/pages/learn.js"></script>');
+  assert(learnHtml.includes('<script src="paperBroker.js"></script>'), 'Missing paperBroker.js script in learn.html');
+  const brokerIdx = learnHtml.indexOf('<script src="paperBroker.js"></script>');
+  const learnJsIdx = learnHtml.indexOf('<script src="learn.js"></script>');
   assert(brokerIdx < learnJsIdx, 'paperBroker.js must load before learn.js');
 });
 

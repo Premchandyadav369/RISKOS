@@ -22,10 +22,10 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-const HsJammEngine = require('../src/quant/hsJammEngine.js');
-const SeMicroPriceEngine = require('../src/quant/seMicropriceEngine.js');
-const FactorShrinkEngine = require('../src/quant/factorShrinkEngine.js');
-const DkShieldEngine = require('../src/quant/dkShieldEngine.js');
+const HsJammEngine = require('../hsJammEngine.js');
+const SeMicroPriceEngine = require('../seMicropriceEngine.js');
+const FactorShrinkEngine = require('../factorShrinkEngine.js');
+const DkShieldEngine = require('../dkShieldEngine.js');
 
 let passed = 0;
 let total = 0;

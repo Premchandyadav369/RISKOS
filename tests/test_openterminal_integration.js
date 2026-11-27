@@ -11,8 +11,8 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-const MarketDataTruth = require('../src/core/marketDataTruth.js');
-const { SecurityMaster } = require('../src/core/securityMaster.js');
+const MarketDataTruth = require('../marketDataTruth.js');
+const { SecurityMaster } = require('../securityMaster.js');
 
 console.log('=== Running OpenTerminal Integration Test Suite ===');
 
@@ -153,7 +153,7 @@ function runTest(name, fn) {
 
   // ── 5. UI Microstructure & Styles Verification ─────────────────────────────
   runTest('themeEngine.css contains tick flash animations', () => {
-    const cssContent = fs.readFileSync(path.join(__dirname, '../styles/base/themeEngine.css'), 'utf8');
+    const cssContent = fs.readFileSync(path.join(__dirname, '../themeEngine.css'), 'utf8');
     assert(cssContent.includes('@keyframes tickFlashUp'));
     assert(cssContent.includes('@keyframes tickFlashDown'));
     assert(cssContent.includes('.tick-flash-up'));
@@ -176,7 +176,7 @@ function runTest(name, fn) {
     assert(htmlContent.includes('id="obsYieldCurveChart"'));
     assert(htmlContent.includes('id="obsEconomicCalendarTable"'));
 
-    const jsContent = fs.readFileSync(path.join(__dirname, '../src/pages/observatory.js'), 'utf8');
+    const jsContent = fs.readFileSync(path.join(__dirname, '../observatory.js'), 'utf8');
     assert(jsContent.includes('initSovereignYieldDesk'));
     assert(jsContent.includes('getSovereignYieldCurve'));
     assert(jsContent.includes('getEconomicCalendar'));
@@ -188,7 +188,7 @@ function runTest(name, fn) {
     assert(htmlContent.includes('id="tickerNewsContainer"'));
     assert(htmlContent.includes('id="tickerSentimentBadge"'));
 
-    const jsContent = fs.readFileSync(path.join(__dirname, '../src/pages/ticker.js'), 'utf8');
+    const jsContent = fs.readFileSync(path.join(__dirname, '../ticker.js'), 'utf8');
     assert(jsContent.includes('initTickerNewsFeed'));
     assert(jsContent.includes('getTickerNews'));
   });

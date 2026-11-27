@@ -9,7 +9,6 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="manifest" href="manifest.json">
 
   <!-- Inter & JetBrains Mono Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,18 +27,18 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- RISKOS Core Stylesheets -->
-  <link rel="stylesheet" href="styles/base/styles.css">
-  <link rel="stylesheet" href="styles/pages/observatory.css">
-  <link rel="stylesheet" href="styles/pages/portfolio_optimizer.css">
-  <link rel="stylesheet" href="styles/components/terminalBus.css">
-  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="observatory.css">
+  <link rel="stylesheet" href="portfolio_optimizer.css">
+  <link rel="stylesheet" href="terminalBus.css">
+  <link rel="stylesheet" href="launchpadWorkspace.css">
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/universalPalette.css" />
-  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
-  <link rel="stylesheet" href="styles/base/themeEngine.css" />
-  <link rel="stylesheet" href="styles/components/authModal.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="observatory-page portfolio-page" data-user-mode="investor">
 
@@ -50,7 +49,7 @@
       <!-- Left: Logo & Search Icon -->
       <div class="header-left">
         <a href="index.html" class="logo-btn" aria-label="RISKOS Home">
-          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" style="width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
+          <img src="assets/logo.webp" alt="RISKOS Logo" width="36" height="36" class="logo-img" / style="width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:contain !important; border-radius:8px; flex-shrink:0 !important; display:block;">
         </a>
         <button class="header-search-icon-btn" id="navSearchTrigger" title="Quick Search (⌘K)">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -1976,29 +1975,27 @@
   </footer>
 
   <!-- Core Scripts -->
-  <script src="src/core/liveMarketDataFeed.js"></script>
-  <script src="src/core/macroDataFeedEngine.js"></script>
-  <script src="src/core/securityMaster.js"></script>
-  <script src="src/trading/auditLedger.js"></script>
-  <script src="src/news/newsEngine.js"></script>
-  <script src="src/components/quantTearSheet.js"></script>
-  <script src="src/pages/portfolio_optimizer.js"></script>
+  <script src="securityMaster.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="newsEngine.js"></script>
+  <script src="quantTearSheet.js"></script>
+  <script src="portfolio_optimizer.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="src/core/marketDataTruth.js"></script>
-  <script src="src/components/universalExplainer.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/components/mobileNav.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/core/soundFX.js"></script>
-  <script src="src/components/showcaseTour.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
-  <script src="src/trading/liveBrokerGateway.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="soundFX.js"></script>
+  <script src="showcaseTour.js"></script>
+  <script src="quantCopilot.js"></script>
+  <script src="liveBrokerGateway.js"></script>
 </body>
 </html>
 

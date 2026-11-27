@@ -47,7 +47,7 @@ class AlphaVantageNewsProvider:
                 except Exception:
                     pass
 
-        return ""
+        return "EI9HFIWHX72XUAXZ"
 
     def get_health(self) -> Dict[str, Any]:
         return {

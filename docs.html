@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>RISKOS &bull; Interactive System Architecture &amp; Quant Model Documentation</title>
-  <meta name="description" content="RISKOS Documentation, Trust Center & Interactive API Console: Quantitative derivations, security master specifications, and live REST/SSE execution console." />
   
   <!-- Favicon & App Icons -->
   <link rel="icon" type="image/png" href="assets/favicon.png" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.json" />
 
   <!-- CDNs: Fonts, FontAwesome 6.5.2, Chart.js 4 -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,19 +29,19 @@
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
   <!-- Core Stylesheets -->
-  <link rel="stylesheet" href="styles/base/styles.css" />
-  <link rel="stylesheet" href="styles/pages/observatory.css" />
-  <link rel="stylesheet" href="styles/pages/fleet.css" />
-  <link rel="stylesheet" href="styles/pages/docs.css" />
-  <link rel="stylesheet" href="styles/components/terminalBus.css" />
-  <link rel="stylesheet" href="styles/components/launchpadWorkspace.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="observatory.css" />
+  <link rel="stylesheet" href="fleet.css" />
+  <link rel="stylesheet" href="docs.css" />
+  <link rel="stylesheet" href="terminalBus.css" />
+  <link rel="stylesheet" href="launchpadWorkspace.css" />
   <!-- Universal Mobile & UX Suite -->
-  <link rel="stylesheet" href="styles/base/mobileResponsive.css" />
-  <link rel="stylesheet" href="styles/components/universalPalette.css" />
-  <link rel="stylesheet" href="styles/components/universalExplainer.css" />
-  <link rel="stylesheet" href="styles/base/themeEngine.css" />
-  <link rel="stylesheet" href="styles/components/authModal.css" />
-  <link rel="stylesheet" href="styles/components/quantCopilot.css" />
+  <link rel="stylesheet" href="mobileResponsive.css" />
+  <link rel="stylesheet" href="universalPalette.css" />
+  <link rel="stylesheet" href="universalExplainer.css" />
+  <link rel="stylesheet" href="themeEngine.css" />
+  <link rel="stylesheet" href="authModal.css" />
+  <link rel="stylesheet" href="quantCopilot.css" />
 </head>
 <body class="observatory-page fleet-page mode-dual">
 
@@ -1441,7 +1439,7 @@ u)$.
           <div>
             <h2 class="doc-title"><i class="fa-solid fa-terminal text-green"></i> Live Institutional API Console &amp; Quant Playground</h2>
             <div style="font-size:0.8rem; color:#aaa; margin-top:4px;">
-              Connected to live RISKOS backend (<code style="color:#22d3ee;">http://127.0.0.1:8080</code>) with automatic failover to local high-fidelity WASM/JAX quant computations.
+              Connected to live RISKOS backend (<code style="color:#22d3ee;">http://127.0.0.1:8000</code>) with automatic failover to local high-fidelity WASM/JAX quant computations.
             </div>
           </div>
           <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-family:'JetBrains Mono'; font-weight:800;">REAL EXECUTION &bull; NO STATIC MOCKS</span>
@@ -1511,7 +1509,7 @@ u)$.
             </div>
             <div class="api-url-preview-bar">
               <span class="api-preview-method" id="apiPreviewMethod">GET</span>
-              <span class="api-preview-url" id="apiUrlPreview">http://127.0.0.1:8080/api/forecast/timesfm?symbol=AAPL&amp;horizon=64</span>
+              <span class="api-preview-url" id="apiUrlPreview">http://127.0.0.1:8000/api/forecast/timesfm?symbol=AAPL&amp;horizon=64</span>
             </div>
           </div>
 
@@ -1551,7 +1549,7 @@ Server: RISKOS-QuantEngine/3.4 (uvicorn-fastapi)
 X-Compute-Engine: RISKOS-JAX-V4-ACCELERATED
 X-Latency-Ms: 1.4ms
 Access-Control-Allow-Origin: *</pre>
-          <pre id="apiCurlPre" class="api-response-pre" style="display:none; color:#fab005;">curl -X GET "http://127.0.0.1:8080/api/forecast/timesfm?symbol=AAPL&amp;horizon=64" \
+          <pre id="apiCurlPre" class="api-response-pre" style="display:none; color:#fab005;">curl -X GET "http://127.0.0.1:8000/api/forecast/timesfm?symbol=AAPL&amp;horizon=64" \
   -H "Accept: application/json" \
   -H "X-Client: RISKOS-InteractiveDocs/3.4"</pre>
         </div>
@@ -1574,29 +1572,29 @@ Access-Control-Allow-Origin: *</pre>
   </div>
 
   <!-- External Scripts -->
-  <script src="src/learn/learnLaymanKnowledge.js"></script>
-  <script src="src/learn/learnMathEngine.js"></script>
-  <script src="src/pages/docs.js"></script>
-  <script src="src/quant/microstructureEngine.js"></script>
-  <script src="src/quant/riskGuardrails.js"></script>
-  <script src="src/quant/geneticOptimizer.js"></script>
-  <script src="src/core/marketSessionGateway.js"></script>
-  <script src="src/trading/auditLedger.js"></script>
-  <script src="src/components/launchpadWorkspace.js"></script>
-  <script src="src/core/terminalBus.js"></script>
+  <script src="learnLaymanKnowledge.js"></script>
+  <script src="learnMathEngine.js"></script>
+  <script src="docs.js"></script>
+  <script src="microstructureEngine.js"></script>
+  <script src="riskGuardrails.js"></script>
+  <script src="geneticOptimizer.js"></script>
+  <script src="marketSessionGateway.js"></script>
+  <script src="auditLedger.js"></script>
+  <script src="launchpadWorkspace.js"></script>
+  <script src="terminalBus.js"></script>
   <!-- Universal Market Data Truth, Command Palette, Explainer & Mobile Navigation Suite -->
-  <script src="src/core/marketDataTruth.js"></script>
-  <script src="src/components/universalExplainer.js"></script>
-  <script src="src/components/universalPalette.js"></script>
-  <script src="src/core/sessionSync.js"></script>
-  <script src="src/components/themeEngine.js"></script>
-  <script src="src/components/mobileNav.js"></script>
+  <script src="marketDataTruth.js"></script>
+  <script src="universalExplainer.js"></script>
+  <script src="universalPalette.js"></script>
+  <script src="sessionSync.js"></script>
+  <script src="themeEngine.js"></script>
+  <script src="mobileNav.js"></script>
   <!-- Supabase Enterprise Cloud & Auth -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="src/core/supabaseConfig.js"></script>
-  <script src="src/core/supabaseClient.js"></script>
-  <script src="src/components/authModal.js"></script>
-  <script src="src/components/quantCopilot.js"></script>
+  <script src="supabaseConfig.js"></script>
+  <script src="supabaseClient.js"></script>
+  <script src="authModal.js"></script>
+  <script src="quantCopilot.js"></script>
 </body>
 </html>
 

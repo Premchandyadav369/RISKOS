@@ -12,7 +12,7 @@ const rootDir = path.resolve(__dirname, '..');
 
 console.log('🧪 RUNNING DAILY STOCK ALPHA RECOMMENDER & TARGET ENGINE TESTS...\n');
 
-const { SecurityMaster } = require(path.join(rootDir, 'src/core/securityMaster.js'));
+const { SecurityMaster } = require(path.join(rootDir, 'securityMaster.js'));
 
 async function runTests() {
   console.log('1. Testing SecurityMaster.getDailyRecommendations (All Markets, All Styles)...');
@@ -78,7 +78,7 @@ async function runTests() {
   console.log('   ✓ ticker.html contains all required UI elements and KaTeX containers');
 
   console.log('\n5. Verifying ticker.css Styles...');
-  const tickerCss = fs.readFileSync(path.join(rootDir, 'styles/pages/ticker.css'), 'utf8');
+  const tickerCss = fs.readFileSync(path.join(rootDir, 'ticker.css'), 'utf8');
   assert(tickerCss.includes('.daily-recommender-desk'), 'ticker.css must style .daily-recommender-desk');
   assert(tickerCss.includes('.recommender-cards-grid'), 'ticker.css must style .recommender-cards-grid');
   assert(tickerCss.includes('.rec-card'), 'ticker.css must style .rec-card');
@@ -87,7 +87,7 @@ async function runTests() {
   console.log('   ✓ ticker.css contains complete institutional styling rules');
 
   console.log('\n6. Verifying terminalBus.js Mnemonics...');
-  const terminalBusJs = fs.readFileSync(path.join(rootDir, 'src/core/terminalBus.js'), 'utf8');
+  const terminalBusJs = fs.readFileSync(path.join(rootDir, 'terminalBus.js'), 'utf8');
   const requiredMnemonics = ['REC', 'BUYS', 'TARGETS', 'ALPHA', 'NSE-BUYS', 'US-BUYS'];
   for (const m of requiredMnemonics) {
     assert(terminalBusJs.includes("cmd: '" + m + "'"), 'terminalBus.js must include mnemonic ' + m);

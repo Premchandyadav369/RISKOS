@@ -38,7 +38,7 @@ console.log('══════════════════════�
 console.log('\n── Section 1: Live Broker API Gateway & SEC 15c3-5 Risk Firewall ──');
 
 runTest('liveBrokerGateway.js exists and exports LiveBrokerGateway', () => {
-  const filePath = path.join(ROOT, 'src/trading/liveBrokerGateway.js');
+  const filePath = path.join(ROOT, 'liveBrokerGateway.js');
   assert(fs.existsSync(filePath), 'liveBrokerGateway.js must exist');
   const code = fs.readFileSync(filePath, 'utf8');
   assert(code.includes('BROKER_PROFILES'), 'Must define BROKER_PROFILES');
@@ -56,7 +56,7 @@ runTest('SEC 15c3-5 fat-finger checks correctly block oversized orders', () => {
   };
   global.performance = { now: () => Date.now() };
 
-  const gateway = require(path.join(ROOT, 'src/trading/liveBrokerGateway.js'));
+  const gateway = require(path.join(ROOT, 'liveBrokerGateway.js'));
   assert(gateway || global.LiveBrokerGateway, 'LiveBrokerGateway must be available');
   const gw = gateway || global.LiveBrokerGateway;
 
@@ -78,7 +78,7 @@ runTest('SEC 15c3-5 fat-finger checks correctly block oversized orders', () => {
 console.log('\n── Section 2: 3D Volatility Surface Studio & Model Engines ──');
 
 runTest('volSurfaceStudio.js exists and exposes VolSurfaceStudio', () => {
-  const filePath = path.join(ROOT, 'src/quant/volSurfaceStudio.js');
+  const filePath = path.join(ROOT, 'volSurfaceStudio.js');
   assert(fs.existsSync(filePath), 'volSurfaceStudio.js must exist');
   const code = fs.readFileSync(filePath, 'utf8');
   assert(code.includes('VolatilitySurfaceStudioController'), 'Must define studio controller');
@@ -86,7 +86,7 @@ runTest('volSurfaceStudio.js exists and exposes VolSurfaceStudio', () => {
 });
 
 runTest('volatilitySurface3D.js correctly computes Hagan SABR expansion', () => {
-  const engine = require(path.join(ROOT, 'src/quant/volatilitySurface3D.js'));
+  const engine = require(path.join(ROOT, 'volatilitySurface3D.js'));
   assert(engine, 'VolatilitySurface3D must be exported');
 
   // ATM SABR vol for F=100, K=100, T=0.5, alpha=0.35, beta=0.7, rho=-0.32, nu=0.45
@@ -102,7 +102,7 @@ runTest('volatilitySurface3D.js correctly computes Hagan SABR expansion', () => 
 console.log('\n── Section 3: 41-Bot Swarm Dark Pool Crossing & Fee Rebalancing ──');
 
 runTest('swarmInternalCrossing.js exists and calculates zero-fee crossing savings', () => {
-  const filePath = path.join(ROOT, 'src/trading/swarmInternalCrossing.js');
+  const filePath = path.join(ROOT, 'swarmInternalCrossing.js');
   assert(fs.existsSync(filePath), 'swarmInternalCrossing.js must exist');
 
   const crossingEngine = require(filePath);
@@ -122,7 +122,7 @@ runTest('swarmInternalCrossing.js exists and calculates zero-fee crossing saving
 console.log('\n── Section 4: 5-Slide Institutional LP Pitch Deck Generator ──');
 
 runTest('pitchDeckGenerator.js creates complete 5-slide printable presentation', () => {
-  const filePath = path.join(ROOT, 'src/components/pitchDeckGenerator.js');
+  const filePath = path.join(ROOT, 'pitchDeckGenerator.js');
   assert(fs.existsSync(filePath), 'pitchDeckGenerator.js must exist');
 
   const deckGen = require(filePath);
@@ -142,7 +142,7 @@ runTest('pitchDeckGenerator.js creates complete 5-slide printable presentation',
 console.log('\n── Section 5: Multi-Monitor Bloomberg Layout & Window Manager ──');
 
 runTest('multiWindowManager.js orchestrates multi-window layouts and BroadcastChannel', () => {
-  const filePath = path.join(ROOT, 'src/components/multiWindowManager.js');
+  const filePath = path.join(ROOT, 'multiWindowManager.js');
   assert(fs.existsSync(filePath), 'multiWindowManager.js must exist');
 
   // Mock BroadcastChannel
@@ -181,7 +181,7 @@ runTest('fleet.html includes Swarm Dark Crossing button and scripts', () => {
 });
 
 runTest('universalPalette.js registers all 5 new slash commands', () => {
-  const code = fs.readFileSync(path.join(ROOT, 'src/components/universalPalette.js'), 'utf8');
+  const code = fs.readFileSync(path.join(ROOT, 'universalPalette.js'), 'utf8');
   assert(code.includes("id: 'act_broker'"), 'Palette must register /broker');
   assert(code.includes("id: 'act_volstudio'"), 'Palette must register /volstudio');
   assert(code.includes("id: 'act_crossing'"), 'Palette must register /crossing');
@@ -190,7 +190,7 @@ runTest('universalPalette.js registers all 5 new slash commands', () => {
 });
 
 runTest('paperBroker.js automatically routes to LiveBrokerGateway when LIVE mode is active', () => {
-  const code = fs.readFileSync(path.join(ROOT, 'src/trading/paperBroker.js'), 'utf8');
+  const code = fs.readFileSync(path.join(ROOT, 'paperBroker.js'), 'utf8');
   assert(code.includes('root.LiveBrokerGateway.isLiveMode()'), 'paperBroker.js must check isLiveMode()');
   assert(code.includes('root.LiveBrokerGateway.placeLiveOrder'), 'paperBroker.js must route to placeLiveOrder');
 });

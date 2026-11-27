@@ -30,8 +30,8 @@ function runTest(name, fn) {
 }
 
 const htmlPath = path.join(__dirname, '..', 'fleet.html');
-const cssPath = path.join(__dirname, '..', 'styles/pages/fleet.css');
-const jsPath = path.join(__dirname, '..', 'src/pages/fleet.js');
+const cssPath = path.join(__dirname, '..', 'fleet.css');
+const jsPath = path.join(__dirname, '..', 'fleet.js');
 
 const html = fs.readFileSync(htmlPath, 'utf8');
 const css = fs.readFileSync(cssPath, 'utf8');

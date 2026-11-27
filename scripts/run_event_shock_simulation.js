@@ -12,7 +12,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const PremEventShockEngine = require('../src/quant/premEventShockEngine.js');
+const PremEventShockEngine = require('../premEventShockEngine.js');
 
 console.log('================================================================================');
 console.log('  RISKOS P.R.E.M.-EVENT: DISCONTINUOUS JUMP & CORPORATE SHOCK ENGINE');
@@ -63,7 +63,7 @@ replayResult.supplyChainContagion.forEach(c => {
   console.log(`${sym}${rel}${wt}${pred}${act}${acc}`);
 });
 
-const outPath = path.join(__dirname, '..', 'data/predictions/event_shock_simulation_results.json');
+const outPath = path.join(__dirname, '..', 'event_shock_simulation_results.json');
 fs.writeFileSync(outPath, JSON.stringify(replayResult, null, 2), 'utf8');
 console.log(`\n[+] Full event replay telemetry written to: ${outPath}`);
 console.log('\n================================================================================');
